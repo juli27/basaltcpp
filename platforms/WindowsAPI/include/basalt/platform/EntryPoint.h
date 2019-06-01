@@ -4,7 +4,7 @@
 
 /** \file
  * \brief Contains the entry point for the Windows API platform.
- * 
+ *
  * Include this file if you're compiling for the Windows platform.
  */
 

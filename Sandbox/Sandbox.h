@@ -11,7 +11,7 @@ public:
   virtual void OnInit(bs::gfx::backend::IRenderer* renderer) override;
 
   virtual void OnShutdown() override;
-  
+
   virtual void OnUpdate(double elapsedTimeInSeconds) override;
 
 private:

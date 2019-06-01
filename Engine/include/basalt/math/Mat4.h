@@ -54,9 +54,9 @@ public:
   static Mat4 Translation(const Vec3f32& v);
 
   static Mat4 RotationX(float rad);
-  
+
   static Mat4 RotationY(float rad);
-  
+
   static Mat4 RotationZ(float rad);
 
   static Mat4 Rotation(float xRad, float yRad, float zRad);

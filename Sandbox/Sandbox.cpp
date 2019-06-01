@@ -30,7 +30,7 @@ void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
     meshData[2 * i + 1].pos = { sinTheta, 1.0f, cosTheta };
     meshData[2 * i + 1].normal = { sinTheta, 0.0f, cosTheta };
   }
-  
+
   bs::gfx::backend::VertexLayout vertexLayout;
   vertexLayout.m_elements.push_back(
     {
@@ -68,11 +68,28 @@ void SandboxApp::OnShutdown() {}
 
 void SandboxApp::OnUpdate(double elapsedTimeInSeconds) {
   static float angle = 0.0f;
+  static float angle2 = 0.0f;
 
   if (!bs::input::IsKeyPressed(bs::Key::SPACE)) {
     angle += static_cast<float>(elapsedTimeInSeconds * 0.5f * bs::math::PI);
     m_triangleCommand.world = bs::math::Mat4f32::RotationX(angle);
   }
+
+  angle2 += static_cast<float>(elapsedTimeInSeconds * 0.5f * bs::math::PI);
+  bs::gfx::backend::LightSetup lights;
+  lights.SetGlobalAmbientColor(0x00202020);
+  bs::math::Vec3f32 lightDir(std::cosf(angle2), 1.0f, std::sinf(angle2));
+
+  lights.AddDirectionalLight(
+    bs::math::Vec3f32::Normalize(lightDir), 0x00FFFFFF
+  );
+  if (!bs::input::IsKeyPressed(bs::Key::L)) {
+    lights.AddDirectionalLight(
+      bs::math::Vec3f32::Normalize(-lightDir), 0x0000FF00
+    );
+  }
+
+  m_renderer->SetLights(lights);
 
   m_renderer->Submit(m_triangleCommand);
 

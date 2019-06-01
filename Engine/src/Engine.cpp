@@ -89,7 +89,7 @@ void Run() {
   s_app->OnInit(s_renderer);
 
   BS_INFO("entering main loop");
-  
+
   static_assert(std::chrono::high_resolution_clock::is_steady);
   using clock = std::chrono::high_resolution_clock;
 

@@ -92,7 +92,7 @@ void SetPrimitiveInfo(const VertexData& vertices, RenderMesh& mesh) {
       mesh.primType = D3DPT_TRIANGLEFAN;
       mesh.primCount = vertices.numVertices - 2;
       break;
-    
+
     default:
       throw std::runtime_error("primitive type not supported");
       break;
@@ -193,15 +193,34 @@ void Renderer::Render() {
   material.Diffuse = material.Ambient = {1.0f, 1.0, 0.0f, 1.0f};
   m_device->SetMaterial(&material);
 
-  D3DLIGHT9 light{};
-  light.Type = D3DLIGHT_DIRECTIONAL;
-  light.Diffuse = {1.0f, 1.0f, 1.0f};
-  D3DXVECTOR3 lightDir = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
-  D3DXVec3Normalize(reinterpret_cast<D3DXVECTOR3*>(&light.Direction), &lightDir);
-  m_device->SetLight(0, &light);
-  m_device->LightEnable(0, TRUE);
+  DWORD lightIndex = 0u;
+
+  for (const DirectionalLight& light : m_lightSetup.GetDirectionalLights()) {
+    D3DLIGHT9 d3dlight{};
+    d3dlight.Type = D3DLIGHT_DIRECTIONAL;
+    u32 diffuseColor = light.diffuseColor;
+    d3dlight.Diffuse.r = static_cast<u8>(diffuseColor >> 16) / 255.0f;
+    d3dlight.Diffuse.g = static_cast<u8>(diffuseColor >> 8) / 255.0f;
+    d3dlight.Diffuse.b = static_cast<u8>(diffuseColor) / 255.0f;
+    d3dlight.Direction = *reinterpret_cast<const D3DVECTOR*>(&light.direction);
+
+    // TODO: more lights
+    D3D9CALL(m_device->SetLight(lightIndex, &d3dlight));
+    D3D9CALL(m_device->LightEnable(lightIndex, TRUE));
+    lightIndex++;
+  }
+
+  // disable not used lights
+  // TODO: set to max lights
+  constexpr DWORD MAX_LIGHTS = 8u;
+  for (; lightIndex < MAX_LIGHTS; lightIndex++) {
+    D3D9CALL(m_device->LightEnable(lightIndex, FALSE));
+  }
+
   m_device->SetRenderState(D3DRS_LIGHTING, TRUE);
-  m_device->SetRenderState(D3DRS_AMBIENT, 0x00202020);
+  D3D9CALL(m_device->SetRenderState(
+    D3DRS_AMBIENT, m_lightSetup.GetGlobalAmbientColor()
+  ));
 
   for (const RenderCommand& command : m_commandQueue) {
     const RenderMesh& meshData = m_meshes.at(command.mesh.GetIndex());

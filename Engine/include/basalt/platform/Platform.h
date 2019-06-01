@@ -42,7 +42,7 @@ std::string_view GetName();
  * \brief Retrieves the command line arguments as an argv style vector.
  *
  * This function returns the UTF-8 encoded argument list with which the
- * application and engine were originally called with. The program name 
+ * application and engine were originally called with. The program name
  * (usually argv[0]) is NOT included.
  *
  * \return the arguments.
