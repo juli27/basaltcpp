@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="include\basalt\platform\EntryPoint.h" />
+    <ClInclude Include="include\basalt\platform\WindowsHeader.h" />
+    <ClInclude Include="include\basalt\platform\PlatformWindowsAPI.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\GfxBackendFactory.cpp" />
+    <ClCompile Include="src\PlatformWindowsAPI.cpp" />
+  </ItemGroup>
+</Project>

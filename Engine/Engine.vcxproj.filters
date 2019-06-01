@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="include\Basalt.h" />
+    <ClInclude Include="include\basalt\Config.h" />
+    <ClInclude Include="include\basalt\Engine.h" />
+    <ClInclude Include="include\basalt\IApplication.h" />
+    <ClInclude Include="include\basalt\Log.h" />
+    <ClInclude Include="include\pch.h" />
+    <ClInclude Include="include\basalt\platform\Platform.h" />
+    <ClInclude Include="include\basalt\platform\WindowTypes.h" />
+    <ClInclude Include="include\basalt\common\Exceptions.h" />
+    <ClInclude Include="include\basalt\common\Asserts.h" />
+    <ClInclude Include="include\basalt\gfx\backend\IRenderer.h" />
+    <ClInclude Include="include\basalt\math\Vec2.h" />
+    <ClInclude Include="include\basalt\platform\events\WindowEvents.h" />
+    <ClInclude Include="include\basalt\platform\events\MouseEvents.h" />
+    <ClInclude Include="include\basalt\math\Mat4.h" />
+    <ClInclude Include="include\basalt\util\Logger.h" />
+    <ClInclude Include="include\basalt\common\Types.h" />
+    <ClInclude Include="include\basalt\math\Vec3.h" />
+    <ClInclude Include="include\basalt\Input.h" />
+    <ClInclude Include="include\basalt\platform\events\Event.h" />
+    <ClInclude Include="include\basalt\platform\events\KeyEvents.h" />
+    <ClInclude Include="include\basalt\gfx\backend\Factory.h" />
+    <ClInclude Include="include\basalt\resources\Mesh.h" />
+    <ClInclude Include="include\basalt\resources\Model.h" />
+    <ClInclude Include="include\basalt\math\Constants.h" />
+    <ClInclude Include="include\basalt\gfx\backend\RenderMesh.h" />
+    <ClInclude Include="include\basalt\gfx\backend\Lighting.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Engine.cpp" />
+    <ClCompile Include="src\Log.cpp" />
+    <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\math\Mat4.cpp" />
+    <ClCompile Include="src\Input.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Doxyfile" />
+  </ItemGroup>
+</Project>
