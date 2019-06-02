@@ -62,6 +62,9 @@ void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
   m_triangleCommand.proj = bs::math::Mat4f32::PerspectiveProjection(
     bs::math::PI / 4.0f, aspectRatio, 1.0f, 100.0f
   );
+
+  m_triangleCommand.diffuseColor = bs::Color(255, 255, 0);
+  m_triangleCommand.ambientColor = bs::Color(255, 255, 0);
 }
 
 void SandboxApp::OnShutdown() {}
@@ -77,15 +80,15 @@ void SandboxApp::OnUpdate(double elapsedTimeInSeconds) {
 
   angle2 += static_cast<float>(elapsedTimeInSeconds * 0.5f * bs::math::PI);
   bs::gfx::backend::LightSetup lights;
-  lights.SetGlobalAmbientColor(0x00202020);
+  lights.SetGlobalAmbientColor(bs::Color(32, 32, 32));
   bs::math::Vec3f32 lightDir(std::cosf(angle2), 1.0f, std::sinf(angle2));
 
   lights.AddDirectionalLight(
-    bs::math::Vec3f32::Normalize(lightDir), 0x00FFFFFF
+    bs::math::Vec3f32::Normalize(lightDir), bs::Color(255, 255, 255)
   );
   if (!bs::input::IsKeyPressed(bs::Key::L)) {
     lights.AddDirectionalLight(
-      bs::math::Vec3f32::Normalize(-lightDir), 0x0000FF00
+      bs::math::Vec3f32::Normalize(-lightDir), bs::Color(0, 255, 0)
     );
   }
 

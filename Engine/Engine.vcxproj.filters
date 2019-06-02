@@ -28,6 +28,7 @@
     <ClInclude Include="include\basalt\math\Constants.h" />
     <ClInclude Include="include\basalt\gfx\backend\RenderMesh.h" />
     <ClInclude Include="include\basalt\gfx\backend\Lighting.h" />
+    <ClInclude Include="include\basalt\common\Color.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine.cpp" />

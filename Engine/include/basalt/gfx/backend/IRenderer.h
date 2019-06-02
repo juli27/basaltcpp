@@ -4,6 +4,7 @@
 
 #include <string>
 
+#include <basalt/common/Color.h>
 #include <basalt/math/Mat4.h>
 
 #include "Lighting.h"
@@ -15,6 +16,11 @@ namespace backend {
 
 struct RenderCommand {
   RenderMeshHandle mesh;
+
+  // TODO: Material
+  Color diffuseColor;
+  Color ambientColor;
+  Color emissiveColor;
 
   math::Mat4f32 world;
   math::Mat4f32 view;

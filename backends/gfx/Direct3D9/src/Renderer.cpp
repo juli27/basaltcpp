@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <basalt/common/Asserts.h>
+#include <basalt/common/Color.h>
 #include <basalt/gfx/backend/d3d9/Util.h>
 
 namespace basalt {
@@ -99,6 +100,14 @@ void SetPrimitiveInfo(const VertexData& vertices, RenderMesh& mesh) {
   }
 }
 
+
+void SetD3DColor(D3DCOLORVALUE& d3dColor, Color color) {
+  d3dColor.r = color.GetRed() / 255.0f;
+  d3dColor.g = color.GetGreen() / 255.0f;
+  d3dColor.b = color.GetBlue() / 255.0f;
+  d3dColor.a = color.GetAlpha() / 255.0f;
+}
+
 } // namespace
 
 
@@ -167,7 +176,6 @@ void Renderer::SetLights(const LightSetup& lights) {
 void Renderer::Render() {
   // setup render states
   D3D9CALL(m_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-  D3D9CALL(m_device->SetRenderState(D3DRS_LIGHTING, FALSE));
 
   // reset transforms to identity matrix
   constexpr math::Mat4f32 identityMatrix = math::Mat4f32::Identity();
@@ -189,41 +197,39 @@ void Renderer::Render() {
   // on the success of BeginScene? -> Log error and/or throw exception
   D3D9CALL(m_device->BeginScene());
 
-  D3DMATERIAL9 material{};
-  material.Diffuse = material.Ambient = {1.0f, 1.0, 0.0f, 1.0f};
-  m_device->SetMaterial(&material);
-
   DWORD lightIndex = 0u;
 
   for (const DirectionalLight& light : m_lightSetup.GetDirectionalLights()) {
     D3DLIGHT9 d3dlight{};
     d3dlight.Type = D3DLIGHT_DIRECTIONAL;
-    u32 diffuseColor = light.diffuseColor;
-    d3dlight.Diffuse.r = static_cast<u8>(diffuseColor >> 16) / 255.0f;
-    d3dlight.Diffuse.g = static_cast<u8>(diffuseColor >> 8) / 255.0f;
-    d3dlight.Diffuse.b = static_cast<u8>(diffuseColor) / 255.0f;
     d3dlight.Direction = *reinterpret_cast<const D3DVECTOR*>(&light.direction);
+    SetD3DColor(d3dlight.Diffuse, light.diffuseColor);
+    SetD3DColor(d3dlight.Ambient, light.ambientColor);
 
-    // TODO: more lights
     D3D9CALL(m_device->SetLight(lightIndex, &d3dlight));
     D3D9CALL(m_device->LightEnable(lightIndex, TRUE));
     lightIndex++;
   }
 
   // disable not used lights
-  // TODO: set to max lights
+  // TODO: set to max lights supported by this device
   constexpr DWORD MAX_LIGHTS = 8u;
   for (; lightIndex < MAX_LIGHTS; lightIndex++) {
     D3D9CALL(m_device->LightEnable(lightIndex, FALSE));
   }
 
-  m_device->SetRenderState(D3DRS_LIGHTING, TRUE);
   D3D9CALL(m_device->SetRenderState(
-    D3DRS_AMBIENT, m_lightSetup.GetGlobalAmbientColor()
+    D3DRS_AMBIENT, m_lightSetup.GetGlobalAmbientColor().ToARGB()
   ));
 
   for (const RenderCommand& command : m_commandQueue) {
     const RenderMesh& meshData = m_meshes.at(command.mesh.GetIndex());
+
+    D3DMATERIAL9 material{};
+    SetD3DColor(material.Diffuse, command.diffuseColor);
+    SetD3DColor(material.Ambient, command.ambientColor);
+    SetD3DColor(material.Emissive, command.emissiveColor);
+    D3D9CALL(m_device->SetMaterial(&material));
 
     D3D9CALL(m_device->SetStreamSource(
       0, meshData.vertexBuffer, 0, meshData.vertexSize
@@ -247,7 +253,6 @@ void Renderer::Render() {
   m_device->EndScene();
 
   // reset to default
-  m_device->SetRenderState(D3DRS_LIGHTING, TRUE);
   m_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 
   m_commandQueue.clear();

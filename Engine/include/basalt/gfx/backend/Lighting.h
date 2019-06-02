@@ -4,6 +4,7 @@
 
 #include <vector>
 
+#include <basalt/common/Color.h>
 #include <basalt/math/Vec3.h>
 
 namespace basalt {
@@ -12,7 +13,8 @@ namespace backend {
 
 struct DirectionalLight final {
   math::Vec3f32 direction;
-  u32 diffuseColor;
+  Color diffuseColor;
+  Color ambientColor;
 };
 
 
@@ -20,18 +22,18 @@ class LightSetup final {
 public:
   inline LightSetup();
 
-  inline void AddDirectionalLight(math::Vec3f32 direction, u32 diffuseColor);
+  inline void AddDirectionalLight(math::Vec3f32 direction, Color diffuseColor);
 
-  inline void SetGlobalAmbientColor(u32 ambientColor);
+  inline void SetGlobalAmbientColor(Color ambientColor);
 
   inline const std::vector<DirectionalLight>& GetDirectionalLights() const;
 
-  inline u32 GetGlobalAmbientColor() const;
+  inline Color GetGlobalAmbientColor() const;
 
 private:
   std::vector<DirectionalLight> m_directionalLights;
   // TODO: color class
-  u32 m_ambientColor;
+  Color m_ambientColor;
 };
 
 
@@ -39,13 +41,13 @@ inline LightSetup::LightSetup() : m_ambientColor{} {}
 
 
 inline void LightSetup::AddDirectionalLight(
-  math::Vec3f32 direction, u32 diffuseColor
+  math::Vec3f32 direction, Color diffuseColor
 ) {
   m_directionalLights.push_back({direction, diffuseColor});
 }
 
 
-inline void LightSetup::SetGlobalAmbientColor(u32 ambientColor) {
+inline void LightSetup::SetGlobalAmbientColor(Color ambientColor) {
   m_ambientColor = ambientColor;
 }
 
@@ -54,7 +56,7 @@ LightSetup::GetDirectionalLights() const {
   return m_directionalLights;
 }
 
-inline u32 LightSetup::GetGlobalAmbientColor() const {
+inline Color LightSetup::GetGlobalAmbientColor() const {
   return m_ambientColor;
 }
 
