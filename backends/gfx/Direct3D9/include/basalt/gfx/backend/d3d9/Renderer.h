@@ -41,7 +41,6 @@ public:
 private:
   IDirect3DDevice9* m_device;
   std::vector<RenderMesh> m_meshes;
-  LightSetup m_lightSetup;
   std::vector<RenderCommand> m_commandQueue;
 };
 

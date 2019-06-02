@@ -165,12 +165,37 @@ void Renderer::Submit(const RenderCommand& command) {
 }
 
 void Renderer::SetLights(const LightSetup& lights) {
-  // TODO: validate
-  m_lightSetup = lights;
+  // TODO: set to max lights supported by this device
+  constexpr DWORD MAX_LIGHTS = 8u;
+
+  const auto& directionalLights = lights.GetDirectionalLights();
+  if (directionalLights.size() > MAX_LIGHTS) {
+    throw std::runtime_error("the renderer doesn't support that many lights");
+  }
+
+  DWORD lightIndex = 0u;
+  for (const DirectionalLight& light : directionalLights) {
+    D3DLIGHT9 d3dlight{};
+    d3dlight.Type = D3DLIGHT_DIRECTIONAL;
+    d3dlight.Direction = *reinterpret_cast<const D3DVECTOR*>(&light.direction);
+    SetD3DColor(d3dlight.Diffuse, light.diffuseColor);
+    SetD3DColor(d3dlight.Ambient, light.ambientColor);
+
+    D3D9CALL(m_device->SetLight(lightIndex, &d3dlight));
+    D3D9CALL(m_device->LightEnable(lightIndex, TRUE));
+    lightIndex++;
+  }
+
+  // disable not used lights
+  for (; lightIndex < MAX_LIGHTS; lightIndex++) {
+    D3D9CALL(m_device->LightEnable(lightIndex, FALSE));
+  }
+
+  D3D9CALL(m_device->SetRenderState(
+    D3DRS_AMBIENT, lights.GetGlobalAmbientColor().ToARGB()
+  ));
 }
 
-// TODO: Add a material to each rendercommand
-// TODO: Set a light setup in the renderer
 // TODO: shading mode
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
 void Renderer::Render() {
@@ -196,31 +221,6 @@ void Renderer::Render() {
   // TODO: should we make all rendering code dependant
   // on the success of BeginScene? -> Log error and/or throw exception
   D3D9CALL(m_device->BeginScene());
-
-  DWORD lightIndex = 0u;
-
-  for (const DirectionalLight& light : m_lightSetup.GetDirectionalLights()) {
-    D3DLIGHT9 d3dlight{};
-    d3dlight.Type = D3DLIGHT_DIRECTIONAL;
-    d3dlight.Direction = *reinterpret_cast<const D3DVECTOR*>(&light.direction);
-    SetD3DColor(d3dlight.Diffuse, light.diffuseColor);
-    SetD3DColor(d3dlight.Ambient, light.ambientColor);
-
-    D3D9CALL(m_device->SetLight(lightIndex, &d3dlight));
-    D3D9CALL(m_device->LightEnable(lightIndex, TRUE));
-    lightIndex++;
-  }
-
-  // disable not used lights
-  // TODO: set to max lights supported by this device
-  constexpr DWORD MAX_LIGHTS = 8u;
-  for (; lightIndex < MAX_LIGHTS; lightIndex++) {
-    D3D9CALL(m_device->LightEnable(lightIndex, FALSE));
-  }
-
-  D3D9CALL(m_device->SetRenderState(
-    D3DRS_AMBIENT, m_lightSetup.GetGlobalAmbientColor().ToARGB()
-  ));
 
   for (const RenderCommand& command : m_commandQueue) {
     const RenderMesh& meshData = m_meshes.at(command.mesh.GetIndex());
