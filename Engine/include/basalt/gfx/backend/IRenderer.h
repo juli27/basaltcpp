@@ -23,8 +23,6 @@ struct RenderCommand {
   Color emissiveColor;
 
   math::Mat4f32 world;
-  math::Mat4f32 view;
-  math::Mat4f32 proj;
 };
 
 
@@ -36,6 +34,10 @@ public:
   virtual RenderMeshHandle AddMesh(const VertexData& vertices) = 0;
 
   virtual void Submit(const RenderCommand& command) = 0;
+
+  virtual void SetViewProj(
+    const math::Mat4f32& view, const math::Mat4f32& projection
+  ) = 0;
 
   virtual void SetLights(const LightSetup& lights) = 0;
 

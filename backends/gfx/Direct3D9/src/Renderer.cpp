@@ -164,6 +164,21 @@ void Renderer::Submit(const RenderCommand& command) {
   m_commandQueue.push_back(command);
 }
 
+void Renderer::SetViewProj(
+  const math::Mat4f32& view, const math::Mat4f32& projection
+) {
+  if (projection.m34 < 0) {
+    throw std::runtime_error("m34 can't be null in a projection matrix");
+  }
+
+  D3D9CALL(m_device->SetTransform(
+    D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&view)
+  ));
+  D3D9CALL(m_device->SetTransform(
+    D3DTS_PROJECTION, reinterpret_cast<const D3DMATRIX*>(&projection)
+  ));
+}
+
 void Renderer::SetLights(const LightSetup& lights) {
   // TODO: set to max lights supported by this device
   constexpr DWORD MAX_LIGHTS = 8u;
@@ -202,18 +217,6 @@ void Renderer::Render() {
   // setup render states
   D3D9CALL(m_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
 
-  // reset transforms to identity matrix
-  constexpr math::Mat4f32 identityMatrix = math::Mat4f32::Identity();
-  D3D9CALL(m_device->SetTransform(
-    D3DTS_WORLDMATRIX(0), reinterpret_cast<const D3DMATRIX*>(&identityMatrix)
-  ));
-  D3D9CALL(m_device->SetTransform(
-    D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&identityMatrix)
-  ));
-  D3D9CALL(m_device->SetTransform(
-    D3DTS_PROJECTION, reinterpret_cast<const D3DMATRIX*>(&identityMatrix)
-  ));
-
   D3D9CALL(m_device->Clear(
     0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 63), 1.0f, 0u
   ));
@@ -238,13 +241,6 @@ void Renderer::Render() {
 
     D3D9CALL(m_device->SetTransform(
       D3DTS_WORLDMATRIX(0), reinterpret_cast<const D3DMATRIX*>(&command.world)
-    ));
-    D3D9CALL(m_device->SetTransform(
-      D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&command.view)
-    ));
-    // TODO: m34 can't be negative
-    D3D9CALL(m_device->SetTransform(
-      D3DTS_PROJECTION, reinterpret_cast<const D3DMATRIX*>(&command.proj)
     ));
 
     m_device->DrawPrimitive(meshData.primType, 0, meshData.primCount);
