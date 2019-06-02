@@ -127,7 +127,7 @@ Renderer::~Renderer() {
 
 
 // TODO: should use 32 byte vertex?
-RenderMeshHandle Renderer::AddMesh(const VertexData& vertexData) {
+MeshHandle Renderer::AddMesh(const VertexData& vertexData) {
   const DWORD fvf = GetFVF(vertexData.layout);
   const UINT vertexSize = D3DXGetFVFVertexSize(fvf);
   const UINT bufferSize = vertexSize * vertexData.numVertices;
@@ -152,11 +152,11 @@ RenderMeshHandle Renderer::AddMesh(const VertexData& vertexData) {
   }
   i16 index = static_cast<i16>(nextIndex);
 
-  RenderMesh mesh{vertexBuffer, fvf, vertexSize};
+  RenderMesh mesh{MeshHandle(index, 0), vertexBuffer, fvf, vertexSize};
   SetPrimitiveInfo(vertexData, mesh);
   m_meshes.push_back(mesh);
 
-  return RenderMeshHandle(index, 0);
+  return mesh.handle;
 }
 
 

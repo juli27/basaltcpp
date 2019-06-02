@@ -14,6 +14,7 @@ namespace backend {
 namespace d3d9 {
 
 struct RenderMesh {
+  MeshHandle handle;
   IDirect3DVertexBuffer9* vertexBuffer;
   DWORD fvf;
   UINT vertexSize;
@@ -27,7 +28,7 @@ public:
   Renderer(IDirect3DDevice9* device);
   virtual ~Renderer();
 
-  virtual RenderMeshHandle AddMesh(const VertexData& vertices) override;
+  virtual MeshHandle AddMesh(const VertexData& vertices) override;
 
   virtual void Submit(const RenderCommand& command) override;
 

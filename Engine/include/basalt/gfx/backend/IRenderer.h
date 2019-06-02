@@ -15,7 +15,7 @@ namespace gfx {
 namespace backend {
 
 struct RenderCommand {
-  RenderMeshHandle mesh;
+  MeshHandle mesh;
 
   // TODO: Material
   Color diffuseColor;
@@ -31,7 +31,7 @@ public:
   virtual ~IRenderer() = default;
 
   // memory for cpu data is managed externally
-  virtual RenderMeshHandle AddMesh(const VertexData& vertices) = 0;
+  virtual MeshHandle AddMesh(const VertexData& vertices) = 0;
 
   virtual void Submit(const RenderCommand& command) = 0;
 

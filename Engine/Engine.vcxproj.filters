@@ -29,6 +29,7 @@
     <ClInclude Include="include\basalt\gfx\backend\RenderMesh.h" />
     <ClInclude Include="include\basalt\gfx\backend\Lighting.h" />
     <ClInclude Include="include\basalt\common\Color.h" />
+    <ClInclude Include="include\basalt\common\Handle.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine.cpp" />

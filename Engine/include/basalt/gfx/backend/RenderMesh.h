@@ -5,6 +5,7 @@
 #include <optional>
 #include <vector>
 
+#include <basalt/common/Handle.h>
 #include <basalt/common/Types.h>
 #include <basalt/math/Vec3.h>
 
@@ -56,55 +57,9 @@ struct VertexData final {
   void* data;
 };
 
+using MeshHandle = Handle<HandleTarget::GFX_MESH>;
 
-struct RenderMeshHandle {
-public:
-  using IndexT = i16;
-  using GenT = i8;
-  using ValueT = i32;
-
-  static_assert(sizeof(IndexT) + sizeof(GenT) <= sizeof(ValueT));
-
-public:
-  constexpr RenderMeshHandle();
-  constexpr RenderMeshHandle(IndexT index, GenT gen);
-  constexpr RenderMeshHandle(const RenderMeshHandle&) = default;
-  constexpr RenderMeshHandle(RenderMeshHandle&&) = default;
-  inline ~RenderMeshHandle() = default;
-
-  constexpr bool IsValid() const;
-  constexpr IndexT GetIndex() const;
-  constexpr GenT GetGen() const;
-
-  inline RenderMeshHandle& operator=(const RenderMeshHandle&) = default;
-  inline RenderMeshHandle& operator=(RenderMeshHandle&&) = default;
-
-private:
-  ValueT m_value;
-};
-
-
-constexpr RenderMeshHandle::RenderMeshHandle() : m_value(0xFFFFFFFF) {}
-
-
-constexpr RenderMeshHandle::RenderMeshHandle(IndexT index, GenT gen) : m_value(index) {
-  m_value |= (static_cast<i32>(gen) << 16);
-}
-
-
-constexpr bool RenderMeshHandle::IsValid() const {
-  return !(0x80000000 & m_value);
-}
-
-
-constexpr RenderMeshHandle::IndexT RenderMeshHandle::GetIndex() const {
-  return static_cast<IndexT> (m_value);
-}
-
-
-constexpr RenderMeshHandle::GenT RenderMeshHandle::GetGen() const {
-  return static_cast<GenT>(m_value >> 16);
-}
+using TextureHandle = Handle<HandleTarget::GFX_TEXTURE>;
 
 } // namespace backend
 } // namespace gfx

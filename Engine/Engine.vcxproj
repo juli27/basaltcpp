@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClInclude Include="include\basalt\common\Asserts.h" />
     <ClInclude Include="include\basalt\common\Color.h" />
+    <ClInclude Include="include\basalt\common\Handle.h" />
     <ClInclude Include="include\basalt\common\Types.h" />
     <ClInclude Include="include\basalt\Config.h" />
     <ClInclude Include="include\basalt\Engine.h" />
