@@ -85,6 +85,7 @@ Only Desktop cards are supported.
 * Direct3D 10
 * XInput 9.1.0 (1.3 when using the dll from the DX SDK)
 * Microsoft Media Foundation (replaces DirectShow)
+* Windows Imaging Component
 
 ### Windows Vista SP1
 * Direct3D 10.1

@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Sandbox.cpp" />
+    <ClCompile Include="src\scenes\d3d9\tutorials\Vertices.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\backends\gfx\Direct3D9\Direct3D9.vcxproj">
@@ -172,6 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Sandbox.h" />
+    <ClInclude Include="src\scenes\d3d9\tutorials\Vertices.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,6 +2,8 @@
 
 #include <Basalt.h>
 
+#include "scenes/d3d9/tutorials/Vertices.h"
+
 class SandboxApp : public bs::IApplication {
 public:
   SandboxApp(bs::Config& config);
@@ -15,6 +17,5 @@ public:
   virtual void OnUpdate(double elapsedTimeInSeconds) override;
 
 private:
-  bs::gfx::backend::IRenderer* m_renderer;
-  bs::gfx::backend::RenderCommand m_triangleCommand;
+  VerticesScene* m_verticesScene;
 };

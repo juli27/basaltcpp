@@ -5,16 +5,15 @@
 #include <array>
 
 SandboxApp::SandboxApp(bs::Config& config)
-  : m_renderer(nullptr)
-  , m_triangleCommand{} {
+  : m_verticesScene(nullptr) {
   config.mainWindow.title = "Basalt Sandbox";
   config.mainWindow.mode = bs::WindowMode::WINDOWED;
 }
 
 void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
-  m_renderer = renderer;
+  m_verticesScene = new VerticesScene(renderer);
 
-  bs::math::Vec3f32 cameraPos(0.0f, 3.0f, -5.0f);
+  /*bs::math::Vec3f32 cameraPos(0.0f, 3.0f, -5.0f);
   bs::math::Vec3f32 lookAt(0.0f, 0.0f, 0.0f);
   bs::math::Vec3f32 up(0.0f, 1.0f, 0.0f);
   bs::math::Mat4f32 view = bs::math::Mat4f32::Camera(cameraPos, lookAt, up);
@@ -77,13 +76,18 @@ void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
   m_triangleCommand.diffuseColor = bs::Color::FromARGB(0x00ffff00);
   m_triangleCommand.ambientColor = bs::Color(255, 255, 0);
 
-  m_triangleCommand.texture = m_renderer->AddTexture("data/banana.bmp");
+  m_triangleCommand.texture = m_renderer->AddTexture("data/banana.bmp");*/
 }
 
-void SandboxApp::OnShutdown() {}
+void SandboxApp::OnShutdown() {
+  if (m_verticesScene) {
+    delete m_verticesScene;
+    m_verticesScene = nullptr;
+  }
+}
 
-void SandboxApp::OnUpdate(double elapsedTimeInSeconds) {
-  static float angle = 0.0f;
+void SandboxApp::OnUpdate(double) {
+  /*static float angle = 0.0f;
   static float angle2 = 0.0f;
 
   if (!bs::input::IsKeyPressed(bs::Key::SPACE)) {
@@ -107,9 +111,11 @@ void SandboxApp::OnUpdate(double elapsedTimeInSeconds) {
 
   m_renderer->SetLights(lights);
 
-  m_renderer->Submit(m_triangleCommand);
+  m_renderer->Submit(m_triangleCommand);*/
 
   //ImGui::ShowDemoWindow();
+
+  m_verticesScene->OnUpdate();
 
   if (bs::input::IsKeyPressed(bs::Key::ESCAPE)) {
     // TODO: use the Engine class for lifecycle management?

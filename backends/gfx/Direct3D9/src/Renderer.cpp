@@ -23,9 +23,28 @@ DWORD GetFVF(const VertexLayout& layout) {
 
   for (const VertexElement& element : layout.m_elements) {
     switch (element.usage) {
+      case VertexElementUsage::POSITION_TRANSFORMED:
+        if (element.type != VertexElementType::F32_4) {
+          throw std::runtime_error("vertex layout not supported");
+        }
+        if (fvf & D3DFVF_XYZ || fvf & D3DFVF_NORMAL) {
+          throw std::runtime_error(
+            "can't use transformed positions with untransformed"
+            "positions or normals"
+          );
+        }
+        fvf |= D3DFVF_XYZRHW;
+        break;
+
       case VertexElementUsage::POSITION:
         if (element.type != VertexElementType::F32_3) {
           throw std::runtime_error("vertex layout not supported");
+        }
+        if (fvf & D3DFVF_XYZRHW) {
+          throw std::runtime_error(
+            "can't use transformed positions with untransformed"
+            "positions or normals"
+          );
         }
         fvf |= D3DFVF_XYZ;
         break;
@@ -33,6 +52,12 @@ DWORD GetFVF(const VertexLayout& layout) {
       case VertexElementUsage::NORMAL:
         if (element.type != VertexElementType::F32_3) {
           throw std::runtime_error("vertex layout not supported");
+        }
+        if (fvf & D3DFVF_XYZRHW) {
+          throw std::runtime_error(
+            "can't use transformed positions with untransformed"
+            "positions or normals"
+          );
         }
         fvf |= D3DFVF_NORMAL;
         break;
