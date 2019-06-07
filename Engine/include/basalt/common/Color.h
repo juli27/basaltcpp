@@ -6,18 +6,24 @@
 
 namespace basalt {
 
+
 class Color final {
 public:
   constexpr Color();
+
   constexpr Color(u8 r, u8 g, u8 b);
+
   constexpr Color(u8 r, u8 g, u8 b, u8 a);
 
   // ARGB word-order
   constexpr u32 ToARGB() const;
 
   constexpr u8 GetRed() const;
+
   constexpr u8 GetGreen() const;
+
   constexpr u8 GetBlue() const;
+
   constexpr u8 GetAlpha() const;
 
 private:
@@ -25,10 +31,15 @@ private:
   u8 m_g;
   u8 m_b;
   u8 m_a;
+
+public:
+  // ARGB word order
+  static constexpr Color FromARGB(u32 argb);
 };
 
 
 constexpr Color::Color() : Color(0, 0, 0, 0) {}
+
 
 constexpr Color::Color(u8 r, u8 g, u8 b) : Color(r, g, b, 255) {}
 
@@ -39,7 +50,8 @@ constexpr Color::Color(u8 r, u8 g, u8 b, u8 a)
   , m_b(b)
   , m_a(a) {}
 
-inline constexpr u32 Color::ToARGB() const {
+
+constexpr u32 Color::ToARGB() const {
   u32 color = m_a;
   color <<= 8;
   color += m_r;
@@ -51,20 +63,34 @@ inline constexpr u32 Color::ToARGB() const {
   return color;
 }
 
-inline constexpr u8 Color::GetRed() const {
+
+constexpr u8 Color::GetRed() const {
   return m_r;
 }
 
-inline constexpr u8 Color::GetGreen() const {
+
+constexpr u8 Color::GetGreen() const {
   return m_g;
 }
 
-inline constexpr u8 Color::GetBlue() const {
+
+constexpr u8 Color::GetBlue() const {
   return m_b;
 }
 
-inline constexpr u8 Color::GetAlpha() const {
+
+constexpr u8 Color::GetAlpha() const {
   return m_a;
+}
+
+
+constexpr Color Color::FromARGB(u32 argb) {
+  u8 a = static_cast<u8>(argb);
+  u8 r = static_cast<u8>(argb >> 8);
+  u8 g = static_cast<u8>(argb >> 16);
+  u8 b = static_cast<u8>(argb >> 24);
+
+  return Color(r, g, b, a);
 }
 
 } // namespace basalt

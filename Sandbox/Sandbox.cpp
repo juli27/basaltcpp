@@ -74,7 +74,7 @@ void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
     }
   );
 
-  m_triangleCommand.diffuseColor = bs::Color(255, 255, 0);
+  m_triangleCommand.diffuseColor = bs::Color::FromARGB(0x00ffff00);
   m_triangleCommand.ambientColor = bs::Color(255, 255, 0);
 
   m_triangleCommand.texture = m_renderer->AddTexture("data/banana.bmp");
