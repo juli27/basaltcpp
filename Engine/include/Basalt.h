@@ -13,8 +13,8 @@
 
 #include "basalt/gfx/backend/Factory.h"
 #include "basalt/gfx/backend/IRenderer.h"
-#include "basalt/gfx/backend/Lighting.h"
-#include "basalt/gfx/backend/RenderMesh.h"
+#include "basalt/gfx/backend/RenderCommand.h"
+#include "basalt/gfx/backend/Types.h"
 
 #include "basalt/math/Constants.h"
 #include "basalt/math/Mat4.h"

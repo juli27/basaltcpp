@@ -155,13 +155,12 @@
     <ClInclude Include="include\basalt\common\Types.h" />
     <ClInclude Include="include\basalt\Config.h" />
     <ClInclude Include="include\basalt\Engine.h" />
-    <ClInclude Include="include\basalt\gfx\backend\Lighting.h" />
     <ClInclude Include="include\basalt\gfx\backend\RenderCommand.h" />
     <ClInclude Include="include\basalt\math\Constants.h" />
     <ClInclude Include="include\basalt\math\Vec3.h" />
     <ClInclude Include="include\basalt\gfx\backend\Factory.h" />
     <ClInclude Include="include\basalt\gfx\backend\IRenderer.h" />
-    <ClInclude Include="include\basalt\gfx\backend\RenderMesh.h" />
+    <ClInclude Include="include\basalt\gfx\backend\Types.h" />
     <ClInclude Include="include\basalt\math\Mat4.h" />
     <ClInclude Include="include\basalt\math\Vec2.h" />
     <ClInclude Include="include\basalt\platform\events\KeyEvents.h" />

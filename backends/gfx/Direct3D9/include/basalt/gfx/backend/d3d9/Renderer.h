@@ -6,10 +6,6 @@
 
 #include <vector>
 
-#include <basalt/gfx/backend/Lighting.h>
-#include <basalt/gfx/backend/RenderCommand.h>
-#include <basalt/gfx/backend/RenderMesh.h>
-
 #include "D3D9Header.h"
 
 namespace basalt {

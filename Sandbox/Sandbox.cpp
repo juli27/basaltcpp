@@ -69,8 +69,8 @@ void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
   );
   m_triangleCommand.mesh = m_renderer->AddMesh(
     {
-      vertexLayout, meshData.size(),
-      bs::gfx::backend::PrimitiveType::TRIANGLE_STRIP, meshData.data()
+      meshData.data(), meshData.size(), vertexLayout,
+      bs::gfx::backend::PrimitiveType::TRIANGLE_STRIP
     }
   );
 

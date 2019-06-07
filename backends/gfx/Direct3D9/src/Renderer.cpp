@@ -1,7 +1,8 @@
 #include <basalt/gfx/backend/d3d9/Renderer.h>
 
-#include <cmath>
+#include <cstring> // for memcpy
 
+#include <limits>
 #include <stdexcept>
 
 #include <basalt/common/Asserts.h>

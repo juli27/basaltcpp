@@ -4,12 +4,10 @@
 
 #include <string>
 
-#include <basalt/common/Color.h>
 #include <basalt/math/Mat4.h>
 
-#include "Lighting.h"
 #include "RenderCommand.h"
-#include "RenderMesh.h"
+#include "Types.h"
 
 namespace basalt {
 namespace gfx {

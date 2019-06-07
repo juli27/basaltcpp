@@ -7,11 +7,12 @@
 #include <basalt/common/Color.h>
 #include <basalt/math/Mat4.h>
 
-#include "RenderMesh.h"
+#include "Types.h"
 
 namespace basalt {
 namespace gfx {
 namespace backend {
+
 
 struct RenderCommand final {
   MeshHandle mesh;

@@ -1,10 +1,8 @@
 #include <basalt/gfx/backend/d3d9/Factory.h>
 
-#include <stdexcept>
-
 #include <basalt/Log.h>
-#include <basalt/common/Asserts.h>
 #include <basalt/common/Exceptions.h>
+#include <basalt/gfx/backend/d3d9/D3D9Header.h>
 #include <basalt/gfx/backend/d3d9/Renderer.h>
 #include <basalt/gfx/backend/d3d9/Util.h>
 #include <basalt/platform/Platform.h>
