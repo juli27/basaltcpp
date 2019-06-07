@@ -223,6 +223,12 @@ void Renderer::Submit(const RenderCommand& command) {
   m_commandQueue.push_back(command);
 }
 
+
+void Renderer::Submit(const RenderCommandBuffer&) {
+  throw std::runtime_error("not implemented");
+}
+
+
 void Renderer::SetViewProj(
   const math::Mat4f32& view, const math::Mat4f32& projection
 ) {

@@ -156,6 +156,7 @@
     <ClInclude Include="include\basalt\Config.h" />
     <ClInclude Include="include\basalt\Engine.h" />
     <ClInclude Include="include\basalt\gfx\backend\Lighting.h" />
+    <ClInclude Include="include\basalt\gfx\backend\RenderCommand.h" />
     <ClInclude Include="include\basalt\math\Constants.h" />
     <ClInclude Include="include\basalt\math\Vec3.h" />
     <ClInclude Include="include\basalt\gfx\backend\Factory.h" />

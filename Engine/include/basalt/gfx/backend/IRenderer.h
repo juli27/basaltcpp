@@ -8,24 +8,12 @@
 #include <basalt/math/Mat4.h>
 
 #include "Lighting.h"
+#include "RenderCommand.h"
 #include "RenderMesh.h"
 
 namespace basalt {
 namespace gfx {
 namespace backend {
-
-
-struct RenderCommand {
-  MeshHandle mesh;
-
-  // TODO: Material
-  Color diffuseColor;
-  Color ambientColor;
-  Color emissiveColor;
-  TextureHandle texture;
-
-  math::Mat4f32 world;
-};
 
 
 class IRenderer {
@@ -39,7 +27,11 @@ public:
   // TODO: move file loading into the resources namespace
   virtual TextureHandle AddTexture(std::string_view filePath) = 0;
 
+  // adds the command to the default command buffer
   virtual void Submit(const RenderCommand& command) = 0;
+
+  // TODO: ugh, copies the whole command buffer every time...
+  virtual void Submit(const RenderCommandBuffer& commands) = 0;
 
   virtual void SetViewProj(
     const math::Mat4f32& view, const math::Mat4f32& projection

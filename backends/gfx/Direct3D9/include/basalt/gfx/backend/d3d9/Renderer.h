@@ -43,6 +43,8 @@ public:
 
   virtual void Submit(const RenderCommand& command) override;
 
+  virtual void Submit(const RenderCommandBuffer& commands) override;
+
   virtual void SetViewProj(
     const math::Mat4f32& view, const math::Mat4f32& projection
   ) override;
