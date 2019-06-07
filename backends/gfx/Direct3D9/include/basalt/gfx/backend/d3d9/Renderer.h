@@ -23,12 +23,20 @@ struct RenderMesh {
 };
 
 
+struct Texture {
+  TextureHandle handle;
+  IDirect3DTexture9* texture;
+};
+
+
 class Renderer final : public IRenderer {
 public:
   Renderer(IDirect3DDevice9* device);
   virtual ~Renderer();
 
   virtual MeshHandle AddMesh(const VertexData& vertices) override;
+
+  virtual TextureHandle AddTexture(std::string_view filePath) override;
 
   virtual void Submit(const RenderCommand& command) override;
 
@@ -46,6 +54,7 @@ public:
 private:
   IDirect3DDevice9* m_device;
   std::vector<RenderMesh> m_meshes;
+  std::vector<Texture> m_textures;
   std::vector<RenderCommand> m_commandQueue;
 };
 

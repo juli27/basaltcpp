@@ -14,6 +14,7 @@ namespace basalt {
 namespace gfx {
 namespace backend {
 
+
 struct RenderCommand {
   MeshHandle mesh;
 
@@ -21,6 +22,7 @@ struct RenderCommand {
   Color diffuseColor;
   Color ambientColor;
   Color emissiveColor;
+  TextureHandle texture;
 
   math::Mat4f32 world;
 };
@@ -32,6 +34,10 @@ public:
 
   // memory for cpu data is managed externally
   virtual MeshHandle AddMesh(const VertexData& vertices) = 0;
+
+  // takes in a file path for now
+  // TODO: move file loading into the resources namespace
+  virtual TextureHandle AddTexture(std::string_view filePath) = 0;
 
   virtual void Submit(const RenderCommand& command) = 0;
 

@@ -31,6 +31,7 @@ void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
   struct Vertex {
     bs::math::Vec3f32 pos;
     bs::math::Vec3f32 normal;
+    bs::math::Vec2f32 uv;
   };
 
   std::array<Vertex, 2 * 50u> meshData;
@@ -41,8 +42,10 @@ void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
     const float cosTheta = std::cosf(theta);
     meshData[2 * i + 0].pos = { sinTheta, -1.0f, cosTheta };
     meshData[2 * i + 0].normal = { sinTheta, 0.0f, cosTheta };
+    meshData[2 * i + 0].uv = { static_cast<float>(i) / (50 - 1), 1.0f };
     meshData[2 * i + 1].pos = { sinTheta, 1.0f, cosTheta };
     meshData[2 * i + 1].normal = { sinTheta, 0.0f, cosTheta };
+    meshData[2 * i + 1].uv = { static_cast<float>(i) / (50 - 1), 0.0f };
   }
 
   bs::gfx::backend::VertexLayout vertexLayout;
@@ -58,6 +61,12 @@ void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
       bs::gfx::backend::VertexElementType::F32_3
     }
   );
+  vertexLayout.m_elements.push_back(
+    {
+      bs::gfx::backend::VertexElementUsage::TEXTURE_COORDS,
+      bs::gfx::backend::VertexElementType::F32_2
+    }
+  );
   m_triangleCommand.mesh = m_renderer->AddMesh(
     {
       vertexLayout, meshData.size(),
@@ -67,6 +76,8 @@ void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
 
   m_triangleCommand.diffuseColor = bs::Color(255, 255, 0);
   m_triangleCommand.ambientColor = bs::Color(255, 255, 0);
+
+  m_triangleCommand.texture = m_renderer->AddTexture("data/banana.bmp");
 }
 
 void SandboxApp::OnShutdown() {}

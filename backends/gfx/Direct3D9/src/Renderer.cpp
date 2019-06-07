@@ -44,6 +44,13 @@ DWORD GetFVF(const VertexLayout& layout) {
         fvf |= D3DFVF_DIFFUSE;
         break;
 
+      case VertexElementUsage::TEXTURE_COORDS:
+        if (element.type != VertexElementType::F32_2) {
+          throw std::runtime_error("vertex layout not supported");
+        }
+        fvf |= D3DFVF_TEX1;
+        break;
+
       default:
         throw std::runtime_error("vertex layout not supported");
         break;
@@ -108,6 +115,30 @@ void SetD3DColor(D3DCOLORVALUE& d3dColor, Color color) {
   d3dColor.a = color.GetAlpha() / 255.0f;
 }
 
+
+std::wstring CreateWideFromUTF8(const std::string_view source) {
+  if (source.empty()) {
+    return std::wstring();
+  }
+
+  const int size = ::MultiByteToWideChar(
+    CP_UTF8, 0, source.data(), source.size(), nullptr, 0
+  );
+
+  if (size == 0) {
+    throw std::runtime_error("MultiByteToWideChar failed");
+  }
+
+  std::wstring dest(size, '\0');
+  if (::MultiByteToWideChar(
+    CP_UTF8, 0, source.data(), source.size(), dest.data(), dest.size()
+  ) == 0) {
+    throw std::runtime_error("MultiByteToWideChar failed");
+  }
+
+  return dest;
+}
+
 } // namespace
 
 
@@ -118,6 +149,10 @@ Renderer::Renderer(IDirect3DDevice9* device) : m_device(device) {
 
 
 Renderer::~Renderer() {
+  for (Texture& texture : m_textures) {
+    texture.texture->Release();
+  }
+
   for (RenderMesh& mesh : m_meshes) {
     mesh.vertexBuffer->Release();
   }
@@ -146,7 +181,7 @@ MeshHandle Renderer::AddMesh(const VertexData& vertexData) {
     BS_ERROR("Failed to lock vertex buffer");
   }
 
-   const auto nextIndex = m_meshes.size();
+  const auto nextIndex = m_meshes.size();
   if (nextIndex > static_cast<u16>(std::numeric_limits<i16>::max())) {
     throw std::out_of_range("out of mesh slots");
   }
@@ -157,6 +192,29 @@ MeshHandle Renderer::AddMesh(const VertexData& vertexData) {
   m_meshes.push_back(mesh);
 
   return mesh.handle;
+}
+
+TextureHandle Renderer::AddTexture(std::string_view filePath) {
+  const std::wstring wideFilePath = CreateWideFromUTF8(filePath);
+
+  IDirect3DTexture9* texture = nullptr;
+  if (FAILED(
+    ::D3DXCreateTextureFromFileW(m_device, wideFilePath.c_str(), &texture)
+  )) {
+    throw std::runtime_error("loading texture file failed");
+  }
+
+  const auto nextIndex = m_textures.size();
+  if (nextIndex > static_cast<u16>(std::numeric_limits<i16>::max())) {
+    throw std::out_of_range("out of mesh slots");
+  }
+  i16 index = static_cast<i16>(nextIndex);
+
+  TextureHandle handle(index, 0);
+
+  m_textures.push_back({handle, texture});
+
+  return handle;
 }
 
 
@@ -233,6 +291,13 @@ void Renderer::Render() {
     SetD3DColor(material.Ambient, command.ambientColor);
     SetD3DColor(material.Emissive, command.emissiveColor);
     D3D9CALL(m_device->SetMaterial(&material));
+
+    if (command.texture.IsValid()) {
+      const Texture& texture = m_textures.at(command.texture.GetIndex());
+      D3D9CALL(m_device->SetTexture(0, texture.texture));
+    } else {
+      D3D9CALL(m_device->SetTexture(0, nullptr));
+    }
 
     D3D9CALL(m_device->SetStreamSource(
       0, meshData.vertexBuffer, 0, meshData.vertexSize
