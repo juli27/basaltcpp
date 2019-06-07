@@ -7,6 +7,7 @@
 
 #include <basalt/common/Asserts.h>
 #include <basalt/common/Color.h>
+#include <basalt/gfx/backend/d3d9/D3D9Header.h>
 #include <basalt/gfx/backend/d3d9/Util.h>
 
 namespace basalt {
@@ -61,7 +62,7 @@ DWORD GetFVF(const VertexLayout& layout) {
 }
 
 
-void SetPrimitiveInfo(const VertexData& vertices, RenderMesh& mesh) {
+void SetPrimitiveInfo(Mesh& mesh, const VertexData& vertices) {
   switch (vertices.primitiveType) {
     case PrimitiveType::POINT_LIST:
       mesh.primType = D3DPT_POINTLIST;
@@ -153,7 +154,7 @@ Renderer::~Renderer() {
     texture.texture->Release();
   }
 
-  for (RenderMesh& mesh : m_meshes) {
+  for (Mesh& mesh : m_meshes) {
     mesh.vertexBuffer->Release();
   }
 
@@ -187,8 +188,8 @@ MeshHandle Renderer::AddMesh(const VertexData& vertexData) {
   }
   i16 index = static_cast<i16>(nextIndex);
 
-  RenderMesh mesh{MeshHandle(index, 0), vertexBuffer, fvf, vertexSize};
-  SetPrimitiveInfo(vertexData, mesh);
+  Mesh mesh{vertexBuffer, MeshHandle(index, 0), fvf, vertexSize};
+  SetPrimitiveInfo(mesh, vertexData);
   m_meshes.push_back(mesh);
 
   return mesh.handle;
@@ -284,7 +285,7 @@ void Renderer::Render() {
   D3D9CALL(m_device->BeginScene());
 
   for (const RenderCommand& command : m_commandQueue) {
-    const RenderMesh& meshData = m_meshes.at(command.mesh.GetIndex());
+    const Mesh& mesh = m_meshes.at(command.mesh.GetIndex());
 
     D3DMATERIAL9 material{};
     SetD3DColor(material.Diffuse, command.diffuseColor);
@@ -300,15 +301,15 @@ void Renderer::Render() {
     }
 
     D3D9CALL(m_device->SetStreamSource(
-      0, meshData.vertexBuffer, 0, meshData.vertexSize
+      0, mesh.vertexBuffer, 0, mesh.vertexSize
     ));
-    D3D9CALL(m_device->SetFVF(meshData.fvf));
+    D3D9CALL(m_device->SetFVF(mesh.fvf));
 
     D3D9CALL(m_device->SetTransform(
       D3DTS_WORLDMATRIX(0), reinterpret_cast<const D3DMATRIX*>(&command.world)
     ));
 
-    m_device->DrawPrimitive(meshData.primType, 0, meshData.primCount);
+    m_device->DrawPrimitive(mesh.primType, 0, mesh.primCount);
   }
 
   m_device->EndScene();

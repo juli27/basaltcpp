@@ -5,6 +5,8 @@
 #include <vector>
 
 #include <basalt/gfx/backend/IRenderer.h>
+#include <basalt/gfx/backend/Lighting.h>
+#include <basalt/gfx/backend/RenderMesh.h>
 
 #include "D3D9Header.h"
 
@@ -13,9 +15,10 @@ namespace gfx {
 namespace backend {
 namespace d3d9 {
 
-struct RenderMesh {
-  MeshHandle handle;
+
+struct Mesh {
   IDirect3DVertexBuffer9* vertexBuffer;
+  MeshHandle handle;
   DWORD fvf;
   UINT vertexSize;
   D3DPRIMITIVETYPE primType;
@@ -53,7 +56,7 @@ public:
 
 private:
   IDirect3DDevice9* m_device;
-  std::vector<RenderMesh> m_meshes;
+  std::vector<Mesh> m_meshes;
   std::vector<Texture> m_textures;
   std::vector<RenderCommand> m_commandQueue;
 };
