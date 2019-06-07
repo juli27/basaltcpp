@@ -2,10 +2,12 @@
 #ifndef BS_GFX_BACKEND_D3D9_RENDERER_H
 #define BS_GFX_BACKEND_D3D9_RENDERER_H
 
+#include <basalt/gfx/backend/IRenderer.h>
+
 #include <vector>
 
-#include <basalt/gfx/backend/IRenderer.h>
 #include <basalt/gfx/backend/Lighting.h>
+#include <basalt/gfx/backend/RenderCommand.h>
 #include <basalt/gfx/backend/RenderMesh.h>
 
 #include "D3D9Header.h"
@@ -57,10 +59,13 @@ public:
   virtual std::string_view GetName() override;
 
 private:
+  void RenderCommands(const RenderCommandBuffer& commands);
+
+private:
   IDirect3DDevice9* m_device;
   std::vector<Mesh> m_meshes;
   std::vector<Texture> m_textures;
-  std::vector<RenderCommand> m_commandQueue;
+  std::vector<RenderCommandBuffer> m_commandBuffers;
 };
 
 } // namespace d3d9

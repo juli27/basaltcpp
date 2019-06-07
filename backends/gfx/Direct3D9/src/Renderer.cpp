@@ -3,11 +3,9 @@
 #include <cmath>
 
 #include <stdexcept>
-#include <vector>
 
 #include <basalt/common/Asserts.h>
 #include <basalt/common/Color.h>
-#include <basalt/gfx/backend/d3d9/D3D9Header.h>
 #include <basalt/gfx/backend/d3d9/Util.h>
 
 namespace basalt {
@@ -146,6 +144,9 @@ std::wstring CreateWideFromUTF8(const std::string_view source) {
 Renderer::Renderer(IDirect3DDevice9* device) : m_device(device) {
   BS_ASSERT_ARG_NOT_NULL(device);
   m_device->AddRef();
+
+  // create default command buffer
+  m_commandBuffers.emplace_back();
 }
 
 
@@ -220,7 +221,7 @@ TextureHandle Renderer::AddTexture(std::string_view filePath) {
 
 
 void Renderer::Submit(const RenderCommand& command) {
-  m_commandQueue.push_back(command);
+  m_commandBuffers[0].AddCommand(command);
 }
 
 
@@ -236,12 +237,8 @@ void Renderer::SetViewProj(
     throw std::runtime_error("m34 can't be null in a projection matrix");
   }
 
-  D3D9CALL(m_device->SetTransform(
-    D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&view)
-  ));
-  D3D9CALL(m_device->SetTransform(
-    D3DTS_PROJECTION, reinterpret_cast<const D3DMATRIX*>(&projection)
-  ));
+  m_commandBuffers[0].SetView(view);
+  m_commandBuffers[0].SetProjection(projection);
 }
 
 void Renderer::SetLights(const LightSetup& lights) {
@@ -290,7 +287,40 @@ void Renderer::Render() {
   // on the success of BeginScene? -> Log error and/or throw exception
   D3D9CALL(m_device->BeginScene());
 
-  for (const RenderCommand& command : m_commandQueue) {
+  for (const RenderCommandBuffer& commandBuffer : m_commandBuffers) {
+    D3D9CALL(m_device->SetTransform(
+      D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&commandBuffer.GetView())
+    ));
+    D3D9CALL(m_device->SetTransform(
+      D3DTS_PROJECTION,
+      reinterpret_cast<const D3DMATRIX*>(&commandBuffer.GetProjection())
+    ));
+
+    RenderCommands(commandBuffer);
+  }
+
+  D3D9CALL(m_device->EndScene());
+
+  // reset to default
+  D3D9CALL(m_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
+
+  // remove every command buffer except the default and clear the default buffer
+  m_commandBuffers.resize(1);
+  m_commandBuffers[0].Clear();
+}
+
+
+void Renderer::Present() {
+  D3D9CALL(m_device->Present(nullptr, nullptr, nullptr, nullptr));
+}
+
+
+std::string_view Renderer::GetName() {
+  return s_rendererName;
+}
+
+void Renderer::RenderCommands(const RenderCommandBuffer& commands) {
+  for (const RenderCommand& command : commands.GetCommands()) {
     const Mesh& mesh = m_meshes.at(command.mesh.GetIndex());
 
     D3DMATERIAL9 material{};
@@ -315,25 +345,8 @@ void Renderer::Render() {
       D3DTS_WORLDMATRIX(0), reinterpret_cast<const D3DMATRIX*>(&command.world)
     ));
 
-    m_device->DrawPrimitive(mesh.primType, 0, mesh.primCount);
+    D3D9CALL(m_device->DrawPrimitive(mesh.primType, 0, mesh.primCount));
   }
-
-  m_device->EndScene();
-
-  // reset to default
-  m_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-
-  m_commandQueue.clear();
-}
-
-
-void Renderer::Present() {
-  m_device->Present(nullptr, nullptr, nullptr, nullptr);
-}
-
-
-std::string_view Renderer::GetName() {
-  return s_rendererName;
 }
 
 } // namespace d3d9
