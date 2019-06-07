@@ -46,6 +46,8 @@ public:
 public:
   inline void AddCommand(const RenderCommand& command);
 
+  inline void Clear();
+
   inline void SetView(const math::Mat4f32& view);
 
   inline void SetProjection(const math::Mat4f32& projection);
@@ -80,6 +82,11 @@ inline RenderCommandBuffer::RenderCommandBuffer(
 
 inline void RenderCommandBuffer::AddCommand(const RenderCommand& command) {
   m_commands.push_back(command);
+}
+
+
+inline void RenderCommandBuffer::Clear() {
+  m_commands.clear();
 }
 
 
