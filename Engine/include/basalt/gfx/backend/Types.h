@@ -41,8 +41,43 @@ struct VertexElement final {
 
 class VertexLayout final {
 public:
+
+  inline VertexLayout(std::initializer_list<VertexElement> elements);
+
+  inline VertexLayout() = default;
+  inline VertexLayout(const VertexLayout&) = default;
+  inline VertexLayout(VertexLayout&&) = default;
+  inline ~VertexLayout() = default;
+
+public:
+  inline void AddElement(VertexElementUsage usage, VertexElementType type);
+
+
+  inline const std::vector<VertexElement>& GetElements() const;
+
+public:
+  inline VertexLayout& operator=(const VertexLayout&) = default;
+  inline VertexLayout& operator=(VertexLayout&&) = default;
+
+private:
   std::vector<VertexElement> m_elements;
 };
+
+
+inline VertexLayout::VertexLayout(std::initializer_list<VertexElement> elements)
+  : m_elements(elements) {}
+
+
+inline void VertexLayout::AddElement(
+  VertexElementUsage usage, VertexElementType type
+) {
+  m_elements.push_back({usage, type});
+}
+
+
+inline const std::vector<VertexElement>& VertexLayout::GetElements() const {
+  return m_elements;
+}
 
 
 enum class PrimitiveType : i8 {
@@ -52,14 +87,6 @@ enum class PrimitiveType : i8 {
   TRIANGLE_LIST,
   TRIANGLE_STRIP,
   TRIANGLE_FAN
-};
-
-
-struct VertexData final {
-  void* data;
-  i32 numVertices;
-  VertexLayout layout;
-  PrimitiveType primitiveType;
 };
 
 

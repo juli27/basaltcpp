@@ -21,7 +21,7 @@ constexpr std::string_view s_rendererName = "Direct3D 9 fixed function";
 DWORD GetFVF(const VertexLayout& layout) {
   DWORD fvf = 0u;
 
-  for (const VertexElement& element : layout.m_elements) {
+  for (const VertexElement& element : layout.GetElements()) {
     switch (element.usage) {
       case VertexElementUsage::POSITION_TRANSFORMED:
         if (element.type != VertexElementType::F32_4) {
@@ -86,44 +86,46 @@ DWORD GetFVF(const VertexLayout& layout) {
 }
 
 
-void SetPrimitiveInfo(Mesh& mesh, const VertexData& vertices) {
-  switch (vertices.primitiveType) {
+void SetPrimitiveInfo(
+  Mesh& mesh, PrimitiveType primitiveType, i32 numVertices
+) {
+  switch (primitiveType) {
     case PrimitiveType::POINT_LIST:
       mesh.primType = D3DPT_POINTLIST;
-      mesh.primCount = vertices.numVertices;
+      mesh.primCount = numVertices;
       break;
 
     case PrimitiveType::LINE_LIST:
       mesh.primType = D3DPT_LINELIST;
       BS_ASSERT(
-        vertices.numVertices % 2 == 0,
+        numVertices % 2 == 0,
         "Wrong amount of vertices for PrimitiveType::LINE_LIST"
       );
-      mesh.primCount = vertices.numVertices / 2;
+      mesh.primCount = numVertices / 2;
       break;
 
     case PrimitiveType::LINE_STRIP:
       mesh.primType = D3DPT_LINESTRIP;
-      mesh.primCount = vertices.numVertices - 1;
+      mesh.primCount = numVertices - 1;
       break;
 
     case PrimitiveType::TRIANGLE_LIST:
       mesh.primType = D3DPT_TRIANGLELIST;
       BS_ASSERT(
-        vertices.numVertices % 3 == 0,
+        numVertices % 3 == 0,
         "Wrong amount of vertices for PrimitiveType::TRIANGLE_LIST"
       );
-      mesh.primCount = vertices.numVertices / 3;
+      mesh.primCount = numVertices / 3;
       break;
 
     case PrimitiveType::TRIANGLE_STRIP:
       mesh.primType = D3DPT_TRIANGLESTRIP;
-      mesh.primCount = vertices.numVertices - 2;
+      mesh.primCount = numVertices - 2;
       break;
 
     case PrimitiveType::TRIANGLE_FAN:
       mesh.primType = D3DPT_TRIANGLEFAN;
-      mesh.primCount = vertices.numVertices - 2;
+      mesh.primCount = numVertices - 2;
       break;
 
     default:
@@ -189,11 +191,13 @@ Renderer::~Renderer() {
 }
 
 
-// TODO: should use 32 byte vertex?
-MeshHandle Renderer::AddMesh(const VertexData& vertexData) {
-  const DWORD fvf = GetFVF(vertexData.layout);
+MeshHandle Renderer::AddMesh(
+  void* data, i32 numVertices, const VertexLayout& layout,
+  PrimitiveType primitiveType
+) {
+  const DWORD fvf = GetFVF(layout);
   const UINT vertexSize = D3DXGetFVFVertexSize(fvf);
-  const UINT bufferSize = vertexSize * vertexData.numVertices;
+  const UINT bufferSize = vertexSize * numVertices;
 
   // TODO: specify write only and correct pool
   IDirect3DVertexBuffer9* vertexBuffer = nullptr;
@@ -203,7 +207,7 @@ MeshHandle Renderer::AddMesh(const VertexData& vertexData) {
 
   void* vertexBufferData = nullptr;
   if (SUCCEEDED(vertexBuffer->Lock(0u, 0u, &vertexBufferData, 0u))) {
-    std::memcpy(vertexBufferData, vertexData.data, bufferSize);
+    std::memcpy(vertexBufferData, data, bufferSize);
     D3D9CALL(vertexBuffer->Unlock());
   } else {
     BS_ERROR("Failed to lock vertex buffer");
@@ -216,7 +220,7 @@ MeshHandle Renderer::AddMesh(const VertexData& vertexData) {
   i16 index = static_cast<i16>(nextIndex);
 
   Mesh mesh{vertexBuffer, MeshHandle(index, 0), fvf, vertexSize};
-  SetPrimitiveInfo(mesh, vertexData);
+  SetPrimitiveInfo(mesh, primitiveType, numVertices);
   m_meshes.push_back(mesh);
 
   return mesh.handle;

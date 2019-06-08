@@ -1,4 +1,6 @@
 #pragma once
+#ifndef SANDBOX_H
+#define SANDBOX_H
 
 #include <memory>
 #include <vector>
@@ -23,3 +25,5 @@ private:
   std::vector<std::unique_ptr<IScene>> m_scenes;
   bs::i32 m_currentSceneIndex;
 };
+
+#endif // !SANDBOX_H

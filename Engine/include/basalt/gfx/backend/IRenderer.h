@@ -18,8 +18,21 @@ class IRenderer {
 public:
   virtual ~IRenderer() = default;
 
+  // TODO: noexcept method to validate the layout for the renderers requirements
+  //       bool IRenderer::ValidateVertexLayout(const VertexLayout&)
+  //       Writes problematic vertex elements to log. Should it also change the
+  //       layout (non const ref) to the closest valid layout?
+  //       (what does "closest" mean?)
+  //       and / or method to validate a single vertex element (usage and type)
+  //       or an API to get a list of supported usages and types
+
+  // TODO: method to retrieve a preferred vertex layout ?
+
   // memory for cpu data is managed externally
-  virtual MeshHandle AddMesh(const VertexData& vertices) = 0;
+  virtual MeshHandle AddMesh(
+    void* data, i32 numVertices, const VertexLayout& layout,
+    PrimitiveType primitiveType
+  ) = 0;
 
   // takes in a file path for now
   // TODO: move file loading into the resources namespace

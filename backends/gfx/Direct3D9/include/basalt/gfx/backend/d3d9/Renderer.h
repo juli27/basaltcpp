@@ -35,7 +35,10 @@ public:
   Renderer(IDirect3DDevice9* device);
   virtual ~Renderer();
 
-  virtual MeshHandle AddMesh(const VertexData& vertices) override;
+  virtual MeshHandle AddMesh(
+    void* data, i32 numVertices, const VertexLayout& layout,
+    PrimitiveType primitiveType
+  ) override;
 
   virtual TextureHandle AddTexture(std::string_view filePath) override;
 
