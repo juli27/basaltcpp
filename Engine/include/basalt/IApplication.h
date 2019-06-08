@@ -3,7 +3,6 @@
 #define BS_IAPPLICATION_H
 
 #include "Config.h"
-#include "common/Types.h"
 #include "gfx/backend/IRenderer.h"
 
 namespace basalt {
@@ -16,7 +15,7 @@ public:
 
   virtual void OnShutdown() = 0;
 
-  virtual void OnUpdate(f64 elapsedTimeInSeconds) = 0;
+  virtual void OnUpdate() = 0;
 
 public:
   static IApplication* Create(Config& config);

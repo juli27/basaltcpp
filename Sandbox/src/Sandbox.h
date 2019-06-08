@@ -14,7 +14,7 @@ public:
 
   virtual void OnShutdown() override;
 
-  virtual void OnUpdate(double elapsedTimeInSeconds) override;
+  virtual void OnUpdate() override;
 
 private:
   VerticesScene* m_verticesScene;

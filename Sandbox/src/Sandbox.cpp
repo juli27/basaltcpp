@@ -86,7 +86,7 @@ void SandboxApp::OnShutdown() {
   }
 }
 
-void SandboxApp::OnUpdate(double) {
+void SandboxApp::OnUpdate() {
   /*static float angle = 0.0f;
   static float angle2 = 0.0f;
 

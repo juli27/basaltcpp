@@ -22,6 +22,7 @@ namespace {
 Config s_config{{"Basalt App", {1280, 720}, WindowMode::FULLSCREEN, false}};
 IApplication* s_app;
 gfx::backend::IRenderer* s_renderer;
+f64 s_currentDeltaTime;
 
 
 void Startup() {
@@ -94,7 +95,6 @@ void Run() {
   static_assert(std::chrono::high_resolution_clock::is_steady);
   using clock = std::chrono::high_resolution_clock;
 
-  f64 elapsedTimeInSeconds = 0.0;
   auto startTime = clock::now();
   while (platform::PollEvents()) {
     // update is in between rendering and buffer swapping to utilize the
@@ -102,15 +102,14 @@ void Run() {
     s_renderer->Render();
 
     //ImGui::NewFrame();
-    s_app->OnUpdate(elapsedTimeInSeconds);
+    s_app->OnUpdate();
     //ImGui::EndFrame();
 
     s_renderer->Present();
 
     auto endTime = clock::now();
-    elapsedTimeInSeconds =
-      static_cast<double>((endTime - startTime).count())
-      / (clock::period::den * clock::period::num);
+    s_currentDeltaTime = static_cast<f64>((endTime - startTime).count()) /
+      (clock::period::den * clock::period::num);
     startTime = endTime;
   }
 
@@ -119,6 +118,11 @@ void Run() {
   s_app->OnShutdown();
 
   Shutdown();
+}
+
+
+f64 GetDeltaTime() {
+  return s_currentDeltaTime;
 }
 
 } // namespace basalt
