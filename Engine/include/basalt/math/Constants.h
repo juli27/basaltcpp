@@ -5,7 +5,7 @@
 namespace basalt {
 namespace math {
 
-constexpr float PI = 3.141592654f;
+constexpr f32 PI = 3.141592654f;
 
 } // namespace math
 } // namespace basalt

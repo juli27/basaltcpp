@@ -64,7 +64,7 @@ constexpr T Vec2<T>::GetY() const {
 }
 
 
-using Vec2f32 = Vec2<float>;
+using Vec2f32 = Vec2<f32>;
 
 using Vec2i32 = Vec2<i32>;
 

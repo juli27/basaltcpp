@@ -140,8 +140,8 @@ inline Vec3<T> operator/(const Vec3<T>& v, T f) {
 }
 
 
-using Vec3f32 = Vec3<float>;
-using Vec3f64 = Vec3<double>;
+using Vec3f32 = Vec3<f32>;
+using Vec3f64 = Vec3<f64>;
 
 using Vec3i32 = Vec3<i32>;
 using Vec3i64 = Vec3<i64>;

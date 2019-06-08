@@ -46,12 +46,20 @@ using u32 = std::uint32_t;
  */
 using u64 = std::uint64_t;
 
+
+using f32 = float;
+
+
+using f64 = double;
+
+
 enum class [[nodiscard]] Result : i32 {
   OK,
 
   ERR,
   ERR_INVALID_HANDLE
 };
+
 
 enum class Key : i32 {
   UNKNOWN = 0,

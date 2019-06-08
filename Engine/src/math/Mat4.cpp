@@ -7,8 +7,9 @@
 namespace basalt {
 namespace math {
 
+
 Mat4 Mat4::Invert(const Mat4& m) {
-  float invDet = m.Det();
+  f32 invDet = m.Det();
   if (invDet == 0.0f) {
     return Mat4::Identity();
   }
@@ -36,6 +37,7 @@ Mat4 Mat4::Invert(const Mat4& m) {
   return result;
 }
 
+
 Mat4 Mat4::Translation(const math::Vec3f32& v) {
   return Mat4(
     1.0f, 0.0f, 0.0f, 0.0f,
@@ -45,7 +47,8 @@ Mat4 Mat4::Translation(const math::Vec3f32& v) {
   );
 }
 
-Mat4 Mat4::RotationX(float rad) {
+
+Mat4 Mat4::RotationX(f32 rad) {
   Mat4 result = Mat4::Identity();
 
   result.m22 = result.m33 = std::cosf(rad);
@@ -55,7 +58,8 @@ Mat4 Mat4::RotationX(float rad) {
   return result;
 }
 
-Mat4 Mat4::RotationY(float rad) {
+
+Mat4 Mat4::RotationY(f32 rad) {
   Mat4 result = Mat4::Identity();
 
   result.m11 = result.m33 = std::cosf(rad);
@@ -65,7 +69,8 @@ Mat4 Mat4::RotationY(float rad) {
   return result;
 }
 
-Mat4 Mat4::RotationZ(float rad) {
+
+Mat4 Mat4::RotationZ(f32 rad) {
   Mat4 result = Mat4::Identity();
 
   result.m11 = result.m22 = std::cosf(rad);
@@ -75,18 +80,20 @@ Mat4 Mat4::RotationZ(float rad) {
   return result;
 }
 
-Mat4 Mat4::Rotation(float xRad, float yRad, float zRad) {
+
+Mat4 Mat4::Rotation(f32 xRad, f32 yRad, f32 zRad) {
   return RotationZ(zRad) * RotationX(xRad) * RotationY(yRad);
 }
+
 
 //Mat4 Mat4::Rotation(const tbVector3& xyzRad) {
 //  return RotationZ(xyzRad.z) * RotationX(xyzRad.x) * RotationY(xyzRad.y);
 //}
 //
-//Mat4 Mat4::RotationAxis(const tbVector3& axis, float rad) {
-//  const float sin = std::sinf(-rad);
-//  const float cos = std::cosf(-rad);
-//  const float oneMinusCos = 1.0f - cos;
+//Mat4 Mat4::RotationAxis(const tbVector3& axis, f32 rad) {
+//  const f32 sin = std::sinf(-rad);
+//  const f32 cos = std::cosf(-rad);
+//  const f32 oneMinusCos = 1.0f - cos;
 //
 //  const tbVector3 axisNorm = tbVector3Normalize(axis);
 //
@@ -133,12 +140,13 @@ Mat4 Mat4::Rotation(float xRad, float yRad, float zRad) {
 //                m.m14, m.m24, m.m34, m.m44);
 //}
 
+
 Mat4 Mat4::PerspectiveProjection(
-  float fovRad, float aspectRatio, float nearPlane, float farPlane
+  f32 fovRad, f32 aspectRatio, f32 nearPlane, f32 farPlane
 ) {
-  const float yScale = 1.0f / std::tanf(fovRad * 0.5f);
-  const float xScale = yScale / aspectRatio;
-  const float Q = farPlane / (farPlane - nearPlane);
+  const f32 yScale = 1.0f / std::tanf(fovRad * 0.5f);
+  const f32 xScale = yScale / aspectRatio;
+  const f32 Q = farPlane / (farPlane - nearPlane);
 
   return Mat4(
     xScale, 0.0f  ,  0.0f         , 0.0f,
@@ -147,6 +155,7 @@ Mat4 Mat4::PerspectiveProjection(
     0.0f  , 0.0f  , -Q * nearPlane, 0.0f
   );
 }
+
 
 Mat4 Mat4::Camera(
   const Vec3f32& pos, const Vec3f32& lookAt, const Vec3f32& up
@@ -162,6 +171,7 @@ Mat4 Mat4::Camera(
     0.0f   , 0.0f   , 0.0f   , 1.0f
   );
 }
+
 
 //Mat4 Mat4::ToTex2DMatrix(const Mat4& m) {
 //  return Mat4(m.m11, m.m12, m.m14, 0.0f,

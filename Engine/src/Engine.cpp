@@ -11,6 +11,7 @@
 #include <basalt/IApplication.h>
 #include <basalt/Input.h>
 #include <basalt/Log.h>
+#include <basalt/common/Types.h>
 #include <basalt/gfx/backend/Factory.h>
 #include <basalt/gfx/backend/IRenderer.h>
 #include <basalt/platform/Platform.h>
@@ -93,7 +94,7 @@ void Run() {
   static_assert(std::chrono::high_resolution_clock::is_steady);
   using clock = std::chrono::high_resolution_clock;
 
-  double elapsedTimeInSeconds = 0.0;
+  f64 elapsedTimeInSeconds = 0.0;
   auto startTime = clock::now();
   while (platform::PollEvents()) {
     // update is in between rendering and buffer swapping to utilize the
