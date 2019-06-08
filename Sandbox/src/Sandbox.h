@@ -1,8 +1,11 @@
 #pragma once
 
+#include <memory>
+#include <vector>
+
 #include <Basalt.h>
 
-#include "scenes/d3d9/tutorials/Vertices.h"
+#include "IScene.h"
 
 class SandboxApp : public bs::IApplication {
 public:
@@ -17,5 +20,6 @@ public:
   virtual void OnUpdate() override;
 
 private:
-  VerticesScene* m_verticesScene;
+  std::vector<std::unique_ptr<IScene>> m_scenes;
+  bs::i32 m_currentSceneIndex;
 };

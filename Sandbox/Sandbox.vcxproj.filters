@@ -11,5 +11,6 @@
   <ItemGroup>
     <ClInclude Include="src\Sandbox.h" />
     <ClInclude Include="src\scenes\d3d9\tutorials\Vertices.h" />
+    <ClInclude Include="src\IScene.h" />
   </ItemGroup>
 </Project>

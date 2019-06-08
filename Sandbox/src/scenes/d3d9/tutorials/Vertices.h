@@ -4,10 +4,14 @@
 
 #include <Basalt.h>
 
-class VerticesScene final {
+#include <IScene.h>
+
+class VerticesScene final : public IScene {
 public:
+
   VerticesScene(bs::gfx::backend::IRenderer* renderer);
-  void OnUpdate();
+
+  virtual void OnUpdate() override;
 
 private:
   bs::gfx::backend::IRenderer* m_renderer;

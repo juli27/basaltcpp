@@ -79,7 +79,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnableModules>false</EnableModules>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)platforms\WindowsAPI\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)platforms\WindowsAPI\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
@@ -123,7 +123,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnableModules>false</EnableModules>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)platforms\WindowsAPI\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)platforms\WindowsAPI\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
@@ -172,6 +172,7 @@
     <Manifest Include="Sandbox.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\IScene.h" />
     <ClInclude Include="src\Sandbox.h" />
     <ClInclude Include="src\scenes\d3d9\tutorials\Vertices.h" />
   </ItemGroup>

@@ -39,6 +39,7 @@ VerticesScene::VerticesScene(bs::gfx::backend::IRenderer* renderer) : m_renderer
   );
 }
 
+
 void VerticesScene::OnUpdate() {
   m_renderer->Submit({m_triangleMesh});
 }

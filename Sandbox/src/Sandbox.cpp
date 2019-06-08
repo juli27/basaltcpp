@@ -4,14 +4,15 @@
 
 #include <array>
 
-SandboxApp::SandboxApp(bs::Config& config)
-  : m_verticesScene(nullptr) {
+#include "scenes/d3d9/tutorials/Vertices.h"
+
+SandboxApp::SandboxApp(bs::Config& config) : m_currentSceneIndex(0) {
   config.mainWindow.title = "Basalt Sandbox";
   config.mainWindow.mode = bs::WindowMode::WINDOWED;
 }
 
 void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
-  m_verticesScene = new VerticesScene(renderer);
+  m_scenes.emplace_back(new VerticesScene(renderer));
 
   /*bs::math::Vec3f32 cameraPos(0.0f, 3.0f, -5.0f);
   bs::math::Vec3f32 lookAt(0.0f, 0.0f, 0.0f);
@@ -80,10 +81,7 @@ void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
 }
 
 void SandboxApp::OnShutdown() {
-  if (m_verticesScene) {
-    delete m_verticesScene;
-    m_verticesScene = nullptr;
-  }
+  m_scenes.clear();
 }
 
 void SandboxApp::OnUpdate() {
@@ -115,7 +113,21 @@ void SandboxApp::OnUpdate() {
 
   //ImGui::ShowDemoWindow();
 
-  m_verticesScene->OnUpdate();
+  m_scenes.at(m_currentSceneIndex)->OnUpdate();
+
+  if (bs::input::IsKeyPressed(bs::Key::RIGHT_ARROW)) {
+    m_currentSceneIndex++;
+    if (m_currentSceneIndex >= static_cast<bs::i32>(m_scenes.size())) {
+      m_currentSceneIndex = 0;
+    }
+  }
+
+  if (bs::input::IsKeyPressed(bs::Key::LEFT_ARROW)) {
+    m_currentSceneIndex--;
+    if (m_currentSceneIndex < 0) {
+      m_currentSceneIndex = m_scenes.size() - 1;
+    }
+  }
 
   if (bs::input::IsKeyPressed(bs::Key::ESCAPE)) {
     // TODO: use the Engine class for lifecycle management?
