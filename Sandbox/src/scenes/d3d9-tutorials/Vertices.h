@@ -6,6 +6,9 @@
 
 #include <IScene.h>
 
+namespace scenes {
+namespace d3d9tuts {
+
 class VerticesScene final : public IScene {
 public:
 
@@ -17,5 +20,8 @@ private:
   bs::gfx::backend::IRenderer* m_renderer;
   bs::gfx::backend::MeshHandle m_triangleMesh;
 };
+
+} // namespace d3d9tuts
+} // namespace scenes
 
 #endif // !SCENES_D3D9_TUTORIAL_VERTICES_H

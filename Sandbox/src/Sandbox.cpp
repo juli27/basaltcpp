@@ -4,7 +4,7 @@
 
 #include <array>
 
-#include "scenes/d3d9/tutorials/Vertices.h"
+#include "scenes/d3d9-tutorials/Vertices.h"
 
 SandboxApp::SandboxApp(bs::Config& config) : m_currentSceneIndex(0) {
   config.mainWindow.title = "Basalt Sandbox";
@@ -12,7 +12,7 @@ SandboxApp::SandboxApp(bs::Config& config) : m_currentSceneIndex(0) {
 }
 
 void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
-  m_scenes.emplace_back(new VerticesScene(renderer));
+  m_scenes.emplace_back(new scenes::d3d9tuts::VerticesScene(renderer));
 
   renderer->SetClearColor(bs::Color(0,0, 63));
 
