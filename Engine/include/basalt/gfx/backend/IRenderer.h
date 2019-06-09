@@ -28,26 +28,61 @@ public:
 
   // TODO: method to retrieve a preferred vertex layout ?
 
-  // memory for cpu data is managed externally
+  // TODO: CreateCommandBuffer(): returns a new command buffer as a
+  //                              shared pointer
+  // OR
+  // TODO: Begin/End paradigm per scene change. (meh: multithreading)
+  // OR
+  // TODO: ICommandBuffer and CreateCommandBuffer. The command buffer is
+  //       directly tied to the renderer
+
+  /**
+   * \brief Adds a static mesh to the renderer to prepare it for rendering.
+   *
+   * \param data vertex data
+   * \param numVertices number of vertices
+   * \param layout the layout of a vertex
+   * \param primitiveType the primitive type of the mesh
+   * \return handle of the added mesh
+   */
   virtual MeshHandle AddMesh(
     void* data, i32 numVertices, const VertexLayout& layout,
     PrimitiveType primitiveType
   ) = 0;
 
+  /**
+   * \brief Removes a static mesh from the renderer which makes it unavailable
+   *        for renderering.
+   *
+   * \param meshHandle handle to mesh to be removed
+   */
+  virtual void RemoveMesh(MeshHandle meshHandle) = 0;
+
   // takes in a file path for now
   // TODO: move file loading into the resources namespace
   virtual TextureHandle AddTexture(std::string_view filePath) = 0;
 
-  // adds the command to the default command buffer
+  /*
+   * Adds a command to the default command buffer.
+   */
   virtual void Submit(const RenderCommand& command) = 0;
 
   // TODO: ugh, copies the whole command buffer every time...
   virtual void Submit(const RenderCommandBuffer& commands) = 0;
 
+  /**
+   * Sets the view and projection matrix for the default command buffer.
+   */
   virtual void SetViewProj(
     const math::Mat4f32& view, const math::Mat4f32& projection
   ) = 0;
 
+  /*
+   * Sets the lights for this renderer. Lights apply  and
+   * valid for every frame until changed again.
+   *
+   * TODO: move lights into the command buffer ?
+   */
   virtual void SetLights(const LightSetup& lights) = 0;
 
   virtual void Render() = 0;

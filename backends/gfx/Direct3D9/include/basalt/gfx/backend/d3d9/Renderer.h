@@ -16,53 +16,82 @@ namespace d3d9 {
 
 struct Mesh {
   IDirect3DVertexBuffer9* vertexBuffer;
-  MeshHandle handle;
   DWORD fvf;
   UINT vertexSize;
   D3DPRIMITIVETYPE primType;
   UINT primCount;
+  MeshHandle handle;
 };
 
 
 struct Texture {
-  TextureHandle handle;
   IDirect3DTexture9* texture;
+  TextureHandle handle;
 };
 
 
 class Renderer final : public IRenderer {
 public:
+
   Renderer(IDirect3DDevice9* device);
+
+
   virtual ~Renderer();
 
+  Renderer() = delete;
+  Renderer(const Renderer&) = delete;
+  Renderer(Renderer&&) = delete;
+
+public:
   virtual MeshHandle AddMesh(
     void* data, i32 numVertices, const VertexLayout& layout,
     PrimitiveType primitiveType
   ) override;
-
+  virtual void RemoveMesh(MeshHandle meshHandle) override;
   virtual TextureHandle AddTexture(std::string_view filePath) override;
-
   virtual void Submit(const RenderCommand& command) override;
-
   virtual void Submit(const RenderCommandBuffer& commands) override;
-
   virtual void SetViewProj(
     const math::Mat4f32& view, const math::Mat4f32& projection
   ) override;
-
   virtual void SetLights(const LightSetup& lights) override;
-
   virtual void Render() override;
   virtual void Present() override;
-
   virtual std::string_view GetName() override;
 
+public:
+  Renderer& operator=(const Renderer&) = delete;
+  Renderer& operator=(Renderer&&) = delete;
+
 private:
+  /**
+   * \brief Allocates a new mesh slot.
+   *
+   * \return the allocated mesh slot.
+   */
+  Mesh& GenerateMeshSlot();
+
+  /**
+   * \brief Return a free mesh slot.
+   *
+   * The returned mesh slot can be a newly allocated or a recycled one.
+   *
+   * \return the free mesh slot
+   */
+  Mesh& GetFreeMeshSlot();
+
+  /**
+   * \brief Retrieve the mesh slot for the supplied mesh handle.
+   */
+  Mesh& GetMesh(MeshHandle meshHandle);
+
+
   void RenderCommands(const RenderCommandBuffer& commands);
 
 private:
   IDirect3DDevice9* m_device;
   std::vector<Mesh> m_meshes;
+  std::vector<i16> m_freeMeshSlots;
   std::vector<Texture> m_textures;
   std::vector<RenderCommandBuffer> m_commandBuffers;
 };
