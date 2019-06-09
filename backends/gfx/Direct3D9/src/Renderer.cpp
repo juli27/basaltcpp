@@ -336,11 +336,17 @@ void Renderer::SetLights(const LightSetup& lights) {
   ));
 }
 
+
+void Renderer::SetClearColor(Color color) {
+  m_clearColor = color.ToARGB();
+}
+
+
 // TODO: shading mode
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
 void Renderer::Render() {
   D3D9CALL(m_device->Clear(
-    0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 63), 1.0f, 0u
+    0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, m_clearColor, 1.0f, 0u
   ));
 
   // TODO: should we make all rendering code dependant
@@ -359,10 +365,9 @@ void Renderer::Render() {
     RenderCommands(commandBuffer);
   }
 
-  D3D9CALL(m_device->EndScene());
+  D3D9CALL(m_device->SetStreamSource(0u, nullptr, 0u, 0u));
 
-  // reset to default
-  D3D9CALL(m_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
+  D3D9CALL(m_device->EndScene());
 
   // remove every command buffer except the default and clear the default buffer
   m_commandBuffers.resize(1);
@@ -431,8 +436,6 @@ Mesh& Renderer::GetMesh(MeshHandle meshHandle) {
 
 void Renderer::RenderCommands(const RenderCommandBuffer& commands) {
   for (const RenderCommand& command : commands.GetCommands()) {
-    const Mesh& mesh = GetMesh(command.mesh);
-
     D3DMATERIAL9 material{};
     SetD3DColor(material.Diffuse, command.diffuseColor);
     SetD3DColor(material.Ambient, command.ambientColor);
@@ -446,8 +449,9 @@ void Renderer::RenderCommands(const RenderCommandBuffer& commands) {
       D3D9CALL(m_device->SetTexture(0, nullptr));
     }
 
+    const Mesh& mesh = GetMesh(command.mesh);
     D3D9CALL(m_device->SetStreamSource(
-      0, mesh.vertexBuffer, 0, mesh.vertexSize
+      0u, mesh.vertexBuffer, 0u, mesh.vertexSize
     ));
     D3D9CALL(m_device->SetFVF(mesh.fvf));
 
@@ -455,7 +459,7 @@ void Renderer::RenderCommands(const RenderCommandBuffer& commands) {
       D3DTS_WORLDMATRIX(0), reinterpret_cast<const D3DMATRIX*>(&command.world)
     ));
 
-    D3D9CALL(m_device->DrawPrimitive(mesh.primType, 0, mesh.primCount));
+    D3D9CALL(m_device->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
   }
 }
 

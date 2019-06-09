@@ -4,6 +4,7 @@
 
 #include <string>
 
+#include <basalt/common/Color.h>
 #include <basalt/math/Mat4.h>
 
 #include "RenderCommand.h"
@@ -84,6 +85,11 @@ public:
    * TODO: move lights into the command buffer ?
    */
   virtual void SetLights(const LightSetup& lights) = 0;
+
+  /**
+   * Sets the back buffer clear color.
+   */
+  virtual void SetClearColor(Color color) = 0;
 
   virtual void Render() = 0;
 

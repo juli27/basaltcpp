@@ -55,6 +55,7 @@ public:
     const math::Mat4f32& view, const math::Mat4f32& projection
   ) override;
   virtual void SetLights(const LightSetup& lights) override;
+  virtual void SetClearColor(Color color) override;
   virtual void Render() override;
   virtual void Present() override;
   virtual std::string_view GetName() override;
@@ -94,6 +95,7 @@ private:
   std::vector<i16> m_freeMeshSlots;
   std::vector<Texture> m_textures;
   std::vector<RenderCommandBuffer> m_commandBuffers;
+  D3DCOLOR m_clearColor;
 };
 
 } // namespace d3d9

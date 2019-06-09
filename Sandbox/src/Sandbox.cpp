@@ -14,6 +14,8 @@ SandboxApp::SandboxApp(bs::Config& config) : m_currentSceneIndex(0) {
 void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
   m_scenes.emplace_back(new VerticesScene(renderer));
 
+  renderer->SetClearColor(bs::Color(0,0, 63));
+
   /*bs::math::Vec3f32 cameraPos(0.0f, 3.0f, -5.0f);
   bs::math::Vec3f32 lookAt(0.0f, 0.0f, 0.0f);
   bs::math::Vec3f32 up(0.0f, 1.0f, 0.0f);
