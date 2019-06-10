@@ -436,6 +436,16 @@ Mesh& Renderer::GetMesh(MeshHandle meshHandle) {
 
 void Renderer::RenderCommands(const RenderCommandBuffer& commands) {
   for (const RenderCommand& command : commands.GetCommands()) {
+    // apply custom render flags
+    if (command.flags) {
+      if (command.flags & RF_DISABLE_LIGHTING) {
+        D3D9CALL(m_device->SetRenderState(D3DRS_LIGHTING, FALSE));
+      }
+      if (command.flags & RF_CULL_NONE) {
+        D3D9CALL(m_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+      }
+    }
+
     D3DMATERIAL9 material{};
     SetD3DColor(material.Diffuse, command.diffuseColor);
     SetD3DColor(material.Ambient, command.ambientColor);
@@ -460,6 +470,16 @@ void Renderer::RenderCommands(const RenderCommandBuffer& commands) {
     ));
 
     D3D9CALL(m_device->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
+
+    // revert custom render flags
+    if (command.flags) {
+      if (command.flags & RF_DISABLE_LIGHTING) {
+        D3D9CALL(m_device->SetRenderState(D3DRS_LIGHTING, TRUE));
+      }
+      if (command.flags & RF_CULL_NONE) {
+        D3D9CALL(m_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
+      }
+    }
   }
 }
 

@@ -14,6 +14,13 @@ namespace gfx {
 namespace backend {
 
 
+enum RenderFlags : i8 {
+  RF_NONE = 0,
+  RF_CULL_NONE = 0b0000'0001,
+  RF_DISABLE_LIGHTING = 0b0000'0010
+};
+
+
 struct RenderCommand final {
   MeshHandle mesh;
 
@@ -24,6 +31,7 @@ struct RenderCommand final {
   TextureHandle texture;
 
   math::Mat4f32 world;
+  i8 flags;
 };
 
 // associates commands with their common transform (camera) and

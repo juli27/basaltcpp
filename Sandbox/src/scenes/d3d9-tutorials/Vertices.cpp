@@ -5,7 +5,9 @@
 namespace scenes {
 namespace d3d9tuts {
 
-VerticesScene::VerticesScene(bs::gfx::backend::IRenderer* renderer) : m_renderer(renderer) {
+
+VerticesScene::VerticesScene(bs::gfx::backend::IRenderer* renderer)
+  : m_renderer(renderer) {
   BS_ASSERT_ARG_NOT_NULL(renderer);
 
   struct Vertex final {
@@ -37,6 +39,8 @@ VerticesScene::VerticesScene(bs::gfx::backend::IRenderer* renderer) : m_renderer
 
 
 void VerticesScene::OnUpdate() {
+  m_renderer->SetClearColor(bs::Color(0, 0, 255));
+
   m_renderer->Submit({m_triangleMesh});
 }
 

@@ -4,6 +4,7 @@
 
 #include <array>
 
+#include "scenes/d3d9-tutorials/Matrices.h"
 #include "scenes/d3d9-tutorials/Vertices.h"
 
 SandboxApp::SandboxApp(bs::Config& config) : m_currentSceneIndex(0) {
@@ -13,9 +14,9 @@ SandboxApp::SandboxApp(bs::Config& config) : m_currentSceneIndex(0) {
 
 void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
   m_scenes.emplace_back(new scenes::d3d9tuts::VerticesScene(renderer));
+  m_scenes.emplace_back(new scenes::d3d9tuts::MatricesScene(renderer));
 
-  renderer->SetClearColor(bs::Color(0,0, 63));
-
+  //renderer->SetClearColor(bs::Color(0, 0, 63));
   /*bs::math::Vec3f32 cameraPos(0.0f, 3.0f, -5.0f);
   bs::math::Vec3f32 lookAt(0.0f, 0.0f, 0.0f);
   bs::math::Vec3f32 up(0.0f, 1.0f, 0.0f);
@@ -117,18 +118,31 @@ void SandboxApp::OnUpdate() {
 
   m_scenes.at(m_currentSceneIndex)->OnUpdate();
 
+  // HACK
+  static bool rightPressed = false;
+  static bool leftPressed = false;
   if (bs::input::IsKeyPressed(bs::Key::RIGHT_ARROW)) {
-    m_currentSceneIndex++;
-    if (m_currentSceneIndex >= static_cast<bs::i32>(m_scenes.size())) {
-      m_currentSceneIndex = 0;
+    if (!rightPressed) {
+      rightPressed = true;
+      m_currentSceneIndex++;
+      if (m_currentSceneIndex >= static_cast<bs::i32>(m_scenes.size())) {
+        m_currentSceneIndex = 0;
+      }
     }
+  } else {
+    rightPressed = false;
   }
 
   if (bs::input::IsKeyPressed(bs::Key::LEFT_ARROW)) {
-    m_currentSceneIndex--;
-    if (m_currentSceneIndex < 0) {
-      m_currentSceneIndex = m_scenes.size() - 1;
+    if (!leftPressed) {
+      leftPressed = true;
+      m_currentSceneIndex--;
+      if (m_currentSceneIndex < 0) {
+        m_currentSceneIndex = m_scenes.size() - 1;
+      }
     }
+  } else {
+    leftPressed = false;
   }
 
   if (bs::input::IsKeyPressed(bs::Key::ESCAPE)) {
