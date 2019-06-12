@@ -1,6 +1,6 @@
 #pragma once
-#ifndef SCENES_D3D9_TUTORIALS_MATRICES_H
-#define SCENES_D3D9_TUTORIALS_MATRICES_H
+#ifndef SCENES_D3D9_TUTORIALS_LIGHTS_H
+#define SCENES_D3D9_TUTORIALS_LIGHTS_H
 
 #include <Basalt.h>
 
@@ -9,22 +9,23 @@
 namespace scenes {
 namespace d3d9tuts {
 
-class MatricesScene final : public IScene {
+class LightsScene final : public IScene {
 private:
-  struct Triangle final {
+  struct Cylinder final {
     bs::gfx::backend::MeshHandle mesh;
     bs::f32 angle;
   };
 
 public:
 
-  MatricesScene(bs::gfx::backend::IRenderer* renderer);
+  LightsScene(bs::gfx::backend::IRenderer* renderer);
 
   virtual void OnUpdate() override;
 
 private:
   bs::gfx::backend::IRenderer* m_renderer;
-  Triangle m_triangle;
+  Cylinder m_cylinder;
+  bs::f32 m_lightAngle;
   bs::math::Mat4f32 m_projection;
   bs::math::Mat4f32 m_view;
 };
@@ -32,4 +33,4 @@ private:
 } // namespace d3d9tuts
 } // namespace scenes
 
-#endif // !SCENES_D3D9_TUTORIALS_MATRICES_H
+#endif // !SCENES_D3D9_TUTORIALS_LIGHTS_H

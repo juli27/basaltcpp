@@ -179,9 +179,12 @@ std::wstring CreateWideFromUTF8(const std::string_view source) {
 } // namespace
 
 
-Renderer::Renderer(IDirect3DDevice9* device) : m_device(device) {
+Renderer::Renderer(IDirect3DDevice9* device)
+  : m_device(device)
+  , m_clearColor(D3DCOLOR_XRGB(0, 0, 0)) {
   BS_ASSERT_ARG_NOT_NULL(device);
   m_device->AddRef();
+  D3D9CALL(m_device->GetDeviceCaps(&m_deviceCaps));
 
   // create default command buffer
   m_commandBuffers.emplace_back();
@@ -305,8 +308,7 @@ void Renderer::SetViewProj(
 }
 
 void Renderer::SetLights(const LightSetup& lights) {
-  // TODO: set to max lights supported by this device
-  constexpr DWORD MAX_LIGHTS = 8u;
+  const DWORD MAX_LIGHTS = m_deviceCaps.MaxActiveLights;
 
   const auto& directionalLights = lights.GetDirectionalLights();
   if (directionalLights.size() > MAX_LIGHTS) {

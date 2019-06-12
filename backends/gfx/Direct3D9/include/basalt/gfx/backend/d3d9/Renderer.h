@@ -91,6 +91,7 @@ private:
 
 private:
   IDirect3DDevice9* m_device;
+  D3DCAPS9 m_deviceCaps;
   std::vector<Mesh> m_meshes;
   std::vector<i16> m_freeMeshSlots;
   std::vector<Texture> m_textures;

@@ -61,7 +61,7 @@ void MatricesScene::OnUpdate() {
   }
 
   m_renderer->SetViewProj(m_view, m_projection);
-  m_renderer->SetClearColor(bs::Color(0, 0, 255));
+  m_renderer->SetClearColor(bs::Color(0, 0, 0));
 
   RenderCommand command{};
   command.mesh = m_triangle.mesh;
