@@ -1,4 +1,4 @@
-#include "Lights.h"
+#include "Textures.h"
 
 #include <cmath>
 
@@ -8,10 +8,9 @@ namespace scenes {
 namespace d3d9tuts {
 
 
-LightsScene::LightsScene(bs::gfx::backend::IRenderer* renderer)
+TexturesScene::TexturesScene(bs::gfx::backend::IRenderer* renderer)
   : m_renderer(renderer)
-  , m_cylinder{}
-  , m_lightAngle(0.0f) {
+  , m_cylinder{} {
   BS_ASSERT_ARG_NOT_NULL(renderer);
 
   bs::math::Vec3f32 cameraPos(0.0f, 3.0f, -5.0f);
@@ -28,7 +27,8 @@ LightsScene::LightsScene(bs::gfx::backend::IRenderer* renderer)
 
   struct Vertex final {
     bs::math::Vec3f32 pos;
-    bs::math::Vec3f32 normal;
+    bs::u32 color;
+    bs::math::Vec2f32 uv;
   };
 
   std::array<Vertex, 50u * 2> vertices;
@@ -37,10 +37,14 @@ LightsScene::LightsScene(bs::gfx::backend::IRenderer* renderer)
     bs::f32 theta = ( 2.0f * bs::math::PI * i ) / ( 50 - 1 );
     bs::f32 sinTheta = std::sinf(theta);
     bs::f32 cosTheta = std::cosf(theta);
+
     vertices[2 * i].pos = {sinTheta, -1.0f, cosTheta};
-    vertices[2 * i].normal = {sinTheta, 0.0f, cosTheta};
+    vertices[2 * i].color = bs::Color(255, 255, 255).ToARGB();
+    vertices[2 * i].uv = {i / (50.0f - 1), 1.0f};
+
     vertices[2 * i + 1].pos = {sinTheta, 1.0f, cosTheta};
-    vertices[2 * i + 1].normal = {sinTheta, 0.0f, cosTheta};
+    vertices[2 * i + 1].color = bs::Color(128, 128, 128).ToARGB();
+    vertices[2 * i + 1].uv = {i / (50.0f - 1), 0.0f};
   }
 
   bs::gfx::backend::VertexLayout vertexLayout{
@@ -49,8 +53,12 @@ LightsScene::LightsScene(bs::gfx::backend::IRenderer* renderer)
       bs::gfx::backend::VertexElementType::F32_3
     },
     {
-      bs::gfx::backend::VertexElementUsage::NORMAL,
-      bs::gfx::backend::VertexElementType::F32_3
+      bs::gfx::backend::VertexElementUsage::COLOR_DIFFUSE,
+      bs::gfx::backend::VertexElementType::U32_1
+    },
+    {
+      bs::gfx::backend::VertexElementUsage::TEXTURE_COORDS,
+      bs::gfx::backend::VertexElementType::F32_2
     }
   };
 
@@ -58,11 +66,14 @@ LightsScene::LightsScene(bs::gfx::backend::IRenderer* renderer)
     vertices.data(), vertices.size(), vertexLayout,
     bs::gfx::backend::PrimitiveType::TRIANGLE_STRIP
   );
+
+  m_cylinder.texture = m_renderer->AddTexture("data/banana.bmp");
 }
 
 
-void LightsScene::OnUpdate() {
+void TexturesScene::OnUpdate() {
   using namespace bs::gfx::backend;
+
   bs::f32 deltaTime = static_cast<bs::f32>(bs::GetDeltaTime());
 
   m_cylinder.angle += bs::math::PI * 0.5f * deltaTime;
@@ -74,30 +85,11 @@ void LightsScene::OnUpdate() {
   m_renderer->SetViewProj(m_view, m_projection);
   m_renderer->SetClearColor(bs::Color(0, 0, 255));
 
-  bs::gfx::backend::LightSetup lights;
-  lights.SetGlobalAmbientColor(bs::Color(32, 32, 32));
-
-  m_lightAngle += bs::math::PI * 0.25f * deltaTime;
-  // reset when rotated 360°
-  while (m_lightAngle >= bs::math::PI * 2.0f) {
-    m_lightAngle -= bs::math::PI * 2.0f;
-  }
-
-  bs::math::Vec3f32 lightDir(
-    std::cosf(m_lightAngle), 1.0f, std::sinf(m_lightAngle)
-  );
-  lights.AddDirectionalLight(
-    bs::math::Vec3f32::Normalize(lightDir), bs::Color(255, 255, 255)
-  );
-
-  m_renderer->SetLights(lights);
-
   RenderCommand command{};
   command.mesh = m_cylinder.mesh;
-  command.diffuseColor = bs::Color(255, 255, 0);
-  command.ambientColor = bs::Color(255, 255, 0);
+  command.texture = m_cylinder.texture;
   command.world = bs::math::Mat4f32::RotationX(m_cylinder.angle);
-  command.flags = RF_CULL_NONE;
+  command.flags = RF_CULL_NONE | RF_DISABLE_LIGHTING;
   m_renderer->Submit(command);
 }
 

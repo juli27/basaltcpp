@@ -49,6 +49,7 @@ public:
   ) override;
   virtual void RemoveMesh(MeshHandle meshHandle) override;
   virtual TextureHandle AddTexture(std::string_view filePath) override;
+  virtual void RemoveTexture(TextureHandle textureHandle) override;
   virtual void Submit(const RenderCommand& command) override;
   virtual void Submit(const RenderCommandBuffer& commands) override;
   virtual void SetViewProj(
@@ -86,6 +87,27 @@ private:
    */
   Mesh& GetMesh(MeshHandle meshHandle);
 
+  /**
+   * \brief Allocates a new texture slot.
+   *
+   * \return the allocated texture slot.
+   */
+  Texture& GenerateTextureSlot();
+
+  /**
+   * \brief Return a free texture slot.
+   *
+   * The returned texture slot can be a newly allocated or a recycled one.
+   *
+   * \return the free texture slot
+   */
+  Texture& GetFreeTextureSlot();
+
+  /**
+   * \brief Retrieve the texture slot for the supplied texture handle.
+   */
+  Texture& GetTexture(TextureHandle textureHandle);
+
 
   void RenderCommands(const RenderCommandBuffer& commands);
 
@@ -95,6 +117,7 @@ private:
   std::vector<Mesh> m_meshes;
   std::vector<i16> m_freeMeshSlots;
   std::vector<Texture> m_textures;
+  std::vector<i16> m_freeTextureSlots;
   std::vector<RenderCommandBuffer> m_commandBuffers;
   D3DCOLOR m_clearColor;
 };

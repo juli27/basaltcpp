@@ -265,23 +265,35 @@ TextureHandle Renderer::AddTexture(std::string_view filePath) {
   const std::wstring wideFilePath = CreateWideFromUTF8(filePath);
 
   IDirect3DTexture9* texture = nullptr;
-  if (FAILED(
-    ::D3DXCreateTextureFromFileW(m_device, wideFilePath.c_str(), &texture)
-  )) {
+  if (FAILED(::D3DXCreateTextureFromFileW(
+    m_device, wideFilePath.c_str(), &texture
+  ))) {
     throw std::runtime_error("loading texture file failed");
   }
 
-  const auto nextIndex = m_textures.size();
-  if (nextIndex > static_cast<u16>(std::numeric_limits<i16>::max())) {
-    throw std::out_of_range("out of mesh slots");
+  Texture& tex = GetFreeTextureSlot();
+  tex.texture = texture;
+
+  return tex.handle;
+}
+
+
+void Renderer::RemoveTexture(TextureHandle textureHandle) {
+  Texture& texture = GetTexture(textureHandle);
+
+  texture.texture->Release();
+  texture.texture = nullptr;
+
+  const TextureHandle::IndexT index = texture.handle.GetIndex();
+  const TextureHandle::GenT gen = texture.handle.GetGen() + 1;
+  texture.handle = TextureHandle(index, gen);
+
+  // check if the slot reached "end of life"
+  if (gen < std::numeric_limits<TextureHandle::GenT>::max()) {
+    m_freeTextureSlots.push_back(index);
   }
-  i16 index = static_cast<i16>(nextIndex);
 
-  TextureHandle handle(index, 0);
-
-  m_textures.push_back({texture, handle});
-
-  return handle;
+  // reached end of life. don't add it to the free slots.
 }
 
 
@@ -433,6 +445,55 @@ Mesh& Renderer::GetMesh(MeshHandle meshHandle) {
   }
 
   return mesh;
+}
+
+
+Texture& Renderer::GenerateTextureSlot() {
+  auto nextIndex = m_textures.size();
+  if (nextIndex > static_cast<u16>(std::numeric_limits<i16>::max())) {
+    throw std::out_of_range("out of mesh slots");
+  }
+  i16 index = static_cast<i16>(nextIndex);
+  Texture& texture = m_textures.emplace_back();
+  texture.handle = TextureHandle(index, 0);
+
+  return texture;
+}
+
+
+Texture& Renderer::GetFreeTextureSlot() {
+  while (!m_freeTextureSlots.empty()) {
+    i16 index = m_freeTextureSlots.back();
+    m_freeTextureSlots.pop_back();
+    Texture& texture = m_textures.at(index);
+    TextureHandle::GenT gen = texture.handle.GetGen();
+    if (gen == std::numeric_limits<MeshHandle::GenT>::max()) {
+      // slot reached "end of life"
+      continue;
+    }
+
+    texture.handle = TextureHandle(index, gen);
+    return texture;
+  }
+
+  // no more allocated free mesh slots available. genereate a new one
+  return GenerateTextureSlot();
+}
+
+
+Texture& Renderer::GetTexture(TextureHandle textureHandle) {
+  if (!textureHandle.IsValid()) {
+    throw std::runtime_error("invalid handle");
+  }
+
+  // throws exception with invalid index
+  Texture& texture = m_textures.at(textureHandle.GetIndex());
+
+  if (texture.handle.GetGen() != textureHandle.GetGen()) {
+    throw std::runtime_error("invalid handle");
+  }
+
+  return texture;
 }
 
 

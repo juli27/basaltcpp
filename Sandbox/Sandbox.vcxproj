@@ -151,6 +151,7 @@
     <ClCompile Include="src\Sandbox.cpp" />
     <ClCompile Include="src\scenes\d3d9-tutorials\Lights.cpp" />
     <ClCompile Include="src\scenes\d3d9-tutorials\Matrices.cpp" />
+    <ClCompile Include="src\scenes\d3d9-tutorials\Textures.cpp" />
     <ClCompile Include="src\scenes\d3d9-tutorials\Vertices.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -178,6 +179,7 @@
     <ClInclude Include="src\Sandbox.h" />
     <ClInclude Include="src\scenes\d3d9-tutorials\Lights.h" />
     <ClInclude Include="src\scenes\d3d9-tutorials\Matrices.h" />
+    <ClInclude Include="src\scenes\d3d9-tutorials\Textures.h" />
     <ClInclude Include="src\scenes\d3d9-tutorials\Vertices.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

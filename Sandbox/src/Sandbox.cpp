@@ -6,6 +6,7 @@
 
 #include "scenes/d3d9-tutorials/Lights.h"
 #include "scenes/d3d9-tutorials/Matrices.h"
+#include "scenes/d3d9-tutorials/Textures.h"
 #include "scenes/d3d9-tutorials/Vertices.h"
 
 SandboxApp::SandboxApp(bs::Config& config) : m_currentSceneIndex(0) {
@@ -17,6 +18,7 @@ void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
   m_scenes.emplace_back(new scenes::d3d9tuts::VerticesScene(renderer));
   m_scenes.emplace_back(new scenes::d3d9tuts::MatricesScene(renderer));
   m_scenes.emplace_back(new scenes::d3d9tuts::LightsScene(renderer));
+  m_scenes.emplace_back(new scenes::d3d9tuts::TexturesScene(renderer));
 
   //renderer->SetClearColor(bs::Color(0, 0, 63));
   /*bs::math::Vec3f32 cameraPos(0.0f, 3.0f, -5.0f);

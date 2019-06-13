@@ -63,6 +63,14 @@ public:
   // TODO: move file loading into the resources namespace
   virtual TextureHandle AddTexture(std::string_view filePath) = 0;
 
+  /**
+   * \brief Removes a static texture from the renderer which makes it
+   *        unavailable for renderering.
+   *
+   * \param textureHandle handle to texture to be removed
+   */
+  virtual void RemoveTexture(TextureHandle textureHandle) = 0;
+
   /*
    * Adds a command to the default command buffer.
    */

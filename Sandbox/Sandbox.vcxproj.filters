@@ -6,6 +6,7 @@
     <ClCompile Include="src\scenes\d3d9-tutorials\Vertices.cpp" />
     <ClCompile Include="src\scenes\d3d9-tutorials\Matrices.cpp" />
     <ClCompile Include="src\scenes\d3d9-tutorials\Lights.cpp" />
+    <ClCompile Include="src\scenes\d3d9-tutorials\Textures.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="Sandbox.manifest" />
@@ -16,5 +17,6 @@
     <ClInclude Include="src\scenes\d3d9-tutorials\Vertices.h" />
     <ClInclude Include="src\scenes\d3d9-tutorials\Matrices.h" />
     <ClInclude Include="src\scenes\d3d9-tutorials\Lights.h" />
+    <ClInclude Include="src\scenes\d3d9-tutorials\Textures.h" />
   </ItemGroup>
 </Project>
