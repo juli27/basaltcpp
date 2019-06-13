@@ -319,6 +319,20 @@ LRESULT CALLBACK WindowProc(
       break;
     }
 
+    case WM_CHAR: {
+      const std::string typedChar = CreateUTF8FromWide(
+        std::wstring(1, static_cast<WCHAR>(wParam))
+      );
+      std::string typedChars;
+      WORD repCount = LOWORD(lParam);
+      for (; repCount > 0; repCount--) {
+        typedChars.append(typedChar);
+      }
+      CharactersTyped event(typedChars);
+      DispatchPlatformEvent(event);
+      break;
+    }
+
     case WM_SIZE:
       switch (wParam) {
         case SIZE_RESTORED:

@@ -2,6 +2,8 @@
 #ifndef BS_PLATFORM_EVENTS_KEY_EVENTS_H
 #define BS_PLATFORM_EVENTS_KEY_EVENTS_H
 
+#include <string>
+
 #include "Event.h"
 
 #include <basalt/common/Types.h>
@@ -75,6 +77,35 @@ constexpr KeyReleasedEvent::KeyReleasedEvent(Key key) : KeyEvent(key) {}
 
 inline EventType KeyReleasedEvent::GetEventType() const {
   return EVENT_TYPE;
+}
+
+
+class CharactersTyped final : public Event {
+public:
+  constexpr CharactersTyped(const std::string& chars);
+
+  virtual inline EventType GetEventType() const override;
+  inline std::string_view GetTypedChars() const;
+
+private:
+  const std::string m_chars;
+
+public:
+  static constexpr EventType EVENT_TYPE = EventType::CHARACTERS_TYPED;
+};
+
+
+constexpr CharactersTyped::CharactersTyped(const std::string& chars)
+  : m_chars(chars) {}
+
+
+inline EventType CharactersTyped::GetEventType() const {
+  return EVENT_TYPE;
+}
+
+
+inline std::string_view CharactersTyped::GetTypedChars() const {
+  return m_chars;
 }
 
 } // namespace platform
