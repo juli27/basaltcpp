@@ -224,10 +224,12 @@ void DispatchPlatformEvent(const Event& event) {
 }
 
 
-LRESULT CALLBACK WindowProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK WindowProc(
+  HWND window, UINT message, WPARAM wParam, LPARAM lParam
+) {
   LRESULT result = 0;
 
-  switch (msg) {
+  switch (message) {
     case WM_MOUSEMOVE: {
       MouseMovedEvent event({GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)});
       DispatchPlatformEvent(event);
@@ -272,7 +274,8 @@ LRESULT CALLBACK WindowProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
     // TODO: XBUTTON4 and XBUTTON5
 
-    case WM_KEYDOWN: {
+    case WM_KEYDOWN:
+    case WM_KEYUP: {
       // TODO: propagate or filter repeat events
       //       filter with (HIWORD(lParam) & KF_REPEAT)
 
@@ -305,14 +308,14 @@ LRESULT CALLBACK WindowProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         default:
           break;
       }
-      KeyPressedEvent event(keyCode, LOWORD(lParam));
-      DispatchPlatformEvent(event);
-      break;
-    }
 
-    case WM_KEYUP: {
-      KeyReleasedEvent event(s_keyMap[wParam]);
-      DispatchPlatformEvent(event);
+      if (message == WM_KEYDOWN) {
+        KeyPressedEvent event(keyCode, LOWORD(lParam));
+        DispatchPlatformEvent(event);
+      } else {
+        KeyReleasedEvent event(s_keyMap[wParam]);
+        DispatchPlatformEvent(event);
+      }
       break;
     }
 
@@ -330,7 +333,7 @@ LRESULT CALLBACK WindowProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       break;
 
     case WM_CLOSE:
-      ::DestroyWindow(wnd);
+      ::DestroyWindow(window);
       break;
 
     case WM_DESTROY:
@@ -339,7 +342,7 @@ LRESULT CALLBACK WindowProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       break;
 
     default:
-      result = ::DefWindowProcW(wnd, msg, wParam, lParam);
+      result = ::DefWindowProcW(window, message, wParam, lParam);
       break;
   }
 
