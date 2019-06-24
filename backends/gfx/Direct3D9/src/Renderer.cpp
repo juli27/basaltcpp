@@ -15,6 +15,7 @@ namespace backend {
 namespace d3d9 {
 namespace {
 
+
 constexpr std::string_view s_rendererName = "Direct3D 9 fixed function";
 
 
@@ -247,17 +248,10 @@ void Renderer::RemoveMesh(MeshHandle meshHandle) {
 
   mesh.vertexBuffer->Release();
   mesh.vertexBuffer = nullptr;
+  mesh.handle = MeshHandle();
 
-  const MeshHandle::IndexT index = mesh.handle.GetIndex();
-  const MeshHandle::GenT gen = mesh.handle.GetGen() + 1;
-  mesh.handle = MeshHandle(index, gen);
-
-  // check if the slot reached "end of life"
-  if (gen < std::numeric_limits<MeshHandle::GenT>::max()) {
-    m_freeMeshSlots.push_back(index);
-  }
-
-  // reached end of life. don't add it to the free slots.
+  // add to the free slots
+  m_freeMeshSlots.push_back(meshHandle.GetValue());
 }
 
 
@@ -283,17 +277,10 @@ void Renderer::RemoveTexture(TextureHandle textureHandle) {
 
   texture.texture->Release();
   texture.texture = nullptr;
+  texture.handle = TextureHandle();
 
-  const TextureHandle::IndexT index = texture.handle.GetIndex();
-  const TextureHandle::GenT gen = texture.handle.GetGen() + 1;
-  texture.handle = TextureHandle(index, gen);
-
-  // check if the slot reached "end of life"
-  if (gen < std::numeric_limits<TextureHandle::GenT>::max()) {
-    m_freeTextureSlots.push_back(index);
-  }
-
-  // reached end of life. don't add it to the free slots.
+  // add to the free slots
+  m_freeTextureSlots.push_back(textureHandle.GetValue());
 }
 
 
@@ -312,11 +299,12 @@ void Renderer::SetViewProj(
   const math::Mat4f32& view, const math::Mat4f32& projection
 ) {
   if (projection.m34 < 0) {
-    throw std::runtime_error("m34 can't be null in a projection matrix");
+    throw std::runtime_error("m34 can't be negative in a projection matrix");
   }
 
-  m_commandBuffers[0].SetView(view);
-  m_commandBuffers[0].SetProjection(projection);
+  auto& commandBuffer = m_commandBuffers[0];
+  commandBuffer.SetView(view);
+  commandBuffer.SetProjection(projection);
 }
 
 void Renderer::SetLights(const LightSetup& lights) {
@@ -401,12 +389,13 @@ std::string_view Renderer::GetName() {
 
 Mesh& Renderer::GenerateMeshSlot() {
   auto nextIndex = m_meshes.size();
-  if (nextIndex > static_cast<u16>(std::numeric_limits<i16>::max())) {
+  if (nextIndex > static_cast<u32>(std::numeric_limits<i32>::max())) {
     throw std::out_of_range("out of mesh slots");
   }
-  i16 index = static_cast<i16>(nextIndex);
+
+  i32 index = static_cast<i32>(nextIndex);
   Mesh& mesh = m_meshes.emplace_back();
-  mesh.handle = MeshHandle(index, 0);
+  mesh.handle = MeshHandle(index);
 
   return mesh;
 }
@@ -414,16 +403,11 @@ Mesh& Renderer::GenerateMeshSlot() {
 
 Mesh& Renderer::GetFreeMeshSlot() {
   while (!m_freeMeshSlots.empty()) {
-    i16 index = m_freeMeshSlots.back();
+    i32 index = m_freeMeshSlots.back();
     m_freeMeshSlots.pop_back();
     Mesh& mesh = m_meshes.at(index);
-    MeshHandle::GenT gen = mesh.handle.GetGen();
-    if (gen == std::numeric_limits<MeshHandle::GenT>::max()) {
-      // slot reached "end of life"
-      continue;
-    }
+    mesh.handle = MeshHandle(index);
 
-    mesh.handle = MeshHandle(index, gen);
     return mesh;
   }
 
@@ -438,13 +422,7 @@ Mesh& Renderer::GetMesh(MeshHandle meshHandle) {
   }
 
   // throws exception with invalid index
-  Mesh& mesh = m_meshes.at(meshHandle.GetIndex());
-
-  if (mesh.handle.GetGen() != meshHandle.GetGen()) {
-    throw std::runtime_error("invalid handle");
-  }
-
-  return mesh;
+  return m_meshes.at(meshHandle.GetValue());
 }
 
 
@@ -453,9 +431,9 @@ Texture& Renderer::GenerateTextureSlot() {
   if (nextIndex > static_cast<u16>(std::numeric_limits<i16>::max())) {
     throw std::out_of_range("out of mesh slots");
   }
-  i16 index = static_cast<i16>(nextIndex);
+  i32 index = static_cast<i32>(nextIndex);
   Texture& texture = m_textures.emplace_back();
-  texture.handle = TextureHandle(index, 0);
+  texture.handle = TextureHandle(index);
 
   return texture;
 }
@@ -463,16 +441,11 @@ Texture& Renderer::GenerateTextureSlot() {
 
 Texture& Renderer::GetFreeTextureSlot() {
   while (!m_freeTextureSlots.empty()) {
-    i16 index = m_freeTextureSlots.back();
+    i32 index = m_freeTextureSlots.back();
     m_freeTextureSlots.pop_back();
     Texture& texture = m_textures.at(index);
-    TextureHandle::GenT gen = texture.handle.GetGen();
-    if (gen == std::numeric_limits<MeshHandle::GenT>::max()) {
-      // slot reached "end of life"
-      continue;
-    }
+    texture.handle = TextureHandle(index);
 
-    texture.handle = TextureHandle(index, gen);
     return texture;
   }
 
@@ -487,13 +460,7 @@ Texture& Renderer::GetTexture(TextureHandle textureHandle) {
   }
 
   // throws exception with invalid index
-  Texture& texture = m_textures.at(textureHandle.GetIndex());
-
-  if (texture.handle.GetGen() != textureHandle.GetGen()) {
-    throw std::runtime_error("invalid handle");
-  }
-
-  return texture;
+  return m_textures.at(textureHandle.GetValue());
 }
 
 
@@ -516,7 +483,7 @@ void Renderer::RenderCommands(const RenderCommandBuffer& commands) {
     D3D9CALL(m_device->SetMaterial(&material));
 
     if (command.texture.IsValid()) {
-      const Texture& texture = m_textures.at(command.texture.GetIndex());
+      const Texture& texture = GetTexture(command.texture);
       D3D9CALL(m_device->SetTexture(0, texture.texture));
     } else {
       D3D9CALL(m_device->SetTexture(0, nullptr));

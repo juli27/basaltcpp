@@ -115,9 +115,9 @@ private:
   IDirect3DDevice9* m_device;
   D3DCAPS9 m_deviceCaps;
   std::vector<Mesh> m_meshes;
-  std::vector<i16> m_freeMeshSlots;
+  std::vector<i32> m_freeMeshSlots;
   std::vector<Texture> m_textures;
-  std::vector<i16> m_freeTextureSlots;
+  std::vector<i32> m_freeTextureSlots;
   std::vector<RenderCommandBuffer> m_commandBuffers;
   D3DCOLOR m_clearColor;
 };

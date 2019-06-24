@@ -6,31 +6,21 @@
 
 namespace basalt {
 
-enum class HandleTarget : i8 {
-  GENERIC = 0,
-  GFX_MESH,
-  GFX_TEXTURE
-};
 
-template <HandleTarget typeTag = HandleTarget::GENERIC>
+template <typename typeTag>
 class Handle final {
 public:
-  using IndexT = i16;
-  using GenT = i8;
   using ValueT = i32;
-
-  static_assert(sizeof(IndexT) + sizeof(GenT) <= sizeof(ValueT));
 
 public:
   constexpr Handle();
-  constexpr Handle(IndexT index, GenT gen);
+  constexpr Handle(ValueT value);
   constexpr Handle(const Handle<typeTag>&) = default;
   constexpr Handle(Handle<typeTag>&&) = default;
   inline ~Handle() = default;
 
   constexpr bool IsValid() const;
-  constexpr IndexT GetIndex() const;
-  constexpr GenT GetGen() const;
+  constexpr ValueT GetValue() const;
 
   inline Handle<typeTag>& operator=(const Handle<typeTag>&) = default;
   inline Handle<typeTag>& operator=(Handle<typeTag>&&) = default;
@@ -40,31 +30,23 @@ private:
 };
 
 
-template <HandleTarget typeTag>
+template <typename typeTag>
 constexpr Handle<typeTag>::Handle() : m_value(0xFFFFFFFF) {}
 
 
-template <HandleTarget typeTag>
-constexpr Handle<typeTag>::Handle(IndexT index, GenT gen) : m_value(index) {
-  m_value |= (static_cast<i32>(gen) << 16);
-}
+template <typename typeTag>
+constexpr Handle<typeTag>::Handle(ValueT value) : m_value(value) {}
 
 
-template <HandleTarget typeTag>
+template <typename typeTag>
 constexpr bool Handle<typeTag>::IsValid() const {
   return !(0x80000000 & m_value);
 }
 
 
-template <HandleTarget typeTag>
-constexpr typename Handle<typeTag>::IndexT Handle<typeTag>::GetIndex() const {
-  return static_cast<IndexT> (m_value);
-}
-
-
-template <HandleTarget typeTag>
-constexpr typename Handle<typeTag>::GenT Handle<typeTag>::GetGen() const {
-  return static_cast<GenT>(m_value >> 16);
+template <typename typeTag>
+constexpr typename Handle<typeTag>::ValueT Handle<typeTag>::GetValue() const {
+  return m_value;
 }
 
 } // namespace basalt

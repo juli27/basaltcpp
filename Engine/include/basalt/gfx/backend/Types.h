@@ -90,10 +90,18 @@ enum class PrimitiveType : i8 {
 };
 
 
-using MeshHandle = Handle<HandleTarget::GFX_MESH>;
+namespace _internal {
+
+struct MeshTypeTag {};
+struct TextureTypeTag {};
+
+}
 
 
-using TextureHandle = Handle<HandleTarget::GFX_TEXTURE>;
+using MeshHandle = Handle<_internal::MeshTypeTag>;
+
+
+using TextureHandle = Handle<_internal::TextureTypeTag>;
 
 
 struct DirectionalLight final {
