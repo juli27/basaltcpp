@@ -12,8 +12,7 @@
 #include <basalt/Input.h>
 #include <basalt/Log.h>
 #include <basalt/common/Types.h>
-#include <basalt/gfx/backend/Factory.h>
-#include <basalt/gfx/backend/IRenderer.h>
+#include <basalt/gfx/Gfx.h>
 #include <basalt/platform/Platform.h>
 
 namespace basalt {
@@ -21,7 +20,6 @@ namespace {
 
 Config s_config{{"Basalt App", {1280, 720}, WindowMode::FULLSCREEN, false}};
 IApplication* s_app;
-gfx::backend::IRenderer* s_renderer;
 f64 s_currentDeltaTime;
 
 
@@ -46,11 +44,8 @@ void Startup() {
   );
 
   platform::Startup(s_config.mainWindow);
-
   input::Init();
-
-  s_renderer = gfx::backend::CreateRenderer();
-  BS_INFO("gfx backend: {}", s_renderer->GetName());
+  gfx::Init();
 
   /*IMGUI_CHECKVERSION();
   ImGui::CreateContext();
@@ -67,12 +62,7 @@ void Shutdown() {
 
   //ImGui::DestroyContext();
 
-  if (s_renderer) {
-    delete s_renderer;
-    s_renderer = nullptr;
-  }
-
-  gfx::backend::Shutdown();
+  gfx::Shutdown();
 
   platform::Shutdown();
 
@@ -88,7 +78,7 @@ void Shutdown() {
 void Run() {
   Startup();
 
-  s_app->OnInit(s_renderer);
+  s_app->OnInit(gfx::GetRenderer());
 
   BS_INFO("entering main loop");
 
@@ -97,15 +87,15 @@ void Run() {
 
   auto startTime = clock::now();
   while (platform::PollEvents()) {
-    // update is in between rendering and buffer swapping to utilize the
+    // app update is in between rendering and buffer swapping to utilize the
     // asynchronicity of gpu drivers (gpu does the actual work while updating)
-    s_renderer->Render();
+    gfx::Render();
 
     //ImGui::NewFrame();
     s_app->OnUpdate();
     //ImGui::EndFrame();
 
-    s_renderer->Present();
+    gfx::Present();
 
     auto endTime = clock::now();
     s_currentDeltaTime = static_cast<f64>((endTime - startTime).count()) /

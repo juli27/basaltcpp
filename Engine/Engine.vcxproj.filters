@@ -30,6 +30,7 @@
     <ClInclude Include="include\basalt\common\Handle.h" />
     <ClInclude Include="include\basalt\gfx\backend\RenderCommand.h" />
     <ClInclude Include="include\basalt\gfx\backend\Types.h" />
+    <ClInclude Include="include\basalt\gfx\Gfx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine.cpp" />
@@ -37,6 +38,7 @@
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\math\Mat4.cpp" />
     <ClCompile Include="src\Input.cpp" />
+    <ClCompile Include="src\gfx\Gfx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Doxyfile" />

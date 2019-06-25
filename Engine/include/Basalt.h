@@ -11,6 +11,8 @@
 #include "basalt/common/Exceptions.h"
 #include "basalt/common/Types.h"
 
+#include "basalt/gfx/Gfx.h"
+
 #include "basalt/gfx/backend/Factory.h"
 #include "basalt/gfx/backend/IRenderer.h"
 #include "basalt/gfx/backend/RenderCommand.h"

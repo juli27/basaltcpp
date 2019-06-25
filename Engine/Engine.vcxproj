@@ -156,6 +156,7 @@
     <ClInclude Include="include\basalt\Config.h" />
     <ClInclude Include="include\basalt\Engine.h" />
     <ClInclude Include="include\basalt\gfx\backend\RenderCommand.h" />
+    <ClInclude Include="include\basalt\gfx\Gfx.h" />
     <ClInclude Include="include\basalt\math\Constants.h" />
     <ClInclude Include="include\basalt\math\Vec3.h" />
     <ClInclude Include="include\basalt\gfx\backend\Factory.h" />
@@ -181,6 +182,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine.cpp" />
+    <ClCompile Include="src\gfx\Gfx.cpp" />
     <ClCompile Include="src\Log.cpp" />
     <ClCompile Include="src\math\Mat4.cpp" />
     <ClCompile Include="src\pch.cpp">
