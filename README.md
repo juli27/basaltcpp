@@ -46,21 +46,23 @@ Only Desktop cards are supported.
 * Model loading with automatic Mesh and Material management
 
 ### v0.2 (2019-08-05)
-* 64 bit build support
-* Windows x86-64 support
-* refactor renderer creation into the platform libs
+* 64 bit build support (#4)
+* Windows x86-64 support (#5)
 
 ### v0.3 (2019-09-02)
-* OpenGL 1.0 renderer
+* CMake build support
 * GLFW backend
+* OpenGL 1.0 renderer
 * Linux x86-64 support
 
 ## Feature TODO
 * turn /permissive- back on
+* turn the platform projects into executables which statically link the
+  application project
+* refactor gfx backend creation
 * Direct3D 9 programmable pipeline renderer
-* 64-bit support
 * upgrade Direct3D 9 renderer to Direct3D 9Ex
-* OpenGL 1.0 renderer (up to OpenGL 2.0)
+* upgrade OpenGL renderer to OpenGL 1.1+ (up to OpenGL 2.0)
 * GLES 1.0 renderer
 * Linux + Wayland + EGL support
 * Android support
@@ -72,6 +74,8 @@ Only Desktop cards are supported.
 * controller support
 * scene graph
 * entity component system
+* animation
+* physics
 * editor
 
 ### Potential Bugs
@@ -94,7 +98,9 @@ Only Desktop cards are supported.
 * DXGI 1.1
 * Direct3D 11
 * Direct2D
-* Direct Write
+* DirectWrite
+* WARP (10.1)
+* Updated WIC
 
 ### Windows 7
 * Touch Input
@@ -104,26 +110,32 @@ Only Desktop cards are supported.
 * AVX instructions
 
 ### Windows 7 SP1 with Platform Update
+* Direct2D 1.1
+* Updated WIC
+* Updated DirectWrite
 * DXGI 1.2 (partial)
 * Direct3D 11.1 (partial)
-* Direct2D 1.1
+* WARP (11.0)
 
 ### Windows 8
 * SSE2 required
 * Windows Runtime (+ ARM)
 * DXGI 1.2
 * Direct3D 11.1
+* WARP (11.1)
 * no support for less than 32 bbp device mode (GDI, EnumDisplaySettingsW)
   * emulates 8 bbp and 16 bbp on 32 bbp when not manifested as Windows 8
     compatible
 * DWM composition is always enabled
 * XInput 1.4
+* DirectComposition
 
 ### Windows 8.1
 * Per monitor (v1) dpi aware
 * DXGI 1.3
 * Direct3D 11.2
 * Direct2D 1.2
+* improved WARP (11.1)
 
 ### Windows 10 1507 TH1 (Build 10240)
 * DXGI 1.4
