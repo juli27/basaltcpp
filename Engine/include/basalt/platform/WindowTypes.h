@@ -19,8 +19,8 @@ struct WindowDesc {
   std::string title;
   // TODO: will this be ignored with fullscreen? window size vs videomode / backbuffer size
   math::Vec2i32 size;
-  WindowMode mode;
-  bool resizeable;
+  WindowMode mode{};
+  bool resizeable{};
 };
 
 } // namespace basalt

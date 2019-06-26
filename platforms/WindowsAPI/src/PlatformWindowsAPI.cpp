@@ -478,7 +478,8 @@ void Init(HINSTANCE instance, const WCHAR* commandLine, int showCommand) {
 
 
 HWND GetWindowHandle() {
-  // TODO: check for null
+  BS_ASSERT(s_windowHandle, "no window present");
+
   return s_windowHandle;
 }
 

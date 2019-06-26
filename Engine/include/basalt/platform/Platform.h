@@ -5,8 +5,8 @@
 /** \file
  * \brief Platform abstractions.
  *
- * This file contains the Platform class which abstracts the underlying
- * platform systems away (windowing, events, OS).
+ * This file contains a platform independant interface for interacting with the
+ * underlying platform.
  */
 
 #include <functional>
@@ -21,6 +21,7 @@ namespace platform {
 
 using PlatformEventCallback = std::function<void(const Event&)>;
 
+
 void Startup(const WindowDesc& desc);
 
 /*
@@ -30,11 +31,15 @@ void Startup(const WindowDesc& desc);
  */
 void Shutdown();
 
+
 void AddEventListener(PlatformEventCallback callback);
+
 
 bool PollEvents();
 
+
 void RequestQuit();
+
 
 std::string_view GetName();
 
@@ -48,6 +53,7 @@ std::string_view GetName();
  * \return the arguments.
  */
 const std::vector<std::string>& GetArgs();
+
 
 const WindowDesc& GetWindowDesc();
 
