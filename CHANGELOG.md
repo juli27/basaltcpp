@@ -2,6 +2,8 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## *[0.2.0] - 2019-08-05* (**Unreleased**)
+
 ## [0.1.0] - 2019-07-01
 ### Added
 - Windows x86 build support
@@ -21,4 +23,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Direct3D 9 tutorial 2 - 5
 - Navigate with the left and right arrow keys between the test cases
 
+[0.2.0]: https://github.com/juli27/basaltcpp/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/juli27/basaltcpp/releases/tag/v0.1.0
