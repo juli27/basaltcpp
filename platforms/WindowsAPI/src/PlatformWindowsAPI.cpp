@@ -402,10 +402,10 @@ void CreateMainWindow(const WindowDesc& desc) {
   BS_DEBUG(
     "creating main window:\n"
     "  title: \"{}\",\n  width: {}, height: {}, "
-    "fullscreen: {}, borderless: {},\n  resizeable: {}",
+    "fullscreen: {}, exclusive: {},\n  resizeable: {}",
     desc.title, desc.size.GetX(), desc.size.GetY(),
     desc.mode != WindowMode::WINDOWED,
-    desc.mode == WindowMode::FULLSCREEN_BORDERLESS, desc.resizeable
+    desc.mode == WindowMode::FULLSCREEN_EXCLUSIVE, desc.resizeable
   );
 
   RegisterWindowClass();

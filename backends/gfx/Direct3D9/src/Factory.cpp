@@ -61,7 +61,7 @@ IRenderer* CreateRenderer(HWND window) {
   const WindowDesc& windowDesc = platform::GetWindowDesc();
 
   // setup exclusive fullscreen
-  if (windowDesc.mode == WindowMode::FULLSCREEN) {
+  if (windowDesc.mode == WindowMode::FULLSCREEN_EXCLUSIVE) {
     D3DDISPLAYMODE displayMode{};
     D3D9CALL(
       s_d3d9->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &displayMode)

@@ -38,7 +38,7 @@ void Startup() {
     "config: mainWindow: {} {}x{}{} {}{}",
     s_config.mainWindow.title, s_config.mainWindow.size.GetX(),
     s_config.mainWindow.size.GetY(),
-    s_config.mainWindow.mode == WindowMode::FULLSCREEN_BORDERLESS ? " borderless" : "",
+    s_config.mainWindow.mode == WindowMode::FULLSCREEN_EXCLUSIVE ? " exclusive" : "",
     s_config.mainWindow.mode != WindowMode::WINDOWED ? "fullscreen" : "windowed",
     s_config.mainWindow.resizeable ? " resizeable" : ""
   );

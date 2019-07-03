@@ -12,7 +12,7 @@ namespace basalt {
 enum class WindowMode : i8 {
   WINDOWED,
   FULLSCREEN,
-  FULLSCREEN_BORDERLESS
+  FULLSCREEN_EXCLUSIVE
 };
 
 struct WindowDesc {
