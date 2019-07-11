@@ -37,7 +37,3 @@ Only Desktop cards are supported.
 * Nvidia GeForce 6 series or newer
 * Oldest still officially supported GPUs
   * AMD Radeon HD 7000 Series
-
-## Notes
-* WinAPI Keyboard input: what happens when there is no left and right variant
-  of SHIFT / ALT

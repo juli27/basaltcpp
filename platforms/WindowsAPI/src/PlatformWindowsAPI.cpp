@@ -39,10 +39,10 @@ std::unordered_map<i32, Key> s_keyMap = {
   {VK_ESCAPE, Key::ESCAPE},
   {VK_TAB, Key::TAB},
   {VK_CAPITAL, Key::CAPS_LOCK},
-  {VK_LSHIFT, Key::SHIFT_LEFT}, {VK_RSHIFT, Key::SHIFT_RIGHT},
+  {VK_SHIFT, Key::SHIFT},
   //{VK_MENU, Key::ALT},
-  {VK_LWIN, Key::SUPER_LEFT},
-  {VK_RWIN, Key::SUPER_RIGHT},
+  //{VK_LWIN, Key::SUPER_LEFT},
+  //{VK_RWIN, Key::SUPER_RIGHT},
   {VK_PAUSE, Key::PAUSE},
   {VK_INSERT, Key::INSERT},
   {VK_DELETE, Key::DELETE},
@@ -86,8 +86,7 @@ std::unordered_map<i32, Key> s_keyMap = {
   {VK_OEM_MINUS, Key::MINUS},
   {VK_OEM_COMMA, Key::COMMA},
   {VK_OEM_PERIOD, Key::PERIOD},
-  {VK_LCONTROL, Key::CONTROL_LEFT},
-  {VK_RCONTROL, Key::CONTROL_RIGHT},
+  {VK_CONTROL, Key::CONTROL},
   {VK_OEM_1, Key::OEM_1},
   {VK_OEM_2, Key::OEM_2},
   {VK_OEM_3, Key::OEM_3},
@@ -280,33 +279,8 @@ LRESULT CALLBACK WindowProc(
       //       filter with (HIWORD(lParam) & KF_REPEAT)
 
       Key keyCode = s_keyMap[wParam];
-      switch (wParam) {
-        case VK_SHIFT: {
-          UINT scanCode = HIWORD(lParam) & 0xff;
-          UINT newVk = ::MapVirtualKeyW(scanCode, MAPVK_VSC_TO_VK_EX);
-          keyCode = s_keyMap[newVk];
-          break;
-        }
-
-        case VK_CONTROL: {
-          if (HIWORD(lParam) & KF_EXTENDED) {
-            keyCode = Key::CONTROL_RIGHT;
-          } else {
-            keyCode = Key::CONTROL_LEFT;
-          }
-          break;
-        }
-
-        case VK_RETURN:
-          if (HIWORD(lParam) & KF_EXTENDED) {
-            keyCode = Key::NUM_ENTER;
-          } else {
-            keyCode = Key::ENTER;
-          }
-          break;
-
-        default:
-          break;
+      if (wParam == VK_RETURN && (HIWORD(lParam) & KF_EXTENDED)) {
+        keyCode = Key::NUM_ENTER;
       }
 
       if (message == WM_KEYDOWN) {
