@@ -33,31 +33,21 @@ constexpr KeyEvent::KeyEvent(Key key) : m_key(key) {}
 
 class KeyPressedEvent final : public KeyEvent {
 public:
-  constexpr KeyPressedEvent(Key key, i32 repeatCount);
+  constexpr KeyPressedEvent(Key key);
 
   virtual inline EventType GetEventType() const override;
-  constexpr i32 GetRepeatCount() const;
-
-private:
-  const i32 m_repeatCount;
 
 public:
   static constexpr EventType EVENT_TYPE = EventType::KEY_PRESSED;
 };
 
 
-constexpr KeyPressedEvent::KeyPressedEvent(Key key, i32 repeatCount)
-  : KeyEvent(key)
-  , m_repeatCount(repeatCount) {}
+constexpr KeyPressedEvent::KeyPressedEvent(Key key)
+  : KeyEvent(key) {}
 
 
 inline EventType KeyPressedEvent::GetEventType() const {
   return EVENT_TYPE;
-}
-
-
-constexpr i32 KeyPressedEvent::GetRepeatCount() const {
-  return m_repeatCount;
 }
 
 

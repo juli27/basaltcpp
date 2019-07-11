@@ -275,16 +275,18 @@ LRESULT CALLBACK WindowProc(
 
     case WM_KEYDOWN:
     case WM_KEYUP: {
-      // TODO: propagate or filter repeat events
-      //       filter with (HIWORD(lParam) & KF_REPEAT)
-
       Key keyCode = s_keyMap[wParam];
       if (wParam == VK_RETURN && (HIWORD(lParam) & KF_EXTENDED)) {
         keyCode = Key::NUM_ENTER;
       }
 
       if (message == WM_KEYDOWN) {
-        KeyPressedEvent event(keyCode, LOWORD(lParam));
+        // don't dispatch repeat events
+        if (HIWORD(lParam) & KF_REPEAT) {
+          break;
+        }
+
+        KeyPressedEvent event(keyCode);
         DispatchPlatformEvent(event);
       } else {
         KeyReleasedEvent event(s_keyMap[wParam]);
