@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - FULLSCREEN to FULLSCREEN_EXCLUSIVE
   - FULLSCREEN_BORDERLESS to FULLSCREEN
 
+### Removed
+- Left/right variants of the shift, control, super and alt keys
+- Repeat count for KeyPressedEvent
+
 ## [0.1.0] - 2019-07-01
 ### Added
 - Windows x86 build support
