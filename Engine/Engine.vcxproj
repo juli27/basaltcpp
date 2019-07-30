@@ -175,8 +175,6 @@
     <ClInclude Include="include\basalt\IApplication.h" />
     <ClInclude Include="include\basalt\platform\Platform.h" />
     <ClInclude Include="include\basalt\common\Exceptions.h" />
-    <ClInclude Include="include\basalt\resources\Mesh.h" />
-    <ClInclude Include="include\basalt\resources\Model.h" />
     <ClInclude Include="include\basalt\util\Logger.h" />
     <ClInclude Include="include\pch.h" />
   </ItemGroup>
