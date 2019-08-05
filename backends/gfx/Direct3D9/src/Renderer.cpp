@@ -194,11 +194,15 @@ Renderer::Renderer(IDirect3DDevice9* device)
 
 Renderer::~Renderer() {
   for (Texture& texture : m_textures) {
-    texture.texture->Release();
+    if (texture.handle.IsValid()) {
+      texture.texture->Release();
+    }
   }
 
   for (Mesh& mesh : m_meshes) {
-    mesh.vertexBuffer->Release();
+    if (mesh.handle.IsValid()) {
+      mesh.vertexBuffer->Release();
+    }
   }
 
   m_device->Release();
