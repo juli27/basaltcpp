@@ -1,12 +1,12 @@
 # Roadmap
 ## v0.3.0 (2019-09-02)
-* Model loading with automatic Mesh and Material management
+* Dear ImGui integration ([#7](https://github.com/juli27/basaltcpp/issues/7))
 * Very basic scene abstraction
-* refactor gfx backend creation
+* refactor gfx backend creation ([#8](https://github.com/juli27/basaltcpp/issues/8))
 * turn the platform projects into executables which statically link the
-  application project
-* CMake build support
-* GLFW backend
+  application project ([#9](https://github.com/juli27/basaltcpp/issues/9))
+* CMake build support ([#10](https://github.com/juli27/basaltcpp/issues/10))
+* GLFW backend ([#11](https://github.com/juli27/basaltcpp/issues/11))
 
 ## v0.4.0 (2019-10-07)
 * OpenGL 1.0 renderer
@@ -14,6 +14,7 @@
 
 ## Unscheduled
 * turn /permissive- back on
+* Model loading with automatic Mesh and Material management
 * Direct3D 9 programmable pipeline renderer
 * upgrade Direct3D 9 renderer to Direct3D 9Ex
 * upgrade OpenGL renderer to OpenGL 1.1+ (up to OpenGL 2.0)
