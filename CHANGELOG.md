@@ -2,15 +2,17 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## *[0.2.0] - 2019-08-05* (**Unreleased**)
+## [0.2.0] - 2019-08-06
 ### Added
+- Windows x86-64 build support
 
 ### Changed
 - Renamed WindowMode enum constants
   - FULLSCREEN to FULLSCREEN_EXCLUSIVE
   - FULLSCREEN_BORDERLESS to FULLSCREEN
-
-### Deprecated
+- renamed WindowDesc in Config from mainWindow to window
+- moved Key and MouseButton enumerations from common/Types.h into their
+  respective event header files
 
 ### Removed
 - Left/right variants of the shift, control, super and alt keys
@@ -19,8 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Null pointer dereference when destroying a D3D9 renderer
   ([#3](https://github.com/juli27/basaltcpp/issues/3))
-
-### Security
 
 ## [0.1.0] - 2019-07-01
 ### Added
@@ -41,5 +41,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Direct3D 9 tutorial 2 - 5
 - Navigate with the left and right arrow keys between the test cases
 
-[0.2.0]: https://github.com/juli27/basaltcpp/compare/v0.1.0...HEAD
+[0.2.0]: https://github.com/juli27/basaltcpp/releases/tag/v0.2.0
 [0.1.0]: https://github.com/juli27/basaltcpp/releases/tag/v0.1.0
