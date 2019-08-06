@@ -60,7 +60,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BS_BUILD;BS_DEBUG_BUILD;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BS_BUILD;BS_DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -76,9 +76,11 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
-      <ControlFlowGuard>false</ControlFlowGuard>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)backends\gfx\Direct3D9\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)backends\gfx\Direct3D9\include</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -90,7 +92,14 @@
     <Lib>
       <Verbose>true</Verbose>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
+      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
+    <Xdcmake>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+    </Xdcmake>
+    <Bscmake>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -98,7 +107,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BS_BUILD;_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BS_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -114,7 +123,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <ControlFlowGuard>Guard</ControlFlowGuard>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)backends\gfx\Direct3D9\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)backends\gfx\Direct3D9\include</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
     </ClCompile>
     <Link>
@@ -130,6 +139,12 @@
       <Verbose>true</Verbose>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
     </Lib>
+    <Xdcmake>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+    </Xdcmake>
+    <Bscmake>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\basalt\platform\EntryPoint.h" />

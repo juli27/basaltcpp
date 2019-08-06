@@ -61,14 +61,14 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BS_APP_DEBUG_BUILD;WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BS_APP_DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <StringPooling>true</StringPooling>
-      <ControlFlowGuard>false</ControlFlowGuard>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <FloatingPointExceptions>false</FloatingPointExceptions>
@@ -79,8 +79,9 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnableModules>false</EnableModules>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)platforms\WindowsAPI\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)platforms\WindowsAPI\include</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
     </ClCompile>
     <Link>
       <SuppressStartupBanner>false</SuppressStartupBanner>
@@ -89,6 +90,7 @@
       <LargeAddressAware>true</LargeAddressAware>
       <ShowProgress>LinkVerboseLib</ShowProgress>
       <SubSystem>Windows</SubSystem>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
     <Manifest>
       <SuppressStartupBanner>false</SuppressStartupBanner>
@@ -106,7 +108,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <SuppressStartupBanner>false</SuppressStartupBanner>
@@ -123,8 +125,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnableModules>false</EnableModules>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)platforms\WindowsAPI\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)platforms\WindowsAPI\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -135,6 +136,8 @@
       <LargeAddressAware>true</LargeAddressAware>
       <ShowProgress>LinkVerboseLib</ShowProgress>
       <SubSystem>Windows</SubSystem>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
     </Link>
     <Manifest>
       <SuppressStartupBanner>false</SuppressStartupBanner>
