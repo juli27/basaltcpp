@@ -5,6 +5,9 @@
 #include <limits>
 #include <stdexcept>
 
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_dx9.h>
+
 #include <basalt/common/Asserts.h>
 #include <basalt/common/Color.h>
 #include <basalt/gfx/backend/d3d9/Util.h>
@@ -195,10 +198,14 @@ Renderer::Renderer(IDirect3DDevice9* device)
 
   // create default command buffer
   m_commandBuffers.emplace_back();
+
+  ImGui_ImplDX9_Init(m_device);
 }
 
 
 Renderer::~Renderer() {
+  ImGui_ImplDX9_Shutdown();
+
   m_textures.Foreach([](Texture& texture){
     texture.texture->Release();
   });
@@ -387,6 +394,14 @@ void Renderer::Present() {
 
 std::string_view Renderer::GetName() {
   return s_rendererName;
+}
+
+void Renderer::NewGuiFrame() {
+  ImGui_ImplDX9_NewFrame();
+}
+
+void Renderer::RenderGUI() {
+  ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 }
 
 

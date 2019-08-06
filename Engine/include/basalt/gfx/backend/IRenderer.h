@@ -104,6 +104,10 @@ public:
   virtual void Present() = 0;
 
   virtual std::string_view GetName() = 0;
+
+
+  virtual void NewGuiFrame() = 0;
+  virtual void RenderGUI() = 0;
 };
 
 } // namespace backend

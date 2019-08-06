@@ -45,16 +45,10 @@ void Startup() {
 
   platform::Startup(s_config.window);
   input::Init();
-  gfx::Init();
 
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
-
-  // dummy
-  ImGuiIO& io = ImGui::GetIO();
-  u8* texPixels = nullptr;
-  i32 texWidth, texHeight;
-  io.Fonts->GetTexDataAsRGBA32(&texPixels, &texWidth, &texHeight);
+  gfx::Init();
 
   BS_INFO("engine startup complete");
 }
@@ -63,9 +57,9 @@ void Startup() {
 void Shutdown() {
   BS_INFO("shutting down...");
 
+  gfx::Shutdown();
   ImGui::DestroyContext();
 
-  gfx::Shutdown();
 
   platform::Shutdown();
 
@@ -97,12 +91,18 @@ void Run() {
     ImGuiIO& io = ImGui::GetIO();
     math::Vec2i32 windowSize = platform::GetWindowDesc().size;
     io.DisplaySize = ImVec2(static_cast<float>(windowSize.GetX()), static_cast<float>(windowSize.GetY()));
-    io.DeltaTime = static_cast<float> (s_currentDeltaTime);
+    io.DeltaTime = static_cast<float>(s_currentDeltaTime);
+    gfx::GetRenderer()->NewGuiFrame();
+    io.MousePos = ImVec2(static_cast<float>(input::GetMousePos().GetX()), static_cast<float>(input::GetMousePos().GetY()));
+    io.MouseDown[0] = input::IsMouseButtonPressed(input::MouseButton::LEFT);
+    io.MouseDown[1] = input::IsMouseButtonPressed(input::MouseButton::RIGHT);
     ImGui::NewFrame();
 
     s_app->OnUpdate();
 
     ImGui::Render();
+    // gui is 1 frame ahead
+    gfx::GetRenderer()->RenderGUI();
 
     gfx::Present();
 

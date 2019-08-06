@@ -5,6 +5,7 @@
     <ClCompile Include="src\imgui_widgets.cpp" />
     <ClCompile Include="src\imgui_draw.cpp" />
     <ClCompile Include="src\imgui_demo.cpp" />
+    <ClCompile Include="src\imgui_impl_dx9.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\imgui\imconfig.h" />
@@ -13,6 +14,7 @@
     <ClInclude Include="include\imgui\imstb_textedit.h" />
     <ClInclude Include="include\imgui\imstb_rectpack.h" />
     <ClInclude Include="include\imgui\imstb_truetype.h" />
+    <ClInclude Include="include\imgui\imgui_impl_dx9.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

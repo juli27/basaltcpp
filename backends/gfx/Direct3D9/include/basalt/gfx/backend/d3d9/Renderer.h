@@ -61,6 +61,9 @@ public:
   virtual void Present() override;
   virtual std::string_view GetName() override;
 
+  virtual void NewGuiFrame() override;
+  virtual void RenderGUI() override;
+
 public:
   Renderer& operator=(const Renderer&) = delete;
   Renderer& operator=(Renderer&&) = delete;

@@ -55,7 +55,9 @@ MatricesScene::MatricesScene(bs::gfx::backend::IRenderer* renderer)
 void MatricesScene::OnUpdate() {
   using namespace bs::gfx::backend;
 
-  m_triangle.angle += static_cast<bs::f32>(bs::math::PI * 2.0 * bs::GetDeltaTime());
+  static float speed = 2.0f;
+
+  m_triangle.angle += static_cast<bs::f32>(bs::math::PI * speed * bs::GetDeltaTime());
   if (m_triangle.angle >= bs::math::PI * 2.0f) {
     m_triangle.angle = 0.0f;
   }
@@ -68,6 +70,10 @@ void MatricesScene::OnUpdate() {
   command.world = bs::math::Mat4f32::RotationY(m_triangle.angle);
   command.flags = RF_DISABLE_LIGHTING | RF_CULL_NONE;
   m_renderer->Submit(command);
+
+  ImGui::Begin("Matrices");
+  ImGui::SliderFloat("speed", &speed, 0.0f, 4.0f);
+  ImGui::End();
 }
 
 } // namespace d3d9tuts
