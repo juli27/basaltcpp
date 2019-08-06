@@ -29,6 +29,7 @@
     <ClInclude Include="include\basalt\gfx\backend\RenderCommand.h" />
     <ClInclude Include="include\basalt\gfx\backend\Types.h" />
     <ClInclude Include="include\basalt\gfx\Gfx.h" />
+    <ClInclude Include="include\basalt\common\HandlePool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine.cpp" />

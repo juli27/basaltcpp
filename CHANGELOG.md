@@ -4,6 +4,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## *[0.3.0] - 2019-09-02* (**Unreleased**)
 ### Added
+- HandlePool to allocate and reuse memory slots accessed via a handle
 
 ### Changed
 

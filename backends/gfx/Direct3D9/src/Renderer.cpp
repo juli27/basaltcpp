@@ -199,17 +199,12 @@ Renderer::Renderer(IDirect3DDevice9* device)
 
 
 Renderer::~Renderer() {
-  for (Texture& texture : m_textures) {
-    if (texture.handle.IsValid()) {
-      texture.texture->Release();
-    }
-  }
-
-  for (Mesh& mesh : m_meshes) {
-    if (mesh.handle.IsValid()) {
-      mesh.vertexBuffer->Release();
-    }
-  }
+  m_textures.Foreach([](Texture& texture){
+    texture.texture->Release();
+  });
+  m_meshes.Foreach([](Mesh& mesh){
+    mesh.vertexBuffer->Release();
+  });
 
   m_device->Release();
 }
@@ -243,25 +238,24 @@ MeshHandle Renderer::AddMesh(
     BS_ERROR("Failed to lock vertex buffer");
   }
 
-  Mesh& mesh = GetFreeMeshSlot();
+  MeshHandle meshHandle = m_meshes.Allocate();
+  Mesh& mesh = m_meshes.Get(meshHandle);
   mesh.vertexBuffer = vertexBuffer;
   mesh.fvf = fvf;
   mesh.vertexSize = vertexSize;
   SetPrimitiveInfo(mesh, primitiveType, numVertices);
 
-  return mesh.handle;
+  return meshHandle;
 }
 
 
 void Renderer::RemoveMesh(MeshHandle meshHandle) {
-  Mesh& mesh = GetMesh(meshHandle);
+  Mesh& mesh = m_meshes.Get(meshHandle);
 
   mesh.vertexBuffer->Release();
   mesh.vertexBuffer = nullptr;
-  mesh.handle = MeshHandle();
 
-  // add to the free slots
-  m_freeMeshSlots.push_back(meshHandle.GetValue());
+  m_meshes.Deallocate(meshHandle);
 }
 
 
@@ -275,22 +269,21 @@ TextureHandle Renderer::AddTexture(std::string_view filePath) {
     throw std::runtime_error("loading texture file failed");
   }
 
-  Texture& tex = GetFreeTextureSlot();
+  TextureHandle texHandle = m_textures.Allocate();
+  Texture& tex = m_textures.Get(texHandle);
   tex.texture = texture;
 
-  return tex.handle;
+  return texHandle;
 }
 
 
 void Renderer::RemoveTexture(TextureHandle textureHandle) {
-  Texture& texture = GetTexture(textureHandle);
+  Texture& texture = m_textures.Get(textureHandle);
 
   texture.texture->Release();
   texture.texture = nullptr;
-  texture.handle = TextureHandle();
 
-  // add to the free slots
-  m_freeTextureSlots.push_back(textureHandle.GetValue());
+  m_textures.Deallocate(textureHandle);
 }
 
 
@@ -397,83 +390,6 @@ std::string_view Renderer::GetName() {
 }
 
 
-Mesh& Renderer::GenerateMeshSlot() {
-  auto nextIndex = m_meshes.size();
-  if (nextIndex > static_cast<u32>(std::numeric_limits<i32>::max())) {
-    throw std::out_of_range("out of mesh slots");
-  }
-
-  i32 index = static_cast<i32>(nextIndex);
-  Mesh& mesh = m_meshes.emplace_back();
-  mesh.handle = MeshHandle(index);
-
-  return mesh;
-}
-
-
-Mesh& Renderer::GetFreeMeshSlot() {
-  while (!m_freeMeshSlots.empty()) {
-    i32 index = m_freeMeshSlots.back();
-    m_freeMeshSlots.pop_back();
-    Mesh& mesh = m_meshes.at(index);
-    mesh.handle = MeshHandle(index);
-
-    return mesh;
-  }
-
-  // no more allocated free mesh slots available. genereate a new one
-  return GenerateMeshSlot();
-}
-
-
-Mesh& Renderer::GetMesh(MeshHandle meshHandle) {
-  if (!meshHandle.IsValid()) {
-    throw std::runtime_error("invalid handle");
-  }
-
-  // throws exception with invalid index
-  return m_meshes.at(meshHandle.GetValue());
-}
-
-
-Texture& Renderer::GenerateTextureSlot() {
-  auto nextIndex = m_textures.size();
-  if (nextIndex > static_cast<u16>(std::numeric_limits<i16>::max())) {
-    throw std::out_of_range("out of mesh slots");
-  }
-  i32 index = static_cast<i32>(nextIndex);
-  Texture& texture = m_textures.emplace_back();
-  texture.handle = TextureHandle(index);
-
-  return texture;
-}
-
-
-Texture& Renderer::GetFreeTextureSlot() {
-  while (!m_freeTextureSlots.empty()) {
-    i32 index = m_freeTextureSlots.back();
-    m_freeTextureSlots.pop_back();
-    Texture& texture = m_textures.at(index);
-    texture.handle = TextureHandle(index);
-
-    return texture;
-  }
-
-  // no more allocated free mesh slots available. genereate a new one
-  return GenerateTextureSlot();
-}
-
-
-Texture& Renderer::GetTexture(TextureHandle textureHandle) {
-  if (!textureHandle.IsValid()) {
-    throw std::runtime_error("invalid handle");
-  }
-
-  // throws exception with invalid index
-  return m_textures.at(textureHandle.GetValue());
-}
-
-
 void Renderer::RenderCommands(const RenderCommandBuffer& commands) {
   for (const RenderCommand& command : commands.GetCommands()) {
     // apply custom render flags
@@ -493,13 +409,13 @@ void Renderer::RenderCommands(const RenderCommandBuffer& commands) {
     D3D9CALL(m_device->SetMaterial(&material));
 
     if (command.texture.IsValid()) {
-      const Texture& texture = GetTexture(command.texture);
+      const Texture& texture = m_textures.Get(command.texture);
       D3D9CALL(m_device->SetTexture(0, texture.texture));
     } else {
       D3D9CALL(m_device->SetTexture(0, nullptr));
     }
 
-    const Mesh& mesh = GetMesh(command.mesh);
+    const Mesh& mesh = m_meshes.Get(command.mesh);
     D3D9CALL(m_device->SetStreamSource(
       0u, mesh.vertexBuffer, 0u, mesh.vertexSize
     ));

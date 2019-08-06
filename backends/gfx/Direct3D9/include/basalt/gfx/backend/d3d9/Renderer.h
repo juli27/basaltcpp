@@ -6,6 +6,8 @@
 
 #include <vector>
 
+#include <basalt/common/HandlePool.h>
+
 #include "D3D9Header.h"
 
 namespace basalt {
@@ -20,13 +22,11 @@ struct Mesh {
   UINT vertexSize;
   D3DPRIMITIVETYPE primType;
   UINT primCount;
-  MeshHandle handle;
 };
 
 
 struct Texture {
   IDirect3DTexture9* texture;
-  TextureHandle handle;
 };
 
 
@@ -66,58 +66,14 @@ public:
   Renderer& operator=(Renderer&&) = delete;
 
 private:
-  /**
-   * \brief Allocates a new mesh slot.
-   *
-   * \return the allocated mesh slot.
-   */
-  Mesh& GenerateMeshSlot();
-
-  /**
-   * \brief Return a free mesh slot.
-   *
-   * The returned mesh slot can be a newly allocated or a recycled one.
-   *
-   * \return the free mesh slot
-   */
-  Mesh& GetFreeMeshSlot();
-
-  /**
-   * \brief Retrieve the mesh slot for the supplied mesh handle.
-   */
-  Mesh& GetMesh(MeshHandle meshHandle);
-
-  /**
-   * \brief Allocates a new texture slot.
-   *
-   * \return the allocated texture slot.
-   */
-  Texture& GenerateTextureSlot();
-
-  /**
-   * \brief Return a free texture slot.
-   *
-   * The returned texture slot can be a newly allocated or a recycled one.
-   *
-   * \return the free texture slot
-   */
-  Texture& GetFreeTextureSlot();
-
-  /**
-   * \brief Retrieve the texture slot for the supplied texture handle.
-   */
-  Texture& GetTexture(TextureHandle textureHandle);
-
 
   void RenderCommands(const RenderCommandBuffer& commands);
 
 private:
   IDirect3DDevice9* m_device;
   D3DCAPS9 m_deviceCaps;
-  std::vector<Mesh> m_meshes;
-  std::vector<i32> m_freeMeshSlots;
-  std::vector<Texture> m_textures;
-  std::vector<i32> m_freeTextureSlots;
+  HandlePool<Mesh, MeshHandle> m_meshes;
+  HandlePool<Texture, TextureHandle> m_textures;
   std::vector<RenderCommandBuffer> m_commandBuffers;
   D3DCOLOR m_clearColor;
 };

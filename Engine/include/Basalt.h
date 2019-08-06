@@ -8,7 +8,10 @@
 #include "basalt/Input.h"
 
 #include "basalt/common/Asserts.h"
+#include "basalt/common/Color.h"
 #include "basalt/common/Exceptions.h"
+#include "basalt/common/Handle.h"
+#include "basalt/common/HandlePool.h"
 #include "basalt/common/Types.h"
 
 #include "basalt/gfx/Gfx.h"
