@@ -25,30 +25,30 @@ math::Vec2i32 s_mousePos;
 
 
 void OnKeyPressed(const platform::KeyPressedEvent& event) {
-  const i32 index = static_cast<i32>(event.GetKey());
+  const i32 index = static_cast<i32>(event.key);
   s_keyStates[index] = true;
 }
 
 
 void OnKeyReleased(const platform::KeyReleasedEvent& event) {
-  const i32 index = static_cast<i32>(event.GetKey());
+  const i32 index = static_cast<i32>(event.key);
   s_keyStates[index] = false;
 }
 
 
 void OnMouseMoved(const platform::MouseMovedEvent& event) {
-  s_mousePos = event.GetMousePos();
+  s_mousePos = event.pos;
 }
 
 
 void OnButtonPressed(const platform::MouseButtonPressedEvent& event) {
-  const i32 index = static_cast<i32>(event.GetButton());
+  const i32 index = static_cast<i32>(event.button);
   s_buttonStates[index] = true;
 }
 
 
 void OnButtonReleased(const platform::MouseButtonReleasedEvent& event) {
-  const i32 index = static_cast<i32>(event.GetButton());
+  const i32 index = static_cast<i32>(event.button);
   s_buttonStates[index] = false;
 }
 

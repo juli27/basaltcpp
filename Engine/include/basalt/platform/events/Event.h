@@ -2,12 +2,7 @@
 #ifndef BS_PLATFORM_EVENTS_EVENT_H
 #define BS_PLATFORM_EVENTS_EVENT_H
 
-#include <functional>
-
 #include <basalt/common/Types.h>
-#include <basalt/platform/WindowTypes.h>
-
-#define BIND_EVENT_FN(f) std::bind(f, this, std::placeholders::_1)
 
 namespace basalt {
 namespace platform {
@@ -15,7 +10,6 @@ namespace platform {
 enum class EventType : i8 {
   UNKNOWN = 0,
   WINDOW_RESIZED,
-  //WINDOW_CLOSE_REQUEST,
   KEY_PRESSED,
   KEY_RELEASED,
   MOUSE_MOVED,
@@ -25,23 +19,25 @@ enum class EventType : i8 {
 };
 
 
-class Event {
-public:
-  virtual ~Event() = default;
-
-  virtual inline EventType GetEventType() const = 0;
+struct Event {
+  EventType type = EventType::UNKNOWN;
 };
 
 
-class EventDispatcher final {
-  template <typename T>
-  using EventFn = std::function<void (const T&)>;
+template <EventType TYPE>
+struct EventTyped : Event {
+  static const EventType s_Type = TYPE;
 
+  EventTyped() { type = s_Type; }
+};
+
+
+class EventDispatcher {
 public:
   inline EventDispatcher(const Event& event);
 
-  template <typename T>
-  inline void Dispatch(EventFn<T> func) const;
+  template <typename T, typename EventFn>
+  inline void Dispatch(EventFn func) const;
 
 private:
   const Event& m_event;
@@ -51,10 +47,10 @@ private:
 inline EventDispatcher::EventDispatcher(const Event& event) : m_event(event) {}
 
 
-template<typename T>
-inline void EventDispatcher::Dispatch(EventFn<T> func) const {
-  if (m_event.GetEventType() == T::EVENT_TYPE) {
-    func(*reinterpret_cast<const T*>(&m_event));
+template<typename T, typename EventFn>
+inline void EventDispatcher::Dispatch(EventFn func) const {
+  if (m_event.type == T::s_Type) {
+    func(*static_cast<const T*>(&m_event));
   }
 }
 

@@ -11,7 +11,7 @@ namespace basalt {
 namespace platform {
 
 
-enum class MouseButton : i32 {
+enum class MouseButton : i8 {
   UNKNOWN = 0,
   LEFT, RIGHT, MIDDLE, BUTTON4, BUTTON5,
 
@@ -19,93 +19,19 @@ enum class MouseButton : i32 {
 };
 
 
-class MouseMovedEvent final : public Event {
-public:
-  constexpr MouseMovedEvent(math::Vec2i32 pos);
-
-  virtual inline EventType GetEventType() const override;
-  constexpr const math::Vec2i32& GetMousePos() const;
-
-private:
-  const math::Vec2i32 m_pos;
-
-public:
-  static constexpr EventType EVENT_TYPE = EventType::MOUSE_MOVED;
+struct MouseMovedEvent : EventTyped<EventType::MOUSE_MOVED> {
+  math::Vec2i32 pos;
 };
 
 
-constexpr MouseMovedEvent::MouseMovedEvent(math::Vec2i32 pos) : m_pos(pos) {}
-
-
-inline EventType MouseMovedEvent::GetEventType() const {
-  return EVENT_TYPE;
-}
-
-
-constexpr const math::Vec2i32& MouseMovedEvent::GetMousePos() const {
-  return m_pos;
-}
-
-
-class MouseButtonEvent : public Event {
-public:
-  constexpr MouseButton GetButton() const;
-
-protected:
-  constexpr MouseButtonEvent(MouseButton button);
-
-private:
-  const MouseButton m_button;
+struct MouseButtonPressedEvent : EventTyped<EventType::MOUSE_BUTTON_PRESSED> {
+  MouseButton button = MouseButton::UNKNOWN;
 };
 
 
-constexpr MouseButton MouseButtonEvent::GetButton() const {
-  return m_button;
-}
-
-
-constexpr MouseButtonEvent::MouseButtonEvent(MouseButton button)
-  : m_button(button) {}
-
-
-class MouseButtonPressedEvent final : public MouseButtonEvent {
-public:
-  constexpr MouseButtonPressedEvent(MouseButton button);
-
-  virtual inline EventType GetEventType() const override;
-
-public:
-  static constexpr EventType EVENT_TYPE = EventType::MOUSE_BUTTON_PRESSED;
+struct MouseButtonReleasedEvent : EventTyped<EventType::MOUSE_BUTTON_RELEASED> {
+  MouseButton button = MouseButton::UNKNOWN;
 };
-
-
-constexpr MouseButtonPressedEvent::MouseButtonPressedEvent(MouseButton button)
-  : MouseButtonEvent(button) {}
-
-
-inline EventType MouseButtonPressedEvent::GetEventType() const {
-  return EVENT_TYPE;
-}
-
-
-class MouseButtonReleasedEvent final : public MouseButtonEvent {
-public:
-  constexpr MouseButtonReleasedEvent(MouseButton button);
-
-  virtual inline EventType GetEventType() const override;
-
-public:
-  static constexpr EventType EVENT_TYPE = EventType::MOUSE_BUTTON_RELEASED;
-};
-
-
-constexpr MouseButtonReleasedEvent::MouseButtonReleasedEvent(MouseButton button)
-  : MouseButtonEvent(button) {}
-
-
-inline EventType MouseButtonReleasedEvent::GetEventType() const {
-  return EVENT_TYPE;
-}
 
 } // namespace platform
 } // namespace basalt

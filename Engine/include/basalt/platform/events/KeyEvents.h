@@ -36,92 +36,19 @@ enum class Key : i32 {
 };
 
 
-class KeyEvent : public Event {
-public:
-  constexpr Key GetKey() const;
-
-protected:
-  constexpr KeyEvent(Key key);
-
-private:
-  const Key m_key;
+struct KeyPressedEvent : EventTyped<EventType::KEY_PRESSED> {
+  Key key = Key::UNKNOWN;
 };
 
 
-constexpr Key KeyEvent::GetKey() const {
-  return m_key;
-}
-
-
-constexpr KeyEvent::KeyEvent(Key key) : m_key(key) {}
-
-
-class KeyPressedEvent final : public KeyEvent {
-public:
-  constexpr KeyPressedEvent(Key key);
-
-  virtual inline EventType GetEventType() const override;
-
-public:
-  static constexpr EventType EVENT_TYPE = EventType::KEY_PRESSED;
+struct KeyReleasedEvent : EventTyped<EventType::KEY_RELEASED> {
+  Key key = Key::UNKNOWN;
 };
 
 
-constexpr KeyPressedEvent::KeyPressedEvent(Key key)
-  : KeyEvent(key) {}
-
-
-inline EventType KeyPressedEvent::GetEventType() const {
-  return EVENT_TYPE;
-}
-
-
-class KeyReleasedEvent final : public KeyEvent {
-public:
-  constexpr KeyReleasedEvent(Key key);
-
-  virtual inline EventType GetEventType() const override;
-
-public:
-  static constexpr EventType EVENT_TYPE = EventType::KEY_RELEASED;
+struct CharactersTyped : EventTyped<EventType::CHARACTERS_TYPED> {
+  std::string chars;
 };
-
-
-constexpr KeyReleasedEvent::KeyReleasedEvent(Key key) : KeyEvent(key) {}
-
-
-inline EventType KeyReleasedEvent::GetEventType() const {
-  return EVENT_TYPE;
-}
-
-
-class CharactersTyped final : public Event {
-public:
-  constexpr CharactersTyped(const std::string& chars);
-
-  virtual inline EventType GetEventType() const override;
-  inline std::string_view GetTypedChars() const;
-
-private:
-  const std::string m_chars;
-
-public:
-  static constexpr EventType EVENT_TYPE = EventType::CHARACTERS_TYPED;
-};
-
-
-constexpr CharactersTyped::CharactersTyped(const std::string& chars)
-  : m_chars(chars) {}
-
-
-inline EventType CharactersTyped::GetEventType() const {
-  return EVENT_TYPE;
-}
-
-
-inline std::string_view CharactersTyped::GetTypedChars() const {
-  return m_chars;
-}
 
 } // namespace platform
 } // namespace basalt

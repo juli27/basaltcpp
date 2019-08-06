@@ -236,43 +236,50 @@ LRESULT CALLBACK WindowProc(
 
   switch (message) {
     case WM_MOUSEMOVE: {
-      MouseMovedEvent event({GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)});
+      MouseMovedEvent event;
+      event.pos = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
       DispatchPlatformEvent(event);
       break;
     }
 
     case WM_LBUTTONDOWN: {
-      MouseButtonPressedEvent event(MouseButton::LEFT);
+      MouseButtonPressedEvent event;
+      event.button = MouseButton::LEFT;
       DispatchPlatformEvent(event);
       break;
     }
 
     case WM_LBUTTONUP: {
-      MouseButtonReleasedEvent event(MouseButton::LEFT);
+      MouseButtonReleasedEvent event;
+      event.button = MouseButton::LEFT;
       DispatchPlatformEvent(event);
       break;
     }
 
     case WM_RBUTTONDOWN: {
-      MouseButtonPressedEvent event(MouseButton::RIGHT);
+      MouseButtonPressedEvent event;
+      event.button = MouseButton::RIGHT;
       DispatchPlatformEvent(event);
       break;
     }
 
     case WM_RBUTTONUP: {
-      MouseButtonReleasedEvent event(MouseButton::RIGHT);
+      MouseButtonReleasedEvent event;
+      event.button = MouseButton::RIGHT;
       DispatchPlatformEvent(event);
       break;
     }
 
     case WM_MBUTTONDOWN: {
-      MouseButtonPressedEvent event(MouseButton::MIDDLE);
+      MouseButtonPressedEvent event;
+      event.button = MouseButton::MIDDLE;
       DispatchPlatformEvent(event);
       break;
     }
 
     case WM_MBUTTONUP: {
-      MouseButtonReleasedEvent event(MouseButton::MIDDLE);
+      MouseButtonReleasedEvent event;
+      event.button = MouseButton::MIDDLE;
       DispatchPlatformEvent(event);
       break;
     }
@@ -293,10 +300,12 @@ LRESULT CALLBACK WindowProc(
           break;
         }
 
-        KeyPressedEvent event(keyCode);
+        KeyPressedEvent event;
+        event.key = keyCode;
         DispatchPlatformEvent(event);
       } else {
-        KeyReleasedEvent event(s_keyMap[vkCode]);
+        KeyReleasedEvent event;
+        event.key = s_keyMap[vkCode];
         DispatchPlatformEvent(event);
       }
       break;
@@ -311,7 +320,8 @@ LRESULT CALLBACK WindowProc(
       for (; repCount > 0; repCount--) {
         typedChars.append(typedChar);
       }
-      CharactersTyped event(typedChars);
+      CharactersTyped event;
+      event.chars = typedChars;
       DispatchPlatformEvent(event);
       break;
     }
@@ -320,7 +330,8 @@ LRESULT CALLBACK WindowProc(
       switch (wParam) {
         case SIZE_RESTORED:
         case SIZE_MAXIMIZED: {
-          WindowResizedEvent event({LOWORD(lParam), HIWORD(lParam)});
+          WindowResizedEvent event;
+          event.newSize = {LOWORD(lParam), HIWORD(lParam)};
           DispatchPlatformEvent(event);
           return 0;
         }
