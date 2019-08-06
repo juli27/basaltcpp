@@ -7,45 +7,48 @@
 namespace basalt {
 
 
-template <typename typeTag>
+template <typename Tag>
 class Handle final {
 public:
+  using IndexT = i32;
   using ValueT = i32;
+
+  static_assert(sizeof(IndexT) <= sizeof(ValueT));
 
 public:
   constexpr Handle();
   constexpr Handle(ValueT value);
-  constexpr Handle(const Handle<typeTag>&) = default;
-  constexpr Handle(Handle<typeTag>&&) = default;
+  constexpr Handle(const Handle<Tag>&) = default;
+  constexpr Handle(Handle<Tag>&&) = default;
   inline ~Handle() = default;
 
   constexpr bool IsValid() const;
   constexpr ValueT GetValue() const;
 
-  inline Handle<typeTag>& operator=(const Handle<typeTag>&) = default;
-  inline Handle<typeTag>& operator=(Handle<typeTag>&&) = default;
+  inline Handle<Tag>& operator=(const Handle<Tag>&) = default;
+  inline Handle<Tag>& operator=(Handle<Tag>&&) = default;
 
 private:
   ValueT m_value;
 };
 
 
-template <typename typeTag>
-constexpr Handle<typeTag>::Handle() : m_value(0xFFFFFFFF) {}
+template <typename Tag>
+constexpr Handle<Tag>::Handle() : m_value(0xFFFFFFFF) {}
 
 
-template <typename typeTag>
-constexpr Handle<typeTag>::Handle(ValueT value) : m_value(value) {}
+template <typename Tag>
+constexpr Handle<Tag>::Handle(ValueT value) : m_value(value) {}
 
 
-template <typename typeTag>
-constexpr bool Handle<typeTag>::IsValid() const {
+template <typename Tag>
+constexpr bool Handle<Tag>::IsValid() const {
   return !(0x80000000 & m_value);
 }
 
 
-template <typename typeTag>
-constexpr typename Handle<typeTag>::ValueT Handle<typeTag>::GetValue() const {
+template <typename Tag>
+constexpr typename Handle<Tag>::ValueT Handle<Tag>::GetValue() const {
   return m_value;
 }
 

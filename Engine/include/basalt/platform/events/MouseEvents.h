@@ -10,6 +10,15 @@
 namespace basalt {
 namespace platform {
 
+
+enum class MouseButton : i32 {
+  UNKNOWN = 0,
+  LEFT, RIGHT, MIDDLE, BUTTON4, BUTTON5,
+
+  NUMBER_OF_BUTTONS
+};
+
+
 class MouseMovedEvent final : public Event {
 public:
   constexpr MouseMovedEvent(math::Vec2i32 pos);

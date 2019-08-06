@@ -1,13 +1,14 @@
 #pragma once
-#ifndef BS_UTIL_EXCEPTIONS_H
-#define BS_UTIL_EXCEPTIONS_H
+#ifndef BS_COMMON_EXCEPTIONS_H
+#define BS_COMMON_EXCEPTIONS_H
 
 #include <stdexcept>
 #include <string>
 
 namespace basalt {
 
-class ApiNotSupportedException : public std::runtime_error {
+
+class ApiNotSupportedException final : public std::runtime_error {
 public:
   explicit inline ApiNotSupportedException(const char* message);
   explicit inline ApiNotSupportedException(const std::string& message);
@@ -22,4 +23,4 @@ inline ApiNotSupportedException::ApiNotSupportedException(
 
 } // namespace basalt
 
-#endif // !BS_UTIL_EXCEPTIONS_H
+#endif // !BS_COMMON_EXCEPTIONS_H

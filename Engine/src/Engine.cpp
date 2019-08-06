@@ -35,15 +35,15 @@ void Startup() {
   }
 
   BS_INFO(
-    "config: mainWindow: {} {}x{}{} {}{}",
-    s_config.mainWindow.title, s_config.mainWindow.size.GetX(),
-    s_config.mainWindow.size.GetY(),
-    s_config.mainWindow.mode == WindowMode::FULLSCREEN_EXCLUSIVE ? " exclusive" : "",
-    s_config.mainWindow.mode != WindowMode::WINDOWED ? "fullscreen" : "windowed",
-    s_config.mainWindow.resizeable ? " resizeable" : ""
+    "config: window: {} {}x{}{} {}{}",
+    s_config.window.title, s_config.window.size.GetX(),
+    s_config.window.size.GetY(),
+    s_config.window.mode == WindowMode::FULLSCREEN_EXCLUSIVE ? " exclusive" : "",
+    s_config.window.mode != WindowMode::WINDOWED ? "fullscreen" : "windowed",
+    s_config.window.resizeable ? " resizeable" : ""
   );
 
-  platform::Startup(s_config.mainWindow);
+  platform::Startup(s_config.window);
   input::Init();
   gfx::Init();
 

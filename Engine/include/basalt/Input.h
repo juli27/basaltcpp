@@ -2,11 +2,15 @@
 #ifndef BS_INPUT_H
 #define BS_INPUT_H
 
-#include "common/Types.h"
 #include "math/Vec2.h"
+#include "platform/events/KeyEvents.h" // for Key
+#include "platform/events/MouseEvents.h" // for MouseButton
 
 namespace basalt {
 namespace input {
+
+using platform::Key;
+using platform::MouseButton;
 
 void Init();
 

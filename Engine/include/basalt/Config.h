@@ -7,7 +7,7 @@
 namespace basalt {
 
 struct Config {
-  WindowDesc mainWindow;
+  WindowDesc window;
   /* TODO:
    * ups: number of times the applications update method is called per second.
           for the future: split up physics, ai, input, etc.

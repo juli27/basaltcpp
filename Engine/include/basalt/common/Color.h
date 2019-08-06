@@ -54,11 +54,11 @@ constexpr Color::Color(u8 r, u8 g, u8 b, u8 a)
 constexpr u32 Color::ToARGB() const {
   u32 color = m_a;
   color <<= 8;
-  color += m_r;
+  color |= m_r;
   color <<= 8;
-  color += m_g;
+  color |= m_g;
   color <<= 8;
-  color += m_b;
+  color |= m_b;
 
   return color;
 }

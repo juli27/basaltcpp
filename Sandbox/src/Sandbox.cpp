@@ -10,8 +10,8 @@
 #include "scenes/d3d9-tutorials/Vertices.h"
 
 SandboxApp::SandboxApp(bs::Config& config) : m_currentSceneIndex(0) {
-  config.mainWindow.title = "Basalt Sandbox";
-  config.mainWindow.mode = bs::WindowMode::WINDOWED;
+  config.window.title = "Basalt Sandbox";
+  config.window.mode = bs::WindowMode::WINDOWED;
 }
 
 void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
@@ -125,7 +125,7 @@ void SandboxApp::OnUpdate() {
   // HACK
   static bool rightPressed = false;
   static bool leftPressed = false;
-  if (bs::input::IsKeyPressed(bs::Key::RIGHT_ARROW)) {
+  if (bs::input::IsKeyPressed(bs::input::Key::RIGHT_ARROW)) {
     if (!rightPressed) {
       rightPressed = true;
       m_currentSceneIndex++;
@@ -137,7 +137,7 @@ void SandboxApp::OnUpdate() {
     rightPressed = false;
   }
 
-  if (bs::input::IsKeyPressed(bs::Key::LEFT_ARROW)) {
+  if (bs::input::IsKeyPressed(bs::input::Key::LEFT_ARROW)) {
     if (!leftPressed) {
       leftPressed = true;
       m_currentSceneIndex--;
@@ -149,7 +149,7 @@ void SandboxApp::OnUpdate() {
     leftPressed = false;
   }
 
-  if (bs::input::IsKeyPressed(bs::Key::ESCAPE)) {
+  if (bs::input::IsKeyPressed(bs::input::Key::ESCAPE)) {
     // TODO: use the Engine class for lifecycle management?
     // (but it is internal right now and would expose non useable functions)
     bs::platform::RequestQuit();
