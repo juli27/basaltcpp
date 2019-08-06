@@ -42,6 +42,8 @@ void VerticesScene::OnUpdate() {
   m_renderer->SetClearColor(bs::Color(0, 0, 255));
 
   m_renderer->Submit({m_triangleMesh});
+
+  ImGui::ShowDemoWindow();
 }
 
 } // namespace d3d9tuts

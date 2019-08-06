@@ -37,7 +37,7 @@
 // at the bottom because of the stupid windows.h dependency
 #include "basalt/Log.h"
 
-//#include <imgui/imgui.h>
+#include <imgui/imgui.h>
 
 #ifndef BS_NO_SHORT_NS
 namespace bs = basalt;

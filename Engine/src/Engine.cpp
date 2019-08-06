@@ -5,7 +5,7 @@
 #include <chrono>
 #include <stdexcept>
 
-//#include <imgui/imgui.h>
+#include <imgui/imgui.h>
 
 #include <basalt/Config.h>
 #include <basalt/IApplication.h>
@@ -47,11 +47,14 @@ void Startup() {
   input::Init();
   gfx::Init();
 
-  /*IMGUI_CHECKVERSION();
+  IMGUI_CHECKVERSION();
   ImGui::CreateContext();
 
+  // dummy
   ImGuiIO& io = ImGui::GetIO();
-  io.BackendPlatformName = "Basalt";*/
+  u8* texPixels = nullptr;
+  i32 texWidth, texHeight;
+  io.Fonts->GetTexDataAsRGBA32(&texPixels, &texWidth, &texHeight);
 
   BS_INFO("engine startup complete");
 }
@@ -60,7 +63,7 @@ void Startup() {
 void Shutdown() {
   BS_INFO("shutting down...");
 
-  //ImGui::DestroyContext();
+  ImGui::DestroyContext();
 
   gfx::Shutdown();
 
@@ -91,9 +94,15 @@ void Run() {
     // asynchronicity of gpu drivers (gpu does the actual work while updating)
     gfx::Render();
 
-    //ImGui::NewFrame();
+    ImGuiIO& io = ImGui::GetIO();
+    math::Vec2i32 windowSize = platform::GetWindowDesc().size;
+    io.DisplaySize = ImVec2(static_cast<float>(windowSize.GetX()), static_cast<float>(windowSize.GetY()));
+    io.DeltaTime = static_cast<float> (s_currentDeltaTime);
+    ImGui::NewFrame();
+
     s_app->OnUpdate();
-    //ImGui::EndFrame();
+
+    ImGui::Render();
 
     gfx::Present();
 
