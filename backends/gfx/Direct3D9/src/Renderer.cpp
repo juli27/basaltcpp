@@ -159,8 +159,13 @@ std::wstring CreateWideFromUTF8(const std::string_view source) {
     return std::wstring();
   }
 
+  BS_RELEASE_ASSERT(
+    source.size() <= static_cast<std::size_t>(std::numeric_limits<int>::max()),
+    "string too large"
+  );
+  const int sourceSize = static_cast<int>(source.size());
   const int size = ::MultiByteToWideChar(
-    CP_UTF8, 0, source.data(), source.size(), nullptr, 0
+    CP_UTF8, 0, source.data(), sourceSize, nullptr, 0
   );
 
   if (size == 0) {
@@ -169,7 +174,8 @@ std::wstring CreateWideFromUTF8(const std::string_view source) {
 
   std::wstring dest(size, '\0');
   if (::MultiByteToWideChar(
-    CP_UTF8, 0, source.data(), source.size(), dest.data(), dest.size()
+    CP_UTF8, 0, source.data(), sourceSize, dest.data(),
+    static_cast<int>(dest.size())
   ) == 0) {
     throw std::runtime_error("MultiByteToWideChar failed");
   }

@@ -142,7 +142,7 @@ void SandboxApp::OnUpdate() {
       leftPressed = true;
       m_currentSceneIndex--;
       if (m_currentSceneIndex < 0) {
-        m_currentSceneIndex = m_scenes.size() - 1;
+        m_currentSceneIndex = static_cast<bs::i32>(m_scenes.size() - 1);
       }
     }
   } else {

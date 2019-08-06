@@ -2,6 +2,7 @@
 #include <basalt/platform/PlatformWindowsAPI.h>
 
 #include <algorithm>
+#include <limits>
 #include <unordered_map>
 #include <vector>
 
@@ -118,8 +119,13 @@ std::string CreateUTF8FromWide(const std::wstring_view source) noexcept {
 
   // use the size of the string view because the input string
   // can be non null-terminated
+  BS_RELEASE_ASSERT(
+    source.size() <= static_cast<std::size_t>(std::numeric_limits<int>::max()),
+    "string too large"
+  );
+  const int sourceSize = static_cast<int>(source.size());
   int size = ::WideCharToMultiByte(
-    CP_UTF8, 0u, source.data(), source.size(), nullptr, 0, nullptr, nullptr
+    CP_UTF8, 0u, source.data(), sourceSize, nullptr, 0, nullptr, nullptr
   );
 
   if (size == 0) {
@@ -133,13 +139,13 @@ std::string CreateUTF8FromWide(const std::wstring_view source) noexcept {
 
   std::string dest(size, '\0');
   size = ::WideCharToMultiByte(
-    CP_UTF8, 0, source.data(), source.size(), dest.data(), dest.size(), nullptr,
-    nullptr
+    CP_UTF8, 0, source.data(), sourceSize, dest.data(),
+    static_cast<int>(dest.size()), nullptr, nullptr
   );
   if (size == 0) {
     BS_ERROR(
       "WideCharToMultiByte failed to convert a wide string of size {} "
-      "with error code {}", source.size(), ::GetLastError()
+      "with error code {}", sourceSize, ::GetLastError()
     );
     return std::string();
   }
@@ -275,8 +281,9 @@ LRESULT CALLBACK WindowProc(
 
     case WM_KEYDOWN:
     case WM_KEYUP: {
-      Key keyCode = s_keyMap[wParam];
-      if (wParam == VK_RETURN && (HIWORD(lParam) & KF_EXTENDED)) {
+      const int vkCode = static_cast<int>(wParam);
+      Key keyCode = s_keyMap[vkCode];
+      if (vkCode == VK_RETURN && (HIWORD(lParam) & KF_EXTENDED)) {
         keyCode = Key::NUM_ENTER;
       }
 
@@ -289,7 +296,7 @@ LRESULT CALLBACK WindowProc(
         KeyPressedEvent event(keyCode);
         DispatchPlatformEvent(event);
       } else {
-        KeyReleasedEvent event(s_keyMap[wParam]);
+        KeyReleasedEvent event(s_keyMap[vkCode]);
         DispatchPlatformEvent(event);
       }
       break;
@@ -465,8 +472,13 @@ std::wstring CreateWideFromUTF8(const std::string_view source) {
     return std::wstring();
   }
 
+  BS_RELEASE_ASSERT(
+    source.size() <= static_cast<std::size_t>(std::numeric_limits<int>::max()),
+    "string too large"
+  );
+  const int sourceSize = static_cast<int>(source.size());
   const int size = ::MultiByteToWideChar(
-    CP_UTF8, 0, source.data(), source.size(), nullptr, 0
+    CP_UTF8, 0, source.data(), sourceSize, nullptr, 0
   );
 
   if (size == 0) {
@@ -475,7 +487,8 @@ std::wstring CreateWideFromUTF8(const std::string_view source) {
 
   std::wstring dest(size, '\0');
   if (::MultiByteToWideChar(
-    CP_UTF8, 0, source.data(), source.size(), dest.data(), dest.size()
+    CP_UTF8, 0, source.data(), sourceSize, dest.data(),
+    static_cast<int>(dest.size())
   ) == 0) {
     throw std::runtime_error("MultiByteToWideChar failed");
   }

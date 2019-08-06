@@ -63,7 +63,7 @@ TexturesScene::TexturesScene(bs::gfx::backend::IRenderer* renderer)
   };
 
   m_cylinder.mesh = m_renderer->AddMesh(
-    vertices.data(), vertices.size(), vertexLayout,
+    vertices.data(), static_cast<bs::i32>(vertices.size()), vertexLayout,
     bs::gfx::backend::PrimitiveType::TRIANGLE_STRIP
   );
 
