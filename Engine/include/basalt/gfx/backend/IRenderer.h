@@ -76,9 +76,6 @@ public:
    */
   virtual void Submit(const RenderCommand& command) = 0;
 
-  // TODO: ugh, copies the whole command buffer every time...
-  virtual void Submit(const RenderCommandBuffer& commands) = 0;
-
   /**
    * Sets the view and projection matrix for the default command buffer.
    */

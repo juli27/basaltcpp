@@ -118,7 +118,7 @@ void SandboxApp::OnUpdate() {
 
   m_renderer->Submit(m_triangleCommand);*/
 
-  //ImGui::ShowDemoWindow();
+  ImGui::ShowDemoWindow();
 
   m_scenes.at(m_currentSceneIndex)->OnUpdate();
 

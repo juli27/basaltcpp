@@ -15,9 +15,9 @@ namespace backend {
 
 
 enum RenderFlags : i8 {
-  RF_NONE = 0,
-  RF_CULL_NONE = 0b0000'0001,
-  RF_DISABLE_LIGHTING = 0b0000'0010
+  RF_NONE = 0x00,
+  RF_CULL_NONE = 0x01,
+  RF_DISABLE_LIGHTING = 0x02
 };
 
 

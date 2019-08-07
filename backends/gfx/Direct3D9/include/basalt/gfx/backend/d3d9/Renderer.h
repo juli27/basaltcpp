@@ -4,8 +4,6 @@
 
 #include <basalt/gfx/backend/IRenderer.h>
 
-#include <vector>
-
 #include <basalt/common/HandlePool.h>
 
 #include "D3D9Header.h"
@@ -51,7 +49,6 @@ public:
   virtual TextureHandle AddTexture(std::string_view filePath) override;
   virtual void RemoveTexture(TextureHandle textureHandle) override;
   virtual void Submit(const RenderCommand& command) override;
-  virtual void Submit(const RenderCommandBuffer& commands) override;
   virtual void SetViewProj(
     const math::Mat4f32& view, const math::Mat4f32& projection
   ) override;
@@ -77,7 +74,7 @@ private:
   D3DCAPS9 m_deviceCaps;
   HandlePool<Mesh, MeshHandle> m_meshes;
   HandlePool<Texture, TextureHandle> m_textures;
-  std::vector<RenderCommandBuffer> m_commandBuffers;
+  RenderCommandBuffer m_commandBuffer;
   D3DCOLOR m_clearColor;
 };
 

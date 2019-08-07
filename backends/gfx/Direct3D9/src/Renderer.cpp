@@ -4,6 +4,7 @@
 
 #include <limits>
 #include <stdexcept>
+#include <string>
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_dx9.h>
@@ -22,9 +23,7 @@ namespace {
 constexpr std::string_view s_rendererName = "Direct3D 9 fixed function";
 
 
-DWORD GetFVF(const VertexLayout& layout) {
-  BS_ASSERT(layout.GetElements().size() != 0, "must specify a vertex layout");
-
+DWORD CreateFVFFromVertexLayout(const VertexLayout& layout) {
   DWORD fvf = 0u;
 
   for (const VertexElement& element : layout.GetElements()) {
@@ -100,7 +99,7 @@ DWORD GetFVF(const VertexLayout& layout) {
 }
 
 
-void SetPrimitiveInfo(
+void FillPrimitiveInfo(
   Mesh& mesh, PrimitiveType primitiveType, i32 numVertices
 ) {
   switch (primitiveType) {
@@ -149,7 +148,7 @@ void SetPrimitiveInfo(
 }
 
 
-void SetD3DColor(D3DCOLORVALUE& d3dColor, Color color) {
+void FillD3DColor(D3DCOLORVALUE& d3dColor, Color color) {
   d3dColor.r = color.GetRed() / 255.0f;
   d3dColor.g = color.GetGreen() / 255.0f;
   d3dColor.b = color.GetBlue() / 255.0f;
@@ -196,9 +195,6 @@ Renderer::Renderer(IDirect3DDevice9* device)
   m_device->AddRef();
   D3D9CALL(m_device->GetDeviceCaps(&m_deviceCaps));
 
-  // create default command buffer
-  m_commandBuffers.emplace_back();
-
   ImGui_ImplDX9_Init(m_device);
 }
 
@@ -225,8 +221,10 @@ MeshHandle Renderer::AddMesh(
 ) {
   BS_ASSERT_ARG_NOT_NULL(data);
   BS_ASSERT(numVertices > 0, "numVertices must be > 0");
+  BS_ASSERT(layout.GetElements().size() != 0, "must specify a vertex layout");
 
-  const DWORD fvf = GetFVF(layout);
+
+  const DWORD fvf = CreateFVFFromVertexLayout(layout);
   const UINT vertexSize = D3DXGetFVFVertexSize(fvf);
   const UINT bufferSize = vertexSize * numVertices;
 
@@ -250,7 +248,7 @@ MeshHandle Renderer::AddMesh(
   mesh.vertexBuffer = vertexBuffer;
   mesh.fvf = fvf;
   mesh.vertexSize = vertexSize;
-  SetPrimitiveInfo(mesh, primitiveType, numVertices);
+  FillPrimitiveInfo(mesh, primitiveType, numVertices);
 
   return meshHandle;
 }
@@ -295,13 +293,7 @@ void Renderer::RemoveTexture(TextureHandle textureHandle) {
 
 
 void Renderer::Submit(const RenderCommand& command) {
-  m_commandBuffers[0].AddCommand(command);
-}
-
-
-void Renderer::Submit(const RenderCommandBuffer&) {
-  // TODO: implement additional command buffers
-  throw std::runtime_error("not implemented");
+  m_commandBuffer.AddCommand(command);
 }
 
 
@@ -312,9 +304,8 @@ void Renderer::SetViewProj(
     throw std::runtime_error("m34 can't be negative in a projection matrix");
   }
 
-  auto& commandBuffer = m_commandBuffers[0];
-  commandBuffer.SetView(view);
-  commandBuffer.SetProjection(projection);
+  m_commandBuffer.SetView(view);
+  m_commandBuffer.SetProjection(projection);
 }
 
 void Renderer::SetLights(const LightSetup& lights) {
@@ -330,8 +321,8 @@ void Renderer::SetLights(const LightSetup& lights) {
     D3DLIGHT9 d3dlight{};
     d3dlight.Type = D3DLIGHT_DIRECTIONAL;
     d3dlight.Direction = *reinterpret_cast<const D3DVECTOR*>(&light.direction);
-    SetD3DColor(d3dlight.Diffuse, light.diffuseColor);
-    SetD3DColor(d3dlight.Ambient, light.ambientColor);
+    FillD3DColor(d3dlight.Diffuse, light.diffuseColor);
+    FillD3DColor(d3dlight.Ambient, light.ambientColor);
 
     D3D9CALL(m_device->SetLight(lightIndex, &d3dlight));
     D3D9CALL(m_device->LightEnable(lightIndex, TRUE));
@@ -365,25 +356,21 @@ void Renderer::Render() {
   // on the success of BeginScene? -> Log error and/or throw exception
   D3D9CALL(m_device->BeginScene());
 
-  for (const RenderCommandBuffer& commandBuffer : m_commandBuffers) {
-    D3D9CALL(m_device->SetTransform(
-      D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&commandBuffer.GetView())
-    ));
-    D3D9CALL(m_device->SetTransform(
-      D3DTS_PROJECTION,
-      reinterpret_cast<const D3DMATRIX*>(&commandBuffer.GetProjection())
-    ));
+  D3D9CALL(m_device->SetTransform(
+    D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&m_commandBuffer.GetView())
+  ));
+  D3D9CALL(m_device->SetTransform(
+    D3DTS_PROJECTION,
+    reinterpret_cast<const D3DMATRIX*>(&m_commandBuffer.GetProjection())
+  ));
 
-    RenderCommands(commandBuffer);
-  }
+  RenderCommands(m_commandBuffer);
 
   D3D9CALL(m_device->SetStreamSource(0u, nullptr, 0u, 0u));
 
   D3D9CALL(m_device->EndScene());
 
-  // remove every command buffer except the default and clear the default buffer
-  m_commandBuffers.resize(1);
-  m_commandBuffers[0].Clear();
+  m_commandBuffer.Clear();
 }
 
 
@@ -418,9 +405,9 @@ void Renderer::RenderCommands(const RenderCommandBuffer& commands) {
     }
 
     D3DMATERIAL9 material{};
-    SetD3DColor(material.Diffuse, command.diffuseColor);
-    SetD3DColor(material.Ambient, command.ambientColor);
-    SetD3DColor(material.Emissive, command.emissiveColor);
+    FillD3DColor(material.Diffuse, command.diffuseColor);
+    FillD3DColor(material.Ambient, command.ambientColor);
+    FillD3DColor(material.Emissive, command.emissiveColor);
     D3D9CALL(m_device->SetMaterial(&material));
 
     if (command.texture.IsValid()) {
