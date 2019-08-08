@@ -202,10 +202,10 @@ Renderer::Renderer(IDirect3DDevice9* device)
 Renderer::~Renderer() {
   ImGui_ImplDX9_Shutdown();
 
-  m_textures.Foreach([](Texture& texture){
+  m_textures.ForEach([](Texture& texture){
     texture.texture->Release();
   });
-  m_meshes.Foreach([](Mesh& mesh){
+  m_meshes.ForEach([](Mesh& mesh){
     mesh.vertexBuffer->Release();
   });
 
@@ -410,7 +410,7 @@ void Renderer::RenderCommands(const RenderCommandBuffer& commands) {
     FillD3DColor(material.Emissive, command.emissiveColor);
     D3D9CALL(m_device->SetMaterial(&material));
 
-    if (command.texture.IsValid()) {
+    if (command.texture) {
       const Texture& texture = m_textures.Get(command.texture);
       D3D9CALL(m_device->SetTexture(0, texture.texture));
     } else {

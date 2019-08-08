@@ -11,9 +11,9 @@ template <typename T, typename HandleT>
 class HandlePool final {
 private:
   struct Slot {
-    T data{};
-    HandleT handle;
-    HandleT nextFreeSlot;
+    T data = {};
+    HandleT handle = {};
+    HandleT nextFreeSlot = {};
   };
 
 public:
@@ -28,12 +28,13 @@ public:
   void Deallocate(HandleT handle);
   T& Get(HandleT handle);
 
-  using ForeachFn = void (*) (T&);
-  void Foreach(ForeachFn fn);
+  using ForEachFn = void (*) (T&);
+  void ForEach(ForEachFn fn);
 
 public:
-  HandlePool& operator=(const HandlePool&) = default;
   HandlePool& operator=(HandlePool&&) = default;
+
+  HandlePool& operator=(const HandlePool&) = delete;
 
 private:
   std::vector<Slot> m_slots;
@@ -43,7 +44,7 @@ private:
 
 template <typename T, typename HandleT>
 HandleT HandlePool<T, HandleT>::Allocate() {
-  if (m_firstFreeSlot.IsValid()) {
+  if (m_firstFreeSlot) {
     Slot& slot = m_slots.at(m_firstFreeSlot.GetValue());
     slot.handle = m_firstFreeSlot;
     m_firstFreeSlot = slot.nextFreeSlot;
@@ -52,7 +53,7 @@ HandleT HandlePool<T, HandleT>::Allocate() {
   }
 
   const auto nextIndex = m_slots.size();
-  if (nextIndex > static_cast<u32>(std::numeric_limits<typename HandleT::IndexT>::max())) {
+  if (nextIndex > static_cast<u32>(std::numeric_limits<HandleT::ValueT>::max())) {
     throw std::out_of_range("out of slots");
   }
 
@@ -75,7 +76,7 @@ void HandlePool<T, HandleT>::Deallocate(HandleT handle) {
 
 template <typename T, typename HandleT>
 T& HandlePool<T, HandleT>::Get(HandleT handle) {
-  if (!handle.IsValid()) {
+  if (!handle) {
     throw std::runtime_error("invalid handle");
   }
 
@@ -85,9 +86,9 @@ T& HandlePool<T, HandleT>::Get(HandleT handle) {
 }
 
 template<typename T, typename HandleT>
-void HandlePool<T, HandleT>::Foreach(ForeachFn fn) {
+void HandlePool<T, HandleT>::ForEach(ForEachFn fn) {
   std::for_each(std::begin(m_slots), std::end(m_slots), [=](Slot& slot){
-    if (slot.handle.IsValid()) {
+    if (slot.handle) {
       fn(slot.data);
     }
   });

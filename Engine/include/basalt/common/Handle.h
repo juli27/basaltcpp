@@ -2,55 +2,88 @@
 #ifndef BS_COMMON_HANDLE_H
 #define BS_COMMON_HANDLE_H
 
+#include <limits>
+
 #include "Types.h"
 
 namespace basalt {
+namespace _internal {
 
 
-template <typename Tag>
-class Handle final {
+class HandleBase {
 public:
-  using IndexT = i32;
-  using ValueT = i32;
-
-  static_assert(sizeof(IndexT) <= sizeof(ValueT));
+  using ValueT = u32;
 
 public:
-  constexpr Handle();
-  constexpr Handle(ValueT value);
-  constexpr Handle(const Handle<Tag>&) = default;
-  constexpr Handle(Handle<Tag>&&) = default;
-  inline ~Handle() = default;
+  constexpr HandleBase() noexcept;
+  constexpr explicit HandleBase(ValueT value) noexcept;
+  constexpr HandleBase(const HandleBase&) noexcept = default;
+  constexpr HandleBase(HandleBase&&) noexcept = default;
+  inline ~HandleBase() noexcept = default;
 
-  constexpr bool IsValid() const;
-  constexpr ValueT GetValue() const;
+public:
+  constexpr void Invalidate() noexcept;
+  constexpr ValueT GetValue() const noexcept;
 
-  inline Handle<Tag>& operator=(const Handle<Tag>&) = default;
-  inline Handle<Tag>& operator=(Handle<Tag>&&) = default;
+public:
+  constexpr bool operator==(const HandleBase& rhs) const noexcept;
+  constexpr bool operator!=(const HandleBase& rhs) const noexcept;
+
+  inline HandleBase& operator=(const HandleBase&) noexcept = default;
+  inline HandleBase& operator=(HandleBase&&) noexcept = default;
+
+public:
+  constexpr explicit operator bool() const noexcept;
 
 private:
-  ValueT m_value;
+  ValueT mValue;
+
+public:
+  static constexpr ValueT sInvalidValue = std::numeric_limits<ValueT>::max();
 };
 
 
-template <typename Tag>
-constexpr Handle<Tag>::Handle() : m_value(0xFFFFFFFF) {}
+constexpr HandleBase::HandleBase() noexcept : mValue(sInvalidValue) {}
 
 
-template <typename Tag>
-constexpr Handle<Tag>::Handle(ValueT value) : m_value(value) {}
-
-
-template <typename Tag>
-constexpr bool Handle<Tag>::IsValid() const {
-  return !(0x80000000 & m_value);
+constexpr HandleBase::HandleBase(ValueT value) noexcept : mValue(value) {
+  // TODO: assert (value != sInvalidValue)
 }
 
 
-template <typename Tag>
-constexpr typename Handle<Tag>::ValueT Handle<Tag>::GetValue() const {
-  return m_value;
+constexpr void HandleBase::Invalidate() noexcept {
+  mValue = sInvalidValue;
 }
+
+
+constexpr HandleBase::ValueT HandleBase::GetValue() const noexcept {
+  return mValue;
+}
+
+
+constexpr bool HandleBase::operator==(const HandleBase& rhs) const noexcept {
+  return mValue == rhs.mValue;
+}
+
+
+constexpr bool HandleBase::operator!=(const HandleBase& rhs) const noexcept {
+  return !(*this == rhs);
+}
+
+
+constexpr HandleBase::operator bool() const noexcept {
+  return mValue != sInvalidValue;
+}
+
+} // namespace _internal
+
+
+template <typename Tag>
+class Handle final : public _internal::HandleBase {
+public:
+  // inherit base class constructors
+  using HandleBase::HandleBase;
+};
 
 } // namespace basalt
 
