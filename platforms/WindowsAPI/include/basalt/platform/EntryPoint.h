@@ -18,9 +18,8 @@
 
 #include "PlatformWindowsAPI.h"
 
-int CALLBACK wWinMain(
-  _In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ WCHAR* commandLine,
-  _In_ int showCommand
+_Use_decl_annotations_ int CALLBACK wWinMain(
+  HINSTANCE instance, HINSTANCE, WCHAR* commandLine, int showCommand
 ) try {
   basalt::log::Init();
 
