@@ -354,3 +354,4 @@ MigrationBackup/
 ### CUSTOM
 log.txt
 data/
+imgui.ini
