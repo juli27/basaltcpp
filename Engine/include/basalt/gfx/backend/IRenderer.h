@@ -15,6 +15,12 @@ namespace gfx {
 namespace backend {
 
 
+enum class RendererType : i8 {
+  DEFAULT,
+  DIRECT3D9,
+};
+
+
 class IRenderer {
 public:
   virtual ~IRenderer() = default;
@@ -37,6 +43,8 @@ public:
   // TODO: ICommandBuffer and CreateCommandBuffer. The command buffer is
   //       directly tied to the renderer
 
+
+public:
   /**
    * \brief Adds a static mesh to the renderer to prepare it for rendering.
    *
@@ -105,6 +113,9 @@ public:
 
   virtual void NewGuiFrame() = 0;
   virtual void RenderGUI() = 0;
+
+public:
+  static IRenderer* Create(RendererType type);
 };
 
 } // namespace backend

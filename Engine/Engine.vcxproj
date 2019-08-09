@@ -285,7 +285,6 @@
     <ClInclude Include="include\basalt\gfx\Gfx.h" />
     <ClInclude Include="include\basalt\math\Constants.h" />
     <ClInclude Include="include\basalt\math\Vec3.h" />
-    <ClInclude Include="include\basalt\gfx\backend\Factory.h" />
     <ClInclude Include="include\basalt\gfx\backend\IRenderer.h" />
     <ClInclude Include="include\basalt\gfx\backend\Types.h" />
     <ClInclude Include="include\basalt\math\Mat4.h" />

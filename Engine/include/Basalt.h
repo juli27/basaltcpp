@@ -16,7 +16,6 @@
 
 #include "basalt/gfx/Gfx.h"
 
-#include "basalt/gfx/backend/Factory.h"
 #include "basalt/gfx/backend/IRenderer.h"
 #include "basalt/gfx/backend/RenderCommand.h"
 #include "basalt/gfx/backend/Types.h"

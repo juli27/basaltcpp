@@ -270,12 +270,10 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Factory.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\basalt\gfx\backend\d3d9\D3D9Header.h" />
-    <ClInclude Include="include\basalt\gfx\backend\d3d9\Factory.h" />
     <ClInclude Include="include\basalt\gfx\backend\d3d9\D3D9Renderer.h" />
     <ClInclude Include="include\basalt\gfx\backend\d3d9\D3D9Util.h" />
     <ClInclude Include="include\basalt\gfx\backend\d3d9\Renderer.h" />

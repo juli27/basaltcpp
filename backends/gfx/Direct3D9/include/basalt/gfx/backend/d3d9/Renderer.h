@@ -76,6 +76,9 @@ private:
   HandlePool<Texture, TextureHandle> m_textures;
   RenderCommandBuffer m_commandBuffer;
   D3DCOLOR m_clearColor;
+
+public:
+  static Renderer* Create(HWND window);
 };
 
 } // namespace d3d9

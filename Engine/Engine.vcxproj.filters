@@ -22,7 +22,6 @@
     <ClInclude Include="include\basalt\Input.h" />
     <ClInclude Include="include\basalt\platform\events\Event.h" />
     <ClInclude Include="include\basalt\platform\events\KeyEvents.h" />
-    <ClInclude Include="include\basalt\gfx\backend\Factory.h" />
     <ClInclude Include="include\basalt\math\Constants.h" />
     <ClInclude Include="include\basalt\common\Color.h" />
     <ClInclude Include="include\basalt\common\Handle.h" />

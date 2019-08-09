@@ -4,7 +4,6 @@
 
 #include <basalt/Log.h>
 
-#include <basalt/gfx/backend/Factory.h>
 #include <basalt/gfx/backend/IRenderer.h>
 
 namespace basalt {
@@ -18,7 +17,7 @@ backend::IRenderer* s_renderer;
 
 
 void Init() {
-  s_renderer = backend::CreateRenderer();
+  s_renderer = backend::IRenderer::Create(backend::RendererType::DEFAULT);
   BS_INFO("gfx backend: {}", s_renderer->GetName());
 }
 
@@ -28,8 +27,6 @@ void Shutdown() {
     delete s_renderer;
     s_renderer = nullptr;
   }
-
-  gfx::backend::Shutdown();
 }
 
 
