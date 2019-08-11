@@ -8,8 +8,7 @@
 
 #include <basalt/common/Types.h>
 
-namespace basalt {
-namespace platform {
+namespace basalt::platform {
 
 
 enum class Key : i32 {
@@ -50,7 +49,6 @@ struct CharactersTyped : EventTyped<EventType::CHARACTERS_TYPED> {
   std::string chars;
 };
 
-} // namespace platform
-} // namespace basalt
+} // namespace basalt::platform
 
 #endif // !BS_PLATFORM_EVENTS_KEY_EVENTS_H

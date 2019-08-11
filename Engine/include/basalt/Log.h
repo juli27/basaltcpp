@@ -15,8 +15,7 @@
 #undef MOUSE_MOVED
 #endif
 
-namespace basalt {
-namespace log {
+namespace basalt::log {
 
 void Init();
 
@@ -24,8 +23,7 @@ const std::shared_ptr<spdlog::logger>& GetCoreLogger();
 
 const std::shared_ptr<spdlog::logger>& GetClientLogger();
 
-} // namespace log
-}  // namespace basalt
+}  // namespace basalt::log
 
 #ifdef BS_BUILD
 

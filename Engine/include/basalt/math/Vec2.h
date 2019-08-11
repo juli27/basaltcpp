@@ -4,8 +4,8 @@
 
 #include <basalt/common/Types.h>
 
-namespace basalt {
-namespace math {
+namespace basalt::math {
+
 
 template <typename T>
 class Vec2 final {
@@ -68,7 +68,6 @@ using Vec2f32 = Vec2<f32>;
 
 using Vec2i32 = Vec2<i32>;
 
-} // namespace math
-} // namespace basalt
+} // namespace basalt::math
 
 #endif // !BS_MATH_VEC2_H

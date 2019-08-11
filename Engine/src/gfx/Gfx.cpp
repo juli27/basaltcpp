@@ -6,8 +6,7 @@
 
 #include <basalt/gfx/backend/IRenderer.h>
 
-namespace basalt {
-namespace gfx {
+namespace basalt::gfx {
 namespace {
 
 
@@ -44,5 +43,4 @@ backend::IRenderer* GetRenderer() {
   return s_renderer;
 }
 
-} // namespace gfx
-} // namespace basalt
+} // namespace basalt::gfx

@@ -10,9 +10,9 @@
 #include <basalt/platform/events/KeyEvents.h>
 #include <basalt/platform/events/MouseEvents.h>
 
-namespace basalt {
-namespace input {
+namespace basalt::input {
 namespace {
+
 
 static constexpr i32 NUM_KEYS = static_cast<i32>(Key::NUMBER_OF_KEYS);
 static constexpr i32 NUM_MOUSE_BUTTONS = static_cast<i32>(
@@ -84,5 +84,4 @@ bool IsMouseButtonPressed(MouseButton button) {
   return s_buttonStates[static_cast<i32>(button)];
 }
 
-} // namespace input
-} // namespace basalt
+} // namespace basalt::input

@@ -4,8 +4,7 @@
 
 #include "backend/IRenderer.h"
 
-namespace basalt {
-namespace gfx {
+namespace basalt::gfx {
 
 
 void Init();
@@ -22,8 +21,6 @@ void Present();
 
 backend::IRenderer* GetRenderer();
 
-
-} // namespace gfx
-} // namespace basalt
+} // namespace basalt::gfx
 
 #endif // !BS_GFX_H

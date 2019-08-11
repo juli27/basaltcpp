@@ -6,8 +6,8 @@
 
 #include <basalt/common/Types.h>
 
-namespace basalt {
-namespace math {
+namespace basalt::math {
+
 
 template <typename T>
 class Vec3 final {
@@ -149,7 +149,6 @@ using Vec3i64 = Vec3<i64>;
 using Vec3u32 = Vec3<u32>;
 using Vec3u64 = Vec3<u64>;
 
-} // namespace math
-} // namespace basalt
+} // namespace basalt::math
 
 #endif // !BS_MATH_VEC3_H

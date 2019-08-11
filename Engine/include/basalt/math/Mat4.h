@@ -4,8 +4,7 @@
 
 #include "Vec3.h"
 
-namespace basalt {
-namespace math {
+namespace basalt::math {
 
 
 class Mat4 final {
@@ -331,7 +330,6 @@ constexpr bool operator!=(const Mat4& a, const Mat4& b) {
 
 using Mat4f32 = Mat4;
 
-} // namespace math
-} // namespace basalt
+} // namespace basalt::math
 
 #endif // !BS_MATH_MAT4_H

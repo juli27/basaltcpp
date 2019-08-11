@@ -4,8 +4,8 @@
 
 #include <basalt/common/Types.h>
 
-namespace basalt {
-namespace platform {
+namespace basalt::platform {
+
 
 enum class EventType : i8 {
   UNKNOWN = 0,
@@ -54,7 +54,6 @@ inline void EventDispatcher::Dispatch(EventFn func) const {
   }
 }
 
-} // namespace platform
-} // namespace basalt
+} // namespace basalt::platform
 
 #endif // !BS_PLATFORM_EVENTS_EVENT_H

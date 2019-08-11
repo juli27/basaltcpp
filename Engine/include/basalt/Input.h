@@ -6,8 +6,8 @@
 #include "platform/events/KeyEvents.h" // for Key
 #include "platform/events/MouseEvents.h" // for MouseButton
 
-namespace basalt {
-namespace input {
+namespace basalt::input {
+
 
 using platform::Key;
 using platform::MouseButton;
@@ -20,7 +20,6 @@ const math::Vec2i32& GetMousePos();
 
 bool IsMouseButtonPressed(MouseButton button);
 
-} // namespace input
-} // namespace basalt
+} // namespace basalt::input
 
 #endif // !BS_INPUT_H

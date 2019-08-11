@@ -4,8 +4,7 @@
 
 #include <basalt/math/Mat4.h>
 
-namespace basalt {
-namespace math {
+namespace basalt::math {
 
 
 Mat4 Mat4::Invert(const Mat4& m) {
@@ -180,5 +179,4 @@ Mat4 Mat4::Camera(
 //                0.0f , 0.0f , 0.0f , 1.0f);
 //}
 
-} // namespace math
-} // namespace basalt
+} // namespace basalt::math

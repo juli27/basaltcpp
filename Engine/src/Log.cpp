@@ -8,8 +8,7 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/msvc_sink.h>
 
-namespace basalt {
-namespace log {
+namespace basalt::log {
 namespace {
 
 std::shared_ptr<spdlog::logger> s_coreLogger;
@@ -60,5 +59,4 @@ const std::shared_ptr<spdlog::logger>& GetClientLogger() {
   return s_clientLogger;
 }
 
-} // namespace log
-} // namespace basalt
+} // namespace basalt::log

@@ -9,9 +9,7 @@
 
 #include "Types.h"
 
-namespace basalt {
-namespace gfx {
-namespace backend {
+namespace basalt::gfx::backend {
 
 
 enum RenderFlags : i8 {
@@ -126,8 +124,6 @@ inline const math::Mat4f32& RenderCommandBuffer::GetProjection() const {
   return m_projection;
 }
 
-} // namespace backend
-} // namespace gfx
-} // namespace basalt
+} // namespace basalt::gfx::backend
 
 #endif // !BS_GFX_BACKEND_RENDERCOMMAND_H

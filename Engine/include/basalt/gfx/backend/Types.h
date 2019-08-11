@@ -9,9 +9,7 @@
 #include <basalt/common/Types.h>
 #include <basalt/math/Vec3.h>
 
-namespace basalt {
-namespace gfx {
-namespace backend {
+namespace basalt::gfx::backend {
 
 
 enum class VertexElementUsage : i8 {
@@ -154,8 +152,6 @@ inline Color LightSetup::GetGlobalAmbientColor() const {
   return m_ambientColor;
 }
 
-} // namespace backend
-} // namespace gfx
-} // namespace basalt
+} // namespace basalt::gfx::backend
 
 #endif // !BS_GFX_BACKEND_TYPES_H

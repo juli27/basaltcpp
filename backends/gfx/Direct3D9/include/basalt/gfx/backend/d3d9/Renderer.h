@@ -8,10 +8,7 @@
 
 #include "D3D9Header.h"
 
-namespace basalt {
-namespace gfx {
-namespace backend {
-namespace d3d9 {
+namespace basalt::gfx::backend::d3d9 {
 
 
 struct Mesh {
@@ -81,9 +78,6 @@ public:
   static Renderer* Create(HWND window);
 };
 
-} // namespace d3d9
-} // namespace backend
-} // namespace gfx
-} // namespace basalt
+} // namespace basalt::gfx::backend::d3d9
 
 #endif // !BS_GFX_BACKEND_D3D9_RENDERER_H

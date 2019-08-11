@@ -16,8 +16,8 @@
 #include "WindowTypes.h"
 #include "events/Event.h"
 
-namespace basalt {
-namespace platform {
+namespace basalt::platform {
+
 
 using PlatformEventCallback = std::function<void(const Event&)>;
 
@@ -57,7 +57,6 @@ const std::vector<std::string>& GetArgs();
 
 const WindowDesc& GetWindowDesc();
 
-} // namespace platform
-} // namespace basalt
+} // namespace basalt::platform
 
 #endif // !BS_PLATFORM_PLATFORM_H

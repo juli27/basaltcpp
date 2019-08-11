@@ -7,8 +7,7 @@
 #include <basalt/common/Types.h>
 #include <basalt/math/Vec2.h>
 
-namespace basalt {
-namespace platform {
+namespace basalt::platform {
 
 
 enum class MouseButton : i8 {
@@ -33,7 +32,6 @@ struct MouseButtonReleasedEvent : EventTyped<EventType::MOUSE_BUTTON_RELEASED> {
   MouseButton button = MouseButton::UNKNOWN;
 };
 
-} // namespace platform
-} // namespace basalt
+} // namespace basalt::platform
 
 #endif // !BS_PLATFORM_EVENTS_MOUSE_EVENTS_H

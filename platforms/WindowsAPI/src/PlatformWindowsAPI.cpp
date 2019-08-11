@@ -13,8 +13,7 @@
 #include <basalt/platform/events/MouseEvents.h>
 #include <basalt/platform/events/WindowEvents.h>
 
-namespace basalt {
-namespace platform {
+namespace basalt::platform {
 namespace winapi {
 namespace {
 
@@ -588,5 +587,4 @@ const WindowDesc& GetWindowDesc() {
   return winapi::s_windowDesc;
 }
 
-} // namespace platform
-} // namespace basalt
+} // namespace basalt::platform

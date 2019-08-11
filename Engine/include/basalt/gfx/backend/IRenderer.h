@@ -10,9 +10,7 @@
 #include "RenderCommand.h"
 #include "Types.h"
 
-namespace basalt {
-namespace gfx {
-namespace backend {
+namespace basalt::gfx::backend {
 
 
 enum class RendererType : i8 {
@@ -118,8 +116,6 @@ public:
   static IRenderer* Create(RendererType type);
 };
 
-} // namespace backend
-} // namespace gfx
-} // namespace basalt
+} // namespace basalt::gfx::backend
 
 #endif // !BS_GFX_BACKEND_IRENDERER_H

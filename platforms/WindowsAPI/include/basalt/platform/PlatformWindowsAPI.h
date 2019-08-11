@@ -6,9 +6,7 @@
 
 #include "WindowsHeader.h"
 
-namespace basalt {
-namespace platform {
-namespace winapi {
+namespace basalt::platform::winapi {
 
 /*
  * \brief Initializes the Windows API platform.
@@ -41,8 +39,6 @@ HWND GetWindowHandle();
  */
 std::wstring CreateWideFromUTF8(const std::string_view source);
 
-} // namespace winapi
-} // namespace platform
-} // namespace basalt
+} // namespace basalt::platform::winapi
 
 #endif // !BS_PLATFORM_WINDOWS_API_H

@@ -15,10 +15,7 @@
 #include <basalt/gfx/backend/d3d9/Util.h>
 #include <basalt/platform/Platform.h>
 
-namespace basalt {
-namespace gfx {
-namespace backend {
-namespace d3d9 {
+namespace basalt::gfx::backend::d3d9 {
 namespace {
 
 
@@ -497,7 +494,4 @@ Renderer* Renderer::Create(HWND window) {
   return renderer;
 }
 
-} // namespace d3d9
-} // namespace backend
-} // namespace gfx
-} // namespace basalt
+} // namespace basalt::gfx::backend::d3d9
