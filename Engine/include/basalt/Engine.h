@@ -8,7 +8,7 @@ namespace basalt {
 
 void Run();
 
-f64 GetDeltaTime();
+auto GetDeltaTime() -> f64;
 
 } // namespace basalt
 

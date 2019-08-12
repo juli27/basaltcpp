@@ -51,11 +51,11 @@ public:
   inline void AddElement(VertexElementUsage usage, VertexElementType type);
 
 
-  inline const std::vector<VertexElement>& GetElements() const;
+  inline auto GetElements() const -> const std::vector<VertexElement>&;
 
 public:
-  inline VertexLayout& operator=(const VertexLayout&) = default;
-  inline VertexLayout& operator=(VertexLayout&&) = default;
+  inline auto operator=(const VertexLayout&) -> VertexLayout& = default;
+  inline auto operator=(VertexLayout&&) -> VertexLayout& = default;
 
 private:
   std::vector<VertexElement> m_elements;
@@ -73,7 +73,8 @@ inline void VertexLayout::AddElement(
 }
 
 
-inline const std::vector<VertexElement>& VertexLayout::GetElements() const {
+inline auto VertexLayout::GetElements() const
+-> const std::vector<VertexElement>& {
   return m_elements;
 }
 
@@ -117,39 +118,39 @@ public:
 
   inline void SetGlobalAmbientColor(Color ambientColor);
 
-  inline const std::vector<DirectionalLight>& GetDirectionalLights() const;
+  inline auto GetDirectionalLights() const -> const std::vector<DirectionalLight>&;
 
-  inline Color GetGlobalAmbientColor() const;
+  inline auto GetGlobalAmbientColor() const -> Color;
 
 private:
-  std::vector<DirectionalLight> m_directionalLights;
-  Color m_ambientColor;
+  std::vector<DirectionalLight> mDirectionalLights;
+  Color mAmbientColor;
 };
 
 
-inline LightSetup::LightSetup() : m_ambientColor{} {}
+inline LightSetup::LightSetup() : mAmbientColor{} {}
 
 
 inline void LightSetup::AddDirectionalLight(
   math::Vec3f32 direction, Color diffuseColor
 ) {
-  m_directionalLights.push_back({direction, diffuseColor});
+  mDirectionalLights.push_back({direction, diffuseColor});
 }
 
 
 inline void LightSetup::SetGlobalAmbientColor(Color ambientColor) {
-  m_ambientColor = ambientColor;
+  mAmbientColor = ambientColor;
 }
 
 
-inline const std::vector<DirectionalLight>&
-LightSetup::GetDirectionalLights() const {
-  return m_directionalLights;
+inline auto LightSetup::GetDirectionalLights() const
+-> const std::vector<DirectionalLight>& {
+  return mDirectionalLights;
 }
 
 
-inline Color LightSetup::GetGlobalAmbientColor() const {
-  return m_ambientColor;
+inline auto LightSetup::GetGlobalAmbientColor() const -> Color {
+  return mAmbientColor;
 }
 
 } // namespace basalt::gfx::backend

@@ -35,13 +35,13 @@ void Shutdown();
 void AddEventListener(PlatformEventCallback callback);
 
 
-bool PollEvents();
+auto PollEvents() -> bool;
 
 
 void RequestQuit();
 
 
-std::string_view GetName();
+auto GetName() -> std::string_view;
 
 /**
  * \brief Retrieves the command line arguments as an argv style vector.
@@ -52,10 +52,10 @@ std::string_view GetName();
  *
  * \return the arguments.
  */
-const std::vector<std::string>& GetArgs();
+auto GetArgs() -> const std::vector<std::string>&;
 
 
-const WindowDesc& GetWindowDesc();
+auto GetWindowDesc() -> const WindowDesc&;
 
 } // namespace basalt::platform
 

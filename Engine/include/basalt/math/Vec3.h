@@ -18,125 +18,125 @@ public:
   constexpr Vec3(Vec3<T>&&) = default;
   inline ~Vec3() = default;
 
-  inline T Length() const;
+  inline auto Length() const -> T;
 
   inline void Set(T x, T y, T z);
   inline void SetX(T x);
   inline void SetY(T y);
   inline void SetZ(T z);
 
-  constexpr T GetX() const;
-  constexpr T GetY() const;
-  constexpr T GetZ() const;
+  constexpr auto GetX() const -> T;
+  constexpr auto GetY() const -> T;
+  constexpr auto GetZ() const -> T;
 
   inline Vec3<T>& operator=(const Vec3<T>&) = default;
   inline Vec3<T>& operator=(Vec3<T>&&) = default;
 
 private:
-  T m_x;
-  T m_y;
-  T m_z;
+  T mX;
+  T mY;
+  T mZ;
 
 public:
-  static inline Vec3<T> Normalize(const Vec3<T>& v);
+  static inline auto Normalize(const Vec3<T>& v) -> Vec3<T>;
 
-  static constexpr Vec3<T> Cross(const Vec3<T>& v1, const Vec3<T>& v2);
-
-  template<typename V>
-  friend Vec3<V> operator-(const Vec3<V>& v);
+  static constexpr auto Cross(const Vec3<T>& v1, const Vec3<T>& v2) -> Vec3<T>;
 
   template<typename V>
-  friend Vec3<V> operator-(const Vec3<V>& a, const Vec3<V>& b);
+  friend auto operator-(const Vec3<V>& v) -> Vec3<V>;
 
   template<typename V>
-  friend Vec3<V> operator/(const Vec3<V>& a, V b);
+  friend auto operator-(const Vec3<V>& a, const Vec3<V>& b) -> Vec3<V>;
+
+  template<typename V>
+  friend auto operator/(const Vec3<V>& a, V b) -> Vec3<V>;
 };
 
 
 template <typename T>
-constexpr Vec3<T>::Vec3() : m_x{}, m_y{}, m_z{} {}
+constexpr Vec3<T>::Vec3() : mX{}, mY{}, mZ{} {}
 
 
 template<typename T>
-constexpr Vec3<T>::Vec3(T x, T y, T z) : m_x{x}, m_y{y}, m_z{z} {}
+constexpr Vec3<T>::Vec3(T x, T y, T z) : mX{x}, mY{y}, mZ{z} {}
 
 
 template<typename T>
-inline T Vec3<T>::Length() const {
+inline auto Vec3<T>::Length() const -> T {
   // TODO: specialize/guard this function call
-  return std::sqrt(m_x * m_x + m_y * m_y + m_z * m_z);
+  return std::sqrt(mX * mX + mY * mY + mZ * mZ);
 }
 
 
 template<typename T>
 inline void Vec3<T>::Set(T x, T y, T z) {
-  m_x = x;
-  m_y = y;
-  m_z = z;
+  mX = x;
+  mY = y;
+  mZ = z;
 }
 
 template<typename T>
 inline void Vec3<T>::SetX(T x) {
-  m_x = x;
+  mX = x;
 }
 
 template<typename T>
 inline void Vec3<T>::SetY(T y) {
-  m_y = y;
+  mY = y;
 }
 
 template<typename T>
 inline void Vec3<T>::SetZ(T z) {
-  m_z = z;
+  mZ = z;
 }
 
 template<typename T>
-constexpr T Vec3<T>::GetX() const {
-  return m_x;
+constexpr auto Vec3<T>::GetX() const -> T {
+  return mX;
 }
 
 template<typename T>
-constexpr T Vec3<T>::GetY() const {
-  return m_y;
+constexpr auto Vec3<T>::GetY() const -> T {
+  return mY;
 }
 
 template<typename T>
-constexpr T Vec3<T>::GetZ() const {
-  return m_z;
+constexpr auto Vec3<T>::GetZ() const -> T {
+  return mZ;
 }
 
 
 template<typename T>
-inline Vec3<T> Vec3<T>::Normalize(const Vec3<T>& v) {
+inline auto Vec3<T>::Normalize(const Vec3<T>& v) -> Vec3<T> {
   return v / v.Length();
 }
 
 
 template<typename T>
-constexpr Vec3<T> Vec3<T>::Cross(const Vec3<T>& v1, const Vec3<T>& v2) {
+constexpr auto Vec3<T>::Cross(const Vec3<T>& v1, const Vec3<T>& v2) -> Vec3<T> {
   return Vec3<T>(
-    v1.m_y * v2.m_z - v1.m_z * v2.m_y,
-    v1.m_z * v2.m_x - v1.m_x * v2.m_z,
-    v1.m_x * v2.m_y - v1.m_y * v2.m_x
+    v1.mY * v2.mZ - v1.mZ * v2.mY,
+    v1.mZ * v2.mX - v1.mX * v2.mZ,
+    v1.mX * v2.mY - v1.mY * v2.mX
   );
 }
 
 
 template<typename T>
-inline Vec3<T> operator-(const Vec3<T>& v) {
-  return Vec3<T>(-v.m_x, -v.m_y, -v.m_z);
+inline auto operator-(const Vec3<T>& v) -> Vec3<T> {
+  return Vec3<T>(-v.mX, -v.mY, -v.mZ);
 }
 
 
 template<typename T>
-inline Vec3<T> operator-(const Vec3<T>& a, const Vec3<T>& b) {
-  return Vec3<T>(a.m_x - b.m_x, a.m_y - b.m_y, a.m_z - b.m_z);
+inline auto operator-(const Vec3<T>& a, const Vec3<T>& b) -> Vec3<T> {
+  return Vec3<T>(a.mX - b.mX, a.mY - b.mY, a.mZ - b.mZ);
 }
 
 
 template<typename T>
-inline Vec3<T> operator/(const Vec3<T>& v, T f) {
-  return Vec3<T>(v.m_x / f, v.m_y / f, v.m_z / f);
+inline auto operator/(const Vec3<T>& v, T f) -> Vec3<T> {
+  return Vec3<T>(v.mX / f, v.mY / f, v.mZ / f);
 }
 
 

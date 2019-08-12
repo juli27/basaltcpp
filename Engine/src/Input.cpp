@@ -70,17 +70,17 @@ void Init() {
 }
 
 
-bool IsKeyPressed(Key key) {
+auto IsKeyPressed(Key key) -> bool {
   return s_keyStates[static_cast<i32>(key)];
 }
 
 
-const math::Vec2i32& GetMousePos() {
+auto GetMousePos() -> const math::Vec2i32& {
   return s_mousePos;
 }
 
 
-bool IsMouseButtonPressed(MouseButton button) {
+auto IsMouseButtonPressed(MouseButton button) -> bool {
   return s_buttonStates[static_cast<i32>(button)];
 }
 

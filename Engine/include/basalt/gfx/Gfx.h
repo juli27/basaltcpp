@@ -19,7 +19,7 @@ void Render();
 void Present();
 
 
-backend::IRenderer* GetRenderer();
+auto GetRenderer() -> backend::IRenderer*;
 
 } // namespace basalt::gfx
 

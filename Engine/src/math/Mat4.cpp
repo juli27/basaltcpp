@@ -7,7 +7,7 @@
 namespace basalt::math {
 
 
-Mat4 Mat4::Invert(const Mat4& m) {
+auto Mat4::Invert(const Mat4& m) -> Mat4 {
   f32 invDet = m.Det();
   if (invDet == 0.0f) {
     return Mat4::Identity();
@@ -37,7 +37,7 @@ Mat4 Mat4::Invert(const Mat4& m) {
 }
 
 
-Mat4 Mat4::Translation(const math::Vec3f32& v) {
+auto Mat4::Translation(const math::Vec3f32& v) -> Mat4 {
   return Mat4(
     1.0f, 0.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
@@ -47,7 +47,7 @@ Mat4 Mat4::Translation(const math::Vec3f32& v) {
 }
 
 
-Mat4 Mat4::RotationX(f32 rad) {
+auto Mat4::RotationX(f32 rad) -> Mat4 {
   Mat4 result = Mat4::Identity();
 
   result.m22 = result.m33 = std::cosf(rad);
@@ -58,7 +58,7 @@ Mat4 Mat4::RotationX(f32 rad) {
 }
 
 
-Mat4 Mat4::RotationY(f32 rad) {
+auto Mat4::RotationY(f32 rad) -> Mat4 {
   Mat4 result = Mat4::Identity();
 
   result.m11 = result.m33 = std::cosf(rad);
@@ -69,7 +69,7 @@ Mat4 Mat4::RotationY(f32 rad) {
 }
 
 
-Mat4 Mat4::RotationZ(f32 rad) {
+auto Mat4::RotationZ(f32 rad) -> Mat4 {
   Mat4 result = Mat4::Identity();
 
   result.m11 = result.m22 = std::cosf(rad);
@@ -80,7 +80,7 @@ Mat4 Mat4::RotationZ(f32 rad) {
 }
 
 
-Mat4 Mat4::Rotation(f32 xRad, f32 yRad, f32 zRad) {
+auto Mat4::Rotation(f32 xRad, f32 yRad, f32 zRad) -> Mat4 {
   return RotationZ(zRad) * RotationX(xRad) * RotationY(yRad);
 }
 
@@ -140,9 +140,9 @@ Mat4 Mat4::Rotation(f32 xRad, f32 yRad, f32 zRad) {
 //}
 
 
-Mat4 Mat4::PerspectiveProjection(
+auto Mat4::PerspectiveProjection(
   f32 fovRad, f32 aspectRatio, f32 nearPlane, f32 farPlane
-) {
+) -> Mat4 {
   const f32 yScale = 1.0f / std::tanf(fovRad * 0.5f);
   const f32 xScale = yScale / aspectRatio;
   const f32 Q = farPlane / (farPlane - nearPlane);
@@ -156,9 +156,9 @@ Mat4 Mat4::PerspectiveProjection(
 }
 
 
-Mat4 Mat4::Camera(
+auto Mat4::Camera(
   const Vec3f32& pos, const Vec3f32& lookAt, const Vec3f32& up
-) {
+) -> Mat4 {
   const Vec3f32 zAxis = Vec3f32::Normalize(lookAt - pos);
   const Vec3f32 xAxis = Vec3f32::Normalize(Vec3f32::Cross(up, zAxis));
   const Vec3f32 yAxis = Vec3f32::Normalize(Vec3f32::Cross(zAxis, xAxis));

@@ -8,15 +8,13 @@
 
 #include <basalt/Log.h>
 
-namespace basalt {
-namespace gfx {
-namespace backend {
+namespace basalt::gfx::backend {
 
 
-IRenderer* IRenderer::Create(RendererType type) {
+auto IRenderer::Create(RendererType type) -> IRenderer* {
   switch (type) {
-  case RendererType::DEFAULT:
-  case RendererType::DIRECT3D9:
+  case RendererType::Default:
+  case RendererType::Direct3D9:
     return d3d9::Renderer::Create(platform::winapi::GetWindowHandle());
   default:
     BS_FATAL("RendererType {} not supported", static_cast<i8>(type));
@@ -25,6 +23,4 @@ IRenderer* IRenderer::Create(RendererType type) {
   }
 }
 
-} // namespace backend
-} // namespace gfx
-} // namespace basalt
+} // namespace basalt::gfx::backend

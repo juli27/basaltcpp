@@ -18,7 +18,7 @@ public:
   virtual void OnUpdate() = 0;
 
 public:
-  static IApplication* Create(Config& config);
+  static auto Create(Config& config) -> IApplication*;
 };
 
 } // namespace basalt

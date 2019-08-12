@@ -29,37 +29,37 @@ public:
 
   inline ~Mat4() = default;
 
-  constexpr f32 Det() const;
+  constexpr auto Det() const -> f32;
 
-  inline Mat4& operator=(const Mat4&) = default;
+  inline auto operator=(const Mat4&) -> Mat4& = default;
 
-  inline Mat4& operator=(Mat4&&) = default;
+  inline auto operator=(Mat4&&) -> Mat4& = default;
 
-  constexpr Mat4& operator+=(const Mat4& m);
+  constexpr auto operator+=(const Mat4& m) -> Mat4&;
 
-  constexpr Mat4& operator-=(const Mat4& m);
+  constexpr auto operator-=(const Mat4& m) -> Mat4&;
 
-  constexpr Mat4& operator*=(const Mat4& m);
+  constexpr auto operator*=(const Mat4& m) -> Mat4&;
 
-  constexpr Mat4& operator*=(f32 f);
+  constexpr auto operator*=(f32 f) -> Mat4&;
 
-  inline Mat4& operator/=(const Mat4& m);
+  inline auto operator/=(const Mat4& m) -> Mat4&;
 
-  constexpr Mat4& operator/=(f32 f);
+  constexpr auto operator/=(f32 f) -> Mat4&;
 
-  static constexpr Mat4 Identity();
+  static constexpr auto Identity() -> Mat4;
 
-  static Mat4 Invert(const Mat4& m);
+  static auto Invert(const Mat4& m) -> Mat4;
 
-  static Mat4 Translation(const Vec3f32& v);
+  static auto Translation(const Vec3f32& v) -> Mat4;
 
-  static Mat4 RotationX(f32 rad);
+  static auto RotationX(f32 rad) -> Mat4;
 
-  static Mat4 RotationY(f32 rad);
+  static auto RotationY(f32 rad) -> Mat4;
 
-  static Mat4 RotationZ(f32 rad);
+  static auto RotationZ(f32 rad) -> Mat4;
 
-  static Mat4 Rotation(f32 xRad, f32 yRad, f32 zRad);
+  static auto Rotation(f32 xRad, f32 yRad, f32 zRad) -> Mat4;
 
   //static Mat4 Rotation(const tbVector3& xyzRad);
 
@@ -72,13 +72,13 @@ public:
 
   //static Mat4 Transpose(const Mat4& m);
 
-  static Mat4 PerspectiveProjection(
+  static auto PerspectiveProjection(
     f32 fovRad, f32 aspectRatio, f32 nearPlane, f32 farPlane
-  );
+  ) -> Mat4;
 
-  static Mat4 Camera(
+  static auto Camera(
     const Vec3f32& pos, const Vec3f32& lookAt, const Vec3f32& up
-  );
+  ) -> Mat4;
 
   //static Mat4 ToTex2DMatrix(const Mat4& m);
 };
@@ -103,14 +103,14 @@ constexpr Mat4::Mat4(
 
 
 // Determinante der linken oberen 3x3-Teilmatrix berechnen
-constexpr f32 Mat4::Det() const {
+constexpr auto Mat4::Det() const -> f32 {
   return m11 * (m22 * m33 - m23 * m32)
     - m12 * (m21 * m33 - m23 * m31)
     + m13 * (m21 * m32 - m22 * m31);
 }
 
 
-constexpr Mat4& Mat4::operator+=(const Mat4& m) {
+constexpr auto Mat4::operator+=(const Mat4& m) -> Mat4& {
   m11 += m.m11; m12 += m.m12; m13 += m.m13; m14 += m.m14;
   m21 += m.m21; m22 += m.m22; m23 += m.m23; m24 += m.m24;
   m31 += m.m31; m32 += m.m32; m33 += m.m33; m34 += m.m34;
@@ -120,7 +120,7 @@ constexpr Mat4& Mat4::operator+=(const Mat4& m) {
 }
 
 
-constexpr Mat4& Mat4::operator-=(const Mat4& m) {
+constexpr auto Mat4::operator-=(const Mat4& m) -> Mat4& {
   m11 -= m.m11; m12 -= m.m12; m13 -= m.m13; m14 -= m.m14;
   m21 -= m.m21; m22 -= m.m22; m23 -= m.m23; m24 -= m.m24;
   m31 -= m.m31; m32 -= m.m32; m33 -= m.m33; m34 -= m.m34;
@@ -130,7 +130,7 @@ constexpr Mat4& Mat4::operator-=(const Mat4& m) {
 }
 
 
-constexpr Mat4& Mat4::operator*=(const Mat4& m) {
+constexpr auto Mat4::operator*=(const Mat4& m) -> Mat4& {
   *this = Mat4(
     m.m11 * m11 + m.m21 * m12 + m.m31 * m13 + m.m41 * m14,
     m.m12 * m11 + m.m22 * m12 + m.m32 * m13 + m.m42 * m14,
@@ -157,7 +157,7 @@ constexpr Mat4& Mat4::operator*=(const Mat4& m) {
 }
 
 
-constexpr Mat4& Mat4::operator*=(f32 f) {
+constexpr auto Mat4::operator*=(f32 f) -> Mat4& {
   m11 *= f; m12 *= f; m13 *= f; m14 *= f;
   m21 *= f; m22 *= f; m23 *= f; m24 *= f;
   m31 *= f; m32 *= f; m33 *= f; m34 *= f;
@@ -167,13 +167,13 @@ constexpr Mat4& Mat4::operator*=(f32 f) {
 }
 
 
-inline Mat4& Mat4::operator/=(const Mat4& m) {
+inline auto Mat4::operator/=(const Mat4& m) -> Mat4& {
   *this *= Mat4::Invert(m);
   return *this;
 }
 
 
-constexpr Mat4& Mat4::operator/=(f32 f) {
+constexpr auto Mat4::operator/=(f32 f) -> Mat4& {
   m11 /= f; m12 /= f; m13 /= f; m14 /= f;
   m21 /= f; m22 /= f; m23 /= f; m24 /= f;
   m31 /= f; m32 /= f; m33 /= f; m34 /= f;
@@ -183,7 +183,7 @@ constexpr Mat4& Mat4::operator/=(f32 f) {
 }
 
 
-constexpr Mat4 Mat4::Identity() {
+constexpr auto Mat4::Identity() -> Mat4 {
   return Mat4(
     1.0f, 0.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
@@ -196,7 +196,7 @@ constexpr Mat4 Mat4::Identity() {
 // global operators
 
 
-constexpr Mat4 operator-(const Mat4& m) {
+constexpr auto operator-(const Mat4& m) -> Mat4 {
   return Mat4(
     -m.m11, -m.m12, -m.m13, -m.m14,
     -m.m21, -m.m22, -m.m23, -m.m24,
@@ -206,7 +206,7 @@ constexpr Mat4 operator-(const Mat4& m) {
 }
 
 
-constexpr Mat4 operator+(const Mat4& a, const Mat4& b) {
+constexpr auto operator+(const Mat4& a, const Mat4& b) -> Mat4 {
   return Mat4(
     a.m11 + b.m11, a.m12 + b.m12, a.m13 + b.m13, a.m14 + b.m14,
     a.m21 + b.m21, a.m22 + b.m22, a.m23 + b.m23, a.m24 + b.m24,
@@ -216,7 +216,7 @@ constexpr Mat4 operator+(const Mat4& a, const Mat4& b) {
 }
 
 
-constexpr Mat4 operator-(const Mat4& a, const Mat4& b) {
+constexpr auto operator-(const Mat4& a, const Mat4& b) -> Mat4 {
   return Mat4(
     a.m11 - b.m11, a.m12 - b.m12, a.m13 - b.m13, a.m14 - b.m14,
     a.m21 - b.m21, a.m22 - b.m22, a.m23 - b.m23, a.m24 - b.m24,
@@ -226,7 +226,7 @@ constexpr Mat4 operator-(const Mat4& a, const Mat4& b) {
 }
 
 
-constexpr Mat4 operator*(const Mat4& a, const Mat4& b) {
+constexpr auto operator*(const Mat4& a, const Mat4& b) -> Mat4 {
   return Mat4(
     b.m11 * a.m11 + b.m21 * a.m12 + b.m31 * a.m13 + b.m41 * a.m14,
     b.m12 * a.m11 + b.m22 * a.m12 + b.m32 * a.m13 + b.m42 * a.m14,
@@ -251,7 +251,7 @@ constexpr Mat4 operator*(const Mat4& a, const Mat4& b) {
 }
 
 
-constexpr Mat4 operator*(const Mat4& m, f32 f) {
+constexpr auto operator*(const Mat4& m, f32 f) -> Mat4 {
   return Mat4(
     m.m11 * f, m.m12 * f, m.m13 * f, m.m14 * f,
     m.m21 * f, m.m22 * f, m.m23 * f, m.m24 * f,
@@ -271,12 +271,12 @@ constexpr Mat4 operator*(f32 f, const Mat4& m) {
 }
 
 
-inline Mat4 operator/(const Mat4& a, const Mat4& b) {
+inline auto operator/(const Mat4& a, const Mat4& b) -> Mat4 {
   return a * Mat4::Invert(b);
 }
 
 
-constexpr Mat4 operator/(const Mat4& m, f32 f) {
+constexpr auto operator/(const Mat4& m, f32 f) -> Mat4 {
   return Mat4(
     m.m11 / f, m.m12 / f, m.m13 / f, m.m14 / f,
     m.m21 / f, m.m22 / f, m.m23 / f, m.m24 / f,
@@ -286,7 +286,7 @@ constexpr Mat4 operator/(const Mat4& m, f32 f) {
 }
 
 
-constexpr bool operator==(const Mat4& a, const Mat4& b) {
+constexpr auto operator==(const Mat4& a, const Mat4& b) -> bool {
   if (a.m11 != b.m11) return false;
   if (a.m12 != b.m12) return false;
   if (a.m13 != b.m13) return false;
@@ -307,7 +307,7 @@ constexpr bool operator==(const Mat4& a, const Mat4& b) {
 }
 
 
-constexpr bool operator!=(const Mat4& a, const Mat4& b) {
+constexpr auto operator!=(const Mat4& a, const Mat4& b) -> bool {
   if (a.m11 != b.m11) return true;
   if (a.m12 != b.m12) return true;
   if (a.m13 != b.m13) return true;

@@ -25,7 +25,7 @@ void Init(HINSTANCE instance, const WCHAR* commandLine, int showCommand);
  *
  * \return the main window handle.
  */
-HWND GetWindowHandle();
+auto GetWindowHandle() -> HWND;
 
 /**
  * \brief Converts a UTF-8 encoded string into a wide string.
@@ -37,7 +37,7 @@ HWND GetWindowHandle();
  * \param source the UTF-8 string to convert.
  * \return the new wide string.
  */
-std::wstring CreateWideFromUTF8(const std::string_view source);
+auto CreateWideFromUTF8(const std::string_view source) -> std::wstring;
 
 } // namespace basalt::platform::winapi
 

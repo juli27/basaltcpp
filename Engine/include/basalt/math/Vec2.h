@@ -20,47 +20,47 @@ public:
   inline void SetX(T x);
   inline void SetY(T y);
 
-  constexpr T GetX() const;
-  constexpr T GetY() const;
+  constexpr auto GetX() const -> T;
+  constexpr auto GetY() const -> T;
 
-  inline Vec2<T>& operator=(const Vec2<T>&) = default;
-  inline Vec2<T>& operator=(Vec2<T>&&) = default;
+  inline auto operator=(const Vec2<T>&) -> Vec2<T>& = default;
+  inline auto operator=(Vec2<T>&&) -> Vec2<T>& = default;
 
 private:
-  T m_x;
-  T m_y;
+  T mX;
+  T mY;
 };
 
 template <typename T>
-constexpr Vec2<T>::Vec2() : m_x{}, m_y{} {}
+constexpr Vec2<T>::Vec2() : mX{}, mY{} {}
 
 template<typename T>
-constexpr Vec2<T>::Vec2(T x, T y) : m_x(x), m_y(y) {}
+constexpr Vec2<T>::Vec2(T x, T y) : mX(x), mY(y) {}
 
 template<typename T>
 inline void Vec2<T>::Set(T x, T y) {
-  m_x = x;
-  m_y = y;
+  mX = x;
+  mY = y;
 }
 
 template<typename T>
 inline void Vec2<T>::SetX(T x) {
-  m_x = x;
+  mX = x;
 }
 
 template<typename T>
 inline void Vec2<T>::SetY(T y) {
-  m_y = y;
+  mY = y;
 }
 
 template<typename T>
-constexpr T Vec2<T>::GetX() const {
-  return m_x;
+constexpr auto Vec2<T>::GetX() const -> T {
+  return mX;
 }
 
 template<typename T>
-constexpr T Vec2<T>::GetY() const {
-  return m_y;
+constexpr auto Vec2<T>::GetY() const -> T {
+  return mY;
 }
 
 

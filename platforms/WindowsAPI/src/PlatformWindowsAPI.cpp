@@ -107,7 +107,7 @@ std::unordered_map<i32, Key> s_keyMap = {
  * \param source the wide string to convert.
  * \return the wide string converted to UTF-8.
  */
-std::string CreateUTF8FromWide(const std::wstring_view source) noexcept {
+auto CreateUTF8FromWide(const std::wstring_view source) noexcept -> std::string {
   // Do NOT call CreateWinAPIErrorMessage in this function
   // because it uses this function and may cause an infinite loop
 
@@ -159,7 +159,7 @@ std::string CreateUTF8FromWide(const std::wstring_view source) noexcept {
  * \param errorCode Windows API error code.
  * \return description string of the error.
  */
-std::string CreateWinAPIErrorMessage(DWORD errorCode) noexcept {
+auto CreateWinAPIErrorMessage(DWORD errorCode) noexcept -> std::string {
   WCHAR* buffer = nullptr;
   const DWORD numChars = ::FormatMessageW(
     FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM
@@ -470,14 +470,14 @@ void Init(HINSTANCE instance, const WCHAR* commandLine, int showCommand) {
 }
 
 
-HWND GetWindowHandle() {
+auto GetWindowHandle() -> HWND {
   BS_ASSERT(s_windowHandle, "no window present");
 
   return s_windowHandle;
 }
 
 
-std::wstring CreateWideFromUTF8(const std::string_view source) {
+auto CreateWideFromUTF8(const std::string_view source) -> std::wstring {
   if (source.empty()) {
     return std::wstring();
   }
@@ -538,7 +538,7 @@ void AddEventListener(PlatformEventCallback callback) {
 }
 
 
-bool PollEvents() {
+auto PollEvents() -> bool {
   // TODO[threading]: check if main thread
 
   MSG msg{};
@@ -572,17 +572,17 @@ void RequestQuit() {
 }
 
 
-std::string_view GetName() {
+auto GetName() -> std::string_view {
   return winapi::s_platformName;
 }
 
 
-const std::vector<std::string>& GetArgs() {
+auto GetArgs() -> const std::vector<std::string>& {
   return winapi::s_args;
 }
 
 
-const WindowDesc& GetWindowDesc() {
+auto GetWindowDesc() -> const WindowDesc& {
   // TODO: check if window is initialized
   return winapi::s_windowDesc;
 }

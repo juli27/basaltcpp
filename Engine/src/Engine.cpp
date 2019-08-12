@@ -120,7 +120,7 @@ void Run() {
 }
 
 
-f64 GetDeltaTime() {
+auto GetDeltaTime() -> f64 {
   return s_currentDeltaTime;
 }
 

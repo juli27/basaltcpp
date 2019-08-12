@@ -19,9 +19,9 @@ namespace basalt::log {
 
 void Init();
 
-const std::shared_ptr<spdlog::logger>& GetCoreLogger();
+auto GetCoreLogger() -> const std::shared_ptr<spdlog::logger>&;
 
-const std::shared_ptr<spdlog::logger>& GetClientLogger();
+auto GetClientLogger() -> const std::shared_ptr<spdlog::logger>&;
 
 }  // namespace basalt::log
 

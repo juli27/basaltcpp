@@ -50,12 +50,12 @@ void Init() {
 }
 
 
-const std::shared_ptr<spdlog::logger>& GetCoreLogger() {
+auto GetCoreLogger() -> const std::shared_ptr<spdlog::logger>& {
   return s_coreLogger;
 }
 
 
-const std::shared_ptr<spdlog::logger>& GetClientLogger() {
+auto GetClientLogger() -> const std::shared_ptr<spdlog::logger>& {
   return s_clientLogger;
 }
 

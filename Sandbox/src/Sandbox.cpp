@@ -9,16 +9,16 @@
 #include "scenes/d3d9-tutorials/Textures.h"
 #include "scenes/d3d9-tutorials/Vertices.h"
 
-SandboxApp::SandboxApp(bs::Config& config) : m_currentSceneIndex(0) {
+SandboxApp::SandboxApp(bs::Config& config) : mCurrentSceneIndex(0) {
   config.window.title = "Basalt Sandbox";
   config.window.mode = bs::WindowMode::WINDOWED;
 }
 
 void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
-  m_scenes.emplace_back(new scenes::d3d9tuts::VerticesScene(renderer));
-  m_scenes.emplace_back(new scenes::d3d9tuts::MatricesScene(renderer));
-  m_scenes.emplace_back(new scenes::d3d9tuts::LightsScene(renderer));
-  m_scenes.emplace_back(new scenes::d3d9tuts::TexturesScene(renderer));
+  mScenes.emplace_back(new scenes::d3d9tuts::VerticesScene(renderer));
+  mScenes.emplace_back(new scenes::d3d9tuts::MatricesScene(renderer));
+  mScenes.emplace_back(new scenes::d3d9tuts::LightsScene(renderer));
+  mScenes.emplace_back(new scenes::d3d9tuts::TexturesScene(renderer));
 
   //renderer->SetClearColor(bs::Color(0, 0, 63));
   /*bs::math::Vec3f32 cameraPos(0.0f, 3.0f, -5.0f);
@@ -88,7 +88,7 @@ void SandboxApp::OnInit(bs::gfx::backend::IRenderer* renderer) {
 }
 
 void SandboxApp::OnShutdown() {
-  m_scenes.clear();
+  mScenes.clear();
 }
 
 void SandboxApp::OnUpdate() {
@@ -120,7 +120,7 @@ void SandboxApp::OnUpdate() {
 
   ImGui::ShowDemoWindow();
 
-  m_scenes.at(m_currentSceneIndex)->OnUpdate();
+  mScenes.at(mCurrentSceneIndex)->OnUpdate();
 
   // HACK
   static bool rightPressed = false;
@@ -128,9 +128,9 @@ void SandboxApp::OnUpdate() {
   if (bs::input::IsKeyPressed(bs::input::Key::RIGHT_ARROW)) {
     if (!rightPressed) {
       rightPressed = true;
-      m_currentSceneIndex++;
-      if (m_currentSceneIndex >= static_cast<bs::i32>(m_scenes.size())) {
-        m_currentSceneIndex = 0;
+      mCurrentSceneIndex++;
+      if (mCurrentSceneIndex >= static_cast<bs::i32>(mScenes.size())) {
+        mCurrentSceneIndex = 0;
       }
     }
   } else {
@@ -140,9 +140,9 @@ void SandboxApp::OnUpdate() {
   if (bs::input::IsKeyPressed(bs::input::Key::LEFT_ARROW)) {
     if (!leftPressed) {
       leftPressed = true;
-      m_currentSceneIndex--;
-      if (m_currentSceneIndex < 0) {
-        m_currentSceneIndex = static_cast<bs::i32>(m_scenes.size() - 1);
+      mCurrentSceneIndex--;
+      if (mCurrentSceneIndex < 0) {
+        mCurrentSceneIndex = static_cast<bs::i32>(mScenes.size() - 1);
       }
     }
   } else {
@@ -156,6 +156,7 @@ void SandboxApp::OnUpdate() {
   }
 }
 
-bs::IApplication* bs::IApplication::Create(Config& config) {
+
+auto bs::IApplication::Create(Config& config) -> bs::IApplication* {
   return new SandboxApp(config);
 }

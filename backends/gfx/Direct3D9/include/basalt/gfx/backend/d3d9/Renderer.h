@@ -38,12 +38,12 @@ public:
   Renderer(Renderer&&) = delete;
 
 public:
-  virtual MeshHandle AddMesh(
+  virtual auto AddMesh(
     void* data, i32 numVertices, const VertexLayout& layout,
     PrimitiveType primitiveType
-  ) override;
+  ) -> MeshHandle override;
   virtual void RemoveMesh(MeshHandle meshHandle) override;
-  virtual TextureHandle AddTexture(std::string_view filePath) override;
+  virtual auto AddTexture(std::string_view filePath) -> TextureHandle override;
   virtual void RemoveTexture(TextureHandle textureHandle) override;
   virtual void Submit(const RenderCommand& command) override;
   virtual void SetViewProj(
@@ -53,14 +53,14 @@ public:
   virtual void SetClearColor(Color color) override;
   virtual void Render() override;
   virtual void Present() override;
-  virtual std::string_view GetName() override;
+  virtual auto GetName() -> std::string_view override;
 
   virtual void NewGuiFrame() override;
   virtual void RenderGUI() override;
 
 public:
-  Renderer& operator=(const Renderer&) = delete;
-  Renderer& operator=(Renderer&&) = delete;
+  auto operator=(const Renderer&) -> Renderer& = delete;
+  auto operator=(Renderer&&) -> Renderer& = delete;
 
 private:
 
@@ -75,7 +75,7 @@ private:
   D3DCOLOR m_clearColor;
 
 public:
-  static Renderer* Create(HWND window);
+  static auto Create(HWND window) -> Renderer*;
 };
 
 } // namespace basalt::gfx::backend::d3d9

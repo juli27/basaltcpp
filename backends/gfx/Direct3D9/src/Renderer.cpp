@@ -22,7 +22,7 @@ namespace {
 constexpr std::string_view s_rendererName = "Direct3D 9 fixed function";
 
 
-DWORD CreateFVFFromVertexLayout(const VertexLayout& layout) {
+auto CreateFVFFromVertexLayout(const VertexLayout& layout) -> DWORD {
   DWORD fvf = 0u;
 
   for (const VertexElement& element : layout.GetElements()) {
@@ -155,7 +155,7 @@ void FillD3DColor(D3DCOLORVALUE& d3dColor, Color color) {
 }
 
 
-std::wstring CreateWideFromUTF8(const std::string_view source) {
+auto CreateWideFromUTF8(const std::string_view source) -> std::wstring {
   if (source.empty()) {
     return std::wstring();
   }
@@ -214,10 +214,10 @@ Renderer::~Renderer() {
 /*
  * Stores the vertex data into a new static vertex buffer in the managed pool.
  */
-MeshHandle Renderer::AddMesh(
+auto Renderer::AddMesh(
   void* data, i32 numVertices, const VertexLayout& layout,
   PrimitiveType primitiveType
-) {
+) -> MeshHandle {
   BS_ASSERT_ARG_NOT_NULL(data);
   BS_ASSERT(numVertices > 0, "numVertices must be > 0");
   BS_ASSERT(layout.GetElements().size() != 0, "must specify a vertex layout");
@@ -263,7 +263,7 @@ void Renderer::RemoveMesh(MeshHandle meshHandle) {
 }
 
 
-TextureHandle Renderer::AddTexture(std::string_view filePath) {
+auto Renderer::AddTexture(std::string_view filePath) -> TextureHandle {
   const std::wstring wideFilePath = CreateWideFromUTF8(filePath);
 
   IDirect3DTexture9* texture = nullptr;
@@ -378,7 +378,7 @@ void Renderer::Present() {
 }
 
 
-std::string_view Renderer::GetName() {
+auto Renderer::GetName() -> std::string_view {
   return s_rendererName;
 }
 
@@ -440,7 +440,8 @@ void Renderer::RenderCommands(const RenderCommandBuffer& commands) {
   }
 }
 
-Renderer* Renderer::Create(HWND window) {
+
+auto Renderer::Create(HWND window) -> Renderer* {
   IDirect3D9* direct3d9 = Direct3DCreate9(D3D_SDK_VERSION);
   if (!direct3d9) {
     BS_WARN("failed to create IDirect3D9 object");

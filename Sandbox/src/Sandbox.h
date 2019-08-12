@@ -22,8 +22,8 @@ public:
   virtual void OnUpdate() override;
 
 private:
-  std::vector<std::unique_ptr<IScene>> m_scenes;
-  bs::i32 m_currentSceneIndex;
+  std::vector<std::unique_ptr<IScene>> mScenes;
+  bs::i32 mCurrentSceneIndex;
 };
 
 #endif // !SANDBOX_H

@@ -14,8 +14,8 @@ namespace basalt::gfx::backend {
 
 
 enum class RendererType : i8 {
-  DEFAULT,
-  DIRECT3D9,
+  Default,
+  Direct3D9,
 };
 
 
@@ -52,10 +52,10 @@ public:
    * \param primitiveType the primitive type of the mesh
    * \return handle of the added mesh
    */
-  virtual MeshHandle AddMesh(
+  virtual auto AddMesh(
     void* data, i32 numVertices, const VertexLayout& layout,
     PrimitiveType primitiveType
-  ) = 0;
+  ) -> MeshHandle = 0;
 
   /**
    * \brief Removes a static mesh from the renderer which makes it unavailable
@@ -67,7 +67,7 @@ public:
 
   // takes in a file path for now
   // TODO: move file loading into the resources namespace
-  virtual TextureHandle AddTexture(std::string_view filePath) = 0;
+  virtual auto AddTexture(std::string_view filePath) -> TextureHandle = 0;
 
   /**
    * \brief Removes a static texture from the renderer which makes it
@@ -106,14 +106,14 @@ public:
 
   virtual void Present() = 0;
 
-  virtual std::string_view GetName() = 0;
+  virtual auto GetName() -> std::string_view = 0;
 
 
   virtual void NewGuiFrame() = 0;
   virtual void RenderGUI() = 0;
 
 public:
-  static IRenderer* Create(RendererType type);
+  static auto Create(RendererType type) -> IRenderer*;
 };
 
 } // namespace basalt::gfx::backend

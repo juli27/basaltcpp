@@ -16,7 +16,7 @@ backend::IRenderer* s_renderer;
 
 
 void Init() {
-  s_renderer = backend::IRenderer::Create(backend::RendererType::DEFAULT);
+  s_renderer = backend::IRenderer::Create(backend::RendererType::Default);
   BS_INFO("gfx backend: {}", s_renderer->GetName());
 }
 
@@ -39,7 +39,7 @@ void Present() {
 }
 
 
-backend::IRenderer* GetRenderer() {
+auto GetRenderer() -> backend::IRenderer* {
   return s_renderer;
 }
 

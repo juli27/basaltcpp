@@ -23,14 +23,14 @@ public:
 
 public:
   constexpr void Invalidate() noexcept;
-  constexpr ValueT GetValue() const noexcept;
+  constexpr auto GetValue() const noexcept -> ValueT;
 
 public:
-  constexpr bool operator==(const HandleBase& rhs) const noexcept;
-  constexpr bool operator!=(const HandleBase& rhs) const noexcept;
+  constexpr auto operator==(const HandleBase& rhs) const noexcept -> bool;
+  constexpr auto operator!=(const HandleBase& rhs) const noexcept -> bool;
 
-  inline HandleBase& operator=(const HandleBase&) noexcept = default;
-  inline HandleBase& operator=(HandleBase&&) noexcept = default;
+  inline auto operator=(const HandleBase&) noexcept -> HandleBase& = default;
+  inline auto operator=(HandleBase&&) noexcept -> HandleBase& = default;
 
 public:
   constexpr explicit operator bool() const noexcept;
@@ -38,21 +38,21 @@ public:
 private:
   ValueT mValue;
 
-public:
-  static constexpr ValueT sInvalidValue = std::numeric_limits<ValueT>::max();
+private:
+  static constexpr ValueT INVALID_VALUE = std::numeric_limits<ValueT>::max();
 };
 
 
-constexpr HandleBase::HandleBase() noexcept : mValue(sInvalidValue) {}
+constexpr HandleBase::HandleBase() noexcept : mValue(INVALID_VALUE) {}
 
 
-constexpr HandleBase::HandleBase(ValueT value) noexcept : mValue(value) {
-  // TODO: assert (value != sInvalidValue)
+constexpr HandleBase::HandleBase(const ValueT value) noexcept : mValue(value) {
+  // TODO: assert (value != INVALID_VALUE)
 }
 
 
 constexpr void HandleBase::Invalidate() noexcept {
-  mValue = sInvalidValue;
+  mValue = INVALID_VALUE;
 }
 
 
@@ -61,7 +61,7 @@ constexpr HandleBase::ValueT HandleBase::GetValue() const noexcept {
 }
 
 
-constexpr bool HandleBase::operator==(const HandleBase& rhs) const noexcept {
+constexpr auto HandleBase::operator==(const HandleBase& rhs) const noexcept -> bool {
   return mValue == rhs.mValue;
 }
 
@@ -72,7 +72,7 @@ constexpr bool HandleBase::operator!=(const HandleBase& rhs) const noexcept {
 
 
 constexpr HandleBase::operator bool() const noexcept {
-  return mValue != sInvalidValue;
+  return mValue != INVALID_VALUE;
 }
 
 } // namespace _internal

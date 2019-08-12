@@ -59,69 +59,69 @@ public:
 
   inline void SetProjection(const math::Mat4f32& projection);
 
-  inline const std::vector<RenderCommand>& GetCommands() const;
+  inline auto GetCommands() const -> const std::vector<RenderCommand>&;
 
-  inline const math::Mat4f32& GetView() const;
+  inline auto GetView() const -> const math::Mat4f32&;
 
-  inline const math::Mat4f32& GetProjection() const;
+  inline auto GetProjection() const -> const math::Mat4f32&;
 
 public:
-  inline RenderCommandBuffer& operator=(const RenderCommandBuffer&) = delete;
+  inline auto operator=(const RenderCommandBuffer&) -> RenderCommandBuffer& = delete;
 
-  inline RenderCommandBuffer& operator=(RenderCommandBuffer&&) = default;
+  inline auto operator=(RenderCommandBuffer&&) -> RenderCommandBuffer& = default;
 
 private:
-  std::vector<RenderCommand> m_commands;
-  math::Mat4f32 m_view;
-  math::Mat4f32 m_projection;
+  std::vector<RenderCommand> mCommands;
+  math::Mat4f32 mView;
+  math::Mat4f32 mProjection;
 };
 
 
 inline RenderCommandBuffer::RenderCommandBuffer()
-  : m_view(math::Mat4f32::Identity())
-  , m_projection(math::Mat4f32::Identity()) {}
+  : mView(math::Mat4f32::Identity())
+  , mProjection(math::Mat4f32::Identity()) {}
 
 
 inline RenderCommandBuffer::RenderCommandBuffer(
   const math::Mat4f32& view, const math::Mat4f32& projection
-) : m_view(view), m_projection(projection) {}
+) : mView(view), mProjection(projection) {}
 
 
 inline void RenderCommandBuffer::AddCommand(const RenderCommand& command) {
-  m_commands.push_back(command);
+  mCommands.push_back(command);
 }
 
 
 inline void RenderCommandBuffer::Clear() {
-  m_commands.clear();
+  mCommands.clear();
 }
 
 
 inline void RenderCommandBuffer::SetView(const math::Mat4f32& view) {
-  m_view = view;
+  mView = view;
 }
 
 
 inline void RenderCommandBuffer::SetProjection(
   const math::Mat4f32& projection
 ) {
-  m_projection = projection;
+  mProjection = projection;
 }
 
 
-inline const std::vector<RenderCommand>&
-RenderCommandBuffer::GetCommands() const {
-  return m_commands;
+inline auto RenderCommandBuffer::GetCommands() const
+-> const std::vector<RenderCommand>& {
+  return mCommands;
 }
 
 
 inline const math::Mat4f32& RenderCommandBuffer::GetView() const {
-  return m_view;
+  return mView;
 }
 
 
 inline const math::Mat4f32& RenderCommandBuffer::GetProjection() const {
-  return m_projection;
+  return mProjection;
 }
 
 } // namespace basalt::gfx::backend

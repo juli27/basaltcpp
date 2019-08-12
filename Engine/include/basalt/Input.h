@@ -14,11 +14,11 @@ using platform::MouseButton;
 
 void Init();
 
-bool IsKeyPressed(Key key);
+auto IsKeyPressed(Key key) -> bool;
 
-const math::Vec2i32& GetMousePos();
+auto GetMousePos() -> const math::Vec2i32&;
 
-bool IsMouseButtonPressed(MouseButton button);
+auto IsMouseButtonPressed(MouseButton button) -> bool;
 
 } // namespace basalt::input
 

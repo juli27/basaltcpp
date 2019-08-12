@@ -16,15 +16,15 @@ public:
   constexpr Color(u8 r, u8 g, u8 b, u8 a);
 
   // ARGB word-order
-  constexpr u32 ToARGB() const;
+  constexpr auto ToARGB() const -> u32;
 
-  constexpr u8 GetRed() const;
+  constexpr auto GetRed() const -> u8;
 
-  constexpr u8 GetGreen() const;
+  constexpr auto GetGreen() const -> u8;
 
-  constexpr u8 GetBlue() const;
+  constexpr auto GetBlue() const -> u8;
 
-  constexpr u8 GetAlpha() const;
+  constexpr auto GetAlpha() const -> u8;
 
 private:
   u8 m_r;
@@ -34,7 +34,7 @@ private:
 
 public:
   // ARGB word order
-  static constexpr Color FromARGB(u32 argb);
+  static constexpr auto FromARGB(u32 argb) -> Color;
 };
 
 
@@ -51,7 +51,7 @@ constexpr Color::Color(u8 r, u8 g, u8 b, u8 a)
   , m_a(a) {}
 
 
-constexpr u32 Color::ToARGB() const {
+constexpr auto Color::ToARGB() const -> u32 {
   u32 color = m_a;
   color <<= 8;
   color |= m_r;
@@ -64,22 +64,22 @@ constexpr u32 Color::ToARGB() const {
 }
 
 
-constexpr u8 Color::GetRed() const {
+constexpr auto Color::GetRed() const -> u8 {
   return m_r;
 }
 
 
-constexpr u8 Color::GetGreen() const {
+constexpr auto Color::GetGreen() const -> u8 {
   return m_g;
 }
 
 
-constexpr u8 Color::GetBlue() const {
+constexpr auto Color::GetBlue() const -> u8 {
   return m_b;
 }
 
 
-constexpr u8 Color::GetAlpha() const {
+constexpr auto Color::GetAlpha() const -> u8 {
   return m_a;
 }
 
