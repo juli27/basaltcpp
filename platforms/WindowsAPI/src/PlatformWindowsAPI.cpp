@@ -3,8 +3,12 @@
 
 #include <algorithm>
 #include <limits>
+#include <memory>
+#include <string>
 #include <unordered_map>
 #include <vector>
+
+#include <fmt/format.h>
 
 #include <basalt/Log.h>
 #include <basalt/common/Asserts.h>
@@ -17,8 +21,8 @@ namespace basalt::platform {
 namespace winapi {
 namespace {
 
-// TODO: fill in windows version info
-constexpr std::string_view s_platformName = "Windows API";
+
+std::string sPlatformName;
 std::vector<std::string> s_args;
 std::vector<PlatformEventCallback> s_eventListener;
 HINSTANCE s_instance;
@@ -455,6 +459,50 @@ void CreateMainWindow(const WindowDesc& desc) {
 
 } // namespace
 
+namespace {
+
+void CreatePlatformNameString() {
+  DWORD historical = 0u;
+  const auto size = ::GetFileVersionInfoSizeExW(
+    FILE_VER_GET_NEUTRAL, L"kernel32.dll", &historical
+  );
+  if (size == 0u) {
+    BS_ERROR("{}", CreateWinAPIErrorMessage(::GetLastError()));
+    return;
+  }
+
+  const auto buffer = std::make_unique<std::byte[]>(size);
+  if (!::GetFileVersionInfoExW(
+    FILE_VER_GET_NEUTRAL, L"kernel32.dll", 0u, size, buffer.get()
+  )) {
+    return;
+  }
+
+  VS_FIXEDFILEINFO* versionInfo = nullptr;
+  UINT versionInfoSize = 0u;
+  if (!::VerQueryValueW(
+    buffer.get(), L"\\", reinterpret_cast<void**>(&versionInfo),
+    &versionInfoSize
+  )) {
+    return;
+  }
+
+  BS_RELEASE_ASSERT(versionInfoSize >= sizeof(VS_FIXEDFILEINFO), "");
+  BS_RELEASE_ASSERT(versionInfo, "");
+
+  BOOL isWow64 = FALSE;
+  if (!::IsWow64Process(::GetCurrentProcess(), &isWow64)) {
+    BS_INFO("{}", CreateWinAPIErrorMessage(::GetLastError()));
+  }
+
+  sPlatformName = fmt::format(
+    "Windows API ({}.{}.{}{})",
+    HIWORD(versionInfo->dwFileVersionMS), LOWORD(versionInfo->dwFileVersionMS),
+    HIWORD(versionInfo->dwFileVersionLS), isWow64 ? " WOW64" : ""
+  );
+}
+
+} // namespace
 
 void Init(HINSTANCE instance, const WCHAR* commandLine, int showCommand) {
   BS_ASSERT_ARG_NOT_NULL(instance);
@@ -464,7 +512,9 @@ void Init(HINSTANCE instance, const WCHAR* commandLine, int showCommand) {
 
   s_instance = instance;
   s_showCommand = showCommand;
+
   ProcessArgs(commandLine);
+  CreatePlatformNameString();
 
   BS_DEBUG("Windows API platform initialized");
 }
@@ -523,11 +573,11 @@ void Shutdown() {
   }
 
   if (!::UnregisterClassW(
-    winapi::s_windowClassName.data(), platform::winapi::s_instance
+    winapi::s_windowClassName.data(), winapi::s_instance
   )) {
     BS_ERROR(
       "failed to unregister window class: {}",
-      platform::winapi::CreateWinAPIErrorMessage(::GetLastError())
+      winapi::CreateWinAPIErrorMessage(::GetLastError())
     );
   }
 }
@@ -573,7 +623,7 @@ void RequestQuit() {
 
 
 auto GetName() -> std::string_view {
-  return winapi::s_platformName;
+  return winapi::sPlatformName;
 }
 
 

@@ -125,7 +125,7 @@
     </ClCompile>
     <Link>
       <SuppressStartupBanner>false</SuppressStartupBanner>
-      <AdditionalDependencies>user32.lib;shell32.lib;d3d9.lib;d3dx9d.lib</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;user32.lib;shell32.lib;d3d9.lib;d3dx9d.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>oldnames.lib;uuid.lib</IgnoreSpecificDefaultLibraries>
       <LargeAddressAware>true</LargeAddressAware>
       <ShowProgress>LinkVerboseLib</ShowProgress>
@@ -169,7 +169,7 @@
     </ClCompile>
     <Link>
       <SuppressStartupBanner>false</SuppressStartupBanner>
-      <AdditionalDependencies>user32.lib;shell32.lib;d3d9.lib;d3dx9d.lib</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;user32.lib;shell32.lib;d3d9.lib;d3dx9d.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>oldnames.lib;uuid.lib</IgnoreSpecificDefaultLibraries>
       <LargeAddressAware>true</LargeAddressAware>
       <ShowProgress>LinkVerboseLib</ShowProgress>
@@ -215,7 +215,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SuppressStartupBanner>false</SuppressStartupBanner>
-      <AdditionalDependencies>user32.lib;shell32.lib;d3d9.lib;d3dx9.lib</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;user32.lib;shell32.lib;d3d9.lib;d3dx9.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>oldnames.lib;uuid.lib</IgnoreSpecificDefaultLibraries>
       <LargeAddressAware>true</LargeAddressAware>
       <ShowProgress>LinkVerboseLib</ShowProgress>
@@ -261,7 +261,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SuppressStartupBanner>false</SuppressStartupBanner>
-      <AdditionalDependencies>user32.lib;shell32.lib;d3d9.lib;d3dx9.lib</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;user32.lib;shell32.lib;d3d9.lib;d3dx9.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>oldnames.lib;uuid.lib</IgnoreSpecificDefaultLibraries>
       <LargeAddressAware>true</LargeAddressAware>
       <ShowProgress>LinkVerboseLib</ShowProgress>
