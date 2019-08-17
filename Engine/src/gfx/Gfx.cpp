@@ -9,6 +9,7 @@
 #include <basalt/gfx/RenderComponent.h>
 #include <basalt/gfx/backend/IRenderer.h>
 #include <basalt/gfx/backend/Types.h>
+
 #include <basalt/Log.h>
 
 namespace basalt::gfx {

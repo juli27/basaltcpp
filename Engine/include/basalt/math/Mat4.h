@@ -9,177 +9,141 @@ namespace basalt::math {
 
 class Mat4 final {
 public:
-  f32 m11, m12, m13, m14,
-      m21, m22, m23, m24,
-      m31, m32, m33, m34,
-      m41, m42, m43, m44;
-
-  constexpr Mat4();
-
+  constexpr Mat4() noexcept = default;
   constexpr Mat4(
-    f32 _m11, f32 _m12, f32 _m13, f32 _m14,
-    f32 _m21, f32 _m22, f32 _m23, f32 _m24,
-    f32 _m31, f32 _m32, f32 _m33, f32 _m34,
-    f32 _m41, f32 _m42, f32 _m43, f32 _m44
-  );
+    f32 m11, f32 m12, f32 m13, f32 m14,
+    f32 m21, f32 m22, f32 m23, f32 m24,
+    f32 m31, f32 m32, f32 m33, f32 m34,
+    f32 m41, f32 m42, f32 m43, f32 m44
+  ) noexcept;
+  constexpr Mat4(const Mat4&) noexcept = default;
+  constexpr Mat4(Mat4&&) noexcept = default;
+  inline ~Mat4() noexcept = default;
 
-  constexpr Mat4(const Mat4&) = default;
+  inline auto operator=(const Mat4&) noexcept -> Mat4& = default;
+  inline auto operator=(Mat4&&) noexcept -> Mat4& = default;
 
-  constexpr Mat4(Mat4&&) = default;
+  constexpr auto operator+=(const Mat4& rhs) noexcept -> Mat4&;
+  constexpr auto operator-=(const Mat4& rhs) noexcept -> Mat4&;
+  constexpr auto operator*=(const Mat4& rhs) noexcept -> Mat4&;
+  constexpr auto operator*=(f32 rhs) noexcept -> Mat4&;
+  inline auto operator/=(const Mat4& rhs) noexcept -> Mat4&;
+  constexpr auto operator/=(f32 rhs) noexcept -> Mat4&;
 
-  inline ~Mat4() = default;
+  [[nodiscard]] constexpr auto Det() const noexcept -> f32;
 
-  constexpr auto Det() const -> f32;
+  f32 m11 = 0.0f, m12 = 0.0f, m13 = 0.0f, m14 = 0.0f,
+      m21 = 0.0f, m22 = 0.0f, m23 = 0.0f, m24 = 0.0f,
+      m31 = 0.0f, m32 = 0.0f, m33 = 0.0f, m34 = 0.0f,
+      m41 = 0.0f, m42 = 0.0f, m43 = 0.0f, m44 = 0.0f;
 
-  inline auto operator=(const Mat4&) -> Mat4& = default;
-
-  inline auto operator=(Mat4&&) -> Mat4& = default;
-
-  constexpr auto operator+=(const Mat4& m) -> Mat4&;
-
-  constexpr auto operator-=(const Mat4& m) -> Mat4&;
-
-  constexpr auto operator*=(const Mat4& m) -> Mat4&;
-
-  constexpr auto operator*=(f32 f) -> Mat4&;
-
-  inline auto operator/=(const Mat4& m) -> Mat4&;
-
-  constexpr auto operator/=(f32 f) -> Mat4&;
-
-  static constexpr auto Identity() -> Mat4;
-
+  static constexpr auto Identity() noexcept -> Mat4;
   static auto Invert(const Mat4& m) -> Mat4;
-
-  static auto Translation(const Vec3f32& v) -> Mat4;
-
+  static constexpr auto Translation(const Vec3f32& v) -> Mat4;
   static auto RotationX(f32 rad) -> Mat4;
-
   static auto RotationY(f32 rad) -> Mat4;
-
   static auto RotationZ(f32 rad) -> Mat4;
-
-  static auto Rotation(f32 xRad, f32 yRad, f32 zRad) -> Mat4;
-
   static auto Rotation(const Vec3f32& xyzRad) -> Mat4;
-
-  //static Mat4 RotationAxis(const tbVector3& axis, f32 rad);
-
-  static auto Scaling(const Vec3f32& v) -> Mat4;
-
-  /*static Mat4 Axes(const tbVector3& xAxis, const tbVector3& yAxis,
-                     const tbVector3& zAxis);*/
-
-  //static Mat4 Transpose(const Mat4& m);
-
+  static constexpr auto Scaling(const Vec3f32& v) -> Mat4;
   static auto PerspectiveProjection(
     f32 fovRad, f32 aspectRatio, f32 nearPlane, f32 farPlane
   ) -> Mat4;
-
-  //static Mat4 ToTex2DMatrix(const Mat4& m);
 };
 
 
-constexpr Mat4::Mat4()
-  : m11(0.0f), m12(0.0f), m13(0.0f), m14(0.0f),
-    m21(0.0f), m22(0.0f), m23(0.0f), m24(0.0f),
-    m31(0.0f), m32(0.0f), m33(0.0f), m34(0.0f),
-    m41(0.0f), m42(0.0f), m43(0.0f), m44(0.0f) {}
-
-
 constexpr Mat4::Mat4(
-  f32 _m11, f32 _m12, f32 _m13, f32 _m14,
-  f32 _m21, f32 _m22, f32 _m23, f32 _m24,
-  f32 _m31, f32 _m32, f32 _m33, f32 _m34,
-  f32 _m41, f32 _m42, f32 _m43, f32 _m44
-) : m11(_m11), m12(_m12), m13(_m13), m14(_m14),
-    m21(_m21), m22(_m22), m23(_m23), m24(_m24),
-    m31(_m31), m32(_m32), m33(_m33), m34(_m34),
-    m41(_m41), m42(_m42), m43(_m43), m44(_m44) {}
+  const f32 m11, const f32 m12, const f32 m13, const f32 m14,
+  const f32 m21, const f32 m22, const f32 m23, const f32 m24,
+  const f32 m31, const f32 m32, const f32 m33, const f32 m34,
+  const f32 m41, const f32 m42, const f32 m43, const f32 m44
+) noexcept
+: m11(m11), m12(m12), m13(m13), m14(m14)
+, m21(m21), m22(m22), m23(m23), m24(m24)
+, m31(m31), m32(m32), m33(m33), m34(m34)
+, m41(m41), m42(m42), m43(m43), m44(m44) {}
 
 
-// Determinante der linken oberen 3x3-Teilmatrix berechnen
-constexpr auto Mat4::Det() const -> f32 {
-  return m11 * (m22 * m33 - m23 * m32)
-    - m12 * (m21 * m33 - m23 * m31)
-    + m13 * (m21 * m32 - m22 * m31);
-}
-
-
-constexpr auto Mat4::operator+=(const Mat4& m) -> Mat4& {
-  m11 += m.m11; m12 += m.m12; m13 += m.m13; m14 += m.m14;
-  m21 += m.m21; m22 += m.m22; m23 += m.m23; m24 += m.m24;
-  m31 += m.m31; m32 += m.m32; m33 += m.m33; m34 += m.m34;
-  m41 += m.m41; m42 += m.m42; m43 += m.m43; m44 += m.m44;
+constexpr auto Mat4::operator+=(const Mat4& rhs) noexcept -> Mat4& {
+  m11 += rhs.m11; m12 += rhs.m12; m13 += rhs.m13; m14 += rhs.m14;
+  m21 += rhs.m21; m22 += rhs.m22; m23 += rhs.m23; m24 += rhs.m24;
+  m31 += rhs.m31; m32 += rhs.m32; m33 += rhs.m33; m34 += rhs.m34;
+  m41 += rhs.m41; m42 += rhs.m42; m43 += rhs.m43; m44 += rhs.m44;
 
   return *this;
 }
 
 
-constexpr auto Mat4::operator-=(const Mat4& m) -> Mat4& {
-  m11 -= m.m11; m12 -= m.m12; m13 -= m.m13; m14 -= m.m14;
-  m21 -= m.m21; m22 -= m.m22; m23 -= m.m23; m24 -= m.m24;
-  m31 -= m.m31; m32 -= m.m32; m33 -= m.m33; m34 -= m.m34;
-  m41 -= m.m41; m42 -= m.m42; m43 -= m.m43; m44 -= m.m44;
+constexpr auto Mat4::operator-=(const Mat4& rhs) noexcept -> Mat4& {
+  m11 -= rhs.m11; m12 -= rhs.m12; m13 -= rhs.m13; m14 -= rhs.m14;
+  m21 -= rhs.m21; m22 -= rhs.m22; m23 -= rhs.m23; m24 -= rhs.m24;
+  m31 -= rhs.m31; m32 -= rhs.m32; m33 -= rhs.m33; m34 -= rhs.m34;
+  m41 -= rhs.m41; m42 -= rhs.m42; m43 -= rhs.m43; m44 -= rhs.m44;
 
   return *this;
 }
 
 
-constexpr auto Mat4::operator*=(const Mat4& m) -> Mat4& {
+constexpr auto Mat4::operator*=(const Mat4& rhs) noexcept -> Mat4& {
   *this = Mat4(
-    m.m11 * m11 + m.m21 * m12 + m.m31 * m13 + m.m41 * m14,
-    m.m12 * m11 + m.m22 * m12 + m.m32 * m13 + m.m42 * m14,
-    m.m13 * m11 + m.m23 * m12 + m.m33 * m13 + m.m43 * m14,
-    m.m14 * m11 + m.m24 * m12 + m.m34 * m13 + m.m44 * m14,
+    rhs.m11 * m11 + rhs.m21 * m12 + rhs.m31 * m13 + rhs.m41 * m14,
+    rhs.m12 * m11 + rhs.m22 * m12 + rhs.m32 * m13 + rhs.m42 * m14,
+    rhs.m13 * m11 + rhs.m23 * m12 + rhs.m33 * m13 + rhs.m43 * m14,
+    rhs.m14 * m11 + rhs.m24 * m12 + rhs.m34 * m13 + rhs.m44 * m14,
 
-    m.m11 * m21 + m.m21 * m22 + m.m31 * m23 + m.m41 * m24,
-    m.m12 * m21 + m.m22 * m22 + m.m32 * m23 + m.m42 * m24,
-    m.m13 * m21 + m.m23 * m22 + m.m33 * m23 + m.m43 * m24,
-    m.m14 * m21 + m.m24 * m22 + m.m34 * m23 + m.m44 * m24,
+    rhs.m11 * m21 + rhs.m21 * m22 + rhs.m31 * m23 + rhs.m41 * m24,
+    rhs.m12 * m21 + rhs.m22 * m22 + rhs.m32 * m23 + rhs.m42 * m24,
+    rhs.m13 * m21 + rhs.m23 * m22 + rhs.m33 * m23 + rhs.m43 * m24,
+    rhs.m14 * m21 + rhs.m24 * m22 + rhs.m34 * m23 + rhs.m44 * m24,
 
-    m.m11 * m31 + m.m21 * m32 + m.m31 * m33 + m.m41 * m34,
-    m.m12 * m31 + m.m22 * m32 + m.m32 * m33 + m.m42 * m34,
-    m.m13 * m31 + m.m23 * m32 + m.m33 * m33 + m.m43 * m34,
-    m.m14 * m31 + m.m24 * m32 + m.m34 * m33 + m.m44 * m34,
+    rhs.m11 * m31 + rhs.m21 * m32 + rhs.m31 * m33 + rhs.m41 * m34,
+    rhs.m12 * m31 + rhs.m22 * m32 + rhs.m32 * m33 + rhs.m42 * m34,
+    rhs.m13 * m31 + rhs.m23 * m32 + rhs.m33 * m33 + rhs.m43 * m34,
+    rhs.m14 * m31 + rhs.m24 * m32 + rhs.m34 * m33 + rhs.m44 * m34,
 
-    m.m11 * m41 + m.m21 * m42 + m.m31 * m43 + m.m41 * m44,
-    m.m12 * m41 + m.m22 * m42 + m.m32 * m43 + m.m42 * m44,
-    m.m13 * m41 + m.m23 * m42 + m.m33 * m43 + m.m43 * m44,
-    m.m14 * m41 + m.m24 * m42 + m.m34 * m43 + m.m44 * m44
+    rhs.m11 * m41 + rhs.m21 * m42 + rhs.m31 * m43 + rhs.m41 * m44,
+    rhs.m12 * m41 + rhs.m22 * m42 + rhs.m32 * m43 + rhs.m42 * m44,
+    rhs.m13 * m41 + rhs.m23 * m42 + rhs.m33 * m43 + rhs.m43 * m44,
+    rhs.m14 * m41 + rhs.m24 * m42 + rhs.m34 * m43 + rhs.m44 * m44
   );
 
   return *this;
 }
 
 
-constexpr auto Mat4::operator*=(f32 f) -> Mat4& {
-  m11 *= f; m12 *= f; m13 *= f; m14 *= f;
-  m21 *= f; m22 *= f; m23 *= f; m24 *= f;
-  m31 *= f; m32 *= f; m33 *= f; m34 *= f;
-  m41 *= f; m42 *= f; m43 *= f; m44 *= f;
+constexpr auto Mat4::operator*=(const f32 rhs) noexcept -> Mat4& {
+  m11 *= rhs; m12 *= rhs; m13 *= rhs; m14 *= rhs;
+  m21 *= rhs; m22 *= rhs; m23 *= rhs; m24 *= rhs;
+  m31 *= rhs; m32 *= rhs; m33 *= rhs; m34 *= rhs;
+  m41 *= rhs; m42 *= rhs; m43 *= rhs; m44 *= rhs;
 
   return *this;
 }
 
 
-inline auto Mat4::operator/=(const Mat4& m) -> Mat4& {
-  *this *= Mat4::Invert(m);
+inline auto Mat4::operator/=(const Mat4& rhs) noexcept -> Mat4& {
+  *this *= Mat4::Invert(rhs);
   return *this;
 }
 
 
-constexpr auto Mat4::operator/=(f32 f) -> Mat4& {
-  m11 /= f; m12 /= f; m13 /= f; m14 /= f;
-  m21 /= f; m22 /= f; m23 /= f; m24 /= f;
-  m31 /= f; m32 /= f; m33 /= f; m34 /= f;
-  m41 /= f; m42 /= f; m43 /= f; m44 /= f;
+constexpr auto Mat4::operator/=(const f32 rhs) noexcept -> Mat4& {
+  m11 /= rhs; m12 /= rhs; m13 /= rhs; m14 /= rhs;
+  m21 /= rhs; m22 /= rhs; m23 /= rhs; m24 /= rhs;
+  m31 /= rhs; m32 /= rhs; m33 /= rhs; m34 /= rhs;
+  m41 /= rhs; m42 /= rhs; m43 /= rhs; m44 /= rhs;
 
   return *this;
 }
 
+// Determinante der linken oberen 3x3-Teilmatrix berechnen
+constexpr auto Mat4::Det() const noexcept -> f32 {
+  return m11 * (m22 * m33 - m23 * m32)
+       - m12 * (m21 * m33 - m23 * m31)
+       + m13 * (m21 * m32 - m22 * m31);
+}
 
-constexpr auto Mat4::Identity() -> Mat4 {
+
+constexpr auto Mat4::Identity() noexcept -> Mat4 {
   return Mat4(
     1.0f, 0.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
@@ -189,7 +153,24 @@ constexpr auto Mat4::Identity() -> Mat4 {
 }
 
 
-// global operators
+constexpr auto Mat4::Translation(const math::Vec3f32& v) -> Mat4 {
+  return Mat4(
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f,
+    v.GetX() , v.GetY() , v.GetZ() , 1.0f
+  );
+}
+
+
+constexpr auto Mat4::Scaling(const Vec3f32& v) -> Mat4 {
+  return Mat4(
+    v.GetX(), 0.0f    , 0.0f    , 0.0f,
+    0.0f    , v.GetY(), 0.0f    , 0.0f,
+    0.0f    , 0.0f    , v.GetZ(), 0.0f,
+    0.0f    , 0.0f    , 0.0f    , 1.0f
+  );
+}
 
 
 constexpr auto operator-(const Mat4& m) -> Mat4 {

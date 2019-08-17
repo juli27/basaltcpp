@@ -17,7 +17,8 @@
 
 #if defined(BS_DEBUG_BUILD)
 #define BS_ASSERTS_ENABLED 1
-#endif
+#endif // defined(BS_DEBUG_BUILD)
+
 
 #if BS_ASSERTS_ENABLED
 

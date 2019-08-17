@@ -8,8 +8,7 @@
 #include <basalt/math/Vec3.h>
 #include <basalt/platform/Platform.h>
 
-namespace basalt {
-namespace gfx {
+namespace basalt::gfx {
 
 
 Camera::Camera(
@@ -62,5 +61,4 @@ void Camera::UpdateView() const {
   );
 }
 
-} // namespace gfx
-} // namespace basalt
+} // namespace basalt::gfx

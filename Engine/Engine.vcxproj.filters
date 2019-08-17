@@ -6,7 +6,6 @@
     <ClInclude Include="include\basalt\Engine.h" />
     <ClInclude Include="include\basalt\IApplication.h" />
     <ClInclude Include="include\basalt\Log.h" />
-    <ClInclude Include="include\pch.h" />
     <ClInclude Include="include\basalt\platform\Platform.h" />
     <ClInclude Include="include\basalt\platform\WindowTypes.h" />
     <ClInclude Include="include\basalt\common\Exceptions.h" />
@@ -16,9 +15,7 @@
     <ClInclude Include="include\basalt\platform\events\WindowEvents.h" />
     <ClInclude Include="include\basalt\platform\events\MouseEvents.h" />
     <ClInclude Include="include\basalt\math\Mat4.h" />
-    <ClInclude Include="include\basalt\util\Logger.h" />
     <ClInclude Include="include\basalt\common\Types.h" />
-    <ClInclude Include="include\basalt\math\Vec3.h" />
     <ClInclude Include="include\basalt\Input.h" />
     <ClInclude Include="include\basalt\platform\events\Event.h" />
     <ClInclude Include="include\basalt\platform\events\KeyEvents.h" />
@@ -32,6 +29,8 @@
     <ClInclude Include="include\basalt\gfx\Camera.h" />
     <ClInclude Include="include\basalt\Scene.h" />
     <ClInclude Include="include\basalt\gfx\RenderComponent.h" />
+    <ClInclude Include="include\pch.h" />
+    <ClInclude Include="include\basalt\math\Vec3.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine.cpp" />

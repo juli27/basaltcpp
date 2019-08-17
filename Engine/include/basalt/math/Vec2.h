@@ -10,56 +10,60 @@ namespace basalt::math {
 template <typename T>
 class Vec2 final {
 public:
-  constexpr Vec2();
-  constexpr Vec2(T x, T y);
-  constexpr Vec2(const Vec2<T>&) = default;
-  constexpr Vec2(Vec2<T>&&) = default;
-  inline ~Vec2() = default;
+  constexpr Vec2() noexcept = default;
+  constexpr Vec2(T x, T y) noexcept;
+  constexpr Vec2(const Vec2&) noexcept = default;
+  constexpr Vec2(Vec2&&) noexcept = default;
+  inline ~Vec2() noexcept = default;
 
-  inline void Set(T x, T y);
-  inline void SetX(T x);
-  inline void SetY(T y);
+  inline auto operator=(const Vec2&) noexcept -> Vec2& = default;
+  inline auto operator=(Vec2&&) noexcept -> Vec2& = default;
 
-  constexpr auto GetX() const -> T;
-  constexpr auto GetY() const -> T;
+  inline void Set(T x, T y) noexcept;
 
-  inline auto operator=(const Vec2<T>&) -> Vec2<T>& = default;
-  inline auto operator=(Vec2<T>&&) -> Vec2<T>& = default;
+  inline void SetX(T x) noexcept;
+  inline void SetY(T y) noexcept;
+
+  constexpr auto GetX() const noexcept -> T;
+  constexpr auto GetY() const noexcept -> T;
 
 private:
-  T mX;
-  T mY;
+  T mX = {};
+  T mY = {};
 };
 
-template <typename T>
-constexpr Vec2<T>::Vec2() : mX{}, mY{} {}
 
 template<typename T>
-constexpr Vec2<T>::Vec2(T x, T y) : mX(x), mY(y) {}
+constexpr Vec2<T>::Vec2(const T x, const T y) noexcept : mX(x), mY(y) {}
+
 
 template<typename T>
-inline void Vec2<T>::Set(T x, T y) {
+inline void Vec2<T>::Set(T x, T y) noexcept {
   mX = x;
   mY = y;
 }
 
+
 template<typename T>
-inline void Vec2<T>::SetX(T x) {
+inline void Vec2<T>::SetX(T x) noexcept {
   mX = x;
 }
 
+
 template<typename T>
-inline void Vec2<T>::SetY(T y) {
+inline void Vec2<T>::SetY(T y) noexcept {
   mY = y;
 }
 
+
 template<typename T>
-constexpr auto Vec2<T>::GetX() const -> T {
+constexpr auto Vec2<T>::GetX() const noexcept -> T {
   return mX;
 }
 
+
 template<typename T>
-constexpr auto Vec2<T>::GetY() const -> T {
+constexpr auto Vec2<T>::GetY() const noexcept -> T {
   return mY;
 }
 

@@ -8,7 +8,6 @@
 #include "basalt/Input.h"
 #include "basalt/Scene.h"
 
-#include "basalt/common/Asserts.h"
 #include "basalt/common/Color.h"
 #include "basalt/common/Exceptions.h"
 #include "basalt/common/Handle.h"
@@ -38,6 +37,7 @@
 
 // at the bottom because of the stupid windows.h dependency
 #include "basalt/Log.h"
+#include "basalt/common/Asserts.h"
 
 #include <entt/entt.hpp>
 #include <imgui/imgui.h>

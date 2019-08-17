@@ -12,53 +12,48 @@ namespace basalt::math {
 template <typename T>
 class Vec3 final {
 public:
-  constexpr Vec3();
-  constexpr Vec3(T x, T y, T z);
-  constexpr Vec3(const Vec3<T>&) = default;
-  constexpr Vec3(Vec3<T>&&) = default;
-  inline ~Vec3() = default;
+  constexpr Vec3() noexcept = default;
+  constexpr Vec3(T x, T y, T z) noexcept;
+  constexpr Vec3(const Vec3&) noexcept = default;
+  constexpr Vec3(Vec3&&) noexcept = default;
+  inline ~Vec3() noexcept = default;
 
-  inline auto Length() const -> T;
+  inline auto operator=(const Vec3&) noexcept -> Vec3& = default;
+  inline auto operator=(Vec3&&) noexcept -> Vec3& = default;
 
-  inline void Set(T x, T y, T z);
-  inline void SetX(T x);
-  inline void SetY(T y);
-  inline void SetZ(T z);
+  inline auto operator-() const noexcept -> Vec3;
 
-  constexpr auto GetX() const -> T;
-  constexpr auto GetY() const -> T;
-  constexpr auto GetZ() const -> T;
+  [[nodiscard]] inline auto Length() const -> T;
 
-  inline Vec3<T>& operator=(const Vec3<T>&) = default;
-  inline Vec3<T>& operator=(Vec3<T>&&) = default;
+  inline void Set(T x, T y, T z) noexcept;
+
+  inline void SetX(T x) noexcept;
+  inline void SetY(T y) noexcept;
+  inline void SetZ(T z) noexcept;
+
+  [[nodiscard]] constexpr auto GetX() const noexcept -> T;
+  [[nodiscard]] constexpr auto GetY() const noexcept -> T;
+  [[nodiscard]] constexpr auto GetZ() const noexcept -> T;
 
 private:
-  T mX;
-  T mY;
-  T mZ;
+  T mX = {};
+  T mY = {};
+  T mZ = {};
 
 public:
-  static inline auto Normalize(const Vec3<T>& v) -> Vec3<T>;
-
-  static constexpr auto Cross(const Vec3<T>& v1, const Vec3<T>& v2) -> Vec3<T>;
-
-  template<typename V>
-  friend auto operator-(const Vec3<V>& v) -> Vec3<V>;
-
-  template<typename V>
-  friend auto operator-(const Vec3<V>& a, const Vec3<V>& b) -> Vec3<V>;
-
-  template<typename V>
-  friend auto operator/(const Vec3<V>& a, V b) -> Vec3<V>;
+  static inline auto Normalize(const Vec3& v) -> Vec3;
+  static constexpr auto Cross(const Vec3& lhs, const Vec3& rhs) -> Vec3;
 };
 
 
-template <typename T>
-constexpr Vec3<T>::Vec3() : mX{}, mY{}, mZ{} {}
-
-
 template<typename T>
-constexpr Vec3<T>::Vec3(T x, T y, T z) : mX{x}, mY{y}, mZ{z} {}
+constexpr Vec3<T>::Vec3(T x, T y, T z) noexcept : mX{x}, mY{y}, mZ{z} {}
+
+
+template <typename T>
+inline auto Vec3<T>::operator-() const noexcept -> Vec3 {
+  return Vec3(-mX, -mY, -mZ);
+}
 
 
 template<typename T>
@@ -69,74 +64,73 @@ inline auto Vec3<T>::Length() const -> T {
 
 
 template<typename T>
-inline void Vec3<T>::Set(T x, T y, T z) {
+inline void Vec3<T>::Set(T x, T y, T z) noexcept {
   mX = x;
   mY = y;
   mZ = z;
 }
 
+
 template<typename T>
-inline void Vec3<T>::SetX(T x) {
+inline void Vec3<T>::SetX(T x) noexcept {
   mX = x;
 }
 
+
 template<typename T>
-inline void Vec3<T>::SetY(T y) {
+inline void Vec3<T>::SetY(T y) noexcept {
   mY = y;
 }
 
 template<typename T>
-inline void Vec3<T>::SetZ(T z) {
+inline void Vec3<T>::SetZ(T z) noexcept {
   mZ = z;
 }
 
+
 template<typename T>
-constexpr auto Vec3<T>::GetX() const -> T {
+constexpr auto Vec3<T>::GetX() const noexcept -> T {
   return mX;
 }
 
+
 template<typename T>
-constexpr auto Vec3<T>::GetY() const -> T {
+constexpr auto Vec3<T>::GetY() const noexcept -> T {
   return mY;
 }
 
+
 template<typename T>
-constexpr auto Vec3<T>::GetZ() const -> T {
+constexpr auto Vec3<T>::GetZ() const noexcept -> T {
   return mZ;
 }
 
 
 template<typename T>
-inline auto Vec3<T>::Normalize(const Vec3<T>& v) -> Vec3<T> {
+inline auto Vec3<T>::Normalize(const Vec3& v) -> Vec3 {
   return v / v.Length();
 }
 
 
 template<typename T>
-constexpr auto Vec3<T>::Cross(const Vec3<T>& v1, const Vec3<T>& v2) -> Vec3<T> {
-  return Vec3<T>(
-    v1.mY * v2.mZ - v1.mZ * v2.mY,
-    v1.mZ * v2.mX - v1.mX * v2.mZ,
-    v1.mX * v2.mY - v1.mY * v2.mX
+constexpr auto Vec3<T>::Cross(const Vec3& lhs, const Vec3& rhs) -> Vec3 {
+  return Vec3(
+    lhs.mY * rhs.mZ - lhs.mZ * rhs.mY,
+    lhs.mZ * rhs.mX - lhs.mX * rhs.mZ,
+    lhs.mX * rhs.mY - lhs.mY * rhs.mX
   );
 }
 
 
 template<typename T>
-inline auto operator-(const Vec3<T>& v) -> Vec3<T> {
-  return Vec3<T>(-v.mX, -v.mY, -v.mZ);
-}
-
-
-template<typename T>
-inline auto operator-(const Vec3<T>& a, const Vec3<T>& b) -> Vec3<T> {
-  return Vec3<T>(a.mX - b.mX, a.mY - b.mY, a.mZ - b.mZ);
+inline auto operator-(const Vec3<T>& lhs, const Vec3<T>& rhs) -> Vec3<T> {
+  return Vec3<T>(lhs.GetX() - rhs.GetX(), lhs.GetY() - rhs.GetY(), lhs.GetZ() - rhs.GetZ());
 }
 
 
 template<typename T>
 inline auto operator/(const Vec3<T>& v, T f) -> Vec3<T> {
-  return Vec3<T>(v.mX / f, v.mY / f, v.mZ / f);
+  return Vec3<T>(v.GetX() / f, v.GetY() / f, v.GetZ() / f);
 }
 
 

@@ -5,11 +5,13 @@
 #include <algorithm>
 #include <vector>
 
+#include "Types.h"
+
 namespace basalt {
+
 
 template <typename T, typename HandleT>
 class HandlePool final {
-private:
   struct Slot {
     T mData = {};
     HandleT mHandle = {};
@@ -17,24 +19,22 @@ private:
   };
 
 public:
-  HandlePool() = default;
-  HandlePool(HandlePool&&) = default;
-  ~HandlePool() = default;
-
+  inline HandlePool() noexcept = default;
   HandlePool(const HandlePool&) = delete;
+  inline HandlePool(HandlePool&&) noexcept = default;
+  inline ~HandlePool() noexcept = default;
 
-public:
-  auto Allocate() -> HandleT;
+  auto operator=(const HandlePool&) -> HandlePool& = delete;
+  // TODO: exception specification
+  inline auto operator=(HandlePool&&) -> HandlePool& = default;
+
+  [[nodiscard]] auto Allocate() -> HandleT;
   void Deallocate(HandleT handle);
-  auto Get(HandleT handle) -> T&;
+
+  [[nodiscard]] auto Get(HandleT handle) -> T&;
 
   using ForEachFn = void (*) (T&);
   void ForEach(ForEachFn fn);
-
-public:
-  auto operator=(HandlePool&&) -> HandlePool& = default;
-
-  auto operator=(const HandlePool&) -> HandlePool& = delete;
 
 private:
   std::vector<Slot> mSlots;
@@ -45,7 +45,7 @@ private:
 template <typename T, typename HandleT>
 auto HandlePool<T, HandleT>::Allocate() -> HandleT {
   if (mFirstFreeSlot) {
-    Slot& slot = mSlots.at(mFirstFreeSlot.GetValue());
+    Slot& slot = mSlots[mFirstFreeSlot.GetValue()];
     slot.mHandle = mFirstFreeSlot;
     mFirstFreeSlot = slot.mNextFreeSlot;
 
@@ -53,11 +53,15 @@ auto HandlePool<T, HandleT>::Allocate() -> HandleT {
   }
 
   const auto nextIndex = mSlots.size();
-  if (nextIndex > static_cast<u32>(std::numeric_limits<HandleT::ValueT>::max())) {
+  constexpr auto maxSlots = static_cast<u32>(
+    std::numeric_limits<typename HandleT::ValueT>::max()
+  );
+
+  if (nextIndex >= maxSlots) {
     throw std::out_of_range("out of slots");
   }
 
-  const auto index = static_cast<i32>(nextIndex);
+  const auto index = static_cast<typename HandleT::ValueT>(nextIndex);
   Slot& slot = mSlots.emplace_back();
   slot.mHandle = HandleT(index);
 
@@ -87,7 +91,7 @@ auto HandlePool<T, HandleT>::Get(HandleT handle) -> T& {
 
 template<typename T, typename HandleT>
 void HandlePool<T, HandleT>::ForEach(ForEachFn fn) {
-  std::for_each(std::begin(mSlots), std::end(mSlots), [=](Slot& slot){
+  std::for_each(std::begin(mSlots), std::end(mSlots), [=](Slot& slot) {
     if (slot.mHandle) {
       fn(slot.mData);
     }

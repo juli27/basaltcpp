@@ -4,9 +4,9 @@
 
 #include <entt/entt.hpp>
 
-#include <basalt/common/Color.h>
-#include <basalt/gfx/Camera.h>
-#include <basalt/math/Vec3.h>
+#include "common/Color.h"
+#include "gfx/Camera.h"
+#include "math/Vec3.h"
 
 namespace basalt {
 

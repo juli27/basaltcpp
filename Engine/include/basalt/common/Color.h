@@ -9,86 +9,87 @@ namespace basalt {
 
 class Color final {
 public:
-  constexpr Color();
+  constexpr Color() noexcept = default;
+  constexpr Color(u8 red, u8 green, u8 blue) noexcept;
+  constexpr Color(u8 red, u8 green, u8 blue, u8 alpha) noexcept;
+  constexpr Color(const Color&) noexcept = default;
+  constexpr Color(Color&&) noexcept = default;
+  inline ~Color() noexcept = default;
 
-  constexpr Color(u8 r, u8 g, u8 b);
-
-  constexpr Color(u8 r, u8 g, u8 b, u8 a);
+  inline auto operator=(const Color&) noexcept -> Color& = default;
+  inline auto operator=(Color&&) noexcept -> Color& = default;
 
   // ARGB word-order
-  constexpr auto ToARGB() const -> u32;
+  [[nodiscard]] constexpr auto ToARGB() const noexcept -> u32;
 
-  constexpr auto GetRed() const -> u8;
-
-  constexpr auto GetGreen() const -> u8;
-
-  constexpr auto GetBlue() const -> u8;
-
-  constexpr auto GetAlpha() const -> u8;
+  [[nodiscard]] constexpr auto GetRed() const noexcept -> u8;
+  [[nodiscard]] constexpr auto GetGreen() const noexcept -> u8;
+  [[nodiscard]] constexpr auto GetBlue() const noexcept -> u8;
+  [[nodiscard]] constexpr auto GetAlpha() const noexcept -> u8;
 
 private:
-  u8 m_r;
-  u8 m_g;
-  u8 m_b;
-  u8 m_a;
+  u8 mRed = 0;
+  u8 mGreen = 0;
+  u8 mBlue = 0;
+  u8 mAlpha = 0;
 
 public:
   // ARGB word order
-  static constexpr auto FromARGB(u32 argb) -> Color;
+  static constexpr auto FromARGB(u32 argb) noexcept -> Color;
 };
 
 
-constexpr Color::Color() : Color(0, 0, 0, 0) {}
+constexpr Color::Color(const u8 red, const u8 green, const u8 blue) noexcept
+: Color(red, green, blue, 255) {}
 
 
-constexpr Color::Color(u8 r, u8 g, u8 b) : Color(r, g, b, 255) {}
+constexpr Color::Color(
+  const u8 red, const u8 green, const u8 blue, const u8 alpha
+) noexcept
+: mRed(red)
+, mGreen(green)
+, mBlue(blue)
+, mAlpha(alpha) {}
 
 
-constexpr Color::Color(u8 r, u8 g, u8 b, u8 a)
-  : m_r(r)
-  , m_g(g)
-  , m_b(b)
-  , m_a(a) {}
-
-
-constexpr auto Color::ToARGB() const -> u32 {
-  u32 color = m_a;
+constexpr auto Color::ToARGB() const noexcept -> u32 {
+  u32 color = mAlpha;
   color <<= 8;
-  color |= m_r;
+  color |= mRed;
   color <<= 8;
-  color |= m_g;
+  color |= mGreen;
   color <<= 8;
-  color |= m_b;
+  color |= mBlue;
 
   return color;
 }
 
 
-constexpr auto Color::GetRed() const -> u8 {
-  return m_r;
+constexpr auto Color::GetRed() const noexcept -> u8 {
+  return mRed;
 }
 
 
-constexpr auto Color::GetGreen() const -> u8 {
-  return m_g;
+constexpr auto Color::GetGreen() const noexcept -> u8 {
+  return mGreen;
 }
 
 
-constexpr auto Color::GetBlue() const -> u8 {
-  return m_b;
+constexpr auto Color::GetBlue() const noexcept -> u8 {
+  return mBlue;
 }
 
 
-constexpr auto Color::GetAlpha() const -> u8 {
-  return m_a;
+constexpr auto Color::GetAlpha() const noexcept -> u8 {
+  return mAlpha;
 }
 
 
-constexpr Color Color::FromARGB(u32 argb) {
-  u8 a = static_cast<u8>(argb);
-  u8 r = static_cast<u8>(argb >> 8);
-  u8 g = static_cast<u8>(argb >> 16);
-  u8 b = static_cast<u8>(argb >> 24);
+constexpr Color Color::FromARGB(const u32 argb) noexcept {
+  const auto a = static_cast<u8>(argb);
+  const auto r = static_cast<u8>(argb >> 8);
+  const auto g = static_cast<u8>(argb >> 16);
+  const auto b = static_cast<u8>(argb >> 24);
 
   return Color(r, g, b, a);
 }
