@@ -3,21 +3,33 @@
 #define BS_IAPPLICATION_H
 
 #include "Config.h"
-#include "gfx/backend/IRenderer.h"
 
 namespace basalt {
 
 class IApplication {
 public:
+  inline IApplication() = default;
   virtual ~IApplication() = default;
 
-  virtual void OnInit(gfx::backend::IRenderer* renderer) = 0;
+  IApplication(const IApplication&) = delete;
+  IApplication(IApplication&&) = delete;
+
+public:
+  auto operator=(const IApplication&) -> IApplication& = delete;
+  auto operator=(IApplication&&) -> IApplication& = delete;
+
+public:
+
+  virtual void OnInit() = 0;
+
 
   virtual void OnShutdown() = 0;
+
 
   virtual void OnUpdate() = 0;
 
 public:
+
   static auto Create(Config& config) -> IApplication*;
 };
 

@@ -7,22 +7,28 @@
 
 #include <Basalt.h>
 
-#include "IScene.h"
+#include "ITestCase.h"
 
-class SandboxApp : public bs::IApplication {
+class SandboxApp final : public bs::IApplication {
 public:
-  SandboxApp(bs::Config& config);
+  explicit SandboxApp(bs::Config& config);
 
   virtual ~SandboxApp() = default;
 
-  virtual void OnInit(bs::gfx::backend::IRenderer* renderer) override;
+  SandboxApp(const SandboxApp&) = delete;
+  SandboxApp(SandboxApp&&) = delete;
 
+public:
+  auto operator=(const SandboxApp&) -> SandboxApp& = delete;
+  auto operator=(SandboxApp&&) -> SandboxApp& = delete;
+
+public:
+  virtual void OnInit() override;
   virtual void OnShutdown() override;
-
   virtual void OnUpdate() override;
 
 private:
-  std::vector<std::unique_ptr<IScene>> mScenes;
+  std::vector<std::unique_ptr<ITestCase>> mScenes;
   bs::i32 mCurrentSceneIndex;
 };
 

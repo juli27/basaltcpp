@@ -4,13 +4,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## *[0.3.0] - 2019-09-02* (**Unreleased**)
 ### Added
+- Basic Scene API with an entity component system (entt)
+- Basic Camera class
 - HandlePool to allocate and reuse memory slots accessed via a handle
+- math::Mat4::Rotation(Vec3) and math::Mat4::Scale(Vec3)
 
 ### Changed
 
 ### Deprecated
 
 ### Removed
+- Mat4::Camera (use gfx::Camera instead)
 
 ### Fixed
 

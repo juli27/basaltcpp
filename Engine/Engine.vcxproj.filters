@@ -29,6 +29,9 @@
     <ClInclude Include="include\basalt\gfx\backend\Types.h" />
     <ClInclude Include="include\basalt\gfx\Gfx.h" />
     <ClInclude Include="include\basalt\common\HandlePool.h" />
+    <ClInclude Include="include\basalt\gfx\Camera.h" />
+    <ClInclude Include="include\basalt\Scene.h" />
+    <ClInclude Include="include\basalt\gfx\RenderComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine.cpp" />
@@ -37,6 +40,8 @@
     <ClCompile Include="src\math\Mat4.cpp" />
     <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\gfx\Gfx.cpp" />
+    <ClCompile Include="src\gfx\Camera.cpp" />
+    <ClCompile Include="src\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Doxyfile" />

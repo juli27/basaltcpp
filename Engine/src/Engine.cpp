@@ -3,6 +3,7 @@
 #include <basalt/Engine.h>
 
 #include <chrono>
+#include <memory>
 #include <stdexcept>
 
 #include <imgui/imgui.h>
@@ -11,6 +12,7 @@
 #include <basalt/IApplication.h>
 #include <basalt/Input.h>
 #include <basalt/Log.h>
+#include <basalt/Scene.h>
 #include <basalt/common/Types.h>
 #include <basalt/gfx/Gfx.h>
 #include <basalt/platform/Platform.h>
@@ -18,9 +20,10 @@
 namespace basalt {
 namespace {
 
-Config s_config{{"Basalt App", {1280, 720}, WindowMode::FULLSCREEN, false}};
-IApplication* s_app;
-f64 s_currentDeltaTime;
+Config sConfig{{"Basalt App", {1280, 720}, WindowMode::FULLSCREEN, false}};
+IApplication* sApp;
+f64 sCurrentDeltaTime;
+std::shared_ptr<Scene> sCurrentScene;
 
 
 void Startup() {
@@ -29,21 +32,21 @@ void Startup() {
 
   // TODO: load config from file or create default
 
-  s_app = IApplication::Create(s_config);
-  if (!s_app) {
+  sApp = IApplication::Create(sConfig);
+  if (!sApp) {
     throw std::runtime_error("failed to create IApplication object");
   }
 
   BS_INFO(
     "config: window: {} {}x{}{} {}{}",
-    s_config.window.title, s_config.window.size.GetX(),
-    s_config.window.size.GetY(),
-    s_config.window.mode == WindowMode::FULLSCREEN_EXCLUSIVE ? " exclusive" : "",
-    s_config.window.mode != WindowMode::WINDOWED ? "fullscreen" : "windowed",
-    s_config.window.resizeable ? " resizeable" : ""
+    sConfig.window.title, sConfig.window.size.GetX(),
+    sConfig.window.size.GetY(),
+    sConfig.window.mode == WindowMode::FULLSCREEN_EXCLUSIVE ? " exclusive" : "",
+    sConfig.window.mode != WindowMode::WINDOWED ? "fullscreen" : "windowed",
+    sConfig.window.resizeable ? " resizeable" : ""
   );
 
-  platform::Startup(s_config.window);
+  platform::Startup(sConfig.window);
   input::Init();
 
   IMGUI_CHECKVERSION();
@@ -63,8 +66,8 @@ void Shutdown() {
 
   platform::Shutdown();
 
-  delete s_app;
-  s_app = nullptr;
+  delete sApp;
+  sApp = nullptr;
 
   BS_INFO("engine shutdown");
 }
@@ -75,7 +78,10 @@ void Shutdown() {
 void Run() {
   Startup();
 
-  s_app->OnInit(gfx::GetRenderer());
+  // HACK
+  sCurrentScene = std::make_shared<Scene>();
+
+  sApp->OnInit();
 
   BS_INFO("entering main loop");
 
@@ -86,19 +92,21 @@ void Run() {
   while (platform::PollEvents()) {
     // app update is in between rendering and buffer swapping to utilize the
     // asynchronicity of gpu drivers (gpu does the actual work while updating)
-    gfx::Render();
+    gfx::Render(sCurrentScene);
 
-    ImGuiIO& io = ImGui::GetIO();
-    math::Vec2i32 windowSize = platform::GetWindowDesc().size;
-    io.DisplaySize = ImVec2(static_cast<float>(windowSize.GetX()), static_cast<float>(windowSize.GetY()));
-    io.DeltaTime = static_cast<float>(s_currentDeltaTime);
+    auto& io = ImGui::GetIO();
+    const auto windowSize = platform::GetWindowDesc().size;
+    io.DisplaySize = ImVec2(
+      static_cast<float>(windowSize.GetX()), static_cast<float>(windowSize.GetY())
+    );
+    io.DeltaTime = static_cast<float>(sCurrentDeltaTime);
     gfx::GetRenderer()->NewGuiFrame();
     io.MousePos = ImVec2(static_cast<float>(input::GetMousePos().GetX()), static_cast<float>(input::GetMousePos().GetY()));
     io.MouseDown[0] = input::IsMouseButtonPressed(input::MouseButton::LEFT);
     io.MouseDown[1] = input::IsMouseButtonPressed(input::MouseButton::RIGHT);
     ImGui::NewFrame();
 
-    s_app->OnUpdate();
+    sApp->OnUpdate();
 
     ImGui::Render();
     // gui is 1 frame ahead
@@ -106,22 +114,27 @@ void Run() {
 
     gfx::Present();
 
-    auto endTime = clock::now();
-    s_currentDeltaTime = static_cast<f64>((endTime - startTime).count()) /
+    const auto endTime = clock::now();
+    sCurrentDeltaTime = static_cast<f64>((endTime - startTime).count()) /
       (clock::period::den * clock::period::num);
     startTime = endTime;
   }
 
   BS_INFO("leaving main loop");
 
-  s_app->OnShutdown();
+  sApp->OnShutdown();
 
   Shutdown();
 }
 
 
 auto GetDeltaTime() -> f64 {
-  return s_currentDeltaTime;
+  return sCurrentDeltaTime;
+}
+
+
+void SetCurrentScene(const std::shared_ptr<Scene>& scene) {
+  sCurrentScene = scene;
 }
 
 } // namespace basalt

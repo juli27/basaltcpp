@@ -61,11 +61,11 @@ public:
 
   static auto Rotation(f32 xRad, f32 yRad, f32 zRad) -> Mat4;
 
-  //static Mat4 Rotation(const tbVector3& xyzRad);
+  static auto Rotation(const Vec3f32& xyzRad) -> Mat4;
 
   //static Mat4 RotationAxis(const tbVector3& axis, f32 rad);
 
-  //static Mat4 Scaling(const tbVector3& v);
+  static auto Scaling(const Vec3f32& v) -> Mat4;
 
   /*static Mat4 Axes(const tbVector3& xAxis, const tbVector3& yAxis,
                      const tbVector3& zAxis);*/
@@ -74,10 +74,6 @@ public:
 
   static auto PerspectiveProjection(
     f32 fovRad, f32 aspectRatio, f32 nearPlane, f32 farPlane
-  ) -> Mat4;
-
-  static auto Camera(
-    const Vec3f32& pos, const Vec3f32& lookAt, const Vec3f32& up
   ) -> Mat4;
 
   //static Mat4 ToTex2DMatrix(const Mat4& m);

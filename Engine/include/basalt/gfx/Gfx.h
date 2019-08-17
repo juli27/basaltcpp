@@ -2,6 +2,10 @@
 #ifndef BS_GFX_H
 #define BS_GFX_H
 
+#include <memory>
+
+#include <basalt/Scene.h>
+
 #include "backend/IRenderer.h"
 
 namespace basalt::gfx {
@@ -13,7 +17,7 @@ void Init();
 void Shutdown();
 
 
-void Render();
+void Render(const std::shared_ptr<Scene>& scene);
 
 
 void Present();

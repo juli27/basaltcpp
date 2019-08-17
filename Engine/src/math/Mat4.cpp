@@ -85,10 +85,12 @@ auto Mat4::Rotation(f32 xRad, f32 yRad, f32 zRad) -> Mat4 {
 }
 
 
-//Mat4 Mat4::Rotation(const tbVector3& xyzRad) {
-//  return RotationZ(xyzRad.z) * RotationX(xyzRad.x) * RotationY(xyzRad.y);
-//}
-//
+auto Mat4::Rotation(const Vec3f32& xyzRad) -> Mat4 {
+  return RotationZ(xyzRad.GetZ()) *
+    RotationX(xyzRad.GetX()) *
+    RotationY(xyzRad.GetY());
+}
+
 //Mat4 Mat4::RotationAxis(const tbVector3& axis, f32 rad) {
 //  const f32 sin = std::sinf(-rad);
 //  const f32 cos = std::cosf(-rad);
@@ -117,13 +119,15 @@ auto Mat4::Rotation(f32 xRad, f32 yRad, f32 zRad) -> Mat4 {
 //                1.0f);
 //}
 //
-//Mat4 Mat4::Scaling(const tbVector3& v) {
-//  return Mat4(v.x , 0.0f, 0.0f, 0.0f,
-//                0.0f, v.y , 0.0f, 0.0f,
-//                0.0f, 0.0f, v.z , 0.0f,
-//                0.0f, 0.0f, 0.0f, 1.0f);
-//}
-//
+auto Mat4::Scaling(const Vec3f32& v) -> Mat4 {
+  return Mat4(
+    v.GetX(), 0.0f    , 0.0f    , 0.0f,
+    0.0f    , v.GetY(), 0.0f    , 0.0f,
+    0.0f    , 0.0f    , v.GetZ(), 0.0f,
+    0.0f    , 0.0f    , 0.0f    , 1.0f
+  );
+}
+
 //Mat4 Mat4::Axes(const tbVector3& xAxis, const tbVector3& yAxis,
 //                      const tbVector3& zAxis) {
 //  return Mat4(xAxis.x, xAxis.y, xAxis.z, 0.0f,
@@ -152,22 +156,6 @@ auto Mat4::PerspectiveProjection(
     0.0f  , yScale,  0.0f         , 0.0f,
     0.0f  , 0.0f  ,  Q            , 1.0f,
     0.0f  , 0.0f  , -Q * nearPlane, 0.0f
-  );
-}
-
-
-auto Mat4::Camera(
-  const Vec3f32& pos, const Vec3f32& lookAt, const Vec3f32& up
-) -> Mat4 {
-  const Vec3f32 zAxis = Vec3f32::Normalize(lookAt - pos);
-  const Vec3f32 xAxis = Vec3f32::Normalize(Vec3f32::Cross(up, zAxis));
-  const Vec3f32 yAxis = Vec3f32::Normalize(Vec3f32::Cross(zAxis, xAxis));
-
-  return Mat4::Translation(-pos) * Mat4(
-    xAxis.GetX(), yAxis.GetX(), zAxis.GetX(), 0.0f,
-    xAxis.GetY(), yAxis.GetY(), zAxis.GetY(), 0.0f,
-    xAxis.GetZ(), yAxis.GetZ(), zAxis.GetZ(), 0.0f,
-    0.0f   , 0.0f   , 0.0f   , 1.0f
   );
 }
 

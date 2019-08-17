@@ -21,7 +21,15 @@ enum class RendererType : i8 {
 
 class IRenderer {
 public:
+  inline IRenderer() = default;
   virtual ~IRenderer() = default;
+
+  IRenderer(const IRenderer&) = delete;
+  IRenderer(IRenderer&&) = delete;
+
+public:
+  auto operator=(const IRenderer&) -> IRenderer& = delete;
+  auto operator=(IRenderer&&) -> IRenderer& = delete;
 
   // TODO: noexcept method to validate the layout for the renderers requirements
   //       bool IRenderer::ValidateVertexLayout(const VertexLayout&)
@@ -32,15 +40,6 @@ public:
   //       or an API to get a list of supported usages and types
 
   // TODO: method to retrieve a preferred vertex layout ?
-
-  // TODO: CreateCommandBuffer(): returns a new command buffer as a
-  //                              shared pointer
-  // OR
-  // TODO: Begin/End paradigm per scene change. (meh: multithreading)
-  // OR
-  // TODO: ICommandBuffer and CreateCommandBuffer. The command buffer is
-  //       directly tied to the renderer
-
 
 public:
   /**

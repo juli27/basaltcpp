@@ -6,6 +6,7 @@
 #include "basalt/Engine.h"
 #include "basalt/IApplication.h"
 #include "basalt/Input.h"
+#include "basalt/Scene.h"
 
 #include "basalt/common/Asserts.h"
 #include "basalt/common/Color.h"
@@ -14,7 +15,9 @@
 #include "basalt/common/HandlePool.h"
 #include "basalt/common/Types.h"
 
+#include "basalt/gfx/Camera.h"
 #include "basalt/gfx/Gfx.h"
+#include "basalt/gfx/RenderComponent.h"
 
 #include "basalt/gfx/backend/IRenderer.h"
 #include "basalt/gfx/backend/RenderCommand.h"
@@ -36,6 +39,7 @@
 // at the bottom because of the stupid windows.h dependency
 #include "basalt/Log.h"
 
+#include <entt/entt.hpp>
 #include <imgui/imgui.h>
 
 #ifndef BS_NO_SHORT_NS

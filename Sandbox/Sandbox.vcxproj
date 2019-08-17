@@ -280,12 +280,12 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\d3d9_tutorials\Lights.cpp" />
+    <ClCompile Include="src\d3d9_tutorials\Matrices.cpp" />
+    <ClCompile Include="src\d3d9_tutorials\Textures.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Sandbox.cpp" />
-    <ClCompile Include="src\scenes\d3d9-tutorials\Lights.cpp" />
-    <ClCompile Include="src\scenes\d3d9-tutorials\Matrices.cpp" />
-    <ClCompile Include="src\scenes\d3d9-tutorials\Textures.cpp" />
-    <ClCompile Include="src\scenes\d3d9-tutorials\Vertices.cpp" />
+    <ClCompile Include="src\d3d9_tutorials\Vertices.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\backends\gfx\Direct3D9\Direct3D9.vcxproj">
@@ -308,12 +308,12 @@
     <Manifest Include="Sandbox.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\IScene.h" />
+    <ClInclude Include="src\d3d9_tutorials\Lights.h" />
+    <ClInclude Include="src\d3d9_tutorials\Matrices.h" />
+    <ClInclude Include="src\d3d9_tutorials\Textures.h" />
+    <ClInclude Include="src\ITestCase.h" />
     <ClInclude Include="src\Sandbox.h" />
-    <ClInclude Include="src\scenes\d3d9-tutorials\Lights.h" />
-    <ClInclude Include="src\scenes\d3d9-tutorials\Matrices.h" />
-    <ClInclude Include="src\scenes\d3d9-tutorials\Textures.h" />
-    <ClInclude Include="src\scenes\d3d9-tutorials\Vertices.h" />
+    <ClInclude Include="src\d3d9_tutorials\Vertices.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
