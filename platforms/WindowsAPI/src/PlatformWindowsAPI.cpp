@@ -40,44 +40,44 @@ std::unordered_map<i32, Key> s_keyMap = {
   {VK_F4, Key::F4}, {VK_F5, Key::F5}, {VK_F6, Key::F6},
   {VK_F7, Key::F7}, {VK_F8, Key::F8}, {VK_F9, Key::F9},
   /*{VK_F10, Key::F10},*/ {VK_F11, Key::F11}, /*{VK_F12, Key::F12},*/
-  {VK_ESCAPE, Key::ESCAPE},
-  {VK_TAB, Key::TAB},
-  {VK_CAPITAL, Key::CAPS_LOCK},
-  {VK_SHIFT, Key::SHIFT},
+  {VK_ESCAPE, Key::Escape},
+  {VK_TAB, Key::Tab},
+  {VK_CAPITAL, Key::CapsLock},
+  {VK_SHIFT, Key::Shift},
   //{VK_MENU, Key::ALT},
   //{VK_LWIN, Key::SUPER_LEFT},
   //{VK_RWIN, Key::SUPER_RIGHT},
-  {VK_PAUSE, Key::PAUSE},
-  {VK_INSERT, Key::INSERT},
-  {VK_DELETE, Key::DELETE},
-  {VK_HOME, Key::HOME},
-  {VK_END, Key::END},
-  {VK_PRIOR, Key::PAGE_UP},
-  {VK_NEXT, Key::PAGE_DOWN},
-  {VK_LEFT, Key::LEFT_ARROW},
-  {VK_RIGHT, Key::RIGHT_ARROW},
-  {VK_UP, Key::UP_ARROW},
-  {VK_DOWN, Key::DOWN_ARROW},
-  {VK_NUMPAD0, Key::NUM_0}, {VK_NUMPAD1, Key::NUM_1},
-  {VK_NUMPAD2, Key::NUM_2}, {VK_NUMPAD3, Key::NUM_3},
-  {VK_NUMPAD4, Key::NUM_4}, {VK_NUMPAD5, Key::NUM_5},
-  {VK_NUMPAD6, Key::NUM_6}, {VK_NUMPAD7, Key::NUM_7},
-  {VK_NUMPAD8, Key::NUM_8}, {VK_NUMPAD9, Key::NUM_9},
-  {VK_ADD, Key::NUM_ADD}, {VK_SUBTRACT, Key::NUM_SUB},
-  {VK_MULTIPLY, Key::NUM_MUL}, {VK_DIVIDE, Key::NUM_DIV},
-  {VK_DECIMAL, Key::NUM_DECIMAL}, {VK_NUMLOCK, Key::NUM_LOCK},
-  {0x30, Key::ROW_0}, {0x31, Key::ROW_1},
-  {0x32, Key::ROW_2}, {0x33, Key::ROW_3},
-  {0x34, Key::ROW_4}, {0x35, Key::ROW_5},
-  {0x36, Key::ROW_6}, {0x37, Key::ROW_7},
-  {0x38, Key::ROW_8}, {0x39, Key::ROW_9},
-  {VK_BACK, Key::BACKSPACE},
-  {VK_SPACE, Key::SPACE},
-  {VK_RETURN, Key::ENTER},
-  {VK_APPS, Key::MENU},
-  {VK_SCROLL, Key::SCROLL_LOCK},
+  {VK_PAUSE, Key::Pause},
+  {VK_INSERT, Key::Insert},
+  {VK_DELETE, Key::Delete},
+  {VK_HOME, Key::Home},
+  {VK_END, Key::End},
+  {VK_PRIOR, Key::PageUp},
+  {VK_NEXT, Key::PageDown},
+  {VK_LEFT, Key::LeftArrow},
+  {VK_RIGHT, Key::RightArrow},
+  {VK_UP, Key::UpArrow},
+  {VK_DOWN, Key::DownArrow},
+  {VK_NUMPAD0, Key::Numpad0}, {VK_NUMPAD1, Key::Numpad1},
+  {VK_NUMPAD2, Key::Numpad2}, {VK_NUMPAD3, Key::Numpad3},
+  {VK_NUMPAD4, Key::Numpad4}, {VK_NUMPAD5, Key::Numpad5},
+  {VK_NUMPAD6, Key::Numpad6}, {VK_NUMPAD7, Key::Numpad7},
+  {VK_NUMPAD8, Key::Numpad8}, {VK_NUMPAD9, Key::Numpad9},
+  {VK_ADD, Key::NumpadAdd}, {VK_SUBTRACT, Key::NumpadSub},
+  {VK_MULTIPLY, Key::NumpadMul}, {VK_DIVIDE, Key::NumpadDiv},
+  {VK_DECIMAL, Key::NumpadDecimal}, {VK_NUMLOCK, Key::NumpadLock},
+  {0x30, Key::Zero}, {0x31, Key::One},
+  {0x32, Key::Two}, {0x33, Key::Three},
+  {0x34, Key::Four}, {0x35, Key::Five},
+  {0x36, Key::Six}, {0x37, Key::Seven},
+  {0x38, Key::Eight}, {0x39, Key::Nine},
+  {VK_BACK, Key::Backspace},
+  {VK_SPACE, Key::Space},
+  {VK_RETURN, Key::Enter},
+  {VK_APPS, Key::Menu},
+  {VK_SCROLL, Key::ScrollLock},
   /*{VK_SNAPSHOT, Key::PRINT},*/
-  {VK_OEM_PLUS, Key::PLUS},
+  {VK_OEM_PLUS, Key::Plus},
   {0x41, Key::A}, {0x42, Key::B}, {0x43, Key::C},
   {0x44, Key::D}, {0x45, Key::E}, {0x46, Key::F},
   {0x47, Key::G}, {0x48, Key::H}, {0x49, Key::I},
@@ -87,18 +87,18 @@ std::unordered_map<i32, Key> s_keyMap = {
   {0x53, Key::S}, {0x54, Key::T}, {0x55, Key::U},
   {0x56, Key::V}, {0x57, Key::W}, {0x58, Key::X},
   {0x59, Key::Y}, {0x5A, Key::Z},
-  {VK_OEM_MINUS, Key::MINUS},
-  {VK_OEM_COMMA, Key::COMMA},
-  {VK_OEM_PERIOD, Key::PERIOD},
-  {VK_CONTROL, Key::CONTROL},
-  {VK_OEM_1, Key::OEM_1},
-  {VK_OEM_2, Key::OEM_2},
-  {VK_OEM_3, Key::OEM_3},
-  {VK_OEM_4, Key::OEM_4},
-  {VK_OEM_5, Key::OEM_5},
-  {VK_OEM_6, Key::OEM_6},
-  {VK_OEM_7, Key::OEM_7},
-  {VK_OEM_102, Key::OEM_9}
+  {VK_OEM_MINUS, Key::Minus},
+  {VK_OEM_COMMA, Key::Comma},
+  {VK_OEM_PERIOD, Key::Period},
+  {VK_CONTROL, Key::Control},
+  {VK_OEM_1, Key::Oem1},
+  {VK_OEM_2, Key::Oem2},
+  {VK_OEM_3, Key::Oem3},
+  {VK_OEM_4, Key::Oem4},
+  {VK_OEM_5, Key::Oem5},
+  {VK_OEM_6, Key::Oem6},
+  {VK_OEM_7, Key::Oem7},
+  {VK_OEM_102, Key::Oem9}
 };
 
 
@@ -235,66 +235,46 @@ void DispatchPlatformEvent(const Event& event) {
 LRESULT CALLBACK WindowProc(
   HWND window, UINT message, WPARAM wParam, LPARAM lParam
 ) {
-  LRESULT result = 0;
-
   switch (message) {
     case WM_MOUSEMOVE: {
-      MouseMovedEvent event;
-      event.pos = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
-      DispatchPlatformEvent(event);
+      DispatchPlatformEvent(
+        MouseMovedEvent({GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)})
+      );
       break;
     }
 
-    case WM_LBUTTONDOWN: {
-      MouseButtonPressedEvent event;
-      event.button = MouseButton::LEFT;
-      DispatchPlatformEvent(event);
+    case WM_LBUTTONDOWN:
+      DispatchPlatformEvent(MouseButtonPressedEvent(MouseButton::Left));
       break;
-    }
 
-    case WM_LBUTTONUP: {
-      MouseButtonReleasedEvent event;
-      event.button = MouseButton::LEFT;
-      DispatchPlatformEvent(event);
+    case WM_LBUTTONUP:
+      DispatchPlatformEvent(MouseButtonReleasedEvent(MouseButton::Left));
       break;
-    }
 
-    case WM_RBUTTONDOWN: {
-      MouseButtonPressedEvent event;
-      event.button = MouseButton::RIGHT;
-      DispatchPlatformEvent(event);
+    case WM_RBUTTONDOWN:
+      DispatchPlatformEvent(MouseButtonPressedEvent(MouseButton::Right));
       break;
-    }
 
-    case WM_RBUTTONUP: {
-      MouseButtonReleasedEvent event;
-      event.button = MouseButton::RIGHT;
-      DispatchPlatformEvent(event);
+    case WM_RBUTTONUP:
+      DispatchPlatformEvent(MouseButtonReleasedEvent(MouseButton::Right));
       break;
-    }
 
-    case WM_MBUTTONDOWN: {
-      MouseButtonPressedEvent event;
-      event.button = MouseButton::MIDDLE;
-      DispatchPlatformEvent(event);
+    case WM_MBUTTONDOWN:
+      DispatchPlatformEvent(MouseButtonPressedEvent(MouseButton::Middle));
       break;
-    }
 
-    case WM_MBUTTONUP: {
-      MouseButtonReleasedEvent event;
-      event.button = MouseButton::MIDDLE;
-      DispatchPlatformEvent(event);
+    case WM_MBUTTONUP:
+      DispatchPlatformEvent(MouseButtonReleasedEvent(MouseButton::Middle));
       break;
-    }
 
     // TODO: XBUTTON4 and XBUTTON5
 
     case WM_KEYDOWN:
     case WM_KEYUP: {
-      const int vkCode = static_cast<int>(wParam);
-      Key keyCode = s_keyMap[vkCode];
+      const auto vkCode = static_cast<u8>(wParam);
+      auto keyCode = s_keyMap[vkCode];
       if (vkCode == VK_RETURN && (HIWORD(lParam) & KF_EXTENDED)) {
-        keyCode = Key::NUM_ENTER;
+        keyCode = Key::NumpadEnter;
       }
 
       if (message == WM_KEYDOWN) {
@@ -303,41 +283,42 @@ LRESULT CALLBACK WindowProc(
           break;
         }
 
-        KeyPressedEvent event;
-        event.key = keyCode;
-        DispatchPlatformEvent(event);
+        DispatchPlatformEvent(KeyPressedEvent(keyCode));
       } else {
-        KeyReleasedEvent event;
-        event.key = s_keyMap[vkCode];
-        DispatchPlatformEvent(event);
+        DispatchPlatformEvent(KeyReleasedEvent(keyCode));
       }
       break;
     }
 
     case WM_CHAR: {
-      const std::string typedChar = CreateUTF8FromWide(
+      const auto typedChar = CreateUTF8FromWide(
         std::wstring(1, static_cast<WCHAR>(wParam))
       );
       std::string typedChars;
-      WORD repCount = LOWORD(lParam);
+      auto repCount = LOWORD(lParam);
       for (; repCount > 0; repCount--) {
         typedChars.append(typedChar);
       }
-      CharactersTyped event;
-      event.chars = typedChars;
-      DispatchPlatformEvent(event);
+
+      DispatchPlatformEvent(CharactersTyped(typedChars));
       break;
     }
+
+    case WM_UNICHAR:
+      if (wParam == UNICODE_NOCHAR) {
+        return TRUE;
+      }
+      return ::DefWindowProcW(window, message, wParam, lParam);
 
     case WM_SIZE:
       switch (wParam) {
         case SIZE_RESTORED:
-        case SIZE_MAXIMIZED: {
-          WindowResizedEvent event;
-          event.newSize = {LOWORD(lParam), HIWORD(lParam)};
-          DispatchPlatformEvent(event);
+        case SIZE_MAXIMIZED:
+          DispatchPlatformEvent(
+            WindowResizedEvent({LOWORD(lParam), HIWORD(lParam)})
+          );
           return 0;
-        }
+
         default:
           break;
       }
@@ -353,11 +334,10 @@ LRESULT CALLBACK WindowProc(
       break;
 
     default:
-      result = ::DefWindowProcW(window, message, wParam, lParam);
-      break;
+      return ::DefWindowProcW(window, message, wParam, lParam);
   }
 
-  return result;
+  return 0;
 }
 
 
@@ -409,7 +389,7 @@ void CreateMainWindow(const WindowDesc& desc) {
 
   DWORD style = WS_SIZEBOX;
   DWORD styleEx = 0;
-  if (desc.mode == WindowMode::WINDOWED) {
+  if (desc.mMode == WindowMode::Windowed) {
     style |= WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
       | WS_SYSMENU;
   } else {
@@ -417,7 +397,7 @@ void CreateMainWindow(const WindowDesc& desc) {
     styleEx |= WS_EX_TOPMOST;
   }
 
-  if (desc.mode != WindowMode::WINDOWED || !desc.resizeable) {
+  if (desc.mMode != WindowMode::Windowed || !desc.mResizeable) {
     style &= ~(WS_MAXIMIZEBOX | WS_SIZEBOX);
   }
 
@@ -426,10 +406,10 @@ void CreateMainWindow(const WindowDesc& desc) {
   int width = ::GetSystemMetrics(SM_CXSCREEN);
   int height = ::GetSystemMetrics(SM_CYSCREEN);
 
-  if (desc.mode == WindowMode::WINDOWED) {
+  if (desc.mMode == WindowMode::Windowed) {
     // calculate the window size for the given client area size
     // and center the window on the primary monitor
-    RECT rect{0, 0, desc.size.GetX(), desc.size.GetY()};
+    RECT rect{0, 0, desc.mSize.GetX(), desc.mSize.GetY()};
     if (!::AdjustWindowRectEx(&rect, style, FALSE, styleEx)) {
       throw std::runtime_error(CreateWinAPIErrorMessage(GetLastError()));
     }
@@ -440,7 +420,7 @@ void CreateMainWindow(const WindowDesc& desc) {
     yPos = ::GetSystemMetrics(SM_CYSCREEN) / 2 - height / 2;
   }
 
-  const std::wstring windowTitle = CreateWideFromUTF8(desc.title);
+  const std::wstring windowTitle = CreateWideFromUTF8(desc.mTitle);
 
   s_windowHandle = ::CreateWindowExW(
     styleEx, s_windowClassName.data(), windowTitle.c_str(), style, xPos, yPos,

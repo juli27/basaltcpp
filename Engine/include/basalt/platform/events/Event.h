@@ -8,49 +8,70 @@ namespace basalt::platform {
 
 
 enum class EventType : i8 {
-  UNKNOWN = 0,
-  WINDOW_RESIZED,
-  KEY_PRESSED,
-  KEY_RELEASED,
-  MOUSE_MOVED,
-  MOUSE_BUTTON_PRESSED,
-  MOUSE_BUTTON_RELEASED,
-  CHARACTERS_TYPED
+  Unknown = 0,
+  WindowResized,
+  KeyPressed,
+  KeyReleased,
+  MouseMoved,
+  MouseButtonPressed,
+  MouseButtonReleased,
+  CharactersTyped
 };
 
 
 struct Event {
-  EventType type = EventType::UNKNOWN;
+  constexpr explicit Event(EventType type) noexcept;
+  constexpr Event(const Event&) noexcept = default;
+  constexpr Event(Event&&) noexcept = default;
+  inline ~Event() noexcept = default;
+
+  auto operator=(const Event&) noexcept -> Event& = default;
+  auto operator=(Event&&) noexcept -> Event& = default;
+
+  EventType mType = EventType::Unknown;
 };
 
 
-template <EventType TYPE>
+constexpr Event::Event(const EventType type) noexcept : mType(type) {}
+
+
+template <EventType Type>
 struct EventTyped : Event {
-  static const EventType s_Type = TYPE;
+  static constexpr EventType TYPE = Type;
 
-  EventTyped() { type = s_Type; }
+  constexpr EventTyped() noexcept;
+  constexpr EventTyped(const EventTyped&) noexcept = default;
+  constexpr EventTyped(EventTyped&&) noexcept = default;
+  inline ~EventTyped() noexcept = default;
+
+  auto operator=(const EventTyped&) noexcept -> EventTyped& = default;
+  auto operator=(EventTyped&&) noexcept -> EventTyped& = default;
 };
+
+
+template <EventType Type>
+constexpr EventTyped<Type>::EventTyped() noexcept: Event(TYPE) {}
 
 
 class EventDispatcher {
 public:
-  inline EventDispatcher(const Event& event);
+  inline explicit EventDispatcher(const Event& event);
 
   template <typename T, typename EventFn>
   inline void Dispatch(EventFn func) const;
 
 private:
-  const Event& m_event;
+  const Event& mEvent;
 };
 
 
-inline EventDispatcher::EventDispatcher(const Event& event) : m_event(event) {}
+inline EventDispatcher::EventDispatcher(const Event& event) : mEvent(event) {}
 
 
 template<typename T, typename EventFn>
 inline void EventDispatcher::Dispatch(EventFn func) const {
-  if (m_event.type == T::s_Type) {
-    func(*static_cast<const T*>(&m_event));
+  if (mEvent.mType == T::TYPE) {
+    func(*static_cast<const T*>(&mEvent));
   }
 }
 

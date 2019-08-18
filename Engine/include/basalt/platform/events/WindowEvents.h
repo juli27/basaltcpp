@@ -9,9 +9,24 @@
 namespace basalt::platform {
 
 
-struct WindowResizedEvent : EventTyped<EventType::WINDOW_RESIZED> {
-  math::Vec2i32 newSize;
+struct WindowResizedEvent : EventTyped<EventType::WindowResized> {
+  constexpr explicit WindowResizedEvent(const math::Vec2i32& newSize) noexcept;
+  constexpr WindowResizedEvent(const WindowResizedEvent&) noexcept = default;
+  constexpr WindowResizedEvent(WindowResizedEvent&&) noexcept = default;
+  inline ~WindowResizedEvent() noexcept = default;
+
+  inline auto operator=(const WindowResizedEvent&) noexcept
+    -> WindowResizedEvent& = default;
+  inline auto operator=(WindowResizedEvent&&) noexcept -> WindowResizedEvent&
+    = default;
+
+  math::Vec2i32 mNewSize;
 };
+
+
+constexpr WindowResizedEvent::WindowResizedEvent(
+  const math::Vec2i32& newSize
+) noexcept : mNewSize(newSize) {}
 
 } // namespace basalt::platform
 

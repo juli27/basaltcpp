@@ -11,8 +11,8 @@
 
 SandboxApp::SandboxApp(bs::Config& config)
 : mCurrentSceneIndex(0) {
-  config.window.title = "Basalt Sandbox";
-  config.window.mode = bs::WindowMode::WINDOWED;
+  config.mWindow.mTitle = "Basalt Sandbox";
+  config.mWindow.mMode = bs::WindowMode::Windowed;
 }
 
 
@@ -35,7 +35,7 @@ void SandboxApp::OnUpdate() {
   // HACK
   static bool rightPressed = false;
   static bool leftPressed = false;
-  if (bs::input::IsKeyPressed(bs::input::Key::PAGE_UP)) {
+  if (bs::input::IsKeyPressed(bs::input::Key::PageUp)) {
     if (!rightPressed) {
       rightPressed = true;
 
@@ -51,7 +51,7 @@ void SandboxApp::OnUpdate() {
     rightPressed = false;
   }
 
-  if (bs::input::IsKeyPressed(bs::input::Key::PAGE_DOWN)) {
+  if (bs::input::IsKeyPressed(bs::input::Key::PageDown)) {
     if (!leftPressed) {
       leftPressed = true;
 
@@ -67,7 +67,7 @@ void SandboxApp::OnUpdate() {
     leftPressed = false;
   }
 
-  if (bs::input::IsKeyPressed(bs::input::Key::ESCAPE)) {
+  if (bs::input::IsKeyPressed(bs::input::Key::Escape)) {
     // TODO: use a top level function for lifecycle management?
     bs::platform::RequestQuit();
   }

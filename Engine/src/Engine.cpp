@@ -20,7 +20,7 @@
 namespace basalt {
 namespace {
 
-Config sConfig{{"Basalt App", {1280, 720}, WindowMode::FULLSCREEN, false}};
+Config sConfig{{"Basalt App", {1280, 720}, WindowMode::Fullscreen, false}};
 IApplication* sApp;
 f64 sCurrentDeltaTime;
 std::shared_ptr<Scene> sCurrentScene;
@@ -39,14 +39,14 @@ void Startup() {
 
   BS_INFO(
     "config: window: {} {}x{}{} {}{}",
-    sConfig.window.title, sConfig.window.size.GetX(),
-    sConfig.window.size.GetY(),
-    sConfig.window.mode == WindowMode::FULLSCREEN_EXCLUSIVE ? " exclusive" : "",
-    sConfig.window.mode != WindowMode::WINDOWED ? "fullscreen" : "windowed",
-    sConfig.window.resizeable ? " resizeable" : ""
+    sConfig.mWindow.mTitle, sConfig.mWindow.mSize.GetX(),
+    sConfig.mWindow.mSize.GetY(),
+    sConfig.mWindow.mMode == WindowMode::FullscreenExclusive ? " exclusive" : "",
+    sConfig.mWindow.mMode != WindowMode::Windowed ? "fullscreen" : "windowed",
+    sConfig.mWindow.mResizeable ? " resizeable" : ""
   );
 
-  platform::Startup(sConfig.window);
+  platform::Startup(sConfig.mWindow);
   input::Init();
 
   IMGUI_CHECKVERSION();
@@ -95,15 +95,15 @@ void Run() {
     gfx::Render(sCurrentScene);
 
     auto& io = ImGui::GetIO();
-    const auto windowSize = platform::GetWindowDesc().size;
+    const auto windowSize = platform::GetWindowDesc().mSize;
     io.DisplaySize = ImVec2(
       static_cast<float>(windowSize.GetX()), static_cast<float>(windowSize.GetY())
     );
     io.DeltaTime = static_cast<float>(sCurrentDeltaTime);
     gfx::GetRenderer()->NewGuiFrame();
     io.MousePos = ImVec2(static_cast<float>(input::GetMousePos().GetX()), static_cast<float>(input::GetMousePos().GetY()));
-    io.MouseDown[0] = input::IsMouseButtonPressed(input::MouseButton::LEFT);
-    io.MouseDown[1] = input::IsMouseButtonPressed(input::MouseButton::RIGHT);
+    io.MouseDown[0] = input::IsMouseButtonPressed(input::MouseButton::Left);
+    io.MouseDown[1] = input::IsMouseButtonPressed(input::MouseButton::Right);
     ImGui::NewFrame();
 
     sApp->OnUpdate();

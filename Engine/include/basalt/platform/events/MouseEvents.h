@@ -11,26 +11,73 @@ namespace basalt::platform {
 
 
 enum class MouseButton : i8 {
-  UNKNOWN = 0,
-  LEFT, RIGHT, MIDDLE, BUTTON4, BUTTON5,
+  Unknown = 0,
+  Left, Right, Middle, Button4, Button5,
 
-  NUMBER_OF_BUTTONS
+  NumberOfButtons
 };
 
 
-struct MouseMovedEvent : EventTyped<EventType::MOUSE_MOVED> {
-  math::Vec2i32 pos;
+struct MouseMovedEvent : EventTyped<EventType::MouseMoved> {
+  constexpr explicit MouseMovedEvent(const math::Vec2i32& pos) noexcept;
+  constexpr MouseMovedEvent(const MouseMovedEvent&) noexcept = default;
+  constexpr MouseMovedEvent(MouseMovedEvent&&) noexcept = default;
+  inline ~MouseMovedEvent() noexcept = default;
+
+  inline auto operator=(const MouseMovedEvent&) -> MouseMovedEvent& = default;
+  inline auto operator=(MouseMovedEvent&&) -> MouseMovedEvent& = default;
+
+  math::Vec2i32 mPos;
 };
 
 
-struct MouseButtonPressedEvent : EventTyped<EventType::MOUSE_BUTTON_PRESSED> {
-  MouseButton button = MouseButton::UNKNOWN;
+constexpr MouseMovedEvent::MouseMovedEvent(const math::Vec2i32& pos) noexcept
+: mPos(pos) {}
+
+
+struct MouseButtonPressedEvent : EventTyped<EventType::MouseButtonPressed> {
+  constexpr explicit MouseButtonPressedEvent(MouseButton button) noexcept;
+  constexpr MouseButtonPressedEvent(const MouseButtonPressedEvent&) noexcept
+    = default;
+  constexpr MouseButtonPressedEvent(MouseButtonPressedEvent&&) noexcept
+    = default;
+  inline ~MouseButtonPressedEvent() noexcept = default;
+
+  inline auto operator=(const MouseButtonPressedEvent&)
+    -> MouseButtonPressedEvent& = default;
+  inline auto operator=(MouseButtonPressedEvent&&) -> MouseButtonPressedEvent&
+    = default;
+
+  MouseButton mButton = MouseButton::Unknown;
 };
 
 
-struct MouseButtonReleasedEvent : EventTyped<EventType::MOUSE_BUTTON_RELEASED> {
-  MouseButton button = MouseButton::UNKNOWN;
+constexpr MouseButtonPressedEvent::MouseButtonPressedEvent(
+  const MouseButton button
+) noexcept : mButton(button) {}
+
+
+struct MouseButtonReleasedEvent : EventTyped<EventType::MouseButtonReleased> {
+  constexpr explicit MouseButtonReleasedEvent(MouseButton button) noexcept;
+  constexpr MouseButtonReleasedEvent(const MouseButtonReleasedEvent&) noexcept
+    = default;
+  constexpr MouseButtonReleasedEvent(MouseButtonReleasedEvent&&) noexcept
+    = default;
+  inline ~MouseButtonReleasedEvent() noexcept = default;
+
+  inline auto operator=(const MouseButtonReleasedEvent&)
+    -> MouseButtonReleasedEvent& = default;
+  inline auto operator=(MouseButtonReleasedEvent&&) -> MouseButtonReleasedEvent&
+    = default;
+
+  MouseButton mButton = MouseButton::Unknown;
 };
+
+
+constexpr MouseButtonReleasedEvent::MouseButtonReleasedEvent(
+  const MouseButton button
+) noexcept : mButton(button) {}
+
 
 } // namespace basalt::platform
 

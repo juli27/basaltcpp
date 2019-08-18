@@ -14,9 +14,9 @@ namespace basalt::input {
 namespace {
 
 
-static constexpr i32 NUM_KEYS = static_cast<i32>(Key::NUMBER_OF_KEYS);
+static constexpr i32 NUM_KEYS = static_cast<i32>(Key::NumberOfKeys);
 static constexpr i32 NUM_MOUSE_BUTTONS = static_cast<i32>(
-  MouseButton::NUMBER_OF_BUTTONS
+  MouseButton::NumberOfButtons
 );
 
 std::bitset<NUM_KEYS> s_keyStates;
@@ -25,30 +25,30 @@ math::Vec2i32 s_mousePos;
 
 
 void OnKeyPressed(const platform::KeyPressedEvent& event) {
-  const i32 index = static_cast<i32>(event.key);
+  const i32 index = static_cast<i32>(event.mKey);
   s_keyStates[index] = true;
 }
 
 
 void OnKeyReleased(const platform::KeyReleasedEvent& event) {
-  const i32 index = static_cast<i32>(event.key);
+  const i32 index = static_cast<i32>(event.mKey);
   s_keyStates[index] = false;
 }
 
 
 void OnMouseMoved(const platform::MouseMovedEvent& event) {
-  s_mousePos = event.pos;
+  s_mousePos = event.mPos;
 }
 
 
 void OnButtonPressed(const platform::MouseButtonPressedEvent& event) {
-  const i32 index = static_cast<i32>(event.button);
+  const i32 index = static_cast<i32>(event.mButton);
   s_buttonStates[index] = true;
 }
 
 
 void OnButtonReleased(const platform::MouseButtonReleasedEvent& event) {
-  const i32 index = static_cast<i32>(event.button);
+  const i32 index = static_cast<i32>(event.mButton);
   s_buttonStates[index] = false;
 }
 

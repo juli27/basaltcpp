@@ -10,17 +10,17 @@
 namespace basalt {
 
 enum class WindowMode : i8 {
-  WINDOWED,
-  FULLSCREEN,
-  FULLSCREEN_EXCLUSIVE
+  Windowed,
+  Fullscreen,
+  FullscreenExclusive
 };
 
 struct WindowDesc {
-  std::string title;
+  std::string mTitle;
   // TODO: will this be ignored with fullscreen? window size vs videomode / backbuffer size
-  math::Vec2i32 size;
-  WindowMode mode{};
-  bool resizeable{};
+  math::Vec2i32 mSize;
+  WindowMode mMode{};
+  bool mResizeable = false;
 };
 
 } // namespace basalt
