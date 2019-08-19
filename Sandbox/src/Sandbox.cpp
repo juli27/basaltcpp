@@ -67,11 +67,6 @@ void SandboxApp::OnUpdate() {
     leftPressed = false;
   }
 
-  if (bs::input::IsKeyPressed(bs::input::Key::Escape)) {
-    // TODO: use a top level function for lifecycle management?
-    bs::platform::RequestQuit();
-  }
-
   mScenes.at(mCurrentSceneIndex)->OnUpdate();
 }
 

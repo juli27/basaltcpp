@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - HandlePool to allocate and reuse memory slots accessed via a handle
 - math::Mat4::Rotation(Vec3) and math::Mat4::Scale(Vec3)
 - support for the vertical mouse wheel (MouseScrolledEvent)
+- Dear ImGui
 
 ### Changed
 
