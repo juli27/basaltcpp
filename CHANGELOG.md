@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic Camera class
 - HandlePool to allocate and reuse memory slots accessed via a handle
 - math::Mat4::Rotation(Vec3) and math::Mat4::Scale(Vec3)
+- support for the vertical mouse wheel (MouseScrolledEvent)
 
 ### Changed
 
@@ -17,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mat4::Camera (use gfx::Camera instead)
 
 ### Fixed
+- AltGr leaves a pushed down Ctrl key behind
 
 ### Security
 

@@ -15,6 +15,7 @@ enum class EventType : i8 {
   MouseMoved,
   MouseButtonPressed,
   MouseButtonReleased,
+  MouseWheelScrolled,
   CharactersTyped
 };
 

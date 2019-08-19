@@ -2,10 +2,10 @@
 #include <basalt/platform/PlatformWindowsAPI.h>
 
 #include <algorithm>
+#include <array>
 #include <limits>
 #include <memory>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include <fmt/format.h>
@@ -32,73 +32,266 @@ HWND s_windowHandle;
 WindowDesc s_windowDesc;
 
 
-// TODO: syskeys (commented)
-// TODO: keys in WM_KEYDOWN MESSAGE: LALT RALT;
+// TODO: syskeys
+// TODO: left and right variants
 // TODO: disable SUPER? (only in fullscreen?)
-std::unordered_map<i32, Key> s_keyMap = {
-  {VK_F1, Key::F1}, {VK_F2, Key::F2}, {VK_F3, Key::F3},
-  {VK_F4, Key::F4}, {VK_F5, Key::F5}, {VK_F6, Key::F6},
-  {VK_F7, Key::F7}, {VK_F8, Key::F8}, {VK_F9, Key::F9},
-  /*{VK_F10, Key::F10},*/ {VK_F11, Key::F11}, /*{VK_F12, Key::F12},*/
-  {VK_ESCAPE, Key::Escape},
-  {VK_TAB, Key::Tab},
-  {VK_CAPITAL, Key::CapsLock},
-  {VK_SHIFT, Key::Shift},
-  //{VK_MENU, Key::ALT},
-  //{VK_LWIN, Key::SUPER_LEFT},
-  //{VK_RWIN, Key::SUPER_RIGHT},
-  {VK_PAUSE, Key::Pause},
-  {VK_INSERT, Key::Insert},
-  {VK_DELETE, Key::Delete},
-  {VK_HOME, Key::Home},
-  {VK_END, Key::End},
-  {VK_PRIOR, Key::PageUp},
-  {VK_NEXT, Key::PageDown},
-  {VK_LEFT, Key::LeftArrow},
-  {VK_RIGHT, Key::RightArrow},
-  {VK_UP, Key::UpArrow},
-  {VK_DOWN, Key::DownArrow},
-  {VK_NUMPAD0, Key::Numpad0}, {VK_NUMPAD1, Key::Numpad1},
-  {VK_NUMPAD2, Key::Numpad2}, {VK_NUMPAD3, Key::Numpad3},
-  {VK_NUMPAD4, Key::Numpad4}, {VK_NUMPAD5, Key::Numpad5},
-  {VK_NUMPAD6, Key::Numpad6}, {VK_NUMPAD7, Key::Numpad7},
-  {VK_NUMPAD8, Key::Numpad8}, {VK_NUMPAD9, Key::Numpad9},
-  {VK_ADD, Key::NumpadAdd}, {VK_SUBTRACT, Key::NumpadSub},
-  {VK_MULTIPLY, Key::NumpadMul}, {VK_DIVIDE, Key::NumpadDiv},
-  {VK_DECIMAL, Key::NumpadDecimal}, {VK_NUMLOCK, Key::NumpadLock},
-  {0x30, Key::Zero}, {0x31, Key::One},
-  {0x32, Key::Two}, {0x33, Key::Three},
-  {0x34, Key::Four}, {0x35, Key::Five},
-  {0x36, Key::Six}, {0x37, Key::Seven},
-  {0x38, Key::Eight}, {0x39, Key::Nine},
-  {VK_BACK, Key::Backspace},
-  {VK_SPACE, Key::Space},
-  {VK_RETURN, Key::Enter},
-  {VK_APPS, Key::Menu},
-  {VK_SCROLL, Key::ScrollLock},
-  /*{VK_SNAPSHOT, Key::PRINT},*/
-  {VK_OEM_PLUS, Key::Plus},
-  {0x41, Key::A}, {0x42, Key::B}, {0x43, Key::C},
-  {0x44, Key::D}, {0x45, Key::E}, {0x46, Key::F},
-  {0x47, Key::G}, {0x48, Key::H}, {0x49, Key::I},
-  {0x4A, Key::J}, {0x4B, Key::K}, {0x4C, Key::L},
-  {0x4D, Key::M}, {0x4E, Key::N}, {0x4F, Key::O},
-  {0x50, Key::P}, {0x51, Key::Q}, {0x52, Key::R},
-  {0x53, Key::S}, {0x54, Key::T}, {0x55, Key::U},
-  {0x56, Key::V}, {0x57, Key::W}, {0x58, Key::X},
-  {0x59, Key::Y}, {0x5A, Key::Z},
-  {VK_OEM_MINUS, Key::Minus},
-  {VK_OEM_COMMA, Key::Comma},
-  {VK_OEM_PERIOD, Key::Period},
-  {VK_CONTROL, Key::Control},
-  {VK_OEM_1, Key::Oem1},
-  {VK_OEM_2, Key::Oem2},
-  {VK_OEM_3, Key::Oem3},
-  {VK_OEM_4, Key::Oem4},
-  {VK_OEM_5, Key::Oem5},
-  {VK_OEM_6, Key::Oem6},
-  {VK_OEM_7, Key::Oem7},
-  {VK_OEM_102, Key::Oem9}
+constexpr std::array<Key, 256> VK_TO_KEY_MAP = {
+  /* unassigned             */ Key::Unknown,
+  /* VK_LBUTTON             */ Key::Unknown,
+  /* VK_RBUTTON             */ Key::Unknown,
+  /* VK_CANCEL              */ Key::Unknown,
+  /* VK_MBUTTON             */ Key::Unknown,
+  /* VK_XBUTTON1            */ Key::Unknown,
+  /* VK_XBUTTON2            */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* VK_BACK                */ Key::Backspace,
+  /* VK_TAB                 */ Key::Tab,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* VK_CLEAR               */ Key::Unknown,
+  /* VK_RETURN              */ Key::Enter,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* VK_SHIFT               */ Key::Shift,
+  /* VK_CONTROL             */ Key::Control,
+  /* VK_MENU                */ Key::Alt, // TODO
+  /* VK_PAUSE               */ Key::Pause,
+  /* VK_CAPITAL             */ Key::CapsLock,
+  /* VK_KANA                */ Key::Unknown, /* VK_HANGEUL, VK_HANGUL */
+  /* unassigned             */ Key::Unknown,
+  /* VK_JUNJA               */ Key::Unknown,
+  /* VK_FINAL               */ Key::Unknown,
+  /* VK_HANJA               */ Key::Unknown, /* VK_KANJI */
+  /* unassigned             */ Key::Unknown,
+  /* VK_ESCAPE              */ Key::Escape,
+  /* VK_CONVERT             */ Key::Unknown,
+  /* VK_NONCONVERT          */ Key::Unknown,
+  /* VK_ACCEPT              */ Key::Unknown,
+  /* VK_MODECHANGE          */ Key::Unknown,
+  /* VK_SPACE               */ Key::Space,
+  /* VK_PRIOR               */ Key::PageUp,
+  /* VK_NEXT                */ Key::PageDown,
+  /* VK_END                 */ Key::End,
+  /* VK_HOME                */ Key::Home,
+  /* VK_LEFT                */ Key::LeftArrow,
+  /* VK_UP                  */ Key::UpArrow,
+  /* VK_RIGHT               */ Key::RightArrow,
+  /* VK_DOWN                */ Key::DownArrow,
+  /* VK_SELECT              */ Key::Unknown,
+  /* VK_PRINT               */ Key::Unknown,
+  /* VK_EXECUTE             */ Key::Unknown,
+  /* VK_SNAPSHOT            */ Key::Print, // TODO
+  /* VK_INSERT              */ Key::Insert,
+  /* VK_DELETE              */ Key::Delete,
+  /* VK_HELP                */ Key::Unknown,
+  /* 0                      */ Key::Zero,
+  /* 1                      */ Key::One,
+  /* 2                      */ Key::Two,
+  /* 3                      */ Key::Three,
+  /* 4                      */ Key::Four,
+  /* 5                      */ Key::Five,
+  /* 6                      */ Key::Six,
+  /* 7                      */ Key::Seven,
+  /* 8                      */ Key::Eight,
+  /* 9                      */ Key::Nine,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* A                      */ Key::A,
+  /* B                      */ Key::B,
+  /* C                      */ Key::C,
+  /* D                      */ Key::D,
+  /* E                      */ Key::E,
+  /* F                      */ Key::F,
+  /* G                      */ Key::G,
+  /* H                      */ Key::H,
+  /* I                      */ Key::I,
+  /* J                      */ Key::J,
+  /* K                      */ Key::K,
+  /* L                      */ Key::L,
+  /* M                      */ Key::M,
+  /* N                      */ Key::N,
+  /* O                      */ Key::O,
+  /* P                      */ Key::P,
+  /* Q                      */ Key::Q,
+  /* R                      */ Key::R,
+  /* S                      */ Key::S,
+  /* T                      */ Key::T,
+  /* U                      */ Key::U,
+  /* V                      */ Key::V,
+  /* W                      */ Key::W,
+  /* X                      */ Key::X,
+  /* Y                      */ Key::Y,
+  /* Z                      */ Key::Z,
+  /* VK_LWIN                */ Key::Super, // TODO
+  /* VK_RWIN                */ Key::Super, // TODO
+  /* VK_APPS                */ Key::Menu,
+  /* reserved               */ Key::Unknown,
+  /* VK_SLEEP               */ Key::Unknown,
+  /* VK_NUMPAD0             */ Key::Numpad0,
+  /* VK_NUMPAD1             */ Key::Numpad1,
+  /* VK_NUMPAD2             */ Key::Numpad2,
+  /* VK_NUMPAD3             */ Key::Numpad3,
+  /* VK_NUMPAD4             */ Key::Numpad4,
+  /* VK_NUMPAD5             */ Key::Numpad5,
+  /* VK_NUMPAD6             */ Key::Numpad6,
+  /* VK_NUMPAD7             */ Key::Numpad7,
+  /* VK_NUMPAD8             */ Key::Numpad8,
+  /* VK_NUMPAD9             */ Key::Numpad9,
+  /* VK_MULTIPLY            */ Key::NumpadMul,
+  /* VK_ADD                 */ Key::NumpadAdd,
+  /* VK_SEPARATOR           */ Key::Unknown,
+  /* VK_SUBTRACT            */ Key::NumpadSub,
+  /* VK_DECIMAL             */ Key::NumpadDecimal,
+  /* VK_DIVIDE              */ Key::NumpadDiv,
+  /* VK_F1                  */ Key::F1,
+  /* VK_F2                  */ Key::F2,
+  /* VK_F3                  */ Key::F3,
+  /* VK_F4                  */ Key::F4,
+  /* VK_F5                  */ Key::F5,
+  /* VK_F6                  */ Key::F6,
+  /* VK_F7                  */ Key::F7,
+  /* VK_F8                  */ Key::F8,
+  /* VK_F9                  */ Key::F9,
+  /* VK_F10                 */ Key::F10, // TODO
+  /* VK_F11                 */ Key::F11,
+  /* VK_F12                 */ Key::F12, // TODO
+  /* VK_F13                 */ Key::Unknown,
+  /* VK_F14                 */ Key::Unknown,
+  /* VK_F15                 */ Key::Unknown,
+  /* VK_F16                 */ Key::Unknown,
+  /* VK_F17                 */ Key::Unknown,
+  /* VK_F18                 */ Key::Unknown,
+  /* VK_F19                 */ Key::Unknown,
+  /* VK_F20                 */ Key::Unknown,
+  /* VK_F21                 */ Key::Unknown,
+  /* VK_F22                 */ Key::Unknown,
+  /* VK_F23                 */ Key::Unknown,
+  /* VK_F24                 */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* VK_NUMLOCK             */ Key::NumpadLock,
+  /* VK_SCROLL              */ Key::ScrollLock,
+  /* VK_OEM_NEC_EQUAL       */ Key::Unknown, /* VK_OEM_FJ_JISHO */
+  /* VK_OEM_FJ_MASSHOU      */ Key::Unknown,
+  /* VK_OEM_FJ_TOUROKU      */ Key::Unknown,
+  /* VK_OEM_FJ_LOYA         */ Key::Unknown,
+  /* VK_OEM_FJ_ROYA         */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* VK_LSHIFT              */ Key::Unknown,
+  /* VK_RSHIFT              */ Key::Unknown,
+  /* VK_LCONTROL            */ Key::Unknown,
+  /* VK_RCONTROL            */ Key::Unknown,
+  /* VK_LMENU               */ Key::Unknown,
+  /* VK_RMENU               */ Key::Unknown,
+  /* VK_BROWSER_BACK        */ Key::Unknown,
+  /* VK_BROWSER_FORWARD     */ Key::Unknown,
+  /* VK_BROWSER_REFRESH     */ Key::Unknown,
+  /* VK_BROWSER_STOP        */ Key::Unknown,
+  /* VK_BROWSER_SEARCH      */ Key::Unknown,
+  /* VK_BROWSER_FAVORITES   */ Key::Unknown,
+  /* VK_BROWSER_HOME        */ Key::Unknown,
+  /* VK_VOLUME_MUTE         */ Key::Unknown,
+  /* VK_VOLUME_DOWN         */ Key::Unknown,
+  /* VK_VOLUME_UP           */ Key::Unknown,
+  /* VK_MEDIA_NEXT_TRACK    */ Key::Unknown,
+  /* VK_MEDIA_PREV_TRACK    */ Key::Unknown,
+  /* VK_MEDIA_STOP          */ Key::Unknown,
+  /* VK_MEDIA_PLAY_PAUSE    */ Key::Unknown,
+  /* VK_LAUNCH_MAIL         */ Key::Unknown,
+  /* VK_LAUNCH_MEDIA_SELECT */ Key::Unknown,
+  /* VK_LAUNCH_APP1         */ Key::Unknown,
+  /* VK_LAUNCH_APP2         */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* VK_OEM_1               */ Key::Oem1,
+  /* VK_OEM_PLUS            */ Key::Plus,
+  /* VK_OEM_COMMA           */ Key::Comma,
+  /* VK_OEM_MINUS           */ Key::Minus,
+  /* VK_OEM_PERIOD          */ Key::Period,
+  /* VK_OEM_2               */ Key::Oem2,
+  /* VK_OEM_3               */ Key::Oem3,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* reserved               */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* VK_OEM_4               */ Key::Oem4,
+  /* VK_OEM_5               */ Key::Oem5,
+  /* VK_OEM_6               */ Key::Oem6,
+  /* VK_OEM_7               */ Key::Oem7,
+  /* VK_OEM_8               */ Key::Oem8,
+  /* reserved               */ Key::Unknown,
+  /* VK_OEM_AX              */ Key::Unknown,
+  /* VK_OEM_102             */ Key::Oem9,
+  /* VK_ICO_HELP            */ Key::Unknown,
+  /* VK_ICO_00              */ Key::Unknown,
+  /* VK_PROCESSKEY          */ Key::Unknown,
+  /* VK_ICO_CLEAR           */ Key::Unknown,
+  /* VK_PACKET              */ Key::Unknown,
+  /* unassigned             */ Key::Unknown,
+  /* VK_OEM_RESET           */ Key::Unknown,
+  /* VK_OEM_JUMP            */ Key::Unknown,
+  /* VK_OEM_PA1             */ Key::Unknown,
+  /* VK_OEM_PA2             */ Key::Unknown,
+  /* VK_OEM_PA3             */ Key::Unknown,
+  /* VK_OEM_WSCTRL          */ Key::Unknown,
+  /* VK_OEM_CUSEL           */ Key::Unknown,
+  /* VK_OEM_ATTN            */ Key::Unknown,
+  /* VK_OEM_FINISH          */ Key::Unknown,
+  /* VK_OEM_COPY            */ Key::Unknown,
+  /* VK_OEM_AUTO            */ Key::Unknown,
+  /* VK_OEM_ENLW            */ Key::Unknown,
+  /* VK_OEM_BACKTAB         */ Key::Unknown,
+  /* VK_ATTN                */ Key::Unknown,
+  /* VK_CRSEL               */ Key::Unknown,
+  /* VK_EXSEL               */ Key::Unknown,
+  /* VK_EREOF               */ Key::Unknown,
+  /* VK_PLAY                */ Key::Unknown,
+  /* VK_ZOOM                */ Key::Unknown,
+  /* VK_NONAME              */ Key::Unknown,
+  /* VK_PA1                 */ Key::Unknown,
+  /* VK_OEM_CLEAR           */ Key::Unknown,
+  /* reserved               */ Key::Unknown
 };
 
 
@@ -236,105 +429,132 @@ LRESULT CALLBACK WindowProc(
   HWND window, UINT message, WPARAM wParam, LPARAM lParam
 ) {
   switch (message) {
-    case WM_MOUSEMOVE: {
-      DispatchPlatformEvent(
-        MouseMovedEvent({GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)})
-      );
-      break;
+  case WM_MOUSEMOVE: {
+    DispatchPlatformEvent(
+      MouseMovedEvent({GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)})
+    );
+    break;
+  }
+
+  case WM_MOUSEWHEEL: {
+    const auto offset =
+      GET_WHEEL_DELTA_WPARAM(wParam) / static_cast<f32> (WHEEL_DELTA);
+    BS_TRACE("WM_MOUSEWHEEL: offset {}", offset);
+    DispatchPlatformEvent(MouseWheelScrolledEvent(offset));
+    return 0;
+  }
+
+
+  case WM_LBUTTONDOWN:
+    DispatchPlatformEvent(MouseButtonPressedEvent(MouseButton::Left));
+    break;
+
+  case WM_LBUTTONUP:
+    DispatchPlatformEvent(MouseButtonReleasedEvent(MouseButton::Left));
+    break;
+
+  case WM_RBUTTONDOWN:
+    DispatchPlatformEvent(MouseButtonPressedEvent(MouseButton::Right));
+    break;
+
+  case WM_RBUTTONUP:
+    DispatchPlatformEvent(MouseButtonReleasedEvent(MouseButton::Right));
+    break;
+
+  case WM_MBUTTONDOWN:
+    DispatchPlatformEvent(MouseButtonPressedEvent(MouseButton::Middle));
+    break;
+
+  case WM_MBUTTONUP:
+    DispatchPlatformEvent(MouseButtonReleasedEvent(MouseButton::Middle));
+    break;
+
+  // TODO: XBUTTON4 and XBUTTON5
+
+  case WM_KEYDOWN:
+  case WM_KEYUP: {
+    const auto vkCode = static_cast<u8>(wParam);
+    auto keyCode = VK_TO_KEY_MAP[vkCode];
+    if (vkCode == VK_RETURN && (HIWORD(lParam) & KF_EXTENDED)) {
+      keyCode = Key::NumpadEnter;
     }
 
-    case WM_LBUTTONDOWN:
-      DispatchPlatformEvent(MouseButtonPressedEvent(MouseButton::Left));
-      break;
-
-    case WM_LBUTTONUP:
-      DispatchPlatformEvent(MouseButtonReleasedEvent(MouseButton::Left));
-      break;
-
-    case WM_RBUTTONDOWN:
-      DispatchPlatformEvent(MouseButtonPressedEvent(MouseButton::Right));
-      break;
-
-    case WM_RBUTTONUP:
-      DispatchPlatformEvent(MouseButtonReleasedEvent(MouseButton::Right));
-      break;
-
-    case WM_MBUTTONDOWN:
-      DispatchPlatformEvent(MouseButtonPressedEvent(MouseButton::Middle));
-      break;
-
-    case WM_MBUTTONUP:
-      DispatchPlatformEvent(MouseButtonReleasedEvent(MouseButton::Middle));
-      break;
-
-    // TODO: XBUTTON4 and XBUTTON5
-
-    case WM_KEYDOWN:
-    case WM_KEYUP: {
-      const auto vkCode = static_cast<u8>(wParam);
-      auto keyCode = s_keyMap[vkCode];
-      if (vkCode == VK_RETURN && (HIWORD(lParam) & KF_EXTENDED)) {
-        keyCode = Key::NumpadEnter;
+    if (message == WM_KEYDOWN) {
+      // don't dispatch repeat events
+      if (HIWORD(lParam) & KF_REPEAT) {
+        break;
       }
 
-      if (message == WM_KEYDOWN) {
-        // don't dispatch repeat events
-        if (HIWORD(lParam) & KF_REPEAT) {
-          break;
+      // HACK: AltGr sends Ctrl + right Alt keydown messages but only sends
+      // a keyup message for right Alt
+      if (keyCode == Key::Control) {
+        const DWORD ctrlMessageTime = ::GetMessageTime();
+        MSG next{};
+        if (::PeekMessageW(&next, nullptr, 0u, 0u, PM_NOREMOVE)) {
+          if (next.message == WM_KEYDOWN) {
+            if (next.wParam == VK_MENU
+              && (HIWORD(next.lParam) & KF_EXTENDED)
+              && next.time == ctrlMessageTime) {
+              // skip ctrl message
+              break;
+            }
+          }
         }
-
-        DispatchPlatformEvent(KeyPressedEvent(keyCode));
-      } else {
-        DispatchPlatformEvent(KeyReleasedEvent(keyCode));
       }
-      break;
+
+      DispatchPlatformEvent(KeyPressedEvent(keyCode));
+    } else {
+      DispatchPlatformEvent(KeyReleasedEvent(keyCode));
+    }
+    break;
+  }
+
+  case WM_CHAR: {
+    const auto typedChar = CreateUTF8FromWide(
+      std::wstring(1, static_cast<WCHAR>(wParam))
+    );
+
+    std::string typedChars;
+    auto repCount = LOWORD(lParam);
+    for (; repCount > 0; repCount--) {
+      typedChars.append(typedChar);
     }
 
-    case WM_CHAR: {
-      const auto typedChar = CreateUTF8FromWide(
-        std::wstring(1, static_cast<WCHAR>(wParam))
-      );
-      std::string typedChars;
-      auto repCount = LOWORD(lParam);
-      for (; repCount > 0; repCount--) {
-        typedChars.append(typedChar);
-      }
+    DispatchPlatformEvent(CharactersTyped(typedChars));
+    break;
+  }
 
-      DispatchPlatformEvent(CharactersTyped(typedChars));
-      break;
+  case WM_UNICHAR:
+    if (wParam == UNICODE_NOCHAR) {
+      return TRUE;
     }
+    return ::DefWindowProcW(window, message, wParam, lParam);
 
-    case WM_UNICHAR:
-      if (wParam == UNICODE_NOCHAR) {
-        return TRUE;
-      }
-      return ::DefWindowProcW(window, message, wParam, lParam);
+  case WM_SIZE:
+    switch (wParam) {
+      case SIZE_RESTORED:
+      case SIZE_MAXIMIZED:
+        DispatchPlatformEvent(
+          WindowResizedEvent({LOWORD(lParam), HIWORD(lParam)})
+        );
+        return 0;
 
-    case WM_SIZE:
-      switch (wParam) {
-        case SIZE_RESTORED:
-        case SIZE_MAXIMIZED:
-          DispatchPlatformEvent(
-            WindowResizedEvent({LOWORD(lParam), HIWORD(lParam)})
-          );
-          return 0;
+      default:
+        break;
+    }
+    break;
 
-        default:
-          break;
-      }
-      break;
+  case WM_CLOSE:
+    ::DestroyWindow(window);
+    break;
 
-    case WM_CLOSE:
-      ::DestroyWindow(window);
-      break;
+  case WM_DESTROY:
+    s_windowHandle = nullptr;
+    ::PostQuitMessage(0);
+    break;
 
-    case WM_DESTROY:
-      s_windowHandle = nullptr;
-      ::PostQuitMessage(0);
-      break;
-
-    default:
-      return ::DefWindowProcW(window, message, wParam, lParam);
+  default:
+    return ::DefWindowProcW(window, message, wParam, lParam);
   }
 
   return 0;
@@ -380,9 +600,9 @@ void CreateMainWindow(const WindowDesc& desc) {
     "creating main window:\n"
     "  title: \"{}\",\n  width: {}, height: {}, "
     "fullscreen: {}, exclusive: {},\n  resizeable: {}",
-    desc.title, desc.size.GetX(), desc.size.GetY(),
-    desc.mode != WindowMode::WINDOWED,
-    desc.mode == WindowMode::FULLSCREEN_EXCLUSIVE, desc.resizeable
+    desc.mTitle, desc.mSize.GetX(), desc.mSize.GetY(),
+    desc.mMode != WindowMode::Windowed,
+    desc.mMode == WindowMode::FullscreenExclusive, desc.mResizeable
   );
 
   RegisterWindowClass();
@@ -436,10 +656,6 @@ void CreateMainWindow(const WindowDesc& desc) {
 
   ::ShowWindow(s_windowHandle, s_showCommand);
 }
-
-} // namespace
-
-namespace {
 
 void CreatePlatformNameString() {
   DWORD historical = 0u;

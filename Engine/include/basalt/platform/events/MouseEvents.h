@@ -79,6 +79,25 @@ constexpr MouseButtonReleasedEvent::MouseButtonReleasedEvent(
 ) noexcept : mButton(button) {}
 
 
+struct MouseWheelScrolledEvent : EventTyped<EventType::MouseWheelScrolled> {
+  constexpr explicit MouseWheelScrolledEvent(f32 offset) noexcept;
+  constexpr MouseWheelScrolledEvent(const MouseWheelScrolledEvent&) noexcept = default;
+  constexpr MouseWheelScrolledEvent(MouseWheelScrolledEvent&&) noexcept = default;
+  inline ~MouseWheelScrolledEvent() noexcept = default;
+
+  inline auto operator=(const MouseWheelScrolledEvent&) -> MouseWheelScrolledEvent& = default;
+  inline auto operator=(MouseWheelScrolledEvent&&) -> MouseWheelScrolledEvent& = default;
+
+  f32 mOffset = 0.0f;
+};
+
+
+constexpr MouseWheelScrolledEvent::MouseWheelScrolledEvent(
+  const f32 offset
+) noexcept
+: mOffset(offset) {}
+
+
 } // namespace basalt::platform
 
 #endif // !BS_PLATFORM_EVENTS_MOUSE_EVENTS_H
