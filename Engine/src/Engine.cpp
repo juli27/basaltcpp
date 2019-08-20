@@ -173,8 +173,6 @@ void Run() {
     sApp->OnUpdate();
 
     ImGui::Render();
-    // gui is 1 frame ahead
-    gfx::GetRenderer()->RenderGUI();
 
     gfx::Present();
 

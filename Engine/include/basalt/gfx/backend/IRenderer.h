@@ -109,7 +109,6 @@ public:
 
 
   virtual void NewGuiFrame() = 0;
-  virtual void RenderGUI() = 0;
 
 public:
   static auto Create(RendererType type) -> IRenderer*;

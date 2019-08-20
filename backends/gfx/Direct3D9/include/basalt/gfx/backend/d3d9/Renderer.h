@@ -56,7 +56,6 @@ public:
   virtual auto GetName() -> std::string_view override;
 
   virtual void NewGuiFrame() override;
-  virtual void RenderGUI() override;
 
 public:
   auto operator=(const Renderer&) -> Renderer& = delete;

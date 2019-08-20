@@ -365,6 +365,12 @@ void Renderer::Render() {
 
   RenderCommands(m_commandBuffer);
 
+  // render imgui
+  auto* drawData = ImGui::GetDrawData();
+  if (drawData) {
+    ImGui_ImplDX9_RenderDrawData(drawData);
+  }
+
   D3D9CALL(m_device->SetStreamSource(0u, nullptr, 0u, 0u));
 
   D3D9CALL(m_device->EndScene());
@@ -382,12 +388,9 @@ auto Renderer::GetName() -> std::string_view {
   return s_rendererName;
 }
 
+
 void Renderer::NewGuiFrame() {
   ImGui_ImplDX9_NewFrame();
-}
-
-void Renderer::RenderGUI() {
-  ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 }
 
 

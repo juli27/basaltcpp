@@ -426,48 +426,53 @@ void DispatchPlatformEvent(const Event& event) {
 
 
 LRESULT CALLBACK WindowProc(
-  HWND window, UINT message, WPARAM wParam, LPARAM lParam
+  HWND window, const UINT message, const WPARAM wParam, const LPARAM lParam
 ) {
   switch (message) {
-  case WM_MOUSEMOVE: {
+  case WM_MOUSEMOVE:
     DispatchPlatformEvent(
       MouseMovedEvent({GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)})
     );
-    break;
-  }
+    return 0;
 
   case WM_MOUSEWHEEL: {
     const auto offset =
       GET_WHEEL_DELTA_WPARAM(wParam) / static_cast<f32> (WHEEL_DELTA);
-    BS_TRACE("WM_MOUSEWHEEL: offset {}", offset);
     DispatchPlatformEvent(MouseWheelScrolledEvent(offset));
     return 0;
   }
 
 
   case WM_LBUTTONDOWN:
+    ::SetCapture(window);
     DispatchPlatformEvent(MouseButtonPressedEvent(MouseButton::Left));
-    break;
+    return 0;
 
   case WM_LBUTTONUP:
+    if (!::ReleaseCapture()) {
+      BS_ERROR(
+        "Releasing mouse capture in WM_LBUTTONUP failed: {}",
+        CreateWinAPIErrorMessage(::GetLastError())
+      );
+    }
     DispatchPlatformEvent(MouseButtonReleasedEvent(MouseButton::Left));
-    break;
+    return 0;
 
   case WM_RBUTTONDOWN:
     DispatchPlatformEvent(MouseButtonPressedEvent(MouseButton::Right));
-    break;
+    return 0;
 
   case WM_RBUTTONUP:
     DispatchPlatformEvent(MouseButtonReleasedEvent(MouseButton::Right));
-    break;
+    return 0;
 
   case WM_MBUTTONDOWN:
     DispatchPlatformEvent(MouseButtonPressedEvent(MouseButton::Middle));
-    break;
+    return 0;
 
   case WM_MBUTTONUP:
     DispatchPlatformEvent(MouseButtonReleasedEvent(MouseButton::Middle));
-    break;
+    return 0;
 
   // TODO: XBUTTON4 and XBUTTON5
 
@@ -482,7 +487,7 @@ LRESULT CALLBACK WindowProc(
     if (message == WM_KEYDOWN) {
       // don't dispatch repeat events
       if (HIWORD(lParam) & KF_REPEAT) {
-        break;
+        return 0;
       }
 
       // HACK: AltGr sends Ctrl + right Alt keydown messages but only sends
@@ -496,7 +501,7 @@ LRESULT CALLBACK WindowProc(
               && (HIWORD(next.lParam) & KF_EXTENDED)
               && next.time == ctrlMessageTime) {
               // skip ctrl message
-              break;
+              return 0;
             }
           }
         }
@@ -506,7 +511,7 @@ LRESULT CALLBACK WindowProc(
     } else {
       DispatchPlatformEvent(KeyReleasedEvent(keyCode));
     }
-    break;
+    return 0;
   }
 
   case WM_CHAR: {
@@ -521,7 +526,7 @@ LRESULT CALLBACK WindowProc(
     }
 
     DispatchPlatformEvent(CharactersTyped(typedChars));
-    break;
+    return 0;
   }
 
   case WM_UNICHAR:
@@ -542,22 +547,22 @@ LRESULT CALLBACK WindowProc(
       default:
         break;
     }
-    break;
+    return 0;
 
   case WM_CLOSE:
     ::DestroyWindow(window);
-    break;
+    return 0;
 
   case WM_DESTROY:
     s_windowHandle = nullptr;
     ::PostQuitMessage(0);
-    break;
+    return 0;
 
   default:
-    return ::DefWindowProcW(window, message, wParam, lParam);
+    break;
   }
 
-  return 0;
+  return ::DefWindowProcW(window, message, wParam, lParam);
 }
 
 
@@ -651,6 +656,7 @@ void CreateMainWindow(const WindowDesc& desc) {
   }
 
   s_windowDesc = desc;
+  s_windowDesc.mSize.Set(width, height);
 
   BS_INFO("created window");
 
