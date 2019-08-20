@@ -59,20 +59,16 @@ void Matrices::OnHide() {}
 
 
 void Matrices::OnUpdate() {
+  const auto deltaTime = static_cast<bs::f32>(bs::GetDeltaTime());
+
+  static auto speed = 2.0f;
+  const auto radOffsetY = deltaTime * speed * bs::math::PI;
   auto& transform =
     mScene->GetEntityRegistry().get<bs::TransformComponent>(mTriangleEntity);
-
-  static float speed = 2.0f;
-  float angleY = transform.mRotation.GetY();
-  angleY += static_cast<bs::f32>(bs::GetDeltaTime() * speed * bs::math::PI);
-  if (angleY >= bs::math::PI * 2.0f) {
-    angleY = 0.0f;
-  }
-
-  transform.mRotation.SetY(angleY);
+  transform.Rotate(0.0f, radOffsetY, 0.0f);
 
   ImGui::Begin("D3D9 Tutorial 03: Matrices");
-  ImGui::SliderFloat("Rotation Speed", &speed, 0.0f, 4.0f);
+  ImGui::SliderFloat("Rotation Speed", &speed, -2.0f, 2.0f);
   ImGui::End();
 }
 

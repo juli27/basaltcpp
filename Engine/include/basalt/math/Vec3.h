@@ -22,6 +22,7 @@ public:
   inline auto operator=(Vec3&&) noexcept -> Vec3& = default;
 
   inline auto operator-() const noexcept -> Vec3;
+  auto operator+=(const Vec3& rhs) noexcept -> Vec3&;
 
   [[nodiscard]] inline auto Length() const -> T;
 
@@ -53,6 +54,16 @@ constexpr Vec3<T>::Vec3(T x, T y, T z) noexcept : mX{x}, mY{y}, mZ{z} {}
 template <typename T>
 inline auto Vec3<T>::operator-() const noexcept -> Vec3 {
   return Vec3(-mX, -mY, -mZ);
+}
+
+
+template <typename T>
+auto Vec3<T>::operator+=(const Vec3& rhs) noexcept -> Vec3& {
+  mX += rhs.mX;
+  mY += rhs.mY;
+  mZ += rhs.mZ;
+
+  return *this;
 }
 
 
@@ -125,6 +136,12 @@ constexpr auto Vec3<T>::Cross(const Vec3& lhs, const Vec3& rhs) -> Vec3 {
 template<typename T>
 inline auto operator-(const Vec3<T>& lhs, const Vec3<T>& rhs) -> Vec3<T> {
   return Vec3<T>(lhs.GetX() - rhs.GetX(), lhs.GetY() - rhs.GetY(), lhs.GetZ() - rhs.GetZ());
+}
+
+
+template<typename T>
+inline auto operator*(const Vec3<T>& v, T f) noexcept -> Vec3<T> {
+  return Vec3<T>(v.GetX() * f, v.GetY() * f, v.GetZ() * f);
 }
 
 

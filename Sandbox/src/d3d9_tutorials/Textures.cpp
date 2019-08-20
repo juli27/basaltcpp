@@ -25,10 +25,10 @@ Textures::Textures() : mScene(std::make_shared<bs::Scene>()) {
 
   std::array<Vertex, 50u * 2> vertices;
 
-  for(bs::i32 i = 0; i < 50; i++) {
-    bs::f32 theta = ( 2.0f * bs::math::PI * i ) / ( 50 - 1 );
-    bs::f32 sinTheta = std::sinf(theta);
-    bs::f32 cosTheta = std::cosf(theta);
+  for(bs::uSize i = 0; i < 50; i++) {
+    const auto theta = ( 2.0f * bs::math::PI * i ) / ( 50 - 1 );
+    const auto sinTheta = std::sinf(theta);
+    const auto cosTheta = std::cosf(theta);
 
     vertices[2 * i].pos = {sinTheta, -1.0f, cosTheta};
     vertices[2 * i].color = bs::Color(255, 255, 255).ToARGB();
@@ -80,17 +80,12 @@ void Textures::OnHide() {}
 
 void Textures::OnUpdate() {
   const auto deltaTime = static_cast<bs::f32>(bs::GetDeltaTime());
+  const auto radOffetX = bs::math::PI * 0.5f * deltaTime;
   auto& transform =
     mScene->GetEntityRegistry().get<bs::TransformComponent>(mCylinderEntity);
+  transform.Rotate(radOffetX, 0.0f, 0.0f);
 
-  float rotationX = transform.mRotation.GetX();
-  rotationX += bs::math::PI * 0.5f * deltaTime;
-  // reset when rotated 360°
-  while (rotationX >= bs::math::PI * 2.0f) {
-    rotationX -= bs::math::PI * 2.0f;
-  }
-
-  transform.mRotation.SetX(rotationX);
+  mScene->DisplayEntityGui(mCylinderEntity);
 }
 
 } // namespace d3d9_tuts

@@ -47,6 +47,11 @@ using u32 = std::uint32_t;
 using u64 = std::uint64_t;
 
 /**
+ * \brief Address sized unsigned integer type.
+ */
+using uSize = std::size_t;
+
+/**
  * \brief 32 bit floating point type.
  */
 using f32 = float;

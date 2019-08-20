@@ -12,7 +12,6 @@ namespace gfx {
 // perspective camera
 class Camera final {
 public:
-
   Camera(
     const math::Vec3f32& position, const math::Vec3f32& lookAt,
     const math::Vec3f32& up
