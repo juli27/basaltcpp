@@ -280,6 +280,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\d3d9_tutorials\Device.cpp" />
     <ClCompile Include="src\d3d9_tutorials\Lights.cpp" />
     <ClCompile Include="src\d3d9_tutorials\Matrices.cpp" />
     <ClCompile Include="src\d3d9_tutorials\Textures.cpp" />
@@ -308,6 +309,7 @@
     <Manifest Include="Sandbox.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\d3d9_tutorials\Device.h" />
     <ClInclude Include="src\d3d9_tutorials\Lights.h" />
     <ClInclude Include="src\d3d9_tutorials\Matrices.h" />
     <ClInclude Include="src\d3d9_tutorials\Textures.h" />

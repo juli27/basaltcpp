@@ -22,7 +22,10 @@ public:
   auto operator=(const SandboxApp&) -> SandboxApp& = delete;
   auto operator=(SandboxApp&&) -> SandboxApp& = delete;
 
-public:
+  void NextScene();
+  void PrevScene();
+  void SetScene(bs::i32 index);
+
   virtual void OnInit() override;
   virtual void OnShutdown() override;
   virtual void OnUpdate() override;
