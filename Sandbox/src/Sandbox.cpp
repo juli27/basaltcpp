@@ -1,8 +1,8 @@
 #include "Sandbox.h"
 
-#include <memory>
+#include <memory> // make_unique
 
-#include <Basalt.h>
+#include <BasaltPrelude.h> // input, platform, ImGui
 
 #include "d3d9_tutorials/Device.h"
 #include "d3d9_tutorials/Lights.h"
@@ -10,46 +10,46 @@
 #include "d3d9_tutorials/Textures.h"
 #include "d3d9_tutorials/Vertices.h"
 
+using bs::Config;
+using bs::WindowMode;
+using bs::input::Key;
+
 // TODO: entity update system
 // TODO: ImGui updater editor
 
-SandboxApp::SandboxApp(bs::Config& config)
-: mCurrentSceneIndex(0) {
+SandboxApp::SandboxApp(Config& config) {
   config.mWindow.mTitle = "Basalt Sandbox";
-  config.mWindow.mMode = bs::WindowMode::Windowed;
+  config.mWindow.mMode = WindowMode::Windowed;
 }
-
 
 void SandboxApp::NextScene() {
   mScenes.at(mCurrentSceneIndex)->OnHide();
   mCurrentSceneIndex++;
-  if (mCurrentSceneIndex >= static_cast<bs::i32>(mScenes.size())) {
+  if (mCurrentSceneIndex >= static_cast<i32>(mScenes.size())) {
     mCurrentSceneIndex = 0;
   }
 
   mScenes.at(mCurrentSceneIndex)->OnShow();
 }
 
-
 void SandboxApp::PrevScene() {
   mScenes.at(mCurrentSceneIndex)->OnHide();
   mCurrentSceneIndex--;
   if (mCurrentSceneIndex < 0) {
-    mCurrentSceneIndex = static_cast<bs::i32>(mScenes.size() - 1);
+    mCurrentSceneIndex = static_cast<i32>(mScenes.size() - 1);
   }
 
   mScenes.at(mCurrentSceneIndex)->OnShow();
 }
 
-
-void SandboxApp::SetScene(bs::i32 index) {
-  BS_RELEASE_ASSERT(index < static_cast<bs::i32>(mScenes.size()), "");
+void SandboxApp::SetScene(const i32 index) {
+  BS_RELEASE_ASSERT(index < static_cast<i32>(mScenes.size()), "");
   BS_RELEASE_ASSERT(index >= 0, "");
+
   mScenes.at(mCurrentSceneIndex)->OnHide();
   mCurrentSceneIndex = index;
   mScenes.at(mCurrentSceneIndex)->OnShow();
 }
-
 
 void SandboxApp::OnInit() {
   mScenes.push_back(std::make_unique<d3d9_tuts::Device>());
@@ -61,17 +61,15 @@ void SandboxApp::OnInit() {
   mScenes.at(mCurrentSceneIndex)->OnShow();
 }
 
-
 void SandboxApp::OnShutdown() {
   mScenes.clear();
 }
 
-
 void SandboxApp::OnUpdate() {
   // HACK
-  static bool rightPressed = false;
-  static bool leftPressed = false;
-  if (bs::input::IsKeyPressed(bs::input::Key::PageUp)) {
+  static auto rightPressed = false;
+  static auto leftPressed = false;
+  if (bs::input::IsKeyPressed(Key::PageUp)) {
     if (!rightPressed) {
       rightPressed = true;
 
@@ -81,7 +79,7 @@ void SandboxApp::OnUpdate() {
     rightPressed = false;
   }
 
-  if (bs::input::IsKeyPressed(bs::input::Key::PageDown)) {
+  if (bs::input::IsKeyPressed(Key::PageDown)) {
     if (!leftPressed) {
       leftPressed = true;
 
@@ -167,7 +165,6 @@ void SandboxApp::OnUpdate() {
   }
 }
 
-
-auto bs::IApplication::Create(Config& config) -> bs::IApplication* {
+auto bs::IApplication::Create(Config& config) -> IApplication* {
   return new SandboxApp(config);
 }

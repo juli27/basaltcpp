@@ -1,18 +1,24 @@
 #include "Device.h"
 
-#include <memory>
+#include <memory> // make_shared
 
-#include <Basalt.h>
+#include <BasaltPrelude.h> // SetCurrentScene
 
+using bs::Color;
+using bs::Scene;
 
-d3d9_tuts::Device::Device() : mScene(std::make_shared<bs::Scene>()) {
-  mScene->SetBackgroundColor(bs::Color(0, 0, 255));
+namespace d3d9_tuts {
+
+Device::Device() : mScene(std::make_shared<Scene>()) {
+  mScene->SetBackgroundColor(Color(0, 0, 255));
 }
 
-void d3d9_tuts::Device::OnShow() {
+void Device::OnShow() {
   bs::SetCurrentScene(mScene);
 }
 
-void d3d9_tuts::Device::OnHide() {}
+void Device::OnHide() {}
 
-void d3d9_tuts::Device::OnUpdate() {}
+void Device::OnUpdate() {}
+
+} // namespace d3d9_tuts

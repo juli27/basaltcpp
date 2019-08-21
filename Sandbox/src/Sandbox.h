@@ -7,18 +7,14 @@
 
 #include <Basalt.h>
 
-#include "ITestCase.h"
+struct ITestCase;
 
-class SandboxApp final : public bs::IApplication {
-public:
+struct SandboxApp final : bs::IApplication {
   explicit SandboxApp(bs::Config& config);
-
-  virtual ~SandboxApp() = default;
-
   SandboxApp(const SandboxApp&) = delete;
   SandboxApp(SandboxApp&&) = delete;
+  virtual ~SandboxApp() = default;
 
-public:
   auto operator=(const SandboxApp&) -> SandboxApp& = delete;
   auto operator=(SandboxApp&&) -> SandboxApp& = delete;
 
@@ -26,13 +22,13 @@ public:
   void PrevScene();
   void SetScene(bs::i32 index);
 
-  virtual void OnInit() override;
-  virtual void OnShutdown() override;
-  virtual void OnUpdate() override;
+  void OnInit() override;
+  void OnShutdown() override;
+  void OnUpdate() override;
 
 private:
   std::vector<std::unique_ptr<ITestCase>> mScenes;
-  bs::i32 mCurrentSceneIndex;
+  bs::i32 mCurrentSceneIndex = 0u;
 };
 
 #endif // !SANDBOX_H

@@ -274,6 +274,7 @@
     <ProjectReference />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\BasaltPrelude.h" />
     <ClInclude Include="include\basalt\common\Asserts.h" />
     <ClInclude Include="include\basalt\common\Color.h" />
     <ClInclude Include="include\basalt\common\Handle.h" />

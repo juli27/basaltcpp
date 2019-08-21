@@ -10,15 +10,18 @@
 
 namespace d3d9_tuts {
 
-
-class Device final : public ITestCase {
-public:
+struct Device final : ITestCase {
   Device();
+  Device(const Device&) = delete;
+  Device(Device&&) = delete;
+  virtual ~Device() = default;
 
-public:
-  virtual void OnShow() override;
-  virtual void OnHide() override;
-  virtual void OnUpdate() override;
+  auto operator=(const Device&) -> Device& = delete;
+  auto operator=(Device&&) -> Device& = delete;
+
+  void OnShow() override;
+  void OnHide() override;
+  void OnUpdate() override;
 
 private:
   std::shared_ptr<bs::Scene> mScene;

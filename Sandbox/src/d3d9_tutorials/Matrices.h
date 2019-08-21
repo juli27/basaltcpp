@@ -10,14 +10,18 @@
 
 namespace d3d9_tuts {
 
-class Matrices final : public ITestCase {
-public:
-
+struct Matrices final : ITestCase {
   Matrices();
+  Matrices(const Matrices&) = delete;
+  Matrices(Matrices&&) = delete;
+  ~Matrices() override = default;
 
-  virtual void OnShow() override;
-  virtual void OnHide() override;
-  virtual void OnUpdate() override;
+  auto operator=(const Matrices&) -> Matrices& = delete;
+  auto operator=(Matrices&&) -> Matrices& = delete;
+
+  void OnShow() override;
+  void OnHide() override;
+  void OnUpdate() override;
 
 private:
   std::shared_ptr<bs::Scene> mScene;

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef SCENES_D3D9_TUTORIAL_VERTICES_H
-#define SCENES_D3D9_TUTORIAL_VERTICES_H
+#ifndef D3D9_TUTORIALS_VERTICES_H
+#define D3D9_TUTORIALS_VERTICES_H
 
 #include "../ITestCase.h"
 
@@ -10,15 +10,18 @@
 
 namespace d3d9_tuts {
 
-
-class Vertices final : public ITestCase {
-public:
+struct Vertices final : ITestCase {
   Vertices();
+  Vertices(const Vertices&) = delete;
+  Vertices(Vertices&&) = delete;
+  virtual ~Vertices() = default;
 
-public:
-  virtual void OnShow() override;
-  virtual void OnHide() override;
-  virtual void OnUpdate() override;
+  auto operator=(const Vertices&) -> Vertices& = delete;
+  auto operator=(Vertices&&) -> Vertices& = delete;
+
+  void OnShow() override;
+  void OnHide() override;
+  void OnUpdate() override;
 
 private:
   std::shared_ptr<bs::Scene> mScene;
@@ -26,4 +29,4 @@ private:
 
 } // namespace d3d9_tuts
 
-#endif // !SCENES_D3D9_TUTORIAL_VERTICES_H
+#endif // !D3D9_TUTORIALS_VERTICES_H

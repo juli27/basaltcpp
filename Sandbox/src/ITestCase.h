@@ -1,28 +1,19 @@
 #pragma once
-#ifndef ISCENE_H
-#define ISCENE_H
+#ifndef ITESTCASE_H
+#define ITESTCASE_H
 
-class ITestCase {
-public:
-  inline ITestCase() = default;
-  inline virtual ~ITestCase() noexcept = default;
-
+struct ITestCase {
+  ITestCase() noexcept = default;
   ITestCase(const ITestCase&) = delete;
   ITestCase(ITestCase&&) = delete;
+  virtual ~ITestCase() noexcept = default;
 
-public:
   auto operator=(const ITestCase&) -> ITestCase& = delete;
   auto operator=(ITestCase&&) -> ITestCase& = delete;
 
-public:
-
   virtual void OnShow() = 0;
-
-
   virtual void OnHide() = 0;
-
-
   virtual void OnUpdate() = 0;
 };
 
-#endif // !ISCENE_H
+#endif // !ITESTCASE_H
