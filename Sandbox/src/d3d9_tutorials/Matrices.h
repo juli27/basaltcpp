@@ -14,7 +14,7 @@ struct Matrices final : ITestCase {
   Matrices();
   Matrices(const Matrices&) = delete;
   Matrices(Matrices&&) = delete;
-  ~Matrices() override = default;
+  ~Matrices() = default;
 
   auto operator=(const Matrices&) -> Matrices& = delete;
   auto operator=(Matrices&&) -> Matrices& = delete;

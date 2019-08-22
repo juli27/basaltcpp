@@ -12,22 +12,17 @@
 
 namespace basalt::gfx::backend {
 
-
 enum class RendererType : i8 {
   Default,
   Direct3D9,
 };
 
-
-class IRenderer {
-public:
-  inline IRenderer() = default;
-  virtual ~IRenderer() = default;
-
+struct IRenderer {
+  IRenderer() = default;
   IRenderer(const IRenderer&) = delete;
   IRenderer(IRenderer&&) = delete;
+  virtual ~IRenderer() = default;
 
-public:
   auto operator=(const IRenderer&) -> IRenderer& = delete;
   auto operator=(IRenderer&&) -> IRenderer& = delete;
 
@@ -41,7 +36,6 @@ public:
 
   // TODO: method to retrieve a preferred vertex layout ?
 
-public:
   /**
    * \brief Adds a static mesh to the renderer to prepare it for rendering.
    *
@@ -102,15 +96,11 @@ public:
   virtual void SetClearColor(Color color) = 0;
 
   virtual void Render() = 0;
-
   virtual void Present() = 0;
-
   virtual auto GetName() -> std::string_view = 0;
-
 
   virtual void NewGuiFrame() = 0;
 
-public:
   static auto Create(RendererType type) -> IRenderer*;
 };
 

@@ -5,7 +5,7 @@
 #include <memory>
 
 #include <spdlog/spdlog.h>
-// interferes with KeyCode::DELETE
+// interferes with Key::DELETE
 #if defined(DELETE)
 #undef DELETE
 #endif
@@ -18,9 +18,7 @@
 namespace basalt::log {
 
 void Init();
-
 auto GetCoreLogger() -> const std::shared_ptr<spdlog::logger>&;
-
 auto GetClientLogger() -> const std::shared_ptr<spdlog::logger>&;
 
 }  // namespace basalt::log

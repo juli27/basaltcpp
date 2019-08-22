@@ -80,7 +80,6 @@ void InitDearImGui() {
 
 
 void Startup() {
-  BS_INFO("engine startup...");
   BS_INFO("platform: {}", platform::GetName());
 
   // TODO: load config from file or create default

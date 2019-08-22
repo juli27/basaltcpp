@@ -18,14 +18,12 @@
 namespace basalt::gfx::backend::d3d9 {
 namespace {
 
+constexpr std::string_view RENDERER_NAME = "Direct3D 9 fixed function";
 
-constexpr std::string_view s_rendererName = "Direct3D 9 fixed function";
-
-
-auto CreateFVFFromVertexLayout(const VertexLayout& layout) -> DWORD {
+auto TranslateVertexLayoutToFVF(const VertexLayout& layout) -> DWORD {
   DWORD fvf = 0u;
 
-  for (const VertexElement& element : layout.GetElements()) {
+  for (const auto& element : layout.GetElements()) {
     switch (element.usage) {
       case VertexElementUsage::POSITION:
         if (element.type != VertexElementType::F32_3) {
@@ -90,77 +88,72 @@ auto CreateFVFFromVertexLayout(const VertexLayout& layout) -> DWORD {
 
       default:
         throw std::runtime_error("vertex layout not supported");
-        break;
     }
   }
 
   return fvf;
 }
 
-
 void FillPrimitiveInfo(
-  Mesh& mesh, PrimitiveType primitiveType, i32 numVertices
+  Mesh& mesh, const PrimitiveType primitiveType, const i32 numVtx
 ) {
   switch (primitiveType) {
     case PrimitiveType::POINT_LIST:
       mesh.primType = D3DPT_POINTLIST;
-      mesh.primCount = numVertices;
+      mesh.primCount = numVtx;
       break;
 
     case PrimitiveType::LINE_LIST:
       mesh.primType = D3DPT_LINELIST;
       BS_ASSERT(
-        numVertices % 2 == 0,
+        numVtx % 2 == 0,
         "Wrong amount of vertices for PrimitiveType::LINE_LIST"
       );
-      mesh.primCount = numVertices / 2;
+      mesh.primCount = numVtx / 2;
       break;
 
     case PrimitiveType::LINE_STRIP:
       mesh.primType = D3DPT_LINESTRIP;
-      mesh.primCount = numVertices - 1;
+      mesh.primCount = numVtx - 1;
       break;
 
     case PrimitiveType::TRIANGLE_LIST:
       mesh.primType = D3DPT_TRIANGLELIST;
       BS_ASSERT(
-        numVertices % 3 == 0,
+        numVtx % 3 == 0,
         "Wrong amount of vertices for PrimitiveType::TRIANGLE_LIST"
       );
-      mesh.primCount = numVertices / 3;
+      mesh.primCount = numVtx / 3;
       break;
 
     case PrimitiveType::TRIANGLE_STRIP:
       mesh.primType = D3DPT_TRIANGLESTRIP;
-      mesh.primCount = numVertices - 2;
+      mesh.primCount = numVtx - 2;
       break;
 
     case PrimitiveType::TRIANGLE_FAN:
       mesh.primType = D3DPT_TRIANGLEFAN;
-      mesh.primCount = numVertices - 2;
+      mesh.primCount = numVtx - 2;
       break;
 
     default:
       throw std::runtime_error("primitive type not supported");
-      break;
   }
 }
 
-
-void FillD3DColor(D3DCOLORVALUE& d3dColor, Color color) {
+void FillD3DColor(D3DCOLORVALUE& d3dColor, const Color color) {
   d3dColor.r = color.GetRed() / 255.0f;
   d3dColor.g = color.GetGreen() / 255.0f;
   d3dColor.b = color.GetBlue() / 255.0f;
   d3dColor.a = color.GetAlpha() / 255.0f;
 }
 
-
 auto CreateWideFromUTF8(const std::string_view source) -> std::wstring {
   if (source.empty()) {
     return std::wstring();
   }
 
-  BS_RELEASE_ASSERT(
+  BS_ASSERT(
     source.size() <= static_cast<std::size_t>(std::numeric_limits<int>::max()),
     "string too large"
   );
@@ -186,29 +179,25 @@ auto CreateWideFromUTF8(const std::string_view source) -> std::wstring {
 
 } // namespace
 
+Renderer::Renderer(IDirect3DDevice9* device) : mDevice(device) {
+  BS_ASSERT(device, "device is null");
+  mDevice->AddRef();
+  D3D9CALL(mDevice->GetDeviceCaps(&mDeviceCaps));
 
-Renderer::Renderer(IDirect3DDevice9* device)
-  : m_device(device)
-  , m_clearColor(D3DCOLOR_XRGB(0, 0, 0)) {
-  BS_ASSERT_ARG_NOT_NULL(device);
-  m_device->AddRef();
-  D3D9CALL(m_device->GetDeviceCaps(&m_deviceCaps));
-
-  ImGui_ImplDX9_Init(m_device);
+  ImGui_ImplDX9_Init(mDevice);
 }
-
 
 Renderer::~Renderer() {
   ImGui_ImplDX9_Shutdown();
 
-  m_textures.ForEach([](Texture& texture){
+  mTextures.ForEach([](Texture& texture){
     texture.texture->Release();
   });
-  m_meshes.ForEach([](Mesh& mesh){
+  mMeshes.ForEach([](Mesh& mesh){
     mesh.vertexBuffer->Release();
   });
 
-  m_device->Release();
+  mDevice->Release();
 }
 
 /*
@@ -220,15 +209,15 @@ auto Renderer::AddMesh(
 ) -> MeshHandle {
   BS_ASSERT_ARG_NOT_NULL(data);
   BS_ASSERT(numVertices > 0, "numVertices must be > 0");
-  BS_ASSERT(layout.GetElements().size() != 0, "must specify a vertex layout");
+  BS_ASSERT(!layout.GetElements().empty(), "must specify a vertex layout");
 
 
-  const DWORD fvf = CreateFVFFromVertexLayout(layout);
+  const DWORD fvf = TranslateVertexLayoutToFVF(layout);
   const UINT vertexSize = D3DXGetFVFVertexSize(fvf);
   const UINT bufferSize = vertexSize * numVertices;
 
   IDirect3DVertexBuffer9* vertexBuffer = nullptr;
-  D3D9CALL(m_device->CreateVertexBuffer(
+  D3D9CALL(mDevice->CreateVertexBuffer(
     bufferSize, D3DUSAGE_WRITEONLY, fvf, D3DPOOL_MANAGED, &vertexBuffer,
     nullptr
   ));
@@ -242,8 +231,8 @@ auto Renderer::AddMesh(
     BS_ERROR("Failed to lock vertex buffer");
   }
 
-  MeshHandle meshHandle = m_meshes.Allocate();
-  Mesh& mesh = m_meshes.Get(meshHandle);
+  const MeshHandle meshHandle = mMeshes.Allocate();
+  Mesh& mesh = mMeshes.Get(meshHandle);
   mesh.vertexBuffer = vertexBuffer;
   mesh.fvf = fvf;
   mesh.vertexSize = vertexSize;
@@ -254,27 +243,27 @@ auto Renderer::AddMesh(
 
 
 void Renderer::RemoveMesh(MeshHandle meshHandle) {
-  Mesh& mesh = m_meshes.Get(meshHandle);
+  Mesh& mesh = mMeshes.Get(meshHandle);
 
   mesh.vertexBuffer->Release();
   mesh.vertexBuffer = nullptr;
 
-  m_meshes.Deallocate(meshHandle);
+  mMeshes.Deallocate(meshHandle);
 }
 
 
-auto Renderer::AddTexture(std::string_view filePath) -> TextureHandle {
+auto Renderer::AddTexture(const std::string_view filePath) -> TextureHandle {
   const std::wstring wideFilePath = CreateWideFromUTF8(filePath);
 
   IDirect3DTexture9* texture = nullptr;
   if (FAILED(::D3DXCreateTextureFromFileW(
-    m_device, wideFilePath.c_str(), &texture
+    mDevice, wideFilePath.c_str(), &texture
   ))) {
     throw std::runtime_error("loading texture file failed");
   }
 
-  TextureHandle texHandle = m_textures.Allocate();
-  Texture& tex = m_textures.Get(texHandle);
+  const TextureHandle texHandle = mTextures.Allocate();
+  Texture& tex = mTextures.Get(texHandle);
   tex.texture = texture;
 
   return texHandle;
@@ -282,17 +271,17 @@ auto Renderer::AddTexture(std::string_view filePath) -> TextureHandle {
 
 
 void Renderer::RemoveTexture(TextureHandle textureHandle) {
-  Texture& texture = m_textures.Get(textureHandle);
+  Texture& texture = mTextures.Get(textureHandle);
 
   texture.texture->Release();
   texture.texture = nullptr;
 
-  m_textures.Deallocate(textureHandle);
+  mTextures.Deallocate(textureHandle);
 }
 
 
 void Renderer::Submit(const RenderCommand& command) {
-  m_commandBuffer.AddCommand(command);
+  mCommandBuffer.AddCommand(command);
 }
 
 
@@ -303,12 +292,12 @@ void Renderer::SetViewProj(
     throw std::runtime_error("m34 can't be negative in a projection matrix");
   }
 
-  m_commandBuffer.SetView(view);
-  m_commandBuffer.SetProjection(projection);
+  mCommandBuffer.SetView(view);
+  mCommandBuffer.SetProjection(projection);
 }
 
 void Renderer::SetLights(const LightSetup& lights) {
-  const DWORD MAX_LIGHTS = m_deviceCaps.MaxActiveLights;
+  const DWORD MAX_LIGHTS = mDeviceCaps.MaxActiveLights;
 
   const auto& directionalLights = lights.GetDirectionalLights();
   if (directionalLights.size() > MAX_LIGHTS) {
@@ -323,47 +312,47 @@ void Renderer::SetLights(const LightSetup& lights) {
     FillD3DColor(d3dlight.Diffuse, light.diffuseColor);
     FillD3DColor(d3dlight.Ambient, light.ambientColor);
 
-    D3D9CALL(m_device->SetLight(lightIndex, &d3dlight));
-    D3D9CALL(m_device->LightEnable(lightIndex, TRUE));
+    D3D9CALL(mDevice->SetLight(lightIndex, &d3dlight));
+    D3D9CALL(mDevice->LightEnable(lightIndex, TRUE));
     lightIndex++;
   }
 
   // disable not used lights
   for (; lightIndex < MAX_LIGHTS; lightIndex++) {
-    D3D9CALL(m_device->LightEnable(lightIndex, FALSE));
+    D3D9CALL(mDevice->LightEnable(lightIndex, FALSE));
   }
 
-  D3D9CALL(m_device->SetRenderState(
+  D3D9CALL(mDevice->SetRenderState(
     D3DRS_AMBIENT, lights.GetGlobalAmbientColor().ToARGB()
   ));
 }
 
 
 void Renderer::SetClearColor(Color color) {
-  m_clearColor = color.ToARGB();
+  mClearColor = color.ToARGB();
 }
 
 
 // TODO: shading mode
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
 void Renderer::Render() {
-  D3D9CALL(m_device->Clear(
-    0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, m_clearColor, 1.0f, 0u
+  D3D9CALL(mDevice->Clear(
+    0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, mClearColor, 1.0f, 0u
   ));
 
   // TODO: should we make all rendering code dependant
   // on the success of BeginScene? -> Log error and/or throw exception
-  D3D9CALL(m_device->BeginScene());
+  D3D9CALL(mDevice->BeginScene());
 
-  D3D9CALL(m_device->SetTransform(
-    D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&m_commandBuffer.GetView())
+  D3D9CALL(mDevice->SetTransform(
+    D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&mCommandBuffer.GetView())
   ));
-  D3D9CALL(m_device->SetTransform(
+  D3D9CALL(mDevice->SetTransform(
     D3DTS_PROJECTION,
-    reinterpret_cast<const D3DMATRIX*>(&m_commandBuffer.GetProjection())
+    reinterpret_cast<const D3DMATRIX*>(&mCommandBuffer.GetProjection())
   ));
 
-  RenderCommands(m_commandBuffer);
+  RenderCommands(mCommandBuffer);
 
   // render imgui
   auto* drawData = ImGui::GetDrawData();
@@ -371,21 +360,21 @@ void Renderer::Render() {
     ImGui_ImplDX9_RenderDrawData(drawData);
   }
 
-  D3D9CALL(m_device->SetStreamSource(0u, nullptr, 0u, 0u));
+  D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
 
-  D3D9CALL(m_device->EndScene());
+  D3D9CALL(mDevice->EndScene());
 
-  m_commandBuffer.Clear();
+  mCommandBuffer.Clear();
 }
 
 
 void Renderer::Present() {
-  D3D9CALL(m_device->Present(nullptr, nullptr, nullptr, nullptr));
+  D3D9CALL(mDevice->Present(nullptr, nullptr, nullptr, nullptr));
 }
 
 
 auto Renderer::GetName() -> std::string_view {
-  return s_rendererName;
+  return RENDERER_NAME;
 }
 
 
@@ -399,10 +388,10 @@ void Renderer::RenderCommands(const RenderCommandBuffer& commands) {
     // apply custom render flags
     if (command.flags) {
       if (command.flags & RF_DISABLE_LIGHTING) {
-        D3D9CALL(m_device->SetRenderState(D3DRS_LIGHTING, FALSE));
+        D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
       }
       if (command.flags & RF_CULL_NONE) {
-        D3D9CALL(m_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+        D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
       }
     }
 
@@ -410,34 +399,34 @@ void Renderer::RenderCommands(const RenderCommandBuffer& commands) {
     FillD3DColor(material.Diffuse, command.diffuseColor);
     FillD3DColor(material.Ambient, command.ambientColor);
     FillD3DColor(material.Emissive, command.emissiveColor);
-    D3D9CALL(m_device->SetMaterial(&material));
+    D3D9CALL(mDevice->SetMaterial(&material));
 
     if (command.texture) {
-      const Texture& texture = m_textures.Get(command.texture);
-      D3D9CALL(m_device->SetTexture(0, texture.texture));
+      const Texture& texture = mTextures.Get(command.texture);
+      D3D9CALL(mDevice->SetTexture(0, texture.texture));
     } else {
-      D3D9CALL(m_device->SetTexture(0, nullptr));
+      D3D9CALL(mDevice->SetTexture(0, nullptr));
     }
 
-    const Mesh& mesh = m_meshes.Get(command.mesh);
-    D3D9CALL(m_device->SetStreamSource(
+    const Mesh& mesh = mMeshes.Get(command.mesh);
+    D3D9CALL(mDevice->SetStreamSource(
       0u, mesh.vertexBuffer, 0u, mesh.vertexSize
     ));
-    D3D9CALL(m_device->SetFVF(mesh.fvf));
+    D3D9CALL(mDevice->SetFVF(mesh.fvf));
 
-    D3D9CALL(m_device->SetTransform(
+    D3D9CALL(mDevice->SetTransform(
       D3DTS_WORLDMATRIX(0), reinterpret_cast<const D3DMATRIX*>(&command.world)
     ));
 
-    D3D9CALL(m_device->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
+    D3D9CALL(mDevice->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
 
     // revert custom render flags
     if (command.flags) {
       if (command.flags & RF_DISABLE_LIGHTING) {
-        D3D9CALL(m_device->SetRenderState(D3DRS_LIGHTING, TRUE));
+        D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
       }
       if (command.flags & RF_CULL_NONE) {
-        D3D9CALL(m_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
+        D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
       }
     }
   }

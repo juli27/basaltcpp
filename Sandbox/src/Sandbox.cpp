@@ -43,8 +43,8 @@ void SandboxApp::PrevScene() {
 }
 
 void SandboxApp::SetScene(const i32 index) {
-  BS_RELEASE_ASSERT(index < static_cast<i32>(mScenes.size()), "");
-  BS_RELEASE_ASSERT(index >= 0, "");
+  BS_ASSERT(index < static_cast<i32>(mScenes.size()), "");
+  BS_ASSERT(index >= 0, "");
 
   mScenes.at(mCurrentSceneIndex)->OnHide();
   mCurrentSceneIndex = index;
@@ -87,6 +87,10 @@ void SandboxApp::OnUpdate() {
     }
   } else {
     leftPressed = false;
+  }
+
+  if (bs::input::IsKeyPressed(Key::Space)) {
+    BS_ASSERT(false, "");
   }
 
   mScenes.at(mCurrentSceneIndex)->OnUpdate();

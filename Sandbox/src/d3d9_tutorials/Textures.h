@@ -14,7 +14,7 @@ struct Textures final : ITestCase {
   Textures();
   Textures(const Textures&) = delete;
   Textures(Textures&&) = delete;
-  ~Textures() override = default;
+  ~Textures() = default;
 
   auto operator=(const Textures&) -> Textures& = delete;
   auto operator=(Textures&&) -> Textures& = delete;

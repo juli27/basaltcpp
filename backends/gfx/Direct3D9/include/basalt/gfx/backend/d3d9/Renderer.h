@@ -10,68 +10,56 @@
 
 namespace basalt::gfx::backend::d3d9 {
 
-
 struct Mesh {
-  IDirect3DVertexBuffer9* vertexBuffer;
-  DWORD fvf;
-  UINT vertexSize;
-  D3DPRIMITIVETYPE primType;
-  UINT primCount;
+  IDirect3DVertexBuffer9* vertexBuffer = nullptr;
+  DWORD fvf = 0u;
+  UINT vertexSize = 0u;
+  D3DPRIMITIVETYPE primType = D3DPT_POINTLIST;
+  UINT primCount = 0u;
 };
-
 
 struct Texture {
-  IDirect3DTexture9* texture;
+  IDirect3DTexture9* texture = nullptr;
 };
 
-
-class Renderer final : public IRenderer {
-public:
-
-  Renderer(IDirect3DDevice9* device);
-
-
-  virtual ~Renderer();
-
+struct Renderer final : IRenderer {
   Renderer() = delete;
+  explicit Renderer(IDirect3DDevice9* device);
   Renderer(const Renderer&) = delete;
   Renderer(Renderer&&) = delete;
+  ~Renderer();
 
-public:
-  virtual auto AddMesh(
-    void* data, i32 numVertices, const VertexLayout& layout,
-    PrimitiveType primitiveType
-  ) -> MeshHandle override;
-  virtual void RemoveMesh(MeshHandle meshHandle) override;
-  virtual auto AddTexture(std::string_view filePath) -> TextureHandle override;
-  virtual void RemoveTexture(TextureHandle textureHandle) override;
-  virtual void Submit(const RenderCommand& command) override;
-  virtual void SetViewProj(
-    const math::Mat4f32& view, const math::Mat4f32& projection
-  ) override;
-  virtual void SetLights(const LightSetup& lights) override;
-  virtual void SetClearColor(Color color) override;
-  virtual void Render() override;
-  virtual void Present() override;
-  virtual auto GetName() -> std::string_view override;
-
-  virtual void NewGuiFrame() override;
-
-public:
   auto operator=(const Renderer&) -> Renderer& = delete;
   auto operator=(Renderer&&) -> Renderer& = delete;
 
-private:
+  auto AddMesh(
+    void* data, i32 numVertices, const VertexLayout& layout,
+    PrimitiveType primitiveType
+  ) -> MeshHandle override;
+  void RemoveMesh(MeshHandle meshHandle) override;
+  auto AddTexture(std::string_view filePath) -> TextureHandle override;
+  void RemoveTexture(TextureHandle textureHandle) override;
+  void Submit(const RenderCommand& command) override;
+  void SetViewProj(
+    const math::Mat4f32& view, const math::Mat4f32& projection
+  ) override;
+  void SetLights(const LightSetup& lights) override;
+  void SetClearColor(Color color) override;
+  void Render() override;
+  void Present() override;
+  auto GetName() -> std::string_view override;
 
+  void NewGuiFrame() override;
+
+private:
   void RenderCommands(const RenderCommandBuffer& commands);
 
-private:
-  IDirect3DDevice9* m_device;
-  D3DCAPS9 m_deviceCaps;
-  HandlePool<Mesh, MeshHandle> m_meshes;
-  HandlePool<Texture, TextureHandle> m_textures;
-  RenderCommandBuffer m_commandBuffer;
-  D3DCOLOR m_clearColor;
+  IDirect3DDevice9* mDevice = nullptr;
+  D3DCAPS9 mDeviceCaps = {};
+  HandlePool<Mesh, MeshHandle> mMeshes;
+  HandlePool<Texture, TextureHandle> mTextures;
+  RenderCommandBuffer mCommandBuffer;
+  D3DCOLOR mClearColor = D3DCOLOR_XRGB(0, 0, 0);
 
 public:
   static auto Create(HWND window) -> Renderer*;

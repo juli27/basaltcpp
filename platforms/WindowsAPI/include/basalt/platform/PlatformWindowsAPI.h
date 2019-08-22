@@ -34,10 +34,10 @@ auto GetWindowHandle() -> HWND;
 
  * TODO: make noexcept
  *
- * \param source the UTF-8 string to convert.
+ * \param src the UTF-8 string to convert.
  * \return the new wide string.
  */
-auto CreateWideFromUTF8(const std::string_view source) -> std::wstring;
+auto CreateWideFromUTF8(const std::string_view src) -> std::wstring;
 
 } // namespace basalt::platform::winapi
 

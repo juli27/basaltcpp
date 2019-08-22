@@ -2,25 +2,38 @@
 
 #include <basalt/Log.h>
 
-#include <memory>
+#include <memory> // make_shared
 #include <vector>
 
+#include <spdlog/spdlog.h> // set_pattern
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/msvc_sink.h>
+
+using std::shared_ptr;
+using std::vector;
+
+using spdlog::logger;
+using spdlog::sink_ptr;
+
+#ifdef BS_DEBUG_BUILD
+using spdlog::level::trace;
+#else
+using spdlog::level::info;
+using spdlog::level::warn;
+#endif
 
 namespace basalt::log {
 namespace {
 
-std::shared_ptr<spdlog::logger> s_coreLogger;
-std::shared_ptr<spdlog::logger> s_clientLogger;
+shared_ptr<logger> sCoreLogger;
+shared_ptr<logger> sClientLogger;
 
 } // namespace
-
 
 void Init() {
   spdlog::set_pattern("%^[%n][%l]: %v%$");
 
-  std::vector<spdlog::sink_ptr> sinks;
+  vector<sink_ptr> sinks;
   sinks.reserve(2u);
 
   sinks.push_back(
@@ -31,32 +44,29 @@ void Init() {
   sinks.push_back(std::make_shared<spdlog::sinks::msvc_sink_st>());
 #endif
 
-  s_coreLogger =
-      std::make_shared<spdlog::logger>("Basalt", sinks.cbegin(), sinks.cend());
-  s_clientLogger =
-      std::make_shared<spdlog::logger>("App", sinks.cbegin(), sinks.cend());
+  sCoreLogger =
+      std::make_shared<logger>("Basalt", sinks.cbegin(), sinks.cend());
+  sClientLogger = std::make_shared<logger>("App", sinks.cbegin(), sinks.cend());
 
 #if defined(BS_DEBUG_BUILD)
-  s_coreLogger->set_level(spdlog::level::trace);
-  s_clientLogger->set_level(spdlog::level::trace);
-  s_coreLogger->flush_on(spdlog::level::trace);
-  s_clientLogger->flush_on(spdlog::level::trace);
+  sCoreLogger->set_level(trace);
+  sClientLogger->set_level(trace);
+  sCoreLogger->flush_on(trace);
+  sClientLogger->flush_on(trace);
 #else
-  s_coreLogger->set_level(spdlog::level::info);
-  s_clientLogger->set_level(spdlog::level::info);
-  s_coreLogger->flush_on(spdlog::level::warn);
-  s_clientLogger->flush_on(spdlog::level::warn);
+  sCoreLogger->set_level(info);
+  sClientLogger->set_level(info);
+  sCoreLogger->flush_on(warn);
+  sClientLogger->flush_on(warn);
 #endif
 }
 
-
-auto GetCoreLogger() -> const std::shared_ptr<spdlog::logger>& {
-  return s_coreLogger;
+auto GetCoreLogger() -> const shared_ptr<logger>& {
+  return sCoreLogger;
 }
 
-
-auto GetClientLogger() -> const std::shared_ptr<spdlog::logger>& {
-  return s_clientLogger;
+auto GetClientLogger() -> const shared_ptr<logger>& {
+  return sClientLogger;
 }
 
 } // namespace basalt::log
