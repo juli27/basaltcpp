@@ -7,7 +7,7 @@
 * Windows 10 1809 RS5 October 2018 Update (Build 17763)
 * Windows 10 1903 19H1 May 2019 Update (Build 18362)
 
-> The folling Windows versions probably work for now as features not available
+> The following Windows versions probably work for now as features not available
 > in these versions haven't been used yet.
 
 * *Windows Vista*
