@@ -4,45 +4,43 @@
 #include <algorithm> // for_each
 #include <array>
 #include <limits>
-#include <memory>
+#include <memory> // make_unique
 #include <stdexcept>
 #include <string>
+#include <system_error> // system_category
 #include <vector>
 
 #include <fmt/format.h>
 
-#include <basalt/Log.h>
-#include <basalt/common/Asserts.h>
 #include <basalt/common/Types.h>
 #include <basalt/platform/WindowsHeader.h>
+#include <basalt/platform/events/Event.h>
 #include <basalt/platform/events/KeyEvents.h>
 #include <basalt/platform/events/MouseEvents.h>
 #include <basalt/platform/events/WindowEvents.h>
 
-using std::numeric_limits;
-using std::runtime_error;
-using std::string;
-using std::string_view;
-using std::wstring;
-using std::wstring_view;
+#include <basalt/Log.h>
+#include <basalt/common/Asserts.h>
 
 namespace basalt::platform {
+
+using ::std::array;
+using ::std::numeric_limits;
+using ::std::runtime_error;
+using ::std::string;
+using ::std::string_view;
+using ::std::system_error;
+using ::std::vector;
+using ::std::wstring;
+using ::std::wstring_view;
+
 namespace winapi {
 namespace {
-
-std::string sPlatformName;
-std::vector<std::string> sArgs;
-std::vector<PlatformEventCallback> sEventListener;
-HINSTANCE sInstance;
-int s_showCommand;
-constexpr std::wstring_view WINDOW_CLASS_NAME = L"BS_WINDOW_CLASS";
-HWND s_windowHandle;
-WindowDesc s_windowDesc;
 
 // TODO: syskeys
 // TODO: left and right variants
 // TODO: disable SUPER? (only in fullscreen?)
-constexpr std::array<Key, 256> VK_TO_KEY_MAP = {
+constexpr array<Key, 256> VK_TO_KEY_MAP = {
   /* unassigned             */ Key::Unknown,
   /* VK_LBUTTON             */ Key::Unknown,
   /* VK_RBUTTON             */ Key::Unknown,
@@ -300,6 +298,15 @@ constexpr std::array<Key, 256> VK_TO_KEY_MAP = {
   /* VK_OEM_CLEAR           */ Key::Unknown,
   /* reserved               */ Key::Unknown
 };
+constexpr wstring_view WINDOW_CLASS_NAME = L"BS_WINDOW_CLASS";
+
+string sPlatformName;
+vector<string> sArgs;
+vector<PlatformEventCallback> sEventListener;
+HINSTANCE sInstance;
+int sShowCommand;
+HWND sWindowHandle;
+WindowDesc sWindowDesc;
 
 /**
  * \brief Converts a Windows API wide string to UTF-8.
@@ -310,9 +317,14 @@ constexpr std::array<Key, 256> VK_TO_KEY_MAP = {
  * \param src the wide string to convert.
  * \return the wide string converted to UTF-8.
  */
-auto CreateUTF8FromWide(const wstring_view src) noexcept -> string {
+auto create_utf8_from_wide(const wstring_view src) noexcept -> string {
+  // Don't use asserts/log because this function is used before the log
+  // is initialized
+
   // Do NOT call CreateWinAPIErrorMessage in this function
   // because it uses this function and may cause an infinite loop
+
+  // TODO: noexcept allocator and heap memory pool for strings
 
   // WideCharToMultiByte fails when size is 0
   if (src.empty()) {
@@ -321,35 +333,26 @@ auto CreateUTF8FromWide(const wstring_view src) noexcept -> string {
 
   // use the size of the string view because the input string
   // can be non null-terminated
-  BS_ASSERT(
-    src.size() <= static_cast<uSize>(numeric_limits<int>::max()),
-    "string too large"
-  );
+  if (src.size() > static_cast<uSize>(numeric_limits<int>::max())) {
+    return "create_utf8_from_wide: string to convert is too large";
+  }
+
   const auto srcSize = static_cast<int>(src.size());
-  int dstSize = ::WideCharToMultiByte(
+  auto dstSize = ::WideCharToMultiByte(
     CP_UTF8, 0u, src.data(), srcSize, nullptr, 0, nullptr, nullptr
   );
 
   if (dstSize == 0) {
-    BS_ERROR(
-      "WideCharToMultiByte failed to return the required size for "
-      "a wide string of size {} with error code {}", src.size(),
-      ::GetLastError()
-    );
-    return {};
+    return "WideCharToMultiByte returned 0";
   }
 
   string dst(dstSize, '\0');
   dstSize = ::WideCharToMultiByte(
-    CP_UTF8, 0, src.data(), srcSize, dst.data(),
-    static_cast<int>(dst.size()), nullptr, nullptr
+    CP_UTF8, 0u, src.data(), srcSize, dst.data(), static_cast<int>(dst.size()),
+    nullptr, nullptr
   );
   if (dstSize == 0) {
-    BS_ERROR(
-      "WideCharToMultiByte failed to convert a wide string of size {} "
-      "with error code {}", srcSize, ::GetLastError()
-    );
-    return {};
+    return "WideCharToMultiByte returned 0";
   }
 
   return dst;
@@ -361,64 +364,57 @@ auto CreateUTF8FromWide(const wstring_view src) noexcept -> string {
  * \param errorCode Windows API error code.
  * \return description string of the error.
  */
-auto CreateWinAPIErrorMessage(const DWORD errorCode) noexcept -> string {
+auto create_winapi_error_message(const DWORD errorCode) noexcept -> string {
   WCHAR* buffer = nullptr;
-  const DWORD numChars = ::FormatMessageW(
+  const auto numChars = ::FormatMessageW(
     FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM
     | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, errorCode, 0u,
     reinterpret_cast<WCHAR*>(&buffer), 0u, nullptr
   );
 
   if (numChars == 0u) {
-    BS_ERROR(
-      "FormatMessageW failed with error code {}. The error code "
-      "to format was {}", ::GetLastError(), errorCode
-    );
-    return {};
+    return "FormatMessageW failed";
   }
 
   // use numChars because the buffer is NOT null terminated
-  const std::string message = CreateUTF8FromWide({buffer, numChars});
+  const auto message = create_utf8_from_wide({buffer, numChars});
 
   ::LocalFree(buffer);
 
   return message;
 }
 
-/*
+/**
  * \brief Processes the windows command line string and populates the argv
  *        style vector returned by platform::GetArgs().
  *
  * No program name will be added to the array.
  *
- * \param cmdLine the windows command line arguments.
+ * \param commandLine the windows command line arguments.
  */
-void ProcessArgs(const WCHAR* commandLine) {
+void process_args(const WCHAR* commandLine) {
   // check if the command line string is empty to avoid adding
   // the program name to the argument vector
   if (commandLine[0] == L'\0') {
     return;
   }
 
-  int argc = 0;
-  WCHAR** argv = ::CommandLineToArgvW(commandLine, &argc);
+  auto argc = 0;
+  auto** argv = ::CommandLineToArgvW(commandLine, &argc);
   if (argv == nullptr) {
-    BS_ERROR(
-      "CommandLineToArgvW failed: {}",
-      CreateWinAPIErrorMessage(::GetLastError())
-    );
+    // no logging because the log might not be initialized yet
     return;
   }
 
   sArgs.reserve(argc);
   for (auto i = 0; i < argc; i++) {
-    sArgs.push_back(CreateUTF8FromWide(argv[i]));
+    sArgs.push_back(create_utf8_from_wide(argv[i]));
   }
 
   ::LocalFree(argv);
 }
 
-void DispatchPlatformEvent(const Event& event) {
+void dispatch_platform_event(const Event& event) {
   std::for_each(
     sEventListener.cbegin(), sEventListener.cend(),
     [&event](const PlatformEventCallback& callback) {
@@ -427,12 +423,18 @@ void DispatchPlatformEvent(const Event& event) {
   );
 }
 
-LRESULT CALLBACK WindowProc(
+LRESULT CALLBACK window_proc(
   HWND window, const UINT message, const WPARAM wParam, const LPARAM lParam
 ) {
+  static auto sIsSizing = false;
+  static auto sIsMinimized = false;
+
   switch (message) {
+  case WM_ACTIVATE:
+  case WM_ACTIVATEAPP:
+    return 0;
   case WM_MOUSEMOVE:
-    DispatchPlatformEvent(
+    dispatch_platform_event(
       MouseMovedEvent({GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)})
     );
     return 0;
@@ -440,40 +442,40 @@ LRESULT CALLBACK WindowProc(
   case WM_MOUSEWHEEL: {
     const auto offset =
       GET_WHEEL_DELTA_WPARAM(wParam) / static_cast<f32> (WHEEL_DELTA);
-    DispatchPlatformEvent(MouseWheelScrolledEvent(offset));
+    dispatch_platform_event(MouseWheelScrolledEvent(offset));
     return 0;
   }
 
 
   case WM_LBUTTONDOWN:
     ::SetCapture(window);
-    DispatchPlatformEvent(MouseButtonPressedEvent(MouseButton::Left));
+    dispatch_platform_event(MouseButtonPressedEvent(MouseButton::Left));
     return 0;
 
   case WM_LBUTTONUP:
     if (!::ReleaseCapture()) {
       BS_ERROR(
         "Releasing mouse capture in WM_LBUTTONUP failed: {}",
-        CreateWinAPIErrorMessage(::GetLastError())
+        create_winapi_error_message(::GetLastError())
       );
     }
-    DispatchPlatformEvent(MouseButtonReleasedEvent(MouseButton::Left));
+    dispatch_platform_event(MouseButtonReleasedEvent(MouseButton::Left));
     return 0;
 
   case WM_RBUTTONDOWN:
-    DispatchPlatformEvent(MouseButtonPressedEvent(MouseButton::Right));
+    dispatch_platform_event(MouseButtonPressedEvent(MouseButton::Right));
     return 0;
 
   case WM_RBUTTONUP:
-    DispatchPlatformEvent(MouseButtonReleasedEvent(MouseButton::Right));
+    dispatch_platform_event(MouseButtonReleasedEvent(MouseButton::Right));
     return 0;
 
   case WM_MBUTTONDOWN:
-    DispatchPlatformEvent(MouseButtonPressedEvent(MouseButton::Middle));
+    dispatch_platform_event(MouseButtonPressedEvent(MouseButton::Middle));
     return 0;
 
   case WM_MBUTTONUP:
-    DispatchPlatformEvent(MouseButtonReleasedEvent(MouseButton::Middle));
+    dispatch_platform_event(MouseButtonReleasedEvent(MouseButton::Middle));
     return 0;
 
   // TODO: XBUTTON4 and XBUTTON5
@@ -509,15 +511,15 @@ LRESULT CALLBACK WindowProc(
         }
       }
 
-      DispatchPlatformEvent(KeyPressedEvent(keyCode));
+      dispatch_platform_event(KeyPressedEvent(keyCode));
     } else {
-      DispatchPlatformEvent(KeyReleasedEvent(keyCode));
+      dispatch_platform_event(KeyReleasedEvent(keyCode));
     }
     return 0;
   }
 
   case WM_CHAR: {
-    const auto typedChar = CreateUTF8FromWide(
+    const auto typedChar = create_utf8_from_wide(
       wstring(1, static_cast<WCHAR>(wParam))
     );
 
@@ -527,7 +529,7 @@ LRESULT CALLBACK WindowProc(
       typedChars.append(typedChar);
     }
 
-    DispatchPlatformEvent(CharactersTyped(typedChars));
+    dispatch_platform_event(CharactersTyped(typedChars));
     return 0;
   }
 
@@ -537,17 +539,35 @@ LRESULT CALLBACK WindowProc(
     }
     return ::DefWindowProcW(window, message, wParam, lParam);
 
+  case WM_ENTERSIZEMOVE:
+    sIsSizing = true;
+    return 0;
+
+  case WM_EXITSIZEMOVE:
+    sIsSizing = false;
+    dispatch_platform_event(WindowResizedEvent(sWindowDesc.mSize));
+    return 0;
+
   case WM_SIZE:
     switch (wParam) {
-      case SIZE_RESTORED:
-      case SIZE_MAXIMIZED:
-        DispatchPlatformEvent(
-          WindowResizedEvent({LOWORD(lParam), HIWORD(lParam)})
-        );
-        return 0;
+    case SIZE_MINIMIZED:
+      sIsMinimized = true;
+      dispatch_platform_event(WindowMinimizedEvent());
+      break;
+    case SIZE_RESTORED:
+      if (sIsMinimized) {
+      dispatch_platform_event(WindowRestoredEvent());
+      }
+    [[fallthrough]];
+    case SIZE_MAXIMIZED:
+      sWindowDesc.mSize.Set(LOWORD(lParam), HIWORD(lParam));
+      if (!sIsSizing) {
+        dispatch_platform_event(WindowResizedEvent(sWindowDesc.mSize));
+      }
+      return 0;
 
-      default:
-        break;
+    default:
+      return 0;
     }
     return 0;
 
@@ -556,7 +576,7 @@ LRESULT CALLBACK WindowProc(
     return 0;
 
   case WM_DESTROY:
-    s_windowHandle = nullptr;
+    sWindowHandle = nullptr;
     ::PostQuitMessage(0);
     return 0;
 
@@ -567,7 +587,7 @@ LRESULT CALLBACK WindowProc(
   return ::DefWindowProcW(window, message, wParam, lParam);
 }
 
-void RegisterWindowClass() {
+void register_window_class() {
   const auto cursor = static_cast<HCURSOR>(::LoadImageW(
     nullptr, MAKEINTRESOURCEW(OCR_NORMAL), IMAGE_CURSOR, 0, 0,
     LR_DEFAULTSIZE | LR_SHARED
@@ -579,7 +599,7 @@ void RegisterWindowClass() {
   WNDCLASSEXW windowClass{
     sizeof(WNDCLASSEXW),
     CS_OWNDC | CS_HREDRAW | CS_VREDRAW,
-    &WindowProc,
+    &window_proc,
     0, // cbClsExtra
     0, // cbWndExtra
     sInstance,
@@ -592,13 +612,16 @@ void RegisterWindowClass() {
   };
 
   if (!::RegisterClassExW(&windowClass)) {
-    throw runtime_error("failed to register window class");
+    throw system_error(
+      ::GetLastError(), std::system_category(),
+      "Failed to register window class"
+    );
   }
 
   BS_DEBUG("window class registered");
 }
 
-void CreateMainWindow(const WindowDesc& desc) {
+void create_main_window(const WindowDesc& desc) {
   BS_DEBUG(
     "creating main window:\n"
     "  title: \"{}\",\n  width: {}, height: {}, "
@@ -608,7 +631,7 @@ void CreateMainWindow(const WindowDesc& desc) {
     desc.mMode == WindowMode::FullscreenExclusive, desc.mResizeable
   );
 
-  RegisterWindowClass();
+  register_window_class();
 
   DWORD style = WS_SIZEBOX;
   DWORD styleEx = 0;
@@ -634,7 +657,7 @@ void CreateMainWindow(const WindowDesc& desc) {
     // and center the window on the primary monitor
     RECT rect{0, 0, desc.mSize.GetX(), desc.mSize.GetY()};
     if (!::AdjustWindowRectEx(&rect, style, FALSE, styleEx)) {
-      throw runtime_error(CreateWinAPIErrorMessage(GetLastError()));
+      throw runtime_error(create_winapi_error_message(GetLastError()));
     }
 
     width = static_cast<int>(rect.right - rect.left);
@@ -645,29 +668,29 @@ void CreateMainWindow(const WindowDesc& desc) {
 
   const wstring windowTitle = CreateWideFromUTF8(desc.mTitle);
 
-  s_windowHandle = ::CreateWindowExW(
+  sWindowHandle = ::CreateWindowExW(
     styleEx, WINDOW_CLASS_NAME.data(), windowTitle.c_str(), style, xPos, yPos,
     width, height, nullptr, nullptr, sInstance, nullptr
   );
-  if (!s_windowHandle) {
+  if (!sWindowHandle) {
     throw runtime_error("failed to create window");
   }
 
-  s_windowDesc = desc;
-  s_windowDesc.mSize.Set(width, height);
+  sWindowDesc = desc;
+  sWindowDesc.mSize.Set(width, height);
 
   BS_INFO("window created");
 
-  ::ShowWindow(s_windowHandle, s_showCommand);
+  ::ShowWindow(sWindowHandle, sShowCommand);
 }
 
-void CreatePlatformNameString() {
+void create_platform_name_string() {
   DWORD historical = 0u;
   const auto size = ::GetFileVersionInfoSizeExW(
     FILE_VER_GET_NEUTRAL, L"kernel32.dll", &historical
   );
   if (size == 0u) {
-    BS_ERROR("{}", CreateWinAPIErrorMessage(::GetLastError()));
+    BS_ERROR("{}", create_winapi_error_message(::GetLastError()));
     return;
   }
 
@@ -692,7 +715,7 @@ void CreatePlatformNameString() {
 
   BOOL isWow64 = FALSE;
   if (!::IsWow64Process(::GetCurrentProcess(), &isWow64)) {
-    BS_INFO("{}", CreateWinAPIErrorMessage(::GetLastError()));
+    BS_INFO("{}", create_winapi_error_message(::GetLastError()));
   }
 
   sPlatformName = fmt::format(
@@ -704,23 +727,19 @@ void CreatePlatformNameString() {
 
 } // namespace
 
-void Init(HINSTANCE instance, const WCHAR* commandLine, const int showCommand) {
-  BS_ASSERT(instance, "instance is null");
-  BS_ASSERT(commandLine, "commandLine is null");
-  BS_ASSERT(!sInstance, "Windows API already initialized");
-
+void init(HINSTANCE instance, const WCHAR* commandLine, const int showCommand) {
   sInstance = instance;
-  s_showCommand = showCommand;
+  sShowCommand = showCommand;
 
-  ProcessArgs(commandLine);
-  CreatePlatformNameString();
+  process_args(commandLine);
+  create_platform_name_string();
 }
 
 
 auto GetWindowHandle() -> HWND {
-  BS_ASSERT(s_windowHandle, "no window present");
+  BS_ASSERT(sWindowHandle, "no window present");
 
-  return s_windowHandle;
+  return sWindowHandle;
 }
 
 auto CreateWideFromUTF8(const string_view src) -> wstring {
@@ -757,13 +776,13 @@ auto CreateWideFromUTF8(const string_view src) -> wstring {
 void Startup(const WindowDesc& desc) {
   BS_ASSERT(winapi::sInstance, "Windows API not initialized");
 
-  winapi::CreateMainWindow(desc);
+  winapi::create_main_window(desc);
 }
 
 void Shutdown() {
-  if (winapi::s_windowHandle) {
-    ::DestroyWindow(winapi::s_windowHandle);
-    winapi::s_windowHandle = nullptr;
+  if (winapi::sWindowHandle) {
+    ::DestroyWindow(winapi::sWindowHandle);
+    winapi::sWindowHandle = nullptr;
   }
 
   if (!::UnregisterClassW(
@@ -771,7 +790,7 @@ void Shutdown() {
   )) {
     BS_ERROR(
       "failed to unregister window class: {}",
-      winapi::CreateWinAPIErrorMessage(::GetLastError())
+      winapi::create_winapi_error_message(::GetLastError())
     );
   }
 }
@@ -806,6 +825,28 @@ auto PollEvents() -> bool {
   return true;
 }
 
+auto WaitForEvents() -> bool {
+  BS_DEBUG("waiting for events...");
+
+  MSG msg{};
+  const auto ret = ::GetMessageW(&msg, nullptr, 0u, 0u);
+  if (ret == -1) {
+    BS_ERROR(winapi::create_winapi_error_message(::GetLastError()));
+    return false;
+  }
+
+  // GetMessage retrieved WM_QUIT
+  if (ret == 0) {
+    return false;
+  }
+
+  ::TranslateMessage(&msg);
+  ::DispatchMessageW(&msg);
+
+  // handle any remainig messages in the queue
+  return PollEvents();
+}
+
 void RequestQuit() {
   // TODO: more of a request and less of a do quit
 
@@ -822,7 +863,7 @@ auto GetArgs() -> const std::vector<std::string>& {
 
 auto GetWindowDesc() -> const WindowDesc& {
   // TODO: check if window is initialized
-  return winapi::s_windowDesc;
+  return winapi::sWindowDesc;
 }
 
 } // namespace basalt::platform

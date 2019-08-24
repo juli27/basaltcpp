@@ -18,7 +18,7 @@ namespace basalt::platform::winapi {
  * \param commandLine the windows command line string.
  * \param showCommand the show command for the first window.
  */
-void Init(HINSTANCE instance, const WCHAR* commandLine, int showCommand);
+void init(HINSTANCE instance, const WCHAR* commandLine, int showCommand);
 
 /**
  * \brief Returns the Windows API handle for the main window.
