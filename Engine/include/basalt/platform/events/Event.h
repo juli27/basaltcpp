@@ -10,6 +10,8 @@ namespace basalt::platform {
 enum class EventType : i8 {
   Unknown = 0,
   WindowResized,
+  WindowMinimized,
+  WindowRestored,
   KeyPressed,
   KeyReleased,
   MouseMoved,

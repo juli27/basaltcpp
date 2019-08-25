@@ -19,7 +19,8 @@ using bs::input::Key;
 
 SandboxApp::SandboxApp(Config& config) {
   config.mWindow.mTitle = "Basalt Sandbox";
-  config.mWindow.mMode = WindowMode::Windowed;
+  config.mWindow.mMode = WindowMode::FullscreenExclusive;
+  config.mWindow.mResizeable = true;
 }
 
 void SandboxApp::NextScene() {
@@ -87,10 +88,6 @@ void SandboxApp::OnUpdate() {
     }
   } else {
     leftPressed = false;
-  }
-
-  if (bs::input::IsKeyPressed(Key::Space)) {
-    BS_ASSERT(false, "");
   }
 
   mScenes.at(mCurrentSceneIndex)->OnUpdate();

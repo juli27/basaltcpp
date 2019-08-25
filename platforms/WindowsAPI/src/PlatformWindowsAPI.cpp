@@ -430,9 +430,6 @@ LRESULT CALLBACK window_proc(
   static auto sIsMinimized = false;
 
   switch (message) {
-  case WM_ACTIVATE:
-  case WM_ACTIVATEAPP:
-    return 0;
   case WM_MOUSEMOVE:
     dispatch_platform_event(
       MouseMovedEvent({GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)})

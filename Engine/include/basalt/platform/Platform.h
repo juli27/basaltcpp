@@ -18,9 +18,7 @@
 
 namespace basalt::platform {
 
-
 using PlatformEventCallback = std::function<void(const Event&)>;
-
 
 void Startup(const WindowDesc& desc);
 
@@ -31,16 +29,10 @@ void Startup(const WindowDesc& desc);
  */
 void Shutdown();
 
-
 void AddEventListener(PlatformEventCallback callback);
-
-
 auto PollEvents() -> bool;
-
-
+auto WaitForEvents() -> bool;
 void RequestQuit();
-
-
 auto GetName() -> std::string_view;
 
 /**
@@ -53,7 +45,6 @@ auto GetName() -> std::string_view;
  * \return the arguments.
  */
 auto GetArgs() -> const std::vector<std::string>&;
-
 
 auto GetWindowDesc() -> const WindowDesc&;
 

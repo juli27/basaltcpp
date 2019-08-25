@@ -24,7 +24,7 @@ struct Texture {
 
 struct Renderer final : IRenderer {
   Renderer() = delete;
-  explicit Renderer(IDirect3DDevice9* device);
+  explicit Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp);
   Renderer(const Renderer&) = delete;
   Renderer(Renderer&&) = delete;
   ~Renderer();
@@ -56,6 +56,7 @@ private:
 
   IDirect3DDevice9* mDevice = nullptr;
   D3DCAPS9 mDeviceCaps = {};
+  D3DPRESENT_PARAMETERS mPresentParams;
   HandlePool<Mesh, MeshHandle> mMeshes;
   HandlePool<Texture, TextureHandle> mTextures;
   RenderCommandBuffer mCommandBuffer;

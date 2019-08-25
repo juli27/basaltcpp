@@ -14,6 +14,7 @@
 #include <basalt/common/Exceptions.h>
 #include <basalt/gfx/backend/d3d9/Util.h>
 #include <basalt/platform/Platform.h>
+#include <basalt/platform/events/WindowEvents.h>
 
 namespace basalt::gfx::backend::d3d9 {
 namespace {
@@ -179,12 +180,26 @@ auto CreateWideFromUTF8(const std::string_view source) -> std::wstring {
 
 } // namespace
 
-Renderer::Renderer(IDirect3DDevice9* device) : mDevice(device) {
+Renderer::Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp)
+: mDevice(device)
+, mPresentParams(pp) {
   BS_ASSERT(device, "device is null");
   mDevice->AddRef();
   D3D9CALL(mDevice->GetDeviceCaps(&mDeviceCaps));
 
   ImGui_ImplDX9_Init(mDevice);
+
+  platform::AddEventListener([this](const platform::Event& e) {
+    const platform::EventDispatcher dispatcher(e);
+    dispatcher.Dispatch<platform::WindowResizedEvent>(
+      [this](const platform::WindowResizedEvent& event) {
+      ImGui_ImplDX9_InvalidateDeviceObjects();
+      mPresentParams.BackBufferWidth = event.mNewSize.GetX();
+      mPresentParams.BackBufferHeight = event.mNewSize.GetY();
+      mDevice->Reset(&mPresentParams);
+      ImGui_ImplDX9_CreateDeviceObjects();
+    });
+  });
 }
 
 Renderer::~Renderer() {
@@ -336,6 +351,14 @@ void Renderer::SetClearColor(Color color) {
 // TODO: shading mode
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
 void Renderer::Render() {
+  const auto hr = mDevice->TestCooperativeLevel();
+  if (hr == D3DERR_DEVICENOTRESET) {
+    D3D9CALL(mDevice->Reset(&mPresentParams));
+    ImGui_ImplDX9_CreateDeviceObjects();
+  } else if (hr != D3DERR_DEVICELOST) {
+    BS_ASSERT(SUCCEEDED(hr), "");
+  }
+
   D3D9CALL(mDevice->Clear(
     0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, mClearColor, 1.0f, 0u
   ));
@@ -355,6 +378,7 @@ void Renderer::Render() {
   RenderCommands(mCommandBuffer);
 
   // render imgui
+  ImGui::Render();
   auto* drawData = ImGui::GetDrawData();
   if (drawData) {
     ImGui_ImplDX9_RenderDrawData(drawData);
@@ -369,7 +393,12 @@ void Renderer::Render() {
 
 
 void Renderer::Present() {
-  D3D9CALL(mDevice->Present(nullptr, nullptr, nullptr, nullptr));
+  const auto hr = mDevice->Present(nullptr, nullptr, nullptr, nullptr);
+  if (hr == D3DERR_DEVICELOST) {
+    ImGui_ImplDX9_InvalidateDeviceObjects();
+  } else {
+    BS_ASSERT(SUCCEEDED(hr), "");
+  }
 }
 
 
@@ -477,7 +506,7 @@ auto Renderer::Create(HWND window) -> Renderer* {
     )
   );
 
-  Renderer* renderer = new Renderer(device);
+  Renderer* renderer = new Renderer(device, pp);
 
   // the renderer took ownership
   device->Release();

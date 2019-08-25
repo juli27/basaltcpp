@@ -10,6 +10,12 @@
 
 namespace basalt::gfx::backend {
 
+// TODO: IGfxContext per window which can query hardware support, create ISwapchains and create renderers
+//       D3D9Context, DXGIContext, WGLContext
+// a GfxContext gets created with the window according to the passed RendererType
+// renderer are then created and assigned a swapchain.
+// OR have renderer targets which the swapchain provides
+// A window can be incompatible for certain APIs
 
 auto IRenderer::Create(RendererType type) -> IRenderer* {
   switch (type) {
@@ -19,7 +25,6 @@ auto IRenderer::Create(RendererType type) -> IRenderer* {
   default:
     BS_FATAL("RendererType {} not supported", static_cast<i8>(type));
     throw ApiNotSupportedException("RendererType not supported");
-    break;
   }
 }
 
