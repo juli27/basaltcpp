@@ -61,9 +61,6 @@ private:
   HandlePool<Texture, TextureHandle> mTextures;
   RenderCommandBuffer mCommandBuffer;
   D3DCOLOR mClearColor = D3DCOLOR_XRGB(0, 0, 0);
-
-public:
-  static auto Create(HWND window) -> Renderer*;
 };
 
 } // namespace basalt::gfx::backend::d3d9

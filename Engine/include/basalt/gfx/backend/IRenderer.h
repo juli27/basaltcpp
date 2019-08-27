@@ -12,11 +12,6 @@
 
 namespace basalt::gfx::backend {
 
-enum class RendererType : i8 {
-  Default,
-  Direct3D9,
-};
-
 struct IRenderer {
   IRenderer() = default;
   IRenderer(const IRenderer&) = delete;
@@ -100,8 +95,6 @@ struct IRenderer {
   virtual auto GetName() -> std::string_view = 0;
 
   virtual void NewGuiFrame() = 0;
-
-  static auto Create(RendererType type) -> IRenderer*;
 };
 
 } // namespace basalt::gfx::backend

@@ -302,7 +302,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\D3D9GfxContext.cpp" />
-    <ClCompile Include="src\GfxBackendFactory.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Win32Platform.cpp" />
   </ItemGroup>
