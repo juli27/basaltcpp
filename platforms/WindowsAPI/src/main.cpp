@@ -1,22 +1,12 @@
-#pragma once
-#ifndef BS_PLATFORM_ENTRYPOINT_H
-#define BS_PLATFORM_ENTRYPOINT_H
-
-/** \file
- * \brief Contains the entry point for the Windows API platform.
- *
- * Include this file if you're compiling for the Windows platform.
- */
-
 #include <stdexcept>
 
 // include our windows header before spdlog in Log.h
-#include "WindowsHeader.h"
+#include <basalt/platform/WindowsHeader.h>
 
 #include <basalt/Engine.h>
 #include <basalt/Log.h>
 
-#include "PlatformWindowsAPI.h"
+#include <basalt/platform/PlatformWindowsAPI.h>
 
 _Use_decl_annotations_ int CALLBACK wWinMain(
   HINSTANCE instance, HINSTANCE, WCHAR* commandLine, int showCommand
@@ -53,5 +43,3 @@ _Use_decl_annotations_ int CALLBACK wWinMain(
 
   return 0;
 }
-
-#endif // !BS_PLATFORM_ENTRYPOINT_H

@@ -27,25 +27,25 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
@@ -71,7 +71,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>$(ProjectName)_x86_Debug</TargetName>
     <IntDir>out\x86\$(Configuration)\</IntDir>
-    <OutDir>$(SolutionDir)bin\</OutDir>
+    <OutDir>$(SolutionDir)bin\libs\</OutDir>
     <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
     <IncludePath>$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
   </PropertyGroup>
@@ -79,13 +79,13 @@
     <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
     <IncludePath>$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
     <TargetName>$(ProjectName)_Debug</TargetName>
-    <OutDir>$(SolutionDir)bin\</OutDir>
+    <OutDir>$(SolutionDir)bin\libs\</OutDir>
     <IntDir>out\x86-64\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>out\x86\$(Configuration)\</IntDir>
-    <OutDir>$(SolutionDir)bin\</OutDir>
+    <OutDir>$(SolutionDir)bin\libs\</OutDir>
     <TargetName>$(ProjectName)_x86</TargetName>
     <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
     <IncludePath>$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
@@ -94,7 +94,7 @@
     <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
     <IncludePath>$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\</OutDir>
+    <OutDir>$(SolutionDir)bin\libs\</OutDir>
     <IntDir>out\x86-64\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -282,26 +282,8 @@
     <ClCompile Include="src\d3d9_tutorials\Lights.cpp" />
     <ClCompile Include="src\d3d9_tutorials\Matrices.cpp" />
     <ClCompile Include="src\d3d9_tutorials\Textures.cpp" />
-    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Sandbox.cpp" />
     <ClCompile Include="src\d3d9_tutorials\Vertices.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\backends\gfx\Direct3D9\Direct3D9.vcxproj">
-      <Project>{e8dd2bcd-1d94-4eab-9a04-abffedfc1b68}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Engine\Engine.vcxproj">
-      <Project>{4e70b276-7749-40a3-8568-0068baa94811}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\external\DearImGui\DearImGui.vcxproj">
-      <Project>{b1a92639-8420-47cc-8101-abb4f82d7649}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\external\Fmt\Fmt.vcxproj">
-      <Project>{dde86b7b-a6ab-47bf-b6d6-b8e9dd67ba12}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\platforms\WindowsAPI\WindowsAPI.vcxproj">
-      <Project>{0126a10e-861e-4c3c-bdef-11daa83b3388}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="Sandbox.manifest" />

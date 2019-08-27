@@ -27,25 +27,25 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
@@ -69,31 +69,33 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\libs\</OutDir>
+    <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>out\x86\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_x86_Debug</TargetName>
     <IncludePath>$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>$(ProjectName)_Debug</TargetName>
     <IncludePath>$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\libs\</OutDir>
+    <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>out\x86-64\$(Configuration)\</IntDir>
+    <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\libs\</OutDir>
+    <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>out\x86\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_x86</TargetName>
     <IncludePath>$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\libs\</OutDir>
+    <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>out\x86-64\$(Configuration)\</IntDir>
+    <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -122,7 +124,12 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ShowProgress>LinkVerboseLib</ShowProgress>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <AdditionalDependencies>version.lib;user32.lib;shell32.lib;d3d9.lib;d3dx9d.lib</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>oldnames.lib;uuid.lib</IgnoreSpecificDefaultLibraries>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <Lib>
       <SuppressStartupBanner>false</SuppressStartupBanner>
@@ -165,7 +172,12 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ShowProgress>LinkVerboseLib</ShowProgress>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <AdditionalDependencies>version.lib;user32.lib;shell32.lib;d3d9.lib;d3dx9d.lib</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>oldnames.lib;uuid.lib</IgnoreSpecificDefaultLibraries>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <Lib>
       <SuppressStartupBanner>false</SuppressStartupBanner>
@@ -211,7 +223,13 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ShowProgress>LinkVerboseLib</ShowProgress>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <AdditionalDependencies>version.lib;user32.lib;shell32.lib;d3d9.lib;d3dx9.lib</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>oldnames.lib;uuid.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <Lib>
       <SuppressStartupBanner>false</SuppressStartupBanner>
@@ -255,7 +273,13 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ShowProgress>LinkVerboseLib</ShowProgress>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <AdditionalDependencies>version.lib;user32.lib;shell32.lib;d3d9.lib;d3dx9.lib</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>oldnames.lib;uuid.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <Lib>
       <SuppressStartupBanner>false</SuppressStartupBanner>
@@ -273,14 +297,31 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\basalt\platform\D3D9GfxContext.h" />
-    <ClInclude Include="include\basalt\platform\EntryPoint.h" />
     <ClInclude Include="include\basalt\platform\PlatformWindowsAPI.h" />
     <ClInclude Include="include\basalt\platform\WindowsHeader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\D3D9GfxContext.cpp" />
     <ClCompile Include="src\GfxBackendFactory.cpp" />
+    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\PlatformWindowsAPI.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\backends\gfx\Direct3D9\Direct3D9.vcxproj">
+      <Project>{e8dd2bcd-1d94-4eab-9a04-abffedfc1b68}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Engine\Engine.vcxproj">
+      <Project>{4e70b276-7749-40a3-8568-0068baa94811}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\external\DearImGui\DearImGui.vcxproj">
+      <Project>{b1a92639-8420-47cc-8101-abb4f82d7649}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\external\Fmt\Fmt.vcxproj">
+      <Project>{dde86b7b-a6ab-47bf-b6d6-b8e9dd67ba12}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Sandbox\Sandbox.vcxproj">
+      <Project>{96c9ff62-adec-4083-b527-e83624317b4e}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
