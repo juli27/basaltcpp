@@ -16,6 +16,8 @@
 #include <basalt/common/Asserts.h>
 #include <basalt/common/Types.h>
 #include <basalt/gfx/Gfx.h>
+#include <basalt/gfx/backend/IRenderer.h>
+#include <basalt/platform/IGfxContext.h>
 #include <basalt/platform/Platform.h> // platform
 #include <basalt/platform/events/Event.h>
 #include <basalt/platform/events/KeyEvents.h>
@@ -29,16 +31,21 @@ using input::MouseButton;
 using platform::CharactersTyped;
 using platform::Event;
 using platform::EventDispatcher;
+using platform::IGfxContext;
 using platform::KeyPressedEvent;
 using platform::KeyReleasedEvent;
 using platform::MouseWheelScrolledEvent;
 
 namespace {
 
-Config sConfig{{"Basalt App", {1280, 720}, WindowMode::Fullscreen, false}};
+Config sConfig{
+  {"Basalt App", {1280, 720}, WindowMode::Fullscreen, false},
+  {gfx::BackendApi::Default}
+};
 IApplication* sApp = nullptr;
 f64 sCurrentDeltaTime = 0.0;
 shared_ptr<Scene> sCurrentScene;
+gfx::backend::IRenderer* sRenderer;
 
 void InitDearImGui() {
   IMGUI_CHECKVERSION();
@@ -107,12 +114,12 @@ void Startup() {
     sConfig.mWindow.mResizeable ? " resizeable" : ""
   );
 
-  platform::Startup(sConfig.mWindow);
+  platform::startup(sConfig);
   input::Init();
 
+  // init imgui before gfx. Renderer initializes imgui render backend
   InitDearImGui();
-
-  gfx::Init();
+  sRenderer =  platform::get_window_data().mGfxContext->create_renderer();
 
   BS_INFO("engine startup complete");
 }
@@ -121,7 +128,9 @@ void Startup() {
 void Shutdown() {
   BS_INFO("shutting down...");
 
-  gfx::Shutdown();
+  delete sRenderer;
+  sRenderer = nullptr;
+
   ImGui::DestroyContext();
 
   platform::Shutdown();
@@ -135,7 +144,7 @@ void Shutdown() {
 
 void NewDearImGuiFrame() {
   auto& io = ImGui::GetIO();
-  const auto windowSize = platform::GetWindowDesc().mSize;
+  const auto windowSize = platform::get_window_data().mSize;
   io.DisplaySize = ImVec2(
     static_cast<float>(windowSize.GetX()), static_cast<float>(windowSize.GetY())
   );
@@ -150,7 +159,7 @@ void NewDearImGuiFrame() {
   io.MouseDown[2] = input::IsMouseButtonPressed(MouseButton::Middle);
   io.MouseDown[3] = input::IsMouseButtonPressed(MouseButton::Button4);
   io.MouseDown[4] = input::IsMouseButtonPressed(MouseButton::Button5);
-  gfx::GetRenderer()->NewGuiFrame();
+  sRenderer->NewGuiFrame();
   ImGui::NewFrame();
 }
 
@@ -176,8 +185,8 @@ void Run() {
 
     // TODO: use the asynchronicity of the graphics API runtime and gpu driver
     // also calls ImGui::Render()
-    gfx::Render(sCurrentScene);
-    gfx::Present();
+    gfx::render(sRenderer, sCurrentScene);
+    platform::get_window_data().mGfxContext->present();
 
     const auto endTime = Clock::now();
     sCurrentDeltaTime = static_cast<f64>((endTime - startTime).count()) /
@@ -200,6 +209,10 @@ auto GetDeltaTime() -> f64 {
 
 void SetCurrentScene(const shared_ptr<Scene>& scene) {
   sCurrentScene = scene;
+}
+
+auto get_renderer() -> gfx::backend::IRenderer* {
+  return sRenderer;
 }
 
 } // namespace basalt

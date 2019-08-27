@@ -4,9 +4,11 @@
     <ClInclude Include="include\basalt\platform\EntryPoint.h" />
     <ClInclude Include="include\basalt\platform\WindowsHeader.h" />
     <ClInclude Include="include\basalt\platform\PlatformWindowsAPI.h" />
+    <ClInclude Include="include\basalt\platform\D3D9GfxContext.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GfxBackendFactory.cpp" />
     <ClCompile Include="src\PlatformWindowsAPI.cpp" />
+    <ClCompile Include="src\D3D9GfxContext.cpp" />
   </ItemGroup>
 </Project>

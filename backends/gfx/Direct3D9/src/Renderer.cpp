@@ -482,10 +482,10 @@ auto Renderer::Create(HWND window) -> Renderer* {
     0u, D3DPRESENT_INTERVAL_ONE // refresh rate + vsync
   };
 
-  const WindowDesc& windowDesc = platform::GetWindowDesc();
+  const auto& windowData = platform::get_window_data();
 
   // setup exclusive fullscreen
-  if (windowDesc.mMode == WindowMode::FullscreenExclusive) {
+  if (windowData.mMode == WindowMode::FullscreenExclusive) {
     D3DDISPLAYMODE displayMode{};
     D3D9CALL(
       direct3d9->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &displayMode)

@@ -282,8 +282,10 @@
     <ClInclude Include="include\basalt\Engine.h" />
     <ClInclude Include="include\basalt\gfx\backend\RenderCommand.h" />
     <ClInclude Include="include\basalt\gfx\Camera.h" />
+    <ClInclude Include="include\basalt\gfx\Config.h" />
     <ClInclude Include="include\basalt\gfx\Gfx.h" />
     <ClInclude Include="include\basalt\gfx\RenderComponent.h" />
+    <ClInclude Include="include\basalt\platform\IGfxContext.h" />
     <ClInclude Include="include\basalt\Scene.h" />
     <ClInclude Include="include\basalt\math\Constants.h" />
     <ClInclude Include="include\basalt\math\Vec3.h" />

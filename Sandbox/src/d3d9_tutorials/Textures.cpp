@@ -66,7 +66,7 @@ Textures::Textures() : mScene(std::make_shared<Scene>()) {
   mCylinderEntity = std::get<0>(entity);
 
   auto& renderComponent = std::get<2>(entity);
-  auto* renderer = bs::gfx::GetRenderer();
+  auto* renderer = bs::get_renderer();
   renderComponent.mMesh = renderer->AddMesh(
     vertices.data(), static_cast<i32>(vertices.size()), vertexLayout,
     PrimitiveType::TRIANGLE_STRIP

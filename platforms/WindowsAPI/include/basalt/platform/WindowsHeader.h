@@ -24,7 +24,7 @@
 #define NOCOLOR
 #define NOCTLMGR
 #define NODRAWTEXT
-#define NOGDI
+//#define NOGDI // because of d3d9 header in gfx context
 #define NOKERNEL
 //#define NOUSER
 //#define NONLS
@@ -38,7 +38,7 @@
 #define NOSCROLL
 #define NOSERVICE
 #define NOSOUND
-#define NOTEXTMETRIC
+//#define NOTEXTMETRIC // because of d3d9 header in gfx context
 #define NOWH
 #define NOWINOFFSETS
 #define NOCOMM

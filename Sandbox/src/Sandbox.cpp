@@ -19,7 +19,7 @@ using bs::input::Key;
 
 SandboxApp::SandboxApp(Config& config) {
   config.mWindow.mTitle = "Basalt Sandbox";
-  config.mWindow.mMode = WindowMode::FullscreenExclusive;
+  config.mWindow.mMode = WindowMode::Windowed;
   config.mWindow.mResizeable = true;
 }
 

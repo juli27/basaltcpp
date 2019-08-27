@@ -13,6 +13,7 @@
 #include <fmt/format.h>
 
 #include <basalt/common/Types.h>
+#include <basalt/platform/D3D9GfxContext.h>
 #include <basalt/platform/WindowsHeader.h>
 #include <basalt/platform/events/Event.h>
 #include <basalt/platform/events/KeyEvents.h>
@@ -306,7 +307,7 @@ vector<PlatformEventCallback> sEventListener;
 HINSTANCE sInstance;
 int sShowCommand;
 HWND sWindowHandle;
-WindowDesc sWindowDesc;
+WindowData sWindowData;
 
 /**
  * \brief Converts a Windows API wide string to UTF-8.
@@ -542,7 +543,7 @@ LRESULT CALLBACK window_proc(
 
   case WM_EXITSIZEMOVE:
     sIsSizing = false;
-    dispatch_platform_event(WindowResizedEvent(sWindowDesc.mSize));
+    dispatch_platform_event(WindowResizedEvent(sWindowData.mSize));
     return 0;
 
   case WM_SIZE:
@@ -557,9 +558,9 @@ LRESULT CALLBACK window_proc(
       }
     [[fallthrough]];
     case SIZE_MAXIMIZED:
-      sWindowDesc.mSize.Set(LOWORD(lParam), HIWORD(lParam));
+      sWindowData.mSize.Set(LOWORD(lParam), HIWORD(lParam));
       if (!sIsSizing) {
-        dispatch_platform_event(WindowResizedEvent(sWindowDesc.mSize));
+        dispatch_platform_event(WindowResizedEvent(sWindowData.mSize));
       }
       return 0;
 
@@ -573,6 +574,9 @@ LRESULT CALLBACK window_proc(
     return 0;
 
   case WM_DESTROY:
+    if (sWindowData.mGfxContext) {
+      delete sWindowData.mGfxContext;
+    }
     sWindowHandle = nullptr;
     ::PostQuitMessage(0);
     return 0;
@@ -618,21 +622,21 @@ void register_window_class() {
   BS_DEBUG("window class registered");
 }
 
-void create_main_window(const WindowDesc& desc) {
+void create_main_window(const Config& config) {
   BS_DEBUG(
     "creating main window:\n"
     "  title: \"{}\",\n  width: {}, height: {}, "
     "fullscreen: {}, exclusive: {},\n  resizeable: {}",
-    desc.mTitle, desc.mSize.GetX(), desc.mSize.GetY(),
-    desc.mMode != WindowMode::Windowed,
-    desc.mMode == WindowMode::FullscreenExclusive, desc.mResizeable
+    config.mWindow.mTitle, config.mWindow.mSize.GetX(), config.mWindow.mSize.GetY(),
+    config.mWindow.mMode != WindowMode::Windowed,
+    config.mWindow.mMode == WindowMode::FullscreenExclusive, config.mWindow.mResizeable
   );
 
   register_window_class();
 
   DWORD style = WS_SIZEBOX;
   DWORD styleEx = 0;
-  if (desc.mMode == WindowMode::Windowed) {
+  if (config.mWindow.mMode == WindowMode::Windowed) {
     style |= WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
       | WS_SYSMENU;
   } else {
@@ -640,7 +644,7 @@ void create_main_window(const WindowDesc& desc) {
     styleEx |= WS_EX_TOPMOST;
   }
 
-  if (desc.mMode != WindowMode::Windowed || !desc.mResizeable) {
+  if (config.mWindow.mMode != WindowMode::Windowed || !config.mWindow.mResizeable) {
     style &= ~(WS_MAXIMIZEBOX | WS_SIZEBOX);
   }
 
@@ -649,10 +653,10 @@ void create_main_window(const WindowDesc& desc) {
   int width = ::GetSystemMetrics(SM_CXSCREEN);
   int height = ::GetSystemMetrics(SM_CYSCREEN);
 
-  if (desc.mMode == WindowMode::Windowed) {
+  if (config.mWindow.mMode == WindowMode::Windowed) {
     // calculate the window size for the given client area size
     // and center the window on the primary monitor
-    RECT rect{0, 0, desc.mSize.GetX(), desc.mSize.GetY()};
+    RECT rect{0, 0, config.mWindow.mSize.GetX(), config.mWindow.mSize.GetY()};
     if (!::AdjustWindowRectEx(&rect, style, FALSE, styleEx)) {
       throw runtime_error(create_winapi_error_message(GetLastError()));
     }
@@ -663,7 +667,7 @@ void create_main_window(const WindowDesc& desc) {
     yPos = ::GetSystemMetrics(SM_CYSCREEN) / 2 - height / 2;
   }
 
-  const wstring windowTitle = CreateWideFromUTF8(desc.mTitle);
+  const wstring windowTitle = CreateWideFromUTF8(config.mWindow.mTitle);
 
   sWindowHandle = ::CreateWindowExW(
     styleEx, WINDOW_CLASS_NAME.data(), windowTitle.c_str(), style, xPos, yPos,
@@ -673,8 +677,11 @@ void create_main_window(const WindowDesc& desc) {
     throw runtime_error("failed to create window");
   }
 
-  sWindowDesc = desc;
-  sWindowDesc.mSize.Set(width, height);
+  sWindowData.mGfxContext = new D3D9GfxContext(sWindowHandle);
+  sWindowData.mTitle = config.mWindow.mTitle;
+  sWindowData.mSize.Set(width, height);
+  sWindowData.mMode = config.mWindow.mMode;
+  sWindowData.mResizeable = config.mWindow.mResizeable;
 
   BS_INFO("window created");
 
@@ -770,10 +777,10 @@ auto CreateWideFromUTF8(const string_view src) -> wstring {
 
 } // namespace winapi
 
-void Startup(const WindowDesc& desc) {
+void startup(const Config& config) {
   BS_ASSERT(winapi::sInstance, "Windows API not initialized");
 
-  winapi::create_main_window(desc);
+  winapi::create_main_window(config);
 }
 
 void Shutdown() {
@@ -858,9 +865,8 @@ auto GetArgs() -> const std::vector<std::string>& {
   return winapi::sArgs;
 }
 
-auto GetWindowDesc() -> const WindowDesc& {
-  // TODO: check if window is initialized
-  return winapi::sWindowDesc;
+auto get_window_data() -> const WindowData& {
+  return winapi::sWindowData;
 }
 
 } // namespace basalt::platform

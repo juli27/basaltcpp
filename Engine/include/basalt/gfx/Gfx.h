@@ -10,20 +10,7 @@
 
 namespace basalt::gfx {
 
-
-void Init();
-
-
-void Shutdown();
-
-
-void Render(const std::shared_ptr<Scene>& scene);
-
-
-void Present();
-
-
-auto GetRenderer() -> backend::IRenderer*;
+void render(backend::IRenderer* renderer, const std::shared_ptr<Scene>& scene);
 
 } // namespace basalt::gfx
 

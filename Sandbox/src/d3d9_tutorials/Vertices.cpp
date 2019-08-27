@@ -40,7 +40,7 @@ Vertices::Vertices() : mScene(std::make_shared<Scene>()) {
 
   auto& entityRegistry = mScene->GetEntityRegistry();
   const auto triangleEntity = entityRegistry.create<TransformComponent, RenderComponent>();
-  std::get<2>(triangleEntity).mMesh = bs::gfx::GetRenderer()->AddMesh(
+  std::get<2>(triangleEntity).mMesh = bs::get_renderer()->AddMesh(
     vertices.data(), static_cast<i32>(vertices.size()), vertexLayout,
     PrimitiveType::TRIANGLE_LIST
   );

@@ -11,38 +11,20 @@
 #include <basalt/gfx/backend/Types.h>
 
 #include <basalt/Log.h>
+#include <basalt/common/Asserts.h>
 
 namespace basalt::gfx {
-namespace {
 
+void render(backend::IRenderer* renderer, const std::shared_ptr<Scene>& scene) {
+  BS_ASSERT(renderer, "gfx::render needs a Renderer");
 
-backend::IRenderer* sRenderer;
-
-} // namespace
-
-
-void Init() {
-  sRenderer = backend::IRenderer::Create(backend::RendererType::Default);
-  BS_INFO("gfx backend: {}", sRenderer->GetName());
-}
-
-
-void Shutdown() {
-  if (sRenderer) {
-    delete sRenderer;
-    sRenderer = nullptr;
-  }
-}
-
-
-void Render(const std::shared_ptr<Scene>& scene) {
-  sRenderer->SetClearColor(scene->GetBackgroundColor());
+  renderer->SetClearColor(scene->GetBackgroundColor());
 
   const auto& camera = scene->GetCamera();
-  sRenderer->SetViewProj(camera.GetViewMatrix(), camera.GetProjectionMatrix());
+  renderer->SetViewProj(camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
   scene->GetEntityRegistry().view<const TransformComponent, const RenderComponent>().each(
-    [](const TransformComponent& transform, const RenderComponent& renderComponent) {
+    [renderer](const TransformComponent& transform, const RenderComponent& renderComponent) {
     backend::RenderCommand command;
     command.world = math::Mat4f32::Scaling(transform.mScale)
       * math::Mat4f32::Rotation(transform.mRotation)
@@ -53,20 +35,10 @@ void Render(const std::shared_ptr<Scene>& scene) {
     command.diffuseColor = renderComponent.mDiffuseColor;
     command.ambientColor = renderComponent.mAmbientColor;
     command.flags = renderComponent.mRenderFlags;
-    sRenderer->Submit(command);
+    renderer->Submit(command);
   });
 
-  sRenderer->Render();
-}
-
-
-void Present() {
-  sRenderer->Present();
-}
-
-
-auto GetRenderer() -> backend::IRenderer* {
-  return sRenderer;
+  renderer->Render();
 }
 
 } // namespace basalt::gfx

@@ -51,7 +51,7 @@ Matrices::Matrices() : mScene(std::make_shared<Scene>()) {
   auto entity = entityRegistry.create<TransformComponent, RenderComponent>();
   mTriangleEntity = std::get<0>(entity);
   auto& renderComponent = std::get<2>(entity);
-  renderComponent.mMesh = bs::gfx::GetRenderer()->AddMesh(
+  renderComponent.mMesh = bs::get_renderer()->AddMesh(
     vertices.data(), static_cast<i32>(vertices.size()), vertexLayout,
     PrimitiveType::TRIANGLE_LIST
   );

@@ -32,6 +32,8 @@
     <ClInclude Include="include\pch.h" />
     <ClInclude Include="include\basalt\math\Vec3.h" />
     <ClInclude Include="include\BasaltPrelude.h" />
+    <ClInclude Include="include\basalt\platform\IGfxContext.h" />
+    <ClInclude Include="include\basalt\gfx\Config.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine.cpp" />

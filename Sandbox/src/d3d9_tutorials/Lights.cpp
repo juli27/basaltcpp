@@ -60,7 +60,7 @@ Lights::Lights() : mScene(std::make_shared<Scene>()) {
   mCylinderEntity = std::get<0>(entity);
 
   auto& renderComponent = std::get<2>(entity);
-  renderComponent.mMesh = bs::gfx::GetRenderer()->AddMesh(
+  renderComponent.mMesh = bs::get_renderer()->AddMesh(
     vertices.data(), static_cast<i32>(vertices.size()), vertexLayout,
     PrimitiveType::TRIANGLE_STRIP
   );
@@ -82,7 +82,7 @@ void Lights::OnUpdate() {
     mScene->GetEntityRegistry().get<TransformComponent>(mCylinderEntity);
   transform.Rotate(radOffetX, 0.0f, 0.0f);
 
-  auto* renderer = bs::gfx::GetRenderer();
+  auto* renderer = bs::get_renderer();
 
   LightSetup lights;
   lights.SetGlobalAmbientColor(Color(32, 32, 32));

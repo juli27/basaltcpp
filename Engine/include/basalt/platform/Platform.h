@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+#include <basalt/Config.h>
+
 #include "WindowTypes.h"
 #include "events/Event.h"
 
@@ -20,7 +22,7 @@ namespace basalt::platform {
 
 using PlatformEventCallback = std::function<void(const Event&)>;
 
-void Startup(const WindowDesc& desc);
+void startup(const Config& config);
 
 /*
  * \brief Shuts down the platform.
@@ -46,7 +48,7 @@ auto GetName() -> std::string_view;
  */
 auto GetArgs() -> const std::vector<std::string>&;
 
-auto GetWindowDesc() -> const WindowDesc&;
+auto get_window_data() -> const WindowData&;
 
 } // namespace basalt::platform
 
