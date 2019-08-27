@@ -22,7 +22,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{0126A10E-861E-4C3C-BDEF-11DAA83B3388}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>WindowsAPI</RootNamespace>
+    <RootNamespace>Win32</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -296,15 +296,15 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\basalt\platform\D3D9GfxContext.h" />
-    <ClInclude Include="include\basalt\platform\PlatformWindowsAPI.h" />
-    <ClInclude Include="include\basalt\platform\WindowsHeader.h" />
+    <ClInclude Include="src\D3D9GfxContext.h" />
+    <ClInclude Include="src\Win32Platform.h" />
+    <ClInclude Include="src\Win32APIHeader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\D3D9GfxContext.cpp" />
     <ClCompile Include="src\GfxBackendFactory.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\PlatformWindowsAPI.cpp" />
+    <ClCompile Include="src\Win32Platform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\backends\gfx\Direct3D9\Direct3D9.vcxproj">

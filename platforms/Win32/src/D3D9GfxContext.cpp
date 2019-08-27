@@ -1,4 +1,4 @@
-#include <basalt/platform/D3D9GfxContext.h>
+#include "D3D9GfxContext.h"
 
 #include <basalt/common/Exceptions.h>
 #include <basalt/gfx/backend/d3d9/Renderer.h>

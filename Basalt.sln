@@ -13,7 +13,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DearImGui", "external\DearI
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "platforms", "platforms", "{CE40577E-430B-43A5-806E-CC407AA81019}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WindowsAPI", "platforms\WindowsAPI\WindowsAPI.vcxproj", "{0126A10E-861E-4C3C-BDEF-11DAA83B3388}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Win32", "platforms\Win32\Win32.vcxproj", "{0126A10E-861E-4C3C-BDEF-11DAA83B3388}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backends", "backends", "{576D698D-02CB-4AC2-B6BB-49B84B0B694E}"
 EndProject

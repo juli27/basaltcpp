@@ -1,12 +1,12 @@
 #include <stdexcept>
 
 // include our windows header before spdlog in Log.h
-#include <basalt/platform/WindowsHeader.h>
+#include "Win32APIHeader.h"
 
 #include <basalt/Engine.h>
 #include <basalt/Log.h>
 
-#include <basalt/platform/PlatformWindowsAPI.h>
+#include "Win32Platform.h"
 
 _Use_decl_annotations_ int CALLBACK wWinMain(
   HINSTANCE instance, HINSTANCE, WCHAR* commandLine, int showCommand

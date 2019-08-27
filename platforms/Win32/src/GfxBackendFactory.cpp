@@ -4,7 +4,7 @@
 
 #include <basalt/common/Exceptions.h>
 #include <basalt/gfx/backend/d3d9/Renderer.h>
-#include <basalt/platform/PlatformWindowsAPI.h>
+#include "Win32Platform.h"
 
 #include <basalt/Log.h>
 

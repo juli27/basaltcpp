@@ -1,5 +1,5 @@
 #include <basalt/platform/Platform.h>
-#include <basalt/platform/PlatformWindowsAPI.h>
+#include "Win32Platform.h"
 
 #include <algorithm> // for_each
 #include <array>
@@ -13,8 +13,8 @@
 #include <fmt/format.h>
 
 #include <basalt/common/Types.h>
-#include <basalt/platform/D3D9GfxContext.h>
-#include <basalt/platform/WindowsHeader.h>
+#include "D3D9GfxContext.h"
+#include "Win32APIHeader.h"
 #include <basalt/platform/events/Event.h>
 #include <basalt/platform/events/KeyEvents.h>
 #include <basalt/platform/events/MouseEvents.h>
