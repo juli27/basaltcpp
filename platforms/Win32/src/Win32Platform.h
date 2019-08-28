@@ -2,8 +2,6 @@
 #ifndef BS_PLATFORM_WINDOWS_API_H
 #define BS_PLATFORM_WINDOWS_API_H
 
-#include <string>
-
 #include "Win32APIHeader.h"
 
 namespace basalt::platform::winapi {
@@ -19,25 +17,6 @@ namespace basalt::platform::winapi {
  * \param showCommand the show command for the first window.
  */
 void init(HINSTANCE instance, const WCHAR* commandLine, int showCommand);
-
-/**
- * \brief Returns the Windows API handle for the main window.
- *
- * \return the main window handle.
- */
-auto GetWindowHandle() -> HWND;
-
-/**
- * \brief Converts a UTF-8 encoded string into a wide string.
- *
- * The returned string is meant to be consumed by Windows API functions.
-
- * TODO: make noexcept
- *
- * \param src the UTF-8 string to convert.
- * \return the new wide string.
- */
-auto CreateWideFromUTF8(const std::string_view src) -> std::wstring;
 
 } // namespace basalt::platform::winapi
 

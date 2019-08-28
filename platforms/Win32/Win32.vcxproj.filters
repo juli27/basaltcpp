@@ -4,10 +4,12 @@
     <ClInclude Include="src\D3D9GfxContext.h" />
     <ClInclude Include="src\Win32APIHeader.h" />
     <ClInclude Include="src\Win32Platform.h" />
+    <ClInclude Include="src\Util.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\D3D9GfxContext.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Win32Platform.cpp" />
+    <ClCompile Include="src\Util.cpp" />
   </ItemGroup>
 </Project>

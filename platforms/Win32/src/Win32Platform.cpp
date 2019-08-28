@@ -23,6 +23,8 @@
 #include <basalt/Log.h>
 #include <basalt/common/Asserts.h>
 
+#include "Util.h"
+
 namespace basalt::platform {
 
 using ::std::array;
@@ -308,56 +310,6 @@ HINSTANCE sInstance;
 int sShowCommand;
 HWND sWindowHandle;
 WindowData sWindowData;
-
-/**
- * \brief Converts a Windows API wide string to UTF-8.
- *
- * The converted string is returned in a new string object.
- * Fails with std::terminate when string storage allocation throws.
- *
- * \param src the wide string to convert.
- * \return the wide string converted to UTF-8.
- */
-auto create_utf8_from_wide(const wstring_view src) noexcept -> string {
-  // Don't use asserts/log because this function is used before the log
-  // is initialized
-
-  // Do NOT call CreateWinAPIErrorMessage in this function
-  // because it uses this function and may cause an infinite loop
-
-  // TODO: noexcept allocator and heap memory pool for strings
-
-  // WideCharToMultiByte fails when size is 0
-  if (src.empty()) {
-    return {};
-  }
-
-  // use the size of the string view because the input string
-  // can be non null-terminated
-  if (src.size() > static_cast<uSize>(numeric_limits<int>::max())) {
-    return "create_utf8_from_wide: string to convert is too large";
-  }
-
-  const auto srcSize = static_cast<int>(src.size());
-  auto dstSize = ::WideCharToMultiByte(
-    CP_UTF8, 0u, src.data(), srcSize, nullptr, 0, nullptr, nullptr
-  );
-
-  if (dstSize == 0) {
-    return "WideCharToMultiByte returned 0";
-  }
-
-  string dst(dstSize, '\0');
-  dstSize = ::WideCharToMultiByte(
-    CP_UTF8, 0u, src.data(), srcSize, dst.data(), static_cast<int>(dst.size()),
-    nullptr, nullptr
-  );
-  if (dstSize == 0) {
-    return "WideCharToMultiByte returned 0";
-  }
-
-  return dst;
-}
 
 /**
  * \brief Creates an error description from a Windows API error code.
@@ -667,7 +619,7 @@ void create_main_window(const Config& config) {
     yPos = ::GetSystemMetrics(SM_CYSCREEN) / 2 - height / 2;
   }
 
-  const wstring windowTitle = CreateWideFromUTF8(config.mWindow.mTitle);
+  const wstring windowTitle = create_wide_from_utf8(config.mWindow.mTitle);
 
   sWindowHandle = ::CreateWindowExW(
     styleEx, WINDOW_CLASS_NAME.data(), windowTitle.c_str(), style, xPos, yPos,
@@ -737,42 +689,6 @@ void init(HINSTANCE instance, const WCHAR* commandLine, const int showCommand) {
 
   process_args(commandLine);
   create_platform_name_string();
-}
-
-
-auto GetWindowHandle() -> HWND {
-  BS_ASSERT(sWindowHandle, "no window present");
-
-  return sWindowHandle;
-}
-
-auto CreateWideFromUTF8(const string_view src) -> wstring {
-  if (src.empty()) {
-    return {};
-  }
-
-  BS_ASSERT(
-    src.size() <= static_cast<uSize>(numeric_limits<int>::max()),
-    "string too large"
-  );
-  const int srcSize = static_cast<int>(src.size());
-  const int size = ::MultiByteToWideChar(
-    CP_UTF8, 0, src.data(), srcSize, nullptr, 0
-  );
-
-  if (size == 0) {
-    throw runtime_error("MultiByteToWideChar failed");
-  }
-
-  wstring dest(size, '\0');
-  if (::MultiByteToWideChar(
-    CP_UTF8, 0, src.data(), srcSize, dest.data(),
-    static_cast<int>(dest.size())
-  ) == 0) {
-    throw runtime_error("MultiByteToWideChar failed");
-  }
-
-  return dest;
 }
 
 } // namespace winapi

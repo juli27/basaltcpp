@@ -1,12 +1,20 @@
 #include <stdexcept>
+#include <string>
 
-// include our windows header before spdlog in Log.h
+#include <basalt/Engine.h> // Run, log
+
+#include "Util.h"
 #include "Win32APIHeader.h"
+#include "Win32Platform.h"
 
-#include <basalt/Engine.h>
 #include <basalt/Log.h>
 
-#include "Win32Platform.h"
+namespace {
+
+using std::exception;
+using std::wstring;
+
+} // namespace
 
 _Use_decl_annotations_ int CALLBACK wWinMain(
   HINSTANCE instance, HINSTANCE, WCHAR* commandLine, int showCommand
@@ -16,7 +24,7 @@ _Use_decl_annotations_ int CALLBACK wWinMain(
 
   try {
     basalt::Run();
-  } catch (const std::exception& ex) {
+  } catch (const exception& ex) {
     BS_FATAL("Unhandled exception: {}", ex.what());
 
     // written to log. now rethrow to trigger the message box
@@ -24,11 +32,9 @@ _Use_decl_annotations_ int CALLBACK wWinMain(
   }
 
   return 0;
-} catch (const std::exception& ex) {
-  std::wstring mbText = L"Unhandled exception: \r\n";
-  mbText.append(
-    basalt::platform::winapi::CreateWideFromUTF8(ex.what())
-  );
+} catch (const exception& ex) {
+  wstring mbText = L"Unhandled exception: \r\n";
+  mbText.append(create_wide_from_utf8(ex.what()));
   ::MessageBoxW(
     nullptr, mbText.c_str(), L"Basalt Fatal Error",
     MB_OK | MB_ICONERROR | MB_SYSTEMMODAL
