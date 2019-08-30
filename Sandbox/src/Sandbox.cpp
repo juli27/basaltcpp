@@ -109,7 +109,7 @@ void SandboxApp::OnUpdate() {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("File")) {
       if (ImGui::MenuItem("Exit", "Alt+F4")) {
-        bs::platform::RequestQuit();
+        bs::platform::request_quit();
       }
 
       ImGui::EndMenu();
@@ -143,6 +143,28 @@ void SandboxApp::OnUpdate() {
         }
 
         ImGui::EndMenu();
+      }
+
+      ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("Window")) {
+      const auto currentMode = bs::platform::get_window_mode();
+      if (ImGui::MenuItem(
+        "Windowed", nullptr, currentMode == WindowMode::Windowed
+      )) {
+        bs::platform::set_window_mode(WindowMode::Windowed);
+      }
+      if (ImGui::MenuItem(
+        "Fullscreen", nullptr, currentMode == WindowMode::Fullscreen
+      )) {
+        bs::platform::set_window_mode(WindowMode::Fullscreen);
+      }
+      if (ImGui::MenuItem(
+        "Fullscreen (Exclusive)", nullptr,
+        currentMode == WindowMode::FullscreenExclusive
+      )) {
+        bs::platform::set_window_mode(WindowMode::FullscreenExclusive);
       }
 
       ImGui::EndMenu();

@@ -3,7 +3,7 @@
 #define BS_CONFIG_H
 
 #include "gfx/Config.h"
-#include "platform/WindowTypes.h"
+#include "platform/Types.h"
 
 namespace basalt {
 

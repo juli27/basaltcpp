@@ -31,7 +31,6 @@ using input::MouseButton;
 using platform::CharactersTyped;
 using platform::Event;
 using platform::EventDispatcher;
-using platform::IGfxContext;
 using platform::KeyPressedEvent;
 using platform::KeyReleasedEvent;
 using platform::MouseWheelScrolledEvent;
@@ -76,7 +75,7 @@ void InitDearImGui() {
   imguiIo.KeyMap[ImGuiKey_Y] = static_cast<i8>(Key::Y);
   imguiIo.KeyMap[ImGuiKey_Z] = static_cast<i8>(Key::Z);
 
-  platform::AddEventListener([](const Event& e) {
+  platform::add_event_listener([](const Event& e) {
     const EventDispatcher dispatcher(e);
     auto& io = ImGui::GetIO();
     dispatcher.Dispatch<KeyPressedEvent>([&](const KeyPressedEvent& event) {
@@ -96,7 +95,7 @@ void InitDearImGui() {
 }
 
 void Startup() {
-  BS_INFO("platform: {}", platform::GetName());
+  BS_INFO("platform: {}", platform::get_name());
 
   // TODO: load config from file or create default
 
@@ -119,7 +118,7 @@ void Startup() {
 
   // init imgui before gfx. Renderer initializes imgui render backend
   InitDearImGui();
-  sRenderer =  platform::get_window_data().mGfxContext->create_renderer();
+  sRenderer =  platform::get_window_gfx_context()->create_renderer();
 
   BS_INFO("engine startup complete");
 }
@@ -133,7 +132,7 @@ void Shutdown() {
 
   ImGui::DestroyContext();
 
-  platform::Shutdown();
+  platform::shutdown();
 
   delete sApp;
   sApp = nullptr;
@@ -144,7 +143,7 @@ void Shutdown() {
 
 void NewDearImGuiFrame() {
   auto& io = ImGui::GetIO();
-  const auto windowSize = platform::get_window_data().mSize;
+  const auto windowSize = platform::get_window_size();
   io.DisplaySize = ImVec2(
     static_cast<float>(windowSize.GetX()), static_cast<float>(windowSize.GetY())
   );
@@ -178,7 +177,7 @@ void Run() {
   using Clock = std::chrono::high_resolution_clock;
 
   auto startTime = Clock::now();
-  while (platform::PollEvents()) {
+  while (platform::poll_events()) {
     NewDearImGuiFrame();
 
     sApp->OnUpdate();
@@ -186,7 +185,7 @@ void Run() {
     // TODO: use the asynchronicity of the graphics API runtime and gpu driver
     // also calls ImGui::Render()
     gfx::render(sRenderer, sCurrentScene);
-    platform::get_window_data().mGfxContext->present();
+    platform::get_window_gfx_context()->present();
 
     const auto endTime = Clock::now();
     sCurrentDeltaTime = static_cast<f64>((endTime - startTime).count()) /

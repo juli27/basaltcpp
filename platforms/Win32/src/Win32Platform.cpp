@@ -3,7 +3,6 @@
 
 #include <algorithm> // for_each
 #include <array>
-#include <limits>
 #include <memory> // make_unique
 #include <stdexcept>
 #include <string>
@@ -28,7 +27,6 @@
 namespace basalt::platform {
 
 using ::std::array;
-using ::std::numeric_limits;
 using ::std::runtime_error;
 using ::std::string;
 using ::std::string_view;
@@ -39,6 +37,24 @@ using ::std::wstring_view;
 
 namespace winapi {
 namespace {
+
+struct WindowData final {
+  WindowData() noexcept = default;
+  WindowData(const WindowData&) noexcept = default;
+  WindowData(WindowData&&) noexcept = default;
+  ~WindowData() noexcept = default;
+
+  auto operator=(const WindowData&) noexcept -> WindowData& = default;
+  auto operator=(WindowData&&) noexcept -> WindowData& = default;
+
+  IGfxContext* mGfxContext = nullptr;
+  std::string mTitle;
+  math::Vec2i32 mClientAreaSize;
+  WindowMode mMode = WindowMode::Windowed;
+  bool mResizeable = false;
+  bool mMinimized = false;
+  bool mMaximized = false;
+};
 
 // TODO: syskeys
 // TODO: left and right variants
@@ -309,7 +325,7 @@ vector<PlatformEventCallback> sEventListener;
 HINSTANCE sInstance;
 int sShowCommand;
 HWND sWindowHandle;
-WindowData sWindowData;
+WindowData sWindowInfo;
 
 /**
  * \brief Creates an error description from a Windows API error code.
@@ -379,7 +395,6 @@ void dispatch_platform_event(const Event& event) {
 LRESULT CALLBACK window_proc(
   HWND window, const UINT message, const WPARAM wParam, const LPARAM lParam
 ) {
-  static auto sIsSizing = false;
   static auto sIsMinimized = false;
 
   switch (message) {
@@ -483,19 +498,21 @@ LRESULT CALLBACK window_proc(
     return 0;
   }
 
-  case WM_UNICHAR:
-    if (wParam == UNICODE_NOCHAR) {
-      return TRUE;
+  case WM_SETFOCUS:
+    return 0;
+
+  case WM_KILLFOCUS:
+    if (sWindowInfo.mMode != WindowMode::Windowed) {
+      BS_TRACE("Minimizing");
+      ::ShowWindow(sWindowHandle, SW_MINIMIZE);
     }
-    return ::DefWindowProcW(window, message, wParam, lParam);
+    return 0;
 
   case WM_ENTERSIZEMOVE:
-    sIsSizing = true;
     return 0;
 
   case WM_EXITSIZEMOVE:
-    sIsSizing = false;
-    dispatch_platform_event(WindowResizedEvent(sWindowData.mSize));
+    dispatch_platform_event(WindowResizedEvent(sWindowInfo.mClientAreaSize));
     return 0;
 
   case WM_SIZE:
@@ -506,14 +523,14 @@ LRESULT CALLBACK window_proc(
       break;
     case SIZE_RESTORED:
       if (sIsMinimized) {
-      dispatch_platform_event(WindowRestoredEvent());
+        sIsMinimized = false;
+        dispatch_platform_event(WindowRestoredEvent());
+        return 0;
       }
     [[fallthrough]];
     case SIZE_MAXIMIZED:
-      sWindowData.mSize.Set(LOWORD(lParam), HIWORD(lParam));
-      if (!sIsSizing) {
-        dispatch_platform_event(WindowResizedEvent(sWindowData.mSize));
-      }
+      sWindowInfo.mClientAreaSize.Set(LOWORD(lParam), HIWORD(lParam));
+      dispatch_platform_event(WindowResizedEvent(sWindowInfo.mClientAreaSize));
       return 0;
 
     default:
@@ -526,9 +543,8 @@ LRESULT CALLBACK window_proc(
     return 0;
 
   case WM_DESTROY:
-    if (sWindowData.mGfxContext) {
-      delete sWindowData.mGfxContext;
-    }
+    delete sWindowInfo.mGfxContext;
+    sWindowInfo.mGfxContext = nullptr;
     sWindowHandle = nullptr;
     ::PostQuitMessage(0);
     return 0;
@@ -575,29 +591,24 @@ void register_window_class() {
 }
 
 void create_main_window(const Config& config) {
-  BS_DEBUG(
-    "creating main window:\n"
-    "  title: \"{}\",\n  width: {}, height: {}, "
-    "fullscreen: {}, exclusive: {},\n  resizeable: {}",
-    config.mWindow.mTitle, config.mWindow.mSize.GetX(), config.mWindow.mSize.GetY(),
-    config.mWindow.mMode != WindowMode::Windowed,
-    config.mWindow.mMode == WindowMode::FullscreenExclusive, config.mWindow.mResizeable
-  );
-
   register_window_class();
 
-  DWORD style = WS_SIZEBOX;
-  DWORD styleEx = 0;
+  sWindowInfo.mTitle = config.mWindow.mTitle;
+  sWindowInfo.mClientAreaSize = config.mWindow.mSize;
+  sWindowInfo.mMode = config.mWindow.mMode;
+  sWindowInfo.mResizeable = config.mWindow.mResizeable;
+
+  DWORD style = 0u;
+  DWORD styleEx = WS_EX_APPWINDOW;
   if (config.mWindow.mMode == WindowMode::Windowed) {
-    style |= WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
-      | WS_SYSMENU;
+    style |= WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
+
+    if (config.mWindow.mResizeable) {
+      style |= WS_MAXIMIZEBOX | WS_SIZEBOX;
+    }
   } else {
     style |= WS_POPUP;
     styleEx |= WS_EX_TOPMOST;
-  }
-
-  if (config.mWindow.mMode != WindowMode::Windowed || !config.mWindow.mResizeable) {
-    style &= ~(WS_MAXIMIZEBOX | WS_SIZEBOX);
   }
 
   int xPos = 0;
@@ -610,7 +621,7 @@ void create_main_window(const Config& config) {
     // and center the window on the primary monitor
     RECT rect{0, 0, config.mWindow.mSize.GetX(), config.mWindow.mSize.GetY()};
     if (!::AdjustWindowRectEx(&rect, style, FALSE, styleEx)) {
-      throw runtime_error(create_winapi_error_message(GetLastError()));
+      throw system_error(::GetLastError(), std::system_category());
     }
 
     width = static_cast<int>(rect.right - rect.left);
@@ -619,25 +630,22 @@ void create_main_window(const Config& config) {
     yPos = ::GetSystemMetrics(SM_CYSCREEN) / 2 - height / 2;
   }
 
-  const wstring windowTitle = create_wide_from_utf8(config.mWindow.mTitle);
+  BS_DEBUG("creating window at ({}, {}) with size ({}, {})", xPos, yPos, width, height);
 
+  const auto windowTitle = create_wide_from_utf8(config.mWindow.mTitle);
   sWindowHandle = ::CreateWindowExW(
-    styleEx, WINDOW_CLASS_NAME.data(), windowTitle.c_str(), style, xPos, yPos,
-    width, height, nullptr, nullptr, sInstance, nullptr
+    styleEx, WINDOW_CLASS_NAME.data(), windowTitle.c_str(), style, 
+    CW_USEDEFAULT, CW_USEDEFAULT, width, height, nullptr, nullptr, sInstance,
+    nullptr
   );
   if (!sWindowHandle) {
     throw runtime_error("failed to create window");
   }
 
-  sWindowData.mGfxContext = new D3D9GfxContext(sWindowHandle);
-  sWindowData.mTitle = config.mWindow.mTitle;
-  sWindowData.mSize.Set(width, height);
-  sWindowData.mMode = config.mWindow.mMode;
-  sWindowData.mResizeable = config.mWindow.mResizeable;
-
   BS_INFO("window created");
-
   ::ShowWindow(sWindowHandle, sShowCommand);
+
+  sWindowInfo.mGfxContext = new D3D9GfxContext(sWindowHandle);
 }
 
 void create_platform_name_string() {
@@ -699,7 +707,7 @@ void startup(const Config& config) {
   winapi::create_main_window(config);
 }
 
-void Shutdown() {
+void shutdown() {
   if (winapi::sWindowHandle) {
     ::DestroyWindow(winapi::sWindowHandle);
     winapi::sWindowHandle = nullptr;
@@ -715,11 +723,11 @@ void Shutdown() {
   }
 }
 
-void AddEventListener(PlatformEventCallback callback) {
+void add_event_listener(const PlatformEventCallback& callback) {
   winapi::sEventListener.push_back(callback);
 }
 
-auto PollEvents() -> bool {
+auto poll_events() -> bool {
   // TODO[threading]: check if main thread
 
   MSG msg{};
@@ -745,7 +753,7 @@ auto PollEvents() -> bool {
   return true;
 }
 
-auto WaitForEvents() -> bool {
+auto wait_for_events() -> bool {
   BS_DEBUG("waiting for events...");
 
   MSG msg{};
@@ -764,25 +772,46 @@ auto WaitForEvents() -> bool {
   ::DispatchMessageW(&msg);
 
   // handle any remainig messages in the queue
-  return PollEvents();
+  return poll_events();
 }
 
-void RequestQuit() {
+void request_quit() {
   // TODO: more of a request and less of a do quit
 
   ::PostQuitMessage(0);
 }
 
-auto GetName() -> std::string_view {
+auto get_name() -> std::string_view {
   return winapi::sPlatformName;
 }
 
-auto GetArgs() -> const std::vector<std::string>& {
+auto get_args() -> const std::vector<std::string>& {
   return winapi::sArgs;
 }
 
-auto get_window_data() -> const WindowData& {
-  return winapi::sWindowData;
+auto get_window_size() -> math::Vec2i32 {
+  return winapi::sWindowInfo.mClientAreaSize;
+}
+
+auto get_window_mode() -> WindowMode {
+  return winapi::sWindowInfo.mMode;
+}
+
+void set_window_mode(WindowMode windowMode) {
+  switch (windowMode) {
+  case WindowMode::Windowed:
+    break;
+  case WindowMode::Fullscreen:
+    break;
+  case WindowMode::FullscreenExclusive:
+    break;
+  }
+  BS_ERROR("platform::set_window_mode not implemented");
+}
+
+auto get_window_gfx_context() -> IGfxContext* {
+  // TODO: assert window exists
+  return winapi::sWindowInfo.mGfxContext;
 }
 
 } // namespace basalt::platform

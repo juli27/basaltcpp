@@ -19,31 +19,9 @@ struct WindowDesc {
   std::string mTitle;
   // TODO: will this be ignored with fullscreen? window size vs videomode / backbuffer size
   math::Vec2i32 mSize;
-  WindowMode mMode{};
-  bool mResizeable = false;
-};
-
-namespace platform {
-
-struct IGfxContext;
-
-struct WindowData final {
-  WindowData() noexcept = default;
-  WindowData(const WindowData&) noexcept = default;
-  WindowData(WindowData&&) noexcept = default;
-  ~WindowData() noexcept = default;
-
-  auto operator=(const WindowData&) noexcept -> WindowData& = default;
-  auto operator=(WindowData&&) noexcept -> WindowData& = default;
-
-  IGfxContext* mGfxContext = nullptr;
-  std::string mTitle;
-  math::Vec2i32 mSize;
   WindowMode mMode = WindowMode::Windowed;
   bool mResizeable = false;
 };
-
-} // platform
 
 } // namespace basalt
 

@@ -291,7 +291,7 @@
     <ClInclude Include="include\basalt\platform\events\WindowEvents.h" />
     <ClInclude Include="include\basalt\Input.h" />
     <ClInclude Include="include\basalt\platform\events\Event.h" />
-    <ClInclude Include="include\basalt\platform\WindowTypes.h" />
+    <ClInclude Include="include\basalt\platform\Types.h" />
     <ClInclude Include="include\basalt\Log.h" />
     <ClInclude Include="include\Basalt.h" />
     <ClInclude Include="include\basalt\IApplication.h" />

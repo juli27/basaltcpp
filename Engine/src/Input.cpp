@@ -66,7 +66,7 @@ void PlatformEventCallback(const platform::Event& event) {
 
 
 void Init() {
-  platform::AddEventListener(&PlatformEventCallback);
+  platform::add_event_listener(&PlatformEventCallback);
 }
 
 

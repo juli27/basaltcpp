@@ -7,7 +7,6 @@
     <ClInclude Include="include\basalt\IApplication.h" />
     <ClInclude Include="include\basalt\Log.h" />
     <ClInclude Include="include\basalt\platform\Platform.h" />
-    <ClInclude Include="include\basalt\platform\WindowTypes.h" />
     <ClInclude Include="include\basalt\common\Exceptions.h" />
     <ClInclude Include="include\basalt\common\Asserts.h" />
     <ClInclude Include="include\basalt\gfx\backend\IRenderer.h" />
@@ -34,6 +33,7 @@
     <ClInclude Include="include\BasaltPrelude.h" />
     <ClInclude Include="include\basalt\platform\IGfxContext.h" />
     <ClInclude Include="include\basalt\gfx\Config.h" />
+    <ClInclude Include="include\basalt\platform\Types.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine.cpp" />

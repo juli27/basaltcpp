@@ -4,7 +4,7 @@
 #include <basalt/gfx/backend/d3d9/Renderer.h>
 #include <basalt/gfx/backend/d3d9/Util.h>
 #include <basalt/platform/Platform.h>
-#include <basalt/platform/WindowTypes.h>
+#include <basalt/platform/Types.h>
 
 #include <basalt/Log.h>
 
@@ -30,10 +30,10 @@ D3D9GfxContext::D3D9GfxContext(HWND window) {
     0u, D3DPRESENT_INTERVAL_ONE // refresh rate + vsync
   };
 
-  const auto& windowData = platform::get_window_data();
+  const auto windowMode = platform::get_window_mode();
 
   // setup exclusive fullscreen
-  if (windowData.mMode == WindowMode::FullscreenExclusive) {
+  if (windowMode == WindowMode::FullscreenExclusive) {
     D3DDISPLAYMODE displayMode{};
     D3D9CALL(
       mD3D9Object->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &displayMode)

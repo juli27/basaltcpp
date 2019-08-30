@@ -28,7 +28,7 @@
 #include "basalt/math/Vec3.h"
 
 #include "basalt/platform/Platform.h"
-#include "basalt/platform/WindowTypes.h"
+#include "basalt/platform/Types.h"
 
 #include "basalt/platform/events/Event.h"
 #include "basalt/platform/events/KeyEvents.h"

@@ -188,7 +188,7 @@ Renderer::Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp)
 
   ImGui_ImplDX9_Init(mDevice);
 
-  platform::AddEventListener([this](const platform::Event& e) {
+  platform::add_event_listener([this](const platform::Event& e) {
     const platform::EventDispatcher dispatcher(e);
     dispatcher.Dispatch<platform::WindowResizedEvent>(
       [this](const platform::WindowResizedEvent& event) {
@@ -197,6 +197,8 @@ Renderer::Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp)
       mPresentParams.BackBufferHeight = event.mNewSize.GetY();
       mDevice->Reset(&mPresentParams);
       ImGui_ImplDX9_CreateDeviceObjects();
+
+      BS_INFO("resizing d3d9 back buffer");
     });
   });
 }
@@ -352,6 +354,7 @@ void Renderer::SetClearColor(Color color) {
 void Renderer::Render() {
   const auto hr = mDevice->TestCooperativeLevel();
   if (hr == D3DERR_DEVICENOTRESET) {
+    BS_INFO("resetting d3d9 device");
     D3D9CALL(mDevice->Reset(&mPresentParams));
     ImGui_ImplDX9_CreateDeviceObjects();
   } else if (hr != D3DERR_DEVICELOST) {

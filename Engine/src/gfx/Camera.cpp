@@ -18,7 +18,7 @@ Camera::Camera(
   , m_lookAt(lookAt)
   , m_up(up)
   , m_dirty(false) {
-  const math::Vec2i32 windowSize = platform::get_window_data().mSize;
+  const math::Vec2i32 windowSize = platform::get_window_size();
   const float aspectRatio =
     static_cast<float>(windowSize.GetX()) / windowSize.GetY();
   m_projection = math::Mat4f32::PerspectiveProjection(
