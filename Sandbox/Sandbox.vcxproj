@@ -114,6 +114,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>/w44062 /w34191 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SuppressStartupBanner>false</SuppressStartupBanner>
@@ -157,6 +158,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>/w44062 /w34191 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SuppressStartupBanner>false</SuppressStartupBanner>
@@ -201,6 +203,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnableModules>false</EnableModules>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
+      <AdditionalOptions>/w44062 /w34191 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -247,6 +250,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnableModules>false</EnableModules>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
+      <AdditionalOptions>/w44062 /w34191 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

@@ -122,6 +122,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)backends\gfx\Direct3D9\include</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>/w44062 /w14165 /w34191 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -170,6 +171,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)backends\gfx\Direct3D9\include</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>/w44062 /w14165 /w34191 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -219,6 +221,7 @@
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)backends\gfx\Direct3D9\include</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
+      <AdditionalOptions>/w44062 /w14165 /w34191 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -269,6 +272,7 @@
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)backends\gfx\Direct3D9\include</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
+      <AdditionalOptions>/w44062 /w14165 /w34191 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
