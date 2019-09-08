@@ -10,11 +10,11 @@ using bs::Scene;
 namespace d3d9_tuts {
 
 Device::Device() : mScene(std::make_shared<Scene>()) {
-  mScene->SetBackgroundColor(Color(0, 0, 255));
+  mScene->set_background_color(Color(0, 0, 255));
 }
 
 void Device::OnShow() {
-  bs::SetCurrentScene(mScene);
+  bs::set_current_scene(mScene);
 }
 
 void Device::OnHide() {}

@@ -78,8 +78,8 @@ private:
 
 
 inline RenderCommandBuffer::RenderCommandBuffer()
-  : mView(math::Mat4f32::Identity())
-  , mProjection(math::Mat4f32::Identity()) {}
+  : mView(math::Mat4f32::identity())
+  , mProjection(math::Mat4f32::identity()) {}
 
 
 inline RenderCommandBuffer::RenderCommandBuffer(

@@ -7,10 +7,10 @@
 namespace basalt::math {
 
 
-auto Mat4::Invert(const Mat4& m) -> Mat4 {
-  f32 invDet = m.Det();
+auto Mat4::invert(const Mat4& m) -> Mat4 {
+  f32 invDet = m.det();
   if (invDet == 0.0f) {
-    return Identity();
+    return identity();
   }
 
   invDet = 1.0f / invDet;
@@ -37,8 +37,8 @@ auto Mat4::Invert(const Mat4& m) -> Mat4 {
 }
 
 
-auto Mat4::RotationX(f32 rad) -> Mat4 {
-  Mat4 result = Identity();
+auto Mat4::rotation_x(f32 rad) -> Mat4 {
+  Mat4 result = identity();
 
   result.m22 = result.m33 = std::cosf(rad);
   result.m23 = std::sinf(rad);
@@ -48,8 +48,8 @@ auto Mat4::RotationX(f32 rad) -> Mat4 {
 }
 
 
-auto Mat4::RotationY(f32 rad) -> Mat4 {
-  Mat4 result = Identity();
+auto Mat4::rotation_y(f32 rad) -> Mat4 {
+  Mat4 result = identity();
 
   result.m11 = result.m33 = std::cosf(rad);
   result.m31 = std::sinf(rad);
@@ -59,8 +59,8 @@ auto Mat4::RotationY(f32 rad) -> Mat4 {
 }
 
 
-auto Mat4::RotationZ(f32 rad) -> Mat4 {
-  Mat4 result = Identity();
+auto Mat4::rotation_z(f32 rad) -> Mat4 {
+  Mat4 result = identity();
 
   result.m11 = result.m22 = std::cosf(rad);
   result.m12 = std::sinf(rad);
@@ -70,15 +70,15 @@ auto Mat4::RotationZ(f32 rad) -> Mat4 {
 }
 
 
-auto Mat4::Rotation(const Vec3f32& xyzRad) -> Mat4 {
-  const Mat4 x = RotationX(xyzRad.GetX());
-  const Mat4 y = RotationY(xyzRad.GetY());
-  const Mat4 z = RotationZ(xyzRad.GetZ());
+auto Mat4::rotation(const Vec3f32& xyzRad) -> Mat4 {
+  const Mat4 x = rotation_x(xyzRad.get_x());
+  const Mat4 y = rotation_y(xyzRad.get_y());
+  const Mat4 z = rotation_z(xyzRad.get_z());
   return z * x * y;
 }
 
 
-auto Mat4::PerspectiveProjection(
+auto Mat4::perspective_projection(
   const f32 fovRad, const f32 aspectRatio, const f32 nearPlane, const f32 farPlane
 ) -> Mat4 {
   const auto yScale = 1.0f / std::tanf(fovRad * 0.5f);

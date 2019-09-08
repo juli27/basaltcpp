@@ -24,12 +24,12 @@ using bs::gfx::backend::VertexLayout;
 namespace d3d9_tuts {
 
 Matrices::Matrices() : mScene(std::make_shared<Scene>()) {
-  mScene->SetBackgroundColor(Color(0, 0, 0));
+  mScene->set_background_color(Color(0, 0, 0));
 
   const Vec3f32 cameraPos(0.0f, 3.0f, -5.0f);
   const Vec3f32 lookAt(0.0f, 0.0f, 0.0f);
   const Vec3f32 up(0.0f, 1.0f, 0.0f);
-  mScene->SetCamera(Camera(cameraPos, lookAt, up));
+  mScene->set_camera(Camera(cameraPos, lookAt, up));
 
   struct Vertex final {
     f32 x, y, z;
@@ -47,7 +47,7 @@ Matrices::Matrices() : mScene(std::make_shared<Scene>()) {
     { VertexElementUsage::COLOR_DIFFUSE, VertexElementType::U32_1 }
   };
 
-  auto& entityRegistry = mScene->GetEntityRegistry();
+  auto& entityRegistry = mScene->get_entity_registry();
   auto entity = entityRegistry.create<TransformComponent, RenderComponent>();
   mTriangleEntity = std::get<0>(entity);
   auto& renderComponent = std::get<2>(entity);
@@ -59,19 +59,19 @@ Matrices::Matrices() : mScene(std::make_shared<Scene>()) {
 }
 
 void Matrices::OnShow() {
-  bs::SetCurrentScene(mScene);
+  bs::set_current_scene(mScene);
 }
 
 void Matrices::OnHide() {}
 
 void Matrices::OnUpdate() {
-  const auto deltaTime = static_cast<f32>(bs::GetDeltaTime());
+  const auto deltaTime = static_cast<f32>(bs::get_delta_time());
 
   static auto speed = 2.0f;
   const auto radOffsetY = deltaTime * speed * bs::math::PI;
   auto& transform =
-    mScene->GetEntityRegistry().get<TransformComponent>(mTriangleEntity);
-  transform.Rotate(0.0f, radOffsetY, 0.0f);
+    mScene->get_entity_registry().get<TransformComponent>(mTriangleEntity);
+  transform.rotate(0.0f, radOffsetY, 0.0f);
 
   ImGui::Begin("D3D9 Tutorial 03: Matrices");
   ImGui::SliderFloat("Rotation Speed", &speed, -2.0f, 2.0f);

@@ -14,18 +14,18 @@ public:
   constexpr Vec2(T x, T y) noexcept;
   constexpr Vec2(const Vec2&) noexcept = default;
   constexpr Vec2(Vec2&&) noexcept = default;
-  inline ~Vec2() noexcept = default;
+  ~Vec2() noexcept = default;
 
-  inline auto operator=(const Vec2&) noexcept -> Vec2& = default;
-  inline auto operator=(Vec2&&) noexcept -> Vec2& = default;
+  auto operator=(const Vec2&) noexcept -> Vec2& = default;
+  auto operator=(Vec2&&) noexcept -> Vec2& = default;
 
-  inline void Set(T x, T y) noexcept;
+  void set(T x, T y) noexcept;
 
-  inline void SetX(T x) noexcept;
-  inline void SetY(T y) noexcept;
+  void set_x(T x) noexcept;
+  void set_y(T y) noexcept;
 
-  constexpr auto GetX() const noexcept -> T;
-  constexpr auto GetY() const noexcept -> T;
+  [[nodiscard]] constexpr auto get_x() const noexcept -> T;
+  [[nodiscard]] constexpr auto get_y() const noexcept -> T;
 
 private:
   T mX = {};
@@ -38,32 +38,32 @@ constexpr Vec2<T>::Vec2(const T x, const T y) noexcept : mX(x), mY(y) {}
 
 
 template<typename T>
-inline void Vec2<T>::Set(T x, T y) noexcept {
+void Vec2<T>::set(T x, T y) noexcept {
   mX = x;
   mY = y;
 }
 
 
 template<typename T>
-inline void Vec2<T>::SetX(T x) noexcept {
+void Vec2<T>::set_x(T x) noexcept {
   mX = x;
 }
 
 
 template<typename T>
-inline void Vec2<T>::SetY(T y) noexcept {
+void Vec2<T>::set_y(T y) noexcept {
   mY = y;
 }
 
 
 template<typename T>
-constexpr auto Vec2<T>::GetX() const noexcept -> T {
+constexpr auto Vec2<T>::get_x() const noexcept -> T {
   return mX;
 }
 
 
 template<typename T>
-constexpr auto Vec2<T>::GetY() const noexcept -> T {
+constexpr auto Vec2<T>::get_y() const noexcept -> T {
   return mY;
 }
 

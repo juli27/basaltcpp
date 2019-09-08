@@ -8,7 +8,6 @@
 
 namespace basalt::gfx {
 
-
 struct RenderComponent final {
   backend::MeshHandle mMesh;
   backend::TextureHandle mTexture;
@@ -16,6 +15,15 @@ struct RenderComponent final {
   Color mAmbientColor;
   i8 mRenderFlags = 0;
 };
+
+// GfxComponent
+// Geometry
+// Materials
+//
+// RenderComponent
+// list of parts/nodes
+//   geometry
+//   material
 
 } // namespace basalt::gfx
 

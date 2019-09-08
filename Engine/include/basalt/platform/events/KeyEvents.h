@@ -40,12 +40,10 @@ struct KeyPressedEvent : EventTyped<EventType::KeyPressed> {
   constexpr explicit KeyPressedEvent(Key key) noexcept;
   constexpr KeyPressedEvent(const KeyPressedEvent&) noexcept = default;
   constexpr KeyPressedEvent(KeyPressedEvent&&) noexcept = default;
-  inline ~KeyPressedEvent() noexcept = default;
+  ~KeyPressedEvent() noexcept = default;
 
-  inline auto operator=(const KeyPressedEvent&) noexcept -> KeyPressedEvent&
-    = default;
-  inline auto operator=(KeyPressedEvent&&) noexcept -> KeyPressedEvent&
-    = default;
+  auto operator=(const KeyPressedEvent&) noexcept -> KeyPressedEvent& = default;
+  auto operator=(KeyPressedEvent&&) noexcept -> KeyPressedEvent& = default;
 
   Key mKey = Key::Unknown;
 };
@@ -59,12 +57,11 @@ struct KeyReleasedEvent : EventTyped<EventType::KeyReleased> {
   constexpr explicit KeyReleasedEvent(Key key) noexcept;
   constexpr KeyReleasedEvent(const KeyReleasedEvent&) noexcept = default;
   constexpr KeyReleasedEvent(KeyReleasedEvent&&) noexcept = default;
-  inline ~KeyReleasedEvent() noexcept = default;
+  ~KeyReleasedEvent() noexcept = default;
 
-  inline auto operator=(const KeyReleasedEvent&) noexcept -> KeyReleasedEvent&
+  auto operator=(const KeyReleasedEvent&) noexcept -> KeyReleasedEvent&
     = default;
-  inline auto operator=(KeyReleasedEvent&&) noexcept -> KeyReleasedEvent&
-    = default;
+  auto operator=(KeyReleasedEvent&&) noexcept -> KeyReleasedEvent& = default;
 
   Key mKey = Key::Unknown;
 };
@@ -76,12 +73,12 @@ constexpr KeyReleasedEvent::KeyReleasedEvent(const Key key) noexcept
 
 struct CharactersTyped : EventTyped<EventType::CharactersTyped> {
   inline explicit CharactersTyped(std::string chars);
-  inline CharactersTyped(const CharactersTyped&) = default;
-  inline CharactersTyped(CharactersTyped&&) noexcept = default;
-  inline ~CharactersTyped() noexcept = default;
+  CharactersTyped(const CharactersTyped&) = default;
+  CharactersTyped(CharactersTyped&&) noexcept = default;
+  ~CharactersTyped() noexcept = default;
 
-  inline auto operator=(const CharactersTyped&) -> CharactersTyped& = default;
-  inline auto operator=(CharactersTyped&&) -> CharactersTyped& = default;
+  auto operator=(const CharactersTyped&) -> CharactersTyped& = default;
+  auto operator=(CharactersTyped&&) -> CharactersTyped& = default;
 
   // TODO: optimization: use static char array instead of string?
   std::string mChars;

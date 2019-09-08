@@ -20,7 +20,7 @@ using bs::gfx::backend::VertexLayout;
 namespace d3d9_tuts {
 
 Vertices::Vertices() : mScene(std::make_shared<Scene>()) {
-  mScene->SetBackgroundColor(Color(0, 0, 255));
+  mScene->set_background_color(Color(0, 0, 255));
 
   struct Vertex final {
     f32 x, y, z, rhw;
@@ -38,7 +38,7 @@ Vertices::Vertices() : mScene(std::make_shared<Scene>()) {
     { VertexElementUsage::COLOR_DIFFUSE, VertexElementType::U32_1 }
   };
 
-  auto& entityRegistry = mScene->GetEntityRegistry();
+  auto& entityRegistry = mScene->get_entity_registry();
   const auto triangleEntity = entityRegistry.create<TransformComponent, RenderComponent>();
   std::get<2>(triangleEntity).mMesh = bs::get_renderer()->AddMesh(
     vertices.data(), static_cast<i32>(vertices.size()), vertexLayout,
@@ -47,7 +47,7 @@ Vertices::Vertices() : mScene(std::make_shared<Scene>()) {
 }
 
 void Vertices::OnShow() {
-  bs::SetCurrentScene(mScene);
+  bs::set_current_scene(mScene);
 }
 
 

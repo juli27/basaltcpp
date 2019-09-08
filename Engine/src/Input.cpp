@@ -55,32 +55,32 @@ void OnButtonReleased(const platform::MouseButtonReleasedEvent& event) {
 
 void PlatformEventCallback(const platform::Event& event) {
   platform::EventDispatcher dispatcher(event);
-  dispatcher.Dispatch<platform::MouseMovedEvent>(&OnMouseMoved);
-  dispatcher.Dispatch<platform::KeyPressedEvent>(&OnKeyPressed);
-  dispatcher.Dispatch<platform::KeyReleasedEvent>(&OnKeyReleased);
-  dispatcher.Dispatch<platform::MouseButtonPressedEvent>(&OnButtonPressed);
-  dispatcher.Dispatch<platform::MouseButtonReleasedEvent>(&OnButtonReleased);
+  dispatcher.dispatch<platform::MouseMovedEvent>(&OnMouseMoved);
+  dispatcher.dispatch<platform::KeyPressedEvent>(&OnKeyPressed);
+  dispatcher.dispatch<platform::KeyReleasedEvent>(&OnKeyReleased);
+  dispatcher.dispatch<platform::MouseButtonPressedEvent>(&OnButtonPressed);
+  dispatcher.dispatch<platform::MouseButtonReleasedEvent>(&OnButtonReleased);
 }
 
 } // namespace
 
 
-void Init() {
+void init() {
   platform::add_event_listener(&PlatformEventCallback);
 }
 
 
-auto IsKeyPressed(Key key) -> bool {
+auto is_key_pressed(Key key) -> bool {
   return s_keyStates[static_cast<i32>(key)];
 }
 
 
-auto GetMousePos() -> const math::Vec2i32& {
+auto get_mouse_pos() -> const math::Vec2i32& {
   return s_mousePos;
 }
 
 
-auto IsMouseButtonPressed(MouseButton button) -> bool {
+auto is_mouse_button_pressed(MouseButton button) -> bool {
   return s_buttonStates[static_cast<i32>(button)];
 }
 

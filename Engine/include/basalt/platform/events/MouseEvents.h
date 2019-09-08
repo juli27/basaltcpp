@@ -22,10 +22,10 @@ struct MouseMovedEvent : EventTyped<EventType::MouseMoved> {
   constexpr explicit MouseMovedEvent(const math::Vec2i32& pos) noexcept;
   constexpr MouseMovedEvent(const MouseMovedEvent&) noexcept = default;
   constexpr MouseMovedEvent(MouseMovedEvent&&) noexcept = default;
-  inline ~MouseMovedEvent() noexcept = default;
+  ~MouseMovedEvent() noexcept = default;
 
-  inline auto operator=(const MouseMovedEvent&) -> MouseMovedEvent& = default;
-  inline auto operator=(MouseMovedEvent&&) -> MouseMovedEvent& = default;
+  auto operator=(const MouseMovedEvent&) -> MouseMovedEvent& = default;
+  auto operator=(MouseMovedEvent&&) -> MouseMovedEvent& = default;
 
   math::Vec2i32 mPos;
 };
@@ -41,11 +41,11 @@ struct MouseButtonPressedEvent : EventTyped<EventType::MouseButtonPressed> {
     = default;
   constexpr MouseButtonPressedEvent(MouseButtonPressedEvent&&) noexcept
     = default;
-  inline ~MouseButtonPressedEvent() noexcept = default;
+  ~MouseButtonPressedEvent() noexcept = default;
 
-  inline auto operator=(const MouseButtonPressedEvent&)
-    -> MouseButtonPressedEvent& = default;
-  inline auto operator=(MouseButtonPressedEvent&&) -> MouseButtonPressedEvent&
+  auto operator=(const MouseButtonPressedEvent&) -> MouseButtonPressedEvent&
+    = default;
+  auto operator=(MouseButtonPressedEvent&&) -> MouseButtonPressedEvent&
     = default;
 
   MouseButton mButton = MouseButton::Unknown;
@@ -63,11 +63,11 @@ struct MouseButtonReleasedEvent : EventTyped<EventType::MouseButtonReleased> {
     = default;
   constexpr MouseButtonReleasedEvent(MouseButtonReleasedEvent&&) noexcept
     = default;
-  inline ~MouseButtonReleasedEvent() noexcept = default;
+  ~MouseButtonReleasedEvent() noexcept = default;
 
-  inline auto operator=(const MouseButtonReleasedEvent&)
-    -> MouseButtonReleasedEvent& = default;
-  inline auto operator=(MouseButtonReleasedEvent&&) -> MouseButtonReleasedEvent&
+  auto operator=(const MouseButtonReleasedEvent&) -> MouseButtonReleasedEvent&
+    = default;
+  auto operator=(MouseButtonReleasedEvent&&) -> MouseButtonReleasedEvent&
     = default;
 
   MouseButton mButton = MouseButton::Unknown;
@@ -83,10 +83,12 @@ struct MouseWheelScrolledEvent : EventTyped<EventType::MouseWheelScrolled> {
   constexpr explicit MouseWheelScrolledEvent(f32 offset) noexcept;
   constexpr MouseWheelScrolledEvent(const MouseWheelScrolledEvent&) noexcept = default;
   constexpr MouseWheelScrolledEvent(MouseWheelScrolledEvent&&) noexcept = default;
-  inline ~MouseWheelScrolledEvent() noexcept = default;
+  ~MouseWheelScrolledEvent() noexcept = default;
 
-  inline auto operator=(const MouseWheelScrolledEvent&) -> MouseWheelScrolledEvent& = default;
-  inline auto operator=(MouseWheelScrolledEvent&&) -> MouseWheelScrolledEvent& = default;
+  auto operator=(const MouseWheelScrolledEvent&) -> MouseWheelScrolledEvent&
+    = default;
+  auto operator=(MouseWheelScrolledEvent&&) -> MouseWheelScrolledEvent&
+    = default;
 
   f32 mOffset = 0.0f;
 };
@@ -96,7 +98,6 @@ constexpr MouseWheelScrolledEvent::MouseWheelScrolledEvent(
   const f32 offset
 ) noexcept
 : mOffset(offset) {}
-
 
 } // namespace basalt::platform
 

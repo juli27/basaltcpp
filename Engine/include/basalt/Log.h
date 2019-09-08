@@ -17,39 +17,39 @@
 
 namespace basalt::log {
 
-void Init();
-auto GetCoreLogger() -> const std::shared_ptr<spdlog::logger>&;
-auto GetClientLogger() -> const std::shared_ptr<spdlog::logger>&;
+void init();
+auto get_core_logger() -> const std::shared_ptr<spdlog::logger>&;
+auto get_client_logger() -> const std::shared_ptr<spdlog::logger>&;
 
 }  // namespace basalt::log
 
 #ifdef BS_BUILD
 
 #ifdef BS_DEBUG_BUILD
-#define BS_TRACE(...) ::basalt::log::GetCoreLogger()->trace(__VA_ARGS__)
-#define BS_DEBUG(...) ::basalt::log::GetCoreLogger()->debug(__VA_ARGS__)
+#define BS_TRACE(...) ::basalt::log::get_core_logger()->trace(__VA_ARGS__)
+#define BS_DEBUG(...) ::basalt::log::get_core_logger()->debug(__VA_ARGS__)
 #else
 #define BS_TRACE(...)
 #define BS_DEBUG(...)
 #endif
-#define BS_INFO(...) ::basalt::log::GetCoreLogger()->info(__VA_ARGS__)
-#define BS_WARN(...) ::basalt::log::GetCoreLogger()->warn(__VA_ARGS__)
-#define BS_ERROR(...) ::basalt::log::GetCoreLogger()->error(__VA_ARGS__)
-#define BS_FATAL(...) ::basalt::log::GetCoreLogger()->critical(__VA_ARGS__)
+#define BS_INFO(...) ::basalt::log::get_core_logger()->info(__VA_ARGS__)
+#define BS_WARN(...) ::basalt::log::get_core_logger()->warn(__VA_ARGS__)
+#define BS_ERROR(...) ::basalt::log::get_core_logger()->error(__VA_ARGS__)
+#define BS_FATAL(...) ::basalt::log::get_core_logger()->critical(__VA_ARGS__)
 
 #else // !BS_BUILD
 
 #ifdef BS_APP_DEBUG_BUILD
-#define BS_TRACE(...) ::basalt::log::GetClientLogger()->trace(__VA_ARGS__)
-#define BS_DEBUG(...) ::basalt::log::GetClientLogger()->debug(__VA_ARGS__)
+#define BS_TRACE(...) ::basalt::log::get_client_logger()->trace(__VA_ARGS__)
+#define BS_DEBUG(...) ::basalt::log::get_client_logger()->debug(__VA_ARGS__)
 #else
 #define BS_TRACE(...)
 #define BS_DEBUG(...)
 #endif
-#define BS_INFO(...) ::basalt::log::GetClientLogger()->info(__VA_ARGS__)
-#define BS_WARN(...) ::basalt::log::GetClientLogger()->warn(__VA_ARGS__)
-#define BS_ERROR(...) ::basalt::log::GetClientLogger()->error(__VA_ARGS__)
-#define BS_FATAL(...) ::basalt::log::GetClientLogger()->critical(__VA_ARGS__)
+#define BS_INFO(...) ::basalt::log::get_client_logger()->info(__VA_ARGS__)
+#define BS_WARN(...) ::basalt::log::get_client_logger()->warn(__VA_ARGS__)
+#define BS_ERROR(...) ::basalt::log::get_client_logger()->error(__VA_ARGS__)
+#define BS_FATAL(...) ::basalt::log::get_client_logger()->critical(__VA_ARGS__)
 
 #endif // BS_BUILD
 

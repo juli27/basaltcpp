@@ -18,10 +18,10 @@ public:
   ) noexcept;
   constexpr Mat4(const Mat4&) noexcept = default;
   constexpr Mat4(Mat4&&) noexcept = default;
-  inline ~Mat4() noexcept = default;
+  ~Mat4() noexcept = default;
 
-  inline auto operator=(const Mat4&) noexcept -> Mat4& = default;
-  inline auto operator=(Mat4&&) noexcept -> Mat4& = default;
+  auto operator=(const Mat4&) noexcept -> Mat4& = default;
+  auto operator=(Mat4&&) noexcept -> Mat4& = default;
 
   constexpr auto operator+=(const Mat4& rhs) noexcept -> Mat4&;
   constexpr auto operator-=(const Mat4& rhs) noexcept -> Mat4&;
@@ -30,22 +30,22 @@ public:
   inline auto operator/=(const Mat4& rhs) noexcept -> Mat4&;
   constexpr auto operator/=(f32 rhs) noexcept -> Mat4&;
 
-  [[nodiscard]] constexpr auto Det() const noexcept -> f32;
+  [[nodiscard]] constexpr auto det() const noexcept -> f32;
 
   f32 m11 = 0.0f, m12 = 0.0f, m13 = 0.0f, m14 = 0.0f,
       m21 = 0.0f, m22 = 0.0f, m23 = 0.0f, m24 = 0.0f,
       m31 = 0.0f, m32 = 0.0f, m33 = 0.0f, m34 = 0.0f,
       m41 = 0.0f, m42 = 0.0f, m43 = 0.0f, m44 = 0.0f;
 
-  static constexpr auto Identity() noexcept -> Mat4;
-  static auto Invert(const Mat4& m) -> Mat4;
-  static constexpr auto Translation(const Vec3f32& v) -> Mat4;
-  static auto RotationX(f32 rad) -> Mat4;
-  static auto RotationY(f32 rad) -> Mat4;
-  static auto RotationZ(f32 rad) -> Mat4;
-  static auto Rotation(const Vec3f32& xyzRad) -> Mat4;
-  static constexpr auto Scaling(const Vec3f32& v) -> Mat4;
-  static auto PerspectiveProjection(
+  static constexpr auto identity() noexcept -> Mat4;
+  static auto invert(const Mat4& m) -> Mat4;
+  static constexpr auto translation(const Vec3f32& v) -> Mat4;
+  static auto rotation_x(f32 rad) -> Mat4;
+  static auto rotation_y(f32 rad) -> Mat4;
+  static auto rotation_z(f32 rad) -> Mat4;
+  static auto rotation(const Vec3f32& xyzRad) -> Mat4;
+  static constexpr auto scaling(const Vec3f32& v) -> Mat4;
+  static auto perspective_projection(
     f32 fovRad, f32 aspectRatio, f32 nearPlane, f32 farPlane
   ) -> Mat4;
 };
@@ -121,7 +121,7 @@ constexpr auto Mat4::operator*=(const f32 rhs) noexcept -> Mat4& {
 
 
 inline auto Mat4::operator/=(const Mat4& rhs) noexcept -> Mat4& {
-  *this *= Mat4::Invert(rhs);
+  *this *= Mat4::invert(rhs);
   return *this;
 }
 
@@ -136,14 +136,14 @@ constexpr auto Mat4::operator/=(const f32 rhs) noexcept -> Mat4& {
 }
 
 // Determinante der linken oberen 3x3-Teilmatrix berechnen
-constexpr auto Mat4::Det() const noexcept -> f32 {
+constexpr auto Mat4::det() const noexcept -> f32 {
   return m11 * (m22 * m33 - m23 * m32)
        - m12 * (m21 * m33 - m23 * m31)
        + m13 * (m21 * m32 - m22 * m31);
 }
 
 
-constexpr auto Mat4::Identity() noexcept -> Mat4 {
+constexpr auto Mat4::identity() noexcept -> Mat4 {
   return Mat4(
     1.0f, 0.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
@@ -153,21 +153,21 @@ constexpr auto Mat4::Identity() noexcept -> Mat4 {
 }
 
 
-constexpr auto Mat4::Translation(const math::Vec3f32& v) -> Mat4 {
+constexpr auto Mat4::translation(const math::Vec3f32& v) -> Mat4 {
   return Mat4(
     1.0f, 0.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 1.0f, 0.0f,
-    v.GetX() , v.GetY() , v.GetZ() , 1.0f
+    v.get_x() , v.get_y() , v.get_z() , 1.0f
   );
 }
 
 
-constexpr auto Mat4::Scaling(const Vec3f32& v) -> Mat4 {
+constexpr auto Mat4::scaling(const Vec3f32& v) -> Mat4 {
   return Mat4(
-    v.GetX(), 0.0f    , 0.0f    , 0.0f,
-    0.0f    , v.GetY(), 0.0f    , 0.0f,
-    0.0f    , 0.0f    , v.GetZ(), 0.0f,
+    v.get_x(), 0.0f    , 0.0f    , 0.0f,
+    0.0f    , v.get_y(), 0.0f    , 0.0f,
+    0.0f    , 0.0f    , v.get_z(), 0.0f,
     0.0f    , 0.0f    , 0.0f    , 1.0f
   );
 }
@@ -249,7 +249,7 @@ constexpr Mat4 operator*(f32 f, const Mat4& m) {
 
 
 inline auto operator/(const Mat4& a, const Mat4& b) -> Mat4 {
-  return a * Mat4::Invert(b);
+  return a * Mat4::invert(b);
 }
 
 

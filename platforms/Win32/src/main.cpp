@@ -20,10 +20,10 @@ _Use_decl_annotations_ int CALLBACK wWinMain(
   HINSTANCE instance, HINSTANCE, WCHAR* commandLine, int showCommand
 ) try {
   basalt::platform::winapi::init(instance, commandLine, showCommand);
-  basalt::log::Init();
+  basalt::log::init();
 
   try {
-    basalt::Run();
+    basalt::run();
   } catch (const exception& ex) {
     BS_FATAL("Unhandled exception: {}", ex.what());
 

@@ -18,17 +18,17 @@ namespace basalt::gfx {
 void render(backend::IRenderer* renderer, const std::shared_ptr<Scene>& scene) {
   BS_ASSERT(renderer, "gfx::render needs a Renderer");
 
-  renderer->SetClearColor(scene->GetBackgroundColor());
+  renderer->SetClearColor(scene->get_background_color());
 
-  const auto& camera = scene->GetCamera();
-  renderer->SetViewProj(camera.GetViewMatrix(), camera.GetProjectionMatrix());
+  const auto& camera = scene->get_camera();
+  renderer->SetViewProj(camera.get_view_matrix(), camera.get_projection_matrix());
 
-  scene->GetEntityRegistry().view<const TransformComponent, const RenderComponent>().each(
+  scene->get_entity_registry().view<const TransformComponent, const RenderComponent>().each(
     [renderer](const TransformComponent& transform, const RenderComponent& renderComponent) {
     backend::RenderCommand command;
-    command.world = math::Mat4f32::Scaling(transform.mScale)
-      * math::Mat4f32::Rotation(transform.mRotation)
-      * math::Mat4f32::Translation(transform.mPosition);
+    command.world = math::Mat4f32::scaling(transform.mScale)
+      * math::Mat4f32::rotation(transform.mRotation)
+      * math::Mat4f32::translation(transform.mPosition);
 
     command.mesh = renderComponent.mMesh;
     command.texture = renderComponent.mTexture;

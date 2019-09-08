@@ -12,13 +12,13 @@ namespace basalt::input {
 using platform::Key;
 using platform::MouseButton;
 
-void Init();
+void init();
 
-auto IsKeyPressed(Key key) -> bool;
+auto is_key_pressed(Key key) -> bool;
 
-auto GetMousePos() -> const math::Vec2i32&;
+auto get_mouse_pos() -> const math::Vec2i32&;
 
-auto IsMouseButtonPressed(MouseButton button) -> bool;
+auto is_mouse_button_pressed(MouseButton button) -> bool;
 
 } // namespace basalt::input
 

@@ -190,11 +190,11 @@ Renderer::Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp)
 
   platform::add_event_listener([this](const platform::Event& e) {
     const platform::EventDispatcher dispatcher(e);
-    dispatcher.Dispatch<platform::WindowResizedEvent>(
+    dispatcher.dispatch<platform::WindowResizedEvent>(
       [this](const platform::WindowResizedEvent& event) {
       ImGui_ImplDX9_InvalidateDeviceObjects();
-      mPresentParams.BackBufferWidth = event.mNewSize.GetX();
-      mPresentParams.BackBufferHeight = event.mNewSize.GetY();
+      mPresentParams.BackBufferWidth = event.mNewSize.get_x();
+      mPresentParams.BackBufferHeight = event.mNewSize.get_y();
       mDevice->Reset(&mPresentParams);
       ImGui_ImplDX9_CreateDeviceObjects();
 

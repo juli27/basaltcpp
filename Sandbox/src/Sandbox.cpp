@@ -52,7 +52,7 @@ void SandboxApp::SetScene(const i32 index) {
   mScenes.at(mCurrentSceneIndex)->OnShow();
 }
 
-void SandboxApp::OnInit() {
+void SandboxApp::on_init() {
   mScenes.push_back(std::make_unique<d3d9_tuts::Device>());
   mScenes.push_back(std::make_unique<d3d9_tuts::Vertices>());
   mScenes.push_back(std::make_unique<d3d9_tuts::Matrices>());
@@ -62,15 +62,15 @@ void SandboxApp::OnInit() {
   mScenes.at(mCurrentSceneIndex)->OnShow();
 }
 
-void SandboxApp::OnShutdown() {
+void SandboxApp::on_shutdown() {
   mScenes.clear();
 }
 
-void SandboxApp::OnUpdate() {
+void SandboxApp::on_update() {
   // HACK
   static auto rightPressed = false;
   static auto leftPressed = false;
-  if (bs::input::IsKeyPressed(Key::PageUp)) {
+  if (bs::input::is_key_pressed(Key::PageUp)) {
     if (!rightPressed) {
       rightPressed = true;
 
@@ -80,7 +80,7 @@ void SandboxApp::OnUpdate() {
     rightPressed = false;
   }
 
-  if (bs::input::IsKeyPressed(Key::PageDown)) {
+  if (bs::input::is_key_pressed(Key::PageDown)) {
     if (!leftPressed) {
       leftPressed = true;
 
@@ -188,6 +188,6 @@ void SandboxApp::OnUpdate() {
   }
 }
 
-auto bs::IApplication::Create(Config& config) -> IApplication* {
+auto bs::IApplication::create(Config& config) -> IApplication* {
   return new SandboxApp(config);
 }

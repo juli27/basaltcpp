@@ -78,16 +78,16 @@ void InitDearImGui() {
   platform::add_event_listener([](const Event& e) {
     const EventDispatcher dispatcher(e);
     auto& io = ImGui::GetIO();
-    dispatcher.Dispatch<KeyPressedEvent>([&](const KeyPressedEvent& event) {
+    dispatcher.dispatch<KeyPressedEvent>([&](const KeyPressedEvent& event) {
       io.KeysDown[static_cast<i8>(event.mKey)] = true;
     });
-    dispatcher.Dispatch<KeyReleasedEvent>([&](const KeyReleasedEvent& event) {
+    dispatcher.dispatch<KeyReleasedEvent>([&](const KeyReleasedEvent& event) {
       io.KeysDown[static_cast<i8>(event.mKey)] = false;
     });
-    dispatcher.Dispatch<CharactersTyped>([&](const CharactersTyped& event) {
+    dispatcher.dispatch<CharactersTyped>([&](const CharactersTyped& event) {
       io.AddInputCharactersUTF8(event.mChars.c_str());
     });
-    dispatcher.Dispatch<MouseWheelScrolledEvent>(
+    dispatcher.dispatch<MouseWheelScrolledEvent>(
       [&](const MouseWheelScrolledEvent& event) {
       io.MouseWheel = event.mOffset;
     });
@@ -99,22 +99,22 @@ void Startup() {
 
   // TODO: load config from file or create default
 
-  sApp = IApplication::Create(sConfig);
+  sApp = IApplication::create(sConfig);
   if (!sApp) {
     throw std::runtime_error("failed to create IApplication object");
   }
 
   BS_INFO(
     "config: window: {} {}x{}{} {}{}",
-    sConfig.mWindow.mTitle, sConfig.mWindow.mSize.GetX(),
-    sConfig.mWindow.mSize.GetY(),
+    sConfig.mWindow.mTitle, sConfig.mWindow.mSize.get_x(),
+    sConfig.mWindow.mSize.get_y(),
     sConfig.mWindow.mMode == WindowMode::FullscreenExclusive ? " exclusive" : "",
     sConfig.mWindow.mMode != WindowMode::Windowed ? "fullscreen" : "windowed",
     sConfig.mWindow.mResizeable ? " resizeable" : ""
   );
 
   platform::startup(sConfig);
-  input::Init();
+  input::init();
 
   // init imgui before gfx. Renderer initializes imgui render backend
   InitDearImGui();
@@ -145,19 +145,19 @@ void NewDearImGuiFrame() {
   auto& io = ImGui::GetIO();
   const auto windowSize = platform::get_window_size();
   io.DisplaySize = ImVec2(
-    static_cast<float>(windowSize.GetX()), static_cast<float>(windowSize.GetY())
+    static_cast<float>(windowSize.get_x()), static_cast<float>(windowSize.get_y())
   );
   io.DeltaTime = static_cast<float>(sCurrentDeltaTime);
-  io.KeyCtrl = input::IsKeyPressed(Key::Control);
-  io.KeyShift = input::IsKeyPressed(Key::Shift);
-  io.KeyAlt = input::IsKeyPressed(Key::Alt);
-  io.KeySuper = input::IsKeyPressed(Key::Super);
-  io.MousePos = ImVec2(static_cast<float>(input::GetMousePos().GetX()), static_cast<float>(input::GetMousePos().GetY()));
-  io.MouseDown[0] = input::IsMouseButtonPressed(MouseButton::Left);
-  io.MouseDown[1] = input::IsMouseButtonPressed(MouseButton::Right);
-  io.MouseDown[2] = input::IsMouseButtonPressed(MouseButton::Middle);
-  io.MouseDown[3] = input::IsMouseButtonPressed(MouseButton::Button4);
-  io.MouseDown[4] = input::IsMouseButtonPressed(MouseButton::Button5);
+  io.KeyCtrl = input::is_key_pressed(Key::Control);
+  io.KeyShift = input::is_key_pressed(Key::Shift);
+  io.KeyAlt = input::is_key_pressed(Key::Alt);
+  io.KeySuper = input::is_key_pressed(Key::Super);
+  io.MousePos = ImVec2(static_cast<float>(input::get_mouse_pos().get_x()), static_cast<float>(input::get_mouse_pos().get_y()));
+  io.MouseDown[0] = input::is_mouse_button_pressed(MouseButton::Left);
+  io.MouseDown[1] = input::is_mouse_button_pressed(MouseButton::Right);
+  io.MouseDown[2] = input::is_mouse_button_pressed(MouseButton::Middle);
+  io.MouseDown[3] = input::is_mouse_button_pressed(MouseButton::Button4);
+  io.MouseDown[4] = input::is_mouse_button_pressed(MouseButton::Button5);
   sRenderer->NewGuiFrame();
   ImGui::NewFrame();
 }
@@ -165,10 +165,10 @@ void NewDearImGuiFrame() {
 } // namespace
 
 
-void Run() {
+void run() {
   Startup();
 
-  sApp->OnInit();
+  sApp->on_init();
   BS_ASSERT(sCurrentScene, "no scene set");
 
   BS_INFO("entering main loop");
@@ -180,7 +180,7 @@ void Run() {
   while (platform::poll_events()) {
     NewDearImGuiFrame();
 
-    sApp->OnUpdate();
+    sApp->on_update();
 
     // TODO: use the asynchronicity of the graphics API runtime and gpu driver
     // also calls ImGui::Render()
@@ -195,18 +195,18 @@ void Run() {
 
   BS_INFO("leaving main loop");
 
-  sApp->OnShutdown();
+  sApp->on_shutdown();
 
   Shutdown();
 }
 
 
-auto GetDeltaTime() -> f64 {
+auto get_delta_time() -> f64 {
   return sCurrentDeltaTime;
 }
 
 
-void SetCurrentScene(const shared_ptr<Scene>& scene) {
+void set_current_scene(const shared_ptr<Scene>& scene) {
   sCurrentScene = scene;
 }
 

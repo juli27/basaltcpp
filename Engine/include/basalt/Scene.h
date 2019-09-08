@@ -11,7 +11,6 @@
 
 namespace basalt {
 
-
 struct TransformComponent {
   constexpr TransformComponent() noexcept = default;
   constexpr TransformComponent(const TransformComponent&) noexcept = default;
@@ -24,17 +23,15 @@ struct TransformComponent {
     = default;
 
   // TODO: wrap vectors in Position/Rotation/Scale class?
-  void Move(f32 offsetX, f32 offsetY, f32 offsetZ) noexcept;
-  void Rotate(f32 radOffsetX, f32 radOffsetY, f32 radOffsetZ) noexcept;
+  void move(f32 offsetX, f32 offsetY, f32 offsetZ) noexcept;
+  void rotate(f32 radOffsetX, f32 radOffsetY, f32 radOffsetZ) noexcept;
 
   math::Vec3f32 mPosition;
   math::Vec3f32 mRotation;
   math::Vec3f32 mScale = {1.0f, 1.0f, 1.0f};
 };
 
-
-class Scene {
-public:
+struct Scene final {
   Scene() = default;
   explicit Scene(const gfx::Camera& camera);
   Scene(const Scene&) = delete;
@@ -44,15 +41,15 @@ public:
   auto operator=(Scene&&) -> Scene& = default;
   auto operator=(const Scene&) -> Scene& = delete;
 
-  void DisplayEntityGui(entt::entity entity);
+  void display_entity_gui(entt::entity entity);
 
-  auto GetEntityRegistry() -> entt::registry&;
+  auto get_entity_registry() -> entt::registry&;
 
-  void SetBackgroundColor(Color background);
-  auto GetBackgroundColor() const -> Color;
+  void set_background_color(Color background);
+  auto get_background_color() const -> Color;
 
-  void SetCamera(const gfx::Camera& camera);
-  auto GetCamera() const -> const gfx::Camera&;
+  void set_camera(const gfx::Camera& camera);
+  auto get_camera() const -> const gfx::Camera&;
 
 private:
   entt::registry mEntityRegistry;

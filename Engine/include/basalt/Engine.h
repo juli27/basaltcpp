@@ -10,14 +10,9 @@
 
 namespace basalt {
 
-
-void Run();
-
-
-auto GetDeltaTime() -> f64;
-
-
-void SetCurrentScene(const std::shared_ptr<Scene>& scene);
+void run();
+auto get_delta_time() -> f64;
+void set_current_scene(const std::shared_ptr<Scene>& scene);
 auto get_renderer() -> gfx::backend::IRenderer*;
 
 } // namespace basalt

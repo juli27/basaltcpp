@@ -28,8 +28,8 @@ using bs::gfx::backend::VertexLayout;
 namespace d3d9_tuts {
 
 Textures::Textures() : mScene(std::make_shared<Scene>()) {
-  mScene->SetBackgroundColor(Color(0, 0, 255));
-  mScene->SetCamera(Camera(
+  mScene->set_background_color(Color(0, 0, 255));
+  mScene->set_camera(Camera(
     {0.0f, 3.0f, -5.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}
   ));
 
@@ -61,7 +61,7 @@ Textures::Textures() : mScene(std::make_shared<Scene>()) {
     { VertexElementUsage::TEXTURE_COORDS, VertexElementType::F32_2 }
   };
 
-  auto& entityRegistry = mScene->GetEntityRegistry();
+  auto& entityRegistry = mScene->get_entity_registry();
   auto entity = entityRegistry.create<TransformComponent, RenderComponent>();
   mCylinderEntity = std::get<0>(entity);
 
@@ -76,19 +76,19 @@ Textures::Textures() : mScene(std::make_shared<Scene>()) {
 }
 
 void Textures::OnShow() {
-  bs::SetCurrentScene(mScene);
+  bs::set_current_scene(mScene);
 }
 
 void Textures::OnHide() {}
 
 void Textures::OnUpdate() {
-  const auto deltaTime = static_cast<f32>(bs::GetDeltaTime());
+  const auto deltaTime = static_cast<f32>(bs::get_delta_time());
   const auto radOffetX = PI * 0.5f * deltaTime;
   auto& transform =
-    mScene->GetEntityRegistry().get<TransformComponent>(mCylinderEntity);
-  transform.Rotate(radOffetX, 0.0f, 0.0f);
+    mScene->get_entity_registry().get<TransformComponent>(mCylinderEntity);
+  transform.rotate(radOffetX, 0.0f, 0.0f);
 
-  mScene->DisplayEntityGui(mCylinderEntity);
+  mScene->display_entity_gui(mCylinderEntity);
 }
 
 } // namespace d3d9_tuts

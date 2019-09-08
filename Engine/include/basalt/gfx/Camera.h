@@ -10,41 +10,31 @@ namespace gfx {
 
 
 // perspective camera
-class Camera final {
-public:
+struct Camera final {
+  Camera() = delete;
   Camera(
     const math::Vec3f32& position, const math::Vec3f32& lookAt,
     const math::Vec3f32& up
   );
-
   Camera(const Camera&) = default;
   Camera(Camera&&) = default;
   ~Camera() = default;
 
-  Camera() = delete;
-
-public:
-
-  const math::Mat4f32& GetViewMatrix() const;
-
-
-  const math::Mat4f32& GetProjectionMatrix() const;
-
-private:
-
-  void UpdateView() const;
-
-public:
   Camera& operator=(const Camera&) = default;
   Camera& operator=(Camera&&) = default;
 
+  const math::Mat4f32& get_view_matrix() const;
+  const math::Mat4f32& get_projection_matrix() const;
+
 private:
-  mutable math::Mat4f32 m_view;
-  math::Mat4f32 m_projection;
-  math::Vec3f32 m_position;
-  math::Vec3f32 m_lookAt;
-  math::Vec3f32 m_up;
-  mutable bool m_dirty;
+  void update_view() const;
+
+  mutable math::Mat4f32 mView;
+  math::Mat4f32 mProjection;
+  math::Vec3f32 mPosition;
+  math::Vec3f32 mLookAt;
+  math::Vec3f32 mUp;
+  mutable bool mDirty;
 };
 
 } // namespace gfx

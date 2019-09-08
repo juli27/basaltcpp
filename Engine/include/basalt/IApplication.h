@@ -6,31 +6,21 @@
 
 namespace basalt {
 
-class IApplication {
-public:
-  inline IApplication() = default;
+struct IApplication {
+  IApplication() = default;
   virtual ~IApplication() = default;
 
   IApplication(const IApplication&) = delete;
   IApplication(IApplication&&) = delete;
 
-public:
   auto operator=(const IApplication&) -> IApplication& = delete;
   auto operator=(IApplication&&) -> IApplication& = delete;
 
-public:
+  virtual void on_init() = 0;
+  virtual void on_shutdown() = 0;
+  virtual void on_update() = 0;
 
-  virtual void OnInit() = 0;
-
-
-  virtual void OnShutdown() = 0;
-
-
-  virtual void OnUpdate() = 0;
-
-public:
-
-  static auto Create(Config& config) -> IApplication*;
+  static auto create(Config& config) -> IApplication*;
 };
 
 } // namespace basalt

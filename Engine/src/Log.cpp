@@ -30,7 +30,7 @@ shared_ptr<logger> sClientLogger;
 
 } // namespace
 
-void Init() {
+void init() {
   spdlog::set_pattern("%^[%n][%l]: %v%$");
 
   vector<sink_ptr> sinks;
@@ -61,11 +61,11 @@ void Init() {
 #endif
 }
 
-auto GetCoreLogger() -> const shared_ptr<logger>& {
+auto get_core_logger() -> const shared_ptr<logger>& {
   return sCoreLogger;
 }
 
-auto GetClientLogger() -> const shared_ptr<logger>& {
+auto get_client_logger() -> const shared_ptr<logger>& {
   return sClientLogger;
 }
 

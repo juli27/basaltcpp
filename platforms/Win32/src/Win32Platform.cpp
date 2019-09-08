@@ -529,7 +529,7 @@ LRESULT CALLBACK window_proc(
       }
     [[fallthrough]];
     case SIZE_MAXIMIZED:
-      sWindowInfo.mClientAreaSize.Set(LOWORD(lParam), HIWORD(lParam));
+      sWindowInfo.mClientAreaSize.set(LOWORD(lParam), HIWORD(lParam));
       dispatch_platform_event(WindowResizedEvent(sWindowInfo.mClientAreaSize));
       return 0;
 
@@ -619,7 +619,7 @@ void create_main_window(const Config& config) {
   if (config.mWindow.mMode == WindowMode::Windowed) {
     // calculate the window size for the given client area size
     // and center the window on the primary monitor
-    RECT rect{0, 0, config.mWindow.mSize.GetX(), config.mWindow.mSize.GetY()};
+    RECT rect{0, 0, config.mWindow.mSize.get_x(), config.mWindow.mSize.get_y()};
     if (!::AdjustWindowRectEx(&rect, style, FALSE, styleEx)) {
       throw system_error(::GetLastError(), std::system_category());
     }
@@ -797,7 +797,7 @@ auto get_window_mode() -> WindowMode {
   return winapi::sWindowInfo.mMode;
 }
 
-void set_window_mode(WindowMode windowMode) {
+void set_window_mode(const WindowMode windowMode) {
   switch (windowMode) {
   case WindowMode::Windowed:
     break;

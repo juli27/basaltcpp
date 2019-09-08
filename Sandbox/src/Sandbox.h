@@ -22,9 +22,9 @@ struct SandboxApp final : bs::IApplication {
   void PrevScene();
   void SetScene(bs::i32 index);
 
-  void OnInit() override;
-  void OnShutdown() override;
-  void OnUpdate() override;
+  void on_init() override;
+  void on_shutdown() override;
+  void on_update() override;
 
 private:
   std::vector<std::unique_ptr<ITestCase>> mScenes;

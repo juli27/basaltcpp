@@ -26,7 +26,7 @@ struct Event {
   constexpr explicit Event(EventType type) noexcept;
   constexpr Event(const Event&) noexcept = default;
   constexpr Event(Event&&) noexcept = default;
-  inline ~Event() noexcept = default;
+  ~Event() noexcept = default;
 
   auto operator=(const Event&) noexcept -> Event& = default;
   auto operator=(Event&&) noexcept -> Event& = default;
@@ -45,7 +45,7 @@ struct EventTyped : Event {
   constexpr EventTyped() noexcept;
   constexpr EventTyped(const EventTyped&) noexcept = default;
   constexpr EventTyped(EventTyped&&) noexcept = default;
-  inline ~EventTyped() noexcept = default;
+  ~EventTyped() noexcept = default;
 
   auto operator=(const EventTyped&) noexcept -> EventTyped& = default;
   auto operator=(EventTyped&&) noexcept -> EventTyped& = default;
@@ -61,7 +61,7 @@ public:
   inline explicit EventDispatcher(const Event& event);
 
   template <typename T, typename EventFn>
-  inline void Dispatch(EventFn func) const;
+  void dispatch(EventFn func) const;
 
 private:
   const Event& mEvent;
@@ -72,7 +72,7 @@ inline EventDispatcher::EventDispatcher(const Event& event) : mEvent(event) {}
 
 
 template<typename T, typename EventFn>
-inline void EventDispatcher::Dispatch(EventFn func) const {
+inline void EventDispatcher::dispatch(EventFn func) const {
   if (mEvent.mType == T::TYPE) {
     func(*static_cast<const T*>(&mEvent));
   }
