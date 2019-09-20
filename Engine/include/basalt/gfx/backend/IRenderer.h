@@ -91,7 +91,6 @@ struct IRenderer {
   virtual void SetClearColor(Color color) = 0;
 
   virtual void Render() = 0;
-  virtual void Present() = 0;
   virtual auto GetName() -> std::string_view = 0;
 
   virtual void NewGuiFrame() = 0;

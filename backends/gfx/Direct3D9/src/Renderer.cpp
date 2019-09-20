@@ -393,17 +393,6 @@ void Renderer::Render() {
   mCommandBuffer.Clear();
 }
 
-
-void Renderer::Present() {
-  const auto hr = mDevice->Present(nullptr, nullptr, nullptr, nullptr);
-  if (hr == D3DERR_DEVICELOST) {
-    ImGui_ImplDX9_InvalidateDeviceObjects();
-  } else {
-    BS_ASSERT(SUCCEEDED(hr), "");
-  }
-}
-
-
 auto Renderer::GetName() -> std::string_view {
   return RENDERER_NAME;
 }
