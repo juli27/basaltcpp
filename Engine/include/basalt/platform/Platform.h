@@ -49,14 +49,12 @@ auto get_name() -> std::string_view;
  */
 auto get_args() -> const std::vector<std::string>&;
 
-auto get_window_title() -> std::string;
-void set_window_title(std::string_view windowTitle);
+//auto get_window_title() -> std::string;
+//void set_window_title(std::string_view windowTitle);
 
 auto get_window_size() -> math::Vec2i32;
-
 auto get_window_mode() -> WindowMode;
 void set_window_mode(WindowMode windowMode);
-
 auto get_window_gfx_context() -> IGfxContext*;
 
 } // namespace basalt::platform

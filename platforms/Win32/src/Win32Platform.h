@@ -4,7 +4,7 @@
 
 #include "Win32APIHeader.h"
 
-namespace basalt::platform::winapi {
+namespace basalt::platform {
 
 /*
  * \brief Initializes the Windows API platform.
@@ -18,6 +18,6 @@ namespace basalt::platform::winapi {
  */
 void init(HINSTANCE instance, const WCHAR* commandLine, int showCommand);
 
-} // namespace basalt::platform::winapi
+} // namespace basalt::platform
 
 #endif // !BS_PLATFORM_WINDOWS_API_H

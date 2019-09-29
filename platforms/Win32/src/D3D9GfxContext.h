@@ -1,16 +1,15 @@
 #pragma once
-#ifndef BS_D3D9_GFX_CONTEXT_H
-#define BS_D3D9_GFX_CONTEXT_H
+#ifndef BS_WIN32_D3D9_GFX_CONTEXT_H
+#define BS_WIN32_D3D9_GFX_CONTEXT_H
 
 #include <basalt/platform/IGfxContext.h>
 
 #include <basalt/gfx/backend/d3d9/D3D9Header.h>
 
-namespace basalt::platform::winapi {
+namespace basalt::platform {
 
-class D3D9GfxContext final : public IGfxContext {
-public:
-  D3D9GfxContext(HWND window);
+struct D3D9GfxContext final : IGfxContext {
+  explicit D3D9GfxContext(HWND window);
   D3D9GfxContext(const D3D9GfxContext&) = delete;
   D3D9GfxContext(D3D9GfxContext&&) = delete;
   ~D3D9GfxContext();
@@ -27,6 +26,6 @@ private:
   D3DPRESENT_PARAMETERS mPresentParams = {};
 };
 
-} // basalt::platform::winapi
+} // basalt::platform
 
-#endif // BS_D3D9_GFX_CONTEXT_H
+#endif // BS_WIN32_D3D9_GFX_CONTEXT_H

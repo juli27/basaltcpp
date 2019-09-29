@@ -19,7 +19,7 @@ using std::wstring;
 _Use_decl_annotations_ int CALLBACK wWinMain(
   HINSTANCE instance, HINSTANCE, WCHAR* commandLine, int showCommand
 ) try {
-  basalt::platform::winapi::init(instance, commandLine, showCommand);
+  basalt::platform::init(instance, commandLine, showCommand);
   basalt::log::init();
 
   try {

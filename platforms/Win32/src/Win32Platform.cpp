@@ -35,7 +35,6 @@ using ::std::vector;
 using ::std::wstring;
 using ::std::wstring_view;
 
-namespace winapi {
 namespace {
 
 struct WindowData final {
@@ -47,13 +46,14 @@ struct WindowData final {
   auto operator=(const WindowData&) noexcept -> WindowData& = default;
   auto operator=(WindowData&&) noexcept -> WindowData& = default;
 
+  HWND mHandle = nullptr;
   IGfxContext* mGfxContext = nullptr;
   std::string mTitle;
   math::Vec2i32 mClientAreaSize;
   WindowMode mMode = WindowMode::Windowed;
-  bool mResizeable = false;
-  bool mMinimized = false;
-  bool mMaximized = false;
+  bool mIsResizeable = false;
+  bool mIsMinimized = false;
+  bool mIsSizing = false;
 };
 
 // TODO: syskeys
@@ -324,34 +324,7 @@ vector<string> sArgs;
 vector<PlatformEventCallback> sEventListener;
 HINSTANCE sInstance;
 int sShowCommand;
-HWND sWindowHandle;
-WindowData sWindowInfo;
-
-/**
- * \brief Creates an error description from a Windows API error code.
- *
- * \param errorCode Windows API error code.
- * \return description string of the error.
- */
-auto create_winapi_error_message(const DWORD errorCode) noexcept -> string {
-  WCHAR* buffer = nullptr;
-  const auto numChars = ::FormatMessageW(
-    FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM
-    | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, errorCode, 0u,
-    reinterpret_cast<WCHAR*>(&buffer), 0u, nullptr
-  );
-
-  if (numChars == 0u) {
-    return "FormatMessageW failed";
-  }
-
-  // use numChars because the buffer is NOT null terminated
-  const auto message = create_utf8_from_wide({buffer, numChars});
-
-  ::LocalFree(buffer);
-
-  return message;
-}
+WindowData sWindowData;
 
 /**
  * \brief Processes the windows command line string and populates the argv
@@ -395,8 +368,6 @@ void dispatch_platform_event(const Event& event) {
 LRESULT CALLBACK window_proc(
   HWND window, const UINT message, const WPARAM wParam, const LPARAM lParam
 ) {
-  static auto sIsMinimized = false;
-
   switch (message) {
   case WM_MOUSEMOVE:
     dispatch_platform_event(
@@ -502,50 +473,56 @@ LRESULT CALLBACK window_proc(
     return 0;
 
   case WM_KILLFOCUS:
-    if (sWindowInfo.mMode != WindowMode::Windowed) {
+    if (sWindowData.mMode != WindowMode::Windowed) {
       BS_TRACE("Minimizing");
-      ::ShowWindow(sWindowHandle, SW_MINIMIZE);
+      ::ShowWindow(sWindowData.mHandle, SW_MINIMIZE);
     }
     return 0;
 
   case WM_ENTERSIZEMOVE:
+    sWindowData.mIsSizing = true;
     return 0;
 
   case WM_EXITSIZEMOVE:
-    dispatch_platform_event(WindowResizedEvent(sWindowInfo.mClientAreaSize));
+    sWindowData.mIsSizing = false;
+    dispatch_platform_event(WindowResizedEvent(sWindowData.mClientAreaSize));
     return 0;
 
   case WM_SIZE:
     switch (wParam) {
     case SIZE_MINIMIZED:
-      sIsMinimized = true;
+      sWindowData.mIsMinimized = true;
       dispatch_platform_event(WindowMinimizedEvent());
-      break;
+      return 0;
     case SIZE_RESTORED:
-      if (sIsMinimized) {
-        sIsMinimized = false;
+      sWindowData.mClientAreaSize.set(LOWORD(lParam), HIWORD(lParam));
+
+      if (sWindowData.mIsMinimized) {
+        sWindowData.mIsMinimized = false;
         dispatch_platform_event(WindowRestoredEvent());
-        return 0;
       }
-    [[fallthrough]];
+      if (!sWindowData.mIsSizing) {
+        dispatch_platform_event(WindowResizedEvent(sWindowData.mClientAreaSize));
+      }
+
+      return 0;
     case SIZE_MAXIMIZED:
-      sWindowInfo.mClientAreaSize.set(LOWORD(lParam), HIWORD(lParam));
-      dispatch_platform_event(WindowResizedEvent(sWindowInfo.mClientAreaSize));
+      sWindowData.mClientAreaSize.set(LOWORD(lParam), HIWORD(lParam));
+      dispatch_platform_event(WindowResizedEvent(sWindowData.mClientAreaSize));
       return 0;
 
     default:
       return 0;
     }
-    return 0;
 
   case WM_CLOSE:
     ::DestroyWindow(window);
     return 0;
 
   case WM_DESTROY:
-    delete sWindowInfo.mGfxContext;
-    sWindowInfo.mGfxContext = nullptr;
-    sWindowHandle = nullptr;
+    delete sWindowData.mGfxContext;
+    sWindowData.mGfxContext = nullptr;
+    sWindowData.mHandle = nullptr;
     ::PostQuitMessage(0);
     return 0;
 
@@ -593,10 +570,10 @@ void register_window_class() {
 void create_main_window(const Config& config) {
   register_window_class();
 
-  sWindowInfo.mTitle = config.mWindow.mTitle;
-  sWindowInfo.mClientAreaSize = config.mWindow.mSize;
-  sWindowInfo.mMode = config.mWindow.mMode;
-  sWindowInfo.mResizeable = config.mWindow.mResizeable;
+  sWindowData.mTitle = config.mWindow.mTitle;
+  sWindowData.mClientAreaSize = config.mWindow.mSize;
+  sWindowData.mMode = config.mWindow.mMode;
+  sWindowData.mIsResizeable = config.mWindow.mResizeable;
 
   DWORD style = 0u;
   DWORD styleEx = WS_EX_APPWINDOW;
@@ -633,19 +610,19 @@ void create_main_window(const Config& config) {
   BS_DEBUG("creating window at ({}, {}) with size ({}, {})", xPos, yPos, width, height);
 
   const auto windowTitle = create_wide_from_utf8(config.mWindow.mTitle);
-  sWindowHandle = ::CreateWindowExW(
+  sWindowData.mHandle = ::CreateWindowExW(
     styleEx, WINDOW_CLASS_NAME.data(), windowTitle.c_str(), style, 
     CW_USEDEFAULT, CW_USEDEFAULT, width, height, nullptr, nullptr, sInstance,
     nullptr
   );
-  if (!sWindowHandle) {
+  if (!sWindowData.mHandle) {
     throw runtime_error("failed to create window");
   }
 
   BS_INFO("window created");
-  ::ShowWindow(sWindowHandle, sShowCommand);
+  ::ShowWindow(sWindowData.mHandle, sShowCommand);
 
-  sWindowInfo.mGfxContext = new D3D9GfxContext(sWindowHandle);
+  sWindowData.mGfxContext = new D3D9GfxContext(sWindowData.mHandle);
 }
 
 void create_platform_name_string() {
@@ -699,32 +676,30 @@ void init(HINSTANCE instance, const WCHAR* commandLine, const int showCommand) {
   create_platform_name_string();
 }
 
-} // namespace winapi
-
 void startup(const Config& config) {
-  BS_ASSERT(winapi::sInstance, "Windows API not initialized");
+  BS_ASSERT(sInstance, "Windows API not initialized");
 
-  winapi::create_main_window(config);
+  create_main_window(config);
 }
 
 void shutdown() {
-  if (winapi::sWindowHandle) {
-    ::DestroyWindow(winapi::sWindowHandle);
-    winapi::sWindowHandle = nullptr;
+  if (sWindowData.mHandle) {
+    ::DestroyWindow(sWindowData.mHandle);
+    sWindowData.mHandle = nullptr;
   }
 
   if (!::UnregisterClassW(
-    winapi::WINDOW_CLASS_NAME.data(), winapi::sInstance
+    WINDOW_CLASS_NAME.data(), sInstance
   )) {
     BS_ERROR(
       "failed to unregister window class: {}",
-      winapi::create_winapi_error_message(::GetLastError())
+      create_winapi_error_message(::GetLastError())
     );
   }
 }
 
 void add_event_listener(const PlatformEventCallback& callback) {
-  winapi::sEventListener.push_back(callback);
+  sEventListener.push_back(callback);
 }
 
 auto poll_events() -> bool {
@@ -759,7 +734,7 @@ auto wait_for_events() -> bool {
   MSG msg{};
   const auto ret = ::GetMessageW(&msg, nullptr, 0u, 0u);
   if (ret == -1) {
-    BS_ERROR(winapi::create_winapi_error_message(::GetLastError()));
+    BS_ERROR(create_winapi_error_message(::GetLastError()));
     return false;
   }
 
@@ -782,19 +757,19 @@ void request_quit() {
 }
 
 auto get_name() -> std::string_view {
-  return winapi::sPlatformName;
+  return sPlatformName;
 }
 
 auto get_args() -> const std::vector<std::string>& {
-  return winapi::sArgs;
+  return sArgs;
 }
 
 auto get_window_size() -> math::Vec2i32 {
-  return winapi::sWindowInfo.mClientAreaSize;
+  return sWindowData.mClientAreaSize;
 }
 
 auto get_window_mode() -> WindowMode {
-  return winapi::sWindowInfo.mMode;
+  return sWindowData.mMode;
 }
 
 void set_window_mode(const WindowMode windowMode) {
@@ -810,8 +785,9 @@ void set_window_mode(const WindowMode windowMode) {
 }
 
 auto get_window_gfx_context() -> IGfxContext* {
-  // TODO: assert window exists
-  return winapi::sWindowInfo.mGfxContext;
+  BS_ASSERT(sWindowData.mGfxContext, "no gfx context present");
+
+  return sWindowData.mGfxContext;
 }
 
 } // namespace basalt::platform

@@ -8,7 +8,7 @@
 
 #include <basalt/Log.h>
 
-namespace basalt::platform::winapi {
+namespace basalt::platform {
 
 D3D9GfxContext::D3D9GfxContext(HWND window) {
   mD3D9Object = Direct3DCreate9(D3D_SDK_VERSION);
@@ -30,7 +30,7 @@ D3D9GfxContext::D3D9GfxContext(HWND window) {
     0u, D3DPRESENT_INTERVAL_ONE // refresh rate + vsync
   };
 
-  const auto windowMode = platform::get_window_mode();
+  const auto windowMode = get_window_mode();
 
   // setup exclusive fullscreen
   if (windowMode == WindowMode::FullscreenExclusive) {
@@ -69,4 +69,4 @@ void D3D9GfxContext::present() {
   mDevice->Present(nullptr, nullptr, nullptr, nullptr);
 }
 
-} // basalt::platform::winapi
+} // basalt::platform

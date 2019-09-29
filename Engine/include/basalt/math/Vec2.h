@@ -6,7 +6,6 @@
 
 namespace basalt::math {
 
-
 template <typename T>
 class Vec2 final {
 public:
@@ -18,6 +17,8 @@ public:
 
   auto operator=(const Vec2&) noexcept -> Vec2& = default;
   auto operator=(Vec2&&) noexcept -> Vec2& = default;
+  constexpr auto operator==(const Vec2& other) noexcept -> bool;
+  constexpr auto operator!=(const Vec2& other) noexcept -> bool;
 
   void set(T x, T y) noexcept;
 
@@ -32,10 +33,18 @@ private:
   T mY = {};
 };
 
-
 template<typename T>
 constexpr Vec2<T>::Vec2(const T x, const T y) noexcept : mX(x), mY(y) {}
 
+template <typename T>
+constexpr auto Vec2<T>::operator==(const Vec2& other) noexcept -> bool {
+  return this->mX == other.mX && this->mY == other.mY;
+}
+
+template <typename T>
+constexpr auto Vec2<T>::operator!=(const Vec2& other) noexcept -> bool {
+  return !(*this == other);
+}
 
 template<typename T>
 void Vec2<T>::set(T x, T y) noexcept {
@@ -43,33 +52,27 @@ void Vec2<T>::set(T x, T y) noexcept {
   mY = y;
 }
 
-
 template<typename T>
 void Vec2<T>::set_x(T x) noexcept {
   mX = x;
 }
-
 
 template<typename T>
 void Vec2<T>::set_y(T y) noexcept {
   mY = y;
 }
 
-
 template<typename T>
 constexpr auto Vec2<T>::get_x() const noexcept -> T {
   return mX;
 }
-
 
 template<typename T>
 constexpr auto Vec2<T>::get_y() const noexcept -> T {
   return mY;
 }
 
-
 using Vec2f32 = Vec2<f32>;
-
 using Vec2i32 = Vec2<i32>;
 
 } // namespace basalt::math
