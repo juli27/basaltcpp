@@ -294,6 +294,9 @@
     <ClInclude Include="src\Sandbox.h" />
     <ClInclude Include="src\d3d9_tutorials\Vertices.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="BasaltApp.props" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -20,4 +20,7 @@
     <ClInclude Include="src\d3d9_tutorials\Textures.h" />
     <ClInclude Include="src\d3d9_tutorials\Device.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="BasaltApp.props" />
+  </ItemGroup>
 </Project>
