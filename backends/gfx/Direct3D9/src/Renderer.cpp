@@ -253,8 +253,7 @@ auto Renderer::add_mesh(
     BS_ERROR("Failed to lock vertex buffer");
   }
 
-  const auto meshHandle = mMeshes.allocate();
-  auto& mesh = mMeshes.get(meshHandle);
+  const auto [meshHandle, mesh] = mMeshes.allocate();
   mesh.vertexBuffer = vertexBuffer;
   mesh.fvf = fvf;
   mesh.vertexSize = vertexSize;
@@ -282,8 +281,7 @@ auto Renderer::add_texture(const std::string_view filePath) -> TextureHandle {
     throw std::runtime_error("loading texture file failed");
   }
 
-  const auto texHandle = mTextures.allocate();
-  auto& tex = mTextures.get(texHandle);
+  const auto [texHandle, tex] = mTextures.allocate();
   tex.texture = texture;
 
   return texHandle;

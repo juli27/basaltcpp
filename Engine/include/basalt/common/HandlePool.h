@@ -5,6 +5,7 @@
 #include "Types.h"
 
 #include <algorithm>
+#include <tuple>
 #include <vector>
 
 namespace basalt {
@@ -22,7 +23,7 @@ struct HandlePool final {
   // TODO: exception specification
   auto operator=(HandlePool&&) -> HandlePool& = default;
 
-  [[nodiscard]] auto allocate() -> HandleT;
+  [[nodiscard]] auto allocate() -> std::tuple<HandleT, T&>;
   void deallocate(HandleT handle);
 
   [[nodiscard]] auto get(HandleT handle) -> T&;
@@ -41,13 +42,13 @@ private:
 };
 
 template <typename T, typename HandleT>
-auto HandlePool<T, HandleT>::allocate() -> HandleT {
+auto HandlePool<T, HandleT>::allocate() -> std::tuple<HandleT, T&> {
   if (mFirstFreeSlot) {
     Slot& slot = mSlots[mFirstFreeSlot.get_value()];
     slot.mHandle = mFirstFreeSlot;
     mFirstFreeSlot = slot.mNextFreeSlot;
 
-    return slot.mHandle;
+    return {slot.mHandle, slot.mData};
   }
 
   const auto nextIndex = mSlots.size();
@@ -63,7 +64,7 @@ auto HandlePool<T, HandleT>::allocate() -> HandleT {
   Slot& slot = mSlots.emplace_back();
   slot.mHandle = HandleT(index);
 
-  return slot.mHandle;
+  return {slot.mHandle, slot.mData};
 }
 
 template <typename T, typename HandleT>
