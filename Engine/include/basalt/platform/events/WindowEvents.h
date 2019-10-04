@@ -2,9 +2,8 @@
 #ifndef BS_PLATFORM_EVENTS_WINDOW_EVENTS_H
 #define BS_PLATFORM_EVENTS_WINDOW_EVENTS_H
 
-#include "Event.h"
-
 #include <basalt/math/Vec2.h>
+#include "Event.h"
 
 namespace basalt::platform {
 
@@ -26,6 +25,7 @@ constexpr WindowResizedEvent::WindowResizedEvent(
   const math::Vec2i32& newSize
 ) noexcept : mNewSize(newSize) {}
 
+
 struct WindowMinimizedEvent : EventTyped<EventType::WindowMinimized> {
   constexpr WindowMinimizedEvent() noexcept = default;
   constexpr WindowMinimizedEvent(const WindowMinimizedEvent&) noexcept = default;
@@ -37,6 +37,7 @@ struct WindowMinimizedEvent : EventTyped<EventType::WindowMinimized> {
   auto operator=(WindowMinimizedEvent&&) noexcept -> WindowMinimizedEvent&
     = default;
 };
+
 
 struct WindowRestoredEvent : EventTyped<EventType::WindowRestored> {
   constexpr WindowRestoredEvent() noexcept = default;

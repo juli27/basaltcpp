@@ -1,8 +1,8 @@
 #include "Device.h"
 
-#include <memory> // make_shared
+#include <basalt/Prelude.h> // SetCurrentScene
 
-#include <BasaltPrelude.h> // SetCurrentScene
+#include <memory> // make_shared
 
 using bs::Color;
 using bs::Scene;
@@ -13,12 +13,12 @@ Device::Device() : mScene(std::make_shared<Scene>()) {
   mScene->set_background_color(Color(0, 0, 255));
 }
 
-void Device::OnShow() {
+void Device::on_show() {
   bs::set_current_scene(mScene);
 }
 
-void Device::OnHide() {}
+void Device::on_hide() {}
 
-void Device::OnUpdate() {}
+void Device::on_update() {}
 
 } // namespace d3d9_tuts

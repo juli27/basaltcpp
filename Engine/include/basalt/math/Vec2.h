@@ -7,8 +7,7 @@
 namespace basalt::math {
 
 template <typename T>
-class Vec2 final {
-public:
+struct Vec2 final {
   constexpr Vec2() noexcept = default;
   constexpr Vec2(T x, T y) noexcept;
   constexpr Vec2(const Vec2&) noexcept = default;

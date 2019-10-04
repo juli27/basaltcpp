@@ -2,11 +2,11 @@
 #ifndef BS_COMMON_ASSERTS_H
 #define BS_COMMON_ASSERTS_H
 
-#include <cstdlib>
-
 #include <basalt/Log.h>
 
-inline void FailAssert(
+#include <cstdlib>
+
+inline void fail_assert(
   const char* condition, const char* message, const char* file, const int line, const char* func
 ) {
   BS_FATAL("ASSERT FAILED: {} ({}) at {}:{} {}", condition, message, file, line, func);
@@ -24,7 +24,7 @@ inline void FailAssert(
 #define BS_ASSERT(b, msg) \
 if (b) { \
 } else { \
-  FailAssert(#b, msg, __FILE__, __LINE__, BS_FUNCTION_SIGNATURE); \
+  fail_assert(#b, msg, __FILE__, __LINE__, BS_FUNCTION_SIGNATURE); \
 }
 
 #else

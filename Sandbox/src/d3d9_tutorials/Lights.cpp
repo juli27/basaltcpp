@@ -1,12 +1,12 @@
 #include "Lights.h"
 
-#include <cmath> // sinf, cosf
+#include <basalt/Prelude.h> // GetDeltaTime, SetCurrentScene, gfx
 
 #include <array>
 #include <memory> // make_shared
 #include <tuple> // get
 
-#include <BasaltPrelude.h> // GetDeltaTime, SetCurrentScene, gfx
+#include <cmath> // sinf, cosf
 
 using std::array;
 
@@ -19,7 +19,7 @@ using bs::gfx::Camera;
 using bs::gfx::RenderComponent;
 using bs::gfx::backend::LightSetup;
 using bs::gfx::backend::PrimitiveType;
-using bs::gfx::backend::RF_CULL_NONE;
+using bs::gfx::backend::RenderFlagCullNone;
 using bs::gfx::backend::VertexElementType;
 using bs::gfx::backend::VertexElementUsage;
 using bs::gfx::backend::VertexLayout;
@@ -51,8 +51,8 @@ Lights::Lights() : mScene(std::make_shared<Scene>()) {
   }
 
   const VertexLayout vertexLayout{
-    { VertexElementUsage::POSITION, VertexElementType::F32_3 },
-    { VertexElementUsage::NORMAL, VertexElementType::F32_3 }
+    { VertexElementUsage::Position, VertexElementType::F32_3 },
+    { VertexElementUsage::Normal, VertexElementType::F32_3 }
   };
 
   auto& entityRegistry = mScene->get_entity_registry();
@@ -60,22 +60,22 @@ Lights::Lights() : mScene(std::make_shared<Scene>()) {
   mCylinderEntity = std::get<0>(entity);
 
   auto& renderComponent = std::get<2>(entity);
-  renderComponent.mMesh = bs::get_renderer()->AddMesh(
+  renderComponent.mMesh = bs::get_renderer()->add_mesh(
     vertices.data(), static_cast<i32>(vertices.size()), vertexLayout,
-    PrimitiveType::TRIANGLE_STRIP
+    PrimitiveType::TriangleStrip
   );
   renderComponent.mDiffuseColor = Color(255, 255, 0);
   renderComponent.mAmbientColor = Color(255, 255, 0);
-  renderComponent.mRenderFlags = RF_CULL_NONE;
+  renderComponent.mRenderFlags = RenderFlagCullNone;
 }
 
-void Lights::OnShow() {
+void Lights::on_show() {
   bs::set_current_scene(mScene);
 }
 
-void Lights::OnHide() {}
+void Lights::on_hide() {}
 
-void Lights::OnUpdate() {
+void Lights::on_update() {
   const auto deltaTime = static_cast<f32>(bs::get_delta_time());
   const auto radOffetX = PI * 0.5f * deltaTime;
   auto& transform =
@@ -85,7 +85,7 @@ void Lights::OnUpdate() {
   auto* renderer = bs::get_renderer();
 
   LightSetup lights;
-  lights.SetGlobalAmbientColor(Color(32, 32, 32));
+  lights.set_global_ambient_color(Color(32, 32, 32));
 
   mLightAngle += PI * 0.25f * deltaTime;
   // reset when rotated 360°
@@ -96,11 +96,11 @@ void Lights::OnUpdate() {
   const Vec3f32 lightDir(
     std::cosf(mLightAngle), 1.0f, std::sinf(mLightAngle)
   );
-  lights.AddDirectionalLight(
+  lights.add_directional_light(
     Vec3f32::normalize(lightDir), Color(255, 255, 255)
   );
 
-  renderer->SetLights(lights);
+  renderer->set_lights(lights);
 }
 
 } // namespace d3d9_tuts

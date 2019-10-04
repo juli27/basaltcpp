@@ -2,12 +2,12 @@
 #ifndef BS_SCENE_H
 #define BS_SCENE_H
 
-#include <entt/entt.hpp>
-
 #include "common/Color.h"
 #include "common/Types.h"
 #include "gfx/Camera.h"
 #include "math/Vec3.h"
+
+#include <entt/entt.hpp>
 
 namespace basalt {
 

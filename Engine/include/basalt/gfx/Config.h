@@ -11,6 +11,7 @@ enum class BackendApi : i8 {
   D3D9
 };
 
+
 struct Config final {
   BackendApi mBackendApi = BackendApi::Default;
 };

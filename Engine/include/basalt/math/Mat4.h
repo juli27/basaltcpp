@@ -6,9 +6,7 @@
 
 namespace basalt::math {
 
-
-class Mat4 final {
-public:
+struct Mat4 final {
   constexpr Mat4() noexcept = default;
   constexpr Mat4(
     f32 m11, f32 m12, f32 m13, f32 m14,
@@ -50,7 +48,6 @@ public:
   ) -> Mat4;
 };
 
-
 constexpr Mat4::Mat4(
   const f32 m11, const f32 m12, const f32 m13, const f32 m14,
   const f32 m21, const f32 m22, const f32 m23, const f32 m24,
@@ -62,7 +59,6 @@ constexpr Mat4::Mat4(
 , m31(m31), m32(m32), m33(m33), m34(m34)
 , m41(m41), m42(m42), m43(m43), m44(m44) {}
 
-
 constexpr auto Mat4::operator+=(const Mat4& rhs) noexcept -> Mat4& {
   m11 += rhs.m11; m12 += rhs.m12; m13 += rhs.m13; m14 += rhs.m14;
   m21 += rhs.m21; m22 += rhs.m22; m23 += rhs.m23; m24 += rhs.m24;
@@ -72,7 +68,6 @@ constexpr auto Mat4::operator+=(const Mat4& rhs) noexcept -> Mat4& {
   return *this;
 }
 
-
 constexpr auto Mat4::operator-=(const Mat4& rhs) noexcept -> Mat4& {
   m11 -= rhs.m11; m12 -= rhs.m12; m13 -= rhs.m13; m14 -= rhs.m14;
   m21 -= rhs.m21; m22 -= rhs.m22; m23 -= rhs.m23; m24 -= rhs.m24;
@@ -81,7 +76,6 @@ constexpr auto Mat4::operator-=(const Mat4& rhs) noexcept -> Mat4& {
 
   return *this;
 }
-
 
 constexpr auto Mat4::operator*=(const Mat4& rhs) noexcept -> Mat4& {
   *this = Mat4(
@@ -109,7 +103,6 @@ constexpr auto Mat4::operator*=(const Mat4& rhs) noexcept -> Mat4& {
   return *this;
 }
 
-
 constexpr auto Mat4::operator*=(const f32 rhs) noexcept -> Mat4& {
   m11 *= rhs; m12 *= rhs; m13 *= rhs; m14 *= rhs;
   m21 *= rhs; m22 *= rhs; m23 *= rhs; m24 *= rhs;
@@ -119,12 +112,10 @@ constexpr auto Mat4::operator*=(const f32 rhs) noexcept -> Mat4& {
   return *this;
 }
 
-
 inline auto Mat4::operator/=(const Mat4& rhs) noexcept -> Mat4& {
   *this *= Mat4::invert(rhs);
   return *this;
 }
-
 
 constexpr auto Mat4::operator/=(const f32 rhs) noexcept -> Mat4& {
   m11 /= rhs; m12 /= rhs; m13 /= rhs; m14 /= rhs;
@@ -142,7 +133,6 @@ constexpr auto Mat4::det() const noexcept -> f32 {
        + m13 * (m21 * m32 - m22 * m31);
 }
 
-
 constexpr auto Mat4::identity() noexcept -> Mat4 {
   return Mat4(
     1.0f, 0.0f, 0.0f, 0.0f,
@@ -151,7 +141,6 @@ constexpr auto Mat4::identity() noexcept -> Mat4 {
     0.0f, 0.0f, 0.0f, 1.0f
   );
 }
-
 
 constexpr auto Mat4::translation(const math::Vec3f32& v) -> Mat4 {
   return Mat4(
@@ -162,7 +151,6 @@ constexpr auto Mat4::translation(const math::Vec3f32& v) -> Mat4 {
   );
 }
 
-
 constexpr auto Mat4::scaling(const Vec3f32& v) -> Mat4 {
   return Mat4(
     v.get_x(), 0.0f    , 0.0f    , 0.0f,
@@ -171,7 +159,6 @@ constexpr auto Mat4::scaling(const Vec3f32& v) -> Mat4 {
     0.0f    , 0.0f    , 0.0f    , 1.0f
   );
 }
-
 
 constexpr auto operator-(const Mat4& m) -> Mat4 {
   return Mat4(
@@ -182,7 +169,6 @@ constexpr auto operator-(const Mat4& m) -> Mat4 {
   );
 }
 
-
 constexpr auto operator+(const Mat4& a, const Mat4& b) -> Mat4 {
   return Mat4(
     a.m11 + b.m11, a.m12 + b.m12, a.m13 + b.m13, a.m14 + b.m14,
@@ -192,7 +178,6 @@ constexpr auto operator+(const Mat4& a, const Mat4& b) -> Mat4 {
   );
 }
 
-
 constexpr auto operator-(const Mat4& a, const Mat4& b) -> Mat4 {
   return Mat4(
     a.m11 - b.m11, a.m12 - b.m12, a.m13 - b.m13, a.m14 - b.m14,
@@ -201,7 +186,6 @@ constexpr auto operator-(const Mat4& a, const Mat4& b) -> Mat4 {
     a.m41 - b.m41, a.m42 - b.m42, a.m43 - b.m43, a.m44 - b.m44
   );
 }
-
 
 constexpr auto operator*(const Mat4& a, const Mat4& b) -> Mat4 {
   return Mat4(
@@ -227,7 +211,6 @@ constexpr auto operator*(const Mat4& a, const Mat4& b) -> Mat4 {
   );
 }
 
-
 constexpr auto operator*(const Mat4& m, f32 f) -> Mat4 {
   return Mat4(
     m.m11 * f, m.m12 * f, m.m13 * f, m.m14 * f,
@@ -236,7 +219,6 @@ constexpr auto operator*(const Mat4& m, f32 f) -> Mat4 {
     m.m41 * f, m.m42 * f, m.m43 * f, m.m44 * f
   );
 }
-
 
 constexpr Mat4 operator*(f32 f, const Mat4& m) {
   return Mat4(
@@ -247,11 +229,9 @@ constexpr Mat4 operator*(f32 f, const Mat4& m) {
   );
 }
 
-
 inline auto operator/(const Mat4& a, const Mat4& b) -> Mat4 {
   return a * Mat4::invert(b);
 }
-
 
 constexpr auto operator/(const Mat4& m, f32 f) -> Mat4 {
   return Mat4(
@@ -261,7 +241,6 @@ constexpr auto operator/(const Mat4& m, f32 f) -> Mat4 {
     m.m41 / f, m.m42 / f, m.m43 / f, m.m44 / f
   );
 }
-
 
 constexpr auto operator==(const Mat4& a, const Mat4& b) -> bool {
   if (a.m11 != b.m11) return false;
@@ -283,7 +262,6 @@ constexpr auto operator==(const Mat4& a, const Mat4& b) -> bool {
   return a.m44 == b.m44;
 }
 
-
 constexpr auto operator!=(const Mat4& a, const Mat4& b) -> bool {
   if (a.m11 != b.m11) return true;
   if (a.m12 != b.m12) return true;
@@ -303,7 +281,6 @@ constexpr auto operator!=(const Mat4& a, const Mat4& b) -> bool {
 
   return a.m44 != b.m44;
 }
-
 
 using Mat4f32 = Mat4;
 

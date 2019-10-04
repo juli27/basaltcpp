@@ -2,13 +2,13 @@
 #ifndef BS_GFX_BACKEND_IRENDERER_H
 #define BS_GFX_BACKEND_IRENDERER_H
 
-#include <string>
-
 #include <basalt/common/Color.h>
 #include <basalt/math/Mat4.h>
 
 #include "RenderCommand.h"
 #include "Types.h"
+
+#include <string>
 
 namespace basalt::gfx::backend {
 
@@ -40,7 +40,7 @@ struct IRenderer {
    * \param primitiveType the primitive type of the mesh
    * \return handle of the added mesh
    */
-  virtual auto AddMesh(
+  virtual auto add_mesh(
     void* data, i32 numVertices, const VertexLayout& layout,
     PrimitiveType primitiveType
   ) -> MeshHandle = 0;
@@ -51,11 +51,11 @@ struct IRenderer {
    *
    * \param meshHandle handle to mesh to be removed
    */
-  virtual void RemoveMesh(MeshHandle meshHandle) = 0;
+  virtual void remove_mesh(MeshHandle meshHandle) = 0;
 
   // takes in a file path for now
   // TODO: move file loading into the resources namespace
-  virtual auto AddTexture(std::string_view filePath) -> TextureHandle = 0;
+  virtual auto add_texture(std::string_view filePath) -> TextureHandle = 0;
 
   /**
    * \brief Removes a static texture from the renderer which makes it
@@ -63,17 +63,17 @@ struct IRenderer {
    *
    * \param textureHandle handle to texture to be removed
    */
-  virtual void RemoveTexture(TextureHandle textureHandle) = 0;
+  virtual void remove_texture(TextureHandle textureHandle) = 0;
 
   /*
    * Adds a command to the default command buffer.
    */
-  virtual void Submit(const RenderCommand& command) = 0;
+  virtual void submit(const RenderCommand& command) = 0;
 
   /**
    * Sets the view and projection matrix for the default command buffer.
    */
-  virtual void SetViewProj(
+  virtual void set_view_proj(
     const math::Mat4f32& view, const math::Mat4f32& projection
   ) = 0;
 
@@ -83,17 +83,17 @@ struct IRenderer {
    *
    * TODO: move lights into the command buffer ?
    */
-  virtual void SetLights(const LightSetup& lights) = 0;
+  virtual void set_lights(const LightSetup& lights) = 0;
 
   /**
    * Sets the back buffer clear color.
    */
-  virtual void SetClearColor(Color color) = 0;
+  virtual void set_clear_color(Color color) = 0;
 
-  virtual void Render() = 0;
-  virtual auto GetName() -> std::string_view = 0;
+  virtual void render() = 0;
+  virtual auto get_name() -> std::string_view = 0;
 
-  virtual void NewGuiFrame() = 0;
+  virtual void new_gui_frame() = 0;
 };
 
 } // namespace basalt::gfx::backend

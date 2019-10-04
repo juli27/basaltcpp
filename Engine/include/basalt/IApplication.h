@@ -8,10 +8,9 @@ namespace basalt {
 
 struct IApplication {
   IApplication() = default;
-  virtual ~IApplication() = default;
-
   IApplication(const IApplication&) = delete;
   IApplication(IApplication&&) = delete;
+  virtual ~IApplication() = default;
 
   auto operator=(const IApplication&) -> IApplication& = delete;
   auto operator=(IApplication&&) -> IApplication& = delete;

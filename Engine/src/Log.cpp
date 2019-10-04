@@ -1,13 +1,11 @@
-#include "pch.h"
-
 #include <basalt/Log.h>
-
-#include <memory> // make_shared
-#include <vector>
 
 #include <spdlog/spdlog.h> // set_pattern
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/msvc_sink.h>
+
+#include <memory> // make_shared
+#include <vector>
 
 using std::shared_ptr;
 using std::vector;

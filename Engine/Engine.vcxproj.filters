@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="include\Basalt.h" />
     <ClInclude Include="include\basalt\Config.h" />
     <ClInclude Include="include\basalt\Engine.h" />
     <ClInclude Include="include\basalt\IApplication.h" />
@@ -28,17 +27,16 @@
     <ClInclude Include="include\basalt\gfx\Camera.h" />
     <ClInclude Include="include\basalt\Scene.h" />
     <ClInclude Include="include\basalt\gfx\RenderComponent.h" />
-    <ClInclude Include="include\pch.h" />
     <ClInclude Include="include\basalt\math\Vec3.h" />
-    <ClInclude Include="include\BasaltPrelude.h" />
     <ClInclude Include="include\basalt\platform\IGfxContext.h" />
     <ClInclude Include="include\basalt\gfx\Config.h" />
     <ClInclude Include="include\basalt\platform\Types.h" />
+    <ClInclude Include="include\basalt\Basalt.h" />
+    <ClInclude Include="include\basalt\Prelude.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine.cpp" />
     <ClCompile Include="src\Log.cpp" />
-    <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\math\Mat4.cpp" />
     <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\gfx\Gfx.cpp" />

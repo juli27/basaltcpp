@@ -1,32 +1,32 @@
 #include <basalt/gfx/backend/d3d9/Renderer.h>
 
-#include <cstring> // for memcpy
-
-#include <limits>
-#include <stdexcept>
-#include <string>
-
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_dx9.h>
-
 #include <basalt/common/Asserts.h>
 #include <basalt/common/Color.h>
 #include <basalt/gfx/backend/d3d9/Util.h>
 #include <basalt/platform/Platform.h>
 #include <basalt/platform/events/WindowEvents.h>
 
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_dx9.h>
+
+#include <limits>
+#include <stdexcept>
+#include <string>
+
+#include <cstring> // for memcpy
+
 namespace basalt::gfx::backend::d3d9 {
 namespace {
 
 constexpr std::string_view RENDERER_NAME = "Direct3D 9 fixed function";
 
-auto TranslateVertexLayoutToFVF(const VertexLayout& layout) -> DWORD {
+auto vertex_layout_to_fvf(const VertexLayout& layout) -> DWORD {
   DWORD fvf = 0u;
 
-  for (const auto& element : layout.GetElements()) {
-    switch (element.usage) {
-      case VertexElementUsage::POSITION:
-        if (element.type != VertexElementType::F32_3) {
+  for (const auto& element : layout.get_elements()) {
+    switch (element.mUsage) {
+      case VertexElementUsage::Position:
+        if (element.mType != VertexElementType::F32_3) {
           throw std::runtime_error("vertex layout not supported");
         }
         if (fvf & D3DFVF_XYZRHW) {
@@ -38,8 +38,8 @@ auto TranslateVertexLayoutToFVF(const VertexLayout& layout) -> DWORD {
         fvf |= D3DFVF_XYZ;
         break;
 
-      case VertexElementUsage::NORMAL:
-        if (element.type != VertexElementType::F32_3) {
+      case VertexElementUsage::Normal:
+        if (element.mType != VertexElementType::F32_3) {
           throw std::runtime_error("vertex layout not supported");
         }
         if (fvf & D3DFVF_XYZRHW) {
@@ -51,30 +51,30 @@ auto TranslateVertexLayoutToFVF(const VertexLayout& layout) -> DWORD {
         fvf |= D3DFVF_NORMAL;
         break;
 
-      case VertexElementUsage::TEXTURE_COORDS:
-        if (element.type != VertexElementType::F32_2) {
+      case VertexElementUsage::TextureCoords:
+        if (element.mType != VertexElementType::F32_2) {
           throw std::runtime_error("vertex layout not supported");
         }
         fvf |= D3DFVF_TEX1;
         break;
 
-      case VertexElementUsage::COLOR_DIFFUSE:
-        if (element.type != VertexElementType::U32_1) {
+      case VertexElementUsage::ColorDiffuse:
+        if (element.mType != VertexElementType::U32_1) {
           throw std::runtime_error("vertex layout not supported");
         }
         fvf |= D3DFVF_DIFFUSE;
         break;
 
 
-      case VertexElementUsage::COLOR_SPECULAR:
-        if (element.type != VertexElementType::U32_1) {
+      case VertexElementUsage::ColorSpecular:
+        if (element.mType != VertexElementType::U32_1) {
           throw std::runtime_error("vertex layout not supported");
         }
         fvf |= D3DFVF_SPECULAR;
         break;
 
-      case VertexElementUsage::POSITION_TRANSFORMED:
-        if (element.type != VertexElementType::F32_4) {
+      case VertexElementUsage::PositionTransformed:
+        if (element.mType != VertexElementType::F32_4) {
           throw std::runtime_error("vertex layout not supported");
         }
         if (fvf & D3DFVF_XYZ || fvf & D3DFVF_NORMAL) {
@@ -94,16 +94,16 @@ auto TranslateVertexLayoutToFVF(const VertexLayout& layout) -> DWORD {
   return fvf;
 }
 
-void FillPrimitiveInfo(
+void fill_primitive_info(
   Mesh& mesh, const PrimitiveType primitiveType, const i32 numVtx
 ) {
   switch (primitiveType) {
-    case PrimitiveType::POINT_LIST:
+    case PrimitiveType::PointList:
       mesh.primType = D3DPT_POINTLIST;
       mesh.primCount = numVtx;
       break;
 
-    case PrimitiveType::LINE_LIST:
+    case PrimitiveType::LineList:
       mesh.primType = D3DPT_LINELIST;
       BS_ASSERT(
         numVtx % 2 == 0,
@@ -112,12 +112,12 @@ void FillPrimitiveInfo(
       mesh.primCount = numVtx / 2;
       break;
 
-    case PrimitiveType::LINE_STRIP:
+    case PrimitiveType::LineStrip:
       mesh.primType = D3DPT_LINESTRIP;
       mesh.primCount = numVtx - 1;
       break;
 
-    case PrimitiveType::TRIANGLE_LIST:
+    case PrimitiveType::TriangleList:
       mesh.primType = D3DPT_TRIANGLELIST;
       BS_ASSERT(
         numVtx % 3 == 0,
@@ -126,12 +126,12 @@ void FillPrimitiveInfo(
       mesh.primCount = numVtx / 3;
       break;
 
-    case PrimitiveType::TRIANGLE_STRIP:
+    case PrimitiveType::TriangleStrip:
       mesh.primType = D3DPT_TRIANGLESTRIP;
       mesh.primCount = numVtx - 2;
       break;
 
-    case PrimitiveType::TRIANGLE_FAN:
+    case PrimitiveType::TriangleFan:
       mesh.primType = D3DPT_TRIANGLEFAN;
       mesh.primCount = numVtx - 2;
       break;
@@ -141,40 +141,47 @@ void FillPrimitiveInfo(
   }
 }
 
-void FillD3DColor(D3DCOLORVALUE& d3dColor, const Color color) {
-  d3dColor.r = color.GetRed() / 255.0f;
-  d3dColor.g = color.GetGreen() / 255.0f;
-  d3dColor.b = color.GetBlue() / 255.0f;
-  d3dColor.a = color.GetAlpha() / 255.0f;
+void fill_color(D3DCOLORVALUE& d3dColor, const Color color) {
+  d3dColor.r = color.get_red() / 255.0f;
+  d3dColor.g = color.get_green() / 255.0f;
+  d3dColor.b = color.get_blue() / 255.0f;
+  d3dColor.a = color.get_alpha() / 255.0f;
 }
 
-auto CreateWideFromUTF8(const std::string_view source) -> std::wstring {
-  if (source.empty()) {
-    return std::wstring();
+auto create_wide_from_utf8(const std::string_view src) noexcept
+-> std::wstring {
+  // TODO: noexcept allocator and heap memory pool for strings
+
+  // MultiByteToWideChar fails when size is 0
+  if (src.empty()) {
+    return {};
   }
 
-  BS_ASSERT(
-    source.size() <= static_cast<std::size_t>(std::numeric_limits<int>::max()),
-    "string too large"
+  // use the size of the string view because the input string
+  // can be non null-terminated
+  if (src.size() > static_cast<uSize>(std::numeric_limits<int>::max())) {
+    return L"create_wide_from_utf8: string to convert is too large";
+  }
+
+  const auto srcSize = static_cast<int>(src.size());
+  auto dstSize = ::MultiByteToWideChar(
+    CP_UTF8, 0, src.data(), srcSize, nullptr, 0
   );
-  const int sourceSize = static_cast<int>(source.size());
-  const int size = ::MultiByteToWideChar(
-    CP_UTF8, 0, source.data(), sourceSize, nullptr, 0
+
+  if (dstSize == 0) {
+    return L"MultiByteToWideChar returned 0";
+  }
+
+  std::wstring dst(dstSize, L'\0');
+  dstSize = ::MultiByteToWideChar(
+    CP_UTF8, 0, src.data(), srcSize, dst.data(), static_cast<int>(dst.size())
   );
 
-  if (size == 0) {
-    throw std::runtime_error("MultiByteToWideChar failed");
+  if (dstSize == 0) {
+    return L"MultiByteToWideChar returned 0";
   }
 
-  std::wstring dest(size, '\0');
-  if (::MultiByteToWideChar(
-    CP_UTF8, 0, source.data(), sourceSize, dest.data(),
-    static_cast<int>(dest.size())
-  ) == 0) {
-    throw std::runtime_error("MultiByteToWideChar failed");
-  }
-
-  return dest;
+  return dst;
 }
 
 } // namespace
@@ -198,7 +205,7 @@ Renderer::Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp)
       mDevice->Reset(&mPresentParams);
       ImGui_ImplDX9_CreateDeviceObjects();
 
-      BS_INFO("resizing d3d9 back buffer");
+      BS_INFO("resized d3d9 back buffer");
     });
   });
 }
@@ -206,10 +213,10 @@ Renderer::Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp)
 Renderer::~Renderer() {
   ImGui_ImplDX9_Shutdown();
 
-  mTextures.ForEach([](Texture& texture){
+  mTextures.for_each([](Texture& texture){
     texture.texture->Release();
   });
-  mMeshes.ForEach([](Mesh& mesh){
+  mMeshes.for_each([](Mesh& mesh){
     mesh.vertexBuffer->Release();
   });
 
@@ -219,18 +226,17 @@ Renderer::~Renderer() {
 /*
  * Stores the vertex data into a new static vertex buffer in the managed pool.
  */
-auto Renderer::AddMesh(
-  void* data, i32 numVertices, const VertexLayout& layout,
-  PrimitiveType primitiveType
+auto Renderer::add_mesh(
+  void* data, const i32 numVertices, const VertexLayout& layout,
+  const PrimitiveType primitiveType
 ) -> MeshHandle {
   BS_ASSERT_ARG_NOT_NULL(data);
   BS_ASSERT(numVertices > 0, "numVertices must be > 0");
-  BS_ASSERT(!layout.GetElements().empty(), "must specify a vertex layout");
+  BS_ASSERT(!layout.get_elements().empty(), "must specify a vertex layout");
 
-
-  const DWORD fvf = TranslateVertexLayoutToFVF(layout);
-  const UINT vertexSize = D3DXGetFVFVertexSize(fvf);
-  const UINT bufferSize = vertexSize * numVertices;
+  const auto fvf = vertex_layout_to_fvf(layout);
+  const auto vertexSize = D3DXGetFVFVertexSize(fvf);
+  const auto bufferSize = vertexSize * numVertices;
 
   IDirect3DVertexBuffer9* vertexBuffer = nullptr;
   D3D9CALL(mDevice->CreateVertexBuffer(
@@ -247,29 +253,27 @@ auto Renderer::AddMesh(
     BS_ERROR("Failed to lock vertex buffer");
   }
 
-  const MeshHandle meshHandle = mMeshes.Allocate();
-  Mesh& mesh = mMeshes.Get(meshHandle);
+  const auto meshHandle = mMeshes.allocate();
+  auto& mesh = mMeshes.get(meshHandle);
   mesh.vertexBuffer = vertexBuffer;
   mesh.fvf = fvf;
   mesh.vertexSize = vertexSize;
-  FillPrimitiveInfo(mesh, primitiveType, numVertices);
+  fill_primitive_info(mesh, primitiveType, numVertices);
 
   return meshHandle;
 }
 
-
-void Renderer::RemoveMesh(MeshHandle meshHandle) {
-  Mesh& mesh = mMeshes.Get(meshHandle);
+void Renderer::remove_mesh(const MeshHandle meshHandle) {
+  auto& mesh = mMeshes.get(meshHandle);
 
   mesh.vertexBuffer->Release();
   mesh.vertexBuffer = nullptr;
 
-  mMeshes.Deallocate(meshHandle);
+  mMeshes.deallocate(meshHandle);
 }
 
-
-auto Renderer::AddTexture(const std::string_view filePath) -> TextureHandle {
-  const std::wstring wideFilePath = CreateWideFromUTF8(filePath);
+auto Renderer::add_texture(const std::string_view filePath) -> TextureHandle {
+  const auto wideFilePath = create_wide_from_utf8(filePath);
 
   IDirect3DTexture9* texture = nullptr;
   if (FAILED(::D3DXCreateTextureFromFileW(
@@ -278,55 +282,51 @@ auto Renderer::AddTexture(const std::string_view filePath) -> TextureHandle {
     throw std::runtime_error("loading texture file failed");
   }
 
-  const TextureHandle texHandle = mTextures.Allocate();
-  Texture& tex = mTextures.Get(texHandle);
+  const auto texHandle = mTextures.allocate();
+  auto& tex = mTextures.get(texHandle);
   tex.texture = texture;
 
   return texHandle;
 }
 
-
-void Renderer::RemoveTexture(TextureHandle textureHandle) {
-  Texture& texture = mTextures.Get(textureHandle);
+void Renderer::remove_texture(const TextureHandle textureHandle) {
+  auto& texture = mTextures.get(textureHandle);
 
   texture.texture->Release();
   texture.texture = nullptr;
 
-  mTextures.Deallocate(textureHandle);
+  mTextures.deallocate(textureHandle);
 }
 
-
-void Renderer::Submit(const RenderCommand& command) {
-  mCommandBuffer.AddCommand(command);
+void Renderer::submit(const RenderCommand& command) {
+  mCommandBuffer.add_command(command);
 }
 
-
-void Renderer::SetViewProj(
+void Renderer::set_view_proj(
   const math::Mat4f32& view, const math::Mat4f32& projection
 ) {
-  if (projection.m34 < 0) {
-    throw std::runtime_error("m34 can't be negative in a projection matrix");
-  }
+  BS_ASSERT(projection.m34 >= 0,
+    "m34 can't be negative in a projection matrix");
 
-  mCommandBuffer.SetView(view);
-  mCommandBuffer.SetProjection(projection);
+  mCommandBuffer.set_view(view);
+  mCommandBuffer.set_projection(projection);
 }
 
-void Renderer::SetLights(const LightSetup& lights) {
-  const DWORD MAX_LIGHTS = mDeviceCaps.MaxActiveLights;
+void Renderer::set_lights(const LightSetup& lights) {
+  const auto maxLights = mDeviceCaps.MaxActiveLights;
 
-  const auto& directionalLights = lights.GetDirectionalLights();
-  if (directionalLights.size() > MAX_LIGHTS) {
+  const auto& directionalLights = lights.get_directional_lights();
+  if (directionalLights.size() > maxLights) {
     throw std::runtime_error("the renderer doesn't support that many lights");
   }
 
   DWORD lightIndex = 0u;
-  for (const DirectionalLight& light : directionalLights) {
+  for (const auto& light : directionalLights) {
     D3DLIGHT9 d3dlight{};
     d3dlight.Type = D3DLIGHT_DIRECTIONAL;
-    d3dlight.Direction = *reinterpret_cast<const D3DVECTOR*>(&light.direction);
-    FillD3DColor(d3dlight.Diffuse, light.diffuseColor);
-    FillD3DColor(d3dlight.Ambient, light.ambientColor);
+    d3dlight.Direction = *reinterpret_cast<const D3DVECTOR*>(&light.mDirection);
+    fill_color(d3dlight.Diffuse, light.mDiffuseColor);
+    fill_color(d3dlight.Ambient, light.mAmbientColor);
 
     D3D9CALL(mDevice->SetLight(lightIndex, &d3dlight));
     D3D9CALL(mDevice->LightEnable(lightIndex, TRUE));
@@ -334,24 +334,22 @@ void Renderer::SetLights(const LightSetup& lights) {
   }
 
   // disable not used lights
-  for (; lightIndex < MAX_LIGHTS; lightIndex++) {
+  for (; lightIndex < maxLights; lightIndex++) {
     D3D9CALL(mDevice->LightEnable(lightIndex, FALSE));
   }
 
   D3D9CALL(mDevice->SetRenderState(
-    D3DRS_AMBIENT, lights.GetGlobalAmbientColor().ToARGB()
+    D3DRS_AMBIENT, lights.get_global_ambient_color().to_argb()
   ));
 }
 
-
-void Renderer::SetClearColor(Color color) {
-  mClearColor = color.ToARGB();
+void Renderer::set_clear_color(const Color color) {
+  mClearColor = color.to_argb();
 }
-
 
 // TODO: shading mode
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
-void Renderer::Render() {
+void Renderer::render() {
   const auto hr = mDevice->TestCooperativeLevel();
   if (hr == D3DERR_DEVICENOTRESET) {
     BS_INFO("resetting d3d9 device");
@@ -370,14 +368,14 @@ void Renderer::Render() {
   D3D9CALL(mDevice->BeginScene());
 
   D3D9CALL(mDevice->SetTransform(
-    D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&mCommandBuffer.GetView())
+    D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&mCommandBuffer.get_view())
   ));
   D3D9CALL(mDevice->SetTransform(
     D3DTS_PROJECTION,
-    reinterpret_cast<const D3DMATRIX*>(&mCommandBuffer.GetProjection())
+    reinterpret_cast<const D3DMATRIX*>(&mCommandBuffer.get_projection())
   ));
 
-  RenderCommands(mCommandBuffer);
+  render_commands(mCommandBuffer);
 
   // render imgui
   ImGui::Render();
@@ -390,62 +388,61 @@ void Renderer::Render() {
 
   D3D9CALL(mDevice->EndScene());
 
-  mCommandBuffer.Clear();
+  mCommandBuffer.clear();
 }
 
-auto Renderer::GetName() -> std::string_view {
+auto Renderer::get_name() -> std::string_view {
   return RENDERER_NAME;
 }
 
 
-void Renderer::NewGuiFrame() {
+void Renderer::new_gui_frame() {
   ImGui_ImplDX9_NewFrame();
 }
 
-
-void Renderer::RenderCommands(const RenderCommandBuffer& commands) {
-  for (const RenderCommand& command : commands.GetCommands()) {
+void Renderer::render_commands(const RenderCommandBuffer& commands) {
+  for (const auto& command : commands.get_commands()) {
     // apply custom render flags
-    if (command.flags) {
-      if (command.flags & RF_DISABLE_LIGHTING) {
+    if (command.mFlags) {
+      if (command.mFlags & RenderFlagDisableLighting) {
         D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
       }
-      if (command.flags & RF_CULL_NONE) {
+      if (command.mFlags & RenderFlagCullNone) {
         D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
       }
     }
 
     D3DMATERIAL9 material{};
-    FillD3DColor(material.Diffuse, command.diffuseColor);
-    FillD3DColor(material.Ambient, command.ambientColor);
-    FillD3DColor(material.Emissive, command.emissiveColor);
+    fill_color(material.Diffuse, command.mDiffuseColor);
+    fill_color(material.Ambient, command.mAmbientColor);
+    fill_color(material.Emissive, command.mEmissiveColor);
     D3D9CALL(mDevice->SetMaterial(&material));
 
-    if (command.texture) {
-      const Texture& texture = mTextures.Get(command.texture);
+    if (command.mTexture) {
+      const auto& texture = mTextures.get(command.mTexture);
       D3D9CALL(mDevice->SetTexture(0, texture.texture));
     } else {
       D3D9CALL(mDevice->SetTexture(0, nullptr));
     }
 
-    const Mesh& mesh = mMeshes.Get(command.mesh);
+    const auto& mesh = mMeshes.get(command.mMesh);
     D3D9CALL(mDevice->SetStreamSource(
       0u, mesh.vertexBuffer, 0u, mesh.vertexSize
     ));
     D3D9CALL(mDevice->SetFVF(mesh.fvf));
 
     D3D9CALL(mDevice->SetTransform(
-      D3DTS_WORLDMATRIX(0), reinterpret_cast<const D3DMATRIX*>(&command.world)
+      D3DTS_WORLDMATRIX(0), reinterpret_cast<const D3DMATRIX*>(&command.mWorld)
     ));
 
     D3D9CALL(mDevice->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
 
     // revert custom render flags
-    if (command.flags) {
-      if (command.flags & RF_DISABLE_LIGHTING) {
+    if (command.mFlags) {
+      if (command.mFlags & RenderFlagDisableLighting) {
         D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
       }
-      if (command.flags & RF_CULL_NONE) {
+      if (command.mFlags & RenderFlagCullNone) {
         D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
       }
     }

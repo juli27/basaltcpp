@@ -1,14 +1,11 @@
-#include "pch.h"
-
 #include <basalt/math/Mat4.h>
 
 #include <cmath>
 
 namespace basalt::math {
 
-
 auto Mat4::invert(const Mat4& m) -> Mat4 {
-  f32 invDet = m.det();
+  auto invDet = m.det();
   if (invDet == 0.0f) {
     return identity();
   }
@@ -36,9 +33,8 @@ auto Mat4::invert(const Mat4& m) -> Mat4 {
   return result;
 }
 
-
-auto Mat4::rotation_x(f32 rad) -> Mat4 {
-  Mat4 result = identity();
+auto Mat4::rotation_x(const f32 rad) -> Mat4 {
+  auto result = identity();
 
   result.m22 = result.m33 = std::cosf(rad);
   result.m23 = std::sinf(rad);
@@ -47,9 +43,8 @@ auto Mat4::rotation_x(f32 rad) -> Mat4 {
   return result;
 }
 
-
-auto Mat4::rotation_y(f32 rad) -> Mat4 {
-  Mat4 result = identity();
+auto Mat4::rotation_y(const f32 rad) -> Mat4 {
+  auto result = identity();
 
   result.m11 = result.m33 = std::cosf(rad);
   result.m31 = std::sinf(rad);
@@ -58,9 +53,8 @@ auto Mat4::rotation_y(f32 rad) -> Mat4 {
   return result;
 }
 
-
-auto Mat4::rotation_z(f32 rad) -> Mat4 {
-  Mat4 result = identity();
+auto Mat4::rotation_z(const f32 rad) -> Mat4 {
+  auto result = identity();
 
   result.m11 = result.m22 = std::cosf(rad);
   result.m12 = std::sinf(rad);
@@ -69,14 +63,12 @@ auto Mat4::rotation_z(f32 rad) -> Mat4 {
   return result;
 }
 
-
 auto Mat4::rotation(const Vec3f32& xyzRad) -> Mat4 {
-  const Mat4 x = rotation_x(xyzRad.get_x());
-  const Mat4 y = rotation_y(xyzRad.get_y());
-  const Mat4 z = rotation_z(xyzRad.get_z());
+  const auto x = rotation_x(xyzRad.get_x());
+  const auto y = rotation_y(xyzRad.get_y());
+  const auto z = rotation_z(xyzRad.get_z());
   return z * x * y;
 }
-
 
 auto Mat4::perspective_projection(
   const f32 fovRad, const f32 aspectRatio, const f32 nearPlane, const f32 farPlane

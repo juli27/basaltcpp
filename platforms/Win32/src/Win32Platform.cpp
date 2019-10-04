@@ -1,16 +1,6 @@
 #include <basalt/platform/Platform.h>
 #include "Win32Platform.h"
 
-#include <algorithm> // for_each
-#include <array>
-#include <memory> // make_unique
-#include <stdexcept>
-#include <string>
-#include <system_error> // system_category
-#include <vector>
-
-#include <fmt/format.h>
-
 #include <basalt/common/Types.h>
 #include "D3D9GfxContext.h"
 #include "Win32APIHeader.h"
@@ -23,6 +13,16 @@
 #include <basalt/common/Asserts.h>
 
 #include "Util.h"
+
+#include <fmt/format.h>
+
+#include <algorithm> // for_each
+#include <array>
+#include <memory> // make_unique
+#include <stdexcept>
+#include <string>
+#include <system_error> // system_category
+#include <vector>
 
 namespace basalt::platform {
 

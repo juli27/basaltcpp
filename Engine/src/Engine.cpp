@@ -1,12 +1,4 @@
-#include "pch.h"
-
 #include <basalt/Engine.h>
-
-#include <chrono>
-#include <memory>
-#include <stdexcept>
-
-#include <imgui/imgui.h> // ImGui
 
 #include <basalt/Config.h>
 #include <basalt/IApplication.h>
@@ -21,6 +13,12 @@
 #include <basalt/platform/Platform.h> // platform
 #include <basalt/platform/events/Event.h>
 #include <basalt/platform/events/KeyEvents.h>
+
+#include <imgui/imgui.h> // ImGui
+
+#include <chrono>
+#include <memory>
+#include <stdexcept>
 
 namespace basalt {
 
@@ -42,16 +40,15 @@ Config sConfig{
   {gfx::BackendApi::Default}
 };
 IApplication* sApp = nullptr;
-f64 sCurrentDeltaTime = 0.0;
+f64 sCurrentDeltaTime{0.0};
 shared_ptr<Scene> sCurrentScene;
 gfx::backend::IRenderer* sRenderer;
 
-void InitDearImGui() {
+void init_dear_imgui() {
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
 
   auto& imguiIo = ImGui::GetIO();
-  imguiIo.ConfigFlags = ImGuiConfigFlags_NavEnableKeyboard;
   imguiIo.KeyMap[ImGuiKey_Tab] = static_cast<i8>(Key::Tab);
   imguiIo.KeyMap[ImGuiKey_LeftArrow] = static_cast<i8>(Key::LeftArrow);
   imguiIo.KeyMap[ImGuiKey_RightArrow] = static_cast<i8>(Key::RightArrow);
@@ -94,7 +91,7 @@ void InitDearImGui() {
   });
 }
 
-void Startup() {
+void startup() {
   BS_INFO("platform: {}", platform::get_name());
 
   // TODO: load config from file or create default
@@ -117,14 +114,13 @@ void Startup() {
   input::init();
 
   // init imgui before gfx. Renderer initializes imgui render backend
-  InitDearImGui();
+  init_dear_imgui();
   sRenderer =  platform::get_window_gfx_context()->create_renderer();
 
   BS_INFO("engine startup complete");
 }
 
-
-void Shutdown() {
+void shutdown() {
   BS_INFO("shutting down...");
 
   delete sRenderer;
@@ -140,8 +136,7 @@ void Shutdown() {
   BS_INFO("engine shutdown");
 }
 
-
-void NewDearImGuiFrame() {
+void new_dear_im_gui_frame() {
   auto& io = ImGui::GetIO();
   const auto windowSize = platform::get_window_size();
   io.DisplaySize = ImVec2(
@@ -158,15 +153,14 @@ void NewDearImGuiFrame() {
   io.MouseDown[2] = input::is_mouse_button_pressed(MouseButton::Middle);
   io.MouseDown[3] = input::is_mouse_button_pressed(MouseButton::Button4);
   io.MouseDown[4] = input::is_mouse_button_pressed(MouseButton::Button5);
-  sRenderer->NewGuiFrame();
+  sRenderer->new_gui_frame();
   ImGui::NewFrame();
 }
 
 } // namespace
 
-
 void run() {
-  Startup();
+  startup();
 
   sApp->on_init();
   BS_ASSERT(sCurrentScene, "no scene set");
@@ -178,7 +172,7 @@ void run() {
 
   auto startTime = Clock::now();
   while (platform::poll_events()) {
-    NewDearImGuiFrame();
+    new_dear_im_gui_frame();
 
     sApp->on_update();
 
@@ -197,14 +191,12 @@ void run() {
 
   sApp->on_shutdown();
 
-  Shutdown();
+  shutdown();
 }
-
 
 auto get_delta_time() -> f64 {
   return sCurrentDeltaTime;
 }
-
 
 void set_current_scene(const shared_ptr<Scene>& scene) {
   sCurrentScene = scene;

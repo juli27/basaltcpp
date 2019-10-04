@@ -2,13 +2,11 @@
 #ifndef BS_PLATFORM_EVENTS_MOUSE_EVENTS_H
 #define BS_PLATFORM_EVENTS_MOUSE_EVENTS_H
 
-#include "Event.h"
-
 #include <basalt/common/Types.h>
 #include <basalt/math/Vec2.h>
+#include "Event.h"
 
 namespace basalt::platform {
-
 
 enum class MouseButton : i8 {
   Unknown = 0,
@@ -30,7 +28,6 @@ struct MouseMovedEvent : EventTyped<EventType::MouseMoved> {
   math::Vec2i32 mPos;
 };
 
-
 constexpr MouseMovedEvent::MouseMovedEvent(const math::Vec2i32& pos) noexcept
 : mPos(pos) {}
 
@@ -50,7 +47,6 @@ struct MouseButtonPressedEvent : EventTyped<EventType::MouseButtonPressed> {
 
   MouseButton mButton = MouseButton::Unknown;
 };
-
 
 constexpr MouseButtonPressedEvent::MouseButtonPressedEvent(
   const MouseButton button
@@ -73,7 +69,6 @@ struct MouseButtonReleasedEvent : EventTyped<EventType::MouseButtonReleased> {
   MouseButton mButton = MouseButton::Unknown;
 };
 
-
 constexpr MouseButtonReleasedEvent::MouseButtonReleasedEvent(
   const MouseButton button
 ) noexcept : mButton(button) {}
@@ -92,7 +87,6 @@ struct MouseWheelScrolledEvent : EventTyped<EventType::MouseWheelScrolled> {
 
   f32 mOffset = 0.0f;
 };
-
 
 constexpr MouseWheelScrolledEvent::MouseWheelScrolledEvent(
   const f32 offset

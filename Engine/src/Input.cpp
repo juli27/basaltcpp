@@ -1,8 +1,4 @@
-#include "pch.h"
-
 #include <basalt/Input.h>
-
-#include <bitset>
 
 #include <basalt/common/Types.h>
 #include <basalt/math/Vec2.h>
@@ -10,78 +6,71 @@
 #include <basalt/platform/events/KeyEvents.h>
 #include <basalt/platform/events/MouseEvents.h>
 
+#include <bitset>
+
+
 namespace basalt::input {
 namespace {
 
-
-static constexpr i32 NUM_KEYS = static_cast<i32>(Key::NumberOfKeys);
-static constexpr i32 NUM_MOUSE_BUTTONS = static_cast<i32>(
+constexpr i32 NUM_KEYS = static_cast<i32>(Key::NumberOfKeys);
+constexpr i32 NUM_MOUSE_BUTTONS = static_cast<i32>(
   MouseButton::NumberOfButtons
 );
 
-std::bitset<NUM_KEYS> s_keyStates;
-std::bitset<NUM_MOUSE_BUTTONS> s_buttonStates;
-math::Vec2i32 s_mousePos;
+std::bitset<NUM_KEYS> sKeyStates;
+std::bitset<NUM_MOUSE_BUTTONS> sButtonStates;
+math::Vec2i32 sMousePos;
 
-
-void OnKeyPressed(const platform::KeyPressedEvent& event) {
-  const i32 index = static_cast<i32>(event.mKey);
-  s_keyStates[index] = true;
+void on_key_pressed(const platform::KeyPressedEvent& event) {
+  const auto index = static_cast<i32>(event.mKey);
+  sKeyStates[index] = true;
 }
 
-
-void OnKeyReleased(const platform::KeyReleasedEvent& event) {
-  const i32 index = static_cast<i32>(event.mKey);
-  s_keyStates[index] = false;
+void on_key_released(const platform::KeyReleasedEvent& event) {
+  const auto index = static_cast<i32>(event.mKey);
+  sKeyStates[index] = false;
 }
 
-
-void OnMouseMoved(const platform::MouseMovedEvent& event) {
-  s_mousePos = event.mPos;
+void on_mouse_moved(const platform::MouseMovedEvent& event) {
+  sMousePos = event.mPos;
 }
 
-
-void OnButtonPressed(const platform::MouseButtonPressedEvent& event) {
-  const i32 index = static_cast<i32>(event.mButton);
-  s_buttonStates[index] = true;
+void on_button_pressed(const platform::MouseButtonPressedEvent& event) {
+  const auto index = static_cast<i32>(event.mButton);
+  sButtonStates[index] = true;
 }
 
-
-void OnButtonReleased(const platform::MouseButtonReleasedEvent& event) {
-  const i32 index = static_cast<i32>(event.mButton);
-  s_buttonStates[index] = false;
+void on_button_released(const platform::MouseButtonReleasedEvent& event) {
+  const auto index = static_cast<i32>(event.mButton);
+  sButtonStates[index] = false;
 }
 
-
-void PlatformEventCallback(const platform::Event& event) {
-  platform::EventDispatcher dispatcher(event);
-  dispatcher.dispatch<platform::MouseMovedEvent>(&OnMouseMoved);
-  dispatcher.dispatch<platform::KeyPressedEvent>(&OnKeyPressed);
-  dispatcher.dispatch<platform::KeyReleasedEvent>(&OnKeyReleased);
-  dispatcher.dispatch<platform::MouseButtonPressedEvent>(&OnButtonPressed);
-  dispatcher.dispatch<platform::MouseButtonReleasedEvent>(&OnButtonReleased);
+void platform_event_callback(const platform::Event& event) {
+  const platform::EventDispatcher dispatcher(event);
+  dispatcher.dispatch<platform::MouseMovedEvent>(&on_mouse_moved);
+  dispatcher.dispatch<platform::KeyPressedEvent>(&on_key_pressed);
+  dispatcher.dispatch<platform::KeyReleasedEvent>(&on_key_released);
+  dispatcher.dispatch<platform::MouseButtonPressedEvent>(&on_button_pressed);
+  dispatcher.dispatch<platform::MouseButtonReleasedEvent>(&on_button_released);
 }
 
 } // namespace
 
 
 void init() {
-  platform::add_event_listener(&PlatformEventCallback);
+  platform::add_event_listener(&platform_event_callback);
 }
-
 
 auto is_key_pressed(Key key) -> bool {
-  return s_keyStates[static_cast<i32>(key)];
+  return sKeyStates[static_cast<i32>(key)];
 }
-
 
 auto get_mouse_pos() -> const math::Vec2i32& {
-  return s_mousePos;
+  return sMousePos;
 }
 
-
 auto is_mouse_button_pressed(MouseButton button) -> bool {
-  return s_buttonStates[static_cast<i32>(button)];
+  return sButtonStates[static_cast<i32>(button)];
 }
 
 } // namespace basalt::input

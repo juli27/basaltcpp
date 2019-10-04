@@ -13,7 +13,7 @@ struct RenderComponent final {
   backend::TextureHandle mTexture;
   Color mDiffuseColor;
   Color mAmbientColor;
-  i8 mRenderFlags = 0;
+  u8 mRenderFlags = backend::RenderFlagNone;
 };
 
 // GfxComponent

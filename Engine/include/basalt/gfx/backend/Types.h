@@ -2,23 +2,22 @@
 #ifndef BS_GFX_BACKEND_TYPES_H
 #define BS_GFX_BACKEND_TYPES_H
 
-#include <vector>
-
 #include <basalt/common/Color.h>
 #include <basalt/common/Handle.h>
 #include <basalt/common/Types.h>
 #include <basalt/math/Vec3.h>
 
+#include <vector>
+
 namespace basalt::gfx::backend {
 
-
 enum class VertexElementUsage : i8 {
-  POSITION,
-  POSITION_TRANSFORMED,
-  NORMAL,
-  COLOR_DIFFUSE,
-  COLOR_SPECULAR,
-  TEXTURE_COORDS
+  Position,
+  PositionTransformed,
+  Normal,
+  ColorDiffuse,
+  ColorSpecular,
+  TextureCoords
 };
 
 
@@ -32,60 +31,54 @@ enum class VertexElementType : i8 {
 
 
 struct VertexElement final {
-  VertexElementUsage usage;
-  VertexElementType type;
+  VertexElementUsage mUsage;
+  VertexElementType mType;
 };
 
 
-class VertexLayout final {
-public:
-
+struct VertexLayout final {
+  VertexLayout() = default;
   inline VertexLayout(std::initializer_list<VertexElement> elements);
+  VertexLayout(const VertexLayout&) = default;
+  VertexLayout(VertexLayout&&) = default;
+  ~VertexLayout() = default;
 
-  inline VertexLayout() = default;
-  inline VertexLayout(const VertexLayout&) = default;
-  inline VertexLayout(VertexLayout&&) = default;
-  inline ~VertexLayout() = default;
+  auto operator=(const VertexLayout&) -> VertexLayout& = default;
+  auto operator=(VertexLayout&&) -> VertexLayout& = default;
 
-public:
-  inline void AddElement(VertexElementUsage usage, VertexElementType type);
+  inline void add_element(VertexElementUsage usage, VertexElementType type);
 
-
-  inline auto GetElements() const -> const std::vector<VertexElement>&;
-
-public:
-  inline auto operator=(const VertexLayout&) -> VertexLayout& = default;
-  inline auto operator=(VertexLayout&&) -> VertexLayout& = default;
+  [[nodiscard]]
+  inline auto get_elements() const -> const std::vector<VertexElement>&;
 
 private:
-  std::vector<VertexElement> m_elements;
+  std::vector<VertexElement> mElements;
 };
 
+inline VertexLayout::VertexLayout(
+  const std::initializer_list<VertexElement> elements
+)
+: mElements(elements) {}
 
-inline VertexLayout::VertexLayout(std::initializer_list<VertexElement> elements)
-  : m_elements(elements) {}
-
-
-inline void VertexLayout::AddElement(
-  VertexElementUsage usage, VertexElementType type
+inline void VertexLayout::add_element(
+  const VertexElementUsage usage, const VertexElementType type
 ) {
-  m_elements.push_back({usage, type});
+  mElements.push_back({usage, type});
 }
 
-
-inline auto VertexLayout::GetElements() const
+inline auto VertexLayout::get_elements() const
 -> const std::vector<VertexElement>& {
-  return m_elements;
+  return mElements;
 }
 
 
 enum class PrimitiveType : i8 {
-  POINT_LIST,
-  LINE_LIST,
-  LINE_STRIP,
-  TRIANGLE_LIST,
-  TRIANGLE_STRIP,
-  TRIANGLE_FAN
+  PointList,
+  LineList,
+  LineStrip,
+  TriangleList,
+  TriangleStrip,
+  TriangleFan
 };
 
 
@@ -98,58 +91,55 @@ struct TextureTypeTag {};
 
 
 using MeshHandle = Handle<_internal::MeshTypeTag>;
-
-
 using TextureHandle = Handle<_internal::TextureTypeTag>;
 
 
 struct DirectionalLight final {
-  math::Vec3f32 direction;
-  Color diffuseColor;
-  Color ambientColor;
+  math::Vec3f32 mDirection;
+  Color mDiffuseColor;
+  Color mAmbientColor;
 };
 
 
-class LightSetup final {
-public:
-  inline LightSetup();
+struct LightSetup final {
+  LightSetup() = default;
+  LightSetup(const LightSetup&) = default;
+  LightSetup(LightSetup&&) = default;
+  ~LightSetup() = default;
 
-  inline void AddDirectionalLight(math::Vec3f32 direction, Color diffuseColor);
+  auto operator=(const LightSetup&) -> LightSetup& = default;
+  auto operator=(LightSetup&&) -> LightSetup& = default;
 
-  inline void SetGlobalAmbientColor(Color ambientColor);
+  inline void add_directional_light(math::Vec3f32 direction, Color diffuseColor);
 
-  inline auto GetDirectionalLights() const -> const std::vector<DirectionalLight>&;
+  inline void set_global_ambient_color(Color ambientColor);
 
-  inline auto GetGlobalAmbientColor() const -> Color;
+  [[nodiscard]]
+  inline auto get_directional_lights() const
+    -> const std::vector<DirectionalLight>&;
+  [[nodiscard]] inline auto get_global_ambient_color() const -> Color;
 
 private:
   std::vector<DirectionalLight> mDirectionalLights;
   Color mAmbientColor;
 };
 
-
-inline LightSetup::LightSetup() : mAmbientColor{} {}
-
-
-inline void LightSetup::AddDirectionalLight(
-  math::Vec3f32 direction, Color diffuseColor
+inline void LightSetup::add_directional_light(
+  const math::Vec3f32 direction, const Color diffuseColor
 ) {
   mDirectionalLights.push_back({direction, diffuseColor});
 }
 
-
-inline void LightSetup::SetGlobalAmbientColor(Color ambientColor) {
+inline void LightSetup::set_global_ambient_color(const Color ambientColor) {
   mAmbientColor = ambientColor;
 }
 
-
-inline auto LightSetup::GetDirectionalLights() const
+inline auto LightSetup::get_directional_lights() const
 -> const std::vector<DirectionalLight>& {
   return mDirectionalLights;
 }
 
-
-inline auto LightSetup::GetGlobalAmbientColor() const -> Color {
+inline auto LightSetup::get_global_ambient_color() const -> Color {
   return mAmbientColor;
 }
 

@@ -7,9 +7,7 @@
 
 namespace basalt {
 
-
-class ApiNotSupportedException final : public std::runtime_error {
-public:
+struct ApiNotSupportedException final : std::runtime_error {
   explicit inline ApiNotSupportedException(const char* message);
   explicit inline ApiNotSupportedException(const std::string& message);
 };

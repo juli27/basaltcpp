@@ -11,9 +11,9 @@ struct ITestCase {
   auto operator=(const ITestCase&) -> ITestCase& = delete;
   auto operator=(ITestCase&&) -> ITestCase& = delete;
 
-  virtual void OnShow() = 0;
-  virtual void OnHide() = 0;
-  virtual void OnUpdate() = 0;
+  virtual void on_show() = 0;
+  virtual void on_hide() = 0;
+  virtual void on_update() = 0;
 };
 
 #endif // !ITESTCASE_H

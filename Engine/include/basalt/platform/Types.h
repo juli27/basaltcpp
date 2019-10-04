@@ -2,10 +2,10 @@
 #ifndef BS_PLATFORM_WINDOW_TYPES_H
 #define BS_PLATFORM_WINDOW_TYPES_H
 
-#include <string>
-
 #include <basalt/common/Types.h>
 #include <basalt/math/Vec2.h>
+
+#include <string>
 
 namespace basalt {
 
@@ -14,6 +14,7 @@ enum class WindowMode : i8 {
   Fullscreen,
   FullscreenExclusive
 };
+
 
 struct WindowDesc {
   std::string mTitle;

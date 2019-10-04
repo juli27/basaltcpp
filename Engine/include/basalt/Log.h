@@ -2,8 +2,6 @@
 #ifndef BS_LOG_H
 #define BS_LOG_H
 
-#include <memory>
-
 #include <spdlog/spdlog.h>
 // interferes with Key::DELETE
 #if defined(DELETE)
@@ -14,6 +12,8 @@
 #if defined(MOUSE_MOVED)
 #undef MOUSE_MOVED
 #endif
+
+#include <memory>
 
 namespace basalt::log {
 

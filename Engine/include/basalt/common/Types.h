@@ -2,6 +2,7 @@
 #ifndef BS_COMMON_TYPES_H
 #define BS_COMMON_TYPES_H
 
+#include <cstddef>
 #include <cstdint>
 
 namespace basalt {

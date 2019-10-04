@@ -1,10 +1,10 @@
 #include "Vertices.h"
 
+#include <basalt/Prelude.h> // SetCurrentScene, gfx
+
 #include <array>
 #include <memory> // make_shared
 #include <tuple> // get
-
-#include <BasaltPrelude.h> // SetCurrentScene, gfx
 
 using std::array;
 
@@ -28,32 +28,32 @@ Vertices::Vertices() : mScene(std::make_shared<Scene>()) {
   };
 
   array<Vertex, 3u> vertices = {{
-    {150.0f,  50.0f, 0.5f, 1.0f, Color(255, 0  , 0).ToARGB()},
-    {250.0f, 250.0f, 0.5f, 1.0f, Color(0  , 255, 0).ToARGB()},
-    { 50.0f, 250.0f, 0.5f, 1.0f, Color(0  , 255, 255).ToARGB()}
+    {150.0f,  50.0f, 0.5f, 1.0f, Color(255, 0  , 0).to_argb()},
+    {250.0f, 250.0f, 0.5f, 1.0f, Color(0  , 255, 0).to_argb()},
+    { 50.0f, 250.0f, 0.5f, 1.0f, Color(0  , 255, 255).to_argb()}
   }};
 
   const VertexLayout vertexLayout{
-    { VertexElementUsage::POSITION_TRANSFORMED, VertexElementType::F32_4 },
-    { VertexElementUsage::COLOR_DIFFUSE, VertexElementType::U32_1 }
+    { VertexElementUsage::PositionTransformed, VertexElementType::F32_4 },
+    { VertexElementUsage::ColorDiffuse, VertexElementType::U32_1 }
   };
 
   auto& entityRegistry = mScene->get_entity_registry();
   const auto triangleEntity = entityRegistry.create<TransformComponent, RenderComponent>();
-  std::get<2>(triangleEntity).mMesh = bs::get_renderer()->AddMesh(
+  std::get<2>(triangleEntity).mMesh = bs::get_renderer()->add_mesh(
     vertices.data(), static_cast<i32>(vertices.size()), vertexLayout,
-    PrimitiveType::TRIANGLE_LIST
+    PrimitiveType::TriangleList
   );
 }
 
-void Vertices::OnShow() {
+void Vertices::on_show() {
   bs::set_current_scene(mScene);
 }
 
 
-void Vertices::OnHide() {}
+void Vertices::on_hide() {}
 
 
-void Vertices::OnUpdate() {}
+void Vertices::on_update() {}
 
 } // namespace d3d9_tuts

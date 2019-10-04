@@ -1,12 +1,12 @@
 #include "Textures.h"
 
-#include <cmath> // cosf, sinf
+#include <basalt/Prelude.h> // GetDeltaTime, SetCurrentScene, gfx
 
 #include <array>
 #include <memory> // make_shared
 #include <tuple>
 
-#include <BasaltPrelude.h> // GetDeltaTime, SetCurrentScene, gfx
+#include <cmath> // cosf, sinf
 
 using std::array;
 
@@ -19,8 +19,8 @@ using bs::math::Vec3f32;
 using bs::gfx::Camera;
 using bs::gfx::RenderComponent;
 using bs::gfx::backend::PrimitiveType;
-using bs::gfx::backend::RF_CULL_NONE;
-using bs::gfx::backend::RF_DISABLE_LIGHTING;
+using bs::gfx::backend::RenderFlagCullNone;
+using bs::gfx::backend::RenderFlagDisableLighting;
 using bs::gfx::backend::VertexElementType;
 using bs::gfx::backend::VertexElementUsage;
 using bs::gfx::backend::VertexLayout;
@@ -35,7 +35,7 @@ Textures::Textures() : mScene(std::make_shared<Scene>()) {
 
   struct Vertex final {
     Vec3f32 pos;
-    u32 color = bs::Color().ToARGB();
+    u32 color = bs::Color().to_argb();
     Vec2f32 uv;
   };
 
@@ -47,18 +47,18 @@ Textures::Textures() : mScene(std::make_shared<Scene>()) {
     const auto cosTheta = std::cosf(theta);
 
     vertices[2 * i].pos = {sinTheta, -1.0f, cosTheta};
-    vertices[2 * i].color = Color(255, 255, 255).ToARGB();
+    vertices[2 * i].color = Color(255, 255, 255).to_argb();
     vertices[2 * i].uv = {i / (50.0f - 1), 1.0f};
 
     vertices[2 * i + 1].pos = {sinTheta, 1.0f, cosTheta};
-    vertices[2 * i + 1].color = Color(128, 128, 128).ToARGB();
+    vertices[2 * i + 1].color = Color(128, 128, 128).to_argb();
     vertices[2 * i + 1].uv = {i / (50.0f - 1), 0.0f};
   }
 
   const VertexLayout vertexLayout{
-    { VertexElementUsage::POSITION, VertexElementType::F32_3 },
-    { VertexElementUsage::COLOR_DIFFUSE, VertexElementType::U32_1 },
-    { VertexElementUsage::TEXTURE_COORDS, VertexElementType::F32_2 }
+    { VertexElementUsage::Position, VertexElementType::F32_3 },
+    { VertexElementUsage::ColorDiffuse, VertexElementType::U32_1 },
+    { VertexElementUsage::TextureCoords, VertexElementType::F32_2 }
   };
 
   auto& entityRegistry = mScene->get_entity_registry();
@@ -67,21 +67,21 @@ Textures::Textures() : mScene(std::make_shared<Scene>()) {
 
   auto& renderComponent = std::get<2>(entity);
   auto* renderer = bs::get_renderer();
-  renderComponent.mMesh = renderer->AddMesh(
+  renderComponent.mMesh = renderer->add_mesh(
     vertices.data(), static_cast<i32>(vertices.size()), vertexLayout,
-    PrimitiveType::TRIANGLE_STRIP
+    PrimitiveType::TriangleStrip
   );
-  renderComponent.mTexture = renderer->AddTexture("data/banana.bmp");
-  renderComponent.mRenderFlags = RF_CULL_NONE | RF_DISABLE_LIGHTING;
+  renderComponent.mTexture = renderer->add_texture("data/banana.bmp");
+  renderComponent.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 }
 
-void Textures::OnShow() {
+void Textures::on_show() {
   bs::set_current_scene(mScene);
 }
 
-void Textures::OnHide() {}
+void Textures::on_hide() {}
 
-void Textures::OnUpdate() {
+void Textures::on_update() {
   const auto deltaTime = static_cast<f32>(bs::get_delta_time());
   const auto radOffetX = PI * 0.5f * deltaTime;
   auto& transform =

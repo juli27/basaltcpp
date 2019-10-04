@@ -32,26 +32,26 @@ struct Renderer final : IRenderer {
   auto operator=(const Renderer&) -> Renderer& = delete;
   auto operator=(Renderer&&) -> Renderer& = delete;
 
-  auto AddMesh(
+  auto add_mesh(
     void* data, i32 numVertices, const VertexLayout& layout,
     PrimitiveType primitiveType
   ) -> MeshHandle override;
-  void RemoveMesh(MeshHandle meshHandle) override;
-  auto AddTexture(std::string_view filePath) -> TextureHandle override;
-  void RemoveTexture(TextureHandle textureHandle) override;
-  void Submit(const RenderCommand& command) override;
-  void SetViewProj(
+  void remove_mesh(MeshHandle meshHandle) override;
+  auto add_texture(std::string_view filePath) -> TextureHandle override;
+  void remove_texture(TextureHandle textureHandle) override;
+  void submit(const RenderCommand& command) override;
+  void set_view_proj(
     const math::Mat4f32& view, const math::Mat4f32& projection
   ) override;
-  void SetLights(const LightSetup& lights) override;
-  void SetClearColor(Color color) override;
-  void Render() override;
-  auto GetName() -> std::string_view override;
+  void set_lights(const LightSetup& lights) override;
+  void set_clear_color(Color color) override;
+  void render() override;
+  auto get_name() -> std::string_view override;
 
-  void NewGuiFrame() override;
+  void new_gui_frame() override;
 
 private:
-  void RenderCommands(const RenderCommandBuffer& commands);
+  void render_commands(const RenderCommandBuffer& commands);
 
   IDirect3DDevice9* mDevice = nullptr;
   D3DCAPS9 mDeviceCaps = {};

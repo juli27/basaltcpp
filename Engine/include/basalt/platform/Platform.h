@@ -9,14 +9,13 @@
  * underlying platform.
  */
 
+#include <basalt/Config.h>
+#include "IGfxContext.h"
+#include "Types.h"
+
 #include <functional>
 #include <string>
 #include <vector>
-
-#include <basalt/Config.h>
-
-#include "IGfxContext.h"
-#include "Types.h"
 
 namespace basalt::platform {
 

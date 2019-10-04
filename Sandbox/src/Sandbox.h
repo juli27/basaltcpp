@@ -2,10 +2,10 @@
 #ifndef SANDBOX_H
 #define SANDBOX_H
 
+#include <basalt/Basalt.h>
+
 #include <memory>
 #include <vector>
-
-#include <Basalt.h>
 
 struct ITestCase;
 
@@ -18,9 +18,9 @@ struct SandboxApp final : bs::IApplication {
   auto operator=(const SandboxApp&) -> SandboxApp& = delete;
   auto operator=(SandboxApp&&) -> SandboxApp& = delete;
 
-  void NextScene();
-  void PrevScene();
-  void SetScene(bs::i32 index);
+  void next_scene();
+  void prev_scene();
+  void set_scene(bs::i32 index);
 
   void on_init() override;
   void on_shutdown() override;

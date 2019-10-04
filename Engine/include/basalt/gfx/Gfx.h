@@ -2,11 +2,11 @@
 #ifndef BS_GFX_H
 #define BS_GFX_H
 
-#include <memory>
-
 #include <basalt/Scene.h>
 
 #include "backend/IRenderer.h"
+
+#include <memory>
 
 namespace basalt::gfx {
 

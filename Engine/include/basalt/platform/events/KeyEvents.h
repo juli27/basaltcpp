@@ -2,15 +2,13 @@
 #ifndef BS_PLATFORM_EVENTS_KEY_EVENTS_H
 #define BS_PLATFORM_EVENTS_KEY_EVENTS_H
 
-#include <string>
-#include <utility>
-
+#include <basalt/common/Types.h>
 #include "Event.h"
 
-#include <basalt/common/Types.h>
+#include <string>
+#include <utility> // move
 
 namespace basalt::platform {
-
 
 enum class Key : i8 {
   Unknown = 0,
@@ -48,7 +46,6 @@ struct KeyPressedEvent : EventTyped<EventType::KeyPressed> {
   Key mKey = Key::Unknown;
 };
 
-
 constexpr KeyPressedEvent::KeyPressedEvent(const Key key) noexcept
 : mKey(key) {}
 
@@ -66,7 +63,6 @@ struct KeyReleasedEvent : EventTyped<EventType::KeyReleased> {
   Key mKey = Key::Unknown;
 };
 
-
 constexpr KeyReleasedEvent::KeyReleasedEvent(const Key key) noexcept
 : mKey(key) {}
 
@@ -83,7 +79,6 @@ struct CharactersTyped : EventTyped<EventType::CharactersTyped> {
   // TODO: optimization: use static char array instead of string?
   std::string mChars;
 };
-
 
 inline CharactersTyped::CharactersTyped(std::string chars)
 : mChars(std::move(chars)) {}

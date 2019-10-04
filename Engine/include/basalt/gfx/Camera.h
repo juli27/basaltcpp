@@ -5,9 +5,7 @@
 #include <basalt/math/Mat4.h>
 #include <basalt/math/Vec3.h>
 
-namespace basalt {
-namespace gfx {
-
+namespace basalt::gfx {
 
 // perspective camera
 struct Camera final {
@@ -37,7 +35,6 @@ private:
   mutable bool mDirty;
 };
 
-} // namespace gfx
-} // namespace basalt
+} // namespace basalt::gfx
 
 #endif // !BS_GFX_CAMERA_H

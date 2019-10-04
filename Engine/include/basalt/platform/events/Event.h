@@ -6,7 +6,6 @@
 
 namespace basalt::platform {
 
-
 enum class EventType : i8 {
   Unknown = 0,
   WindowResized,
@@ -34,7 +33,6 @@ struct Event {
   EventType mType = EventType::Unknown;
 };
 
-
 constexpr Event::Event(const EventType type) noexcept : mType(type) {}
 
 
@@ -51,13 +49,11 @@ struct EventTyped : Event {
   auto operator=(EventTyped&&) noexcept -> EventTyped& = default;
 };
 
-
 template <EventType Type>
 constexpr EventTyped<Type>::EventTyped() noexcept: Event(TYPE) {}
 
 
-class EventDispatcher {
-public:
+struct EventDispatcher final {
   inline explicit EventDispatcher(const Event& event);
 
   template <typename T, typename EventFn>
@@ -67,12 +63,10 @@ private:
   const Event& mEvent;
 };
 
-
 inline EventDispatcher::EventDispatcher(const Event& event) : mEvent(event) {}
 
-
 template<typename T, typename EventFn>
-inline void EventDispatcher::dispatch(EventFn func) const {
+void EventDispatcher::dispatch(EventFn func) const {
   if (mEvent.mType == T::TYPE) {
     func(*static_cast<const T*>(&mEvent));
   }

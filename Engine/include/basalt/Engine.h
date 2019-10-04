@@ -2,11 +2,11 @@
 #ifndef BS_ENGINE_H
 #define BS_ENGINE_H
 
-#include <memory>
-
 #include "Scene.h"
 #include "common/Types.h"
 #include "gfx/backend/IRenderer.h"
+
+#include <memory>
 
 namespace basalt {
 
