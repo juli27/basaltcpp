@@ -21,8 +21,8 @@ struct Camera final {
   Camera& operator=(const Camera&) = default;
   Camera& operator=(Camera&&) = default;
 
-  const math::Mat4f32& get_view_matrix() const;
-  const math::Mat4f32& get_projection_matrix() const;
+  auto view_matrix() const -> const math::Mat4f32&;
+  auto projection_matrix() const -> const math::Mat4f32&;
 
 private:
   void update_view() const;

@@ -46,7 +46,7 @@ struct Renderer final : IRenderer {
   void set_lights(const LightSetup& lights) override;
   void set_clear_color(Color color) override;
   void render() override;
-  auto get_name() -> std::string_view override;
+  auto name() -> std::string_view override;
 
   void new_gui_frame() override;
 

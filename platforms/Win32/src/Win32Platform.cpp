@@ -596,7 +596,7 @@ void create_main_window(const Config& config) {
   if (config.mWindow.mMode == WindowMode::Windowed) {
     // calculate the window size for the given client area size
     // and center the window on the primary monitor
-    RECT rect{0, 0, config.mWindow.mSize.get_x(), config.mWindow.mSize.get_y()};
+    RECT rect{0, 0, config.mWindow.mSize.x(), config.mWindow.mSize.y()};
     if (!::AdjustWindowRectEx(&rect, style, FALSE, styleEx)) {
       throw system_error(::GetLastError(), std::system_category());
     }

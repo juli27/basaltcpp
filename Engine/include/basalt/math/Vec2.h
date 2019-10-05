@@ -24,8 +24,8 @@ struct Vec2 final {
   void set_x(T x) noexcept;
   void set_y(T y) noexcept;
 
-  [[nodiscard]] constexpr auto get_x() const noexcept -> T;
-  [[nodiscard]] constexpr auto get_y() const noexcept -> T;
+  [[nodiscard]] constexpr auto x() const noexcept -> T;
+  [[nodiscard]] constexpr auto y() const noexcept -> T;
 
 private:
   T mX = {};
@@ -62,12 +62,12 @@ void Vec2<T>::set_y(T y) noexcept {
 }
 
 template<typename T>
-constexpr auto Vec2<T>::get_x() const noexcept -> T {
+constexpr auto Vec2<T>::x() const noexcept -> T {
   return mX;
 }
 
 template<typename T>
-constexpr auto Vec2<T>::get_y() const noexcept -> T {
+constexpr auto Vec2<T>::y() const noexcept -> T {
   return mY;
 }
 

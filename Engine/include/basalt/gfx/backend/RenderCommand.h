@@ -54,8 +54,8 @@ struct RenderCommandBuffer final {
 
   [[nodiscard]]
   inline auto get_commands() const -> const std::vector<RenderCommand>&;
-  [[nodiscard]] inline auto get_view() const -> const math::Mat4f32&;
-  [[nodiscard]] inline auto get_projection() const -> const math::Mat4f32&;
+  [[nodiscard]] inline auto view() const -> const math::Mat4f32&;
+  [[nodiscard]] inline auto projection() const -> const math::Mat4f32&;
 
 private:
   std::vector<RenderCommand> mCommands;
@@ -94,11 +94,11 @@ inline auto RenderCommandBuffer::get_commands() const
   return mCommands;
 }
 
-inline const math::Mat4f32& RenderCommandBuffer::get_view() const {
+inline const math::Mat4f32& RenderCommandBuffer::view() const {
   return mView;
 }
 
-inline const math::Mat4f32& RenderCommandBuffer::get_projection() const {
+inline const math::Mat4f32& RenderCommandBuffer::projection() const {
   return mProjection;
 }
 

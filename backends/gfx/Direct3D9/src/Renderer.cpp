@@ -142,10 +142,10 @@ void fill_primitive_info(
 }
 
 void fill_color(D3DCOLORVALUE& d3dColor, const Color color) {
-  d3dColor.r = color.get_red() / 255.0f;
-  d3dColor.g = color.get_green() / 255.0f;
-  d3dColor.b = color.get_blue() / 255.0f;
-  d3dColor.a = color.get_alpha() / 255.0f;
+  d3dColor.r = color.red() / 255.0f;
+  d3dColor.g = color.green() / 255.0f;
+  d3dColor.b = color.blue() / 255.0f;
+  d3dColor.a = color.alpha() / 255.0f;
 }
 
 auto create_wide_from_utf8(const std::string_view src) noexcept
@@ -200,8 +200,8 @@ Renderer::Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp)
     dispatcher.dispatch<platform::WindowResizedEvent>(
       [this](const platform::WindowResizedEvent& event) {
       ImGui_ImplDX9_InvalidateDeviceObjects();
-      mPresentParams.BackBufferWidth = event.mNewSize.get_x();
-      mPresentParams.BackBufferHeight = event.mNewSize.get_y();
+      mPresentParams.BackBufferWidth = event.mNewSize.x();
+      mPresentParams.BackBufferHeight = event.mNewSize.y();
       mDevice->Reset(&mPresentParams);
       ImGui_ImplDX9_CreateDeviceObjects();
 
@@ -366,11 +366,11 @@ void Renderer::render() {
   D3D9CALL(mDevice->BeginScene());
 
   D3D9CALL(mDevice->SetTransform(
-    D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&mCommandBuffer.get_view())
+    D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&mCommandBuffer.view())
   ));
   D3D9CALL(mDevice->SetTransform(
     D3DTS_PROJECTION,
-    reinterpret_cast<const D3DMATRIX*>(&mCommandBuffer.get_projection())
+    reinterpret_cast<const D3DMATRIX*>(&mCommandBuffer.projection())
   ));
 
   render_commands(mCommandBuffer);
@@ -389,7 +389,7 @@ void Renderer::render() {
   mCommandBuffer.clear();
 }
 
-auto Renderer::get_name() -> std::string_view {
+auto Renderer::name() -> std::string_view {
   return RENDERER_NAME;
 }
 

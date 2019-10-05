@@ -20,10 +20,10 @@ struct Color final {
   // ARGB word-order
   [[nodiscard]] constexpr auto to_argb() const noexcept -> u32;
 
-  [[nodiscard]] constexpr auto get_red() const noexcept -> u8;
-  [[nodiscard]] constexpr auto get_green() const noexcept -> u8;
-  [[nodiscard]] constexpr auto get_blue() const noexcept -> u8;
-  [[nodiscard]] constexpr auto get_alpha() const noexcept -> u8;
+  [[nodiscard]] constexpr auto red() const noexcept -> u8;
+  [[nodiscard]] constexpr auto green() const noexcept -> u8;
+  [[nodiscard]] constexpr auto blue() const noexcept -> u8;
+  [[nodiscard]] constexpr auto alpha() const noexcept -> u8;
 
   // ARGB word order
   static constexpr auto from_argb(u32 argb) noexcept -> Color;
@@ -58,19 +58,19 @@ constexpr auto Color::to_argb() const noexcept -> u32 {
   return color;
 }
 
-constexpr auto Color::get_red() const noexcept -> u8 {
+constexpr auto Color::red() const noexcept -> u8 {
   return mRed;
 }
 
-constexpr auto Color::get_green() const noexcept -> u8 {
+constexpr auto Color::green() const noexcept -> u8 {
   return mGreen;
 }
 
-constexpr auto Color::get_blue() const noexcept -> u8 {
+constexpr auto Color::blue() const noexcept -> u8 {
   return mBlue;
 }
 
-constexpr auto Color::get_alpha() const noexcept -> u8 {
+constexpr auto Color::alpha() const noexcept -> u8 {
   return mAlpha;
 }
 

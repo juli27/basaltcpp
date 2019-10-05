@@ -18,7 +18,7 @@ Camera::Camera(
 , mDirty(false) {
   const auto windowSize = platform::get_window_size();
   const auto aspectRatio =
-    static_cast<float>(windowSize.get_x()) / windowSize.get_y();
+    static_cast<float>(windowSize.x()) / windowSize.y();
   mProjection = math::Mat4f32::perspective_projection(
     math::PI / 4.0f, aspectRatio, 1.0f, 100.0f
   );
@@ -26,7 +26,7 @@ Camera::Camera(
   update_view();
 }
 
-const math::Mat4f32& Camera::get_view_matrix() const {
+auto Camera::view_matrix() const -> const math::Mat4f32& {
   if (mDirty) {
     update_view();
     mDirty = false;
@@ -35,7 +35,7 @@ const math::Mat4f32& Camera::get_view_matrix() const {
   return mView;
 }
 
-const math::Mat4f32& Camera::get_projection_matrix() const {
+auto Camera::projection_matrix() const -> const math::Mat4f32& {
   return mProjection;
 }
 
@@ -47,9 +47,9 @@ void Camera::update_view() const {
   );
 
   mView = math::Mat4::translation(-mPosition) * math::Mat4(
-    xAxis.get_x(), yAxis.get_x(), zAxis.get_x(), 0.0f,
-    xAxis.get_y(), yAxis.get_y(), zAxis.get_y(), 0.0f,
-    xAxis.get_z(), yAxis.get_z(), zAxis.get_z(), 0.0f,
+    xAxis.x(), yAxis.x(), zAxis.x(), 0.0f,
+    xAxis.y(), yAxis.y(), zAxis.y(), 0.0f,
+    xAxis.z(), yAxis.z(), zAxis.z(), 0.0f,
     0.0f   , 0.0f   , 0.0f   , 1.0f
   );
 }

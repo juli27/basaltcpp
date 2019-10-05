@@ -30,9 +30,9 @@ struct Vec3 final {
   void set_y(T y) noexcept;
   void set_z(T z) noexcept;
 
-  [[nodiscard]] constexpr auto get_x() const noexcept -> T;
-  [[nodiscard]] constexpr auto get_y() const noexcept -> T;
-  [[nodiscard]] constexpr auto get_z() const noexcept -> T;
+  [[nodiscard]] constexpr auto x() const noexcept -> T;
+  [[nodiscard]] constexpr auto y() const noexcept -> T;
+  [[nodiscard]] constexpr auto z() const noexcept -> T;
 
   static auto normalize(const Vec3& v) -> Vec3;
   static constexpr auto cross(const Vec3& lhs, const Vec3& rhs) -> Vec3;
@@ -89,17 +89,17 @@ void Vec3<T>::set_z(T z) noexcept {
 }
 
 template<typename T>
-constexpr auto Vec3<T>::get_x() const noexcept -> T {
+constexpr auto Vec3<T>::x() const noexcept -> T {
   return mX;
 }
 
 template<typename T>
-constexpr auto Vec3<T>::get_y() const noexcept -> T {
+constexpr auto Vec3<T>::y() const noexcept -> T {
   return mY;
 }
 
 template<typename T>
-constexpr auto Vec3<T>::get_z() const noexcept -> T {
+constexpr auto Vec3<T>::z() const noexcept -> T {
   return mZ;
 }
 
@@ -119,17 +119,17 @@ constexpr auto Vec3<T>::cross(const Vec3& lhs, const Vec3& rhs) -> Vec3 {
 
 template<typename T>
 auto operator-(const Vec3<T>& lhs, const Vec3<T>& rhs) -> Vec3<T> {
-  return Vec3<T>(lhs.get_x() - rhs.get_x(), lhs.get_y() - rhs.get_y(), lhs.get_z() - rhs.get_z());
+  return Vec3<T>(lhs.x() - rhs.x(), lhs.y() - rhs.y(), lhs.z() - rhs.z());
 }
 
 template<typename T>
 auto operator*(const Vec3<T>& v, T f) noexcept -> Vec3<T> {
-  return Vec3<T>(v.get_x() * f, v.get_y() * f, v.get_z() * f);
+  return Vec3<T>(v.x() * f, v.y() * f, v.z() * f);
 }
 
 template<typename T>
 auto operator/(const Vec3<T>& v, T f) -> Vec3<T> {
-  return Vec3<T>(v.get_x() / f, v.get_y() / f, v.get_z() / f);
+  return Vec3<T>(v.x() / f, v.y() / f, v.z() / f);
 }
 
 using Vec3f32 = Vec3<f32>;

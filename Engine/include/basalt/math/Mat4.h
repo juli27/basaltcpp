@@ -147,15 +147,15 @@ constexpr auto Mat4::translation(const math::Vec3f32& v) -> Mat4 {
     1.0f, 0.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 1.0f, 0.0f,
-    v.get_x() , v.get_y() , v.get_z() , 1.0f
+    v.x() , v.y() , v.z() , 1.0f
   );
 }
 
 constexpr auto Mat4::scaling(const Vec3f32& v) -> Mat4 {
   return Mat4(
-    v.get_x(), 0.0f    , 0.0f    , 0.0f,
-    0.0f    , v.get_y(), 0.0f    , 0.0f,
-    0.0f    , 0.0f    , v.get_z(), 0.0f,
+    v.x(), 0.0f    , 0.0f    , 0.0f,
+    0.0f    , v.y(), 0.0f    , 0.0f,
+    0.0f    , 0.0f    , v.z(), 0.0f,
     0.0f    , 0.0f    , 0.0f    , 1.0f
   );
 }

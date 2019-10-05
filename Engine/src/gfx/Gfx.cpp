@@ -19,7 +19,7 @@ void render(backend::IRenderer* renderer, const std::shared_ptr<Scene>& scene) {
   renderer->set_clear_color(scene->get_background_color());
 
   const auto& camera = scene->get_camera();
-  renderer->set_view_proj(camera.get_view_matrix(), camera.get_projection_matrix());
+  renderer->set_view_proj(camera.view_matrix(), camera.projection_matrix());
 
   scene->get_entity_registry().view<const TransformComponent, const RenderComponent>().each(
     [renderer](const TransformComponent& transform, const RenderComponent& renderComponent) {

@@ -91,7 +91,7 @@ struct IRenderer {
   virtual void set_clear_color(Color color) = 0;
 
   virtual void render() = 0;
-  virtual auto get_name() -> std::string_view = 0;
+  virtual auto name() -> std::string_view = 0;
 
   virtual void new_gui_frame() = 0;
 };

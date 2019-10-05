@@ -103,8 +103,8 @@ void startup() {
 
   BS_INFO(
     "config: window: {} {}x{}{} {}{}",
-    sConfig.mWindow.mTitle, sConfig.mWindow.mSize.get_x(),
-    sConfig.mWindow.mSize.get_y(),
+    sConfig.mWindow.mTitle, sConfig.mWindow.mSize.x(),
+    sConfig.mWindow.mSize.y(),
     sConfig.mWindow.mMode == WindowMode::FullscreenExclusive ? " exclusive" : "",
     sConfig.mWindow.mMode != WindowMode::Windowed ? "fullscreen" : "windowed",
     sConfig.mWindow.mResizeable ? " resizeable" : ""
@@ -140,14 +140,14 @@ void new_dear_im_gui_frame() {
   auto& io = ImGui::GetIO();
   const auto windowSize = platform::get_window_size();
   io.DisplaySize = ImVec2(
-    static_cast<float>(windowSize.get_x()), static_cast<float>(windowSize.get_y())
+    static_cast<float>(windowSize.x()), static_cast<float>(windowSize.y())
   );
   io.DeltaTime = static_cast<float>(sCurrentDeltaTime);
   io.KeyCtrl = input::is_key_pressed(Key::Control);
   io.KeyShift = input::is_key_pressed(Key::Shift);
   io.KeyAlt = input::is_key_pressed(Key::Alt);
   io.KeySuper = input::is_key_pressed(Key::Super);
-  io.MousePos = ImVec2(static_cast<float>(input::get_mouse_pos().get_x()), static_cast<float>(input::get_mouse_pos().get_y()));
+  io.MousePos = ImVec2(static_cast<float>(input::get_mouse_pos().x()), static_cast<float>(input::get_mouse_pos().y()));
   io.MouseDown[0] = input::is_mouse_button_pressed(MouseButton::Left);
   io.MouseDown[1] = input::is_mouse_button_pressed(MouseButton::Right);
   io.MouseDown[2] = input::is_mouse_button_pressed(MouseButton::Middle);

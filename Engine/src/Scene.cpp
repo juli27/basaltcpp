@@ -20,12 +20,12 @@ void TransformComponent::rotate(
   mRotation += math::Vec3f32(radOffsetX, radOffsetY, radOffsetZ);
 
   constexpr auto maxAngle = math::PI * 2.0f;
-  if (mRotation.get_x() < 0.0f) mRotation.set_x(maxAngle);
-  if (mRotation.get_x() > maxAngle) mRotation.set_x(0.0f);
-  if (mRotation.get_y() < 0.0f) mRotation.set_y(maxAngle);
-  if (mRotation.get_y() > maxAngle) mRotation.set_y(0.0f);
-  if (mRotation.get_z() < 0.0f) mRotation.set_z(maxAngle);
-  if (mRotation.get_z() > maxAngle) mRotation.set_z(0.0f);
+  if (mRotation.x() < 0.0f) mRotation.set_x(maxAngle);
+  if (mRotation.x() > maxAngle) mRotation.set_x(0.0f);
+  if (mRotation.y() < 0.0f) mRotation.set_y(maxAngle);
+  if (mRotation.y() > maxAngle) mRotation.set_y(0.0f);
+  if (mRotation.z() < 0.0f) mRotation.set_z(maxAngle);
+  if (mRotation.z() > maxAngle) mRotation.set_z(0.0f);
 }
 
 Scene::Scene(const gfx::Camera& camera)
@@ -35,15 +35,15 @@ void Scene::display_entity_gui(const entt::entity entity) {
   auto& transform = mEntityRegistry.get<TransformComponent>(entity);
   if (ImGui::Begin("Entity")) {
     if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
-      f32 position[3] = {transform.mPosition.get_x(), transform.mPosition.get_y(), transform.mPosition.get_z()};
+      f32 position[3] = {transform.mPosition.x(), transform.mPosition.y(), transform.mPosition.z()};
       ImGui::DragFloat3("Position", position, 0.1f);
       transform.mPosition.set(position[0], position[1], position[2]);
 
-      f32 rotation[3] = {transform.mRotation.get_x(), transform.mRotation.get_y(), transform.mRotation.get_z()};
+      f32 rotation[3] = {transform.mRotation.x(), transform.mRotation.y(), transform.mRotation.z()};
       ImGui::DragFloat3("Rotation", rotation, 0.01f, 0.0f, 2.0f * math::PI);
       transform.mRotation.set(rotation[0], rotation[1], rotation[2]);
 
-      f32 scaling[3] = {transform.mScale.get_x(), transform.mScale.get_y(), transform.mScale.get_z()};
+      f32 scaling[3] = {transform.mScale.x(), transform.mScale.y(), transform.mScale.z()};
       ImGui::DragFloat3("Scaling", scaling, 0.1f, 0.0f);
       transform.mScale.set(scaling[0], scaling[1], scaling[2]);
     }
