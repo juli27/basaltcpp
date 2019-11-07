@@ -89,26 +89,18 @@
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>BS_BUILD;BS_DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <CompileAsManaged>false</CompileAsManaged>
-      <CompileAsWinRT>false</CompileAsWinRT>
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <StringPooling>true</StringPooling>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
-      <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <OpenMPSupport>false</OpenMPSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <EnableModules>false</EnableModules>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
-      <FloatingPointExceptions>false</FloatingPointExceptions>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalOptions>/w44062 /w34191 %(AdditionalOptions)</AdditionalOptions>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -118,14 +110,7 @@
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
       <Verbose>true</Verbose>
-      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
-    <Xdcmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Xdcmake>
-    <Bscmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Bscmake>
     <ProjectReference />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -133,25 +118,17 @@
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>BS_BUILD;BS_DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <CompileAsManaged>false</CompileAsManaged>
-      <CompileAsWinRT>false</CompileAsWinRT>
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <StringPooling>true</StringPooling>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
-      <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <OpenMPSupport>false</OpenMPSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <EnableModules>false</EnableModules>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
-      <FloatingPointExceptions>false</FloatingPointExceptions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalOptions>/w44062 /w34191 %(AdditionalOptions)</AdditionalOptions>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -161,14 +138,7 @@
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
       <Verbose>true</Verbose>
-      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
-    <Xdcmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Xdcmake>
-    <Bscmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Bscmake>
     <ProjectReference />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -177,25 +147,16 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>BS_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <CompileAsManaged>false</CompileAsManaged>
-      <CompileAsWinRT>false</CompileAsWinRT>
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <StringPooling>true</StringPooling>
       <ControlFlowGuard>Guard</ControlFlowGuard>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
-      <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <OpenMPSupport>false</OpenMPSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <EnableModules>false</EnableModules>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <FloatingPointExceptions>false</FloatingPointExceptions>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <AdditionalOptions>/w44062 /w34191 %(AdditionalOptions)</AdditionalOptions>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -208,12 +169,6 @@
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
       <Verbose>true</Verbose>
     </Lib>
-    <Xdcmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Xdcmake>
-    <Bscmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Bscmake>
     <ProjectReference />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -222,24 +177,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>BS_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <CompileAsManaged>false</CompileAsManaged>
-      <CompileAsWinRT>false</CompileAsWinRT>
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <StringPooling>true</StringPooling>
       <ControlFlowGuard>Guard</ControlFlowGuard>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
-      <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <OpenMPSupport>false</OpenMPSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <EnableModules>false</EnableModules>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <FloatingPointExceptions>false</FloatingPointExceptions>
       <AdditionalOptions>/w44062 /w34191 %(AdditionalOptions)</AdditionalOptions>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -252,12 +198,6 @@
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
       <Verbose>true</Verbose>
     </Lib>
-    <Xdcmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Xdcmake>
-    <Bscmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Bscmake>
     <ProjectReference />
   </ItemDefinitionGroup>
   <ItemGroup>

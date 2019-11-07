@@ -111,25 +111,17 @@
       <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)include\imgui</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <CompileAsWinRT>false</CompileAsWinRT>
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-      <FloatingPointExceptions>false</FloatingPointExceptions>
-      <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <OpenMPSupport>false</OpenMPSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <EnableModules>false</EnableModules>
       <SDLCheck>true</SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
-      <CompileAsManaged>false</CompileAsManaged>
       <StringPooling>true</StringPooling>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -139,38 +131,23 @@
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
       <Verbose>true</Verbose>
-      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
-    <Xdcmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Xdcmake>
-    <Bscmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)include\imgui</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <CompileAsWinRT>false</CompileAsWinRT>
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
-      <FloatingPointExceptions>false</FloatingPointExceptions>
-      <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <OpenMPSupport>false</OpenMPSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <EnableModules>false</EnableModules>
       <SDLCheck>true</SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
-      <CompileAsManaged>false</CompileAsManaged>
       <StringPooling>true</StringPooling>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -180,14 +157,7 @@
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
       <Verbose>true</Verbose>
-      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
-    <Xdcmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Xdcmake>
-    <Bscmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -196,23 +166,14 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)include\imgui</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <CompileAsWinRT>false</CompileAsWinRT>
       <SuppressStartupBanner>false</SuppressStartupBanner>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-      <FloatingPointExceptions>false</FloatingPointExceptions>
-      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <FloatingPointModel>Fast</FloatingPointModel>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <OpenMPSupport>false</OpenMPSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <EnableModules>false</EnableModules>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <CompileAsManaged>false</CompileAsManaged>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -225,12 +186,6 @@
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
       <Verbose>true</Verbose>
     </Lib>
-    <Xdcmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Xdcmake>
-    <Bscmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -239,22 +194,13 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)include\imgui</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <CompileAsWinRT>false</CompileAsWinRT>
       <SuppressStartupBanner>false</SuppressStartupBanner>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
-      <FloatingPointExceptions>false</FloatingPointExceptions>
-      <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <OpenMPSupport>false</OpenMPSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <EnableModules>false</EnableModules>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <CompileAsManaged>false</CompileAsManaged>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -267,12 +213,6 @@
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
       <Verbose>true</Verbose>
     </Lib>
-    <Xdcmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Xdcmake>
-    <Bscmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Bscmake>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

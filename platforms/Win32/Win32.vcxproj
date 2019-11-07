@@ -104,25 +104,17 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>BS_BUILD;BS_DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <CompileAsManaged>false</CompileAsManaged>
-      <CompileAsWinRT>false</CompileAsWinRT>
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-      <FloatingPointExceptions>false</FloatingPointExceptions>
-      <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <OpenMPSupport>false</OpenMPSupport>
-      <EnableModules>false</EnableModules>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)backends\gfx\Direct3D9\include</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalOptions>/w44062 /w14165 /w34191 %(AdditionalOptions)</AdditionalOptions>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,12 +133,9 @@
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
-    <Xdcmake>
+    <Manifest>
       <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Xdcmake>
-    <Bscmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Bscmake>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -154,24 +143,16 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>BS_BUILD;BS_DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <CompileAsManaged>false</CompileAsManaged>
-      <CompileAsWinRT>false</CompileAsWinRT>
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
-      <FloatingPointExceptions>false</FloatingPointExceptions>
-      <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <OpenMPSupport>false</OpenMPSupport>
-      <EnableModules>false</EnableModules>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)backends\gfx\Direct3D9\include</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalOptions>/w44062 /w14165 /w34191 %(AdditionalOptions)</AdditionalOptions>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -190,38 +171,26 @@
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
-    <Xdcmake>
+    <Manifest>
       <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Xdcmake>
-    <Bscmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Bscmake>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>BS_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <CompileAsManaged>false</CompileAsManaged>
-      <CompileAsWinRT>false</CompileAsWinRT>
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-      <FloatingPointExceptions>false</FloatingPointExceptions>
-      <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <OpenMPSupport>false</OpenMPSupport>
-      <EnableModules>false</EnableModules>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)backends\gfx\Direct3D9\include</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <AdditionalOptions>/w44062 /w14165 /w34191 %(AdditionalOptions)</AdditionalOptions>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -242,37 +211,22 @@
       <Verbose>true</Verbose>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
     </Lib>
-    <Xdcmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Xdcmake>
-    <Bscmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>BS_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <CompileAsManaged>false</CompileAsManaged>
-      <CompileAsWinRT>false</CompileAsWinRT>
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
-      <FloatingPointExceptions>false</FloatingPointExceptions>
-      <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <OpenMPSupport>false</OpenMPSupport>
-      <EnableModules>false</EnableModules>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)backends\gfx\Direct3D9\include</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <AdditionalOptions>/w44062 /w14165 /w34191 %(AdditionalOptions)</AdditionalOptions>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -293,12 +247,6 @@
       <Verbose>true</Verbose>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
     </Lib>
-    <Xdcmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Xdcmake>
-    <Bscmake>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
-    </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\D3D9GfxContext.h" />
