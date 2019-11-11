@@ -38,7 +38,6 @@ using ::std::wstring_view;
 
 HINSTANCE sInstance;
 int sShowCommand;
-string sPlatformName;
 
 namespace {
 
@@ -410,7 +409,7 @@ auto wait_for_events() -> vector<shared_ptr<Event>> {
 }
 
 auto get_name() -> std::string_view {
-  return sPlatformName;
+  return "Win32";
 }
 
 auto get_window_size() -> math::Vec2i32 {

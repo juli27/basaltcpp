@@ -4,13 +4,10 @@
 
 #include "Win32APIHeader.h"
 
-#include <string>
-
 namespace basalt::platform {
 
 extern HINSTANCE sInstance;
 extern int sShowCommand;
-extern std::string sPlatformName;
 
 } // namespace basalt::platform
 
