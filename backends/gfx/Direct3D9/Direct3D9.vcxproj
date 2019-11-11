@@ -209,12 +209,12 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Renderer.cpp" />
+    <ClCompile Include="src\D3D9Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\basalt\gfx\backend\d3d9\D3D9Header.h" />
-    <ClInclude Include="include\basalt\gfx\backend\d3d9\Renderer.h" />
-    <ClInclude Include="include\basalt\gfx\backend\d3d9\Util.h" />
+    <ClInclude Include="include\basalt\gfx\backend\D3D9Header.h" />
+    <ClInclude Include="include\basalt\gfx\backend\D3D9Renderer.h" />
+    <ClInclude Include="include\basalt\gfx\backend\D3D9Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

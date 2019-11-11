@@ -1,8 +1,8 @@
 #include "D3D9GfxContext.h"
 
 #include <basalt/common/Exceptions.h>
-#include <basalt/gfx/backend/d3d9/Renderer.h>
-#include <basalt/gfx/backend/d3d9/Util.h>
+#include <basalt/gfx/backend/D3D9Renderer.h>
+#include <basalt/gfx/backend/D3D9Util.h>
 #include <basalt/platform/Platform.h>
 #include <basalt/platform/Types.h>
 

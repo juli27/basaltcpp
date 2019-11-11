@@ -1,8 +1,8 @@
-#include <basalt/gfx/backend/d3d9/Renderer.h>
+#include <basalt/gfx/backend/D3D9Renderer.h>
 
 #include <basalt/common/Asserts.h>
 #include <basalt/common/Color.h>
-#include <basalt/gfx/backend/d3d9/Util.h>
+#include <basalt/gfx/backend/D3D9Util.h>
 #include <basalt/platform/events/WindowEvents.h>
 
 #include <imgui/imgui.h>

@@ -4,7 +4,7 @@
 
 #include <basalt/platform/IGfxContext.h>
 
-#include <basalt/gfx/backend/d3d9/D3D9Header.h>
+#include <basalt/gfx/backend/D3D9Header.h>
 
 namespace basalt::platform {
 
