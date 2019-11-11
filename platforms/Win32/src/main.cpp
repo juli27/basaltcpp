@@ -1,6 +1,6 @@
-#include "Util.h"
 #include "Win32APIHeader.h"
 #include "Win32Platform.h"
+#include "Win32Util.h"
 
 #include <basalt/Engine.h> // run
 #include <basalt/Log.h>

@@ -6,9 +6,10 @@
 #include <basalt/platform/events/WindowEvents.h>
 
 #include "Win32APIHeader.h"
+
 #include "D3D9GfxContext.h"
 #include "Win32KeyMap.h"
-#include "Util.h"
+#include "Win32Util.h"
 
 #include <basalt/Log.h>
 #include <basalt/common/Asserts.h>

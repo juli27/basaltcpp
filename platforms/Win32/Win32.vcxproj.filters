@@ -4,14 +4,14 @@
     <ClInclude Include="src\D3D9GfxContext.h" />
     <ClInclude Include="src\Win32APIHeader.h" />
     <ClInclude Include="src\Win32Platform.h" />
-    <ClInclude Include="src\Util.h" />
     <ClInclude Include="src\Win32KeyMap.h" />
+    <ClInclude Include="src\Win32Util.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\D3D9GfxContext.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Win32Platform.cpp" />
-    <ClCompile Include="src\Util.cpp" />
+    <ClCompile Include="src\Win32Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="App.manifest" />

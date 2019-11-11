@@ -1,9 +1,9 @@
-#include <limits>
-#include <string>
+#include "Win32APIHeader.h"
 
 #include <basalt/common/Types.h>
 
-#include "Win32APIHeader.h"
+#include <limits>
+#include <string>
 
 using std::numeric_limits;
 using std::string;
