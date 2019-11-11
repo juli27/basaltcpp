@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BS_GFX_H
-#define BS_GFX_H
+#ifndef BASALT_GFX_H
+#define BASALT_GFX_H
 
 #include <basalt/Scene.h>
 
@@ -14,4 +14,4 @@ void render(backend::IRenderer* renderer, const std::shared_ptr<Scene>& scene);
 
 } // namespace basalt::gfx
 
-#endif // !BS_GFX_H
+#endif // !BASALT_GFX_H

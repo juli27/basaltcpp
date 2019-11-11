@@ -59,7 +59,7 @@ auto CALLBACK wWinMain(HINSTANCE instance, HINSTANCE, WCHAR*, int showCommand)
   try {
     basalt::run();
   } catch (const exception& ex) {
-    BS_FATAL("Unhandled exception: {}", ex.what());
+    BASALT_LOG_FATAL("Unhandled exception: {}", ex.what());
 
     // written to log. now rethrow to trigger the message box
     throw;

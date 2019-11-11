@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BS_COMMON_EXCEPTIONS_H
-#define BS_COMMON_EXCEPTIONS_H
+#ifndef BASALT_COMMON_EXCEPTIONS_H
+#define BASALT_COMMON_EXCEPTIONS_H
 
 #include <stdexcept>
 #include <string>
@@ -21,4 +21,4 @@ inline ApiNotSupportedException::ApiNotSupportedException(
 
 } // namespace basalt
 
-#endif // !BS_COMMON_EXCEPTIONS_H
+#endif // !BASALT_COMMON_EXCEPTIONS_H

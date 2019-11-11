@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BS_PLATFORM_IGFX_CONTEXT_H
-#define BS_PLATFORM_IGFX_CONTEXT_H
+#ifndef BASALT_PLATFORM_IGFX_CONTEXT_H
+#define BASALT_PLATFORM_IGFX_CONTEXT_H
 
 #include <basalt/gfx/backend/IRenderer.h>
 
@@ -23,4 +23,4 @@ struct IGfxContext {
 
 } // basalt::platform
 
-#endif // BS_PLATFORM_IGFX_CONTEXT_H
+#endif // BASALT_PLATFORM_IGFX_CONTEXT_H

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BS_COMMON_HANDLE_POOL_H
-#define BS_COMMON_HANDLE_POOL_H
+#ifndef BASALT_SHARED_HANDLE_POOL_H
+#define BASALT_SHARED_HANDLE_POOL_H
 
 #include "Types.h"
 
@@ -97,4 +97,4 @@ void HandlePool<T, HandleT>::for_each(ForEachFn fn) {
 
 } // namespace basalt
 
-#endif // !BS_COMMON_HANDLE_POOL_H
+#endif // !BASALT_SHARED_HANDLE_POOL_H

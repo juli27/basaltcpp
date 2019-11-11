@@ -1,10 +1,10 @@
 #pragma once
-#ifndef BS_GFX_RENDER_COMPONENT_H
-#define BS_GFX_RENDER_COMPONENT_H
-
-#include <basalt/common/Color.h>
+#ifndef BASALT_GFX_RENDER_COMPONENT_H
+#define BASALT_GFX_RENDER_COMPONENT_H
 
 #include "backend/RenderCommand.h"
+
+#include <basalt/shared/Color.h>
 
 namespace basalt::gfx {
 
@@ -27,4 +27,4 @@ struct RenderComponent final {
 
 } // namespace basalt::gfx
 
-#endif // BS_GFX_RENDER_COMPONENT_H
+#endif // BASALT_GFX_RENDER_COMPONENT_H

@@ -1,8 +1,10 @@
 #pragma once
-#ifndef BS_MATH_MAT4_H
-#define BS_MATH_MAT4_H
+#ifndef BASALT_MATH_MAT4_H
+#define BASALT_MATH_MAT4_H
 
 #include "Vec3.h"
+
+#include <basalt/shared/Types.h>
 
 namespace basalt::math {
 
@@ -286,4 +288,4 @@ using Mat4f32 = Mat4;
 
 } // namespace basalt::math
 
-#endif // !BS_MATH_MAT4_H
+#endif // !BASALT_MATH_MAT4_H

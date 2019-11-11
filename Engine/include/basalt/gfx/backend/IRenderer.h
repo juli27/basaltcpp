@@ -1,13 +1,13 @@
 #pragma once
-#ifndef BS_GFX_BACKEND_IRENDERER_H
-#define BS_GFX_BACKEND_IRENDERER_H
+#ifndef BASALT_GFX_BACKEND_IRENDERER_H
+#define BASALT_GFX_BACKEND_IRENDERER_H
 
 #include "RenderCommand.h"
 #include "Types.h"
 
-#include <basalt/common/Color.h>
-#include <basalt/math/Mat4.h>
 #include <basalt/platform/events/WindowEvents.h>
+#include <basalt/math/Mat4.h>
+#include <basalt/shared/Color.h>
 
 #include <string>
 
@@ -101,4 +101,4 @@ struct IRenderer {
 
 } // namespace basalt::gfx::backend
 
-#endif // !BS_GFX_BACKEND_IRENDERER_H
+#endif // !BASALT_GFX_BACKEND_IRENDERER_H

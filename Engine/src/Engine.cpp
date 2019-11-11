@@ -5,16 +5,20 @@
 #include <basalt/Input.h>
 #include <basalt/Log.h>
 #include <basalt/Scene.h>
-#include <basalt/common/Asserts.h>
-#include <basalt/common/Types.h>
+
 #include <basalt/gfx/Gfx.h>
 #include <basalt/gfx/backend/IRenderer.h>
+
 #include <basalt/platform/IGfxContext.h>
 #include <basalt/platform/Platform.h> // platform
+
 #include <basalt/platform/events/Event.h>
 #include <basalt/platform/events/KeyEvents.h>
 #include <basalt/platform/events/MouseEvents.h>
 #include <basalt/platform/events/WindowEvents.h>
+
+#include <basalt/shared/Asserts.h>
+#include <basalt/shared/Types.h>
 
 #include <imgui/imgui.h> // ImGui
 
@@ -97,7 +101,7 @@ void init_dear_imgui() {
 }
 
 void startup() {
-  BS_INFO("platform: {}", platform::get_name());
+  BASALT_LOG_INFO("platform: {}", platform::get_name());
 
   // TODO: load config from file or create default
 
@@ -106,7 +110,7 @@ void startup() {
     throw std::runtime_error("failed to create IApplication object");
   }
 
-  BS_INFO(
+  BASALT_LOG_INFO(
     "config: window: {} {}x{}{} {}{}",
     sConfig.mWindow.mTitle, sConfig.mWindow.mSize.x(),
     sConfig.mWindow.mSize.y(),
@@ -121,13 +125,9 @@ void startup() {
   // init imgui before gfx. Renderer initializes imgui render backend
   init_dear_imgui();
   sRenderer =  platform::get_window_gfx_context()->create_renderer();
-
-  BS_INFO("engine startup complete");
 }
 
 void shutdown() {
-  BS_INFO("shutting down...");
-
   delete sRenderer;
   sRenderer = nullptr;
 
@@ -137,8 +137,6 @@ void shutdown() {
 
   delete sApp;
   sApp = nullptr;
-
-  BS_INFO("engine shutdown");
 }
 
 void new_dear_im_gui_frame() {
@@ -189,9 +187,7 @@ void run() {
   startup();
 
   sApp->on_init();
-  BS_ASSERT(sCurrentScene, "no scene set");
-
-  BS_INFO("entering main loop");
+  BASALT_ASSERT(sCurrentScene, "no scene set");
 
   static_assert(std::chrono::high_resolution_clock::is_steady);
   using Clock = std::chrono::high_resolution_clock;
@@ -213,8 +209,6 @@ void run() {
 
     dispatch_pending_events();
   } while (sRunning);
-
-  BS_INFO("leaving main loop");
 
   sApp->on_shutdown();
 

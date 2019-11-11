@@ -10,9 +10,9 @@
 
 #include <memory> // make_unique
 
-using bs::Config;
-using bs::WindowMode;
-using bs::input::Key;
+using basalt::Config;
+using basalt::WindowMode;
+using basalt::input::Key;
 
 // TODO: entity update system
 // TODO: ImGui updater editor
@@ -44,8 +44,8 @@ void SandboxApp::prev_scene() {
 }
 
 void SandboxApp::set_scene(const i32 index) {
-  BS_ASSERT(index < static_cast<i32>(mScenes.size()), "");
-  BS_ASSERT(index >= 0, "");
+  BASALT_ASSERT(index < static_cast<i32>(mScenes.size()), "");
+  BASALT_ASSERT(index >= 0, "");
 
   mScenes.at(mCurrentSceneIndex)->on_hide();
   mCurrentSceneIndex = index;
@@ -70,7 +70,7 @@ void SandboxApp::on_update() {
   // HACK
   static auto rightPressed = false;
   static auto leftPressed = false;
-  if (bs::input::is_key_pressed(Key::PageUp)) {
+  if (basalt::input::is_key_pressed(Key::PageUp)) {
     if (!rightPressed) {
       rightPressed = true;
 
@@ -80,7 +80,7 @@ void SandboxApp::on_update() {
     rightPressed = false;
   }
 
-  if (bs::input::is_key_pressed(Key::PageDown)) {
+  if (basalt::input::is_key_pressed(Key::PageDown)) {
     if (!leftPressed) {
       leftPressed = true;
 
@@ -109,7 +109,7 @@ void SandboxApp::on_update() {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("File")) {
       if (ImGui::MenuItem("Exit", "Alt+F4")) {
-        bs::quit();
+        basalt::quit();
       }
 
       ImGui::EndMenu();
@@ -149,22 +149,22 @@ void SandboxApp::on_update() {
     }
 
     if (ImGui::BeginMenu("Window")) {
-      const auto currentMode = bs::platform::get_window_mode();
+      const auto currentMode = basalt::platform::get_window_mode();
       if (ImGui::MenuItem(
         "Windowed", nullptr, currentMode == WindowMode::Windowed
       )) {
-        bs::platform::set_window_mode(WindowMode::Windowed);
+        basalt::platform::set_window_mode(WindowMode::Windowed);
       }
       if (ImGui::MenuItem(
         "Fullscreen", nullptr, currentMode == WindowMode::Fullscreen
       )) {
-        bs::platform::set_window_mode(WindowMode::Fullscreen);
+        basalt::platform::set_window_mode(WindowMode::Fullscreen);
       }
       if (ImGui::MenuItem(
         "Fullscreen (Exclusive)", nullptr,
         currentMode == WindowMode::FullscreenExclusive
       )) {
-        bs::platform::set_window_mode(WindowMode::FullscreenExclusive);
+        basalt::platform::set_window_mode(WindowMode::FullscreenExclusive);
       }
 
       ImGui::EndMenu();
@@ -188,6 +188,6 @@ void SandboxApp::on_update() {
   }
 }
 
-auto bs::IApplication::create(Config& config) -> IApplication* {
+auto basalt::IApplication::create(Config& config) -> IApplication* {
   return new SandboxApp(config);
 }

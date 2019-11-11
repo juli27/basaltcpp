@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BS_GFX_BACKEND_D3D9HEADER_H
-#define BS_GFX_BACKEND_D3D9HEADER_H
+#ifndef BASALT_GFX_BACKEND_D3D9_HEADER_H
+#define BASALT_GFX_BACKEND_D3D9_HEADER_H
 
 // 0x0600 == _WIN32_WINNT_VISTA
 #define WINVER 0x0600
@@ -50,12 +50,6 @@
 
 #include <Windows.h>
 
-// interferes with KeyCode::DELETE
-#undef DELETE
-
-// interferes with PlatformEventType::MOUSE_MOVED
-#undef MOUSE_MOVED
-
 #ifdef BS_DEBUG_BUILD
 #define D3D_DEBUG_INFO
 #endif
@@ -65,4 +59,4 @@
 
 #include <d3dx9.h>
 
-#endif // !BS_GFX_BACKEND_D3D9HEADER_H
+#endif // !BASALT_GFX_BACKEND_D3D9_HEADER_H

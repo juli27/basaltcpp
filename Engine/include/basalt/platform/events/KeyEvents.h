@@ -1,9 +1,10 @@
 #pragma once
-#ifndef BS_PLATFORM_EVENTS_KEY_EVENTS_H
-#define BS_PLATFORM_EVENTS_KEY_EVENTS_H
+#ifndef BASALT_PLATFORM_EVENTS_KEY_EVENTS_H
+#define BASALT_PLATFORM_EVENTS_KEY_EVENTS_H
 
-#include <basalt/common/Types.h>
 #include "Event.h"
+
+#include <basalt/shared/Types.h>
 
 #include <string>
 #include <utility> // move
@@ -85,4 +86,4 @@ inline CharactersTyped::CharactersTyped(std::string chars)
 
 } // namespace basalt::platform
 
-#endif // !BS_PLATFORM_EVENTS_KEY_EVENTS_H
+#endif // !BASALT_PLATFORM_EVENTS_KEY_EVENTS_H

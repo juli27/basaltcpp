@@ -1,9 +1,10 @@
 #include <basalt/gfx/backend/D3D9Renderer.h>
 
-#include <basalt/common/Asserts.h>
-#include <basalt/common/Color.h>
 #include <basalt/gfx/backend/D3D9Util.h>
 #include <basalt/platform/events/WindowEvents.h>
+
+#include <basalt/shared/Asserts.h>
+#include <basalt/shared/Color.h>
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_dx9.h>
@@ -107,7 +108,7 @@ void fill_primitive_info(
 
     case PrimitiveType::LineList:
       mesh.primType = D3DPT_LINELIST;
-      BS_ASSERT(
+      BASALT_ASSERT(
         numVtx % 2 == 0,
         "Wrong amount of vertices for PrimitiveType::LINE_LIST"
       );
@@ -121,7 +122,7 @@ void fill_primitive_info(
 
     case PrimitiveType::TriangleList:
       mesh.primType = D3DPT_TRIANGLELIST;
-      BS_ASSERT(
+      BASALT_ASSERT(
         numVtx % 3 == 0,
         "Wrong amount of vertices for PrimitiveType::TRIANGLE_LIST"
       );
@@ -191,7 +192,7 @@ auto create_wide_from_utf8(const std::string_view src) noexcept
 Renderer::Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp)
 : mDevice(device)
 , mPresentParams(pp) {
-  BS_ASSERT(device, "device is null");
+  BASALT_ASSERT(device, "device is null");
   mDevice->AddRef();
   D3D9CALL(mDevice->GetDeviceCaps(&mDeviceCaps));
 
@@ -218,7 +219,7 @@ void Renderer::on_window_resize(const WindowResizedEvent& event) {
   mDevice->Reset(&mPresentParams);
   ImGui_ImplDX9_CreateDeviceObjects();
 
-  BS_INFO("resized d3d9 back buffer");
+  BASALT_LOG_TRACE("resized d3d9 back buffer");
 }
 
 /*
@@ -228,9 +229,9 @@ auto Renderer::add_mesh(
   void* data, const i32 numVertices, const VertexLayout& layout,
   const PrimitiveType primitiveType
 ) -> MeshHandle {
-  BS_ASSERT_ARG_NOT_NULL(data);
-  BS_ASSERT(numVertices > 0, "numVertices must be > 0");
-  BS_ASSERT(!layout.get_elements().empty(), "must specify a vertex layout");
+  BASALT_ASSERT_ARG_NOT_NULL(data);
+  BASALT_ASSERT(numVertices > 0, "numVertices must be > 0");
+  BASALT_ASSERT(!layout.get_elements().empty(), "must specify a vertex layout");
 
   const auto fvf = vertex_layout_to_fvf(layout);
   const auto vertexSize = D3DXGetFVFVertexSize(fvf);
@@ -248,7 +249,7 @@ auto Renderer::add_mesh(
     std::memcpy(vertexBufferData, data, bufferSize);
     D3D9CALL(vertexBuffer->Unlock());
   } else {
-    BS_ERROR("Failed to lock vertex buffer");
+    BASALT_LOG_ERROR("Failed to lock vertex buffer");
   }
 
   const auto [meshHandle, mesh] = mMeshes.allocate();
@@ -301,7 +302,7 @@ void Renderer::submit(const RenderCommand& command) {
 void Renderer::set_view_proj(
   const math::Mat4f32& view, const math::Mat4f32& projection
 ) {
-  BS_ASSERT(projection.m34 >= 0,
+  BASALT_ASSERT(projection.m34 >= 0,
     "m34 can't be negative in a projection matrix");
 
   mCommandBuffer.set_view(view);
@@ -348,11 +349,11 @@ void Renderer::set_clear_color(const Color color) {
 void Renderer::render() {
   const auto hr = mDevice->TestCooperativeLevel();
   if (hr == D3DERR_DEVICENOTRESET) {
-    BS_INFO("resetting d3d9 device");
+    BASALT_LOG_INFO("resetting d3d9 device");
     D3D9CALL(mDevice->Reset(&mPresentParams));
     ImGui_ImplDX9_CreateDeviceObjects();
   } else if (hr != D3DERR_DEVICELOST) {
-    BS_ASSERT(SUCCEEDED(hr), "");
+    BASALT_ASSERT(SUCCEEDED(hr), "");
   }
 
   D3D9CALL(mDevice->Clear(

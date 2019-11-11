@@ -8,18 +8,18 @@
 
 using std::array;
 
-using bs::Color;
-using bs::Scene;
-using bs::TransformComponent;
-using bs::math::Vec3f32;
-using bs::gfx::Camera;
-using bs::gfx::RenderComponent;
-using bs::gfx::backend::PrimitiveType;
-using bs::gfx::backend::RenderFlagCullNone;
-using bs::gfx::backend::RenderFlagDisableLighting;
-using bs::gfx::backend::VertexElementType;
-using bs::gfx::backend::VertexElementUsage;
-using bs::gfx::backend::VertexLayout;
+using basalt::Color;
+using basalt::Scene;
+using basalt::TransformComponent;
+using basalt::math::Vec3f32;
+using basalt::gfx::Camera;
+using basalt::gfx::RenderComponent;
+using basalt::gfx::backend::PrimitiveType;
+using basalt::gfx::backend::RenderFlagCullNone;
+using basalt::gfx::backend::RenderFlagDisableLighting;
+using basalt::gfx::backend::VertexElementType;
+using basalt::gfx::backend::VertexElementUsage;
+using basalt::gfx::backend::VertexLayout;
 
 namespace d3d9_tuts {
 
@@ -51,7 +51,7 @@ Matrices::Matrices() : mScene(std::make_shared<Scene>()) {
   auto entity = entityRegistry.create<TransformComponent, RenderComponent>();
   mTriangleEntity = std::get<0>(entity);
   auto& renderComponent = std::get<2>(entity);
-  renderComponent.mMesh = bs::get_renderer()->add_mesh(
+  renderComponent.mMesh = basalt::get_renderer()->add_mesh(
     vertices.data(), static_cast<i32>(vertices.size()), vertexLayout,
     PrimitiveType::TriangleList
   );
@@ -59,16 +59,16 @@ Matrices::Matrices() : mScene(std::make_shared<Scene>()) {
 }
 
 void Matrices::on_show() {
-  bs::set_current_scene(mScene);
+  basalt::set_current_scene(mScene);
 }
 
 void Matrices::on_hide() {}
 
 void Matrices::on_update() {
-  const auto deltaTime = static_cast<f32>(bs::get_delta_time());
+  const auto deltaTime = static_cast<f32>(basalt::get_delta_time());
 
   static auto speed = 2.0f;
-  const auto radOffsetY = deltaTime * speed * bs::math::PI;
+  const auto radOffsetY = deltaTime * speed * basalt::math::PI;
   auto& transform =
     mScene->get_entity_registry().get<TransformComponent>(mTriangleEntity);
   transform.rotate(0.0f, radOffsetY, 0.0f);

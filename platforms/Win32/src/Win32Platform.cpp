@@ -1,10 +1,3 @@
-#include <basalt/common/Types.h>
-#include <basalt/platform/Platform.h>
-#include <basalt/platform/events/Event.h>
-#include <basalt/platform/events/KeyEvents.h>
-#include <basalt/platform/events/MouseEvents.h>
-#include <basalt/platform/events/WindowEvents.h>
-
 #include "Win32APIHeader.h"
 
 #include "D3D9GfxContext.h"
@@ -12,7 +5,16 @@
 #include "Win32Util.h"
 
 #include <basalt/Log.h>
-#include <basalt/common/Asserts.h>
+#include <basalt/platform/Platform.h>
+
+#include <basalt/platform/events/Event.h>
+#include <basalt/platform/events/KeyEvents.h>
+#include <basalt/platform/events/MouseEvents.h>
+#include <basalt/platform/events/WindowEvents.h>
+
+#include <basalt/shared/Asserts.h>
+#include <basalt/shared/Types.h>
+
 
 #include <windowsx.h> // GET_X_LPARAM, GET_Y_LPARAM
 
@@ -101,7 +103,7 @@ LRESULT CALLBACK window_proc(
 
   case WM_LBUTTONUP:
     if (!::ReleaseCapture()) {
-      BS_ERROR(
+      BASALT_LOG_ERROR(
         "Releasing mouse capture in WM_LBUTTONUP failed: {}",
         create_winapi_error_message(::GetLastError())
       );
@@ -185,7 +187,6 @@ LRESULT CALLBACK window_proc(
 
   case WM_KILLFOCUS:
     if (sWindowData.mMode != WindowMode::Windowed) {
-      BS_TRACE("Minimizing");
       ::ShowWindow(sWindowData.mHandle, SW_MINIMIZE);
     }
     return 0;
@@ -251,7 +252,7 @@ void register_window_class() {
     LR_DEFAULTSIZE | LR_SHARED
   ));
   if (!cursor) {
-    BS_ERROR("failed to load cursor");
+    BASALT_LOG_ERROR("failed to load cursor");
   }
 
   WNDCLASSEXW windowClass{
@@ -275,8 +276,6 @@ void register_window_class() {
       "Failed to register window class"
     );
   }
-
-  BS_DEBUG("window class registered");
 }
 
 void create_main_window(const Config& config) {
@@ -315,8 +314,6 @@ void create_main_window(const Config& config) {
     height = static_cast<int>(rect.bottom - rect.top);
   }
 
-  BS_DEBUG("creating window with size ({}, {})", width, height);
-
   const auto windowTitle = create_wide_from_utf8(config.mWindow.mTitle);
   sWindowData.mHandle = ::CreateWindowExW(
     styleEx, WINDOW_CLASS_NAME.data(), windowTitle.c_str(), style, 
@@ -327,7 +324,6 @@ void create_main_window(const Config& config) {
     throw runtime_error("failed to create window");
   }
 
-  BS_INFO("window created");
   ::ShowWindow(sWindowData.mHandle, sShowCommand);
 
   sWindowData.mGfxContext = new D3D9GfxContext(sWindowData.mHandle);
@@ -336,7 +332,7 @@ void create_main_window(const Config& config) {
 } // namespace
 
 void startup(const Config& config) {
-  BS_ASSERT(sInstance, "Windows API not initialized");
+  BASALT_ASSERT(sInstance, "Windows API not initialized");
 
   create_main_window(config);
 }
@@ -350,7 +346,7 @@ void shutdown() {
   if (!::UnregisterClassW(
     WINDOW_CLASS_NAME.data(), sInstance
   )) {
-    BS_ERROR(
+    BASALT_LOG_ERROR(
       "failed to unregister window class: {}",
       create_winapi_error_message(::GetLastError())
     );
@@ -376,7 +372,7 @@ auto poll_events() -> vector<shared_ptr<Event>> {
         default:
           // ‭275‬ is WM_TIMER
           // is received upon focus change
-          BS_INFO("unhandled thread message: {}", msg.message);
+          BASALT_LOG_DEBUG("unhandled thread message: {}", msg.message);
           break;
       }
     }
@@ -386,14 +382,12 @@ auto poll_events() -> vector<shared_ptr<Event>> {
 }
 
 auto wait_for_events() -> vector<shared_ptr<Event>> {
-  BS_DEBUG("waiting for events...");
-
   MSG msg{};
   const auto ret = ::GetMessageW(&msg, nullptr, 0u, 0u);
   if (ret == -1) {
-    BS_ERROR(create_winapi_error_message(::GetLastError()));
+    BASALT_LOG_ERROR(create_winapi_error_message(::GetLastError()));
     // TODO: fixme
-    BS_ASSERT(false, "GetMessage error");
+    BASALT_ASSERT(false, "GetMessage error");
   }
 
   // GetMessage retrieved WM_QUIT
@@ -430,11 +424,11 @@ void set_window_mode(const WindowMode windowMode) {
   case WindowMode::FullscreenExclusive:
     break;
   }
-  BS_ERROR("platform::set_window_mode not implemented");
+  BASALT_LOG_ERROR("platform::set_window_mode not implemented");
 }
 
 auto get_window_gfx_context() -> IGfxContext* {
-  BS_ASSERT(sWindowData.mGfxContext, "no gfx context present");
+  BASALT_ASSERT(sWindowData.mGfxContext, "no gfx context present");
 
   return sWindowData.mGfxContext;
 }

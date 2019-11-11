@@ -1,13 +1,13 @@
 #include <basalt/Input.h>
 
-#include <basalt/common/Types.h>
-#include <basalt/math/Vec2.h>
 #include <basalt/platform/Platform.h>
 #include <basalt/platform/events/KeyEvents.h>
 #include <basalt/platform/events/MouseEvents.h>
 
-#include <bitset>
+#include <basalt/math/Vec2.h>
+#include <basalt/shared/Types.h>
 
+#include <bitset>
 
 namespace basalt::input {
 namespace {

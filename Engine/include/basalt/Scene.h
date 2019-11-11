@@ -1,11 +1,12 @@
 #pragma once
-#ifndef BS_SCENE_H
-#define BS_SCENE_H
+#ifndef BASALT_SCENE_H
+#define BASALT_SCENE_H
 
-#include "common/Color.h"
-#include "common/Types.h"
 #include "gfx/Camera.h"
 #include "math/Vec3.h"
+
+#include "shared/Color.h"
+#include "shared/Types.h"
 
 #include <entt/entt.hpp>
 
@@ -59,4 +60,4 @@ private:
 
 } // namespace basalt
 
-#endif // !BS_SCENE_H
+#endif // !BASALT_SCENE_H

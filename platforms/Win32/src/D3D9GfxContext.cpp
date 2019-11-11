@@ -1,6 +1,6 @@
 #include "D3D9GfxContext.h"
 
-#include <basalt/common/Exceptions.h>
+#include <basalt/shared/Exceptions.h>
 #include <basalt/gfx/backend/D3D9Renderer.h>
 #include <basalt/gfx/backend/D3D9Util.h>
 #include <basalt/platform/Platform.h>
@@ -13,12 +13,12 @@ namespace basalt::platform {
 D3D9GfxContext::D3D9GfxContext(HWND window) {
   mD3D9Object = Direct3DCreate9(D3D_SDK_VERSION);
   if (!mD3D9Object) {
-    BS_WARN("failed to create IDirect3D9 object");
+    BASALT_LOG_INFO("failed to create IDirect3D9 object");
     throw ApiNotSupportedException("Direct3D 9 not available");
   }
 
   if (!D3DXCheckVersion(D3D_SDK_VERSION, D3DX_SDK_VERSION)) {
-    BS_WARN("D3DX version missmatch");
+    BASALT_LOG_INFO("D3DX version missmatch");
     throw ApiNotSupportedException("D3DX version missmatch");
   }
 

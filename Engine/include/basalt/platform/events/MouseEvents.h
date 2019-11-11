@@ -1,10 +1,11 @@
 #pragma once
-#ifndef BS_PLATFORM_EVENTS_MOUSE_EVENTS_H
-#define BS_PLATFORM_EVENTS_MOUSE_EVENTS_H
+#ifndef BASALT_PLATFORM_EVENTS_MOUSE_EVENTS_H
+#define BASALT_PLATFORM_EVENTS_MOUSE_EVENTS_H
 
-#include <basalt/common/Types.h>
-#include <basalt/math/Vec2.h>
 #include "Event.h"
+
+#include <basalt/math/Vec2.h>
+#include <basalt/shared/Types.h>
 
 namespace basalt::platform {
 
@@ -95,4 +96,4 @@ constexpr MouseWheelScrolledEvent::MouseWheelScrolledEvent(
 
 } // namespace basalt::platform
 
-#endif // !BS_PLATFORM_EVENTS_MOUSE_EVENTS_H
+#endif // !BASALT_PLATFORM_EVENTS_MOUSE_EVENTS_H

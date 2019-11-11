@@ -10,20 +10,20 @@
 
 using std::array;
 
-using bs::Color;
-using bs::Scene;
-using bs::TransformComponent;
-using bs::math::PI;
-using bs::math::Vec2f32;
-using bs::math::Vec3f32;
-using bs::gfx::Camera;
-using bs::gfx::RenderComponent;
-using bs::gfx::backend::PrimitiveType;
-using bs::gfx::backend::RenderFlagCullNone;
-using bs::gfx::backend::RenderFlagDisableLighting;
-using bs::gfx::backend::VertexElementType;
-using bs::gfx::backend::VertexElementUsage;
-using bs::gfx::backend::VertexLayout;
+using basalt::Color;
+using basalt::Scene;
+using basalt::TransformComponent;
+using basalt::math::PI;
+using basalt::math::Vec2f32;
+using basalt::math::Vec3f32;
+using basalt::gfx::Camera;
+using basalt::gfx::RenderComponent;
+using basalt::gfx::backend::PrimitiveType;
+using basalt::gfx::backend::RenderFlagCullNone;
+using basalt::gfx::backend::RenderFlagDisableLighting;
+using basalt::gfx::backend::VertexElementType;
+using basalt::gfx::backend::VertexElementUsage;
+using basalt::gfx::backend::VertexLayout;
 
 namespace d3d9_tuts {
 
@@ -35,7 +35,7 @@ Textures::Textures() : mScene(std::make_shared<Scene>()) {
 
   struct Vertex final {
     Vec3f32 pos;
-    u32 color = bs::Color().to_argb();
+    u32 color = Color().to_argb();
     Vec2f32 uv;
   };
 
@@ -66,7 +66,7 @@ Textures::Textures() : mScene(std::make_shared<Scene>()) {
   mCylinderEntity = std::get<0>(entity);
 
   auto& renderComponent = std::get<2>(entity);
-  auto* renderer = bs::get_renderer();
+  auto* renderer = basalt::get_renderer();
   renderComponent.mMesh = renderer->add_mesh(
     vertices.data(), static_cast<i32>(vertices.size()), vertexLayout,
     PrimitiveType::TriangleStrip
@@ -76,13 +76,13 @@ Textures::Textures() : mScene(std::make_shared<Scene>()) {
 }
 
 void Textures::on_show() {
-  bs::set_current_scene(mScene);
+  set_current_scene(mScene);
 }
 
 void Textures::on_hide() {}
 
 void Textures::on_update() {
-  const auto deltaTime = static_cast<f32>(bs::get_delta_time());
+  const auto deltaTime = static_cast<f32>(basalt::get_delta_time());
   const auto radOffetX = PI * 0.5f * deltaTime;
   auto& transform =
     mScene->get_entity_registry().get<TransformComponent>(mCylinderEntity);

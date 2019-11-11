@@ -1,12 +1,12 @@
 #pragma once
-#ifndef BS_GFX_BACKEND_D3D9_RENDERER_H
-#define BS_GFX_BACKEND_D3D9_RENDERER_H
+#ifndef BASALT_GFX_BACKEND_D3D9_RENDERER_H
+#define BASALT_GFX_BACKEND_D3D9_RENDERER_H
+
+#include "D3D9Header.h"
 
 #include <basalt/gfx/backend/IRenderer.h>
 
-#include <basalt/common/HandlePool.h>
-
-#include "D3D9Header.h"
+#include <basalt/shared/HandlePool.h>
 
 namespace basalt::gfx::backend::d3d9 {
 
@@ -65,4 +65,4 @@ private:
 
 } // namespace basalt::gfx::backend::d3d9
 
-#endif // !BS_GFX_BACKEND_D3D9_RENDERER_H
+#endif // !BASALT_GFX_BACKEND_D3D9_RENDERER_H

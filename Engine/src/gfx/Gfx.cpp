@@ -1,20 +1,22 @@
 #include <basalt/gfx/Gfx.h>
 
 #include <basalt/Scene.h>
+
 #include <basalt/gfx/Camera.h>
 #include <basalt/gfx/RenderComponent.h>
+
 #include <basalt/gfx/backend/IRenderer.h>
 #include <basalt/gfx/backend/Types.h>
 
 #include <basalt/Log.h>
-#include <basalt/common/Asserts.h>
+#include <basalt/shared/Asserts.h>
 
 #include <memory>
 
 namespace basalt::gfx {
 
 void render(backend::IRenderer* renderer, const std::shared_ptr<Scene>& scene) {
-  BS_ASSERT(renderer, "gfx::render needs a Renderer");
+  BASALT_ASSERT(renderer, "gfx::render needs a Renderer");
 
   renderer->set_clear_color(scene->get_background_color());
 

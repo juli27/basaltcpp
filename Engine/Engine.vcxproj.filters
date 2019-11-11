@@ -6,24 +6,18 @@
     <ClInclude Include="include\basalt\IApplication.h" />
     <ClInclude Include="include\basalt\Log.h" />
     <ClInclude Include="include\basalt\platform\Platform.h" />
-    <ClInclude Include="include\basalt\common\Exceptions.h" />
-    <ClInclude Include="include\basalt\common\Asserts.h" />
     <ClInclude Include="include\basalt\gfx\backend\IRenderer.h" />
     <ClInclude Include="include\basalt\math\Vec2.h" />
     <ClInclude Include="include\basalt\platform\events\WindowEvents.h" />
     <ClInclude Include="include\basalt\platform\events\MouseEvents.h" />
     <ClInclude Include="include\basalt\math\Mat4.h" />
-    <ClInclude Include="include\basalt\common\Types.h" />
     <ClInclude Include="include\basalt\Input.h" />
     <ClInclude Include="include\basalt\platform\events\Event.h" />
     <ClInclude Include="include\basalt\platform\events\KeyEvents.h" />
     <ClInclude Include="include\basalt\math\Constants.h" />
-    <ClInclude Include="include\basalt\common\Color.h" />
-    <ClInclude Include="include\basalt\common\Handle.h" />
     <ClInclude Include="include\basalt\gfx\backend\RenderCommand.h" />
     <ClInclude Include="include\basalt\gfx\backend\Types.h" />
     <ClInclude Include="include\basalt\gfx\Gfx.h" />
-    <ClInclude Include="include\basalt\common\HandlePool.h" />
     <ClInclude Include="include\basalt\gfx\Camera.h" />
     <ClInclude Include="include\basalt\Scene.h" />
     <ClInclude Include="include\basalt\gfx\RenderComponent.h" />
@@ -33,6 +27,12 @@
     <ClInclude Include="include\basalt\platform\Types.h" />
     <ClInclude Include="include\basalt\Basalt.h" />
     <ClInclude Include="include\basalt\Prelude.h" />
+    <ClInclude Include="include\basalt\shared\Asserts.h" />
+    <ClInclude Include="include\basalt\shared\Color.h" />
+    <ClInclude Include="include\basalt\shared\Exceptions.h" />
+    <ClInclude Include="include\basalt\shared\Handle.h" />
+    <ClInclude Include="include\basalt\shared\HandlePool.h" />
+    <ClInclude Include="include\basalt\shared\Types.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine.cpp" />

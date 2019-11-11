@@ -9,8 +9,8 @@
 
 struct ITestCase;
 
-struct SandboxApp final : bs::IApplication {
-  explicit SandboxApp(bs::Config& config);
+struct SandboxApp final : basalt::IApplication {
+  explicit SandboxApp(basalt::Config& config);
   SandboxApp(const SandboxApp&) = delete;
   SandboxApp(SandboxApp&&) = delete;
   virtual ~SandboxApp() = default;
@@ -20,7 +20,7 @@ struct SandboxApp final : bs::IApplication {
 
   void next_scene();
   void prev_scene();
-  void set_scene(bs::i32 index);
+  void set_scene(basalt::i32 index);
 
   void on_init() override;
   void on_shutdown() override;
@@ -28,7 +28,7 @@ struct SandboxApp final : bs::IApplication {
 
 private:
   std::vector<std::unique_ptr<ITestCase>> mScenes;
-  bs::i32 mCurrentSceneIndex = 0u;
+  basalt::i32 mCurrentSceneIndex = 0u;
 };
 
 #endif // !SANDBOX_H

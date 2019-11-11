@@ -1,9 +1,10 @@
 #pragma once
-#ifndef BS_PLATFORM_EVENTS_WINDOW_EVENTS_H
-#define BS_PLATFORM_EVENTS_WINDOW_EVENTS_H
+#ifndef BASALT_PLATFORM_EVENTS_WINDOW_EVENTS_H
+#define BASALT_PLATFORM_EVENTS_WINDOW_EVENTS_H
+
+#include "Event.h"
 
 #include <basalt/math/Vec2.h>
-#include "Event.h"
 
 namespace basalt::platform {
 
@@ -66,4 +67,4 @@ struct WindowRestoredEvent : EventTyped<EventType::WindowRestored> {
 
 } // namespace basalt::platform
 
-#endif // !BS_PLATFORM_EVENTS_WINDOW_EVENTS_H
+#endif // !BASALT_PLATFORM_EVENTS_WINDOW_EVENTS_H

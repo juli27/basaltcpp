@@ -1,8 +1,8 @@
 #pragma once
-#ifndef BS_PLATFORM_EVENTS_EVENT_H
-#define BS_PLATFORM_EVENTS_EVENT_H
+#ifndef BASALT_PLATFORM_EVENTS_EVENT_H
+#define BASALT_PLATFORM_EVENTS_EVENT_H
 
-#include <basalt/common/Types.h>
+#include <basalt/shared/Types.h>
 
 namespace basalt::platform {
 
@@ -87,4 +87,4 @@ void EventDispatcher::dispatch(EventFn func) const {
 
 } // namespace basalt::platform
 
-#endif // !BS_PLATFORM_EVENTS_EVENT_H
+#endif // !BASALT_PLATFORM_EVENTS_EVENT_H

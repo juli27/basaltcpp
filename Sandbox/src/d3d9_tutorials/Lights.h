@@ -24,8 +24,8 @@ struct Lights final : ITestCase {
   void on_update() override;
 
 private:
-  std::shared_ptr<bs::Scene> mScene;
-  bs::f32 mLightAngle = 0.0f;
+  std::shared_ptr<basalt::Scene> mScene;
+  basalt::f32 mLightAngle = 0.0f;
   entt::entity mCylinderEntity;
 };
 

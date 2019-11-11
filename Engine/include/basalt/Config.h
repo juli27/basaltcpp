@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BS_CONFIG_H
-#define BS_CONFIG_H
+#ifndef BASALT_CONFIG_H
+#define BASALT_CONFIG_H
 
 #include "gfx/Config.h"
 #include "platform/Types.h"
@@ -14,4 +14,4 @@ struct Config final {
 
 } // namespace basalt
 
-#endif // !BS_CONFIG_H
+#endif // !BASALT_CONFIG_H

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BS_GFX_CAMERA_H
-#define BS_GFX_CAMERA_H
+#ifndef BASALT_GFX_CAMERA_H
+#define BASALT_GFX_CAMERA_H
 
 #include <basalt/math/Mat4.h>
 #include <basalt/math/Vec3.h>
@@ -37,4 +37,4 @@ private:
 
 } // namespace basalt::gfx
 
-#endif // !BS_GFX_CAMERA_H
+#endif // !BASALT_GFX_CAMERA_H

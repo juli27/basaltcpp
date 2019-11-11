@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BS_BASALT_H
-#define BS_BASALT_H
+#ifndef BASALT_H
+#define BASALT_H
 
 #include "Config.h"
 #include "Engine.h"
@@ -29,21 +29,18 @@
 #include "math/Vec2.h"
 #include "math/Vec3.h"
 
-#include "common/Color.h"
-#include "common/Exceptions.h"
-#include "common/Handle.h"
-#include "common/HandlePool.h"
-#include "common/Types.h"
+#include "shared/Color.h"
+#include "shared/Exceptions.h"
+#include "shared/Handle.h"
+#include "shared/HandlePool.h"
+#include "shared/Types.h"
 
 // at the bottom because of the stupid windows.h dependency
 #include "Log.h"
-#include "common/Asserts.h"
+#include "shared/Asserts.h"
 
 #include <entt/entt.hpp>
+#include <fmt/format.h>
 #include <imgui/imgui.h>
 
-#ifndef BS_NO_SHORT_NS
-namespace bs = basalt;
-#endif // !BS_NO_SHORT_NS
-
-#endif // !BS_BASALT_H
+#endif // !BASALT_H

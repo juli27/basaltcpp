@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BS_COMMON_TYPES_H
-#define BS_COMMON_TYPES_H
+#ifndef BASALT_SHARED_TYPES_H
+#define BASALT_SHARED_TYPES_H
 
 #include <cstddef>
 #include <cstdint>
@@ -64,4 +64,4 @@ using f64 = double;
 
 } // namespace basalt
 
-#endif // !BS_COMMON_TYPES_H
+#endif // !BASALT_SHARED_TYPES_H

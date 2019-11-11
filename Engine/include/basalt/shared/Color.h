@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BS_COMMON_COLOR_H
-#define BS_COMMON_COLOR_H
+#ifndef BASALT_COMMON_COLOR_H
+#define BASALT_COMMON_COLOR_H
 
 #include "Types.h"
 
@@ -85,4 +85,4 @@ constexpr Color Color::from_argb(const u32 argb) noexcept {
 
 } // namespace basalt
 
-#endif // !BS_COMMON_COLOR_H
+#endif // !BASALT_COMMON_COLOR_H

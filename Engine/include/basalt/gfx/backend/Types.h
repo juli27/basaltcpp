@@ -1,11 +1,12 @@
 #pragma once
-#ifndef BS_GFX_BACKEND_TYPES_H
-#define BS_GFX_BACKEND_TYPES_H
+#ifndef BASALT_GFX_BACKEND_TYPES_H
+#define BASALT_GFX_BACKEND_TYPES_H
 
-#include <basalt/common/Color.h>
-#include <basalt/common/Handle.h>
-#include <basalt/common/Types.h>
 #include <basalt/math/Vec3.h>
+
+#include <basalt/shared/Color.h>
+#include <basalt/shared/Handle.h>
+#include <basalt/shared/Types.h>
 
 #include <vector>
 
@@ -145,4 +146,4 @@ inline auto LightSetup::get_global_ambient_color() const -> Color {
 
 } // namespace basalt::gfx::backend
 
-#endif // !BS_GFX_BACKEND_TYPES_H
+#endif // !BASALT_GFX_BACKEND_TYPES_H

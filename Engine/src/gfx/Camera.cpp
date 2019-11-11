@@ -1,10 +1,11 @@
 #include <basalt/gfx/Camera.h>
 
+#include <basalt/platform/Platform.h>
+
 #include <basalt/math/Constants.h>
 #include <basalt/math/Mat4.h>
 #include <basalt/math/Vec2.h>
 #include <basalt/math/Vec3.h>
-#include <basalt/platform/Platform.h>
 
 namespace basalt::gfx {
 

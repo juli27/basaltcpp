@@ -1,15 +1,9 @@
 #pragma once
-#ifndef BS_PLATFORM_H
-#define BS_PLATFORM_H
-
-/** \file
- * \brief Platform abstractions.
- *
- * This file contains a platform independant interface for interacting with the
- * underlying platform.
- */
+#ifndef BASALT_PLATFORM_H
+#define BASALT_PLATFORM_H
 
 #include <basalt/Config.h>
+
 #include "IGfxContext.h"
 #include "Types.h"
 
@@ -51,4 +45,4 @@ auto get_window_gfx_context() -> IGfxContext*;
 
 } // namespace basalt::platform
 
-#endif // !BS_PLATFORM_H
+#endif // !BASALT_PLATFORM_H

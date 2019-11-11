@@ -24,7 +24,7 @@ struct Vertices final : ITestCase {
   void on_update() override;
 
 private:
-  std::shared_ptr<bs::Scene> mScene;
+  std::shared_ptr<basalt::Scene> mScene;
 };
 
 } // namespace d3d9_tuts

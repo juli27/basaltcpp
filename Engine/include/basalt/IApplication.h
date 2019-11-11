@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BS_IAPPLICATION_H
-#define BS_IAPPLICATION_H
+#ifndef BASALT_IAPPLICATION_H
+#define BASALT_IAPPLICATION_H
 
 #include "Config.h"
 
@@ -24,4 +24,4 @@ struct IApplication {
 
 } // namespace basalt
 
-#endif // !BS_IAPPLICATION_H
+#endif // !BASALT_IAPPLICATION_H

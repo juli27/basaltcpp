@@ -1,8 +1,8 @@
 #pragma once
-#ifndef BS_GFX_CONFIG_H
-#define BS_GFX_CONFIG_H
+#ifndef BASALT_GFX_CONFIG_H
+#define BASALT_GFX_CONFIG_H
 
-#include <basalt/common/Types.h>
+#include <basalt/shared/Types.h>
 
 namespace basalt::gfx {
 
@@ -18,4 +18,4 @@ struct Config final {
 
 } // basalt::gfx
 
-#endif // BS_GFX_CONFIG_H
+#endif // BASALT_GFX_CONFIG_H

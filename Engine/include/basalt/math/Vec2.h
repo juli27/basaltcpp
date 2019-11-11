@@ -1,8 +1,8 @@
 #pragma once
-#ifndef BS_MATH_VEC2_H
-#define BS_MATH_VEC2_H
+#ifndef BASALT_MATH_VEC2_H
+#define BASALT_MATH_VEC2_H
 
-#include <basalt/common/Types.h>
+#include <basalt/shared/Types.h>
 
 namespace basalt::math {
 
@@ -76,4 +76,4 @@ using Vec2i32 = Vec2<i32>;
 
 } // namespace basalt::math
 
-#endif // !BS_MATH_VEC2_H
+#endif // !BASALT_MATH_VEC2_H

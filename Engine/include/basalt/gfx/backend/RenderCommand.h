@@ -1,9 +1,9 @@
 #pragma once
-#ifndef BS_GFX_BACKEND_RENDERCOMMAND_H
-#define BS_GFX_BACKEND_RENDERCOMMAND_H
+#ifndef BASALT_GFX_BACKEND_RENDERCOMMAND_H
+#define BASALT_GFX_BACKEND_RENDERCOMMAND_H
 
-#include <basalt/common/Color.h>
 #include <basalt/math/Mat4.h>
+#include <basalt/shared/Color.h>
 
 #include "Types.h"
 
@@ -104,4 +104,4 @@ inline const math::Mat4f32& RenderCommandBuffer::projection() const {
 
 } // namespace basalt::gfx::backend
 
-#endif // !BS_GFX_BACKEND_RENDERCOMMAND_H
+#endif // !BASALT_GFX_BACKEND_RENDERCOMMAND_H

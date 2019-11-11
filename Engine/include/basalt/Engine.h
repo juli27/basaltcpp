@@ -1,10 +1,10 @@
 #pragma once
-#ifndef BS_ENGINE_H
-#define BS_ENGINE_H
+#ifndef BASALT_ENGINE_H
+#define BASALT_ENGINE_H
 
 #include "Scene.h"
-#include "common/Types.h"
 #include "gfx/backend/IRenderer.h"
+#include "shared/Types.h"
 
 #include <memory>
 
@@ -18,4 +18,4 @@ auto get_renderer() -> gfx::backend::IRenderer*;
 
 } // namespace basalt
 
-#endif // !BS_ENGINE_H
+#endif // !BASALT_ENGINE_H

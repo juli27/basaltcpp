@@ -8,14 +8,14 @@
 
 using std::array;
 
-using bs::Color;
-using bs::Scene;
-using bs::TransformComponent;
-using bs::gfx::RenderComponent;
-using bs::gfx::backend::PrimitiveType;
-using bs::gfx::backend::VertexElementType;
-using bs::gfx::backend::VertexElementUsage;
-using bs::gfx::backend::VertexLayout;
+using basalt::Color;
+using basalt::Scene;
+using basalt::TransformComponent;
+using basalt::gfx::RenderComponent;
+using basalt::gfx::backend::PrimitiveType;
+using basalt::gfx::backend::VertexElementType;
+using basalt::gfx::backend::VertexElementUsage;
+using basalt::gfx::backend::VertexLayout;
 
 namespace d3d9_tuts {
 
@@ -40,14 +40,14 @@ Vertices::Vertices() : mScene(std::make_shared<Scene>()) {
 
   auto& entityRegistry = mScene->get_entity_registry();
   const auto triangleEntity = entityRegistry.create<TransformComponent, RenderComponent>();
-  std::get<2>(triangleEntity).mMesh = bs::get_renderer()->add_mesh(
+  std::get<2>(triangleEntity).mMesh = basalt::get_renderer()->add_mesh(
     vertices.data(), static_cast<i32>(vertices.size()), vertexLayout,
     PrimitiveType::TriangleList
   );
 }
 
 void Vertices::on_show() {
-  bs::set_current_scene(mScene);
+  set_current_scene(mScene);
 }
 
 

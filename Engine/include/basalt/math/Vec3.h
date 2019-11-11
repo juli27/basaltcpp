@@ -1,8 +1,8 @@
 #pragma once
-#ifndef BS_MATH_VEC3_H
-#define BS_MATH_VEC3_H
+#ifndef BASALT_MATH_VEC3_H
+#define BASALT_MATH_VEC3_H
 
-#include <basalt/common/Types.h>
+#include <basalt/shared/Types.h>
 
 #include <cmath>
 
@@ -136,4 +136,4 @@ using Vec3f32 = Vec3<f32>;
 
 } // namespace basalt::math
 
-#endif // !BS_MATH_VEC3_H
+#endif // !BASALT_MATH_VEC3_H

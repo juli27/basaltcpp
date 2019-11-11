@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BS_COMMON_HANDLE_H
-#define BS_COMMON_HANDLE_H
+#ifndef BASALT_SHARED_HANDLE_H
+#define BASALT_SHARED_HANDLE_H
 
 #include "Types.h"
 
@@ -74,4 +74,4 @@ struct Handle final : _internal::HandleBase {
 
 } // namespace basalt
 
-#endif // !BS_COMMON_HANDLE_H
+#endif // !BASALT_SHARED_HANDLE_H

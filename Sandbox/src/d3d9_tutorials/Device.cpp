@@ -4,8 +4,8 @@
 
 #include <memory> // make_shared
 
-using bs::Color;
-using bs::Scene;
+using basalt::Color;
+using basalt::Scene;
 
 namespace d3d9_tuts {
 
@@ -14,7 +14,7 @@ Device::Device() : mScene(std::make_shared<Scene>()) {
 }
 
 void Device::on_show() {
-  bs::set_current_scene(mScene);
+  set_current_scene(mScene);
 }
 
 void Device::on_hide() {}

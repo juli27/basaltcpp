@@ -1,6 +1,6 @@
 #include "Win32APIHeader.h"
 
-#include <basalt/common/Types.h>
+#include <basalt/shared/Types.h>
 
 #include <limits>
 #include <string>
