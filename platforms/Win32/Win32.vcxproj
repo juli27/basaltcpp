@@ -251,6 +251,7 @@
   <ItemGroup>
     <ClInclude Include="src\D3D9GfxContext.h" />
     <ClInclude Include="src\Util.h" />
+    <ClInclude Include="src\Win32KeyMap.h" />
     <ClInclude Include="src\Win32Platform.h" />
     <ClInclude Include="src\Win32APIHeader.h" />
   </ItemGroup>
@@ -276,6 +277,9 @@
     <ProjectReference Include="..\..\Sandbox\Sandbox.vcxproj">
       <Project>{96c9ff62-adec-4083-b527-e83624317b4e}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="App.manifest" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

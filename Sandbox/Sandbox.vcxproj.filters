@@ -9,9 +9,6 @@
     <ClCompile Include="src\d3d9_tutorials\Device.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="Sandbox.manifest" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="src\Sandbox.h" />
     <ClInclude Include="src\ITestCase.h" />
     <ClInclude Include="src\d3d9_tutorials\Vertices.h" />

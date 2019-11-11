@@ -1,26 +1,103 @@
+#include "Util.h"
+#include "Win32Platform.h"
+
+#include <basalt/Engine.h> // run
+
+#include "Win32APIHeader.h"
+#include <basalt/Log.h>
+#include <basalt/common/Asserts.h>
+
+// for CommandLineToArgvW
+//#include <shellapi.h>
+
+#include <fmt/format.h>
+
+#include <memory> // make_unique
 #include <stdexcept>
 #include <string>
 
-#include <basalt/Engine.h> // Run, log
-
-#include "Util.h"
-#include "Win32APIHeader.h"
-#include "Win32Platform.h"
-
-#include <basalt/Log.h>
+using std::exception;
+using std::string;
+using std::wstring;
 
 namespace {
 
-using std::exception;
-using std::wstring;
+/**
+ * \brief Processes the windows command line string and populates an argv
+ *        style vector.
+ *
+ * No program name will be added to the array.
+ *
+ * \param commandLine the windows command line arguments.
+ */
+//void process_args(const WCHAR* commandLine) {
+//  // check if the command line string is empty to avoid adding
+//  // the program name to the argument vector
+//  if (commandLine[0] == L'\0') {
+//    return;
+//  }
+//
+//  auto argc = 0;
+//  auto** argv = ::CommandLineToArgvW(commandLine, &argc);
+//  if (argv == nullptr) {
+//    // no logging because the log might not be initialized yet
+//    return;
+//  }
+//
+//  sArgs.reserve(argc);
+//  for (auto i = 0; i < argc; i++) {
+//    sArgs.push_back(create_utf8_from_wide(argv[i]));
+//  }
+//
+//  ::LocalFree(argv);
+//}
+
+[[nodiscard]]
+auto create_platform_name_string() -> string {
+  DWORD historical = 0u;
+  const auto size = ::GetFileVersionInfoSizeExW(FILE_VER_GET_NEUTRAL,
+    L"kernel32.dll", &historical);
+  if (size == 0u) {
+    BS_ERROR("{}", create_winapi_error_message(::GetLastError()));
+    return {};
+  }
+
+  const auto buffer = std::make_unique<std::byte[]>(size);
+  if (!::GetFileVersionInfoExW(FILE_VER_GET_NEUTRAL, L"kernel32.dll", 0u, size,
+    buffer.get())) {
+    return {};
+  }
+
+  VS_FIXEDFILEINFO* versionInfo = nullptr;
+  UINT versionInfoSize = 0u;
+  if (!::VerQueryValueW(buffer.get(), L"\\",
+    reinterpret_cast<void**>(&versionInfo), &versionInfoSize)) {
+    return {};
+  }
+
+  BS_ASSERT(versionInfoSize >= sizeof(VS_FIXEDFILEINFO), "");
+  BS_ASSERT(versionInfo, "");
+
+  BOOL isWow64 = FALSE;
+  if (!::IsWow64Process(::GetCurrentProcess(), &isWow64)) {
+    BS_INFO("{}", create_winapi_error_message(::GetLastError()));
+  }
+
+  return fmt::format("Windows API ({}.{}.{}{})",
+    HIWORD(versionInfo->dwFileVersionMS), LOWORD(versionInfo->dwFileVersionMS),
+    HIWORD(versionInfo->dwFileVersionLS), isWow64 ? " WOW64" : "");
+}
 
 } // namespace
 
-_Use_decl_annotations_ int CALLBACK wWinMain(
-  HINSTANCE instance, HINSTANCE, WCHAR* commandLine, int showCommand
-) try {
-  basalt::platform::init(instance, commandLine, showCommand);
+_Use_decl_annotations_
+auto CALLBACK wWinMain(HINSTANCE instance, HINSTANCE, WCHAR*, int showCommand)
+-> int try {
   basalt::log::init();
+
+  basalt::platform::sInstance = instance;
+  basalt::platform::sShowCommand = showCommand;
+  basalt::platform::sPlatformName = create_platform_name_string();
 
   try {
     basalt::run();

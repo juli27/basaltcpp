@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BS_PLATFORM_WINDOWSHEADER_H
-#define BS_PLATFORM_WINDOWSHEADER_H
+#ifndef BASALT_WIN32_APIHEADER_H
+#define BASALT_WIN32_APIHEADER_H
 
 // 0x0600 == _WIN32_WINNT_VISTA
 #define WINVER 0x0600
@@ -24,7 +24,7 @@
 #define NOCOLOR
 #define NOCTLMGR
 #define NODRAWTEXT
-//#define NOGDI // because of d3d9 header in gfx context
+//#define NOGDI
 #define NOKERNEL
 //#define NOUSER
 //#define NONLS
@@ -38,7 +38,7 @@
 #define NOSCROLL
 #define NOSERVICE
 #define NOSOUND
-//#define NOTEXTMETRIC // because of d3d9 header in gfx context
+//#define NOTEXTMETRIC
 #define NOWH
 #define NOWINOFFSETS
 #define NOCOMM
@@ -50,20 +50,4 @@
 
 #include <Windows.h>
 
-// interferes with KeyCode::DELETE
-#if defined(DELETE)
-#undef DELETE
-#endif
-
-// interferes with PlatformEventType::MOUSE_MOVED
-#if defined(MOUSE_MOVED)
-#undef MOUSE_MOVED
-#endif
-
-// for CommandLineToArgvW
-#include <shellapi.h>
-
-// for GET_X_LPARAM and GET_Y_LPARAM
-#include <windowsx.h>
-
-#endif // !BS_PLATFORM_WINDOWSHEADER_H
+#endif // !BASALT_WIN32_APIHEADER_H

@@ -1,23 +1,17 @@
 #pragma once
-#ifndef BS_PLATFORM_WINDOWS_API_H
-#define BS_PLATFORM_WINDOWS_API_H
+#ifndef BASALT_WIN32_PLATFORM_H
+#define BASALT_WIN32_PLATFORM_H
 
 #include "Win32APIHeader.h"
 
+#include <string>
+
 namespace basalt::platform {
 
-/*
- * \brief Initializes the Windows API platform.
- *
- * Saves the instance handle and show command and initializes the argument
- * vector for GetArgs().
- *
- * \param instance handle to the application instance.
- * \param commandLine the windows command line string.
- * \param showCommand the show command for the first window.
- */
-void init(HINSTANCE instance, const WCHAR* commandLine, int showCommand);
+extern HINSTANCE sInstance;
+extern int sShowCommand;
+extern std::string sPlatformName;
 
 } // namespace basalt::platform
 
-#endif // !BS_PLATFORM_WINDOWS_API_H
+#endif // !BASALT_WIN32_PLATFORM_H

@@ -51,6 +51,15 @@ auto create_wide_from_utf8(const string_view src) noexcept -> wstring {
   return dst;
 }
 
+/**
+ * \brief Converts a Windows API wide string to UTF-8.
+ *
+ * The converted string is returned in a new string object.
+ * Fails with std::terminate when string storage allocation throws.
+ *
+ * \param src the wide string to convert.
+ * \return the wide string converted to UTF-8.
+ */
 auto create_utf8_from_wide(const wstring_view src) noexcept -> string {
   // Don't use asserts/log because this function is used before the log
   // is initialized
@@ -92,6 +101,12 @@ auto create_utf8_from_wide(const wstring_view src) noexcept -> string {
   return dst;
 }
 
+/**
+ * \brief Creates an error description from a Windows API error code.
+ *
+ * \param errorCode Windows API error code.
+ * \return description string of the error.
+ */
 auto create_winapi_error_message(const DWORD errorCode) noexcept -> string {
   WCHAR* buffer = nullptr;
   const auto numChars = ::FormatMessageW(
