@@ -2,11 +2,12 @@
 #ifndef BS_GFX_BACKEND_IRENDERER_H
 #define BS_GFX_BACKEND_IRENDERER_H
 
-#include <basalt/common/Color.h>
-#include <basalt/math/Mat4.h>
-
 #include "RenderCommand.h"
 #include "Types.h"
+
+#include <basalt/common/Color.h>
+#include <basalt/math/Mat4.h>
+#include <basalt/platform/events/WindowEvents.h>
 
 #include <string>
 
@@ -30,6 +31,8 @@ struct IRenderer {
   //       or an API to get a list of supported usages and types
 
   // TODO: method to retrieve a preferred vertex layout ?
+
+  virtual void on_window_resize(const platform::WindowResizedEvent& event) = 0;
 
   /**
    * \brief Adds a static mesh to the renderer to prepare it for rendering.

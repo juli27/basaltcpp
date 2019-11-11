@@ -8,6 +8,8 @@ namespace basalt::platform {
 
 enum class EventType : i8 {
   Unknown = 0,
+  Quit,
+  WindowCloseRequest,
   WindowResized,
   WindowMinimized,
   WindowRestored,
@@ -51,6 +53,17 @@ struct EventTyped : Event {
 
 template <EventType Type>
 constexpr EventTyped<Type>::EventTyped() noexcept: Event(TYPE) {}
+
+
+struct QuitEvent : EventTyped<EventType::Quit> {
+  constexpr QuitEvent() noexcept = default;
+  constexpr QuitEvent(const QuitEvent&) noexcept = default;
+  constexpr QuitEvent(QuitEvent&&) noexcept = default;
+  ~QuitEvent() noexcept = default;
+
+  auto operator=(const QuitEvent&) noexcept -> QuitEvent& = default;
+  auto operator=(QuitEvent&&) noexcept -> QuitEvent& = default;
+};
 
 
 struct EventDispatcher final {

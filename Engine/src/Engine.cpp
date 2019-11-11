@@ -13,6 +13,8 @@
 #include <basalt/platform/Platform.h> // platform
 #include <basalt/platform/events/Event.h>
 #include <basalt/platform/events/KeyEvents.h>
+#include <basalt/platform/events/MouseEvents.h>
+#include <basalt/platform/events/WindowEvents.h>
 
 #include <imgui/imgui.h> // ImGui
 
@@ -29,9 +31,11 @@ using input::MouseButton;
 using platform::CharactersTyped;
 using platform::Event;
 using platform::EventDispatcher;
+using platform::EventType;
 using platform::KeyPressedEvent;
 using platform::KeyReleasedEvent;
 using platform::MouseWheelScrolledEvent;
+using platform::WindowResizedEvent;
 
 namespace {
 
@@ -43,6 +47,7 @@ IApplication* sApp = nullptr;
 f64 sCurrentDeltaTime{0.0};
 shared_ptr<Scene> sCurrentScene;
 gfx::backend::IRenderer* sRenderer;
+bool sRunning = true;
 
 void init_dear_imgui() {
   IMGUI_CHECKVERSION();
@@ -157,6 +162,27 @@ void new_dear_im_gui_frame() {
   ImGui::NewFrame();
 }
 
+void dispatch_pending_events() {
+  const auto events = platform::poll_events();
+  for (const auto& event : events) {
+    switch (event->mType) {
+    case EventType::Quit:
+    case EventType::WindowCloseRequest:
+      sRunning = false;
+      break;
+
+    case EventType::WindowResized: {
+      const auto resizedEvent = std::static_pointer_cast<WindowResizedEvent>(event);
+      sRenderer->on_window_resize(*resizedEvent);
+      break;
+    }
+
+    default:
+      break;
+    }
+  }
+}
+
 } // namespace
 
 void run() {
@@ -171,27 +197,32 @@ void run() {
   using Clock = std::chrono::high_resolution_clock;
 
   auto startTime = Clock::now();
-  while (platform::poll_events()) {
+  do {
     new_dear_im_gui_frame();
-
     sApp->on_update();
 
-    // TODO: use the asynchronicity of the graphics API runtime and gpu driver
     // also calls ImGui::Render()
     gfx::render(sRenderer, sCurrentScene);
+
     platform::get_window_gfx_context()->present();
 
     const auto endTime = Clock::now();
     sCurrentDeltaTime = static_cast<f64>((endTime - startTime).count()) /
       (Clock::period::den * Clock::period::num);
     startTime = endTime;
-  }
+
+    dispatch_pending_events();
+  } while (sRunning);
 
   BS_INFO("leaving main loop");
 
   sApp->on_shutdown();
 
   shutdown();
+}
+
+void quit() {
+  sRunning = false;
 }
 
 auto get_delta_time() -> f64 {

@@ -18,16 +18,18 @@
 
 #include <algorithm> // for_each
 #include <array>
-#include <memory> // make_unique
+#include <memory> // make_unique, make_shared
 #include <stdexcept>
 #include <string>
 #include <system_error> // system_category
+#include <utility> // move
 #include <vector>
 
 namespace basalt::platform {
 
 using ::std::array;
 using ::std::runtime_error;
+using ::std::shared_ptr;
 using ::std::string;
 using ::std::string_view;
 using ::std::system_error;
@@ -322,6 +324,7 @@ constexpr wstring_view WINDOW_CLASS_NAME = L"BS_WINDOW_CLASS";
 string sPlatformName;
 vector<string> sArgs;
 vector<PlatformEventCallback> sEventListener;
+vector<shared_ptr<Event>> sPendingEvents;
 HINSTANCE sInstance;
 int sShowCommand;
 WindowData sWindowData;
@@ -485,30 +488,33 @@ LRESULT CALLBACK window_proc(
 
   case WM_EXITSIZEMOVE:
     sWindowData.mIsSizing = false;
-    dispatch_platform_event(WindowResizedEvent(sWindowData.mClientAreaSize));
+    sPendingEvents.push_back(
+      std::make_shared<WindowResizedEvent>(sWindowData.mClientAreaSize));
     return 0;
 
   case WM_SIZE:
     switch (wParam) {
     case SIZE_MINIMIZED:
       sWindowData.mIsMinimized = true;
-      dispatch_platform_event(WindowMinimizedEvent());
+      sPendingEvents.push_back(std::make_shared<WindowMinimizedEvent>());
       return 0;
     case SIZE_RESTORED:
       sWindowData.mClientAreaSize.set(LOWORD(lParam), HIWORD(lParam));
 
       if (sWindowData.mIsMinimized) {
         sWindowData.mIsMinimized = false;
-        dispatch_platform_event(WindowRestoredEvent());
+        sPendingEvents.push_back(std::make_shared<WindowRestoredEvent>());
       }
       if (!sWindowData.mIsSizing) {
-        dispatch_platform_event(WindowResizedEvent(sWindowData.mClientAreaSize));
+        sPendingEvents.push_back(
+          std::make_shared<WindowResizedEvent>(sWindowData.mClientAreaSize));
       }
 
       return 0;
     case SIZE_MAXIMIZED:
       sWindowData.mClientAreaSize.set(LOWORD(lParam), HIWORD(lParam));
-      dispatch_platform_event(WindowResizedEvent(sWindowData.mClientAreaSize));
+      sPendingEvents.push_back(
+          std::make_shared<WindowResizedEvent>(sWindowData.mClientAreaSize));
       return 0;
 
     default:
@@ -516,7 +522,7 @@ LRESULT CALLBACK window_proc(
     }
 
   case WM_CLOSE:
-    ::DestroyWindow(window);
+    sPendingEvents.push_back(std::make_shared<WindowCloseRequestEvent>());
     return 0;
 
   case WM_DESTROY:
@@ -527,10 +533,8 @@ LRESULT CALLBACK window_proc(
     return 0;
 
   default:
-    break;
+    return ::DefWindowProcW(window, message, wParam, lParam);
   }
-
-  return ::DefWindowProcW(window, message, wParam, lParam);
 }
 
 void register_window_class() {
@@ -588,8 +592,6 @@ void create_main_window(const Config& config) {
     styleEx |= WS_EX_TOPMOST;
   }
 
-  int xPos = 0;
-  int yPos = 0;
   int width = ::GetSystemMetrics(SM_CXSCREEN);
   int height = ::GetSystemMetrics(SM_CYSCREEN);
 
@@ -603,11 +605,9 @@ void create_main_window(const Config& config) {
 
     width = static_cast<int>(rect.right - rect.left);
     height = static_cast<int>(rect.bottom - rect.top);
-    xPos = ::GetSystemMetrics(SM_CXSCREEN) / 2 - width / 2;
-    yPos = ::GetSystemMetrics(SM_CYSCREEN) / 2 - height / 2;
   }
 
-  BS_DEBUG("creating window at ({}, {}) with size ({}, {})", xPos, yPos, width, height);
+  BS_DEBUG("creating window with size ({}, {})", width, height);
 
   const auto windowTitle = create_wide_from_utf8(config.mWindow.mTitle);
   sWindowData.mHandle = ::CreateWindowExW(
@@ -702,9 +702,7 @@ void add_event_listener(const PlatformEventCallback& callback) {
   sEventListener.push_back(callback);
 }
 
-auto poll_events() -> bool {
-  // TODO[threading]: check if main thread
-
+auto poll_events() -> vector<shared_ptr<Event>> {
   MSG msg{};
   while (::PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
     ::TranslateMessage(&msg);
@@ -713,34 +711,36 @@ auto poll_events() -> bool {
     if (!msg.hwnd) {
       switch (msg.message) {
         case WM_QUIT:
-          BS_DEBUG("Received WM_QUIT message");
-          return false;
+          sPendingEvents.push_back(std::make_shared<QuitEvent>());
+          break;
 
         default:
           // ‭275‬ is WM_TIMER
           // is received upon focus change
-          BS_WARN("unhandled thread message: {}", msg.message);
+          BS_INFO("unhandled thread message: {}", msg.message);
           break;
       }
     }
   }
 
-  return true;
+  return std::move(sPendingEvents);
 }
 
-auto wait_for_events() -> bool {
+auto wait_for_events() -> vector<shared_ptr<Event>> {
   BS_DEBUG("waiting for events...");
 
   MSG msg{};
   const auto ret = ::GetMessageW(&msg, nullptr, 0u, 0u);
   if (ret == -1) {
     BS_ERROR(create_winapi_error_message(::GetLastError()));
-    return false;
+    // TODO: fixme
+    BS_ASSERT(false, "GetMessage error");
   }
 
   // GetMessage retrieved WM_QUIT
   if (ret == 0) {
-    return false;
+    sPendingEvents.push_back(std::make_shared<QuitEvent>());
+    return sPendingEvents;
   }
 
   ::TranslateMessage(&msg);
@@ -748,12 +748,6 @@ auto wait_for_events() -> bool {
 
   // handle any remainig messages in the queue
   return poll_events();
-}
-
-void request_quit() {
-  // TODO: more of a request and less of a do quit
-
-  ::PostQuitMessage(0);
 }
 
 auto get_name() -> std::string_view {

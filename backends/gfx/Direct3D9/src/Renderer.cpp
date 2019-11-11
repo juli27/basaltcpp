@@ -3,7 +3,6 @@
 #include <basalt/common/Asserts.h>
 #include <basalt/common/Color.h>
 #include <basalt/gfx/backend/d3d9/Util.h>
-#include <basalt/platform/Platform.h>
 #include <basalt/platform/events/WindowEvents.h>
 
 #include <imgui/imgui.h>
@@ -16,6 +15,9 @@
 #include <cstring> // for memcpy
 
 namespace basalt::gfx::backend::d3d9 {
+
+using platform::WindowResizedEvent;
+
 namespace {
 
 constexpr std::string_view RENDERER_NAME = "Direct3D 9 fixed function";
@@ -194,20 +196,6 @@ Renderer::Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp)
   D3D9CALL(mDevice->GetDeviceCaps(&mDeviceCaps));
 
   ImGui_ImplDX9_Init(mDevice);
-
-  platform::add_event_listener([this](const platform::Event& e) {
-    const platform::EventDispatcher dispatcher(e);
-    dispatcher.dispatch<platform::WindowResizedEvent>(
-      [this](const platform::WindowResizedEvent& event) {
-      ImGui_ImplDX9_InvalidateDeviceObjects();
-      mPresentParams.BackBufferWidth = event.mNewSize.x();
-      mPresentParams.BackBufferHeight = event.mNewSize.y();
-      mDevice->Reset(&mPresentParams);
-      ImGui_ImplDX9_CreateDeviceObjects();
-
-      BS_INFO("resized d3d9 back buffer");
-    });
-  });
 }
 
 Renderer::~Renderer() {
@@ -221,6 +209,16 @@ Renderer::~Renderer() {
   });
 
   mDevice->Release();
+}
+
+void Renderer::on_window_resize(const WindowResizedEvent& event) {
+  ImGui_ImplDX9_InvalidateDeviceObjects();
+  mPresentParams.BackBufferWidth = event.mNewSize.x();
+  mPresentParams.BackBufferHeight = event.mNewSize.y();
+  mDevice->Reset(&mPresentParams);
+  ImGui_ImplDX9_CreateDeviceObjects();
+
+  BS_INFO("resized d3d9 back buffer");
 }
 
 /*

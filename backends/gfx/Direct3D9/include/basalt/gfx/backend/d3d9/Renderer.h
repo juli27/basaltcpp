@@ -32,6 +32,7 @@ struct Renderer final : IRenderer {
   auto operator=(const Renderer&) -> Renderer& = delete;
   auto operator=(Renderer&&) -> Renderer& = delete;
 
+  void on_window_resize(const platform::WindowResizedEvent& event) override;
   auto add_mesh(
     void* data, i32 numVertices, const VertexLayout& layout,
     PrimitiveType primitiveType

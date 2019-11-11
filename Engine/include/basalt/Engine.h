@@ -11,6 +11,7 @@
 namespace basalt {
 
 void run();
+void quit();
 auto get_delta_time() -> f64;
 void set_current_scene(const std::shared_ptr<Scene>& scene);
 auto get_renderer() -> gfx::backend::IRenderer*;

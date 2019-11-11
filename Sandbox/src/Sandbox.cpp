@@ -109,7 +109,7 @@ void SandboxApp::on_update() {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("File")) {
       if (ImGui::MenuItem("Exit", "Alt+F4")) {
-        bs::platform::request_quit();
+        bs::quit();
       }
 
       ImGui::EndMenu();

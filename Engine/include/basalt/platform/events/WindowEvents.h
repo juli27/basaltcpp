@@ -7,6 +7,19 @@
 
 namespace basalt::platform {
 
+struct WindowCloseRequestEvent : EventTyped<EventType::WindowCloseRequest> {
+  constexpr WindowCloseRequestEvent() noexcept = default;
+  constexpr WindowCloseRequestEvent(const WindowCloseRequestEvent&) noexcept = default;
+  constexpr WindowCloseRequestEvent(WindowCloseRequestEvent&&) noexcept = default;
+  ~WindowCloseRequestEvent() noexcept = default;
+
+  auto operator=(const WindowCloseRequestEvent&) noexcept -> WindowCloseRequestEvent&
+    = default;
+  auto operator=(WindowCloseRequestEvent&&) noexcept -> WindowCloseRequestEvent&
+    = default;
+};
+
+
 struct WindowResizedEvent : EventTyped<EventType::WindowResized> {
   constexpr explicit WindowResizedEvent(const math::Vec2i32& newSize) noexcept;
   constexpr WindowResizedEvent(const WindowResizedEvent&) noexcept = default;
