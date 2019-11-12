@@ -1,6 +1,6 @@
-#include "Win32APIHeader.h"
-
 #include <basalt/shared/Types.h>
+
+#include <basalt/shared/Win32APIHeader.h>
 
 #include <limits>
 #include <string>
@@ -12,44 +12,6 @@ using std::wstring;
 using std::wstring_view;
 
 using basalt::uSize;
-
-auto create_wide_from_utf8(const string_view src) noexcept -> wstring {
-  // Don't use asserts/log because this function is used before the log
-  // is initialized
-
-  // TODO: noexcept allocator and heap memory pool for strings
-
-  // MultiByteToWideChar fails when size is 0
-  if (src.empty()) {
-    return {};
-  }
-
-  // use the size of the string view because the input string
-  // can be non null-terminated
-  if (src.size() > static_cast<uSize>(numeric_limits<int>::max())) {
-    return L"create_wide_from_utf8: string to convert is too large";
-  }
-
-  const auto srcSize = static_cast<int>(src.size());
-  auto dstSize = ::MultiByteToWideChar(
-    CP_UTF8, 0, src.data(), srcSize, nullptr, 0
-  );
-
-  if (dstSize == 0) {
-    return L"MultiByteToWideChar returned 0";
-  }
-
-  wstring dst(dstSize, L'\0');
-  dstSize = ::MultiByteToWideChar(
-    CP_UTF8, 0, src.data(), srcSize, dst.data(), static_cast<int>(dst.size())
-  );
-
-  if (dstSize == 0) {
-    return L"MultiByteToWideChar returned 0";
-  }
-
-  return dst;
-}
 
 /**
  * \brief Converts a Windows API wide string to UTF-8.

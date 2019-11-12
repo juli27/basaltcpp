@@ -1,10 +1,9 @@
 #pragma once
-#ifndef BS_WIN32_D3D9_GFX_CONTEXT_H
-#define BS_WIN32_D3D9_GFX_CONTEXT_H
-
-#include <basalt/platform/IGfxContext.h>
+#ifndef BASALT_WIN32_D3D9_GFX_CONTEXT_H
+#define BASALT_WIN32_D3D9_GFX_CONTEXT_H
 
 #include <basalt/gfx/backend/D3D9Header.h>
+#include <basalt/platform/IGfxContext.h>
 
 namespace basalt::platform {
 
@@ -28,4 +27,4 @@ private:
 
 } // basalt::platform
 
-#endif // BS_WIN32_D3D9_GFX_CONTEXT_H
+#endif // BASALT_WIN32_D3D9_GFX_CONTEXT_H

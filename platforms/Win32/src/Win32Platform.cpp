@@ -1,10 +1,7 @@
-#include "Win32APIHeader.h"
-
 #include "D3D9GfxContext.h"
 #include "Win32KeyMap.h"
 #include "Win32Util.h"
 
-#include <basalt/Log.h>
 #include <basalt/platform/Platform.h>
 
 #include <basalt/platform/events/Event.h>
@@ -15,6 +12,10 @@
 #include <basalt/shared/Asserts.h>
 #include <basalt/shared/Types.h>
 
+#include <basalt/shared/Win32APIHeader.h>
+#include <basalt/shared/Win32SharedUtil.h>
+
+#include <basalt/Log.h>
 
 #include <windowsx.h> // GET_X_LPARAM, GET_Y_LPARAM
 

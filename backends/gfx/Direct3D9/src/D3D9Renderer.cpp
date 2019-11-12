@@ -6,10 +6,11 @@
 #include <basalt/shared/Asserts.h>
 #include <basalt/shared/Color.h>
 
+#include <basalt/shared/Win32SharedUtil.h>
+
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_dx9.h>
 
-#include <limits>
 #include <stdexcept>
 #include <string>
 
@@ -149,42 +150,6 @@ void fill_color(D3DCOLORVALUE& d3dColor, const Color color) {
   d3dColor.g = color.green() / 255.0f;
   d3dColor.b = color.blue() / 255.0f;
   d3dColor.a = color.alpha() / 255.0f;
-}
-
-auto create_wide_from_utf8(const std::string_view src) noexcept
--> std::wstring {
-  // TODO: noexcept allocator and heap memory pool for strings
-
-  // MultiByteToWideChar fails when size is 0
-  if (src.empty()) {
-    return {};
-  }
-
-  // use the size of the string view because the input string
-  // can be non null-terminated
-  if (src.size() > static_cast<uSize>(std::numeric_limits<int>::max())) {
-    return L"create_wide_from_utf8: string to convert is too large";
-  }
-
-  const auto srcSize = static_cast<int>(src.size());
-  auto dstSize = ::MultiByteToWideChar(
-    CP_UTF8, 0, src.data(), srcSize, nullptr, 0
-  );
-
-  if (dstSize == 0) {
-    return L"MultiByteToWideChar returned 0";
-  }
-
-  std::wstring dst(dstSize, L'\0');
-  dstSize = ::MultiByteToWideChar(
-    CP_UTF8, 0, src.data(), srcSize, dst.data(), static_cast<int>(dst.size())
-  );
-
-  if (dstSize == 0) {
-    return L"MultiByteToWideChar returned 0";
-  }
-
-  return dst;
 }
 
 } // namespace

@@ -2,7 +2,7 @@
 #ifndef BASALT_WIN32_PLATFORM_H
 #define BASALT_WIN32_PLATFORM_H
 
-#include "Win32APIHeader.h"
+#include <basalt/shared/Win32APIHeader.h>
 
 namespace basalt::platform {
 

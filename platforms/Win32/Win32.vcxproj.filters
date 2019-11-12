@@ -2,7 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="src\D3D9GfxContext.h" />
-    <ClInclude Include="src\Win32APIHeader.h" />
     <ClInclude Include="src\Win32Platform.h" />
     <ClInclude Include="src\Win32KeyMap.h" />
     <ClInclude Include="src\Win32Util.h" />

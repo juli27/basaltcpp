@@ -1,8 +1,11 @@
-#include "Win32APIHeader.h"
 #include "Win32Platform.h"
 #include "Win32Util.h"
 
 #include <basalt/Engine.h> // run
+
+#include <basalt/shared/Win32APIHeader.h>
+#include <basalt/shared/Win32SharedUtil.h>
+
 #include <basalt/Log.h>
 
 // for CommandLineToArgvW

@@ -68,7 +68,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <ControlFlowGuard>Guard</ControlFlowGuard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)backends\gfx\Direct3D9\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)backends\gfx\Direct3D9\include;$(SolutionDir)shared\Win32Shared\include</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalOptions>/w44062 /w14165 /w34191 %(AdditionalOptions)</AdditionalOptions>
@@ -106,7 +106,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <ControlFlowGuard>Guard</ControlFlowGuard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)backends\gfx\Direct3D9\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine\include;$(SolutionDir)external\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)backends\gfx\Direct3D9\include;$(SolutionDir)shared\Win32Shared\include</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <AdditionalOptions>/w44062 /w14165 /w34191 %(AdditionalOptions)</AdditionalOptions>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -136,7 +136,6 @@
     <ClInclude Include="src\Win32Util.h" />
     <ClInclude Include="src\Win32KeyMap.h" />
     <ClInclude Include="src\Win32Platform.h" />
-    <ClInclude Include="src\Win32APIHeader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\D3D9GfxContext.cpp" />
@@ -159,6 +158,9 @@
     </ProjectReference>
     <ProjectReference Include="..\..\Sandbox\Sandbox.vcxproj">
       <Project>{96c9ff62-adec-4083-b527-e83624317b4e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\shared\Win32Shared\Win32Shared.vcxproj">
+      <Project>{ce0f63ba-792b-4aa9-a134-3e70bf63c577}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

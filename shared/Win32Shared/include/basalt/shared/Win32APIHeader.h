@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BASALT_WIN32_APIHEADER_H
-#define BASALT_WIN32_APIHEADER_H
+#ifndef BASALT_WIN32_API_HEADER_H
+#define BASALT_WIN32_API_HEADER_H
 
 // 0x0600 == _WIN32_WINNT_VISTA
 #define WINVER 0x0600
@@ -50,4 +50,4 @@
 
 #include <Windows.h>
 
-#endif // !BASALT_WIN32_APIHEADER_H
+#endif // BASALT_WIN32_API_HEADER_H
