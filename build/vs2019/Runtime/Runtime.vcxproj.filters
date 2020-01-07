@@ -1,0 +1,189 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\..\runtime\platform\win32\D3D9GfxContext.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\runtime\platform\win32\main.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\runtime\platform\win32\Win32Platform.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\runtime\platform\win32\Win32Util.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\runtime\gfx\backend\d3d9\D3D9Renderer.cpp">
+      <Filter>gfx\backend\d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\runtime\shared\win32\Win32Shared.cpp">
+      <Filter>shared\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\runtime\shared\Color.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\runtime\shared\Asserts.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\runtime\shared\Log.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\runtime\math\Mat4.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\runtime\Engine.cpp" />
+    <ClCompile Include="..\..\..\runtime\Input.cpp" />
+    <ClCompile Include="..\..\..\runtime\Scene.cpp" />
+    <ClCompile Include="..\..\..\runtime\gfx\Camera.cpp">
+      <Filter>gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\runtime\gfx\Gfx.cpp">
+      <Filter>gfx</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\runtime\platform\win32\D3D9GfxContext.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\platform\win32\Win32KeyMap.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\platform\win32\Win32Platform.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\platform\win32\Win32Util.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\gfx\backend\d3d9\D3D9Header.h">
+      <Filter>gfx\backend\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\gfx\backend\d3d9\D3D9Renderer.h">
+      <Filter>gfx\backend\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\gfx\backend\d3d9\D3D9Util.h">
+      <Filter>gfx\backend\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\shared\win32\Win32SharedUtil.h">
+      <Filter>shared\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\shared\win32\Win32APIHeader.h">
+      <Filter>shared\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\shared\Asserts.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\shared\Color.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\shared\Config.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\shared\Exceptions.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\shared\Handle.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\shared\HandlePool.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\shared\Log.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\shared\Types.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\math\Constants.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\math\Mat4.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\math\Vec2.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\math\Vec2.t.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\math\Vec3.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\math\Vec3.t.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\gfx\backend\Types.h">
+      <Filter>gfx\backend</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\gfx\backend\IRenderer.h">
+      <Filter>gfx\backend</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\gfx\backend\RenderCommand.h">
+      <Filter>gfx\backend</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\platform\events\WindowEvents.h">
+      <Filter>platform\events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\platform\events\Event.h">
+      <Filter>platform\events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\platform\events\KeyEvents.h">
+      <Filter>platform\events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\platform\events\MouseEvents.h">
+      <Filter>platform\events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\platform\IGfxContext.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\platform\Platform.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\Basalt.h" />
+    <ClInclude Include="..\..\..\runtime\Engine.h" />
+    <ClInclude Include="..\..\..\runtime\IApplication.h" />
+    <ClInclude Include="..\..\..\runtime\Input.h" />
+    <ClInclude Include="..\..\..\runtime\Prelude.h" />
+    <ClInclude Include="..\..\..\runtime\Scene.h" />
+    <ClInclude Include="..\..\..\runtime\gfx\Camera.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\gfx\Gfx.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\runtime\gfx\RenderComponent.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="platform">
+      <UniqueIdentifier>{048f201e-9fdc-4f55-a823-eda82a4ca401}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform\win32">
+      <UniqueIdentifier>{fe97aa5d-9e8c-4fd8-b5ba-595049256a8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gfx">
+      <UniqueIdentifier>{06e8f581-f901-48f2-a7fc-84668b56cb98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gfx\backend">
+      <UniqueIdentifier>{ed4e4284-5c30-4ac5-bbfb-7abca00d487b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gfx\backend\d3d9">
+      <UniqueIdentifier>{ba6bbe4f-ed22-4360-a079-79ef5e1e7039}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared">
+      <UniqueIdentifier>{edbd60a1-b3e5-468e-a505-5174e4efa2e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\win32">
+      <UniqueIdentifier>{486607e2-d492-4fbe-803d-b19d2aff5cf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{31be4d67-d608-4c74-a95c-318cf4132785}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform\events">
+      <UniqueIdentifier>{379b7f59-3f65-4474-8023-60106a6d8da1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="..\..\..\platforms\Win32\App.manifest" />
+  </ItemGroup>
+</Project>

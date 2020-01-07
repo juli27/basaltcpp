@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\..\sandbox\Sandbox.cpp" />
+    <ClCompile Include="..\..\..\sandbox\d3d9_tutorials\Device.cpp">
+      <Filter>testcases\d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sandbox\d3d9_tutorials\Lights.cpp">
+      <Filter>testcases\d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sandbox\d3d9_tutorials\Matrices.cpp">
+      <Filter>testcases\d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sandbox\d3d9_tutorials\Textures.cpp">
+      <Filter>testcases\d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sandbox\d3d9_tutorials\Vertices.cpp">
+      <Filter>testcases\d3d9</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\sandbox\Sandbox.h" />
+    <ClInclude Include="..\..\..\sandbox\ITestCase.h" />
+    <ClInclude Include="..\..\..\sandbox\d3d9_tutorials\Device.h">
+      <Filter>testcases\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sandbox\d3d9_tutorials\Lights.h">
+      <Filter>testcases\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sandbox\d3d9_tutorials\Matrices.h">
+      <Filter>testcases\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sandbox\d3d9_tutorials\Textures.h">
+      <Filter>testcases\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sandbox\d3d9_tutorials\Vertices.h">
+      <Filter>testcases\d3d9</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\sandbox\BasaltApp.props" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="testcases">
+      <UniqueIdentifier>{85eb8fa7-3d17-464f-912e-c5509dc3f8c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="testcases\d3d9">
+      <UniqueIdentifier>{216163e2-bc11-4205-8f75-57ebae23528f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

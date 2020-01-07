@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{5CD3BE49-51E3-4D4C-B3B7-47262FC53969}</ProjectGuid>
+    <RootNamespace>Runtime</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\Sandbox\BasaltApp.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\Sandbox\BasaltApp.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IntDir>$(SolutionDir)buildcache\vs2019_x86-64\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)buildcache\vs2019_x86-64\</OutDir>
+    <TargetName>$(BasaltAppName)_x86-64_Debug</TargetName>
+    <IncludePath>$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IntDir>$(SolutionDir)buildcache\vs2019_x86-64\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)buildcache\vs2019_x86-64\</OutDir>
+    <TargetName>$(BasaltAppName)_x86-64</TargetName>
+    <IncludePath>$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>BS_BUILD;BS_DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <ShowProgress>LinkVerboseLib</ShowProgress>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <AdditionalDependencies>user32.lib;d3d9.lib;d3dx9d.lib</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>oldnames.lib;uuid.lib</IgnoreSpecificDefaultLibraries>
+      <LargeAddressAware>true</LargeAddressAware>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>BS_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <StringPooling>true</StringPooling>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <ShowProgress>LinkVerboseLib</ShowProgress>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <AdditionalDependencies>user32.lib;d3d9.lib;d3dx9.lib</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>oldnames.lib;uuid.lib</IgnoreSpecificDefaultLibraries>
+      <LargeAddressAware>true</LargeAddressAware>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\runtime\Engine.cpp" />
+    <ClCompile Include="..\..\..\runtime\gfx\backend\d3d9\D3D9Renderer.cpp" />
+    <ClCompile Include="..\..\..\runtime\gfx\Camera.cpp" />
+    <ClCompile Include="..\..\..\runtime\gfx\Gfx.cpp" />
+    <ClCompile Include="..\..\..\runtime\Input.cpp" />
+    <ClCompile Include="..\..\..\runtime\math\Mat4.cpp" />
+    <ClCompile Include="..\..\..\runtime\platform\win32\D3D9GfxContext.cpp" />
+    <ClCompile Include="..\..\..\runtime\platform\win32\main.cpp" />
+    <ClCompile Include="..\..\..\runtime\platform\win32\Win32Platform.cpp" />
+    <ClCompile Include="..\..\..\runtime\platform\win32\Win32Util.cpp" />
+    <ClCompile Include="..\..\..\runtime\Scene.cpp" />
+    <ClCompile Include="..\..\..\runtime\shared\Asserts.cpp" />
+    <ClCompile Include="..\..\..\runtime\shared\Color.cpp" />
+    <ClCompile Include="..\..\..\runtime\shared\Log.cpp" />
+    <ClCompile Include="..\..\..\runtime\shared\win32\Win32Shared.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\runtime\Basalt.h" />
+    <ClInclude Include="..\..\..\runtime\Engine.h" />
+    <ClInclude Include="..\..\..\runtime\gfx\backend\d3d9\D3D9Header.h" />
+    <ClInclude Include="..\..\..\runtime\gfx\backend\d3d9\D3D9Renderer.h" />
+    <ClInclude Include="..\..\..\runtime\gfx\backend\d3d9\D3D9Util.h" />
+    <ClInclude Include="..\..\..\runtime\gfx\backend\IRenderer.h" />
+    <ClInclude Include="..\..\..\runtime\gfx\backend\RenderCommand.h" />
+    <ClInclude Include="..\..\..\runtime\gfx\backend\Types.h" />
+    <ClInclude Include="..\..\..\runtime\gfx\Camera.h" />
+    <ClInclude Include="..\..\..\runtime\gfx\Gfx.h" />
+    <ClInclude Include="..\..\..\runtime\gfx\RenderComponent.h" />
+    <ClInclude Include="..\..\..\runtime\IApplication.h" />
+    <ClInclude Include="..\..\..\runtime\Input.h" />
+    <ClInclude Include="..\..\..\runtime\math\Constants.h" />
+    <ClInclude Include="..\..\..\runtime\math\Mat4.h" />
+    <ClInclude Include="..\..\..\runtime\math\Vec2.h" />
+    <ClInclude Include="..\..\..\runtime\math\Vec2.t.h" />
+    <ClInclude Include="..\..\..\runtime\math\Vec3.h" />
+    <ClInclude Include="..\..\..\runtime\math\Vec3.t.h" />
+    <ClInclude Include="..\..\..\runtime\platform\events\Event.h" />
+    <ClInclude Include="..\..\..\runtime\platform\events\KeyEvents.h" />
+    <ClInclude Include="..\..\..\runtime\platform\events\MouseEvents.h" />
+    <ClInclude Include="..\..\..\runtime\platform\events\WindowEvents.h" />
+    <ClInclude Include="..\..\..\runtime\platform\IGfxContext.h" />
+    <ClInclude Include="..\..\..\runtime\platform\Platform.h" />
+    <ClInclude Include="..\..\..\runtime\platform\win32\D3D9GfxContext.h" />
+    <ClInclude Include="..\..\..\runtime\platform\win32\Win32KeyMap.h" />
+    <ClInclude Include="..\..\..\runtime\platform\win32\Win32Platform.h" />
+    <ClInclude Include="..\..\..\runtime\platform\win32\Win32Util.h" />
+    <ClInclude Include="..\..\..\runtime\Prelude.h" />
+    <ClInclude Include="..\..\..\runtime\Scene.h" />
+    <ClInclude Include="..\..\..\runtime\shared\Asserts.h" />
+    <ClInclude Include="..\..\..\runtime\shared\Color.h" />
+    <ClInclude Include="..\..\..\runtime\shared\Config.h" />
+    <ClInclude Include="..\..\..\runtime\shared\Exceptions.h" />
+    <ClInclude Include="..\..\..\runtime\shared\Handle.h" />
+    <ClInclude Include="..\..\..\runtime\shared\HandlePool.h" />
+    <ClInclude Include="..\..\..\runtime\shared\Log.h" />
+    <ClInclude Include="..\..\..\runtime\shared\Types.h" />
+    <ClInclude Include="..\..\..\runtime\shared\win32\Win32APIHeader.h" />
+    <ClInclude Include="..\..\..\runtime\shared\win32\Win32SharedUtil.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\external\DearImGui\DearImGui.vcxproj">
+      <Project>{b1a92639-8420-47cc-8101-abb4f82d7649}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\external\Fmt\Fmt.vcxproj">
+      <Project>{dde86b7b-a6ab-47bf-b6d6-b8e9dd67ba12}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Sandbox\Sandbox.vcxproj">
+      <Project>{96c9ff62-adec-4083-b527-e83624317b4e}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="..\..\..\platforms\Win32\App.manifest" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

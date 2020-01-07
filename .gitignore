@@ -352,6 +352,7 @@ MigrationBackup/
 
 
 ### CUSTOM
-log.txt
+buildcache/
 data/
+log.txt
 imgui.ini
