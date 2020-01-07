@@ -9,6 +9,8 @@ using std::size_t;
 using std::string_view;
 using std::wstring;
 
+namespace basalt {
+
 auto create_wide_from_utf8(const string_view src) noexcept -> wstring {
   // Don't use asserts/log because this function is used before the log
   // is initialized
@@ -46,3 +48,5 @@ auto create_wide_from_utf8(const string_view src) noexcept -> wstring {
 
   return dst;
 }
+
+} // namespace basalt

@@ -8,9 +8,9 @@
 
 #include <basalt/shared/HandlePool.h>
 
-namespace basalt::gfx::backend::d3d9 {
+namespace basalt::gfx::backend {
 
-struct Mesh {
+struct D3D9Mesh {
   IDirect3DVertexBuffer9* vertexBuffer = nullptr;
   DWORD fvf = 0u;
   UINT vertexSize = 0u;
@@ -18,19 +18,19 @@ struct Mesh {
   UINT primCount = 0u;
 };
 
-struct Texture {
+struct D3D9Texture {
   IDirect3DTexture9* texture = nullptr;
 };
 
-struct Renderer final : IRenderer {
-  Renderer() = delete;
-  explicit Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp);
-  Renderer(const Renderer&) = delete;
-  Renderer(Renderer&&) = delete;
-  ~Renderer();
+struct D3D9Renderer final : IRenderer {
+  D3D9Renderer() = delete;
+  explicit D3D9Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp);
+  D3D9Renderer(const D3D9Renderer&) = delete;
+  D3D9Renderer(D3D9Renderer&&) = delete;
+  ~D3D9Renderer();
 
-  auto operator=(const Renderer&) -> Renderer& = delete;
-  auto operator=(Renderer&&) -> Renderer& = delete;
+  auto operator=(const D3D9Renderer&) -> D3D9Renderer& = delete;
+  auto operator=(D3D9Renderer&&) -> D3D9Renderer& = delete;
 
   void on_window_resize(const platform::WindowResizedEvent& event) override;
   auto add_mesh(
@@ -57,12 +57,12 @@ private:
   IDirect3DDevice9* mDevice = nullptr;
   D3DCAPS9 mDeviceCaps = {};
   D3DPRESENT_PARAMETERS mPresentParams;
-  HandlePool<Mesh, MeshHandle> mMeshes;
-  HandlePool<Texture, TextureHandle> mTextures;
+  HandlePool<D3D9Mesh, MeshHandle> mMeshes;
+  HandlePool<D3D9Texture, TextureHandle> mTextures;
   RenderCommandBuffer mCommandBuffer;
   D3DCOLOR mClearColor = D3DCOLOR_XRGB(0, 0, 0);
 };
 
-} // namespace basalt::gfx::backend::d3d9
+} // namespace basalt::gfx::backend
 
 #endif // !BASALT_GFX_BACKEND_D3D9_RENDERER_H

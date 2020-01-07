@@ -2,7 +2,6 @@
 #ifndef BASALT_H
 #define BASALT_H
 
-#include "Config.h"
 #include "Engine.h"
 #include "IApplication.h"
 #include "Input.h"
@@ -17,7 +16,6 @@
 #include "gfx/backend/Types.h"
 
 #include "platform/Platform.h"
-#include "platform/Types.h"
 
 #include "platform/events/Event.h"
 #include "platform/events/KeyEvents.h"
@@ -29,15 +27,16 @@
 #include "math/Vec2.h"
 #include "math/Vec3.h"
 
+#include "shared/Asserts.h"
 #include "shared/Color.h"
+#include "shared/Config.h"
 #include "shared/Exceptions.h"
 #include "shared/Handle.h"
 #include "shared/HandlePool.h"
 #include "shared/Types.h"
 
 // at the bottom because of the stupid windows.h dependency
-#include "Log.h"
-#include "shared/Asserts.h"
+#include "shared/Log.h"
 
 #include <entt/entt.hpp>
 #include <fmt/format.h>

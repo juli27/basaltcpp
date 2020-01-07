@@ -8,8 +8,8 @@
 #include <basalt/gfx/backend/IRenderer.h>
 #include <basalt/gfx/backend/Types.h>
 
-#include <basalt/Log.h>
 #include <basalt/shared/Asserts.h>
+#include <basalt/shared/Log.h>
 
 #include <memory>
 

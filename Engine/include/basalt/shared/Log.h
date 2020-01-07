@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BASALT_LOG_H
-#define BASALT_LOG_H
+#ifndef BASALT_SHARED_LOG_H
+#define BASALT_SHARED_LOG_H
 
 #include <spdlog/spdlog.h>
 
@@ -12,7 +12,7 @@ void init();
 auto get_core_logger() -> const std::shared_ptr<spdlog::logger>&;
 auto get_client_logger() -> const std::shared_ptr<spdlog::logger>&;
 
-}  // namespace basalt::log
+} // namespace basalt::log
 
 #ifdef BS_BUILD
 
@@ -44,4 +44,4 @@ auto get_client_logger() -> const std::shared_ptr<spdlog::logger>&;
 
 #endif // BS_BUILD
 
-#endif // !BASALT_LOG_H
+#endif // !BASALT_SHARED_LOG_H

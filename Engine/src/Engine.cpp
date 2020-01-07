@@ -1,9 +1,7 @@
 #include <basalt/Engine.h>
 
-#include <basalt/Config.h>
 #include <basalt/IApplication.h>
 #include <basalt/Input.h>
-#include <basalt/Log.h>
 #include <basalt/Scene.h>
 
 #include <basalt/gfx/Gfx.h>
@@ -18,6 +16,8 @@
 #include <basalt/platform/events/WindowEvents.h>
 
 #include <basalt/shared/Asserts.h>
+#include <basalt/shared/Config.h>
+#include <basalt/shared/Log.h>
 #include <basalt/shared/Types.h>
 
 #include <imgui/imgui.h> // ImGui
@@ -43,10 +43,7 @@ using platform::WindowResizedEvent;
 
 namespace {
 
-Config sConfig{
-  {"Basalt App", {1280, 720}, WindowMode::Fullscreen, false},
-  {gfx::BackendApi::Default}
-};
+Config sConfig{};
 IApplication* sApp = nullptr;
 f64 sCurrentDeltaTime{0.0};
 shared_ptr<Scene> sCurrentScene;
@@ -105,18 +102,19 @@ void startup() {
 
   // TODO: load config from file or create default
 
-  sApp = IApplication::create(sConfig);
+  sApp = IApplication::create();
   if (!sApp) {
     throw std::runtime_error("failed to create IApplication object");
   }
 
-  BASALT_LOG_INFO(
-    "config: window: {} {}x{}{} {}{}",
-    sConfig.mWindow.mTitle, sConfig.mWindow.mSize.x(),
-    sConfig.mWindow.mSize.y(),
-    sConfig.mWindow.mMode == WindowMode::FullscreenExclusive ? " exclusive" : "",
-    sConfig.mWindow.mMode != WindowMode::Windowed ? "fullscreen" : "windowed",
-    sConfig.mWindow.mResizeable ? " resizeable" : ""
+  BASALT_LOG_INFO("config");
+  BASALT_LOG_INFO("  app name: {}", sConfig.mAppName);
+  BASALT_LOG_INFO("  window: {}x{}{} {}{}",
+    sConfig.mWindowWidth,
+    sConfig.mWindowHeight,
+    sConfig.mWindowMode == WindowMode::FullscreenExclusive ? " exclusive" : "",
+    sConfig.mWindowMode != WindowMode::Windowed ? "fullscreen" : "windowed",
+    sConfig.mIsWindowResizeable ? " resizeable" : ""
   );
 
   platform::startup(sConfig);

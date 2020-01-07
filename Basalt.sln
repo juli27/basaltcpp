@@ -60,6 +60,7 @@ Global
 		{CE0F63BA-792B-4AA9-A134-3E70BF63C577}.Debug|x86-64.ActiveCfg = Debug|x64
 		{CE0F63BA-792B-4AA9-A134-3E70BF63C577}.Debug|x86-64.Build.0 = Debug|x64
 		{CE0F63BA-792B-4AA9-A134-3E70BF63C577}.Release|x86-64.ActiveCfg = Release|x64
+		{CE0F63BA-792B-4AA9-A134-3E70BF63C577}.Release|x86-64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

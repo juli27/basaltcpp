@@ -10,13 +10,13 @@
 struct ITestCase;
 
 struct SandboxApp final : basalt::IApplication {
-  explicit SandboxApp(basalt::Config& config);
+  SandboxApp() = default;
   SandboxApp(const SandboxApp&) = delete;
-  SandboxApp(SandboxApp&&) = delete;
+  SandboxApp(SandboxApp&&) = default;
   virtual ~SandboxApp() = default;
 
   auto operator=(const SandboxApp&) -> SandboxApp& = delete;
-  auto operator=(SandboxApp&&) -> SandboxApp& = delete;
+  auto operator=(SandboxApp&&) -> SandboxApp& = default;
 
   void next_scene();
   void prev_scene();

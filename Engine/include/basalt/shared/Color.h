@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BASALT_COMMON_COLOR_H
-#define BASALT_COMMON_COLOR_H
+#ifndef BASALT_SHARED_COLOR_H
+#define BASALT_SHARED_COLOR_H
 
 #include "Types.h"
 
@@ -14,18 +14,24 @@ struct Color final {
   constexpr Color(Color&&) noexcept = default;
   ~Color() noexcept = default;
 
-  auto operator=(const Color&) noexcept -> Color& = default;
-  auto operator=(Color&&) noexcept -> Color& = default;
+  auto operator=(const Color&) noexcept -> Color&;
+  auto operator=(Color&&) noexcept -> Color&;
 
   // ARGB word-order
-  [[nodiscard]] constexpr auto to_argb() const noexcept -> u32;
+  [[nodiscard]]
+  constexpr auto to_argb() const noexcept -> u32;
 
-  [[nodiscard]] constexpr auto red() const noexcept -> u8;
-  [[nodiscard]] constexpr auto green() const noexcept -> u8;
-  [[nodiscard]] constexpr auto blue() const noexcept -> u8;
-  [[nodiscard]] constexpr auto alpha() const noexcept -> u8;
+  [[nodiscard]]
+  constexpr auto red() const noexcept -> u8;
+  [[nodiscard]]
+  constexpr auto green() const noexcept -> u8;
+  [[nodiscard]]
+  constexpr auto blue() const noexcept -> u8;
+  [[nodiscard]]
+  constexpr auto alpha() const noexcept -> u8;
 
   // ARGB word order
+  [[nodiscard]]
   static constexpr auto from_argb(u32 argb) noexcept -> Color;
 
 private:
@@ -35,13 +41,14 @@ private:
   u8 mAlpha = 0;
 };
 
+
 constexpr Color::Color(const u8 red, const u8 green, const u8 blue) noexcept
-: Color(red, green, blue, 255) {}
+  : Color(red, green, blue, 255) {}
 
 constexpr Color::Color(
   const u8 red, const u8 green, const u8 blue, const u8 alpha
 ) noexcept
-: mRed(red)
+  : mRed(red)
 , mGreen(green)
 , mBlue(blue)
 , mAlpha(alpha) {}
@@ -85,4 +92,4 @@ constexpr Color Color::from_argb(const u32 argb) noexcept {
 
 } // namespace basalt
 
-#endif // !BASALT_COMMON_COLOR_H
+#endif // !BASALT_SHARED_COLOR_H

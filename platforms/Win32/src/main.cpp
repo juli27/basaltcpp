@@ -1,15 +1,12 @@
 #include "Win32Platform.h"
-#include "Win32Util.h"
 
 #include <basalt/Engine.h> // run
 
 #include <basalt/shared/Win32APIHeader.h>
-#include <basalt/shared/Win32SharedUtil.h>
+#include <basalt/shared/Win32SharedUtil.h> // create_wide_from_utf8
 
-#include <basalt/Log.h>
-
-// for CommandLineToArgvW
-//#include <shellapi.h>
+// after windows.h
+#include <basalt/shared/Log.h>
 
 #include <stdexcept>
 #include <string>
@@ -71,7 +68,7 @@ auto CALLBACK wWinMain(HINSTANCE instance, HINSTANCE, WCHAR*, int showCommand)
   return 0;
 } catch (const exception& ex) {
   wstring mbText = L"Unhandled exception: \r\n";
-  mbText.append(create_wide_from_utf8(ex.what()));
+  mbText.append(basalt::create_wide_from_utf8(ex.what()));
   ::MessageBoxW(
     nullptr, mbText.c_str(), L"Basalt Fatal Error",
     MB_OK | MB_ICONERROR | MB_SYSTEMMODAL

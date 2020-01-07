@@ -15,12 +15,12 @@
 #include <basalt/shared/Win32APIHeader.h>
 #include <basalt/shared/Win32SharedUtil.h>
 
-#include <basalt/Log.h>
+// after windows.h
+#include <basalt/shared/Log.h>
 
 #include <windowsx.h> // GET_X_LPARAM, GET_Y_LPARAM
 
 #include <algorithm> // for_each
-#include <array>
 #include <memory> // make_shared
 #include <stdexcept>
 #include <string>
@@ -30,7 +30,6 @@
 
 namespace basalt::platform {
 
-using ::std::array;
 using ::std::runtime_error;
 using ::std::shared_ptr;
 using ::std::string;
@@ -56,19 +55,224 @@ struct WindowData final {
 
   HWND mHandle = nullptr;
   IGfxContext* mGfxContext = nullptr;
-  std::string mTitle;
-  math::Vec2i32 mClientAreaSize;
+  i32 mClientAreaWidth = 0;
+  i32 mClientAreaHeight = 0;
   WindowMode mMode = WindowMode::Windowed;
   bool mIsResizeable = false;
   bool mIsMinimized = false;
   bool mIsSizing = false;
 };
 
+
 constexpr wstring_view WINDOW_CLASS_NAME = L"BS_WINDOW_CLASS";
 
 vector<PlatformEventCallback> sEventListener;
 vector<shared_ptr<Event>> sPendingEvents;
 WindowData sWindowData;
+
+void register_window_class();
+void create_main_window(const Config& config);
+void dispatch_platform_event(const Event& event);
+auto CALLBACK window_proc(
+  HWND window, UINT message, WPARAM wParam, LPARAM lParam
+) -> LRESULT;
+
+} // namespace
+
+void startup(const Config& config) {
+  BASALT_ASSERT(sInstance, "Windows API not initialized");
+
+  create_main_window(config);
+}
+
+void shutdown() {
+  if (sWindowData.mHandle) {
+    ::DestroyWindow(sWindowData.mHandle);
+    sWindowData.mHandle = nullptr;
+  }
+
+  if (!::UnregisterClassW(
+    WINDOW_CLASS_NAME.data(), sInstance
+  )) {
+    BASALT_LOG_ERROR(
+      "failed to unregister window class: {}",
+      create_winapi_error_message(::GetLastError())
+    );
+  }
+}
+
+void add_event_listener(const PlatformEventCallback& callback) {
+  sEventListener.push_back(callback);
+}
+
+auto poll_events() -> vector<shared_ptr<Event>> {
+  MSG msg{};
+  while (::PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
+    ::TranslateMessage(&msg);
+    ::DispatchMessageW(&msg);
+
+    if (!msg.hwnd) {
+      switch (msg.message) {
+      case WM_QUIT:
+        sPendingEvents.push_back(std::make_shared<QuitEvent>());
+        break;
+
+      default:
+        // ‭275‬ is WM_TIMER
+        // is received upon focus change
+        BASALT_LOG_DEBUG("unhandled thread message: {}", msg.message);
+        break;
+      }
+    }
+  }
+
+  return std::move(sPendingEvents);
+}
+
+auto wait_for_events() -> vector<shared_ptr<Event>> {
+  MSG msg{};
+  const auto ret = ::GetMessageW(&msg, nullptr, 0u, 0u);
+  if (ret == -1) {
+    BASALT_LOG_ERROR(create_winapi_error_message(::GetLastError()));
+    // TODO: fixme
+    BASALT_ASSERT(false, "GetMessage error");
+  }
+
+  // GetMessage retrieved WM_QUIT
+  if (ret == 0) {
+    sPendingEvents.push_back(std::make_shared<QuitEvent>());
+    return sPendingEvents;
+  }
+
+  ::TranslateMessage(&msg);
+  ::DispatchMessageW(&msg);
+
+  // handle any remainig messages in the queue
+  return poll_events();
+}
+
+auto get_name() -> std::string_view {
+  return "Win32";
+}
+
+auto get_window_size() -> math::Vec2i32 {
+  return {sWindowData.mClientAreaWidth, sWindowData.mClientAreaHeight};
+}
+
+auto get_window_mode() -> WindowMode {
+  return sWindowData.mMode;
+}
+
+void set_window_mode(const WindowMode windowMode) {
+  switch (windowMode) {
+  case WindowMode::Windowed:
+    break;
+  case WindowMode::Fullscreen:
+    break;
+  case WindowMode::FullscreenExclusive:
+    break;
+  }
+  BASALT_LOG_ERROR("platform::set_window_mode not implemented");
+}
+
+auto get_window_gfx_context() -> IGfxContext* {
+  BASALT_ASSERT(sWindowData.mGfxContext, "no gfx context present");
+
+  return sWindowData.mGfxContext;
+}
+
+namespace {
+
+void register_window_class() {
+  const auto cursor = static_cast<HCURSOR>(::LoadImageW(
+    nullptr, MAKEINTRESOURCEW(OCR_NORMAL), IMAGE_CURSOR, 0, 0,
+    LR_DEFAULTSIZE | LR_SHARED
+  ));
+  if (!cursor) {
+    BASALT_LOG_ERROR("failed to load cursor");
+  }
+
+  WNDCLASSEXW windowClass{
+    sizeof(WNDCLASSEXW),
+    CS_OWNDC | CS_HREDRAW | CS_VREDRAW,
+    &window_proc,
+    0, // cbClsExtra
+    0, // cbWndExtra
+    sInstance,
+    nullptr, // hIcon
+    cursor,
+    nullptr, // hbrBackground
+    nullptr, // lpszMenuName
+    WINDOW_CLASS_NAME.data(),
+    nullptr // hIconSm
+  };
+
+  if (!::RegisterClassExW(&windowClass)) {
+    throw system_error(
+      ::GetLastError(), std::system_category(),
+      "Failed to register window class"
+    );
+  }
+}
+
+void create_main_window(const Config& config) {
+  register_window_class();
+
+  sWindowData.mClientAreaWidth = config.mWindowWidth;
+  sWindowData.mClientAreaHeight = config.mWindowHeight;
+  sWindowData.mMode = config.mWindowMode;
+  sWindowData.mIsResizeable = config.mIsWindowResizeable;
+
+  // handle don't care cases
+  if (sWindowData.mClientAreaWidth == 0) {
+    sWindowData.mClientAreaWidth = 1280;
+  }
+  if (sWindowData.mClientAreaHeight == 0) {
+    sWindowData.mClientAreaHeight = 720;
+  }
+
+  DWORD style = 0u;
+  DWORD styleEx = WS_EX_APPWINDOW;
+  if (config.mWindowMode == WindowMode::Windowed) {
+    style |= WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
+
+    if (config.mIsWindowResizeable) {
+      style |= WS_MAXIMIZEBOX | WS_SIZEBOX;
+    }
+  } else {
+    style |= WS_POPUP;
+    styleEx |= WS_EX_TOPMOST;
+  }
+
+  auto windowWidth = ::GetSystemMetrics(SM_CXSCREEN);
+  auto windowHeight = ::GetSystemMetrics(SM_CYSCREEN);
+
+  if (config.mWindowMode == WindowMode::Windowed) {
+    // calculate the window size for the given client area size
+    // and center the window on the primary monitor
+    RECT rect{0, 0, sWindowData.mClientAreaWidth, sWindowData.mClientAreaHeight};
+    if (!::AdjustWindowRectEx(&rect, style, FALSE, styleEx)) {
+      throw system_error(::GetLastError(), std::system_category());
+    }
+
+    windowWidth = static_cast<int>(rect.right - rect.left);
+    windowHeight = static_cast<int>(rect.bottom - rect.top);
+  }
+
+  const auto windowTitle = create_wide_from_utf8(config.mAppName);
+  sWindowData.mHandle = ::CreateWindowExW(
+    styleEx, WINDOW_CLASS_NAME.data(), windowTitle.c_str(), style,
+    CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, nullptr, nullptr,
+    sInstance, nullptr
+  );
+  if (!sWindowData.mHandle) {
+    throw runtime_error("failed to create window");
+  }
+
+  ::ShowWindow(sWindowData.mHandle, sShowCommand);
+
+  sWindowData.mGfxContext = new D3D9GfxContext(sWindowData.mHandle);
+}
 
 void dispatch_platform_event(const Event& event) {
   std::for_each(
@@ -79,9 +283,9 @@ void dispatch_platform_event(const Event& event) {
   );
 }
 
-LRESULT CALLBACK window_proc(
+auto CALLBACK window_proc(
   HWND window, const UINT message, const WPARAM wParam, const LPARAM lParam
-) {
+) -> LRESULT {
   switch (message) {
   case WM_MOUSEMOVE:
     dispatch_platform_event(
@@ -90,12 +294,11 @@ LRESULT CALLBACK window_proc(
     return 0;
 
   case WM_MOUSEWHEEL: {
-    const auto offset =
-      GET_WHEEL_DELTA_WPARAM(wParam) / static_cast<f32> (WHEEL_DELTA);
+    const auto offset = GET_WHEEL_DELTA_WPARAM(wParam) / static_cast<f32>(
+      WHEEL_DELTA);
     dispatch_platform_event(MouseWheelScrolledEvent(offset));
     return 0;
   }
-
 
   case WM_LBUTTONDOWN:
     ::SetCapture(window);
@@ -128,7 +331,7 @@ LRESULT CALLBACK window_proc(
     dispatch_platform_event(MouseButtonReleasedEvent(MouseButton::Middle));
     return 0;
 
-  // TODO: XBUTTON4 and XBUTTON5
+    // TODO: XBUTTON4 and XBUTTON5
 
   case WM_KEYDOWN:
   case WM_KEYUP: {
@@ -199,7 +402,12 @@ LRESULT CALLBACK window_proc(
   case WM_EXITSIZEMOVE:
     sWindowData.mIsSizing = false;
     sPendingEvents.push_back(
-      std::make_shared<WindowResizedEvent>(sWindowData.mClientAreaSize));
+      std::make_shared<WindowResizedEvent>(
+        math::Vec2i32{
+          sWindowData.mClientAreaWidth, sWindowData.mClientAreaHeight
+        }
+      )
+    );
     return 0;
 
   case WM_SIZE:
@@ -209,22 +417,33 @@ LRESULT CALLBACK window_proc(
       sPendingEvents.push_back(std::make_shared<WindowMinimizedEvent>());
       return 0;
     case SIZE_RESTORED:
-      sWindowData.mClientAreaSize.set(LOWORD(lParam), HIWORD(lParam));
-
       if (sWindowData.mIsMinimized) {
         sWindowData.mIsMinimized = false;
         sPendingEvents.push_back(std::make_shared<WindowRestoredEvent>());
       }
       if (!sWindowData.mIsSizing) {
-        sPendingEvents.push_back(
-          std::make_shared<WindowResizedEvent>(sWindowData.mClientAreaSize));
+        if (sWindowData.mClientAreaWidth != LOWORD(lParam) || sWindowData.mClientAreaHeight != HIWORD(lParam)) {
+          sWindowData.mClientAreaWidth = LOWORD(lParam);
+          sWindowData.mClientAreaHeight = HIWORD(lParam);
+
+          sPendingEvents.push_back(std::make_shared<WindowResizedEvent>(
+            math::Vec2i32{
+              sWindowData.mClientAreaWidth, sWindowData.mClientAreaHeight
+            }));
+        }
       }
 
       return 0;
     case SIZE_MAXIMIZED:
-      sWindowData.mClientAreaSize.set(LOWORD(lParam), HIWORD(lParam));
+      sWindowData.mClientAreaWidth = LOWORD(lParam);
+      sWindowData.mClientAreaHeight = HIWORD(lParam);
       sPendingEvents.push_back(
-          std::make_shared<WindowResizedEvent>(sWindowData.mClientAreaSize));
+        std::make_shared<WindowResizedEvent>(
+          math::Vec2i32{
+            sWindowData.mClientAreaWidth, sWindowData.mClientAreaHeight
+          }
+        )
+      );
       return 0;
 
     default:
@@ -247,191 +466,6 @@ LRESULT CALLBACK window_proc(
   }
 }
 
-void register_window_class() {
-  const auto cursor = static_cast<HCURSOR>(::LoadImageW(
-    nullptr, MAKEINTRESOURCEW(OCR_NORMAL), IMAGE_CURSOR, 0, 0,
-    LR_DEFAULTSIZE | LR_SHARED
-  ));
-  if (!cursor) {
-    BASALT_LOG_ERROR("failed to load cursor");
-  }
-
-  WNDCLASSEXW windowClass{
-    sizeof(WNDCLASSEXW),
-    CS_OWNDC | CS_HREDRAW | CS_VREDRAW,
-    &window_proc,
-    0, // cbClsExtra
-    0, // cbWndExtra
-    sInstance,
-    nullptr, // hIcon
-    cursor,
-    nullptr, // hbrBackground
-    nullptr, // lpszMenuName
-    WINDOW_CLASS_NAME.data(),
-    nullptr // hIconSm
-  };
-
-  if (!::RegisterClassExW(&windowClass)) {
-    throw system_error(
-      ::GetLastError(), std::system_category(),
-      "Failed to register window class"
-    );
-  }
-}
-
-void create_main_window(const Config& config) {
-  register_window_class();
-
-  sWindowData.mTitle = config.mWindow.mTitle;
-  sWindowData.mClientAreaSize = config.mWindow.mSize;
-  sWindowData.mMode = config.mWindow.mMode;
-  sWindowData.mIsResizeable = config.mWindow.mResizeable;
-
-  DWORD style = 0u;
-  DWORD styleEx = WS_EX_APPWINDOW;
-  if (config.mWindow.mMode == WindowMode::Windowed) {
-    style |= WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
-
-    if (config.mWindow.mResizeable) {
-      style |= WS_MAXIMIZEBOX | WS_SIZEBOX;
-    }
-  } else {
-    style |= WS_POPUP;
-    styleEx |= WS_EX_TOPMOST;
-  }
-
-  int width = ::GetSystemMetrics(SM_CXSCREEN);
-  int height = ::GetSystemMetrics(SM_CYSCREEN);
-
-  if (config.mWindow.mMode == WindowMode::Windowed) {
-    // calculate the window size for the given client area size
-    // and center the window on the primary monitor
-    RECT rect{0, 0, config.mWindow.mSize.x(), config.mWindow.mSize.y()};
-    if (!::AdjustWindowRectEx(&rect, style, FALSE, styleEx)) {
-      throw system_error(::GetLastError(), std::system_category());
-    }
-
-    width = static_cast<int>(rect.right - rect.left);
-    height = static_cast<int>(rect.bottom - rect.top);
-  }
-
-  const auto windowTitle = create_wide_from_utf8(config.mWindow.mTitle);
-  sWindowData.mHandle = ::CreateWindowExW(
-    styleEx, WINDOW_CLASS_NAME.data(), windowTitle.c_str(), style, 
-    CW_USEDEFAULT, CW_USEDEFAULT, width, height, nullptr, nullptr, sInstance,
-    nullptr
-  );
-  if (!sWindowData.mHandle) {
-    throw runtime_error("failed to create window");
-  }
-
-  ::ShowWindow(sWindowData.mHandle, sShowCommand);
-
-  sWindowData.mGfxContext = new D3D9GfxContext(sWindowData.mHandle);
-}
-
 } // namespace
-
-void startup(const Config& config) {
-  BASALT_ASSERT(sInstance, "Windows API not initialized");
-
-  create_main_window(config);
-}
-
-void shutdown() {
-  if (sWindowData.mHandle) {
-    ::DestroyWindow(sWindowData.mHandle);
-    sWindowData.mHandle = nullptr;
-  }
-
-  if (!::UnregisterClassW(
-    WINDOW_CLASS_NAME.data(), sInstance
-  )) {
-    BASALT_LOG_ERROR(
-      "failed to unregister window class: {}",
-      create_winapi_error_message(::GetLastError())
-    );
-  }
-}
-
-void add_event_listener(const PlatformEventCallback& callback) {
-  sEventListener.push_back(callback);
-}
-
-auto poll_events() -> vector<shared_ptr<Event>> {
-  MSG msg{};
-  while (::PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
-    ::TranslateMessage(&msg);
-    ::DispatchMessageW(&msg);
-
-    if (!msg.hwnd) {
-      switch (msg.message) {
-        case WM_QUIT:
-          sPendingEvents.push_back(std::make_shared<QuitEvent>());
-          break;
-
-        default:
-          // ‭275‬ is WM_TIMER
-          // is received upon focus change
-          BASALT_LOG_DEBUG("unhandled thread message: {}", msg.message);
-          break;
-      }
-    }
-  }
-
-  return std::move(sPendingEvents);
-}
-
-auto wait_for_events() -> vector<shared_ptr<Event>> {
-  MSG msg{};
-  const auto ret = ::GetMessageW(&msg, nullptr, 0u, 0u);
-  if (ret == -1) {
-    BASALT_LOG_ERROR(create_winapi_error_message(::GetLastError()));
-    // TODO: fixme
-    BASALT_ASSERT(false, "GetMessage error");
-  }
-
-  // GetMessage retrieved WM_QUIT
-  if (ret == 0) {
-    sPendingEvents.push_back(std::make_shared<QuitEvent>());
-    return sPendingEvents;
-  }
-
-  ::TranslateMessage(&msg);
-  ::DispatchMessageW(&msg);
-
-  // handle any remainig messages in the queue
-  return poll_events();
-}
-
-auto get_name() -> std::string_view {
-  return "Win32";
-}
-
-auto get_window_size() -> math::Vec2i32 {
-  return sWindowData.mClientAreaSize;
-}
-
-auto get_window_mode() -> WindowMode {
-  return sWindowData.mMode;
-}
-
-void set_window_mode(const WindowMode windowMode) {
-  switch (windowMode) {
-  case WindowMode::Windowed:
-    break;
-  case WindowMode::Fullscreen:
-    break;
-  case WindowMode::FullscreenExclusive:
-    break;
-  }
-  BASALT_LOG_ERROR("platform::set_window_mode not implemented");
-}
-
-auto get_window_gfx_context() -> IGfxContext* {
-  BASALT_ASSERT(sWindowData.mGfxContext, "no gfx context present");
-
-  return sWindowData.mGfxContext;
-}
 
 } // namespace basalt::platform

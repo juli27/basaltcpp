@@ -13,6 +13,8 @@ using std::wstring_view;
 
 using basalt::uSize;
 
+namespace basalt {
+
 /**
  * \brief Converts a Windows API wide string to UTF-8.
  *
@@ -88,3 +90,5 @@ auto create_winapi_error_message(const DWORD errorCode) noexcept -> string {
 
   return message;
 }
+
+} // namespace basalt

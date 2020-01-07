@@ -5,6 +5,7 @@
 
 #include <basalt/shared/Asserts.h>
 #include <basalt/shared/Color.h>
+#include <basalt/shared/Log.h>
 
 #include <basalt/shared/Win32SharedUtil.h>
 
@@ -16,7 +17,7 @@
 
 #include <cstring> // for memcpy
 
-namespace basalt::gfx::backend::d3d9 {
+namespace basalt::gfx::backend {
 
 using platform::WindowResizedEvent;
 
@@ -99,7 +100,7 @@ auto vertex_layout_to_fvf(const VertexLayout& layout) -> DWORD {
 }
 
 void fill_primitive_info(
-  Mesh& mesh, const PrimitiveType primitiveType, const i32 numVtx
+  D3D9Mesh& mesh, const PrimitiveType primitiveType, const i32 numVtx
 ) {
   switch (primitiveType) {
     case PrimitiveType::PointList:
@@ -154,7 +155,7 @@ void fill_color(D3DCOLORVALUE& d3dColor, const Color color) {
 
 } // namespace
 
-Renderer::Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp)
+D3D9Renderer::D3D9Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp)
 : mDevice(device)
 , mPresentParams(pp) {
   BASALT_ASSERT(device, "device is null");
@@ -164,20 +165,20 @@ Renderer::Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp)
   ImGui_ImplDX9_Init(mDevice);
 }
 
-Renderer::~Renderer() {
+D3D9Renderer::~D3D9Renderer() {
   ImGui_ImplDX9_Shutdown();
 
-  mTextures.for_each([](Texture& texture){
+  mTextures.for_each([](D3D9Texture& texture){
     texture.texture->Release();
   });
-  mMeshes.for_each([](Mesh& mesh){
+  mMeshes.for_each([](D3D9Mesh& mesh){
     mesh.vertexBuffer->Release();
   });
 
   mDevice->Release();
 }
 
-void Renderer::on_window_resize(const WindowResizedEvent& event) {
+void D3D9Renderer::on_window_resize(const WindowResizedEvent& event) {
   ImGui_ImplDX9_InvalidateDeviceObjects();
   mPresentParams.BackBufferWidth = event.mNewSize.x();
   mPresentParams.BackBufferHeight = event.mNewSize.y();
@@ -190,7 +191,7 @@ void Renderer::on_window_resize(const WindowResizedEvent& event) {
 /*
  * Stores the vertex data into a new static vertex buffer in the managed pool.
  */
-auto Renderer::add_mesh(
+auto D3D9Renderer::add_mesh(
   void* data, const i32 numVertices, const VertexLayout& layout,
   const PrimitiveType primitiveType
 ) -> MeshHandle {
@@ -226,7 +227,7 @@ auto Renderer::add_mesh(
   return meshHandle;
 }
 
-void Renderer::remove_mesh(const MeshHandle meshHandle) {
+void D3D9Renderer::remove_mesh(const MeshHandle meshHandle) {
   auto& mesh = mMeshes.get(meshHandle);
 
   mesh.vertexBuffer->Release();
@@ -235,7 +236,7 @@ void Renderer::remove_mesh(const MeshHandle meshHandle) {
   mMeshes.deallocate(meshHandle);
 }
 
-auto Renderer::add_texture(const std::string_view filePath) -> TextureHandle {
+auto D3D9Renderer::add_texture(const std::string_view filePath) -> TextureHandle {
   const auto wideFilePath = create_wide_from_utf8(filePath);
 
   IDirect3DTexture9* texture = nullptr;
@@ -251,7 +252,7 @@ auto Renderer::add_texture(const std::string_view filePath) -> TextureHandle {
   return texHandle;
 }
 
-void Renderer::remove_texture(const TextureHandle textureHandle) {
+void D3D9Renderer::remove_texture(const TextureHandle textureHandle) {
   auto& texture = mTextures.get(textureHandle);
 
   texture.texture->Release();
@@ -260,11 +261,11 @@ void Renderer::remove_texture(const TextureHandle textureHandle) {
   mTextures.deallocate(textureHandle);
 }
 
-void Renderer::submit(const RenderCommand& command) {
+void D3D9Renderer::submit(const RenderCommand& command) {
   mCommandBuffer.add_command(command);
 }
 
-void Renderer::set_view_proj(
+void D3D9Renderer::set_view_proj(
   const math::Mat4f32& view, const math::Mat4f32& projection
 ) {
   BASALT_ASSERT(projection.m34 >= 0,
@@ -274,7 +275,7 @@ void Renderer::set_view_proj(
   mCommandBuffer.set_projection(projection);
 }
 
-void Renderer::set_lights(const LightSetup& lights) {
+void D3D9Renderer::set_lights(const LightSetup& lights) {
   const auto maxLights = mDeviceCaps.MaxActiveLights;
 
   const auto& directionalLights = lights.get_directional_lights();
@@ -305,13 +306,13 @@ void Renderer::set_lights(const LightSetup& lights) {
   ));
 }
 
-void Renderer::set_clear_color(const Color color) {
+void D3D9Renderer::set_clear_color(const Color color) {
   mClearColor = color.to_argb();
 }
 
 // TODO: shading mode
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
-void Renderer::render() {
+void D3D9Renderer::render() {
   const auto hr = mDevice->TestCooperativeLevel();
   if (hr == D3DERR_DEVICENOTRESET) {
     BASALT_LOG_INFO("resetting d3d9 device");
@@ -353,16 +354,16 @@ void Renderer::render() {
   mCommandBuffer.clear();
 }
 
-auto Renderer::name() -> std::string_view {
+auto D3D9Renderer::name() -> std::string_view {
   return RENDERER_NAME;
 }
 
 
-void Renderer::new_gui_frame() {
+void D3D9Renderer::new_gui_frame() {
   ImGui_ImplDX9_NewFrame();
 }
 
-void Renderer::render_commands(const RenderCommandBuffer& commands) {
+void D3D9Renderer::render_commands(const RenderCommandBuffer& commands) {
   for (const auto& command : commands.get_commands()) {
     // apply custom render flags
     if (command.mFlags) {
@@ -411,4 +412,4 @@ void Renderer::render_commands(const RenderCommandBuffer& commands) {
   }
 }
 
-} // namespace basalt::gfx::backend::d3d9
+} // namespace basalt::gfx::backend

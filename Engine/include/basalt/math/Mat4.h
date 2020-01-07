@@ -30,7 +30,8 @@ struct Mat4 final {
   inline auto operator/=(const Mat4& rhs) noexcept -> Mat4&;
   constexpr auto operator/=(f32 rhs) noexcept -> Mat4&;
 
-  [[nodiscard]] constexpr auto det() const noexcept -> f32;
+  [[nodiscard]]
+  constexpr auto det() const noexcept -> f32;
 
   f32 m11 = 0.0f, m12 = 0.0f, m13 = 0.0f, m14 = 0.0f,
       m21 = 0.0f, m22 = 0.0f, m23 = 0.0f, m24 = 0.0f,

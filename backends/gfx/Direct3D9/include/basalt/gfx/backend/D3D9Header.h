@@ -4,10 +4,6 @@
 
 #include <basalt/shared/Win32APIHeader.h>
 
-#ifdef BS_DEBUG_BUILD
-#define D3D_DEBUG_INFO
-#endif
-
 #define D3D_DISABLE_9EX
 #include <d3d9.h>
 

@@ -1,4 +1,4 @@
-#include <basalt/Log.h>
+#include <basalt/shared/Log.h>
 
 #include <spdlog/spdlog.h> // set_pattern
 #include <spdlog/sinks/basic_file_sink.h>

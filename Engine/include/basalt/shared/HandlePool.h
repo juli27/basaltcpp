@@ -5,14 +5,16 @@
 #include "Types.h"
 
 #include <algorithm>
+#include <limits>
+#include <stdexcept>
 #include <tuple>
 #include <vector>
 
 namespace basalt {
 
-template <typename T, typename HandleT>
+template<typename T, typename HandleT>
 struct HandlePool final {
-  using ForEachFn = void (*) (T&);
+  using ForEachFn = void (*)(T&);
 
   HandlePool() noexcept = default;
   HandlePool(const HandlePool&) = delete;
@@ -20,13 +22,14 @@ struct HandlePool final {
   ~HandlePool() noexcept = default;
 
   auto operator=(const HandlePool&) -> HandlePool& = delete;
-  // TODO: exception specification
   auto operator=(HandlePool&&) -> HandlePool& = default;
 
-  [[nodiscard]] auto allocate() -> std::tuple<HandleT, T&>;
+  [[nodiscard]]
+  auto allocate() -> std::tuple<HandleT, T&>;
   void deallocate(HandleT handle);
 
-  [[nodiscard]] auto get(HandleT handle) -> T&;
+  [[nodiscard]]
+  auto get(HandleT handle) -> T&;
 
   void for_each(ForEachFn fn);
 
@@ -37,11 +40,13 @@ private:
     HandleT mNextFreeSlot = {};
   };
 
+
   std::vector<Slot> mSlots;
   HandleT mFirstFreeSlot = {};
 };
 
-template <typename T, typename HandleT>
+
+template<typename T, typename HandleT>
 auto HandlePool<T, HandleT>::allocate() -> std::tuple<HandleT, T&> {
   if (mFirstFreeSlot) {
     Slot& slot = mSlots[mFirstFreeSlot.get_value()];
@@ -53,8 +58,7 @@ auto HandlePool<T, HandleT>::allocate() -> std::tuple<HandleT, T&> {
 
   const auto nextIndex = mSlots.size();
   constexpr auto maxSlots = static_cast<u32>(
-    std::numeric_limits<typename HandleT::ValueT>::max()
-  );
+    std::numeric_limits<typename HandleT::ValueT>::max());
 
   if (nextIndex >= maxSlots) {
     throw std::out_of_range("out of slots");
@@ -67,7 +71,7 @@ auto HandlePool<T, HandleT>::allocate() -> std::tuple<HandleT, T&> {
   return {slot.mHandle, slot.mData};
 }
 
-template <typename T, typename HandleT>
+template<typename T, typename HandleT>
 void HandlePool<T, HandleT>::deallocate(HandleT handle) {
   Slot& slot = mSlots.at(handle.get_value());
   slot.mHandle = HandleT{};
@@ -75,7 +79,7 @@ void HandlePool<T, HandleT>::deallocate(HandleT handle) {
   mFirstFreeSlot = handle;
 }
 
-template <typename T, typename HandleT>
+template<typename T, typename HandleT>
 auto HandlePool<T, HandleT>::get(HandleT handle) -> T& {
   if (!handle) {
     throw std::runtime_error("invalid handle");
@@ -87,7 +91,7 @@ auto HandlePool<T, HandleT>::get(HandleT handle) -> T& {
 }
 
 template<typename T, typename HandleT>
-void HandlePool<T, HandleT>::for_each(ForEachFn fn) {
+void HandlePool<T, HandleT>::for_each(const ForEachFn fn) {
   std::for_each(std::begin(mSlots), std::end(mSlots), [=](Slot& slot) {
     if (slot.mHandle) {
       fn(slot.mData);

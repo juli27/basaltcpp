@@ -4,10 +4,9 @@
 #include <basalt/gfx/backend/D3D9Util.h>
 
 #include <basalt/platform/Platform.h>
-#include <basalt/platform/Types.h>
 
 #include <basalt/shared/Exceptions.h>
-#include <basalt/Log.h>
+#include <basalt/shared/Log.h>
 
 namespace basalt::platform {
 
@@ -63,7 +62,7 @@ D3D9GfxContext::~D3D9GfxContext() {
 }
 
 auto D3D9GfxContext::create_renderer() -> gfx::backend::IRenderer* {
-  return new gfx::backend::d3d9::Renderer(mDevice, mPresentParams);
+  return new gfx::backend::D3D9Renderer(mDevice, mPresentParams);
 }
 
 void D3D9GfxContext::present() {

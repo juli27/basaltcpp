@@ -10,18 +10,11 @@
 
 #include <memory> // make_unique
 
-using basalt::Config;
 using basalt::WindowMode;
 using basalt::input::Key;
 
 // TODO: entity update system
 // TODO: ImGui updater editor
-
-SandboxApp::SandboxApp(Config& config) {
-  config.mWindow.mTitle = "Basalt Sandbox";
-  config.mWindow.mMode = WindowMode::Windowed;
-  config.mWindow.mResizeable = true;
-}
 
 void SandboxApp::next_scene() {
   mScenes.at(mCurrentSceneIndex)->on_hide();
@@ -188,6 +181,6 @@ void SandboxApp::on_update() {
   }
 }
 
-auto basalt::IApplication::create(Config& config) -> IApplication* {
-  return new SandboxApp(config);
+auto basalt::IApplication::create() -> IApplication* {
+  return new SandboxApp();
 }

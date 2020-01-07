@@ -79,7 +79,7 @@
       <ShowProgress>LinkVerboseLib</ShowProgress>
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>version.lib;user32.lib;shell32.lib;d3d9.lib;d3dx9d.lib</AdditionalDependencies>
+      <AdditionalDependencies>user32.lib;d3d9.lib;d3dx9d.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>oldnames.lib;uuid.lib</IgnoreSpecificDefaultLibraries>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
@@ -118,7 +118,7 @@
       <ShowProgress>LinkVerboseLib</ShowProgress>
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>version.lib;user32.lib;shell32.lib;d3d9.lib;d3dx9.lib</AdditionalDependencies>
+      <AdditionalDependencies>user32.lib;d3d9.lib;d3dx9.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>oldnames.lib;uuid.lib</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
       <LargeAddressAware>true</LargeAddressAware>

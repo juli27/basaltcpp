@@ -2,10 +2,9 @@
 #ifndef BASALT_PLATFORM_H
 #define BASALT_PLATFORM_H
 
-#include <basalt/Config.h>
-
 #include "IGfxContext.h"
-#include "Types.h"
+
+#include <basalt/shared/Config.h>
 
 #include <functional>
 #include <memory>

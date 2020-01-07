@@ -2,6 +2,7 @@
 #ifndef BASALT_SHARED_HANDLE_H
 #define BASALT_SHARED_HANDLE_H
 
+#include "Asserts.h"
 #include "Types.h"
 
 #include <limits>
@@ -28,7 +29,8 @@ struct HandleBase {
 
   constexpr void invalidate() noexcept;
 
-  [[nodiscard]] constexpr auto get_value() const noexcept -> ValueT;
+  [[nodiscard]]
+  constexpr auto get_value() const noexcept -> ValueT;
 
 private:
   static constexpr ValueT INVALID_VALUE = std::numeric_limits<ValueT>::max();
@@ -36,10 +38,9 @@ private:
   ValueT mValue = INVALID_VALUE;
 };
 
+
 constexpr HandleBase::HandleBase(const ValueT value) noexcept : mValue(value) {
-  // TODO: assert (value != INVALID_VALUE)
-  // can't be done yet because of the Asserts.h -> Log.h -> Windows.h dependency
-  // in yet another header file
+  BASALT_ASSERT(mValue != INVALID_VALUE, "invalid handle value");
 }
 
 constexpr HandleBase::operator bool() const noexcept {
@@ -66,7 +67,7 @@ constexpr HandleBase::ValueT HandleBase::get_value() const noexcept {
 
 } // namespace _internal
 
-template <typename Tag>
+template<typename Tag>
 struct Handle final : _internal::HandleBase {
   // inherit base class constructors
   using HandleBase::HandleBase;
