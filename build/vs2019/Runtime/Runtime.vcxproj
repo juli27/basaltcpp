@@ -44,7 +44,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IntDir>$(SolutionDir)buildcache\vs2019_x86-64\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)buildcache\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(SolutionDir)buildcache\vs2019_x86-64\</OutDir>
     <TargetName>$(BasaltAppName)_x86-64_Debug</TargetName>
     <IncludePath>$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
@@ -52,7 +52,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>$(SolutionDir)buildcache\vs2019_x86-64\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)buildcache\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(SolutionDir)buildcache\vs2019_x86-64\</OutDir>
     <TargetName>$(BasaltAppName)_x86-64</TargetName>
     <IncludePath>$(IncludePath);$(DXSDK_DIR)Include</IncludePath>

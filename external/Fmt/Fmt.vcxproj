@@ -42,12 +42,12 @@
     <TargetName>$(ProjectName)_x86-64_Debug</TargetName>
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)buildcache\vs2019_x86-64\</OutDir>
-    <IntDir>$(SolutionDir)buildcache\vs2019_x86-64\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)buildcache\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)buildcache\vs2019_x86-64\</OutDir>
-    <IntDir>$(SolutionDir)buildcache\vs2019_x86-64\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)buildcache\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName)_x86-64</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

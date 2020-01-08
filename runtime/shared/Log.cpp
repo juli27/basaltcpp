@@ -35,15 +35,14 @@ void init() {
   sinks.reserve(2u);
 
   sinks.push_back(
-    std::make_shared<spdlog::sinks::basic_file_sink_st>("log.txt", true)
-  );
+    std::make_shared<spdlog::sinks::basic_file_sink_st>("log.txt", true));
 
 #if defined(_MSC_VER) && defined(BS_DEBUG_BUILD)
   sinks.push_back(std::make_shared<spdlog::sinks::msvc_sink_st>());
 #endif
 
-  sCoreLogger =
-      std::make_shared<logger>("Basalt", sinks.cbegin(), sinks.cend());
+  sCoreLogger = std::make_shared<logger>(
+    "Basalt", sinks.cbegin(), sinks.cend());
   sClientLogger = std::make_shared<logger>("App", sinks.cbegin(), sinks.cend());
 
 #if defined(BS_DEBUG_BUILD)
