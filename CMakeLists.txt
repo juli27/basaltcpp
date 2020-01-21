@@ -4,9 +4,7 @@ project(Basalt VERSION 0.3)
 
 add_executable(App WIN32)
 
-target_sources(App PRIVATE
-  "runtime/platform/win32/main.cpp"
-  "platforms/Win32/App.manifest")
+target_sources(App PRIVATE "sandbox/App.manifest")
 
 add_subdirectory("external")
 add_subdirectory("runtime")

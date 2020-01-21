@@ -1,156 +1,156 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\..\..\runtime\platform\win32\D3D9GfxContext.cpp">
+    <ClCompile Include="runtime\platform\win32\D3D9GfxContext.cpp">
       <Filter>platform\win32</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\runtime\platform\win32\main.cpp">
+    <ClCompile Include="runtime\platform\win32\main.cpp">
       <Filter>platform\win32</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\runtime\platform\win32\Win32Platform.cpp">
+    <ClCompile Include="runtime\platform\win32\Win32Platform.cpp">
       <Filter>platform\win32</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\runtime\platform\win32\Win32Util.cpp">
+    <ClCompile Include="runtime\platform\win32\Win32Util.cpp">
       <Filter>platform\win32</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\runtime\gfx\backend\d3d9\D3D9Renderer.cpp">
+    <ClCompile Include="runtime\gfx\backend\d3d9\D3D9Renderer.cpp">
       <Filter>gfx\backend\d3d9</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\runtime\shared\win32\Win32Shared.cpp">
+    <ClCompile Include="runtime\shared\win32\Win32Shared.cpp">
       <Filter>shared\win32</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\runtime\shared\Color.cpp">
+    <ClCompile Include="runtime\shared\Color.cpp">
       <Filter>shared</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\runtime\shared\Asserts.cpp">
+    <ClCompile Include="runtime\shared\Asserts.cpp">
       <Filter>shared</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\runtime\shared\Log.cpp">
+    <ClCompile Include="runtime\shared\Log.cpp">
       <Filter>shared</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\runtime\math\Mat4.cpp">
+    <ClCompile Include="runtime\math\Mat4.cpp">
       <Filter>math</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\runtime\Engine.cpp" />
-    <ClCompile Include="..\..\..\runtime\Input.cpp" />
-    <ClCompile Include="..\..\..\runtime\Scene.cpp" />
-    <ClCompile Include="..\..\..\runtime\gfx\Camera.cpp">
+    <ClCompile Include="runtime\Engine.cpp" />
+    <ClCompile Include="runtime\Input.cpp" />
+    <ClCompile Include="runtime\Scene.cpp" />
+    <ClCompile Include="runtime\gfx\Camera.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\runtime\gfx\Gfx.cpp">
+    <ClCompile Include="runtime\gfx\Gfx.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\runtime\platform\win32\D3D9GfxContext.h">
+    <ClInclude Include="runtime\platform\win32\D3D9GfxContext.h">
       <Filter>platform\win32</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\platform\win32\Win32KeyMap.h">
+    <ClInclude Include="runtime\platform\win32\Win32KeyMap.h">
       <Filter>platform\win32</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\platform\win32\Win32Platform.h">
+    <ClInclude Include="runtime\platform\win32\Win32Platform.h">
       <Filter>platform\win32</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\platform\win32\Win32Util.h">
+    <ClInclude Include="runtime\platform\win32\Win32Util.h">
       <Filter>platform\win32</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\gfx\backend\d3d9\D3D9Header.h">
+    <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Header.h">
       <Filter>gfx\backend\d3d9</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\gfx\backend\d3d9\D3D9Renderer.h">
+    <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Renderer.h">
       <Filter>gfx\backend\d3d9</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\gfx\backend\d3d9\D3D9Util.h">
+    <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Util.h">
       <Filter>gfx\backend\d3d9</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\shared\win32\Win32SharedUtil.h">
+    <ClInclude Include="runtime\shared\win32\Win32SharedUtil.h">
       <Filter>shared\win32</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\shared\win32\Win32APIHeader.h">
+    <ClInclude Include="runtime\shared\win32\Win32APIHeader.h">
       <Filter>shared\win32</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\shared\Asserts.h">
+    <ClInclude Include="runtime\shared\Asserts.h">
       <Filter>shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\shared\Color.h">
+    <ClInclude Include="runtime\shared\Color.h">
       <Filter>shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\shared\Config.h">
+    <ClInclude Include="runtime\shared\Config.h">
       <Filter>shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\shared\Exceptions.h">
+    <ClInclude Include="runtime\shared\Exceptions.h">
       <Filter>shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\shared\Handle.h">
+    <ClInclude Include="runtime\shared\Handle.h">
       <Filter>shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\shared\HandlePool.h">
+    <ClInclude Include="runtime\shared\HandlePool.h">
       <Filter>shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\shared\Log.h">
+    <ClInclude Include="runtime\shared\Log.h">
       <Filter>shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\shared\Types.h">
+    <ClInclude Include="runtime\shared\Types.h">
       <Filter>shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\math\Constants.h">
+    <ClInclude Include="runtime\math\Constants.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\math\Mat4.h">
+    <ClInclude Include="runtime\math\Mat4.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\math\Vec2.h">
+    <ClInclude Include="runtime\math\Vec2.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\math\Vec2.t.h">
+    <ClInclude Include="runtime\math\Vec2.t.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\math\Vec3.h">
+    <ClInclude Include="runtime\math\Vec3.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\math\Vec3.t.h">
+    <ClInclude Include="runtime\math\Vec3.t.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\gfx\backend\Types.h">
+    <ClInclude Include="runtime\gfx\backend\Types.h">
       <Filter>gfx\backend</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\gfx\backend\IRenderer.h">
+    <ClInclude Include="runtime\gfx\backend\IRenderer.h">
       <Filter>gfx\backend</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\gfx\backend\RenderCommand.h">
+    <ClInclude Include="runtime\gfx\backend\RenderCommand.h">
       <Filter>gfx\backend</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\platform\events\WindowEvents.h">
+    <ClInclude Include="runtime\platform\events\WindowEvents.h">
       <Filter>platform\events</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\platform\events\Event.h">
+    <ClInclude Include="runtime\platform\events\Event.h">
       <Filter>platform\events</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\platform\events\KeyEvents.h">
+    <ClInclude Include="runtime\platform\events\KeyEvents.h">
       <Filter>platform\events</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\platform\events\MouseEvents.h">
+    <ClInclude Include="runtime\platform\events\MouseEvents.h">
       <Filter>platform\events</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\platform\IGfxContext.h">
+    <ClInclude Include="runtime\platform\IGfxContext.h">
       <Filter>platform</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\platform\Platform.h">
+    <ClInclude Include="runtime\platform\Platform.h">
       <Filter>platform</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\Basalt.h" />
-    <ClInclude Include="..\..\..\runtime\Engine.h" />
-    <ClInclude Include="..\..\..\runtime\IApplication.h" />
-    <ClInclude Include="..\..\..\runtime\Input.h" />
-    <ClInclude Include="..\..\..\runtime\Prelude.h" />
-    <ClInclude Include="..\..\..\runtime\Scene.h" />
-    <ClInclude Include="..\..\..\runtime\gfx\Camera.h">
+    <ClInclude Include="runtime\Basalt.h" />
+    <ClInclude Include="runtime\Engine.h" />
+    <ClInclude Include="runtime\IApplication.h" />
+    <ClInclude Include="runtime\Input.h" />
+    <ClInclude Include="runtime\Prelude.h" />
+    <ClInclude Include="runtime\Scene.h" />
+    <ClInclude Include="runtime\gfx\Camera.h">
       <Filter>gfx</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\gfx\Gfx.h">
+    <ClInclude Include="runtime\gfx\Gfx.h">
       <Filter>gfx</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\runtime\gfx\RenderComponent.h">
+    <ClInclude Include="runtime\gfx\RenderComponent.h">
       <Filter>gfx</Filter>
     </ClInclude>
   </ItemGroup>
@@ -184,6 +184,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="..\..\..\platforms\Win32\App.manifest" />
+    <Manifest Include="..\sandbox\App.manifest" />
   </ItemGroup>
 </Project>

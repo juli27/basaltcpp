@@ -1,21 +1,6 @@
 add_library(Sandbox STATIC)
 
-target_sources(Sandbox
-  PRIVATE
-    "Sandbox.cpp"
-    "d3d9_tutorials/Device.cpp"
-    "d3d9_tutorials/Lights.cpp"
-    "d3d9_tutorials/Matrices.cpp"
-    "d3d9_tutorials/Textures.cpp"
-    "d3d9_tutorials/Vertices.cpp"
-
-    "ITestCase.h"
-    "Sandbox.h"
-    "d3d9_tutorials/Device.h"
-    "d3d9_tutorials/Lights.h"
-    "d3d9_tutorials/Matrices.h"
-    "d3d9_tutorials/Textures.h"
-    "d3d9_tutorials/Vertices.h")
+add_subdirectory("sandbox")
 
 target_compile_definitions(Sandbox PRIVATE _UNICODE UNICODE BS_APP_DEBUG_BUILD)
 
@@ -24,7 +9,7 @@ target_compile_options(Sandbox
     /diagnostics:column /FC /fp:fast /GF /guard:cf /Gy /JMC /sdl /W4 /WX /w34191 /w44062 /Zc:inline /Zc:rvalueCast)
 
 target_include_directories(Sandbox PRIVATE
-  ".."
+  "../runtime"
   "../external/include"
   "../external/DearImGui/include"
   "../external/Fmt/include")

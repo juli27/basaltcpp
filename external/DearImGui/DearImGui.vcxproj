@@ -61,23 +61,21 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>$(ProjectName)_x86-64_Debug</TargetName>
+    <TargetName>$(ProjectName)_Debug</TargetName>
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)buildcache\vs2019_x86-64\</OutDir>
-    <IntDir>$(SolutionDir)buildcache\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)build\vs2019_x86-64\</OutDir>
+    <IntDir>$(SolutionDir)build\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)buildcache\vs2019_x86-64\</OutDir>
-    <IntDir>$(SolutionDir)buildcache\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>$(ProjectName)_x86-64</TargetName>
+    <OutDir>$(SolutionDir)build\vs2019_x86-64\</OutDir>
+    <IntDir>$(SolutionDir)build\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)include\imgui</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
@@ -93,9 +91,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
-      <Verbose>true</Verbose>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -105,7 +101,6 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)include\imgui</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -120,9 +115,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
-      <Verbose>true</Verbose>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

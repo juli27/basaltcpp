@@ -1,26 +1,10 @@
 add_library(Runtime STATIC)
 
-target_sources(Runtime
-  PRIVATE
-    "Engine.cpp"
-    "Input.cpp"
-    "Scene.cpp"
-  PUBLIC
-    "Basalt.h"
-    "Engine.h"
-    "IApplication.h"
-    "Input.h"
-    "Prelude.h"
-    "Scene.h")
-
-add_subdirectory("gfx")
-add_subdirectory("math")
-add_subdirectory("platform")
-add_subdirectory("shared")
+add_subdirectory("runtime")
 
 target_link_libraries(Runtime PUBLIC ExternalHeaderOnly DearImGui Fmt)
 
-target_include_directories(Runtime PUBLIC "..")
+target_include_directories(Runtime PUBLIC ".")
 
 target_compile_definitions(Runtime
   PUBLIC _UNICODE UNICODE
