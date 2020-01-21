@@ -9,8 +9,20 @@
 * GLFW backend ([#11](https://github.com/juli27/basaltcpp/issues/11))
 
 ## v0.4.0
+* First draft of the architecture
+  * which sub projects: runtime, framework, platform launcher, ...
+  * core systems (memory, resources, gfx backend, ...)
+* Support creation of third party client apps
+  * Easy setup of the project files
+  * location of the client app source: in or out of tree
+    * installation of the engine (CMake) ? 
+
+## v0.5.0
 * OpenGL 1.0 renderer
 * Linux x86-64 support
+  * CMake support
+  * GCC and libstdc++
+  * using the GLFW backend
 
 ## Unscheduled
 * turn /permissive- back on

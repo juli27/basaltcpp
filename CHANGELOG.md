@@ -10,8 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - math::Mat4::Rotation(Vec3) and math::Mat4::Scale(Vec3)
 - support for the vertical mouse wheel (MouseScrolledEvent)
 - Dear ImGui
+- CMake build support for Windows x86-64
+- Sandbox
+  - D3D9 Tutorial 1: Creating a Device
 
 ### Changed
+- Refactored platform events
+- Refactored handles
+- Refactored project structure
 
 ### Deprecated
 
