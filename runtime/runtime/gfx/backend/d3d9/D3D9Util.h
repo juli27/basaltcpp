@@ -6,15 +6,15 @@
 
 #include "runtime/shared/Asserts.h"
 
-#ifdef BS_DEBUG_BUILD
+#ifdef BASALT_DEBUG_BUILD
 
 // TODO: add detailed logging
 #define D3D9CALL(x) BASALT_ASSERT(SUCCEEDED((x)), "Direct3D 9 call failed: " #x)
 
-#else
+#else // BASALT_DEBUG_BUILD
 
 #define D3D9CALL(x) (x)
 
-#endif
+#endif // BASALT_DEBUG_BUILD
 
 #endif  // !BASALT_GFX_BACKEND_D3D9_UTIL_H

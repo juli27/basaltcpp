@@ -2,7 +2,7 @@ add_library(Sandbox STATIC)
 
 add_subdirectory("sandbox")
 
-target_compile_definitions(Sandbox PRIVATE _UNICODE UNICODE BS_APP_DEBUG_BUILD)
+target_compile_definitions(Sandbox PRIVATE _UNICODE UNICODE BASALT_DEBUG_BUILD)
 
 target_compile_options(Sandbox
   PRIVATE

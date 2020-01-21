@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored platform events
 - Refactored handles
 - Refactored project structure
+- Renamed BS_BUILD to BASALT_BUILD
+- Renamed BS_DEBUG_BUILD to BASALT_DEBUG_BUILD
+- Replace BS_APP_DEBUG_BUILD with BASALT_DEBUG_BUILD
 
 ### Deprecated
 

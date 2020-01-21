@@ -8,7 +8,7 @@ target_include_directories(Runtime PUBLIC ".")
 
 target_compile_definitions(Runtime
   PUBLIC _UNICODE UNICODE
-  PRIVATE BS_BUILD BS_DEBUG_BUILD)
+  PRIVATE BASALT_BUILD BASALT_DEBUG_BUILD)
 
 target_compile_features(Fmt PUBLIC cxx_std_17)
 
