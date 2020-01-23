@@ -2,21 +2,24 @@
 #ifndef SANDBOX_H
 #define SANDBOX_H
 
-#include <runtime/Basalt.h>
+#include <runtime/IApplication.h>
+#include <runtime/shared/Types.h>
 
 #include <memory>
 #include <vector>
 
-struct ITestCase;
+struct TestCase;
 
 struct SandboxApp final : basalt::IApplication {
   SandboxApp() = default;
+
   SandboxApp(const SandboxApp&) = delete;
-  SandboxApp(SandboxApp&&) = default;
-  virtual ~SandboxApp() = default;
+  SandboxApp(SandboxApp&&) = delete;
+
+  ~SandboxApp() override = default;
 
   auto operator=(const SandboxApp&) -> SandboxApp& = delete;
-  auto operator=(SandboxApp&&) -> SandboxApp& = default;
+  auto operator=(SandboxApp&&) -> SandboxApp& = delete;
 
   void next_scene();
   void prev_scene();
@@ -27,7 +30,7 @@ struct SandboxApp final : basalt::IApplication {
   void on_update() override;
 
 private:
-  std::vector<std::unique_ptr<ITestCase>> mScenes;
+  std::vector<std::unique_ptr<TestCase>> mScenes;
   basalt::i32 mCurrentSceneIndex = 0u;
 };
 

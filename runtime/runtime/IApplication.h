@@ -6,12 +6,14 @@ namespace basalt {
 
 struct IApplication {
   IApplication() = default;
+
   IApplication(const IApplication&) = delete;
-  IApplication(IApplication&&) = default;
+  IApplication(IApplication&&) = delete;
+
   virtual ~IApplication() = default;
 
   auto operator=(const IApplication&) -> IApplication& = delete;
-  auto operator=(IApplication&&) -> IApplication& = default;
+  auto operator=(IApplication&&) -> IApplication& = delete;
 
   virtual void on_init() = 0;
   virtual void on_shutdown() = 0;

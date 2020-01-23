@@ -2,21 +2,34 @@
 #ifndef BASALT_GFX_BACKEND_IRENDERER_H
 #define BASALT_GFX_BACKEND_IRENDERER_H
 
-#include "RenderCommand.h"
-#include "Types.h"
+#include "runtime/gfx/backend/Types.h"
 
-#include "runtime/platform/events/WindowEvents.h"
 #include "runtime/math/Mat4.h"
-#include "runtime/shared/Color.h"
+#include "runtime/shared/Types.h"
 
 #include <string>
 
+namespace basalt {
+
+struct Color;
+
+namespace platform {
+
+struct WindowResizedEvent;
+
+}
+}
+
 namespace basalt::gfx::backend {
+
+struct RenderCommand;
 
 struct IRenderer {
   IRenderer() = default;
+
   IRenderer(const IRenderer&) = delete;
   IRenderer(IRenderer&&) = delete;
+
   virtual ~IRenderer() = default;
 
   auto operator=(const IRenderer&) -> IRenderer& = delete;
@@ -43,10 +56,8 @@ struct IRenderer {
    * \param primitiveType the primitive type of the mesh
    * \return handle of the added mesh
    */
-  virtual auto add_mesh(
-    void* data, i32 numVertices, const VertexLayout& layout,
-    PrimitiveType primitiveType
-  ) -> MeshHandle = 0;
+  virtual auto add_mesh(void* data, i32 numVertices, const VertexLayout& layout
+                      , PrimitiveType primitiveType) -> MeshHandle = 0;
 
   /**
    * \brief Removes a static mesh from the renderer which makes it unavailable
@@ -76,9 +87,8 @@ struct IRenderer {
   /**
    * Sets the view and projection matrix for the default command buffer.
    */
-  virtual void set_view_proj(
-    const math::Mat4f32& view, const math::Mat4f32& projection
-  ) = 0;
+  virtual void set_view_proj(const math::Mat4f32& view
+                           , const math::Mat4f32& projection) = 0;
 
   /*
    * Sets the lights for this renderer. Lights apply  and

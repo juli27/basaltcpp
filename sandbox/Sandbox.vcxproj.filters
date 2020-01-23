@@ -20,7 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sandbox\Sandbox.h" />
-    <ClInclude Include="sandbox\ITestCase.h" />
     <ClInclude Include="sandbox\d3d9_tutorials\Device.h">
       <Filter>testcases\d3d9</Filter>
     </ClInclude>
@@ -36,6 +35,7 @@
     <ClInclude Include="sandbox\d3d9_tutorials\Vertices.h">
       <Filter>testcases\d3d9</Filter>
     </ClInclude>
+    <ClInclude Include="sandbox\TestCase.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="BasaltApp.props" />

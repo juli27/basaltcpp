@@ -2,7 +2,8 @@
 #ifndef BASALT_PRELUDE_H
 #define BASALT_PRELUDE_H
 
-#include "Basalt.h"
+#include "runtime/shared/Color.h"
+#include "runtime/shared/Types.h"
 
 using basalt::i8;
 using basalt::i16;
@@ -15,5 +16,7 @@ using basalt::u64;
 using basalt::uSize;
 using basalt::f32;
 using basalt::f64;
+
+using basalt::Color;
 
 #endif // BASALT_PRELUDE_H

@@ -1,15 +1,14 @@
-#include "Gfx.h"
+#include "runtime/gfx/Gfx.h"
 
-#include "Camera.h"
-#include "RenderComponent.h"
+#include "runtime/Scene.h"
 
-#include "backend/IRenderer.h"
-#include "backend/Types.h"
+#include "runtime/gfx/Camera.h"
+#include "runtime/gfx/RenderComponent.h"
+
+#include "runtime/gfx/backend/IRenderer.h"
+#include "runtime/gfx/backend/RenderCommand.h"
 
 #include "runtime/shared/Asserts.h"
-#include "runtime/shared/Log.h"
-
-#include <memory>
 
 namespace basalt::gfx {
 

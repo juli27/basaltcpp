@@ -40,6 +40,9 @@
     <ClCompile Include="runtime\gfx\Gfx.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
+    <ClCompile Include="runtime\gfx\backend\Types.cpp">
+      <Filter>gfx\backend</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="runtime\platform\win32\D3D9GfxContext.h">
@@ -138,7 +141,6 @@
     <ClInclude Include="runtime\platform\Platform.h">
       <Filter>platform</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\Basalt.h" />
     <ClInclude Include="runtime\Engine.h" />
     <ClInclude Include="runtime\IApplication.h" />
     <ClInclude Include="runtime\Input.h" />

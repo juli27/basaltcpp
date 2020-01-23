@@ -2,19 +2,21 @@
 #ifndef D3D9_TUTORIALS_VERTICES_H
 #define D3D9_TUTORIALS_VERTICES_H
 
-#include "../ITestCase.h"
+#include "sandbox/TestCase.h"
 
-#include <runtime/Basalt.h>
+#include <runtime/Scene.h>
 
 #include <memory>
 
 namespace d3d9_tuts {
 
-struct Vertices final : ITestCase {
+struct Vertices final : TestCase {
   Vertices();
+
   Vertices(const Vertices&) = delete;
   Vertices(Vertices&&) = delete;
-  virtual ~Vertices() = default;
+
+  ~Vertices() override = default;
 
   auto operator=(const Vertices&) -> Vertices& = delete;
   auto operator=(Vertices&&) -> Vertices& = delete;
@@ -24,7 +26,7 @@ struct Vertices final : ITestCase {
   void on_update() override;
 
 private:
-  std::shared_ptr<basalt::Scene> mScene;
+  std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();
 };
 
 } // namespace d3d9_tuts

@@ -1,15 +1,12 @@
 #include "Device.h"
 
-#include <runtime/Prelude.h> // SetCurrentScene
+#include <runtime/Prelude.h>
 
-#include <memory> // make_shared
-
-using basalt::Color;
-using basalt::Scene;
+#include <runtime/Engine.h>
 
 namespace d3d9_tuts {
 
-Device::Device() : mScene(std::make_shared<Scene>()) {
+Device::Device() {
   mScene->set_background_color(Color(0, 0, 255));
 }
 

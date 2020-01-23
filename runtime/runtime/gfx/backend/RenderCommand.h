@@ -2,10 +2,11 @@
 #ifndef BASALT_GFX_BACKEND_RENDERCOMMAND_H
 #define BASALT_GFX_BACKEND_RENDERCOMMAND_H
 
+#include "runtime/gfx/backend/Types.h"
 #include "runtime/math/Mat4.h"
-#include "runtime/shared/Color.h"
 
-#include "Types.h"
+#include "runtime/shared/Color.h"
+#include "runtime/shared/Types.h"
 
 #include <vector>
 
@@ -31,17 +32,19 @@ struct RenderCommand final {
   u8 mFlags = RenderFlagNone;
 };
 
+
 // associates commands with their common transform (camera) and
 // defines defaults for render state flags (lighting on/off, ...)
 // (TODO: can every state flag be overridden by each command
 //        or only some, or none)
 struct RenderCommandBuffer final {
   inline RenderCommandBuffer();
-  inline RenderCommandBuffer(
-    const math::Mat4f32& view, const math::Mat4f32& projection
-  );
+  inline RenderCommandBuffer(const math::Mat4f32& view
+                           , const math::Mat4f32& projection);
+
   RenderCommandBuffer(const RenderCommandBuffer&) = delete;
   RenderCommandBuffer(RenderCommandBuffer&&) = default;
+
   ~RenderCommandBuffer() = default;
 
   auto operator=(const RenderCommandBuffer&) -> RenderCommandBuffer& = delete;
@@ -63,13 +66,14 @@ private:
   math::Mat4f32 mProjection;
 };
 
+
 inline RenderCommandBuffer::RenderCommandBuffer()
   : mView(math::Mat4f32::identity())
   , mProjection(math::Mat4f32::identity()) {}
 
-inline RenderCommandBuffer::RenderCommandBuffer(
-  const math::Mat4f32& view, const math::Mat4f32& projection
-) : mView(view), mProjection(projection) {}
+inline RenderCommandBuffer::RenderCommandBuffer(const math::Mat4f32& view
+                                              , const math::Mat4f32& projection)
+  : mView(view), mProjection(projection) {}
 
 inline void RenderCommandBuffer::add_command(const RenderCommand& command) {
   mCommands.push_back(command);
@@ -83,9 +87,8 @@ inline void RenderCommandBuffer::set_view(const math::Mat4f32& view) {
   mView = view;
 }
 
-inline void RenderCommandBuffer::set_projection(
-  const math::Mat4f32& projection
-) {
+inline void
+RenderCommandBuffer::set_projection(const math::Mat4f32& projection) {
   mProjection = projection;
 }
 

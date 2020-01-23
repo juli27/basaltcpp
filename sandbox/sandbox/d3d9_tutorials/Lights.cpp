@@ -1,17 +1,26 @@
 #include "Lights.h"
 
-#include <runtime/Prelude.h> // GetDeltaTime, SetCurrentScene, gfx
+#include <runtime/Prelude.h>
+
+#include <runtime/Engine.h>
+
+#include <runtime/gfx/Camera.h>
+#include <runtime/gfx/RenderComponent.h>
+
+#include <runtime/gfx/backend/IRenderer.h>
+#include <runtime/gfx/backend/Types.h>
+
+#include <runtime/math/Constants.h>
+#include <runtime/math/Vec3.h>
+
+#include <entt/entity/registry.hpp>
 
 #include <array>
-#include <memory> // make_shared
-#include <tuple> // get
-
-#include <cmath> // sinf, cosf
+#include <cmath>
+#include <tuple>
 
 using std::array;
 
-using basalt::Color;
-using basalt::Scene;
 using basalt::TransformComponent;
 using basalt::math::PI;
 using basalt::math::Vec3f32;
@@ -26,7 +35,7 @@ using basalt::gfx::backend::VertexLayout;
 
 namespace d3d9_tuts {
 
-Lights::Lights() : mScene(std::make_shared<Scene>()) {
+Lights::Lights() {
   mScene->set_background_color(Color(0, 0, 255));
 
   const Vec3f32 cameraPos(0.0f, 3.0f, -5.0f);
@@ -40,8 +49,8 @@ Lights::Lights() : mScene(std::make_shared<Scene>()) {
   };
 
   array<Vertex, 50u * 2> vertices;
-  for(uSize i = 0u; i < 50u; i++) {
-    const auto theta = ( 2.0f * PI * i ) / ( 50 - 1 );
+  for (uSize i = 0u; i < 50u; i++) {
+    const auto theta = (2.0f * PI * i) / (50 - 1);
     const auto sinTheta = std::sinf(theta);
     const auto cosTheta = std::cosf(theta);
     vertices[2 * i].mPos = {sinTheta, -1.0f, cosTheta};
@@ -51,8 +60,8 @@ Lights::Lights() : mScene(std::make_shared<Scene>()) {
   }
 
   const VertexLayout vertexLayout{
-    { VertexElementUsage::Position, VertexElementType::F32_3 },
-    { VertexElementUsage::Normal, VertexElementType::F32_3 }
+    {VertexElementType::F32_3, VertexElementUsage::Position}
+  , {VertexElementType::F32_3, VertexElementUsage::Normal}
   };
 
   auto& entityRegistry = mScene->get_entity_registry();
@@ -60,10 +69,11 @@ Lights::Lights() : mScene(std::make_shared<Scene>()) {
   mCylinderEntity = std::get<0>(entity);
 
   auto& renderComponent = std::get<2>(entity);
-  renderComponent.mMesh = basalt::get_renderer()->add_mesh(
-    vertices.data(), static_cast<i32>(vertices.size()), vertexLayout,
-    PrimitiveType::TriangleStrip
-  );
+  renderComponent.mMesh =
+    basalt::get_renderer()->add_mesh(vertices.data(),
+                                     static_cast<i32>(vertices.size()),
+                                     vertexLayout,
+                                     PrimitiveType::TriangleStrip);
   renderComponent.mDiffuseColor = Color(255, 255, 0);
   renderComponent.mAmbientColor = Color(255, 255, 0);
   renderComponent.mRenderFlags = RenderFlagCullNone;
@@ -93,12 +103,9 @@ void Lights::on_update() {
     mLightAngle -= PI * 2.0f;
   }
 
-  const Vec3f32 lightDir(
-    std::cosf(mLightAngle), 1.0f, std::sinf(mLightAngle)
-  );
-  lights.add_directional_light(
-    Vec3f32::normalize(lightDir), Color(255, 255, 255)
-  );
+  const Vec3f32 lightDir(std::cosf(mLightAngle), 1.0f, std::sinf(mLightAngle));
+  lights.add_directional_light(Vec3f32::normalize(lightDir),
+                               Color(255, 255, 255));
 
   renderer->set_lights(lights);
 }

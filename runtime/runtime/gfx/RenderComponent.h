@@ -2,9 +2,11 @@
 #ifndef BASALT_GFX_RENDER_COMPONENT_H
 #define BASALT_GFX_RENDER_COMPONENT_H
 
-#include "backend/RenderCommand.h"
+#include "runtime/gfx/backend/RenderCommand.h"
+#include "runtime/gfx/backend/Types.h"
 
 #include "runtime/shared/Color.h"
+#include "runtime/shared/Types.h"
 
 namespace basalt::gfx {
 

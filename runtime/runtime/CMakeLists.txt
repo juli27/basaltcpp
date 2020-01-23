@@ -4,7 +4,6 @@ target_sources(Runtime
     "Input.cpp"
     "Scene.cpp"
   PUBLIC
-    "Basalt.h"
     "Engine.h"
     "IApplication.h"
     "Input.h"

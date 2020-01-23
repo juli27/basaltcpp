@@ -106,6 +106,7 @@
   <ItemGroup>
     <ClCompile Include="runtime\Engine.cpp" />
     <ClCompile Include="runtime\gfx\backend\d3d9\D3D9Renderer.cpp" />
+    <ClCompile Include="runtime\gfx\backend\Types.cpp" />
     <ClCompile Include="runtime\gfx\Camera.cpp" />
     <ClCompile Include="runtime\gfx\Gfx.cpp" />
     <ClCompile Include="runtime\Input.cpp" />
@@ -121,7 +122,6 @@
     <ClCompile Include="runtime\shared\win32\Win32Shared.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="runtime\Basalt.h" />
     <ClInclude Include="runtime\Engine.h" />
     <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Header.h" />
     <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Renderer.h" />

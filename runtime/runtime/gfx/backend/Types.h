@@ -12,7 +12,7 @@
 
 namespace basalt::gfx::backend {
 
-enum class VertexElementUsage : i8 {
+enum class VertexElementUsage : u8 {
   Position,
   PositionTransformed,
   Normal,
@@ -22,7 +22,7 @@ enum class VertexElementUsage : i8 {
 };
 
 
-enum class VertexElementType : i8 {
+enum class VertexElementType : u8 {
   F32_1,
   F32_2,
   F32_3,
@@ -32,6 +32,17 @@ enum class VertexElementType : i8 {
 
 
 struct VertexElement final {
+  VertexElement() = delete;
+  VertexElement(VertexElementType type, VertexElementUsage usage) noexcept;
+
+  VertexElement(const VertexElement&) = default;
+  VertexElement(VertexElement&&) = default;
+
+  ~VertexElement() noexcept = default;
+
+  auto operator=(const VertexElement&) -> VertexElement& = default;
+  auto operator=(VertexElement&&) -> VertexElement& = default;
+
   VertexElementUsage mUsage;
   VertexElementType mType;
 };
@@ -47,7 +58,7 @@ struct VertexLayout final {
   auto operator=(const VertexLayout&) -> VertexLayout& = default;
   auto operator=(VertexLayout&&) -> VertexLayout& = default;
 
-  inline void add_element(VertexElementUsage usage, VertexElementType type);
+  inline void add_element(VertexElementType type, VertexElementUsage usage);
 
   [[nodiscard]]
   inline auto get_elements() const -> const std::vector<VertexElement>&;
@@ -61,10 +72,9 @@ inline VertexLayout::VertexLayout(
 )
 : mElements(elements) {}
 
-inline void VertexLayout::add_element(
-  const VertexElementUsage usage, const VertexElementType type
-) {
-  mElements.push_back({usage, type});
+inline void VertexLayout::add_element(const VertexElementType type
+                                    , const VertexElementUsage usage) {
+  mElements.emplace_back(type, usage);
 }
 
 inline auto VertexLayout::get_elements() const

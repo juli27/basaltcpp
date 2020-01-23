@@ -1,34 +1,34 @@
-#include "Engine.h"
+#include "runtime/Engine.h"
 
-#include "IApplication.h"
-#include "Input.h"
-#include "Scene.h"
+#include "runtime/IApplication.h"
+#include "runtime/Input.h"
+#include "runtime/Scene.h"
 
-#include "gfx/Gfx.h"
-#include "gfx/backend/IRenderer.h"
+#include "runtime/gfx/Gfx.h"
+#include "runtime/gfx/backend/IRenderer.h"
 
-#include "platform/IGfxContext.h"
-#include "platform/Platform.h" // platform
+#include "runtime/platform/IGfxContext.h"
+#include "runtime/platform/Platform.h"
 
-#include "platform/events/Event.h"
-#include "platform/events/KeyEvents.h"
-#include "platform/events/MouseEvents.h"
-#include "platform/events/WindowEvents.h"
+#include "runtime/platform/events/Event.h"
+#include "runtime/platform/events/KeyEvents.h"
+#include "runtime/platform/events/MouseEvents.h"
+#include "runtime/platform/events/WindowEvents.h"
 
-#include "shared/Asserts.h"
-#include "shared/Config.h"
-#include "shared/Log.h"
-#include "shared/Types.h"
+#include "runtime/shared/Asserts.h"
+#include "runtime/shared/Config.h"
+#include "runtime/shared/Log.h"
+#include "runtime/shared/Types.h"
 
-#include <imgui/imgui.h> // ImGui
+#include <imgui/imgui.h>
 
 #include <chrono>
 #include <memory>
 #include <stdexcept>
 
-namespace basalt {
+using std::shared_ptr;
 
-using ::std::shared_ptr;
+namespace basalt {
 
 using input::Key;
 using input::MouseButton;

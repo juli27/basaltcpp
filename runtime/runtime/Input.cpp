@@ -1,11 +1,8 @@
-#include "Input.h"
+#include "runtime/Input.h"
 
-#include "platform/Platform.h"
-#include "platform/events/KeyEvents.h"
-#include "platform/events/MouseEvents.h"
-
-#include "math/Vec2.h"
-#include "shared/Types.h"
+#include "runtime/platform/Platform.h"
+#include "runtime/platform/events/Event.h"
+#include "runtime/shared/Types.h"
 
 #include <bitset>
 
@@ -58,7 +55,7 @@ void platform_event_callback(const platform::Event& event) {
 
 
 void init() {
-  platform::add_event_listener(&platform_event_callback);
+  add_event_listener(&platform_event_callback);
 }
 
 auto is_key_pressed(Key key) -> bool {

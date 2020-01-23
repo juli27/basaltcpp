@@ -2,20 +2,22 @@
 #ifndef BASALT_SCENE_H
 #define BASALT_SCENE_H
 
-#include "gfx/Camera.h"
-#include "math/Vec3.h"
+#include "runtime/gfx/Camera.h"
+#include "runtime/math/Vec3.h"
 
-#include "shared/Color.h"
-#include "shared/Types.h"
+#include "runtime/shared/Color.h"
+#include "runtime/shared/Types.h"
 
-#include <entt/entt.hpp>
+#include <entt/entity/registry.hpp>
 
 namespace basalt {
 
 struct TransformComponent {
   constexpr TransformComponent() noexcept = default;
+
   constexpr TransformComponent(const TransformComponent&) noexcept = default;
   constexpr TransformComponent(TransformComponent&&) noexcept = default;
+
   ~TransformComponent() noexcept = default;
 
   auto operator=(const TransformComponent&) noexcept -> TransformComponent&
@@ -35,12 +37,14 @@ struct TransformComponent {
 struct Scene final {
   Scene() = default;
   explicit Scene(const gfx::Camera& camera);
+
   Scene(const Scene&) = delete;
-  Scene(Scene&&) = default;
+  Scene(Scene&&) = delete;
+
   ~Scene() = default;
 
-  auto operator=(Scene&&) -> Scene& = default;
   auto operator=(const Scene&) -> Scene& = delete;
+  auto operator=(Scene&&) -> Scene& = delete;
 
   void display_entity_gui(entt::entity entity);
 

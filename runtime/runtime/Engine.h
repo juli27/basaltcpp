@@ -2,13 +2,19 @@
 #ifndef BASALT_ENGINE_H
 #define BASALT_ENGINE_H
 
-#include "Scene.h"
-#include "gfx/backend/IRenderer.h"
-#include "shared/Types.h"
+#include "runtime/shared/Types.h"
 
 #include <memory>
 
 namespace basalt {
+
+struct Scene;
+
+namespace gfx::backend {
+
+struct IRenderer;
+
+}
 
 void run();
 void quit();

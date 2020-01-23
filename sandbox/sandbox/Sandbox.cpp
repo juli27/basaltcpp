@@ -6,9 +6,17 @@
 #include "d3d9_tutorials/Textures.h"
 #include "d3d9_tutorials/Vertices.h"
 
-#include <runtime/Prelude.h> // input, platform, ImGui
+#include <runtime/Prelude.h>
 
-#include <memory> // make_unique
+#include <runtime/Engine.h>
+#include <runtime/Input.h>
+
+#include <runtime/platform/Platform.h>
+
+#include <runtime/shared/Asserts.h>
+#include <runtime/shared/Config.h>
+
+#include <imgui/imgui.h>
 
 using basalt::WindowMode;
 using basalt::input::Key;

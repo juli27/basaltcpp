@@ -1,17 +1,27 @@
 #include "Textures.h"
 
-#include <runtime/Prelude.h> // GetDeltaTime, SetCurrentScene, gfx
+#include <runtime/Prelude.h>
+
+#include <runtime/Engine.h>
+
+#include <runtime/gfx/Camera.h>
+#include <runtime/gfx/RenderComponent.h>
+
+#include <runtime/gfx/backend/IRenderer.h>
+#include <runtime/gfx/backend/Types.h>
+
+#include <runtime/math/Constants.h>
+#include <runtime/math/Vec2.h>
+#include <runtime/math/Vec3.h>
+
+#include <entt/entity/registry.hpp>
 
 #include <array>
-#include <memory> // make_shared
+#include <cmath>
 #include <tuple>
-
-#include <cmath> // cosf, sinf
 
 using std::array;
 
-using basalt::Color;
-using basalt::Scene;
 using basalt::TransformComponent;
 using basalt::math::PI;
 using basalt::math::Vec2f32;
@@ -27,16 +37,16 @@ using basalt::gfx::backend::VertexLayout;
 
 namespace d3d9_tuts {
 
-Textures::Textures() : mScene(std::make_shared<Scene>()) {
+Textures::Textures() {
   mScene->set_background_color(Color(0, 0, 255));
   mScene->set_camera(Camera(
     {0.0f, 3.0f, -5.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}
   ));
 
   struct Vertex final {
-    Vec3f32 pos;
-    u32 color = Color().to_argb();
-    Vec2f32 uv;
+    Vec3f32 mPos;
+    u32 mColor = Color().to_argb();
+    Vec2f32 mTexCoords;
   };
 
   array<Vertex, 50u * 2> vertices;
@@ -46,19 +56,19 @@ Textures::Textures() : mScene(std::make_shared<Scene>()) {
     const auto sinTheta = std::sinf(theta);
     const auto cosTheta = std::cosf(theta);
 
-    vertices[2 * i].pos = {sinTheta, -1.0f, cosTheta};
-    vertices[2 * i].color = Color(255, 255, 255).to_argb();
-    vertices[2 * i].uv = {i / (50.0f - 1), 1.0f};
+    vertices[2 * i].mPos = {sinTheta, -1.0f, cosTheta};
+    vertices[2 * i].mColor = Color(255, 255, 255).to_argb();
+    vertices[2 * i].mTexCoords = {i / (50.0f - 1), 1.0f};
 
-    vertices[2 * i + 1].pos = {sinTheta, 1.0f, cosTheta};
-    vertices[2 * i + 1].color = Color(128, 128, 128).to_argb();
-    vertices[2 * i + 1].uv = {i / (50.0f - 1), 0.0f};
+    vertices[2 * i + 1].mPos = {sinTheta, 1.0f, cosTheta};
+    vertices[2 * i + 1].mColor = Color(128, 128, 128).to_argb();
+    vertices[2 * i + 1].mTexCoords = {i / (50.0f - 1), 0.0f};
   }
 
   const VertexLayout vertexLayout{
-    { VertexElementUsage::Position, VertexElementType::F32_3 },
-    { VertexElementUsage::ColorDiffuse, VertexElementType::U32_1 },
-    { VertexElementUsage::TextureCoords, VertexElementType::F32_2 }
+    { VertexElementType::F32_3, VertexElementUsage::Position},
+    { VertexElementType::U32_1, VertexElementUsage::ColorDiffuse },
+    { VertexElementType::F32_2, VertexElementUsage::TextureCoords }
   };
 
   auto& entityRegistry = mScene->get_entity_registry();
@@ -67,10 +77,9 @@ Textures::Textures() : mScene(std::make_shared<Scene>()) {
 
   auto& renderComponent = std::get<2>(entity);
   auto* renderer = basalt::get_renderer();
-  renderComponent.mMesh = renderer->add_mesh(
-    vertices.data(), static_cast<i32>(vertices.size()), vertexLayout,
-    PrimitiveType::TriangleStrip
-  );
+  renderComponent.mMesh =
+    renderer->add_mesh(vertices.data(), static_cast<i32>(vertices.size()),
+                       vertexLayout, PrimitiveType::TriangleStrip);
   renderComponent.mTexture = renderer->add_texture("data/banana.bmp");
   renderComponent.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 }

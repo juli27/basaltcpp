@@ -2,10 +2,10 @@
 #ifndef BASALT_INPUT_H
 #define BASALT_INPUT_H
 
-#include "platform/events/KeyEvents.h" // for Key
-#include "platform/events/MouseEvents.h" // for MouseButton
+#include "runtime/platform/events/KeyEvents.h"
+#include "runtime/platform/events/MouseEvents.h"
 
-#include "math/Vec2.h"
+#include "runtime/math/Vec2.h"
 
 namespace basalt::input {
 

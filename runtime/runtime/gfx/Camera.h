@@ -10,12 +10,13 @@ namespace basalt::gfx {
 // perspective camera
 struct Camera final {
   Camera() = delete;
-  Camera(
-    const math::Vec3f32& position, const math::Vec3f32& lookAt,
-    const math::Vec3f32& up
-  );
+
+  Camera(const math::Vec3f32& position, const math::Vec3f32& lookAt
+       , const math::Vec3f32& up);
+
   Camera(const Camera&) = default;
   Camera(Camera&&) = default;
+
   ~Camera() = default;
 
   Camera& operator=(const Camera&) = default;

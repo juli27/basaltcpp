@@ -9,6 +9,7 @@ target_compile_options(Sandbox
     /diagnostics:column /FC /fp:fast /GF /guard:cf /Gy /JMC /sdl /W4 /WX /w34191 /w44062 /Zc:inline /Zc:rvalueCast)
 
 target_include_directories(Sandbox PRIVATE
+  "../sandbox"
   "../runtime"
   "../external/include"
   "../external/DearImGui/include"
