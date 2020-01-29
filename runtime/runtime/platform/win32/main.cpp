@@ -1,9 +1,9 @@
-#include "Win32Platform.h"
+#include "runtime/Engine.h"
 
-#include "runtime/Engine.h" // run
+#include "runtime/platform/win32/Globals.h"
 
 #include "runtime/shared/win32/Win32APIHeader.h"
-#include "runtime/shared/win32/Win32SharedUtil.h" // create_wide_from_utf8
+#include "runtime/shared/win32/Win32SharedUtil.h"
 
 // after windows.h
 #include "runtime/shared/Log.h"
@@ -59,7 +59,7 @@ auto CALLBACK wWinMain(HINSTANCE instance, HINSTANCE, WCHAR*, int showCommand)
   try {
     basalt::run();
   } catch (const exception& ex) {
-    BASALT_LOG_FATAL("Unhandled exception: {}", ex.what());
+    BASALT_LOG_FATAL("unhandled exception: {}", ex.what());
 
     // written to log. now rethrow to trigger the message box
     throw;

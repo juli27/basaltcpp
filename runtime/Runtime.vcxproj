@@ -148,7 +148,7 @@
     <ClInclude Include="runtime\platform\Platform.h" />
     <ClInclude Include="runtime\platform\win32\D3D9GfxContext.h" />
     <ClInclude Include="runtime\platform\win32\Win32KeyMap.h" />
-    <ClInclude Include="runtime\platform\win32\Win32Platform.h" />
+    <ClInclude Include="runtime\platform\win32\Globals.h" />
     <ClInclude Include="runtime\platform\win32\Win32Util.h" />
     <ClInclude Include="runtime\Prelude.h" />
     <ClInclude Include="runtime\Scene.h" />

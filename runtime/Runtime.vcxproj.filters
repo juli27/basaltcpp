@@ -51,9 +51,6 @@
     <ClInclude Include="runtime\platform\win32\Win32KeyMap.h">
       <Filter>platform\win32</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\platform\win32\Win32Platform.h">
-      <Filter>platform\win32</Filter>
-    </ClInclude>
     <ClInclude Include="runtime\platform\win32\Win32Util.h">
       <Filter>platform\win32</Filter>
     </ClInclude>
@@ -154,6 +151,9 @@
     </ClInclude>
     <ClInclude Include="runtime\gfx\RenderComponent.h">
       <Filter>gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\platform\win32\Globals.h">
+      <Filter>platform\win32</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

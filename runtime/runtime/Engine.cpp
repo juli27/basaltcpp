@@ -98,7 +98,7 @@ void init_dear_imgui() {
 }
 
 void startup() {
-  BASALT_LOG_INFO("platform: {}", platform::get_name());
+  BASALT_LOG_INFO("starting on platform {}", platform::get_name());
 
   // TODO: load config from file or create default
 

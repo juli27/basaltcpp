@@ -17,7 +17,7 @@ using spdlog::sink_ptr;
 using spdlog::level::trace;
 #else // BASALT_DEBUG_BUILD
 using spdlog::level::info;
-using spdlog::level::warn;
+using spdlog::level::err;
 #endif // BASALT_DEBUG_BUILD
 
 namespace basalt::log {
@@ -26,35 +26,42 @@ namespace {
 shared_ptr<logger> sCoreLogger;
 shared_ptr<logger> sClientLogger;
 
+constexpr auto LOG_FILE_NAME = "log.txt";
+constexpr auto LOGGER_PATTERN = "[%n][%l] %v";
+
 } // namespace
 
 void init() {
-  spdlog::set_pattern("%^[%n][%l]: %v%$");
-
   vector<sink_ptr> sinks;
   sinks.reserve(2u);
 
   sinks.push_back(
-    std::make_shared<spdlog::sinks::basic_file_sink_st>("log.txt", true));
+    std::make_shared<spdlog::sinks::basic_file_sink_st>(LOG_FILE_NAME));
 
 #if defined(_MSC_VER) && defined(BASALT_DEBUG_BUILD)
+
   sinks.push_back(std::make_shared<spdlog::sinks::msvc_sink_st>());
+
 #endif
 
-  sCoreLogger = std::make_shared<logger>(
-    "Basalt", sinks.cbegin(), sinks.cend());
-  sClientLogger = std::make_shared<logger>("App", sinks.cbegin(), sinks.cend());
+  sCoreLogger = std::make_shared<logger>("Engine", sinks.cbegin()
+                                       , sinks.cend());
+  register_logger(sCoreLogger);
+  sClientLogger = std::make_shared<logger>("Client", sinks.cbegin(), sinks.cend());
+  register_logger(sClientLogger);
 
-#if defined(BASALT_DEBUG_BUILD)
-  sCoreLogger->set_level(trace);
-  sClientLogger->set_level(trace);
-  sCoreLogger->flush_on(trace);
-  sClientLogger->flush_on(trace);
+  spdlog::set_pattern(LOGGER_PATTERN);
+
+#ifdef BASALT_DEBUG_BUILD
+
+  spdlog::flush_on(trace);
+  spdlog::set_level(trace);
+
 #else // BASALT_DEBUG_BUILD
-  sCoreLogger->set_level(info);
-  sClientLogger->set_level(info);
-  sCoreLogger->flush_on(warn);
-  sClientLogger->flush_on(warn);
+
+  spdlog::flush_on(err);
+  spdlog::set_level(info);
+
 #endif // BASALT_DEBUG_BUILD
 }
 
