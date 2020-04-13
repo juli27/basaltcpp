@@ -8,7 +8,7 @@ target_include_directories(Runtime PUBLIC ".")
 
 target_compile_definitions(Runtime
   PUBLIC _UNICODE UNICODE
-  PRIVATE BASALT_BUILD BASALT_DEBUG_BUILD)
+  PRIVATE BASALT_BUILD BASALT_DEBUG_BUILD _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING)
 
 target_compile_features(Fmt PUBLIC cxx_std_17)
 

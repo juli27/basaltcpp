@@ -15,7 +15,7 @@ target_include_directories(App PRIVATE "$ENV{DXSDK_DIR}Include")
 
 target_compile_definitions(App
   PUBLIC _UNICODE UNICODE
-  PRIVATE BASALT_BUILD BASALT_DEBUG_BUILD)
+  PRIVATE BASALT_BUILD BASALT_DEBUG_BUILD _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING)
 
 target_compile_options(App PRIVATE
   /diagnostics:column /FC /fp:fast /GF /guard:cf /Gy /JMC /sdl /W4 /WX

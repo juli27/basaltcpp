@@ -5,6 +5,6 @@ target_sources(App PRIVATE
   "Win32Util.cpp"
   
   "D3D9GfxContext.h"
+  "Globals.h"
   "Win32KeyMap.h"
-  "Win32Platform.h"
   "Win32Util.h")

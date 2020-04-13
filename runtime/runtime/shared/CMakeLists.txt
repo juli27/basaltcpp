@@ -1,7 +1,6 @@
 target_sources(Runtime
   PRIVATE
     "Asserts.cpp"
-    "Color.cpp"
     "Log.cpp"
   PUBLIC
     "Asserts.h"
@@ -11,6 +10,7 @@ target_sources(Runtime
     "Handle.h"
     "HandlePool.h"
     "Log.h"
+    "Size2D.h"
     "Types.h")
 
 add_subdirectory("win32")
