@@ -6,7 +6,7 @@ target_compile_definitions(Sandbox PRIVATE _UNICODE UNICODE BASALT_DEBUG_BUILD)
 
 target_compile_options(Sandbox
   PRIVATE
-    /diagnostics:column /FC /fp:fast /GF /guard:cf /Gy /JMC /sdl /W4 /WX /w34191 /w44062 /Zc:inline /Zc:rvalueCast)
+    /diagnostics:column /FC /fp:fast /GF /guard:cf /Gy /sdl /W4 /WX /w34191 /w44062 /Zc:inline /Zc:rvalueCast)
 
 target_include_directories(Sandbox PRIVATE
   "../sandbox"
@@ -22,4 +22,5 @@ set_target_properties(Sandbox PROPERTIES
   CXX_EXTENSIONS OFF
   INTERPROCEDURAL_OPTIMIZATION ON
   INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF
-  INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL OFF)
+  INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL OFF
+  VS_JUST_MY_CODE_DEBUGGING $<CONFIG:Debug>)
