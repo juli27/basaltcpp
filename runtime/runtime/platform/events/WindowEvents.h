@@ -4,7 +4,7 @@
 
 #include "Event.h"
 
-#include "runtime/math/Vec2.h"
+#include "runtime/shared/Size2D.h"
 
 namespace basalt::platform {
 
@@ -22,7 +22,7 @@ struct WindowCloseRequestEvent : EventTyped<EventType::WindowCloseRequest> {
 
 
 struct WindowResizedEvent : EventTyped<EventType::WindowResized> {
-  constexpr explicit WindowResizedEvent(const math::Vec2i32& newSize) noexcept;
+  constexpr explicit WindowResizedEvent(const Size2Du16& newSize) noexcept;
   constexpr WindowResizedEvent(const WindowResizedEvent&) noexcept = default;
   constexpr WindowResizedEvent(WindowResizedEvent&&) noexcept = default;
   ~WindowResizedEvent() noexcept = default;
@@ -32,11 +32,11 @@ struct WindowResizedEvent : EventTyped<EventType::WindowResized> {
   auto operator=(WindowResizedEvent&&) noexcept -> WindowResizedEvent&
     = default;
 
-  math::Vec2i32 mNewSize;
+  Size2Du16 mNewSize;
 };
 
 constexpr WindowResizedEvent::WindowResizedEvent(
-  const math::Vec2i32& newSize
+  const Size2Du16& newSize
 ) noexcept : mNewSize(newSize) {}
 
 

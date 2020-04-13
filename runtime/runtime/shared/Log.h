@@ -6,11 +6,14 @@
 
 #include <memory>
 
-namespace basalt::log {
+namespace basalt {
 
-void init();
-auto get_core_logger() -> const std::shared_ptr<spdlog::logger>&;
-auto get_client_logger() -> const std::shared_ptr<spdlog::logger>&;
+struct Log final {
+  static void init();
+
+  static auto get_core_logger() -> const std::shared_ptr<spdlog::logger>&;
+  static auto get_client_logger() -> const std::shared_ptr<spdlog::logger>&;
+};
 
 } // namespace basalt::log
 
@@ -19,9 +22,9 @@ auto get_client_logger() -> const std::shared_ptr<spdlog::logger>&;
 #ifdef BASALT_DEBUG_BUILD
 
 #define BASALT_LOG_TRACE(...) \
-  ::basalt::log::get_core_logger()->trace(__VA_ARGS__)
+  ::basalt::Log::get_core_logger()->trace(__VA_ARGS__)
 #define BASALT_LOG_DEBUG(...) \
-  ::basalt::log::get_core_logger()->debug(__VA_ARGS__)
+  ::basalt::Log::get_core_logger()->debug(__VA_ARGS__)
 
 #else // BASALT_DEBUG_BUILD
 
@@ -30,21 +33,21 @@ auto get_client_logger() -> const std::shared_ptr<spdlog::logger>&;
 
 #endif // BASALT_DEBUG_BUILD
 
-#define BASALT_LOG_INFO(...) ::basalt::log::get_core_logger()->info(__VA_ARGS__)
-#define BASALT_LOG_WARN(...) ::basalt::log::get_core_logger()->warn(__VA_ARGS__)
+#define BASALT_LOG_INFO(...) ::basalt::Log::get_core_logger()->info(__VA_ARGS__)
+#define BASALT_LOG_WARN(...) ::basalt::Log::get_core_logger()->warn(__VA_ARGS__)
 #define BASALT_LOG_ERROR(...) \
-  ::basalt::log::get_core_logger()->error(__VA_ARGS__)
+  ::basalt::Log::get_core_logger()->error(__VA_ARGS__)
 #define BASALT_LOG_FATAL(...) \
-  ::basalt::log::get_core_logger()->critical(__VA_ARGS__)
+  ::basalt::Log::get_core_logger()->critical(__VA_ARGS__)
 
 #else // BASALT_BUILD
 
 #ifdef BASALT_DEBUG_BUILD
 
 #define BASALT_LOG_TRACE(...) \
-  ::basalt::log::get_client_logger()->trace(__VA_ARGS__)
+  ::basalt::Log::get_client_logger()->trace(__VA_ARGS__)
 #define BASALT_LOG_DEBUG(...) \
-  ::basalt::log::get_client_logger()->debug(__VA_ARGS__)
+  ::basalt::Log::get_client_logger()->debug(__VA_ARGS__)
 
 #else // BASALT_DEBUG_BUILD
 #define BASALT_LOG_TRACE(...)
@@ -52,13 +55,13 @@ auto get_client_logger() -> const std::shared_ptr<spdlog::logger>&;
 #endif // BASALT_DEBUG_BUILD
 
 #define BASALT_LOG_INFO(...) \
-  ::basalt::log::get_client_logger()->info(__VA_ARGS__)
+  ::basalt::Log::get_client_logger()->info(__VA_ARGS__)
 #define BASALT_LOG_WARN(...) \
-  ::basalt::log::get_client_logger()->warn(__VA_ARGS__)
+  ::basalt::Log::get_client_logger()->warn(__VA_ARGS__)
 #define BASALT_LOG_ERROR(...) \
-  ::basalt::log::get_client_logger()->error(__VA_ARGS__)
+  ::basalt::Log::get_client_logger()->error(__VA_ARGS__)
 #define BASALT_LOG_FATAL(...) \
-  ::basalt::log::get_client_logger()->critical(__VA_ARGS__)
+  ::basalt::Log::get_client_logger()->critical(__VA_ARGS__)
 
 #endif // BASALT_BUILD
 

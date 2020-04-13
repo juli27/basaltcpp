@@ -33,7 +33,7 @@ private:
   math::Vec3f32 mPosition;
   math::Vec3f32 mLookAt;
   math::Vec3f32 mUp;
-  mutable bool mDirty;
+  mutable bool mDirty{ false };
 };
 
 } // namespace basalt::gfx

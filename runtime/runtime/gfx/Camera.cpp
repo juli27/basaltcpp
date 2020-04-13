@@ -3,7 +3,6 @@
 #include "runtime/platform/Platform.h"
 
 #include "runtime/math/Constants.h"
-#include "runtime/math/Vec2.h"
 
 namespace basalt::gfx {
 
@@ -11,11 +10,11 @@ Camera::Camera(const math::Vec3f32& position, const math::Vec3f32& lookAt
              , const math::Vec3f32& up)
   : mPosition(position)
   , mLookAt(lookAt)
-  , mUp(up)
-  , mDirty(false) {
-  const auto windowSize = platform::get_window_size();
-  const auto aspectRatio =
-    static_cast<float>(windowSize.x()) / windowSize.y();
+  , mUp(up) {
+  const auto windowSize{ platform::get_window_size() };
+  const auto aspectRatio{
+    static_cast<float>(windowSize.width()) /
+    static_cast<float>(windowSize.height()) };
   mProjection = math::Mat4f32::perspective_projection(math::PI / 4.0f
                                                     , aspectRatio, 1.0f
                                                     , 100.0f);

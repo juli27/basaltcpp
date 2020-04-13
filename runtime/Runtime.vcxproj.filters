@@ -19,9 +19,6 @@
     <ClCompile Include="runtime\shared\win32\Win32Shared.cpp">
       <Filter>shared\win32</Filter>
     </ClCompile>
-    <ClCompile Include="runtime\shared\Color.cpp">
-      <Filter>shared</Filter>
-    </ClCompile>
     <ClCompile Include="runtime\shared\Asserts.cpp">
       <Filter>shared</Filter>
     </ClCompile>
@@ -154,6 +151,9 @@
     </ClInclude>
     <ClInclude Include="runtime\platform\win32\Globals.h">
       <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\shared\Size2D.h">
+      <Filter>shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

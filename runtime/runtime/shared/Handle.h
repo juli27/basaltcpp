@@ -33,13 +33,14 @@ struct HandleBase {
   constexpr auto get_value() const noexcept -> ValueT;
 
 private:
-  static constexpr ValueT INVALID_VALUE = std::numeric_limits<ValueT>::max();
+  static constexpr ValueT INVALID_VALUE {std::numeric_limits<ValueT>::max()};
 
-  ValueT mValue = INVALID_VALUE;
+  ValueT mValue {INVALID_VALUE};
 };
 
 
-constexpr HandleBase::HandleBase(const ValueT value) noexcept : mValue(value) {
+constexpr HandleBase::HandleBase(const ValueT value) noexcept
+  : mValue {value} {
   BASALT_ASSERT(mValue != INVALID_VALUE, "invalid handle value");
 }
 
@@ -47,13 +48,15 @@ constexpr HandleBase::operator bool() const noexcept {
   return mValue != INVALID_VALUE;
 }
 
-constexpr auto HandleBase::operator==(const HandleBase& rhs) const noexcept
--> bool {
+constexpr auto HandleBase::operator==(
+  const HandleBase& rhs
+) const noexcept -> bool {
   return mValue == rhs.mValue;
 }
 
-constexpr auto HandleBase::operator!=(const HandleBase& rhs) const noexcept
--> bool {
+constexpr auto HandleBase::operator!=(
+  const HandleBase& rhs
+) const noexcept -> bool {
   return !(*this == rhs);
 }
 
@@ -67,7 +70,7 @@ constexpr HandleBase::ValueT HandleBase::get_value() const noexcept {
 
 } // namespace _internal
 
-template<typename Tag>
+template <typename Tag>
 struct Handle final : _internal::HandleBase {
   // inherit base class constructors
   using HandleBase::HandleBase;

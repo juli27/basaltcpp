@@ -62,7 +62,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BASALT_BUILD;BASALT_DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING;BASALT_BUILD;BASALT_DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -85,7 +85,7 @@
       <WarningLevel>Level4</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BASALT_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING;BASALT_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -117,7 +117,6 @@
     <ClCompile Include="runtime\platform\win32\Win32Util.cpp" />
     <ClCompile Include="runtime\Scene.cpp" />
     <ClCompile Include="runtime\shared\Asserts.cpp" />
-    <ClCompile Include="runtime\shared\Color.cpp" />
     <ClCompile Include="runtime\shared\Log.cpp" />
     <ClCompile Include="runtime\shared\win32\Win32Shared.cpp" />
   </ItemGroup>
@@ -162,6 +161,7 @@
     <ClInclude Include="runtime\shared\Types.h" />
     <ClInclude Include="runtime\shared\win32\Win32APIHeader.h" />
     <ClInclude Include="runtime\shared\win32\Win32SharedUtil.h" />
+    <ClInclude Include="runtime\shared\Size2D.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\external\DearImGui\DearImGui.vcxproj">

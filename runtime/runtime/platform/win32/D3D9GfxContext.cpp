@@ -19,22 +19,22 @@ D3D9GfxContext::D3D9GfxContext(HWND window) {
 
   if (!D3DXCheckVersion(D3D_SDK_VERSION, D3DX_SDK_VERSION)) {
     BASALT_LOG_INFO("D3DX version missmatch");
-    throw ApiNotSupportedException("D3DX version missmatch");
+    throw ApiNotSupportedException("D3DX version mismatch");
   }
 
-  D3DPRESENT_PARAMETERS pp{
+  D3DPRESENT_PARAMETERS pp {
     0u, 0u, D3DFMT_UNKNOWN, 1u, // back buffer
     D3DMULTISAMPLE_NONE, 0u, // multi sampling
     D3DSWAPEFFECT_DISCARD, window, TRUE, // window
     TRUE, D3DFMT_D16, 0u, // depth stencil buffer + flags
-    0u, D3DPRESENT_INTERVAL_ONE // refresh rate + vsync
+    0u, D3DPRESENT_INTERVAL_ONE // refresh rate + VSync
   };
 
   const auto windowMode = get_window_mode();
 
   // setup exclusive fullscreen
   if (windowMode == WindowMode::FullscreenExclusive) {
-    D3DDISPLAYMODE displayMode{};
+    D3DDISPLAYMODE displayMode {};
     D3D9CALL(
       mD3D9Object->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &displayMode)
     );

@@ -4,8 +4,8 @@
 
 #include "IGfxContext.h"
 
-#include "runtime/math/Vec2.h"
 #include "runtime/shared/Config.h"
+#include "runtime/shared/Size2D.h"
 
 #include <functional>
 #include <memory>
@@ -34,7 +34,7 @@ auto get_name() -> std::string_view;
 //void set_window_title(std::string_view windowTitle);
 
 [[nodiscard]]
-auto get_window_size() -> math::Vec2i32;
+auto get_window_size() -> Size2Du16;
 
 [[nodiscard]]
 auto get_window_mode() -> WindowMode;

@@ -14,8 +14,8 @@ struct Color final {
   constexpr Color(Color&&) noexcept = default;
   ~Color() noexcept = default;
 
-  auto operator=(const Color&) noexcept -> Color&;
-  auto operator=(Color&&) noexcept -> Color&;
+  auto operator=(const Color&) noexcept -> Color& = default;
+  auto operator=(Color&&) noexcept -> Color& = default;
 
   // ARGB word-order
   [[nodiscard]]
@@ -35,26 +35,28 @@ struct Color final {
   static constexpr auto from_argb(u32 argb) noexcept -> Color;
 
 private:
-  u8 mRed = 0;
-  u8 mGreen = 0;
-  u8 mBlue = 0;
-  u8 mAlpha = 0;
+  u8 mRed {0};
+  u8 mGreen {0};
+  u8 mBlue {0};
+  u8 mAlpha {0};
 };
 
 
 constexpr Color::Color(const u8 red, const u8 green, const u8 blue) noexcept
-  : Color(red, green, blue, 255) {}
+  : Color {red, green, blue, 255} {
+}
 
 constexpr Color::Color(
   const u8 red, const u8 green, const u8 blue, const u8 alpha
 ) noexcept
-  : mRed(red)
-, mGreen(green)
-, mBlue(blue)
-, mAlpha(alpha) {}
+  : mRed {red}
+  , mGreen {green}
+  , mBlue {blue}
+  , mAlpha {alpha} {
+}
 
 constexpr auto Color::to_argb() const noexcept -> u32 {
-  u32 color = mAlpha;
+  u32 color {mAlpha};
   color <<= 8;
   color |= mRed;
   color <<= 8;
@@ -87,7 +89,7 @@ constexpr Color Color::from_argb(const u32 argb) noexcept {
   const auto g = static_cast<u8>(argb >> 16);
   const auto b = static_cast<u8>(argb >> 24);
 
-  return Color(r, g, b, a);
+  return Color {r, g, b, a};
 }
 
 } // namespace basalt

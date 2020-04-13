@@ -20,9 +20,9 @@ struct D3D9GfxContext final : IGfxContext {
   void present() override;
 
 private:
-  IDirect3D9* mD3D9Object = nullptr;
-  IDirect3DDevice9* mDevice = nullptr;
-  D3DPRESENT_PARAMETERS mPresentParams = {};
+  IDirect3D9* mD3D9Object {nullptr};
+  IDirect3DDevice9* mDevice {nullptr};
+  D3DPRESENT_PARAMETERS mPresentParams {};
 };
 
 } // basalt::platform

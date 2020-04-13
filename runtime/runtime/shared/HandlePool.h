@@ -12,7 +12,7 @@
 
 namespace basalt {
 
-template<typename T, typename HandleT>
+template <typename T, typename HandleT>
 struct HandlePool final {
   using ForEachFn = void (*)(T&);
 
@@ -35,25 +35,25 @@ struct HandlePool final {
 
 private:
   struct Slot {
-    T mData = {};
-    HandleT mHandle = {};
-    HandleT mNextFreeSlot = {};
+    T data {};
+    HandleT handle {};
+    HandleT nextFreeSlot {};
   };
 
 
   std::vector<Slot> mSlots;
-  HandleT mFirstFreeSlot = {};
+  HandleT mFirstFreeSlot {};
 };
 
 
-template<typename T, typename HandleT>
+template <typename T, typename HandleT>
 auto HandlePool<T, HandleT>::allocate() -> std::tuple<HandleT, T&> {
   if (mFirstFreeSlot) {
     Slot& slot = mSlots[mFirstFreeSlot.get_value()];
-    slot.mHandle = mFirstFreeSlot;
-    mFirstFreeSlot = slot.mNextFreeSlot;
+    slot.handle = mFirstFreeSlot;
+    mFirstFreeSlot = slot.nextFreeSlot;
 
-    return {slot.mHandle, slot.mData};
+    return {slot.handle, slot.data};
   }
 
   const auto nextIndex = mSlots.size();
@@ -66,20 +66,20 @@ auto HandlePool<T, HandleT>::allocate() -> std::tuple<HandleT, T&> {
 
   const auto index = static_cast<typename HandleT::ValueT>(nextIndex);
   Slot& slot = mSlots.emplace_back();
-  slot.mHandle = HandleT(index);
+  slot.handle = HandleT(index);
 
-  return {slot.mHandle, slot.mData};
+  return {slot.handle, slot.data};
 }
 
-template<typename T, typename HandleT>
+template <typename T, typename HandleT>
 void HandlePool<T, HandleT>::deallocate(HandleT handle) {
   Slot& slot = mSlots.at(handle.get_value());
-  slot.mHandle = HandleT{};
-  slot.mNextFreeSlot = mFirstFreeSlot;
+  slot.handle = HandleT {};
+  slot.nextFreeSlot = mFirstFreeSlot;
   mFirstFreeSlot = handle;
 }
 
-template<typename T, typename HandleT>
+template <typename T, typename HandleT>
 auto HandlePool<T, HandleT>::get(HandleT handle) -> T& {
   if (!handle) {
     throw std::runtime_error("invalid handle");
@@ -87,16 +87,18 @@ auto HandlePool<T, HandleT>::get(HandleT handle) -> T& {
 
   // throws exception with invalid index
   Slot& slot = mSlots.at(handle.get_value());
-  return slot.mData;
+  return slot.data;
 }
 
-template<typename T, typename HandleT>
+template <typename T, typename HandleT>
 void HandlePool<T, HandleT>::for_each(const ForEachFn fn) {
-  std::for_each(std::begin(mSlots), std::end(mSlots), [=](Slot& slot) {
-    if (slot.mHandle) {
-      fn(slot.mData);
+  std::for_each(
+    std::begin(mSlots), std::end(mSlots), [=](Slot& slot) {
+      if (slot.handle) {
+        fn(slot.data);
+      }
     }
-  });
+  );
 }
 
 } // namespace basalt

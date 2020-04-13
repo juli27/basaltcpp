@@ -10,6 +10,7 @@
 #include "runtime/platform/events/WindowEvents.h"
 
 #include "runtime/shared/Asserts.h"
+#include "runtime/shared/Size2D.h"
 #include "runtime/shared/Types.h"
 
 #include "runtime/shared/win32/Win32APIHeader.h"
@@ -55,8 +56,9 @@ struct WindowData final {
 
   HWND mHandle = nullptr;
   IGfxContext* mGfxContext = nullptr;
-  i32 mClientAreaWidth = 0;
-  i32 mClientAreaHeight = 0;
+  //i32 mClientAreaWidth = 0;
+  //i32 mClientAreaHeight = 0;
+  Size2Du16 mClientAreaSize = Size2Du16::dont_care();
   WindowMode mMode = WindowMode::Windowed;
   bool mIsResizeable = false;
   bool mIsMinimized = false;
@@ -155,8 +157,8 @@ auto get_name() -> std::string_view {
   return "Win32";
 }
 
-auto get_window_size() -> math::Vec2i32 {
-  return {sWindowData.mClientAreaWidth, sWindowData.mClientAreaHeight};
+auto get_window_size() -> Size2Du16 {
+  return sWindowData.mClientAreaSize;
 }
 
 auto get_window_mode() -> WindowMode {
@@ -218,25 +220,24 @@ void register_window_class() {
 void create_main_window(const Config& config) {
   register_window_class();
 
-  sWindowData.mClientAreaWidth = config.mWindowWidth;
-  sWindowData.mClientAreaHeight = config.mWindowHeight;
-  sWindowData.mMode = config.mWindowMode;
-  sWindowData.mIsResizeable = config.mIsWindowResizeable;
+  sWindowData.mClientAreaSize = config.windowSize;
+  sWindowData.mMode = config.windowMode;
+  sWindowData.mIsResizeable = config.isWindowResizeable;
 
   // handle don't care cases
-  if (sWindowData.mClientAreaWidth == 0) {
-    sWindowData.mClientAreaWidth = 1280;
+  if (sWindowData.mClientAreaSize.width() == 0) {
+    sWindowData.mClientAreaSize.set_width(1280);
   }
-  if (sWindowData.mClientAreaHeight == 0) {
-    sWindowData.mClientAreaHeight = 720;
+  if (sWindowData.mClientAreaSize.height() == 0) {
+    sWindowData.mClientAreaSize.set_height(720);
   }
 
   DWORD style = 0u;
   DWORD styleEx = WS_EX_APPWINDOW;
-  if (config.mWindowMode == WindowMode::Windowed) {
+  if (config.windowMode == WindowMode::Windowed) {
     style |= WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
 
-    if (config.mIsWindowResizeable) {
+    if (config.isWindowResizeable) {
       style |= WS_MAXIMIZEBOX | WS_SIZEBOX;
     }
   } else {
@@ -247,10 +248,10 @@ void create_main_window(const Config& config) {
   auto windowWidth = ::GetSystemMetrics(SM_CXSCREEN);
   auto windowHeight = ::GetSystemMetrics(SM_CYSCREEN);
 
-  if (config.mWindowMode == WindowMode::Windowed) {
+  if (config.windowMode == WindowMode::Windowed) {
     // calculate the window size for the given client area size
     // and center the window on the primary monitor
-    RECT rect{0, 0, sWindowData.mClientAreaWidth, sWindowData.mClientAreaHeight};
+    RECT rect{0, 0, sWindowData.mClientAreaSize.width(), sWindowData.mClientAreaSize.height()};
     if (!::AdjustWindowRectEx(&rect, style, FALSE, styleEx)) {
       throw system_error(::GetLastError(), std::system_category());
     }
@@ -259,7 +260,7 @@ void create_main_window(const Config& config) {
     windowHeight = static_cast<int>(rect.bottom - rect.top);
   }
 
-  const auto windowTitle = create_wide_from_utf8(config.mAppName);
+  const auto windowTitle = create_wide_from_utf8(config.appName);
   sWindowData.mHandle = ::CreateWindowExW(
     styleEx, WINDOW_CLASS_NAME.data(), windowTitle.c_str(), style,
     CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, nullptr, nullptr,
@@ -402,11 +403,7 @@ auto CALLBACK window_proc(
   case WM_EXITSIZEMOVE:
     sWindowData.mIsSizing = false;
     sPendingEvents.push_back(
-      std::make_shared<WindowResizedEvent>(
-        math::Vec2i32{
-          sWindowData.mClientAreaWidth, sWindowData.mClientAreaHeight
-        }
-      )
+      std::make_shared<WindowResizedEvent>(sWindowData.mClientAreaSize)
     );
     return 0;
 
@@ -422,27 +419,19 @@ auto CALLBACK window_proc(
         sPendingEvents.push_back(std::make_shared<WindowRestoredEvent>());
       }
       if (!sWindowData.mIsSizing) {
-        if (sWindowData.mClientAreaWidth != LOWORD(lParam) || sWindowData.mClientAreaHeight != HIWORD(lParam)) {
-          sWindowData.mClientAreaWidth = LOWORD(lParam);
-          sWindowData.mClientAreaHeight = HIWORD(lParam);
+        if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam)); sWindowData.mClientAreaSize != newSize) {
+          sWindowData.mClientAreaSize = newSize;
 
           sPendingEvents.push_back(std::make_shared<WindowResizedEvent>(
-            math::Vec2i32{
-              sWindowData.mClientAreaWidth, sWindowData.mClientAreaHeight
-            }));
+            sWindowData.mClientAreaSize));
         }
       }
 
       return 0;
     case SIZE_MAXIMIZED:
-      sWindowData.mClientAreaWidth = LOWORD(lParam);
-      sWindowData.mClientAreaHeight = HIWORD(lParam);
+      sWindowData.mClientAreaSize = {LOWORD(lParam), HIWORD(lParam)};
       sPendingEvents.push_back(
-        std::make_shared<WindowResizedEvent>(
-          math::Vec2i32{
-            sWindowData.mClientAreaWidth, sWindowData.mClientAreaHeight
-          }
-        )
+        std::make_shared<WindowResizedEvent>(sWindowData.mClientAreaSize)
       );
       return 0;
 

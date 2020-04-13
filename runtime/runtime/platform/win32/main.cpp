@@ -51,7 +51,7 @@ namespace {
 _Use_decl_annotations_
 auto CALLBACK wWinMain(HINSTANCE instance, HINSTANCE, WCHAR*, int showCommand)
 -> int try {
-  basalt::log::init();
+  basalt::Log::init();
 
   basalt::platform::sInstance = instance;
   basalt::platform::sShowCommand = showCommand;

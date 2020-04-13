@@ -180,8 +180,8 @@ D3D9Renderer::~D3D9Renderer() {
 
 void D3D9Renderer::on_window_resize(const WindowResizedEvent& event) {
   ImGui_ImplDX9_InvalidateDeviceObjects();
-  mPresentParams.BackBufferWidth = event.mNewSize.x();
-  mPresentParams.BackBufferHeight = event.mNewSize.y();
+  mPresentParams.BackBufferWidth = event.mNewSize.width();
+  mPresentParams.BackBufferHeight = event.mNewSize.height();
   mDevice->Reset(&mPresentParams);
   ImGui_ImplDX9_CreateDeviceObjects();
 

@@ -108,13 +108,13 @@ void startup() {
   }
 
   BASALT_LOG_INFO("config");
-  BASALT_LOG_INFO("  app name: {}", sConfig.mAppName);
+  BASALT_LOG_INFO("  app name: {}", sConfig.appName);
   BASALT_LOG_INFO("  window: {}x{}{} {}{}",
-    sConfig.mWindowWidth,
-    sConfig.mWindowHeight,
-    sConfig.mWindowMode == WindowMode::FullscreenExclusive ? " exclusive" : "",
-    sConfig.mWindowMode != WindowMode::Windowed ? "fullscreen" : "windowed",
-    sConfig.mIsWindowResizeable ? " resizeable" : ""
+    sConfig.windowSize.width(),
+    sConfig.windowSize.height(),
+    sConfig.windowMode == WindowMode::FullscreenExclusive ? " exclusive" : "",
+    sConfig.windowMode != WindowMode::Windowed ? "fullscreen" : "windowed",
+    sConfig.isWindowResizeable ? " resizeable" : ""
   );
 
   platform::startup(sConfig);
@@ -141,7 +141,7 @@ void new_dear_im_gui_frame() {
   auto& io = ImGui::GetIO();
   const auto windowSize = platform::get_window_size();
   io.DisplaySize = ImVec2(
-    static_cast<float>(windowSize.x()), static_cast<float>(windowSize.y())
+    static_cast<float>(windowSize.width()), static_cast<float>(windowSize.height())
   );
   io.DeltaTime = static_cast<float>(sCurrentDeltaTime);
   io.KeyCtrl = input::is_key_pressed(Key::Control);
