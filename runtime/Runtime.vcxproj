@@ -111,6 +111,8 @@
     <ClCompile Include="runtime\gfx\Gfx.cpp" />
     <ClCompile Include="runtime\Input.cpp" />
     <ClCompile Include="runtime\math\Mat4.cpp" />
+    <ClCompile Include="runtime\math\Vec2.cpp" />
+    <ClCompile Include="runtime\math\Vec3.cpp" />
     <ClCompile Include="runtime\platform\win32\D3D9GfxContext.cpp" />
     <ClCompile Include="runtime\platform\win32\main.cpp" />
     <ClCompile Include="runtime\platform\win32\Win32Platform.cpp" />
@@ -136,9 +138,7 @@
     <ClInclude Include="runtime\math\Constants.h" />
     <ClInclude Include="runtime\math\Mat4.h" />
     <ClInclude Include="runtime\math\Vec2.h" />
-    <ClInclude Include="runtime\math\Vec2.t.h" />
     <ClInclude Include="runtime\math\Vec3.h" />
-    <ClInclude Include="runtime\math\Vec3.t.h" />
     <ClInclude Include="runtime\platform\events\Event.h" />
     <ClInclude Include="runtime\platform\events\KeyEvents.h" />
     <ClInclude Include="runtime\platform\events\MouseEvents.h" />

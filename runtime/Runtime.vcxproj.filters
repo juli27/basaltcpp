@@ -40,6 +40,12 @@
     <ClCompile Include="runtime\gfx\backend\Types.cpp">
       <Filter>gfx\backend</Filter>
     </ClCompile>
+    <ClCompile Include="runtime\math\Vec2.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="runtime\math\Vec3.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="runtime\platform\win32\D3D9GfxContext.h">
@@ -99,13 +105,7 @@
     <ClInclude Include="runtime\math\Vec2.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\math\Vec2.t.h">
-      <Filter>math</Filter>
-    </ClInclude>
     <ClInclude Include="runtime\math\Vec3.h">
-      <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="runtime\math\Vec3.t.h">
       <Filter>math</Filter>
     </ClInclude>
     <ClInclude Include="runtime\gfx\backend\Types.h">
