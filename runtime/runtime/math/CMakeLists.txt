@@ -1,10 +1,10 @@
 target_sources(Runtime
   PRIVATE
     "Mat4.cpp"
+    "Vec2.cpp"
+    "Vec3.cpp"
   PUBLIC
     "Constants.h"
     "Mat4.h"
     "Vec2.h"
-    "Vec2.t.h"
-    "Vec3.h"
-    "Vec3.t.h")
+    "Vec3.h")

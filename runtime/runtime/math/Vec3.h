@@ -4,12 +4,14 @@
 
 #include "runtime/shared/Types.h"
 
+#include <array>
+
 namespace basalt::math {
 
 template <typename T>
 struct Vec3 final {
   constexpr Vec3() noexcept = default;
-  constexpr Vec3(T x, T y, T z) noexcept : mX{ x }, mY{ y }, mZ{ z } {}
+  constexpr Vec3(T x, T y, T z) noexcept : mData{ x, y, z } {}
   constexpr Vec3(const Vec3&) noexcept = default;
   constexpr Vec3(Vec3&&) noexcept = default;
   ~Vec3() noexcept = default;
@@ -31,32 +33,30 @@ struct Vec3 final {
 
   [[nodiscard]]
   constexpr auto x() const noexcept -> T {
-    return mX;
+    return std::get<0>(mData);
   }
 
   [[nodiscard]]
   constexpr auto y() const noexcept -> T {
-    return mY;
+    return std::get<1>(mData);
   }
 
   [[nodiscard]]
   constexpr auto z() const noexcept -> T {
-    return mZ;
+    return std::get<2>(mData);
   }
 
   static auto normalize(const Vec3& v) -> Vec3;
   static constexpr auto cross(const Vec3& lhs, const Vec3& rhs) -> Vec3 {
     return Vec3(
-      lhs.mY * rhs.mZ - lhs.mZ * rhs.mY,
-      lhs.mZ * rhs.mX - lhs.mX * rhs.mZ,
-      lhs.mX * rhs.mY - lhs.mY * rhs.mX
+      lhs.y() * rhs.z() - lhs.z() * rhs.y(),
+      lhs.z() * rhs.x() - lhs.x() * rhs.z(),
+      lhs.x() * rhs.y() - lhs.y() * rhs.x()
     );
   }
 
 private:
-  T mX = {};
-  T mY = {};
-  T mZ = {};
+  std::array<T, 3> mData{};
 };
 
 extern template struct Vec3<f32>;

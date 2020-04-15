@@ -4,12 +4,14 @@
 
 #include "runtime/shared/Types.h"
 
+#include <array>
+
 namespace basalt::math {
 
 template <typename T>
 struct Vec2 final {
   constexpr Vec2() noexcept = default;
-  constexpr Vec2(T x, T y) noexcept : mX(x), mY(y) {}
+  constexpr Vec2(T x, T y) noexcept : mData{x, y} {}
   constexpr Vec2(const Vec2&) noexcept = default;
   constexpr Vec2(Vec2&&) noexcept = default;
   ~Vec2() noexcept = default;
@@ -17,8 +19,8 @@ struct Vec2 final {
   auto operator=(const Vec2&) noexcept -> Vec2& = default;
   auto operator=(Vec2&&) noexcept -> Vec2& = default;
 
-  constexpr auto operator==(const Vec2& other) noexcept -> bool {
-    return this->mX == other.mX && this->mY == other.mY;
+  constexpr auto operator==(const Vec2& other) const noexcept -> bool {
+    return this->x() == other.x() && this->y() == other.y();
   }
 
   constexpr auto operator!=(const Vec2& other) noexcept -> bool {
@@ -32,17 +34,16 @@ struct Vec2 final {
 
   [[nodiscard]]
   constexpr auto x() const noexcept -> T {
-    return mX;
+    return std::get<0>(mData);
   }
 
   [[nodiscard]]
   constexpr auto y() const noexcept -> T {
-    return mY;
+    return std::get<1>(mData);
   }
 
 private:
-  T mX = {};
-  T mY = {};
+  std::array<T, 2> mData{};
 };
 
 extern template struct Vec2<i32>;
