@@ -3,6 +3,7 @@
 #define BASALT_PRELUDE_H
 
 #include "runtime/shared/Color.h"
+#include "runtime/shared/Data.h"
 #include "runtime/shared/Types.h"
 
 using basalt::i8;
@@ -18,5 +19,6 @@ using basalt::f32;
 using basalt::f64;
 
 using basalt::Color;
+using basalt::Pixels;
 
 #endif // BASALT_PRELUDE_H

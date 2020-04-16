@@ -37,7 +37,7 @@ using basalt::gfx::backend::VertexLayout;
 namespace d3d9_tuts {
 
 Matrices::Matrices() {
-  mScene->set_background_color(Color(0, 0, 0));
+  mScene->set_background_color(Color {0.0f, 0.0f, 0.0f});
 
   const Vec3f32 cameraPos(0.0f, 3.0f, -5.0f);
   const Vec3f32 lookAt(0.0f, 0.0f, 0.0f);
@@ -45,15 +45,15 @@ Matrices::Matrices() {
   mScene->set_camera(Camera(cameraPos, lookAt, up));
 
   struct Vertex final {
-    f32 mX, mY, mZ;
-    u32 mColor;
+    f32 x, y, z;
+    Pixels::A8R8G8B8 color;
   };
 
-  array<Vertex, 3u> vertices{{
-    {-1.0f, -1.0f, 0.0f, Color(255, 0, 0).to_argb()}
-  , {1.0f, -1.0f, 0.0f, Color(0, 0, 255).to_argb()}
-  , {0.0f, 1.0f, 0.0f, Color(255, 255, 255).to_argb()}
-  }};
+  array<Vertex, 3u> vertices {
+    Vertex {-1.0f, -1.0f, 0.0f, Pixels::pack_logical_a8_r8_g8_b8(255, 0, 0)}
+  , Vertex {1.0f, -1.0f, 0.0f, Pixels::pack_logical_a8_r8_g8_b8(0, 0, 255)}
+  , Vertex {0.0f, 1.0f, 0.0f, Pixels::pack_logical_a8_r8_g8_b8(255, 255, 255)}
+  };
 
   const VertexLayout vertexLayout = {
     {VertexElementType::F32_3, VertexElementUsage::Position}
@@ -67,9 +67,10 @@ Matrices::Matrices() {
 
   auto& renderComponent = std::get<2>(entity);
   renderComponent.mMesh =
-    basalt::get_renderer()->add_mesh(vertices.data(),
-                                     static_cast<i32>(vertices.size()),
-                                     vertexLayout, PrimitiveType::TriangleList);
+    basalt::get_renderer()->add_mesh(
+      vertices.data(),
+      static_cast<i32>(vertices.size()),
+      vertexLayout, PrimitiveType::TriangleList);
   renderComponent.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 }
 
@@ -77,7 +78,8 @@ void Matrices::on_show() {
   set_current_scene(mScene);
 }
 
-void Matrices::on_hide() {}
+void Matrices::on_hide() {
+}
 
 void Matrices::on_update() {
   const auto deltaTime = static_cast<f32>(basalt::get_delta_time());

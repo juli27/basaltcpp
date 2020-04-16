@@ -26,40 +26,42 @@ using basalt::gfx::backend::VertexLayout;
 namespace d3d9_tuts {
 
 Vertices::Vertices() {
-  mScene->set_background_color(Color(0, 0, 255));
+  mScene->set_background_color(Color {0.0f, 0.0f, 1.0f});
 
   struct Vertex final {
-    f32 mX, mY, mZ, mRhw;
-    u32 mColor;
+    f32 x, y, z, rhw;
+    Pixels::A8R8G8B8 color;
   };
 
-  array<Vertex, 3u> vertices = {{
-    {150.0f, 50.0f, 0.5f, 1.0f, Color(255, 0, 0).to_argb()}
-  , {250.0f, 250.0f, 0.5f, 1.0f, Color(0, 255, 0).to_argb()}
-  , {50.0f, 250.0f, 0.5f, 1.0f, Color(0, 255, 255).to_argb()}
-  }};
+  array<Vertex, 3u> vertices {
+    Vertex {150.0f, 50.0f, 0.5f, 1.0f, Pixels::pack_logical_a8_r8_g8_b8(255, 0, 0)},
+    Vertex {250.0f, 250.0f, 0.5f, 1.0f, Pixels::pack_logical_a8_r8_g8_b8(0, 255, 0)},
+    Vertex {50.0f, 250.0f, 0.5f, 1.0f, Pixels::pack_logical_a8_r8_g8_b8(0, 255, 255)}
+  };
 
-  const VertexLayout vertexLayout{
-    {VertexElementType::F32_4, VertexElementUsage::PositionTransformed}
-  , {VertexElementType::U32_1, VertexElementUsage::ColorDiffuse}
+  const VertexLayout vertexLayout {
+    {VertexElementType::F32_4, VertexElementUsage::PositionTransformed},
+    {VertexElementType::U32_1, VertexElementUsage::ColorDiffuse}
   };
 
   auto& entityRegistry = mScene->get_entity_registry();
-  const auto triangleEntity =
-    entityRegistry.create<TransformComponent, RenderComponent>();
+  const auto triangleEntity = entityRegistry.create<
+    TransformComponent, RenderComponent>();
 
-  std::get<2>(triangleEntity).mMesh =
-    basalt::get_renderer()->add_mesh(vertices.data(),
-                                     static_cast<i32>(vertices.size()),
-                                     vertexLayout, PrimitiveType::TriangleList);
+  std::get<2>(triangleEntity).mMesh = basalt::get_renderer()->add_mesh(
+    vertices.data(), static_cast<i32>(vertices.size()), vertexLayout,
+    PrimitiveType::TriangleList
+  );
 }
 
 void Vertices::on_show() {
   set_current_scene(mScene);
 }
 
-void Vertices::on_hide() {}
+void Vertices::on_hide() {
+}
 
-void Vertices::on_update() {}
+void Vertices::on_update() {
+}
 
 } // namespace d3d9_tuts

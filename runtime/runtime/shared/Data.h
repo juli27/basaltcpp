@@ -1,0 +1,29 @@
+#pragma once
+#ifndef BASALT_SHARED_COLORS_H
+#define BASALT_SHARED_COLORS_H
+
+#include "runtime/shared/Types.h"
+
+namespace basalt {
+
+struct Pixels final {
+  // logical order (big-endian: a r g b, little-endian: b g r a)
+  enum class A8R8G8B8 : u32 {
+  };
+
+  [[nodiscard]]
+  static constexpr auto pack_logical_a8_r8_g8_b8(
+    const u8 red, const u8 green, const u8 blue, const u8 alpha = 255
+  ) -> A8R8G8B8 {
+    u32 pixel {static_cast<u32>(alpha) << 24};
+    pixel |= static_cast<u32>(red) << 16;
+    pixel |= static_cast<u32>(green) << 8;
+    pixel |= static_cast<u32>(blue);
+
+    return A8R8G8B8 {pixel};
+  }
+};
+
+} // namespace basalt
+
+#endif // BASALT_SHARED_COLORS_H

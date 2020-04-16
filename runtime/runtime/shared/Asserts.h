@@ -5,9 +5,8 @@
 namespace basalt {
 
 void fail_assert(
-  const char* condition, const char* message, const char* file, int line,
-  const char* func
-);
+  const char* condition, const char* message, const char* file, int line
+, const char* func);
 
 } // namespace basalt
 

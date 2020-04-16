@@ -155,6 +155,9 @@
     <ClInclude Include="runtime\shared\Size2D.h">
       <Filter>shared</Filter>
     </ClInclude>
+    <ClInclude Include="runtime\shared\Data.h">
+      <Filter>shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="platform">

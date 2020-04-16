@@ -58,7 +58,7 @@ struct Scene final {
 
 private:
   entt::registry mEntityRegistry;
-  Color mBackgroundColor = {0, 0, 0};
+  Color mBackgroundColor {0.0f, 0.0f, 0.0f};
   gfx::Camera mCamera = {{}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}};
 };
 

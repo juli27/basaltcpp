@@ -146,11 +146,15 @@ void fill_primitive_info(
   }
 }
 
-void fill_color(D3DCOLORVALUE& d3dColor, const Color color) {
-  d3dColor.r = color.red() / 255.0f;
-  d3dColor.g = color.green() / 255.0f;
-  d3dColor.b = color.blue() / 255.0f;
-  d3dColor.a = color.alpha() / 255.0f;
+void set_d3d_color_value(D3DCOLORVALUE& d3dColor, const Color color) {
+  d3dColor.r = color.red();
+  d3dColor.g = color.green();
+  d3dColor.b = color.blue();
+  d3dColor.a = color.alpha();
+}
+
+auto to_d3d_color(const Color color) -> D3DCOLOR {
+  return static_cast<D3DCOLOR>(color.to_argb());
 }
 
 } // namespace
@@ -285,13 +289,13 @@ void D3D9Renderer::set_lights(const LightSetup& lights) {
 
   DWORD lightIndex = 0u;
   for (const auto& light : directionalLights) {
-    D3DLIGHT9 d3dlight{};
-    d3dlight.Type = D3DLIGHT_DIRECTIONAL;
-    d3dlight.Direction = *reinterpret_cast<const D3DVECTOR*>(&light.mDirection);
-    fill_color(d3dlight.Diffuse, light.mDiffuseColor);
-    fill_color(d3dlight.Ambient, light.mAmbientColor);
+    D3DLIGHT9 d3dLight{};
+    d3dLight.Type = D3DLIGHT_DIRECTIONAL;
+    d3dLight.Direction = *reinterpret_cast<const D3DVECTOR*>(&light.mDirection);
+    set_d3d_color_value(d3dLight.Diffuse, light.mDiffuseColor);
+    set_d3d_color_value(d3dLight.Ambient, light.mAmbientColor);
 
-    D3D9CALL(mDevice->SetLight(lightIndex, &d3dlight));
+    D3D9CALL(mDevice->SetLight(lightIndex, &d3dLight));
     D3D9CALL(mDevice->LightEnable(lightIndex, TRUE));
     lightIndex++;
   }
@@ -302,12 +306,12 @@ void D3D9Renderer::set_lights(const LightSetup& lights) {
   }
 
   D3D9CALL(mDevice->SetRenderState(
-    D3DRS_AMBIENT, lights.get_global_ambient_color().to_argb()
+    D3DRS_AMBIENT, to_d3d_color(lights.get_global_ambient_color())
   ));
 }
 
 void D3D9Renderer::set_clear_color(const Color color) {
-  mClearColor = color.to_argb();
+  mClearColor = to_d3d_color(color);
 }
 
 // TODO: shading mode
@@ -376,9 +380,9 @@ void D3D9Renderer::render_commands(const RenderCommandBuffer& commands) {
     }
 
     D3DMATERIAL9 material{};
-    fill_color(material.Diffuse, command.mDiffuseColor);
-    fill_color(material.Ambient, command.mAmbientColor);
-    fill_color(material.Emissive, command.mEmissiveColor);
+    set_d3d_color_value(material.Diffuse, command.mDiffuseColor);
+    set_d3d_color_value(material.Ambient, command.mAmbientColor);
+    set_d3d_color_value(material.Emissive, command.mEmissiveColor);
     D3D9CALL(mDevice->SetMaterial(&material));
 
     if (command.mTexture) {

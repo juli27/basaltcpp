@@ -7,7 +7,7 @@
 namespace d3d9_tuts {
 
 Device::Device() {
-  mScene->set_background_color(Color(0, 0, 255));
+  mScene->set_background_color(Color { 0.0f, 0.0f, 1.0f });
 }
 
 void Device::on_show() {
