@@ -19,10 +19,6 @@ struct D3D9Mesh {
   UINT primCount = 0u;
 };
 
-struct D3D9Texture {
-  IDirect3DTexture9* texture = nullptr;
-};
-
 struct D3D9Renderer final : IRenderer {
   D3D9Renderer() = delete;
   explicit D3D9Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp);
@@ -59,7 +55,7 @@ private:
   D3DCAPS9 mDeviceCaps = {};
   D3DPRESENT_PARAMETERS mPresentParams;
   HandlePool<D3D9Mesh, MeshHandle> mMeshes;
-  HandlePool<D3D9Texture, TextureHandle> mTextures;
+  HandlePool<IDirect3DTexture9*, TextureHandle> mTextures;
   RenderCommandBuffer mCommandBuffer;
   D3DCOLOR mClearColor = D3DCOLOR_XRGB(0, 0, 0);
 };

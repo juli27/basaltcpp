@@ -146,6 +146,31 @@ void fill_primitive_info(
   }
 }
 
+void set_d3d_vector(D3DVECTOR& d3dVec, const math::Vec3f32& vec) {
+  d3dVec.x = vec.x();
+  d3dVec.y = vec.y();
+  d3dVec.z = vec.z();
+}
+
+void set_d3d_matrix(D3DMATRIX& d3dMat, const math::Mat4f32& mat) {
+  d3dMat._11 = mat.m11;
+  d3dMat._12 = mat.m12;
+  d3dMat._13 = mat.m13;
+  d3dMat._14 = mat.m14;
+  d3dMat._21 = mat.m21;
+  d3dMat._22 = mat.m22;
+  d3dMat._23 = mat.m23;
+  d3dMat._24 = mat.m24;
+  d3dMat._31 = mat.m31;
+  d3dMat._32 = mat.m32;
+  d3dMat._33 = mat.m33;
+  d3dMat._34 = mat.m34;
+  d3dMat._41 = mat.m41;
+  d3dMat._42 = mat.m42;
+  d3dMat._43 = mat.m43;
+  d3dMat._44 = mat.m44;
+}
+
 void set_d3d_color_value(D3DCOLORVALUE& d3dColor, const Color color) {
   d3dColor.r = color.red();
   d3dColor.g = color.green();
@@ -172,8 +197,8 @@ D3D9Renderer::D3D9Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS
 D3D9Renderer::~D3D9Renderer() {
   ImGui_ImplDX9_Shutdown();
 
-  mTextures.for_each([](D3D9Texture& texture){
-    texture.texture->Release();
+  mTextures.for_each([](IDirect3DTexture9*& texture){
+    texture->Release();
   });
   mMeshes.for_each([](D3D9Mesh& mesh){
     mesh.vertexBuffer->Release();
@@ -251,7 +276,7 @@ auto D3D9Renderer::add_texture(const std::string_view filePath) -> TextureHandle
   }
 
   const auto [texHandle, tex] = mTextures.allocate();
-  tex.texture = texture;
+  tex = texture;
 
   return texHandle;
 }
@@ -259,8 +284,8 @@ auto D3D9Renderer::add_texture(const std::string_view filePath) -> TextureHandle
 void D3D9Renderer::remove_texture(const TextureHandle textureHandle) {
   auto& texture = mTextures.get(textureHandle);
 
-  texture.texture->Release();
-  texture.texture = nullptr;
+  texture->Release();
+  texture = nullptr;
 
   mTextures.deallocate(textureHandle);
 }
@@ -291,7 +316,7 @@ void D3D9Renderer::set_lights(const LightSetup& lights) {
   for (const auto& light : directionalLights) {
     D3DLIGHT9 d3dLight{};
     d3dLight.Type = D3DLIGHT_DIRECTIONAL;
-    d3dLight.Direction = *reinterpret_cast<const D3DVECTOR*>(&light.mDirection);
+    set_d3d_vector(d3dLight.Direction, light.mDirection);
     set_d3d_color_value(d3dLight.Diffuse, light.mDiffuseColor);
     set_d3d_color_value(d3dLight.Ambient, light.mAmbientColor);
 
@@ -334,13 +359,12 @@ void D3D9Renderer::render() {
   // on the success of BeginScene? -> Log error and/or throw exception
   D3D9CALL(mDevice->BeginScene());
 
-  D3D9CALL(mDevice->SetTransform(
-    D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&mCommandBuffer.view())
-  ));
-  D3D9CALL(mDevice->SetTransform(
-    D3DTS_PROJECTION,
-    reinterpret_cast<const D3DMATRIX*>(&mCommandBuffer.projection())
-  ));
+  D3DMATRIX transform {};
+  set_d3d_matrix(transform, mCommandBuffer.view());
+  D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &transform));
+
+  set_d3d_matrix(transform, mCommandBuffer.projection());
+  D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &transform));
 
   render_commands(mCommandBuffer);
 
@@ -387,7 +411,7 @@ void D3D9Renderer::render_commands(const RenderCommandBuffer& commands) {
 
     if (command.mTexture) {
       const auto& texture = mTextures.get(command.mTexture);
-      D3D9CALL(mDevice->SetTexture(0, texture.texture));
+      D3D9CALL(mDevice->SetTexture(0, texture));
     } else {
       D3D9CALL(mDevice->SetTexture(0, nullptr));
     }
@@ -398,9 +422,9 @@ void D3D9Renderer::render_commands(const RenderCommandBuffer& commands) {
     ));
     D3D9CALL(mDevice->SetFVF(mesh.fvf));
 
-    D3D9CALL(mDevice->SetTransform(
-      D3DTS_WORLDMATRIX(0), reinterpret_cast<const D3DMATRIX*>(&command.mWorld)
-    ));
+    D3DMATRIX transform {};
+    set_d3d_matrix(transform, command.mWorld);
+    D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &transform));
 
     D3D9CALL(mDevice->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
 
