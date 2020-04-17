@@ -47,16 +47,19 @@ struct Scene final {
   auto operator=(Scene&&) -> Scene& = delete;
 
   void display_entity_gui(entt::entity entity);
+  void display_debug_gui();
 
   auto get_entity_registry() -> entt::registry&;
 
-  void set_background_color(Color background);
-  auto get_background_color() const -> Color;
+  void set_background_color(const Color& background);
+  auto get_background_color() const -> const Color&;
 
   void set_camera(const gfx::Camera& camera);
   auto get_camera() const -> const gfx::Camera&;
 
 private:
+  void display_entity_gui_impl(entt::entity entity);
+
   entt::registry mEntityRegistry;
   Color mBackgroundColor {0.0f, 0.0f, 0.0f};
   gfx::Camera mCamera = {{}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}};

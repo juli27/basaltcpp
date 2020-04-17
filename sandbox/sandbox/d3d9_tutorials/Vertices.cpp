@@ -62,6 +62,7 @@ void Vertices::on_hide() {
 }
 
 void Vertices::on_update() {
+  mScene->display_debug_gui();
 }
 
 } // namespace d3d9_tuts

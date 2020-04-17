@@ -2,8 +2,9 @@
 
 #include "runtime/math/Constants.h"
 
-#include <entt/entity/registry.hpp>
 #include <imgui/imgui.h>
+
+#include <string>
 
 namespace basalt {
 
@@ -28,24 +29,34 @@ void TransformComponent::rotate(const f32 radOffsetX, const f32 radOffsetY
 Scene::Scene(const gfx::Camera& camera) : mCamera(camera) {}
 
 void Scene::display_entity_gui(const entt::entity entity) {
-  auto& transform = mEntityRegistry.get<TransformComponent>(entity);
   if (ImGui::Begin("Entity")) {
-    if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
-      f32 position[3] = {transform.mPosition.x(), transform.mPosition.y()
-                       , transform.mPosition.z()};
-      ImGui::DragFloat3("Position", position, 0.1f);
-      transform.mPosition.set(position[0], position[1], position[2]);
+    display_entity_gui_impl(entity);
+  }
 
-      f32 rotation[3] = {transform.mRotation.x(), transform.mRotation.y()
-                       , transform.mRotation.z()};
-      ImGui::DragFloat3("Rotation", rotation, 0.01f, 0.0f, 2.0f * math::PI);
-      transform.mRotation.set(rotation[0], rotation[1], rotation[2]);
+  ImGui::End();
+}
 
-      f32 scaling[3] = {transform.mScale.x(), transform.mScale.y()
-                      , transform.mScale.z()};
-      ImGui::DragFloat3("Scaling", scaling, 0.1f, 0.0f);
-      transform.mScale.set(scaling[0], scaling[1], scaling[2]);
-    }
+void Scene::display_debug_gui() {
+  using std::get;
+
+  if (ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+    std::array<float, 3> clearColor {};
+    get<0>(clearColor) = mBackgroundColor.red();
+    get<1>(clearColor) = mBackgroundColor.green();
+    get<2>(clearColor) = mBackgroundColor.blue();
+
+    ImGui::ColorEdit3(
+      "background color", clearColor.data(), ImGuiColorEditFlags_Float);
+
+    mBackgroundColor = Color {
+      get<0>(clearColor), get<1>(clearColor), get<2>(clearColor)
+    };
+
+    mEntityRegistry.each([this](const auto entity) {
+      if (ImGui::CollapsingHeader(std::to_string(static_cast<u32>(entity)).c_str())) {
+        display_entity_gui_impl(entity);
+      }
+    });
   }
 
   ImGui::End();
@@ -55,11 +66,11 @@ auto Scene::get_entity_registry() -> entt::registry& {
   return mEntityRegistry;
 }
 
-auto Scene::get_background_color() const -> Color {
+auto Scene::get_background_color() const -> const Color& {
   return mBackgroundColor;
 }
 
-void Scene::set_background_color(const Color background) {
+void Scene::set_background_color(const Color& background) {
   mBackgroundColor = background;
 }
 
@@ -69,6 +80,29 @@ void Scene::set_camera(const gfx::Camera& camera) {
 
 auto Scene::get_camera() const -> const gfx::Camera& {
   return mCamera;
+}
+
+void Scene::display_entity_gui_impl(entt::entity entity) {
+  auto& transform = mEntityRegistry.get<TransformComponent>(entity);
+
+  if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
+    f32 position[3] = {transform.mPosition.x(), transform.mPosition.y()
+                     , transform.mPosition.z()};
+    ImGui::DragFloat3("Position", position, 0.1f);
+    transform.mPosition.set(position[0], position[1], position[2]);
+
+    f32 rotation[3] = {transform.mRotation.x(), transform.mRotation.y()
+                     , transform.mRotation.z()};
+    ImGui::DragFloat3("Rotation", rotation, 0.01f, 0.0f, 2.0f * math::PI);
+    transform.mRotation.set(rotation[0], rotation[1], rotation[2]);
+
+    f32 scaling[3] = {transform.mScale.x(), transform.mScale.y()
+                    , transform.mScale.z()};
+    ImGui::DragFloat3("Scaling", scaling, 0.1f, 0.0f);
+    transform.mScale.set(scaling[0], scaling[1], scaling[2]);
+
+    ImGui::TreePop();
+  }
 }
 
 } // namespace basalt
