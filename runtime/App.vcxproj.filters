@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="runtime\platform\win32\D3D9GfxContext.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="runtime\platform\win32\main.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="runtime\platform\win32\Win32Platform.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="runtime\platform\win32\Win32Util.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="runtime\gfx\backend\d3d9\D3D9Renderer.cpp">
+      <Filter>gfx\backend\d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="runtime\shared\win32\Win32Shared.cpp">
+      <Filter>shared\win32</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="runtime\platform\win32\Win32Util.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\platform\win32\D3D9GfxContext.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\platform\win32\Globals.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\platform\win32\Win32KeyMap.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Header.h">
+      <Filter>gfx\backend\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Renderer.h">
+      <Filter>gfx\backend\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Util.h">
+      <Filter>gfx\backend\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\shared\win32\Win32APIHeader.h">
+      <Filter>shared\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\shared\win32\Win32SharedUtil.h">
+      <Filter>shared\win32</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="platform">
+      <UniqueIdentifier>{5c939b19-fd82-4ac7-87e4-061b733444e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform\win32">
+      <UniqueIdentifier>{d0c0cbe4-3d0b-423c-85b5-bc862bc88f1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gfx">
+      <UniqueIdentifier>{61f0a584-22b0-4463-a48b-856efeccd218}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gfx\backend">
+      <UniqueIdentifier>{1aa5dbd3-92ec-41fa-9815-c0ee7bc1a082}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gfx\backend\d3d9">
+      <UniqueIdentifier>{997b614f-a00f-4e31-9f0d-c78a448c90b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared">
+      <UniqueIdentifier>{7c76cdc2-0e39-4628-8c2f-402e1f43aaa0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\win32">
+      <UniqueIdentifier>{997bb90f-60df-4fd8-a0e2-c963b2747e42}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

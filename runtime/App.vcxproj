@@ -12,19 +12,20 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{5CD3BE49-51E3-4D4C-B3B7-47262FC53969}</ProjectGuid>
-    <RootNamespace>Runtime</RootNamespace>
+    <ProjectGuid>{3A793261-A377-48A0-974A-F26DA516E506}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>App</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
@@ -36,20 +37,27 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\sandbox\BasaltApp.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\sandbox\BasaltApp.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IntDir>$(SolutionDir)build\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(SolutionDir)build\vs2019_x86-64\</OutDir>
-    <TargetName>$(ProjectName)_Debug</TargetName>
+    <IntDir>$(SolutionDir)build\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>$(BasaltAppName)_Debug</TargetName>
+    <IncludePath>$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>$(SolutionDir)build\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(SolutionDir)build\vs2019_x86-64\</OutDir>
+    <IntDir>$(SolutionDir)build\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>$(BasaltAppName)</TargetName>
+    <IncludePath>$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -61,15 +69,17 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
       <StringPooling>true</StringPooling>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <AdditionalDependencies>d3d9.lib;d3dx9d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>LinkVerboseLib</ShowProgress>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -82,8 +92,8 @@
       <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <StringPooling>true</StringPooling>
-      <FloatingPointModel>Fast</FloatingPointModel>
       <ControlFlowGuard>Guard</ControlFlowGuard>
+      <FloatingPointModel>Fast</FloatingPointModel>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
     </ClCompile>
     <Link>
@@ -92,56 +102,42 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <AdditionalDependencies>d3d9.lib;d3dx9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>LinkVerboseLib</ShowProgress>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="runtime\Engine.cpp" />
-    <ClCompile Include="runtime\gfx\backend\Types.cpp" />
-    <ClCompile Include="runtime\gfx\Camera.cpp" />
-    <ClCompile Include="runtime\gfx\Gfx.cpp" />
-    <ClCompile Include="runtime\Input.cpp" />
-    <ClCompile Include="runtime\math\Mat4.cpp" />
-    <ClCompile Include="runtime\math\Vec2.cpp" />
-    <ClCompile Include="runtime\math\Vec3.cpp" />
-    <ClCompile Include="runtime\Scene.cpp" />
-    <ClCompile Include="runtime\shared\Asserts.cpp" />
-    <ClCompile Include="runtime\shared\Log.cpp" />
+    <ClCompile Include="runtime\gfx\backend\d3d9\D3D9Renderer.cpp" />
+    <ClCompile Include="runtime\platform\win32\D3D9GfxContext.cpp" />
+    <ClCompile Include="runtime\platform\win32\main.cpp" />
+    <ClCompile Include="runtime\platform\win32\Win32Platform.cpp" />
+    <ClCompile Include="runtime\platform\win32\Win32Util.cpp" />
+    <ClCompile Include="runtime\shared\win32\Win32Shared.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="runtime\Engine.h" />
-    <ClInclude Include="runtime\gfx\backend\IRenderer.h" />
-    <ClInclude Include="runtime\gfx\backend\RenderCommand.h" />
-    <ClInclude Include="runtime\gfx\backend\Types.h" />
-    <ClInclude Include="runtime\gfx\Camera.h" />
-    <ClInclude Include="runtime\gfx\Gfx.h" />
-    <ClInclude Include="runtime\gfx\RenderComponent.h" />
-    <ClInclude Include="runtime\IApplication.h" />
-    <ClInclude Include="runtime\Input.h" />
-    <ClInclude Include="runtime\math\Constants.h" />
-    <ClInclude Include="runtime\math\Mat4.h" />
-    <ClInclude Include="runtime\math\Vec2.h" />
-    <ClInclude Include="runtime\math\Vec3.h" />
-    <ClInclude Include="runtime\platform\events\Event.h" />
-    <ClInclude Include="runtime\platform\events\KeyEvents.h" />
-    <ClInclude Include="runtime\platform\events\MouseEvents.h" />
-    <ClInclude Include="runtime\platform\events\WindowEvents.h" />
-    <ClInclude Include="runtime\platform\IGfxContext.h" />
-    <ClInclude Include="runtime\platform\Platform.h" />
-    <ClInclude Include="runtime\Prelude.h" />
-    <ClInclude Include="runtime\Scene.h" />
-    <ClInclude Include="runtime\shared\Asserts.h" />
-    <ClInclude Include="runtime\shared\Color.h" />
-    <ClInclude Include="runtime\shared\Data.h" />
-    <ClInclude Include="runtime\shared\Config.h" />
-    <ClInclude Include="runtime\shared\Exceptions.h" />
-    <ClInclude Include="runtime\shared\Handle.h" />
-    <ClInclude Include="runtime\shared\HandlePool.h" />
-    <ClInclude Include="runtime\shared\Log.h" />
-    <ClInclude Include="runtime\shared\Types.h" />
-    <ClInclude Include="runtime\shared\Size2D.h" />
+    <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Header.h" />
+    <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Renderer.h" />
+    <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Util.h" />
+    <ClInclude Include="runtime\platform\win32\D3D9GfxContext.h" />
+    <ClInclude Include="runtime\platform\win32\Globals.h" />
+    <ClInclude Include="runtime\platform\win32\Win32KeyMap.h" />
+    <ClInclude Include="runtime\platform\win32\Win32Util.h" />
+    <ClInclude Include="runtime\shared\win32\Win32APIHeader.h" />
+    <ClInclude Include="runtime\shared\win32\Win32SharedUtil.h" />
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="..\sandbox\App.manifest" />
+    <ProjectReference Include="..\external\DearImGui\DearImGui.vcxproj">
+      <Project>{b1a92639-8420-47cc-8101-abb4f82d7649}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\external\Fmt\Fmt.vcxproj">
+      <Project>{dde86b7b-a6ab-47bf-b6d6-b8e9dd67ba12}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\sandbox\Sandbox.vcxproj">
+      <Project>{96c9ff62-adec-4083-b527-e83624317b4e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="Runtime.vcxproj">
+      <Project>{5cd3be49-51e3-4d4c-b3b7-47262fc53969}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
