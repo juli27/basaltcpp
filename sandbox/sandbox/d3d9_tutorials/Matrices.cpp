@@ -30,8 +30,7 @@ using basalt::gfx::RenderComponent;
 using basalt::gfx::backend::PrimitiveType;
 using basalt::gfx::backend::RenderFlagCullNone;
 using basalt::gfx::backend::RenderFlagDisableLighting;
-using basalt::gfx::backend::VertexElementType;
-using basalt::gfx::backend::VertexElementUsage;
+using basalt::gfx::backend::VertexElement;
 using basalt::gfx::backend::VertexLayout;
 
 namespace d3d9_tuts {
@@ -56,8 +55,7 @@ Matrices::Matrices() {
   };
 
   const VertexLayout vertexLayout = {
-    {VertexElementType::F32_3, VertexElementUsage::Position}
-  , {VertexElementType::U32_1, VertexElementUsage::ColorDiffuse}
+    VertexElement::Position3F32, VertexElement::ColorDiffuse1U32
   };
 
   auto& entityRegistry = mScene->get_entity_registry();

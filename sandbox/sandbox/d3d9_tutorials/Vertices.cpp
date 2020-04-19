@@ -19,8 +19,7 @@ using std::array;
 using basalt::TransformComponent;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::backend::PrimitiveType;
-using basalt::gfx::backend::VertexElementType;
-using basalt::gfx::backend::VertexElementUsage;
+using basalt::gfx::backend::VertexElement;
 using basalt::gfx::backend::VertexLayout;
 
 namespace d3d9_tuts {
@@ -40,8 +39,7 @@ Vertices::Vertices() {
   };
 
   const VertexLayout vertexLayout {
-    {VertexElementType::F32_4, VertexElementUsage::PositionTransformed},
-    {VertexElementType::U32_1, VertexElementUsage::ColorDiffuse}
+    VertexElement::PositionTransformed4F32, VertexElement::ColorDiffuse1U32
   };
 
   auto& entityRegistry = mScene->get_entity_registry();

@@ -29,8 +29,7 @@ using basalt::gfx::RenderComponent;
 using basalt::gfx::backend::LightSetup;
 using basalt::gfx::backend::PrimitiveType;
 using basalt::gfx::backend::RenderFlagCullNone;
-using basalt::gfx::backend::VertexElementType;
-using basalt::gfx::backend::VertexElementUsage;
+using basalt::gfx::backend::VertexElement;
 using basalt::gfx::backend::VertexLayout;
 
 namespace d3d9_tuts {
@@ -59,9 +58,8 @@ Lights::Lights() {
     vertices[2 * i + 1].normal = {sinTheta, 0.0f, cosTheta};
   }
 
-  const VertexLayout vertexLayout{
-    {VertexElementType::F32_3, VertexElementUsage::Position}
-  , {VertexElementType::F32_3, VertexElementUsage::Normal}
+  const VertexLayout vertexLayout {
+    VertexElement::Position3F32, VertexElement::Normal3F32
   };
 
   auto& entityRegistry = mScene->get_entity_registry();

@@ -14,7 +14,7 @@ struct Pixels final {
   [[nodiscard]]
   static constexpr auto pack_logical_a8_r8_g8_b8(
     const u8 red, const u8 green, const u8 blue, const u8 alpha = 255
-  ) -> A8R8G8B8 {
+  ) noexcept -> A8R8G8B8 {
     u32 pixel {static_cast<u32>(alpha) << 24};
     pixel |= static_cast<u32>(red) << 16;
     pixel |= static_cast<u32>(green) << 8;

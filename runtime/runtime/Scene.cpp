@@ -4,7 +4,8 @@
 
 #include <imgui/imgui.h>
 
-#include <string>
+#include <array>
+#include <charconv>
 
 namespace basalt {
 
@@ -53,7 +54,9 @@ void Scene::display_debug_gui() {
     };
 
     mEntityRegistry.each([this](const auto entity) {
-      if (ImGui::CollapsingHeader(std::to_string(static_cast<u32>(entity)).c_str())) {
+      std::array<char, 16> str {};
+      std::to_chars(str.data(), str.data() + str.size(), static_cast<u32>(entity));
+      if (ImGui::CollapsingHeader(str.data())) {
         display_entity_gui_impl(entity);
       }
     });

@@ -13,9 +13,9 @@
 namespace basalt::gfx::backend {
 
 enum RenderFlags : u8 {
-  RenderFlagNone = 0,
-  RenderFlagCullNone = 1,
-  RenderFlagDisableLighting = 1 << 1
+  RenderFlagNone = 0x0,
+  RenderFlagCullNone = 0x1,
+  RenderFlagDisableLighting = 0x2
 };
 
 
