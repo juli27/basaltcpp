@@ -10,7 +10,9 @@
 namespace basalt::input {
 
 using platform::Key;
+using platform::KEY_COUNT;
 using platform::MouseButton;
+using platform::MOUSE_BUTTON_COUNT;
 
 void init();
 

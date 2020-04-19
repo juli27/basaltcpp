@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <type_traits>
 
 namespace basalt {
 
@@ -61,6 +62,17 @@ using f32 = float;
  * \brief 64 bit floating point type.
  */
 using f64 = double;
+
+template <typename E, std::enable_if_t<!std::is_enum_v<E>, int> = 0>
+constexpr auto enum_cast(const E) {
+  static_assert(false, "not an enum type");
+  return 0u;
+}
+
+template <typename E, std::enable_if_t<std::is_enum_v<E>, int> = 0>
+constexpr auto enum_cast(const E e) {
+  return static_cast<std::underlying_type_t<E>>(e);
+}
 
 } // namespace basalt
 

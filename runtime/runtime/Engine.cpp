@@ -55,37 +55,37 @@ void init_dear_imgui() {
   ImGui::CreateContext();
 
   auto& imguiIo = ImGui::GetIO();
-  imguiIo.KeyMap[ImGuiKey_Tab] = static_cast<i8>(Key::Tab);
-  imguiIo.KeyMap[ImGuiKey_LeftArrow] = static_cast<i8>(Key::LeftArrow);
-  imguiIo.KeyMap[ImGuiKey_RightArrow] = static_cast<i8>(Key::RightArrow);
-  imguiIo.KeyMap[ImGuiKey_UpArrow] = static_cast<i8>(Key::UpArrow);
-  imguiIo.KeyMap[ImGuiKey_DownArrow] = static_cast<i8>(Key::DownArrow);
-  imguiIo.KeyMap[ImGuiKey_PageUp] = static_cast<i8>(Key::PageUp);
-  imguiIo.KeyMap[ImGuiKey_PageDown] = static_cast<i8>(Key::PageDown);
-  imguiIo.KeyMap[ImGuiKey_Home] = static_cast<i8>(Key::Home);
-  imguiIo.KeyMap[ImGuiKey_End] = static_cast<i8>(Key::End);
-  imguiIo.KeyMap[ImGuiKey_Insert] = static_cast<i8>(Key::Insert);
-  imguiIo.KeyMap[ImGuiKey_Delete] = static_cast<i8>(Key::Delete);
-  imguiIo.KeyMap[ImGuiKey_Backspace] = static_cast<i8>(Key::Backspace);
-  imguiIo.KeyMap[ImGuiKey_Space] = static_cast<i8>(Key::Space);
-  imguiIo.KeyMap[ImGuiKey_Enter] = static_cast<i8>(Key::Enter);
-  imguiIo.KeyMap[ImGuiKey_Escape] = static_cast<i8>(Key::Escape);
-  imguiIo.KeyMap[ImGuiKey_KeyPadEnter] = static_cast<i8>(Key::NumpadEnter);
-  imguiIo.KeyMap[ImGuiKey_A] = static_cast<i8>(Key::A);
-  imguiIo.KeyMap[ImGuiKey_C] = static_cast<i8>(Key::C);
-  imguiIo.KeyMap[ImGuiKey_V] = static_cast<i8>(Key::V);
-  imguiIo.KeyMap[ImGuiKey_X] = static_cast<i8>(Key::X);
-  imguiIo.KeyMap[ImGuiKey_Y] = static_cast<i8>(Key::Y);
-  imguiIo.KeyMap[ImGuiKey_Z] = static_cast<i8>(Key::Z);
+  imguiIo.KeyMap[ImGuiKey_Tab] = enum_cast(Key::Tab);
+  imguiIo.KeyMap[ImGuiKey_LeftArrow] = enum_cast(Key::LeftArrow);
+  imguiIo.KeyMap[ImGuiKey_RightArrow] = enum_cast(Key::RightArrow);
+  imguiIo.KeyMap[ImGuiKey_UpArrow] = enum_cast(Key::UpArrow);
+  imguiIo.KeyMap[ImGuiKey_DownArrow] = enum_cast(Key::DownArrow);
+  imguiIo.KeyMap[ImGuiKey_PageUp] = enum_cast(Key::PageUp);
+  imguiIo.KeyMap[ImGuiKey_PageDown] = enum_cast(Key::PageDown);
+  imguiIo.KeyMap[ImGuiKey_Home] = enum_cast(Key::Home);
+  imguiIo.KeyMap[ImGuiKey_End] = enum_cast(Key::End);
+  imguiIo.KeyMap[ImGuiKey_Insert] = enum_cast(Key::Insert);
+  imguiIo.KeyMap[ImGuiKey_Delete] = enum_cast(Key::Delete);
+  imguiIo.KeyMap[ImGuiKey_Backspace] = enum_cast(Key::Backspace);
+  imguiIo.KeyMap[ImGuiKey_Space] = enum_cast(Key::Space);
+  imguiIo.KeyMap[ImGuiKey_Enter] = enum_cast(Key::Enter);
+  imguiIo.KeyMap[ImGuiKey_Escape] = enum_cast(Key::Escape);
+  imguiIo.KeyMap[ImGuiKey_KeyPadEnter] = enum_cast(Key::NumpadEnter);
+  imguiIo.KeyMap[ImGuiKey_A] = enum_cast(Key::A);
+  imguiIo.KeyMap[ImGuiKey_C] = enum_cast(Key::C);
+  imguiIo.KeyMap[ImGuiKey_V] = enum_cast(Key::V);
+  imguiIo.KeyMap[ImGuiKey_X] = enum_cast(Key::X);
+  imguiIo.KeyMap[ImGuiKey_Y] = enum_cast(Key::Y);
+  imguiIo.KeyMap[ImGuiKey_Z] = enum_cast(Key::Z);
 
   platform::add_event_listener([](const Event& e) {
     const EventDispatcher dispatcher(e);
     auto& io = ImGui::GetIO();
     dispatcher.dispatch<KeyPressedEvent>([&](const KeyPressedEvent& event) {
-      io.KeysDown[static_cast<i8>(event.mKey)] = true;
+      io.KeysDown[enum_cast(event.mKey)] = true;
     });
     dispatcher.dispatch<KeyReleasedEvent>([&](const KeyReleasedEvent& event) {
-      io.KeysDown[static_cast<i8>(event.mKey)] = false;
+      io.KeysDown[enum_cast(event.mKey)] = false;
     });
     dispatcher.dispatch<CharactersTyped>([&](const CharactersTyped& event) {
       io.AddInputCharactersUTF8(event.mChars.c_str());

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - support for the vertical mouse wheel (MouseScrolledEvent)
 - Dear ImGui
 - CMake build support for Windows x86-64
+- enum_cast: cast an enumerator to its value of the underlying type
 - Sandbox
   - D3D9 Tutorial 1: Creating a Device
 

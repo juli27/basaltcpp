@@ -11,7 +11,7 @@
 
 namespace basalt::platform {
 
-enum class Key : i8 {
+enum class Key : u8 {
   Unknown = 0,
   F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
   Escape, Tab, CapsLock, Shift, Control, Alt, Super,
@@ -30,9 +30,9 @@ enum class Key : i8 {
   Minus,
   Comma, Period,
   Oem1, Oem2, Oem3, Oem4, Oem5, Oem6, Oem7, Oem8, Oem9,
-
-  NumberOfKeys
 };
+
+constexpr uSize KEY_COUNT = 103u;
 
 
 struct KeyPressedEvent : EventTyped<EventType::KeyPressed> {

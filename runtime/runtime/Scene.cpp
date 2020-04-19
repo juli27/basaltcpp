@@ -55,7 +55,7 @@ void Scene::display_debug_gui() {
 
     mEntityRegistry.each([this](const auto entity) {
       std::array<char, 16> str {};
-      std::to_chars(str.data(), str.data() + str.size(), static_cast<u32>(entity));
+      std::to_chars(str.data(), str.data() + str.size(), enum_cast(entity));
       if (ImGui::CollapsingHeader(str.data())) {
         display_entity_gui_impl(entity);
       }

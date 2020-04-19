@@ -9,12 +9,12 @@
 
 namespace basalt::platform {
 
-enum class MouseButton : i8 {
+enum class MouseButton : u8 {
   Unknown = 0,
   Left, Right, Middle, Button4, Button5,
-
-  NumberOfButtons
 };
+
+constexpr uSize MOUSE_BUTTON_COUNT = 6u;
 
 
 struct MouseMovedEvent : EventTyped<EventType::MouseMoved> {

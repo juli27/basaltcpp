@@ -6,7 +6,7 @@
 
 namespace basalt::platform {
 
-enum class EventType : i8 {
+enum class EventType : u8 {
   Unknown = 0,
   Quit,
   WindowCloseRequest,
