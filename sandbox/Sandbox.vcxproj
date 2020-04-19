@@ -50,7 +50,7 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>$(ProjectName)_Debug</TargetName>
+    <TargetName>$(ProjectName)Lib_debug</TargetName>
     <OutDir>$(SolutionDir)build\vs2019_x86-64\</OutDir>
     <IntDir>$(SolutionDir)build\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
@@ -58,12 +58,13 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)build\vs2019_x86-64\</OutDir>
     <IntDir>$(SolutionDir)build\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>$(ProjectName)Lib</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)build\vs2019_x86-64\</OutDir>
     <IntDir>$(SolutionDir)build\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>$(ProjectName)_release</TargetName>
+    <TargetName>$(ProjectName)Lib_release</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -104,13 +105,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <StringPooling>true</StringPooling>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)runtime;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
       <AdditionalOptions>/w44062 /w34191 %(AdditionalOptions)</AdditionalOptions>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -138,7 +139,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <StringPooling>true</StringPooling>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <LanguageStandard>stdcpp17</LanguageStandard>
