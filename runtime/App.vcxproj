@@ -153,6 +153,7 @@
     <ClCompile Include="runtime\gfx\backend\d3d9\D3D9Renderer.cpp" />
     <ClCompile Include="runtime\platform\win32\D3D9GfxContext.cpp" />
     <ClCompile Include="runtime\platform\win32\main.cpp" />
+    <ClCompile Include="runtime\platform\win32\Messages.cpp" />
     <ClCompile Include="runtime\platform\win32\Win32Platform.cpp" />
     <ClCompile Include="runtime\platform\win32\Win32Util.cpp" />
     <ClCompile Include="runtime\shared\win32\Win32Shared.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Util.h" />
     <ClInclude Include="runtime\platform\win32\D3D9GfxContext.h" />
     <ClInclude Include="runtime\platform\win32\Globals.h" />
+    <ClInclude Include="runtime\platform\win32\Messages.h" />
     <ClInclude Include="runtime\platform\win32\Win32KeyMap.h" />
     <ClInclude Include="runtime\platform\win32\Win32Util.h" />
     <ClInclude Include="runtime\shared\win32\Win32APIHeader.h" />

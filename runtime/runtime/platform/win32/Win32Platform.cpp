@@ -2,6 +2,8 @@
 #include "Win32KeyMap.h"
 #include "Win32Util.h"
 
+#include "runtime/platform/win32/Messages.h"
+
 #include "runtime/platform/Platform.h"
 
 #include "runtime/platform/events/Event.h"
@@ -47,22 +49,22 @@ namespace {
 
 struct WindowData final {
   WindowData() noexcept = default;
-  WindowData(const WindowData&) noexcept = default;
+  WindowData(const WindowData&) noexcept = delete;
   WindowData(WindowData&&) noexcept = default;
   ~WindowData() noexcept = default;
 
-  auto operator=(const WindowData&) noexcept -> WindowData& = default;
+  auto operator=(const WindowData&) noexcept -> WindowData& = delete;
   auto operator=(WindowData&&) noexcept -> WindowData& = default;
 
-  HWND mHandle = nullptr;
-  IGfxContext* mGfxContext = nullptr;
+  HWND handle = nullptr;
+  IGfxContext* gfxContext = nullptr;
   //i32 mClientAreaWidth = 0;
   //i32 mClientAreaHeight = 0;
-  Size2Du16 mClientAreaSize = Size2Du16::dont_care();
-  WindowMode mMode = WindowMode::Windowed;
-  bool mIsResizeable = false;
-  bool mIsMinimized = false;
-  bool mIsSizing = false;
+  Size2Du16 clientAreaSize = Size2Du16::dont_care();
+  WindowMode mode = WindowMode::Windowed;
+  bool isResizeable = false;
+  bool isMinimized = false;
+  bool isSizing = false;
 };
 
 
@@ -88,9 +90,9 @@ void startup(const Config& config) {
 }
 
 void shutdown() {
-  if (sWindowData.mHandle) {
-    ::DestroyWindow(sWindowData.mHandle);
-    sWindowData.mHandle = nullptr;
+  if (sWindowData.handle) {
+    ::DestroyWindow(sWindowData.handle);
+    sWindowData.handle = nullptr;
   }
 
   if (!::UnregisterClassW(
@@ -158,11 +160,11 @@ auto get_name() -> std::string_view {
 }
 
 auto get_window_size() -> Size2Du16 {
-  return sWindowData.mClientAreaSize;
+  return sWindowData.clientAreaSize;
 }
 
 auto get_window_mode() -> WindowMode {
-  return sWindowData.mMode;
+  return sWindowData.mode;
 }
 
 void set_window_mode(const WindowMode windowMode) {
@@ -178,15 +180,15 @@ void set_window_mode(const WindowMode windowMode) {
 }
 
 auto get_window_gfx_context() -> IGfxContext* {
-  BASALT_ASSERT(sWindowData.mGfxContext, "no gfx context present");
+  BASALT_ASSERT(sWindowData.gfxContext, "no gfx context present");
 
-  return sWindowData.mGfxContext;
+  return sWindowData.gfxContext;
 }
 
 namespace {
 
 void register_window_class() {
-  const auto cursor = static_cast<HCURSOR>(::LoadImageW(
+  auto* const cursor = static_cast<HCURSOR>(::LoadImageW(
     nullptr, MAKEINTRESOURCEW(OCR_NORMAL), IMAGE_CURSOR, 0, 0,
     LR_DEFAULTSIZE | LR_SHARED
   ));
@@ -203,7 +205,7 @@ void register_window_class() {
     sInstance,
     nullptr, // hIcon
     cursor,
-    nullptr, // hbrBackground
+    reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1),
     nullptr, // lpszMenuName
     WINDOW_CLASS_NAME.data(),
     nullptr // hIconSm
@@ -220,16 +222,16 @@ void register_window_class() {
 void create_main_window(const Config& config) {
   register_window_class();
 
-  sWindowData.mClientAreaSize = config.windowSize;
-  sWindowData.mMode = config.windowMode;
-  sWindowData.mIsResizeable = config.isWindowResizeable;
+  sWindowData.clientAreaSize = config.windowSize;
+  sWindowData.mode = config.windowMode;
+  sWindowData.isResizeable = config.isWindowResizeable;
 
   // handle don't care cases
-  if (sWindowData.mClientAreaSize.width() == 0) {
-    sWindowData.mClientAreaSize.set_width(1280);
+  if (sWindowData.clientAreaSize.width() == 0) {
+    sWindowData.clientAreaSize.set_width(1280);
   }
-  if (sWindowData.mClientAreaSize.height() == 0) {
-    sWindowData.mClientAreaSize.set_height(720);
+  if (sWindowData.clientAreaSize.height() == 0) {
+    sWindowData.clientAreaSize.set_height(720);
   }
 
   DWORD style = 0u;
@@ -251,7 +253,7 @@ void create_main_window(const Config& config) {
   if (config.windowMode == WindowMode::Windowed) {
     // calculate the window size for the given client area size
     // and center the window on the primary monitor
-    RECT rect{0, 0, sWindowData.mClientAreaSize.width(), sWindowData.mClientAreaSize.height()};
+    RECT rect{0, 0, sWindowData.clientAreaSize.width(), sWindowData.clientAreaSize.height()};
     if (!::AdjustWindowRectEx(&rect, style, FALSE, styleEx)) {
       throw system_error(::GetLastError(), std::system_category());
     }
@@ -261,18 +263,18 @@ void create_main_window(const Config& config) {
   }
 
   const auto windowTitle = create_wide_from_utf8(config.appName);
-  sWindowData.mHandle = ::CreateWindowExW(
+  sWindowData.handle = ::CreateWindowExW(
     styleEx, WINDOW_CLASS_NAME.data(), windowTitle.c_str(), style,
     CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, nullptr, nullptr,
     sInstance, nullptr
   );
-  if (!sWindowData.mHandle) {
+  if (!sWindowData.handle) {
     throw runtime_error("failed to create window");
   }
 
-  ::ShowWindow(sWindowData.mHandle, sShowCommand);
+  ::ShowWindow(sWindowData.handle, sShowCommand);
 
-  sWindowData.mGfxContext = new D3D9GfxContext(sWindowData.mHandle);
+  sWindowData.gfxContext = new D3D9GfxContext(sWindowData.handle);
 }
 
 void dispatch_platform_event(const Event& event) {
@@ -287,6 +289,8 @@ void dispatch_platform_event(const Event& event) {
 auto CALLBACK window_proc(
   HWND window, const UINT message, const WPARAM wParam, const LPARAM lParam
 ) -> LRESULT {
+  //BASALT_LOG_TRACE("received message: {}", message_to_string(message, wParam, lParam));
+
   switch (message) {
   case WM_MOUSEMOVE:
     dispatch_platform_event(
@@ -387,72 +391,81 @@ auto CALLBACK window_proc(
     return 0;
   }
 
-  case WM_SETFOCUS:
-    return 0;
-
   case WM_KILLFOCUS:
-    if (sWindowData.mMode != WindowMode::Windowed) {
-      ::ShowWindow(sWindowData.mHandle, SW_MINIMIZE);
+    // TODO: move somewhere else?
+    if (sWindowData.mode != WindowMode::Windowed) {
+      ::ShowWindow(sWindowData.handle, SW_MINIMIZE);
     }
-    return 0;
+    break;
 
   case WM_ENTERSIZEMOVE:
-    sWindowData.mIsSizing = true;
+    sWindowData.isSizing = true;
     return 0;
 
   case WM_EXITSIZEMOVE:
-    sWindowData.mIsSizing = false;
+    sWindowData.isSizing = false;
     sPendingEvents.push_back(
-      std::make_shared<WindowResizedEvent>(sWindowData.mClientAreaSize)
+      std::make_shared<WindowResizedEvent>(sWindowData.clientAreaSize)
     );
     return 0;
 
   case WM_SIZE:
     switch (wParam) {
-    case SIZE_MINIMIZED:
-      sWindowData.mIsMinimized = true;
-      sPendingEvents.push_back(std::make_shared<WindowMinimizedEvent>());
-      return 0;
     case SIZE_RESTORED:
-      if (sWindowData.mIsMinimized) {
-        sWindowData.mIsMinimized = false;
+      if (sWindowData.isMinimized) {
+        sWindowData.isMinimized = false;
         sPendingEvents.push_back(std::make_shared<WindowRestoredEvent>());
       }
-      if (!sWindowData.mIsSizing) {
-        if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam)); sWindowData.mClientAreaSize != newSize) {
-          sWindowData.mClientAreaSize = newSize;
+      if (!sWindowData.isSizing) {
+        if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam));
+          sWindowData.clientAreaSize != newSize) {
+          sWindowData.clientAreaSize = newSize;
 
-          sPendingEvents.push_back(std::make_shared<WindowResizedEvent>(
-            sWindowData.mClientAreaSize));
+          sPendingEvents.push_back(
+            std::make_shared<WindowResizedEvent>(
+              sWindowData.clientAreaSize));
         }
       }
+      break;
 
-      return 0;
+    case SIZE_MINIMIZED:
+      sWindowData.isMinimized = true;
+      sPendingEvents.push_back(std::make_shared<WindowMinimizedEvent>());
+      break;
+
     case SIZE_MAXIMIZED:
-      sWindowData.mClientAreaSize = {LOWORD(lParam), HIWORD(lParam)};
-      sPendingEvents.push_back(
-        std::make_shared<WindowResizedEvent>(sWindowData.mClientAreaSize)
-      );
-      return 0;
+      if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam));
+        sWindowData.clientAreaSize != newSize) {
+        sWindowData.clientAreaSize = {LOWORD(lParam), HIWORD(lParam)};
+        sPendingEvents.push_back(
+          std::make_shared<WindowResizedEvent>(sWindowData.clientAreaSize)
+        );
+      }
+      break;
 
     default:
-      return 0;
+      break;
     }
+
+    break;
 
   case WM_CLOSE:
     sPendingEvents.push_back(std::make_shared<WindowCloseRequestEvent>());
+    // DefWindowProc would destroy the window
     return 0;
 
   case WM_DESTROY:
-    delete sWindowData.mGfxContext;
-    sWindowData.mGfxContext = nullptr;
-    sWindowData.mHandle = nullptr;
+    delete sWindowData.gfxContext;
+    sWindowData.gfxContext = nullptr;
+    sWindowData.handle = nullptr;
     ::PostQuitMessage(0);
-    return 0;
+    break;
 
   default:
-    return ::DefWindowProcW(window, message, wParam, lParam);
+    break;
   }
+
+  return ::DefWindowProcW(window, message, wParam, lParam);
 }
 
 } // namespace

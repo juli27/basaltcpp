@@ -19,6 +19,9 @@
     <ClCompile Include="runtime\shared\win32\Win32Shared.cpp">
       <Filter>shared\win32</Filter>
     </ClCompile>
+    <ClCompile Include="runtime\platform\win32\Messages.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="runtime\platform\win32\Win32Util.h">
@@ -47,6 +50,9 @@
     </ClInclude>
     <ClInclude Include="runtime\shared\win32\Win32SharedUtil.h">
       <Filter>shared\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\platform\win32\Messages.h">
+      <Filter>platform\win32</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
