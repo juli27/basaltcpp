@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - HandlePool to allocate and reuse memory slots accessed via a handle
 - math::Mat4::Rotation(Vec3) and math::Mat4::Scale(Vec3)
 - support for the vertical mouse wheel (MouseScrolledEvent)
+- enum_cast: cast an enumerator to its value of the underlying type
+- ColorEncoding
 - Dear ImGui
 - CMake build support for Windows x86-64
-- enum_cast: cast an enumerator to its value of the underlying type
 - Sandbox
   - D3D9 Tutorial 1: Creating a Device
 

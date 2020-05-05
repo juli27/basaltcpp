@@ -6,7 +6,6 @@
 * turn the platform projects into executables which statically link the
   application project ([#9](https://github.com/juli27/basaltcpp/issues/9))
 * CMake build support ([#10](https://github.com/juli27/basaltcpp/issues/10))
-* GLFW backend ([#11](https://github.com/juli27/basaltcpp/issues/11))
 
 ## v0.4.0
 * First draft of the architecture
@@ -15,14 +14,18 @@
 * Support creation of third party client apps
   * Easy setup of the project files
   * location of the client app source: in or out of tree
-    * installation of the engine (CMake) ? 
+    * installation of the engine (CMake) ?
 
 ## v0.5.0
 * OpenGL 1.0 renderer
+
+## 0.6.0
+* GLFW backend ([#11](https://github.com/juli27/basaltcpp/issues/11))
+  * Windows + OpenGL renderer
+  * Linux + OpenGL renderer
 * Linux x86-64 support
   * CMake support
   * GCC and libstdc++
-  * using the GLFW backend
 
 ## Unscheduled
 * turn /permissive- back on
