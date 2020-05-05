@@ -22,7 +22,4 @@ if (!!(b)) { \
   ::basalt::fail_assert(#b, msg, __FILE__, __LINE__, BASALT_FUNCTION_SIGNATURE); \
 }
 
-#define BASALT_ASSERT_ARG_NOT_NULL(arg) \
-  BASALT_ASSERT(arg, #arg " can't be null\n(Function: " __FUNCTION__ ")")
-
 #endif  // !BASALT_SHARED_ASSERTS_H

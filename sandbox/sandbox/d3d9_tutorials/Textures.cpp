@@ -44,7 +44,7 @@ Textures::Textures() {
 
   struct Vertex final {
     Vec3f32 pos;
-    Pixels::A8R8G8B8 color = Pixels::pack_logical_a8_r8_g8_b8(0, 0, 0);
+    ColorEncoding::A8R8G8B8 color = ColorEncoding::pack_logical_a8r8g8b8(0, 0, 0);
     Vec2f32 texCoords;
   };
 
@@ -56,11 +56,11 @@ Textures::Textures() {
     const auto cosTheta = std::cosf(theta);
 
     vertices[2 * i].pos = {sinTheta, -1.0f, cosTheta};
-    vertices[2 * i].color = Pixels::pack_logical_a8_r8_g8_b8(255, 255, 255);
+    vertices[2 * i].color = ColorEncoding::pack_logical_a8r8g8b8(255, 255, 255);
     vertices[2 * i].texCoords = {i / (50.0f - 1), 1.0f};
 
     vertices[2 * i + 1].pos = {sinTheta, 1.0f, cosTheta};
-    vertices[2 * i + 1].color = Pixels::pack_logical_a8_r8_g8_b8(128, 128, 128);
+    vertices[2 * i + 1].color = ColorEncoding::pack_logical_a8r8g8b8(128, 128, 128);
     vertices[2 * i + 1].texCoords = {i / (50.0f - 1), 0.0f};
   }
 

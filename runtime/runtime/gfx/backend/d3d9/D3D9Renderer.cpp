@@ -139,7 +139,7 @@ auto D3D9Renderer::add_mesh(
   void* data, const i32 numVertices, const VertexLayout& layout,
   const PrimitiveType primitiveType
 ) -> MeshHandle {
-  BASALT_ASSERT_ARG_NOT_NULL(data);
+  BASALT_ASSERT(data, "");
   BASALT_ASSERT(numVertices > 0, "numVertices must be > 0");
   BASALT_ASSERT(!layout.empty(), "must specify a vertex layout");
 
@@ -331,9 +331,6 @@ void D3D9Renderer::render_commands(const RenderCommandBuffer& commands) {
     }
 
     const D3D9Mesh& mesh = mMeshes.get(command.mMesh);
-    D3DVERTEXBUFFER_DESC desc{};
-    D3D9CALL(mesh.vertexBuffer->GetDesc(&desc));
-    BASALT_ASSERT(desc.FVF == mesh.fvf, "");
     D3D9CALL(mDevice->SetStreamSource(
       0u, mesh.vertexBuffer, 0u, mesh.vertexSize
     ));

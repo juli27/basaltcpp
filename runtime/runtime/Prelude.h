@@ -19,6 +19,6 @@ using basalt::f32;
 using basalt::f64;
 
 using basalt::Color;
-using basalt::Pixels;
+using basalt::ColorEncoding;
 
 #endif // BASALT_PRELUDE_H

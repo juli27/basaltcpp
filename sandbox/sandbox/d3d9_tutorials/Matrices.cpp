@@ -45,13 +45,13 @@ Matrices::Matrices() {
 
   struct Vertex final {
     f32 x, y, z;
-    Pixels::A8R8G8B8 color;
+    ColorEncoding::A8R8G8B8 color;
   };
 
   array<Vertex, 3u> vertices {
-    Vertex {-1.0f, -1.0f, 0.0f, Pixels::pack_logical_a8_r8_g8_b8(255, 0, 0)}
-  , Vertex {1.0f, -1.0f, 0.0f, Pixels::pack_logical_a8_r8_g8_b8(0, 0, 255)}
-  , Vertex {0.0f, 1.0f, 0.0f, Pixels::pack_logical_a8_r8_g8_b8(255, 255, 255)}
+    Vertex {-1.0f, -1.0f, 0.0f, ColorEncoding::pack_logical_a8r8g8b8(255, 0, 0)}
+  , Vertex {1.0f, -1.0f, 0.0f, ColorEncoding::pack_logical_a8r8g8b8(0, 0, 255)}
+  , Vertex {0.0f, 1.0f, 0.0f, ColorEncoding::pack_logical_a8r8g8b8(255, 255, 255)}
   };
 
   const VertexLayout vertexLayout = {

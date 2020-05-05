@@ -25,13 +25,13 @@ struct Color final {
 
   // ARGB word-order
   [[nodiscard]]
-  constexpr auto to_argb() const noexcept -> Pixels::A8R8G8B8 {
+  constexpr auto to_argb() const noexcept -> ColorEncoding::A8R8G8B8 {
     const auto red = static_cast<u8>(mRed * 255.0f);
     const auto green = static_cast<u8>(mGreen * 255.0f);
     const auto blue = static_cast<u8>(mBlue * 255.0f);
     const auto alpha = static_cast<u8>(mAlpha * 255.0f);
 
-    return Pixels::pack_logical_a8_r8_g8_b8(red, green, blue, alpha);
+    return ColorEncoding::pack_logical_a8r8g8b8(red, green, blue, alpha);
   }
 
   [[nodiscard]]
@@ -66,7 +66,7 @@ struct Color final {
 
   // ARGB word order
   [[nodiscard]]
-  static constexpr auto from(const Pixels::A8R8G8B8 argb) noexcept -> Color {
+  static constexpr auto from(const ColorEncoding::A8R8G8B8 argb) noexcept -> Color {
     const auto data = static_cast<u32>(argb);
     const auto a = static_cast<u8>(data);
     const auto r = static_cast<u8>(data >> 8);

@@ -29,13 +29,21 @@ Vertices::Vertices() {
 
   struct Vertex final {
     f32 x, y, z, rhw;
-    Pixels::A8R8G8B8 color;
+    ColorEncoding::A8R8G8B8 color;
   };
 
   array<Vertex, 3u> vertices {
-    Vertex {150.0f, 50.0f, 0.5f, 1.0f, Pixels::pack_logical_a8_r8_g8_b8(255, 0, 0)},
-    Vertex {250.0f, 250.0f, 0.5f, 1.0f, Pixels::pack_logical_a8_r8_g8_b8(0, 255, 0)},
-    Vertex {50.0f, 250.0f, 0.5f, 1.0f, Pixels::pack_logical_a8_r8_g8_b8(0, 255, 255)}
+    Vertex {
+      150.0f, 50.0f, 0.5f, 1.0f, ColorEncoding::pack_logical_a8r8g8b8(255, 0, 0)
+    }
+  , Vertex {
+      250.0f, 250.0f, 0.5f, 1.0f
+    , ColorEncoding::pack_logical_a8r8g8b8(0, 255, 0)
+    }
+  , Vertex {
+      50.0f, 250.0f, 0.5f, 1.0f
+    , ColorEncoding::pack_logical_a8r8g8b8(0, 255, 255)
+    }
   };
 
   const VertexLayout vertexLayout {
@@ -43,10 +51,9 @@ Vertices::Vertices() {
   };
 
   auto& entityRegistry = mScene->get_entity_registry();
-  const auto triangleEntity = entityRegistry.create<
-    TransformComponent, RenderComponent>();
+  const auto triangleEntity = entityRegistry.create<RenderComponent>();
 
-  std::get<2>(triangleEntity).mMesh = basalt::get_renderer()->add_mesh(
+  std::get<1>(triangleEntity).mMesh = basalt::get_renderer()->add_mesh(
     vertices.data(), static_cast<i32>(vertices.size()), vertexLayout,
     PrimitiveType::TriangleList
   );

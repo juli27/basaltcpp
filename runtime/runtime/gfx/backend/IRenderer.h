@@ -25,8 +25,6 @@ namespace basalt::gfx::backend {
 struct RenderCommand;
 
 struct IRenderer {
-  IRenderer() = default;
-
   IRenderer(const IRenderer&) = delete;
   IRenderer(IRenderer&&) = delete;
 
@@ -107,6 +105,9 @@ struct IRenderer {
   virtual auto name() -> std::string_view = 0;
 
   virtual void new_gui_frame() = 0;
+
+protected:
+    IRenderer() = default;
 };
 
 } // namespace basalt::gfx::backend
