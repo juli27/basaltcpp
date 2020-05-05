@@ -85,7 +85,11 @@ auto Scene::get_camera() const -> const gfx::Camera& {
   return mCamera;
 }
 
-void Scene::display_entity_gui_impl(entt::entity entity) {
+void Scene::display_entity_gui_impl(const entt::entity entity) {
+  if (!mEntityRegistry.has<TransformComponent>(entity)) {
+    return;
+  }
+
   auto& transform = mEntityRegistry.get<TransformComponent>(entity);
 
   if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
