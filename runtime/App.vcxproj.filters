@@ -22,6 +22,9 @@
     <ClCompile Include="runtime\platform\win32\Messages.cpp">
       <Filter>platform\win32</Filter>
     </ClCompile>
+    <ClCompile Include="runtime\platform\win32\D3D9ContextFactory.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="runtime\platform\win32\Win32Util.h">
@@ -35,9 +38,6 @@
     </ClInclude>
     <ClInclude Include="runtime\platform\win32\Win32KeyMap.h">
       <Filter>platform\win32</Filter>
-    </ClInclude>
-    <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Header.h">
-      <Filter>gfx\backend\d3d9</Filter>
     </ClInclude>
     <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Renderer.h">
       <Filter>gfx\backend\d3d9</Filter>
@@ -53,6 +53,12 @@
     </ClInclude>
     <ClInclude Include="runtime\platform\win32\Messages.h">
       <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\platform\win32\D3D9ContextFactory.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\shared\win32\D3D9Header.h">
+      <Filter>shared\win32</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

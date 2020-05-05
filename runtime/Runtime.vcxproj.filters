@@ -39,9 +39,6 @@
     <ClInclude Include="runtime\shared\Config.h">
       <Filter>shared</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\shared\Exceptions.h">
-      <Filter>shared</Filter>
-    </ClInclude>
     <ClInclude Include="runtime\shared\Handle.h">
       <Filter>shared</Filter>
     </ClInclude>

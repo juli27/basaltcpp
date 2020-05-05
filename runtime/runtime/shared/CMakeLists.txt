@@ -6,7 +6,6 @@ target_sources(Runtime
     "Asserts.h"
     "Color.h"
     "Config.h"
-    "Exceptions.h"
     "Handle.h"
     "HandlePool.h"
     "Log.h"

@@ -185,7 +185,6 @@
     <ClInclude Include="runtime\shared\Color.h" />
     <ClInclude Include="runtime\shared\Data.h" />
     <ClInclude Include="runtime\shared\Config.h" />
-    <ClInclude Include="runtime\shared\Exceptions.h" />
     <ClInclude Include="runtime\shared\Handle.h" />
     <ClInclude Include="runtime\shared\HandlePool.h" />
     <ClInclude Include="runtime\shared\Log.h" />

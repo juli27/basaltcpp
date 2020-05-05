@@ -2,6 +2,7 @@
 #include "Win32KeyMap.h"
 #include "Win32Util.h"
 
+#include "runtime/platform/win32/D3D9ContextFactory.h"
 #include "runtime/platform/win32/Messages.h"
 
 #include "runtime/platform/Platform.h"
@@ -24,7 +25,7 @@
 #include <windowsx.h> // GET_X_LPARAM, GET_Y_LPARAM
 
 #include <algorithm> // for_each
-#include <memory> // make_shared
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <system_error> // system_category
@@ -38,6 +39,7 @@ using ::std::shared_ptr;
 using ::std::string;
 using ::std::string_view;
 using ::std::system_error;
+using ::std::unique_ptr;
 using ::std::vector;
 using ::std::wstring;
 using ::std::wstring_view;
@@ -57,7 +59,8 @@ struct WindowData final {
   auto operator=(WindowData&&) noexcept -> WindowData& = default;
 
   HWND handle = nullptr;
-  IGfxContext* gfxContext = nullptr;
+  unique_ptr<D3D9ContextFactory> factory {};
+  unique_ptr<IGfxContext> gfxContext {};
   //i32 mClientAreaWidth = 0;
   //i32 mClientAreaHeight = 0;
   Size2Du16 clientAreaSize = Size2Du16::dont_care();
@@ -182,7 +185,7 @@ void set_window_mode(const WindowMode windowMode) {
 auto get_window_gfx_context() -> IGfxContext* {
   BASALT_ASSERT(sWindowData.gfxContext, "no gfx context present");
 
-  return sWindowData.gfxContext;
+  return sWindowData.gfxContext.get();
 }
 
 namespace {
@@ -274,7 +277,9 @@ void create_main_window(const Config& config) {
 
   ::ShowWindow(sWindowData.handle, sShowCommand);
 
-  sWindowData.gfxContext = new D3D9GfxContext(sWindowData.handle);
+  // TODO: error handling
+  sWindowData.factory = D3D9ContextFactory::create().value();
+  sWindowData.gfxContext = sWindowData.factory->create_context(sWindowData.handle);
 }
 
 void dispatch_platform_event(const Event& event) {
@@ -455,8 +460,8 @@ auto CALLBACK window_proc(
     return 0;
 
   case WM_DESTROY:
-    delete sWindowData.gfxContext;
-    sWindowData.gfxContext = nullptr;
+    sWindowData.gfxContext.reset();
+    sWindowData.factory.reset();
     sWindowData.handle = nullptr;
     ::PostQuitMessage(0);
     break;

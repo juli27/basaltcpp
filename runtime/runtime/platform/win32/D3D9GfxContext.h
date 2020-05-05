@@ -2,16 +2,21 @@
 #ifndef BASALT_WIN32_D3D9_GFX_CONTEXT_H
 #define BASALT_WIN32_D3D9_GFX_CONTEXT_H
 
-#include "runtime/gfx/backend/d3d9/D3D9Header.h"
 #include "runtime/platform/IGfxContext.h"
+#include "runtime/shared/win32/D3D9Header.h"
+
+#include <wrl/client.h>
 
 namespace basalt::platform {
 
 struct D3D9GfxContext final : IGfxContext {
-  explicit D3D9GfxContext(HWND window);
+  D3D9GfxContext(
+    Microsoft::WRL::ComPtr<IDirect3DDevice9> device
+  , const D3DPRESENT_PARAMETERS& pp
+  );
   D3D9GfxContext(const D3D9GfxContext&) = delete;
   D3D9GfxContext(D3D9GfxContext&&) = delete;
-  ~D3D9GfxContext();
+  ~D3D9GfxContext() = default;
 
   auto operator=(const D3D9GfxContext&) -> D3D9GfxContext& = delete;
   auto operator=(D3D9GfxContext&&) -> D3D9GfxContext& = delete;
@@ -20,8 +25,7 @@ struct D3D9GfxContext final : IGfxContext {
   void present() override;
 
 private:
-  IDirect3D9* mD3D9Object {nullptr};
-  IDirect3DDevice9* mDevice {nullptr};
+  Microsoft::WRL::ComPtr<IDirect3DDevice9> mDevice {};
   D3DPRESENT_PARAMETERS mPresentParams {};
 };
 

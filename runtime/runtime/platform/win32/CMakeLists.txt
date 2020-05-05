@@ -1,10 +1,12 @@
 target_sources(App PRIVATE
   "main.cpp"
+  "D3D9ContextFactory.cpp"
   "D3D9GfxContext.cpp"
   "Messages.cpp"
   "Win32Platform.cpp"
   "Win32Util.cpp"
   
+  "D3D9ContextFactory.h"
   "D3D9GfxContext.h"
   "Globals.h"
   "Messages.h"

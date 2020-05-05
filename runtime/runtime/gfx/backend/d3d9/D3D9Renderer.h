@@ -2,12 +2,11 @@
 #ifndef BASALT_GFX_BACKEND_D3D9_RENDERER_H
 #define BASALT_GFX_BACKEND_D3D9_RENDERER_H
 
-#include "runtime/gfx/backend/d3d9/D3D9Header.h"
-
 #include "runtime/gfx/backend/IRenderer.h"
 #include "runtime/gfx/backend/RenderCommand.h"
 
 #include "runtime/shared/HandlePool.h"
+#include "runtime/shared/win32/D3D9Header.h"
 
 namespace basalt::gfx::backend {
 
