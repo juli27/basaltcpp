@@ -152,18 +152,18 @@ void SandboxApp::on_update() {
     if (ImGui::BeginMenu("Window")) {
       const auto currentMode = basalt::platform::get_window_mode();
       if (ImGui::MenuItem(
-        "Windowed", nullptr, currentMode == WindowMode::Windowed
+        "Windowed", nullptr, currentMode == WindowMode::Windowed, false
       )) {
         basalt::platform::set_window_mode(WindowMode::Windowed);
       }
       if (ImGui::MenuItem(
-        "Fullscreen", nullptr, currentMode == WindowMode::Fullscreen
+        "Fullscreen", nullptr, currentMode == WindowMode::Fullscreen, false
       )) {
         basalt::platform::set_window_mode(WindowMode::Fullscreen);
       }
       if (ImGui::MenuItem(
         "Fullscreen (Exclusive)", nullptr,
-        currentMode == WindowMode::FullscreenExclusive
+        currentMode == WindowMode::FullscreenExclusive, false
       )) {
         basalt::platform::set_window_mode(WindowMode::FullscreenExclusive);
       }

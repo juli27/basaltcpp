@@ -24,12 +24,12 @@
 
 #include <windowsx.h> // GET_X_LPARAM, GET_Y_LPARAM
 
-#include <algorithm> // for_each
+#include <algorithm>
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <system_error> // system_category
-#include <utility> // move
+#include <system_error>
+#include <utility>
 #include <vector>
 
 namespace basalt::platform {
@@ -42,7 +42,6 @@ using ::std::system_error;
 using ::std::unique_ptr;
 using ::std::vector;
 using ::std::wstring;
-using ::std::wstring_view;
 
 HINSTANCE sInstance;
 int sShowCommand;
@@ -58,20 +57,18 @@ struct WindowData final {
   auto operator=(const WindowData&) noexcept -> WindowData& = delete;
   auto operator=(WindowData&&) noexcept -> WindowData& = default;
 
-  HWND handle = nullptr;
+  HWND handle {nullptr};
   unique_ptr<D3D9ContextFactory> factory {};
   unique_ptr<IGfxContext> gfxContext {};
-  //i32 mClientAreaWidth = 0;
-  //i32 mClientAreaHeight = 0;
-  Size2Du16 clientAreaSize = Size2Du16::dont_care();
-  WindowMode mode = WindowMode::Windowed;
-  bool isResizeable = false;
-  bool isMinimized = false;
-  bool isSizing = false;
+  Size2Du16 clientAreaSize {Size2Du16::dont_care()};
+  WindowMode mode {WindowMode::Windowed};
+  bool isResizeable {false};
+  bool isMinimized {false};
+  bool isSizing {false};
 };
 
 
-constexpr wstring_view WINDOW_CLASS_NAME = L"BS_WINDOW_CLASS";
+constexpr auto WINDOW_CLASS_NAME = L"BS_WINDOW_CLASS";
 
 vector<PlatformEventCallback> sEventListener;
 vector<shared_ptr<Event>> sPendingEvents;
@@ -98,9 +95,7 @@ void shutdown() {
     sWindowData.handle = nullptr;
   }
 
-  if (!::UnregisterClassW(
-    WINDOW_CLASS_NAME.data(), sInstance
-  )) {
+  if (!::UnregisterClassW(WINDOW_CLASS_NAME, sInstance)) {
     BASALT_LOG_ERROR(
       "failed to unregister window class: {}",
       create_winapi_error_message(::GetLastError())
@@ -173,13 +168,18 @@ auto get_window_mode() -> WindowMode {
 void set_window_mode(const WindowMode windowMode) {
   switch (windowMode) {
   case WindowMode::Windowed:
+    BASALT_LOG_ERROR(
+      "platform::set_window_mode for Windowed not implemented");
     break;
   case WindowMode::Fullscreen:
+    BASALT_LOG_ERROR(
+      "platform::set_window_mode for Fullscreen not implemented");
     break;
   case WindowMode::FullscreenExclusive:
+    BASALT_LOG_ERROR(
+      "platform::set_window_mode for FullscreenExclusive not implemented");
     break;
   }
-  BASALT_LOG_ERROR("platform::set_window_mode not implemented");
 }
 
 auto get_window_gfx_context() -> IGfxContext* {
@@ -210,7 +210,7 @@ void register_window_class() {
     cursor,
     reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1),
     nullptr, // lpszMenuName
-    WINDOW_CLASS_NAME.data(),
+    WINDOW_CLASS_NAME,
     nullptr // hIconSm
   };
 
@@ -225,49 +225,42 @@ void register_window_class() {
 void create_main_window(const Config& config) {
   register_window_class();
 
-  sWindowData.clientAreaSize = config.windowSize;
   sWindowData.mode = config.windowMode;
   sWindowData.isResizeable = config.isWindowResizeable;
 
+  RECT rect {0, 0, config.windowSize.width(), config.windowSize.height()};
   // handle don't care cases
-  if (sWindowData.clientAreaSize.width() == 0) {
-    sWindowData.clientAreaSize.set_width(1280);
+  if (rect.right == 0) {
+    rect.right = 1280;
   }
-  if (sWindowData.clientAreaSize.height() == 0) {
-    sWindowData.clientAreaSize.set_height(720);
+  if (rect.bottom == 0) {
+    rect.bottom = 720;
   }
 
-  DWORD style = 0u;
-  DWORD styleEx = WS_EX_APPWINDOW;
-  if (config.windowMode == WindowMode::Windowed) {
-    style |= WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
+  DWORD style = WS_OVERLAPPEDWINDOW;
+  if (!config.isWindowResizeable) {
+    style &= ~(WS_MAXIMIZEBOX | WS_SIZEBOX);
+  }
 
-    if (config.isWindowResizeable) {
-      style |= WS_MAXIMIZEBOX | WS_SIZEBOX;
-    }
-  } else {
-    style |= WS_POPUP;
+  DWORD styleEx = 0u;
+
+  // calculate the window size for the given client area size
+  if (!::AdjustWindowRectEx(
+    &rect, style, FALSE, styleEx)) {
+    throw system_error(::GetLastError(), std::system_category());
+  }
+
+  const auto windowWidth = static_cast<int>(rect.right - rect.left);
+  const auto windowHeight = static_cast<int>(rect.bottom - rect.top);
+
+  if (config.windowMode != WindowMode::Windowed) {
+    style = WS_POPUP;
     styleEx |= WS_EX_TOPMOST;
-  }
-
-  auto windowWidth = ::GetSystemMetrics(SM_CXSCREEN);
-  auto windowHeight = ::GetSystemMetrics(SM_CYSCREEN);
-
-  if (config.windowMode == WindowMode::Windowed) {
-    // calculate the window size for the given client area size
-    // and center the window on the primary monitor
-    RECT rect{0, 0, sWindowData.clientAreaSize.width(), sWindowData.clientAreaSize.height()};
-    if (!::AdjustWindowRectEx(&rect, style, FALSE, styleEx)) {
-      throw system_error(::GetLastError(), std::system_category());
-    }
-
-    windowWidth = static_cast<int>(rect.right - rect.left);
-    windowHeight = static_cast<int>(rect.bottom - rect.top);
   }
 
   const auto windowTitle = create_wide_from_utf8(config.appName);
   sWindowData.handle = ::CreateWindowExW(
-    styleEx, WINDOW_CLASS_NAME.data(), windowTitle.c_str(), style,
+    styleEx, WINDOW_CLASS_NAME, windowTitle.c_str(), style,
     CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, nullptr, nullptr,
     sInstance, nullptr
   );
@@ -276,6 +269,13 @@ void create_main_window(const Config& config) {
   }
 
   ::ShowWindow(sWindowData.handle, sShowCommand);
+  if (config.windowMode != WindowMode::Windowed) {
+    ::ShowWindow(sWindowData.handle, SW_SHOWMAXIMIZED);
+  }
+
+  ::GetClientRect(sWindowData.handle, &rect);
+  sWindowData.clientAreaSize.set(
+    static_cast<u16>(rect.right), static_cast<u16>(rect.bottom));
 
   // TODO: error handling
   sWindowData.factory = D3D9ContextFactory::create().value();
