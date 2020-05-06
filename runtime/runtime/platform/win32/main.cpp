@@ -65,6 +65,8 @@ auto CALLBACK wWinMain(HINSTANCE instance, HINSTANCE, WCHAR*, int showCommand)
     throw;
   }
 
+  basalt::Log::shutdown();
+
   return 0;
 } catch (const exception& ex) {
   wstring mbText = L"Unhandled exception: \r\n";
