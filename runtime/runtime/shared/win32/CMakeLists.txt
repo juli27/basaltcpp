@@ -1,6 +1,6 @@
 target_sources(App PRIVATE
-  "Win32Shared.cpp"
+  "Util.cpp"
   
-  "D3D9Header.h"
-  "Win32APIHeader.h"
-  "Win32SharedUtil.h")
+  "D3D9APIHeader.h"
+  "Util.h"
+  "Win32APIHeader.h")

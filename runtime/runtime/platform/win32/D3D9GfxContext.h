@@ -3,7 +3,7 @@
 #define BASALT_WIN32_D3D9_GFX_CONTEXT_H
 
 #include "runtime/platform/IGfxContext.h"
-#include "runtime/shared/win32/D3D9Header.h"
+#include "runtime/shared/win32/D3D9APIHeader.h"
 
 #include <wrl/client.h>
 

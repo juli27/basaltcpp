@@ -6,7 +6,7 @@
 #include "runtime/gfx/backend/RenderCommand.h"
 
 #include "runtime/shared/HandlePool.h"
-#include "runtime/shared/win32/D3D9Header.h"
+#include "runtime/shared/win32/D3D9APIHeader.h"
 
 namespace basalt::gfx::backend {
 

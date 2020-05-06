@@ -157,7 +157,7 @@
     <ClCompile Include="runtime\platform\win32\Messages.cpp" />
     <ClCompile Include="runtime\platform\win32\Win32Platform.cpp" />
     <ClCompile Include="runtime\platform\win32\Win32Util.cpp" />
-    <ClCompile Include="runtime\shared\win32\Win32Shared.cpp" />
+    <ClCompile Include="runtime\shared\win32\Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Renderer.h" />
@@ -168,9 +168,9 @@
     <ClInclude Include="runtime\platform\win32\Messages.h" />
     <ClInclude Include="runtime\platform\win32\Win32KeyMap.h" />
     <ClInclude Include="runtime\platform\win32\Win32Util.h" />
-    <ClInclude Include="runtime\shared\win32\D3D9Header.h" />
+    <ClInclude Include="runtime\shared\win32\D3D9APIHeader.h" />
     <ClInclude Include="runtime\shared\win32\Win32APIHeader.h" />
-    <ClInclude Include="runtime\shared\win32\Win32SharedUtil.h" />
+    <ClInclude Include="runtime\shared\win32\Util.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\external\DearImGui\DearImGui.vcxproj">

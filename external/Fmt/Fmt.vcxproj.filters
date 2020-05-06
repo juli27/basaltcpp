@@ -7,5 +7,6 @@
     <ClInclude Include="include\fmt\format-inl.h" />
     <ClInclude Include="include\fmt\format.h" />
     <ClInclude Include="include\fmt\core.h" />
+    <ClInclude Include="include\fmt\ostream.h" />
   </ItemGroup>
 </Project>

@@ -6,7 +6,8 @@ target_sources(Fmt
     "include/fmt/format-inl.h"
   PUBLIC
     "include/fmt/core.h"
-    "include/fmt/format.h")
+    "include/fmt/format.h"
+    "include/fmt/ostream.h")
 
 target_include_directories(Fmt PUBLIC "include")
 

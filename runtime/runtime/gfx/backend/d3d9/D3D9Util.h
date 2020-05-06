@@ -3,7 +3,7 @@
 #define BASALT_GFX_BACKEND_D3D9_UTIL_H
 
 #include "runtime/shared/Asserts.h"
-#include "runtime/shared/win32/D3D9Header.h"
+#include "runtime/shared/win32/D3D9APIHeader.h"
 
 #ifdef BASALT_DEBUG_BUILD
 

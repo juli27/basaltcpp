@@ -16,8 +16,8 @@
 #include "runtime/shared/Size2D.h"
 #include "runtime/shared/Types.h"
 
+#include "runtime/shared/win32/Util.h"
 #include "runtime/shared/win32/Win32APIHeader.h"
-#include "runtime/shared/win32/Win32SharedUtil.h"
 
 // after windows.h
 #include "runtime/shared/Log.h"
