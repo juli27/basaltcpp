@@ -2,8 +2,8 @@
 #ifndef BASALT_WIN32_D3D9_GFX_CONTEXT_H
 #define BASALT_WIN32_D3D9_GFX_CONTEXT_H
 
+#include "runtime/gfx/backend/d3d9/d3d9_custom.h"
 #include "runtime/platform/IGfxContext.h"
-#include "runtime/shared/win32/D3D9APIHeader.h"
 
 #include <wrl/client.h>
 

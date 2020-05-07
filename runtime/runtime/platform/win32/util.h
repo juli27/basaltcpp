@@ -2,7 +2,7 @@
 #ifndef BASALT_WIN32_UTIL_H
 #define BASALT_WIN32_UTIL_H
 
-#include "runtime/shared/win32/Win32APIHeader.h"
+#include "runtime/shared/win32/Windows_custom.h"
 
 #include <string>
 

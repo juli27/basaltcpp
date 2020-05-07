@@ -2,8 +2,8 @@
 #ifndef BASALT_GFX_BACKEND_D3D9_UTIL_H
 #define BASALT_GFX_BACKEND_D3D9_UTIL_H
 
+#include "runtime/gfx/backend/d3d9/d3d9_custom.h"
 #include "runtime/shared/Asserts.h"
-#include "runtime/shared/win32/D3D9APIHeader.h"
 
 #ifdef BASALT_DEBUG_BUILD
 

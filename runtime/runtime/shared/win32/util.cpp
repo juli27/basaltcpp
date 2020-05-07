@@ -1,6 +1,6 @@
-#include "runtime/shared/win32/Util.h"
+#include "runtime/shared/win32/util.h"
 
-#include "runtime/shared/win32/Win32APIHeader.h"
+#include "runtime/shared/win32/Windows_custom.h"
 
 #include <limits>
 

@@ -96,6 +96,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <AdditionalOptions>/w44062 /w14165 /w34191 %(AdditionalOptions)</AdditionalOptions>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -118,6 +119,7 @@
       <AdditionalOptions>/w44062 /w14165 /w34191 %(AdditionalOptions)</AdditionalOptions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -139,6 +141,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <AdditionalOptions>/w44062 /w14165 /w34191 %(AdditionalOptions)</AdditionalOptions>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -150,27 +153,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="runtime\gfx\backend\d3d9\D3D9Renderer.cpp" />
-    <ClCompile Include="runtime\platform\win32\D3D9ContextFactory.cpp" />
-    <ClCompile Include="runtime\platform\win32\D3D9GfxContext.cpp" />
+    <ClCompile Include="runtime\gfx\backend\d3d9\renderer.cpp" />
+    <ClCompile Include="runtime\gfx\backend\d3d9\context_factory.cpp" />
+    <ClCompile Include="runtime\gfx\backend\d3d9\context.cpp" />
     <ClCompile Include="runtime\platform\win32\main.cpp" />
-    <ClCompile Include="runtime\platform\win32\Messages.cpp" />
-    <ClCompile Include="runtime\platform\win32\Win32Platform.cpp" />
-    <ClCompile Include="runtime\platform\win32\Win32Util.cpp" />
-    <ClCompile Include="runtime\shared\win32\Util.cpp" />
+    <ClCompile Include="runtime\platform\win32\messages.cpp" />
+    <ClCompile Include="runtime\platform\win32\platform.cpp" />
+    <ClCompile Include="runtime\platform\win32\util.cpp" />
+    <ClCompile Include="runtime\shared\win32\util.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Renderer.h" />
-    <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Util.h" />
-    <ClInclude Include="runtime\platform\win32\D3D9ContextFactory.h" />
-    <ClInclude Include="runtime\platform\win32\D3D9GfxContext.h" />
-    <ClInclude Include="runtime\platform\win32\Globals.h" />
-    <ClInclude Include="runtime\platform\win32\Messages.h" />
-    <ClInclude Include="runtime\platform\win32\Win32KeyMap.h" />
-    <ClInclude Include="runtime\platform\win32\Win32Util.h" />
-    <ClInclude Include="runtime\shared\win32\D3D9APIHeader.h" />
-    <ClInclude Include="runtime\shared\win32\Win32APIHeader.h" />
-    <ClInclude Include="runtime\shared\win32\Util.h" />
+    <ClInclude Include="runtime\gfx\backend\d3d9\renderer.h" />
+    <ClInclude Include="runtime\gfx\backend\d3d9\util.h" />
+    <ClInclude Include="runtime\gfx\backend\d3d9\context_factory.h" />
+    <ClInclude Include="runtime\gfx\backend\d3d9\context.h" />
+    <ClInclude Include="runtime\platform\win32\globals.h" />
+    <ClInclude Include="runtime\platform\win32\messages.h" />
+    <ClInclude Include="runtime\platform\win32\key_map.h" />
+    <ClInclude Include="runtime\platform\win32\util.h" />
+    <ClInclude Include="runtime\gfx\backend\d3d9\d3d9_custom.h" />
+    <ClInclude Include="runtime\shared\win32\Windows_custom.h" />
+    <ClInclude Include="runtime\shared\win32\util.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\external\DearImGui\DearImGui.vcxproj">

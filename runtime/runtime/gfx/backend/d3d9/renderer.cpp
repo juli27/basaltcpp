@@ -1,13 +1,13 @@
-#include "D3D9Renderer.h"
+#include "runtime/gfx/backend/d3d9/renderer.h"
 
-#include "D3D9Util.h"
+#include "runtime/gfx/backend/d3d9/util.h"
 #include "runtime/platform/events/WindowEvents.h"
 
 #include "runtime/shared/Asserts.h"
 #include "runtime/shared/Color.h"
 #include "runtime/shared/Log.h"
 
-#include "runtime/shared/win32/Util.h"
+#include "runtime/shared/win32/util.h"
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_dx9.h>

@@ -1,9 +1,9 @@
 #include "runtime/Engine.h"
 
-#include "runtime/platform/win32/Globals.h"
+#include "runtime/platform/win32/globals.h"
 
-#include "runtime/shared/win32/Util.h"
-#include "runtime/shared/win32/Win32APIHeader.h"
+#include "runtime/shared/win32/util.h"
+#include "runtime/shared/win32/Windows_custom.h"
 
 // after windows.h
 #include "runtime/shared/Log.h"

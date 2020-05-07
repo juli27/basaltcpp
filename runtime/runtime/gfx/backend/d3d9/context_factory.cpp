@@ -1,6 +1,6 @@
-#include "runtime/platform/win32/D3D9ContextFactory.h"
+#include "runtime/gfx/backend/d3d9/context_factory.h"
 
-#include "runtime/gfx/backend/d3d9/D3D9Util.h"
+#include "runtime/gfx/backend/d3d9/util.h"
 #include "runtime/platform/Platform.h"
 #include "runtime/shared/Log.h"
 

@@ -1,9 +1,8 @@
-#include "D3D9GfxContext.h"
-#include "Win32KeyMap.h"
-#include "Win32Util.h"
+#include "runtime/platform/win32/key_map.h"
+#include "runtime/platform/win32/messages.h"
+#include "runtime/platform/win32/util.h"
 
-#include "runtime/platform/win32/D3D9ContextFactory.h"
-#include "runtime/platform/win32/Messages.h"
+#include "runtime/gfx/backend/d3d9/context_factory.h"
 
 #include "runtime/platform/Platform.h"
 
@@ -16,8 +15,8 @@
 #include "runtime/shared/Size2D.h"
 #include "runtime/shared/Types.h"
 
-#include "runtime/shared/win32/Util.h"
-#include "runtime/shared/win32/Win32APIHeader.h"
+#include "runtime/shared/win32/util.h"
+#include "runtime/shared/win32/Windows_custom.h"
 
 // after windows.h
 #include "runtime/shared/Log.h"

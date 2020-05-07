@@ -1,64 +1,64 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="runtime\platform\win32\D3D9GfxContext.cpp">
-      <Filter>platform\win32</Filter>
-    </ClCompile>
     <ClCompile Include="runtime\platform\win32\main.cpp">
       <Filter>platform\win32</Filter>
     </ClCompile>
-    <ClCompile Include="runtime\platform\win32\Win32Platform.cpp">
-      <Filter>platform\win32</Filter>
-    </ClCompile>
-    <ClCompile Include="runtime\platform\win32\Win32Util.cpp">
-      <Filter>platform\win32</Filter>
-    </ClCompile>
-    <ClCompile Include="runtime\gfx\backend\d3d9\D3D9Renderer.cpp">
+    <ClCompile Include="runtime\gfx\backend\d3d9\context.cpp">
       <Filter>gfx\backend\d3d9</Filter>
     </ClCompile>
-    <ClCompile Include="runtime\platform\win32\Messages.cpp">
-      <Filter>platform\win32</Filter>
+    <ClCompile Include="runtime\gfx\backend\d3d9\renderer.cpp">
+      <Filter>gfx\backend\d3d9</Filter>
     </ClCompile>
-    <ClCompile Include="runtime\platform\win32\D3D9ContextFactory.cpp">
-      <Filter>platform\win32</Filter>
+    <ClCompile Include="runtime\gfx\backend\d3d9\context_factory.cpp">
+      <Filter>gfx\backend\d3d9</Filter>
     </ClCompile>
-    <ClCompile Include="runtime\shared\win32\Util.cpp">
+    <ClCompile Include="runtime\shared\win32\util.cpp">
       <Filter>shared\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="runtime\platform\win32\util.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="runtime\platform\win32\messages.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="runtime\platform\win32\platform.cpp">
+      <Filter>platform\win32</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="runtime\platform\win32\Win32Util.h">
-      <Filter>platform\win32</Filter>
-    </ClInclude>
-    <ClInclude Include="runtime\platform\win32\D3D9GfxContext.h">
-      <Filter>platform\win32</Filter>
-    </ClInclude>
-    <ClInclude Include="runtime\platform\win32\Globals.h">
-      <Filter>platform\win32</Filter>
-    </ClInclude>
-    <ClInclude Include="runtime\platform\win32\Win32KeyMap.h">
-      <Filter>platform\win32</Filter>
-    </ClInclude>
-    <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Renderer.h">
+    <ClInclude Include="runtime\gfx\backend\d3d9\context.h">
       <Filter>gfx\backend\d3d9</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\gfx\backend\d3d9\D3D9Util.h">
+    <ClInclude Include="runtime\gfx\backend\d3d9\renderer.h">
       <Filter>gfx\backend\d3d9</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\shared\win32\Win32APIHeader.h">
+    <ClInclude Include="runtime\gfx\backend\d3d9\util.h">
+      <Filter>gfx\backend\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\gfx\backend\d3d9\context_factory.h">
+      <Filter>gfx\backend\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\gfx\backend\d3d9\d3d9_custom.h">
+      <Filter>gfx\backend\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\shared\win32\Windows_custom.h">
       <Filter>shared\win32</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\platform\win32\Messages.h">
+    <ClInclude Include="runtime\shared\win32\util.h">
+      <Filter>shared\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\platform\win32\util.h">
       <Filter>platform\win32</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\platform\win32\D3D9ContextFactory.h">
+    <ClInclude Include="runtime\platform\win32\globals.h">
       <Filter>platform\win32</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\shared\win32\D3D9APIHeader.h">
-      <Filter>shared\win32</Filter>
+    <ClInclude Include="runtime\platform\win32\messages.h">
+      <Filter>platform\win32</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\shared\win32\Util.h">
-      <Filter>shared\win32</Filter>
+    <ClInclude Include="runtime\platform\win32\key_map.h">
+      <Filter>platform\win32</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

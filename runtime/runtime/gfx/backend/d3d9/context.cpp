@@ -1,6 +1,6 @@
-#include "D3D9GfxContext.h"
+#include "runtime/gfx/backend/d3d9/context.h"
 
-#include "runtime/gfx/backend/d3d9/D3D9Renderer.h"
+#include "runtime/gfx/backend/d3d9/renderer.h"
 
 #include "runtime/shared/Log.h"
 

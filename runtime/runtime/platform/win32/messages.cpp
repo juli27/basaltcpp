@@ -1,6 +1,6 @@
-#include "runtime/platform/win32/Messages.h"
+#include "runtime/platform/win32/messages.h"
 
-#include "runtime/platform/win32/Win32Util.h"
+#include "runtime/platform/win32/util.h"
 
 #include <fmt/format.h>
 

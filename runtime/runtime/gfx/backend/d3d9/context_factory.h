@@ -2,9 +2,10 @@
 #ifndef BASALT_PLATFORM_WIN32_D3D9_CONTEXT_FACTORY_H
 #define BASALT_PLATFORM_WIN32_D3D9_CONTEXT_FACTORY_H
 
-#include "runtime/platform/win32/D3D9GfxContext.h"
-#include "runtime/shared/win32/D3D9APIHeader.h"
-#include "runtime/shared/win32/Win32APIHeader.h"
+#include "runtime/gfx/backend/d3d9/context.h"
+#include "runtime/gfx/backend/d3d9/d3d9_custom.h"
+
+#include "runtime/shared/win32/Windows_custom.h"
 
 #include <wrl/client.h>
 

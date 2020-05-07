@@ -1,6 +1,6 @@
-#include "runtime/shared/Types.h"
+#include "runtime/platform/win32/util.h"
 
-#include "runtime/shared/win32/Win32APIHeader.h"
+#include "runtime/shared/Types.h"
 
 #include <limits>
 #include <string>

@@ -2,7 +2,7 @@
 #ifndef BASALT_PLATFORM_WIN32_MESSAGES_H
 #define BASALT_PLATFORM_WIN32_MESSAGES_H
 
-#include "runtime/shared/win32/Win32APIHeader.h"
+#include "runtime/shared/win32/Windows_custom.h"
 
 #include <string>
 
