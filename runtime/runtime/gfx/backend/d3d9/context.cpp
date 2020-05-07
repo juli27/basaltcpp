@@ -4,7 +4,7 @@
 
 #include "runtime/shared/Log.h"
 
-namespace basalt::platform {
+namespace basalt::gfx::backend {
 
 D3D9GfxContext::D3D9GfxContext(
   Microsoft::WRL::ComPtr<IDirect3DDevice9> device
@@ -20,4 +20,4 @@ void D3D9GfxContext::present() {
   mDevice->Present(nullptr, nullptr, nullptr, nullptr);
 }
 
-} // basalt::platform
+} // basalt::gfx::backend

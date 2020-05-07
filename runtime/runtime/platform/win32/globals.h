@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BASALT_WIN32_PLATFORM_H
-#define BASALT_WIN32_PLATFORM_H
+#ifndef BASALT_RUNTIME_PLATFORM_WIN32_GLOBALS_H
+#define BASALT_RUNTIME_PLATFORM_WIN32_GLOBALS_H
 
 #include "runtime/shared/win32/Windows_custom.h"
 
@@ -11,4 +11,4 @@ extern int sShowCommand;
 
 } // namespace basalt::platform
 
-#endif // !BASALT_WIN32_PLATFORM_H
+#endif // !BASALT_RUNTIME_PLATFORM_WIN32_GLOBALS_H

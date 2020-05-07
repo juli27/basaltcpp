@@ -1,15 +1,15 @@
 #pragma once
-#ifndef BASALT_WIN32_D3D9_GFX_CONTEXT_H
-#define BASALT_WIN32_D3D9_GFX_CONTEXT_H
+#ifndef BASALT_RUNTIME_GFX_BACKEND_D3D9_CONTEXT_H
+#define BASALT_RUNTIME_GFX_BACKEND_D3D9_CONTEXT_H
 
 #include "runtime/gfx/backend/d3d9/d3d9_custom.h"
 #include "runtime/platform/IGfxContext.h"
 
 #include <wrl/client.h>
 
-namespace basalt::platform {
+namespace basalt::gfx::backend {
 
-struct D3D9GfxContext final : IGfxContext {
+struct D3D9GfxContext final : platform::IGfxContext {
   D3D9GfxContext(
     Microsoft::WRL::ComPtr<IDirect3DDevice9> device
   , const D3DPRESENT_PARAMETERS& pp
@@ -21,7 +21,7 @@ struct D3D9GfxContext final : IGfxContext {
   auto operator=(const D3D9GfxContext&) -> D3D9GfxContext& = delete;
   auto operator=(D3D9GfxContext&&) -> D3D9GfxContext& = delete;
 
-  auto create_renderer() -> gfx::backend::IRenderer* override;
+  auto create_renderer() -> IRenderer* override;
   void present() override;
 
 private:
@@ -29,6 +29,6 @@ private:
   D3DPRESENT_PARAMETERS mPresentParams {};
 };
 
-} // basalt::platform
+} // basalt::gfx::backend
 
-#endif // BASALT_WIN32_D3D9_GFX_CONTEXT_H
+#endif // BASALT_RUNTIME_GFX_BACKEND_D3D9_CONTEXT_H

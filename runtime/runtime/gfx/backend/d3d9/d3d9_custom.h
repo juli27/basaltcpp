@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BASALT_GFX_BACKEND_D3D9_HEADER_H
-#define BASALT_GFX_BACKEND_D3D9_HEADER_H
+#ifndef BASALT_RUNTIME_GFX_BACKEND_D3D9_D3D9_CUSTOM_H
+#define BASALT_RUNTIME_GFX_BACKEND_D3D9_D3D9_CUSTOM_H
 
 #include "runtime/shared/win32/Windows_custom.h"
 
@@ -9,4 +9,4 @@
 
 #include <d3dx9.h>
 
-#endif // !BASALT_GFX_BACKEND_D3D9_HEADER_H
+#endif // !BASALT_RUNTIME_GFX_BACKEND_D3D9_D3D9_CUSTOM_H

@@ -6,7 +6,7 @@
 
 #include <utility>
 
-namespace basalt::platform {
+namespace basalt::gfx::backend {
 
 using Microsoft::WRL::ComPtr;
 
@@ -25,7 +25,7 @@ auto D3D9ContextFactory::create_context(const HWND window) const -> unique_ptr<D
     0u, D3DPRESENT_INTERVAL_ONE // refresh rate + VSync
   };
 
-  const auto windowMode = get_window_mode();
+  const auto windowMode = platform::get_window_mode();
 
   // setup exclusive fullscreen
   if (windowMode == WindowMode::FullscreenExclusive) {
@@ -71,4 +71,4 @@ auto D3D9ContextFactory::create() -> std::optional<std::unique_ptr<
   return std::make_unique<D3D9ContextFactory>(std::move(factory));
 }
 
-} // namespace basalt::platform
+} // namespace basalt::gfx::backend

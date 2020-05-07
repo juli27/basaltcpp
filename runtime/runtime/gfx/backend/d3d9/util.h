@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BASALT_GFX_BACKEND_D3D9_UTIL_H
-#define BASALT_GFX_BACKEND_D3D9_UTIL_H
+#ifndef BASALT_RUNTIME_GFX_BACKEND_D3D9_UTIL_H
+#define BASALT_RUNTIME_GFX_BACKEND_D3D9_UTIL_H
 
 #include "runtime/gfx/backend/d3d9/d3d9_custom.h"
 #include "runtime/shared/Asserts.h"
@@ -16,4 +16,4 @@
 
 #endif // BASALT_DEBUG_BUILD
 
-#endif  // !BASALT_GFX_BACKEND_D3D9_UTIL_H
+#endif  // !BASALT_RUNTIME_GFX_BACKEND_D3D9_UTIL_H

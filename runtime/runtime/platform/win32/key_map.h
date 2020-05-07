@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BASALT_WIN32_KEY_MAP_H
-#define BASALT_WIN32_KEY_MAP_H
+#ifndef BASALT_RUNTIME_PLATFORM_WIN32_KEY_MAP_H
+#define BASALT_RUNTIME_PLATFORM_WIN32_KEY_MAP_H
 
 #include "runtime/platform/events/KeyEvents.h"
 
@@ -270,6 +270,6 @@ constexpr std::array<Key, 256> VK_TO_KEY_MAP = {
   /* reserved               */ Key::Unknown
 };
 
-}
+} // namespace basalt::platform
 
-#endif // BASALT_WIN32_KEY_MAP_H
+#endif // BASALT_RUNTIME_PLATFORM_WIN32_KEY_MAP_H

@@ -7,12 +7,13 @@
 using std::numeric_limits;
 using std::string_view;
 using std::wstring;
+using namespace std::string_literals;
 
-namespace basalt {
+namespace basalt::win32 {
 
-auto create_wide_from_utf8(const string_view src) noexcept -> wstring {
-  // Don't use asserts/log because this function is used before the log
-  // is initialized
+auto create_wide_from_utf8(const string_view src) -> wstring {
+  // Don't use asserts/log because this function can be used without the log
+  // being initialized
 
   // MultiByteToWideChar fails when size is 0
   if (src.empty()) {
@@ -21,9 +22,9 @@ auto create_wide_from_utf8(const string_view src) noexcept -> wstring {
 
   // use the size of the string view because the input string
   // can be non null-terminated
-  if (src.size() > static_cast<string_view::size_type>(
-    numeric_limits<int>::max())) {
-    return L"create_wide_from_utf8: input string is too large";
+  using SizeType = string_view::size_type;
+  if (src.size() > static_cast<SizeType>(numeric_limits<int>::max())) {
+    return L"create_wide_from_utf8: input string is too large"s;
   }
 
   const auto srcSize = static_cast<int>(src.size());
@@ -31,7 +32,7 @@ auto create_wide_from_utf8(const string_view src) noexcept -> wstring {
     CP_UTF8, 0, src.data(), srcSize, nullptr, 0
   );
   if (dstSize == 0) {
-    return L"create_wide_from_utf8: MultiByteToWideChar returned 0";
+    return L"create_wide_from_utf8: MultiByteToWideChar returned 0"s;
   }
 
   wstring dst(dstSize, L'\0');
@@ -39,10 +40,10 @@ auto create_wide_from_utf8(const string_view src) noexcept -> wstring {
     CP_UTF8, 0, src.data(), srcSize, dst.data(), static_cast<int>(dst.size())
   );
   if (dstSize == 0) {
-    return L"create_wide_from_utf8: MultiByteToWideChar returned 0";
+    return L"create_wide_from_utf8: MultiByteToWideChar returned 0"s;
   }
 
   return dst;
 }
 
-} // namespace basalt
+} // namespace basalt::win32

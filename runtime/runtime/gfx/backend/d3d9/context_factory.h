@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BASALT_PLATFORM_WIN32_D3D9_CONTEXT_FACTORY_H
-#define BASALT_PLATFORM_WIN32_D3D9_CONTEXT_FACTORY_H
+#ifndef BASALT_RUNTIME_GFX_BACKEND_D3D9_CONTEXT_FACTORY_H
+#define BASALT_RUNTIME_GFX_BACKEND_D3D9_CONTEXT_FACTORY_H
 
 #include "runtime/gfx/backend/d3d9/context.h"
 #include "runtime/gfx/backend/d3d9/d3d9_custom.h"
@@ -12,7 +12,7 @@
 #include <memory>
 #include <optional>
 
-namespace basalt::platform {
+namespace basalt::gfx::backend {
 
 struct D3D9ContextFactory final {
   D3D9ContextFactory() = delete;
@@ -37,6 +37,6 @@ public:
   static auto create() -> std::optional<std::unique_ptr<D3D9ContextFactory>>;
 };
 
-} // namespace basalt::platform
+} // namespace basalt::gfx::backend
 
-#endif // BASALT_PLATFORM_WIN32_D3D9_CONTEXT_FACTORY_H
+#endif // BASALT_RUNTIME_GFX_BACKEND_D3D9_CONTEXT_FACTORY_H

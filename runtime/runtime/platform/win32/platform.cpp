@@ -42,6 +42,8 @@ using ::std::unique_ptr;
 using ::std::vector;
 using ::std::wstring;
 
+using gfx::backend::D3D9ContextFactory;
+
 HINSTANCE sInstance;
 int sShowCommand;
 
@@ -257,7 +259,7 @@ void create_main_window(const Config& config) {
     styleEx |= WS_EX_TOPMOST;
   }
 
-  const auto windowTitle = create_wide_from_utf8(config.appName);
+  const auto windowTitle = win32::create_wide_from_utf8(config.appName);
   sWindowData.handle = ::CreateWindowExW(
     styleEx, WINDOW_CLASS_NAME, windowTitle.c_str(), style,
     CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, nullptr, nullptr,

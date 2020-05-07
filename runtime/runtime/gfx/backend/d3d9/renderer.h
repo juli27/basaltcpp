@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BASALT_GFX_BACKEND_D3D9_RENDERER_H
-#define BASALT_GFX_BACKEND_D3D9_RENDERER_H
+#ifndef BASALT_RUNTIME_GFX_BACKEND_D3D9_RENDERER_H
+#define BASALT_RUNTIME_GFX_BACKEND_D3D9_RENDERER_H
 
 #include "runtime/gfx/backend/d3d9/d3d9_custom.h"
 
@@ -62,4 +62,4 @@ private:
 
 } // namespace basalt::gfx::backend
 
-#endif // !BASALT_GFX_BACKEND_D3D9_RENDERER_H
+#endif // !BASALT_RUNTIME_GFX_BACKEND_D3D9_RENDERER_H

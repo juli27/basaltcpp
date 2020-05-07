@@ -6,6 +6,7 @@
 #include "runtime/shared/Asserts.h"
 #include "runtime/shared/Color.h"
 #include "runtime/shared/Log.h"
+#include "runtime/shared/Types.h"
 
 #include "runtime/shared/win32/util.h"
 
@@ -26,7 +27,7 @@ namespace {
 constexpr std::string_view RENDERER_NAME = "Direct3D 9 fixed function";
 
 constexpr auto to_d3d_color(const Color& color) noexcept -> D3DCOLOR {
-  return static_cast<D3DCOLOR>(color.to_argb());
+  return enum_cast(color.to_argb());
 }
 
 constexpr auto to_d3d_color_value(
@@ -141,7 +142,7 @@ void D3D9Renderer::remove_mesh(const MeshHandle meshHandle) {
 }
 
 auto D3D9Renderer::add_texture(const std::string_view filePath) -> TextureHandle {
-  const auto wideFilePath = create_wide_from_utf8(filePath);
+  const auto wideFilePath = win32::create_wide_from_utf8(filePath);
 
   IDirect3DTexture9* texture = nullptr;
   if (FAILED(::D3DXCreateTextureFromFileW(
