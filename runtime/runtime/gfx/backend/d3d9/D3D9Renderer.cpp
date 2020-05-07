@@ -25,53 +25,6 @@ namespace {
 
 constexpr std::string_view RENDERER_NAME = "Direct3D 9 fixed function";
 
-void fill_primitive_info(
-  D3D9Mesh& mesh, const PrimitiveType primitiveType, const i32 numVtx
-) {
-  switch (primitiveType) {
-    case PrimitiveType::PointList:
-      mesh.primType = D3DPT_POINTLIST;
-      mesh.primCount = numVtx;
-      break;
-
-    case PrimitiveType::LineList:
-      mesh.primType = D3DPT_LINELIST;
-      BASALT_ASSERT(
-        numVtx % 2 == 0,
-        "Wrong amount of vertices for PrimitiveType::LINE_LIST"
-      );
-      mesh.primCount = numVtx / 2;
-      break;
-
-    case PrimitiveType::LineStrip:
-      mesh.primType = D3DPT_LINESTRIP;
-      mesh.primCount = numVtx - 1;
-      break;
-
-    case PrimitiveType::TriangleList:
-      mesh.primType = D3DPT_TRIANGLELIST;
-      BASALT_ASSERT(
-        numVtx % 3 == 0,
-        "Wrong amount of vertices for PrimitiveType::TRIANGLE_LIST"
-      );
-      mesh.primCount = numVtx / 3;
-      break;
-
-    case PrimitiveType::TriangleStrip:
-      mesh.primType = D3DPT_TRIANGLESTRIP;
-      mesh.primCount = numVtx - 2;
-      break;
-
-    case PrimitiveType::TriangleFan:
-      mesh.primType = D3DPT_TRIANGLEFAN;
-      mesh.primCount = numVtx - 2;
-      break;
-
-    default:
-      throw std::runtime_error("primitive type not supported");
-  }
-}
-
 constexpr auto to_d3d_color(const Color& color) noexcept -> D3DCOLOR {
   return static_cast<D3DCOLOR>(color.to_argb());
 }
@@ -96,6 +49,11 @@ constexpr auto to_d3d_vector(const math::Vec3f32& vec) noexcept -> D3DVECTOR {
 }
 
 auto to_fvf(const VertexLayout& layout) -> DWORD;
+auto verify_fvf(DWORD fvf) -> bool;
+
+void fill_primitive_info(
+  D3D9Mesh& mesh, PrimitiveType primitiveType, i32 numVtx
+);
 
 } // namespace
 
@@ -144,6 +102,8 @@ auto D3D9Renderer::add_mesh(
   BASALT_ASSERT(!layout.empty(), "must specify a vertex layout");
 
   const auto fvf = to_fvf(layout);
+  BASALT_ASSERT(verify_fvf(fvf), "invalid fvf. Consult the log for details");
+
   const auto vertexSize = D3DXGetFVFVertexSize(fvf);
   const auto bufferSize = vertexSize * numVertices;
 
@@ -355,14 +315,6 @@ void D3D9Renderer::render_commands(const RenderCommandBuffer& commands) {
 
 namespace {
 
-void verify_fvf(const DWORD fvf) {
-  if (fvf & D3DFVF_XYZRHW && (fvf & D3DFVF_XYZ || fvf & D3DFVF_NORMAL)) {
-    throw std::runtime_error(
-      "can't use transformed positions with untransformed"
-      "positions or normals");
-  }
-}
-
 auto to_fvf(const VertexLayout& layout) -> DWORD {
   DWORD fvf = 0u;
 
@@ -394,9 +346,58 @@ auto to_fvf(const VertexLayout& layout) -> DWORD {
     }
   }
 
-  verify_fvf(fvf);
-
   return fvf;
+}
+
+auto verify_fvf(const DWORD fvf) -> bool {
+  if (fvf & D3DFVF_XYZRHW && (fvf & D3DFVF_XYZ || fvf & D3DFVF_NORMAL)) {
+    BASALT_LOG_ERROR("can't use transformed positions with untransformed"
+      "positions or normals");
+    return false;
+  }
+
+  return true;
+}
+
+void fill_primitive_info(
+  D3D9Mesh& mesh, const PrimitiveType primitiveType, const i32 numVtx
+) {
+  switch (primitiveType) {
+  case PrimitiveType::PointList:
+    mesh.primType = D3DPT_POINTLIST;
+    mesh.primCount = numVtx;
+    break;
+
+  case PrimitiveType::LineList:
+    mesh.primType = D3DPT_LINELIST;
+    BASALT_ASSERT(
+      numVtx % 2 == 0, "Wrong amount of vertices for PrimitiveType::LINE_LIST");
+    mesh.primCount = numVtx / 2;
+    break;
+
+  case PrimitiveType::LineStrip:
+    mesh.primType = D3DPT_LINESTRIP;
+    mesh.primCount = numVtx - 1;
+    break;
+
+  case PrimitiveType::TriangleList:
+    mesh.primType = D3DPT_TRIANGLELIST;
+    BASALT_ASSERT(
+      numVtx % 3 == 0
+    , "Wrong amount of vertices for PrimitiveType::TRIANGLE_LIST");
+    mesh.primCount = numVtx / 3;
+    break;
+
+  case PrimitiveType::TriangleStrip:
+    mesh.primType = D3DPT_TRIANGLESTRIP;
+    mesh.primCount = numVtx - 2;
+    break;
+
+  case PrimitiveType::TriangleFan:
+    mesh.primType = D3DPT_TRIANGLEFAN;
+    mesh.primCount = numVtx - 2;
+    break;
+  }
 }
 
 } // namespace
