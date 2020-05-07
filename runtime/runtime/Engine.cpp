@@ -185,7 +185,7 @@ void run() {
   startup();
 
   sApp->on_init();
-  BASALT_ASSERT(sCurrentScene, "no scene set");
+  BASALT_ASSERT_MSG(sCurrentScene, "no scene set");
 
   static_assert(std::chrono::high_resolution_clock::is_steady);
   using Clock = std::chrono::high_resolution_clock;

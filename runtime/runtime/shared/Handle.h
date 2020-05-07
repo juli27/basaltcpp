@@ -41,7 +41,7 @@ private:
 
 constexpr HandleBase::HandleBase(const ValueT value) noexcept
   : mValue {value} {
-  BASALT_ASSERT(mValue != INVALID_VALUE, "invalid handle value");
+  BASALT_ASSERT_MSG(mValue != INVALID_VALUE, "invalid handle value");
 }
 
 constexpr HandleBase::operator bool() const noexcept {

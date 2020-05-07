@@ -45,8 +45,8 @@ void SandboxApp::prev_scene() {
 }
 
 void SandboxApp::set_scene(const i32 index) {
-  BASALT_ASSERT(index < static_cast<i32>(mScenes.size()), "");
-  BASALT_ASSERT(index >= 0, "");
+  BASALT_ASSERT(index < static_cast<i32>(mScenes.size()));
+  BASALT_ASSERT(index >= 0);
 
   mScenes.at(mCurrentSceneIndex)->on_hide();
   mCurrentSceneIndex = index;

@@ -60,7 +60,7 @@ void fill_primitive_info(
 D3D9Renderer::D3D9Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp)
 : mDevice(device)
 , mPresentParams(pp) {
-  BASALT_ASSERT(device, "device is null");
+  BASALT_ASSERT(device);
   mDevice->AddRef();
   D3D9CALL(mDevice->GetDeviceCaps(&mDeviceCaps));
 
@@ -97,12 +97,12 @@ auto D3D9Renderer::add_mesh(
   void* data, const i32 numVertices, const VertexLayout& layout,
   const PrimitiveType primitiveType
 ) -> MeshHandle {
-  BASALT_ASSERT(data, "");
-  BASALT_ASSERT(numVertices > 0, "numVertices must be > 0");
-  BASALT_ASSERT(!layout.empty(), "must specify a vertex layout");
+  BASALT_ASSERT(data);
+  BASALT_ASSERT(numVertices > 0);
+  BASALT_ASSERT(!layout.empty());
 
   const auto fvf = to_fvf(layout);
-  BASALT_ASSERT(verify_fvf(fvf), "invalid fvf. Consult the log for details");
+  BASALT_ASSERT_MSG(verify_fvf(fvf), "invalid fvf. Consult the log for details");
 
   const auto vertexSize = D3DXGetFVFVertexSize(fvf);
   const auto bufferSize = vertexSize * numVertices;
@@ -172,7 +172,7 @@ void D3D9Renderer::submit(const RenderCommand& command) {
 void D3D9Renderer::set_view_proj(
   const math::Mat4f32& view, const math::Mat4f32& projection
 ) {
-  BASALT_ASSERT(projection.m34 >= 0,
+  BASALT_ASSERT_MSG(projection.m34 >= 0,
     "m34 can't be negative in a projection matrix");
 
   mCommandBuffer.set_view(view);
@@ -223,7 +223,7 @@ void D3D9Renderer::render() {
     D3D9CALL(mDevice->Reset(&mPresentParams));
     ImGui_ImplDX9_CreateDeviceObjects();
   } else if (hr != D3DERR_DEVICELOST) {
-    BASALT_ASSERT(SUCCEEDED(hr), "");
+    BASALT_ASSERT(SUCCEEDED(hr));
   }
 
   D3D9CALL(mDevice->Clear(
@@ -370,7 +370,7 @@ void fill_primitive_info(
 
   case PrimitiveType::LineList:
     mesh.primType = D3DPT_LINELIST;
-    BASALT_ASSERT(
+    BASALT_ASSERT_MSG(
       numVtx % 2 == 0, "Wrong amount of vertices for PrimitiveType::LINE_LIST");
     mesh.primCount = numVtx / 2;
     break;
@@ -382,7 +382,7 @@ void fill_primitive_info(
 
   case PrimitiveType::TriangleList:
     mesh.primType = D3DPT_TRIANGLELIST;
-    BASALT_ASSERT(
+    BASALT_ASSERT_MSG(
       numVtx % 3 == 0
     , "Wrong amount of vertices for PrimitiveType::TRIANGLE_LIST");
     mesh.primCount = numVtx / 3;

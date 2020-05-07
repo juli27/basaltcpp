@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ColorEncoding
 - Dear ImGui
 - CMake build support for Windows x86-64
+- BASALT_ASSERT_MSG
 - Sandbox
   - D3D9 Tutorial 1: Creating a Device
 
@@ -23,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed BS_BUILD to BASALT_BUILD
 - Renamed BS_DEBUG_BUILD to BASALT_DEBUG_BUILD
 - Replace BS_APP_DEBUG_BUILD with BASALT_DEBUG_BUILD
+- BASALT_ASSERT takes only one parameter
+  - use the new BASALT_ASSERT_MSG for the old behaviour
 
 ### Deprecated
 

@@ -84,7 +84,7 @@ auto CALLBACK window_proc(
 } // namespace
 
 void startup(const Config& config) {
-  BASALT_ASSERT(sInstance, "Windows API not initialized");
+  BASALT_ASSERT_MSG(sInstance, "win32 globals not initialized");
 
   create_main_window(config);
 }
@@ -137,7 +137,7 @@ auto wait_for_events() -> vector<shared_ptr<Event>> {
   if (ret == -1) {
     BASALT_LOG_ERROR(create_winapi_error_message(::GetLastError()));
     // TODO: fixme
-    BASALT_ASSERT(false, "GetMessage error");
+    BASALT_ASSERT_MSG(false, "::GetMessageW error");
   }
 
   // GetMessage retrieved WM_QUIT
@@ -183,7 +183,7 @@ void set_window_mode(const WindowMode windowMode) {
 }
 
 auto get_window_gfx_context() -> IGfxContext* {
-  BASALT_ASSERT(sWindowData.gfxContext, "no gfx context present");
+  BASALT_ASSERT(sWindowData.gfxContext);
 
   return sWindowData.gfxContext.get();
 }
