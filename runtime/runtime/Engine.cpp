@@ -5,9 +5,10 @@
 #include "runtime/Scene.h"
 
 #include "runtime/gfx/Gfx.h"
+
+#include "runtime/gfx/backend/context.h"
 #include "runtime/gfx/backend/IRenderer.h"
 
-#include "runtime/platform/IGfxContext.h"
 #include "runtime/platform/Platform.h"
 
 #include "runtime/platform/events/Event.h"

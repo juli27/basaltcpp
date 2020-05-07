@@ -84,9 +84,6 @@
     <ClInclude Include="runtime\platform\events\MouseEvents.h">
       <Filter>platform\events</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\platform\IGfxContext.h">
-      <Filter>platform</Filter>
-    </ClInclude>
     <ClInclude Include="runtime\platform\Platform.h">
       <Filter>platform</Filter>
     </ClInclude>
@@ -109,6 +106,9 @@
     </ClInclude>
     <ClInclude Include="runtime\shared\Data.h">
       <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\gfx\backend\context.h">
+      <Filter>gfx\backend</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

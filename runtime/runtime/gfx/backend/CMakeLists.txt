@@ -2,6 +2,7 @@ target_sources(Runtime
   PRIVATE
     "Types.cpp"
   PUBLIC
+    "context.h"
     "IRenderer.h"
     "RenderCommand.h"
     "Types.h")

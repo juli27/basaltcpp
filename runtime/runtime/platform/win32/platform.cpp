@@ -43,6 +43,7 @@ using ::std::vector;
 using ::std::wstring;
 
 using gfx::backend::D3D9ContextFactory;
+using gfx::backend::IGfxContext;
 
 HINSTANCE sInstance;
 int sShowCommand;

@@ -2,8 +2,6 @@
 #ifndef BASALT_PLATFORM_H
 #define BASALT_PLATFORM_H
 
-#include "IGfxContext.h"
-
 #include "runtime/shared/Config.h"
 #include "runtime/shared/Size2D.h"
 
@@ -12,7 +10,13 @@
 #include <string>
 #include <vector>
 
-namespace basalt::platform {
+namespace basalt {
+
+namespace gfx::backend {
+struct IGfxContext;
+} // namespace gfx::backend
+
+namespace platform {
 
 struct Event;
 using PlatformEventCallback = std::function<void(const Event&)>;
@@ -41,8 +45,9 @@ auto get_window_mode() -> WindowMode;
 void set_window_mode(WindowMode windowMode);
 
 [[nodiscard]]
-auto get_window_gfx_context() -> IGfxContext*;
+auto get_window_gfx_context() -> gfx::backend::IGfxContext*;
 
-} // namespace basalt::platform
+} // namespace platform
+} // namespace basalt
 
 #endif // !BASALT_PLATFORM_H
