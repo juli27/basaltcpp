@@ -50,7 +50,7 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>$(ProjectName)Lib_debug</TargetName>
+    <TargetName>$(ProjectName)_lib-dev-debug</TargetName>
     <OutDir>$(SolutionDir)build\vs2019_x86-64\</OutDir>
     <IntDir>$(SolutionDir)build\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
@@ -58,13 +58,13 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)build\vs2019_x86-64\</OutDir>
     <IntDir>$(SolutionDir)build\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>$(ProjectName)Lib</TargetName>
+    <TargetName>$(ProjectName)_lib</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)build\vs2019_x86-64\</OutDir>
     <IntDir>$(SolutionDir)build\vs2019_x86-64\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>$(ProjectName)Lib_release</TargetName>
+    <TargetName>$(ProjectName)_lib-dev</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
