@@ -6,7 +6,7 @@
 
 #include <array>
 
-namespace basalt::platform {
+namespace basalt::win32 {
 namespace {
 
 constexpr std::array<std::string_view, 43u> MESSAGE_NAMES {
@@ -298,4 +298,4 @@ std::string to_string(const POINT point) {
 
 } // namespace
 
-} // namespace basalt::platform
+} // namespace basalt::win32

@@ -6,10 +6,10 @@
 
 #include <string>
 
-namespace basalt::platform {
+namespace basalt::win32 {
 
 std::string message_to_string(UINT message, WPARAM wParam, LPARAM lParam);
 
-} // namespace basalt::platform
+} // namespace basalt::win32
 
 #endif // BASALT_RUNTIME_PLATFORM_WIN32_MESSAGES_H

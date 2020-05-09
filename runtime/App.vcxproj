@@ -156,6 +156,7 @@
     <ClCompile Include="runtime\gfx\backend\d3d9\renderer.cpp" />
     <ClCompile Include="runtime\gfx\backend\d3d9\context_factory.cpp" />
     <ClCompile Include="runtime\gfx\backend\d3d9\context.cpp" />
+    <ClCompile Include="runtime\platform\win32\app.cpp" />
     <ClCompile Include="runtime\platform\win32\main.cpp" />
     <ClCompile Include="runtime\platform\win32\messages.cpp" />
     <ClCompile Include="runtime\platform\win32\platform.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="runtime\gfx\backend\d3d9\util.h" />
     <ClInclude Include="runtime\gfx\backend\d3d9\context_factory.h" />
     <ClInclude Include="runtime\gfx\backend\d3d9\context.h" />
+    <ClInclude Include="runtime\platform\win32\app.h" />
     <ClInclude Include="runtime\platform\win32\globals.h" />
     <ClInclude Include="runtime\platform\win32\messages.h" />
     <ClInclude Include="runtime\platform\win32\key_map.h" />

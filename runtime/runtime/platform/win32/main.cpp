@@ -1,11 +1,9 @@
-#include "runtime/Engine.h"
-
 #include "runtime/platform/win32/globals.h"
 
 #include "runtime/shared/win32/util.h"
 #include "runtime/shared/win32/Windows_custom.h"
 
-// after windows.h
+#include "runtime/Engine.h"
 #include "runtime/shared/Log.h"
 
 #include <stdexcept>
@@ -53,8 +51,8 @@ auto CALLBACK wWinMain(HINSTANCE instance, HINSTANCE, WCHAR*, int showCommand)
 -> int try {
   basalt::Log::init();
 
-  basalt::platform::sInstance = instance;
-  basalt::platform::sShowCommand = showCommand;
+  basalt::win32::sInstance = instance;
+  basalt::win32::sShowCommand = showCommand;
 
   try {
     basalt::run();

@@ -25,6 +25,9 @@
     <ClCompile Include="runtime\platform\win32\platform.cpp">
       <Filter>platform\win32</Filter>
     </ClCompile>
+    <ClCompile Include="runtime\platform\win32\app.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="runtime\gfx\backend\d3d9\context.h">
@@ -58,6 +61,9 @@
       <Filter>platform\win32</Filter>
     </ClInclude>
     <ClInclude Include="runtime\platform\win32\key_map.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\platform\win32\app.h">
       <Filter>platform\win32</Filter>
     </ClInclude>
   </ItemGroup>

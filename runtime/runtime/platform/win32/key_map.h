@@ -6,7 +6,9 @@
 
 #include <array>
 
-namespace basalt::platform {
+namespace basalt::win32 {
+
+using platform::Key;
 
 // TODO: syskeys
 // TODO: left and right variants
