@@ -23,8 +23,6 @@ struct Event;
 
 namespace basalt::win32 {
 
-constexpr auto WINDOW_CLASS_NAME = L"BS_WINDOW_CLASS";
-
 extern HINSTANCE sInstance;
 extern int sShowCommand;
 

@@ -31,6 +31,21 @@ struct Config final {
   WindowMode windowMode {WindowMode::Windowed};
   bool isWindowResizeable {true};
   GfxBackendApi gfxBackendApi {GfxBackendApi::Default};
+
+
+  Config() = default;
+
+  Config(const Config&) = default;
+  Config(Config&&) = default;
+
+  ~Config() = default;
+
+  auto operator=(const Config&) -> Config& = default;
+  auto operator=(Config&&) -> Config& = default;
+
+  static auto defaults() -> Config {
+    return {};
+  }
 };
 
 } // namespace basalt

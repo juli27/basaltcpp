@@ -15,11 +15,13 @@
 
 #include <imgui/imgui.h>
 
+using std::unique_ptr;
+
 using basalt::WindowMode;
 using basalt::input::Key;
 
-auto basalt::IApplication::create() -> IApplication* {
-  return new SandboxApp {};
+auto basalt::IApplication::create() -> unique_ptr<IApplication> {
+  return std::make_unique<SandboxApp>();
 }
 
 void SandboxApp::on_init() {

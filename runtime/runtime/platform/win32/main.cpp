@@ -1,9 +1,9 @@
+#include "runtime/platform/win32/app.h"
 #include "runtime/platform/win32/globals.h"
 
 #include "runtime/shared/win32/util.h"
 #include "runtime/shared/win32/Windows_custom.h"
 
-#include "runtime/Engine.h"
 #include "runtime/shared/Log.h"
 
 #include <stdexcept>
@@ -11,40 +11,6 @@
 
 using std::exception;
 using std::wstring;
-
-namespace {
-
-/**
- * \brief Processes the windows command line string and populates an argv
- *        style vector.
- *
- * No program name will be added to the array.
- *
- * \param commandLine the windows command line arguments.
- */
-//void process_args(const WCHAR* commandLine) {
-//  // check if the command line string is empty to avoid adding
-//  // the program name to the argument vector
-//  if (commandLine[0] == L'\0') {
-//    return;
-//  }
-//
-//  auto argc = 0;
-//  auto** argv = ::CommandLineToArgvW(commandLine, &argc);
-//  if (argv == nullptr) {
-//    // no logging because the log might not be initialized yet
-//    return;
-//  }
-//
-//  sArgs.reserve(argc);
-//  for (auto i = 0; i < argc; i++) {
-//    sArgs.push_back(create_utf8_from_wide(argv[i]));
-//  }
-//
-//  ::LocalFree(argv);
-//}
-
-} // namespace
 
 _Use_decl_annotations_
 auto CALLBACK wWinMain(HINSTANCE instance, HINSTANCE, WCHAR*, int showCommand)
@@ -55,7 +21,7 @@ auto CALLBACK wWinMain(HINSTANCE instance, HINSTANCE, WCHAR*, int showCommand)
   basalt::win32::sShowCommand = showCommand;
 
   try {
-    basalt::run();
+    basalt::win32::run();
   } catch (const exception& ex) {
     BASALT_LOG_FATAL("unhandled exception: {}", ex.what());
 

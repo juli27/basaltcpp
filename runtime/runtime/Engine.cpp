@@ -17,20 +17,17 @@
 #include "runtime/platform/events/WindowEvents.h"
 
 #include "runtime/shared/Asserts.h"
-#include "runtime/shared/Config.h"
 #include "runtime/shared/Log.h"
-#include "runtime/shared/Types.h"
 
 #include <imgui/imgui.h>
 
 #include <chrono>
-#include <memory>
-#include <stdexcept>
 
 using std::shared_ptr;
 
 namespace basalt {
 
+using gfx::backend::IGfxContext;
 using input::Key;
 using input::MouseButton;
 using platform::CharactersTyped;
@@ -44,12 +41,12 @@ using platform::WindowResizedEvent;
 
 namespace {
 
-Config sConfig{};
-IApplication* sApp = nullptr;
-f64 sCurrentDeltaTime{0.0};
-shared_ptr<Scene> sCurrentScene;
-gfx::backend::IRenderer* sRenderer;
-bool sRunning = true;
+f64 sCurrentDeltaTime {0.0};
+shared_ptr<Scene> sCurrentScene {};
+gfx::backend::IRenderer* sRenderer {nullptr};
+bool sRunning {true};
+
+void update(IApplication* app, IGfxContext* ctx);
 
 void init_dear_imgui() {
   IMGUI_CHECKVERSION();
@@ -98,46 +95,6 @@ void init_dear_imgui() {
   });
 }
 
-void startup() {
-  BASALT_LOG_INFO("starting on platform {}", platform::get_name());
-
-  // TODO: load config from file or create default
-
-  sApp = IApplication::create();
-  if (!sApp) {
-    throw std::runtime_error("failed to create IApplication object");
-  }
-
-  BASALT_LOG_INFO("config");
-  BASALT_LOG_INFO("  app name: {}", sConfig.appName);
-  BASALT_LOG_INFO("  window: {}x{}{} {}{}",
-    sConfig.windowSize.width(),
-    sConfig.windowSize.height(),
-    sConfig.windowMode == WindowMode::FullscreenExclusive ? " exclusive" : "",
-    sConfig.windowMode != WindowMode::Windowed ? "fullscreen" : "windowed",
-    sConfig.isWindowResizeable ? " resizeable" : ""
-  );
-
-  platform::startup(sConfig);
-  input::init();
-
-  // init imgui before gfx. Renderer initializes imgui render backend
-  init_dear_imgui();
-  sRenderer =  platform::get_window_gfx_context()->create_renderer();
-}
-
-void shutdown() {
-  delete sRenderer;
-  sRenderer = nullptr;
-
-  ImGui::DestroyContext();
-
-  platform::shutdown();
-
-  delete sApp;
-  sApp = nullptr;
-}
-
 void new_dear_im_gui_frame() {
   auto& io = ImGui::GetIO();
   const auto windowSize = platform::get_window_size();
@@ -182,10 +139,20 @@ void dispatch_pending_events() {
 
 } // namespace
 
-void run() {
-  startup();
+void startup(IGfxContext* const ctx) {
+  // init imgui before gfx. Renderer initializes imgui render backend
+  init_dear_imgui();
+  sRenderer = ctx->create_renderer();
+}
 
-  sApp->on_init();
+void shutdown() {
+  delete sRenderer;
+  sRenderer = nullptr;
+
+  ImGui::DestroyContext();
+}
+
+void run(IApplication* app, IGfxContext* const ctx) {
   BASALT_ASSERT_MSG(sCurrentScene, "no scene set");
 
   static_assert(std::chrono::high_resolution_clock::is_steady);
@@ -194,12 +161,8 @@ void run() {
   auto startTime = Clock::now();
   do {
     new_dear_im_gui_frame();
-    sApp->on_update();
 
-    // also calls ImGui::Render()
-    gfx::render(sRenderer, sCurrentScene);
-
-    platform::get_window_gfx_context()->present();
+    update(app, ctx);
 
     const auto endTime = Clock::now();
     sCurrentDeltaTime = static_cast<f64>((endTime - startTime).count()) /
@@ -208,10 +171,6 @@ void run() {
 
     dispatch_pending_events();
   } while (sRunning);
-
-  sApp->on_shutdown();
-
-  shutdown();
 }
 
 void quit() {
@@ -229,5 +188,18 @@ void set_current_scene(const shared_ptr<Scene>& scene) {
 auto get_renderer() -> gfx::backend::IRenderer* {
   return sRenderer;
 }
+
+namespace {
+
+void update(IApplication* app, IGfxContext* const ctx) {
+  app->on_update();
+
+  // also calls ImGui::Render()
+  gfx::render(sRenderer, sCurrentScene);
+
+  ctx->present();
+}
+
+} // namespace
 
 } // namespace basalt

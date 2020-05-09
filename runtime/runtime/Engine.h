@@ -8,15 +8,21 @@
 
 namespace basalt {
 
+struct Config;
+struct IApplication;
 struct Scene;
 
 namespace gfx::backend {
 
+struct IGfxContext;
 struct IRenderer;
 
-}
+} // gfx::backend
 
-void run();
+void startup(gfx::backend::IGfxContext*);
+void shutdown();
+
+void run(IApplication* app, gfx::backend::IGfxContext* ctx);
 void quit();
 auto get_delta_time() -> f64;
 void set_current_scene(const std::shared_ptr<Scene>& scene);

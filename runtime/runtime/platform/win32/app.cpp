@@ -7,6 +7,10 @@
 #include "runtime/shared/win32/Windows_custom.h"
 #include "runtime/shared/win32/util.h"
 
+#include "runtime/Engine.h"
+#include "runtime/IApplication.h"
+#include "runtime/Input.h"
+
 #include "runtime/gfx/backend/d3d9/context_factory.h"
 #include "runtime/gfx/backend/context.h"
 
@@ -17,6 +21,7 @@
 #include "runtime/platform/events/MouseEvents.h"
 #include "runtime/platform/events/WindowEvents.h"
 
+#include "runtime/shared/Asserts.h"
 #include "runtime/shared/Log.h"
 
 #include <windowsx.h>
@@ -50,13 +55,88 @@ WindowData sWindowData;
 
 namespace {
 
-void register_window_class();
+constexpr auto WINDOW_CLASS_NAME = L"BS_WINDOW_CLASS";
+
+void create_main_window(const Config& config);
 
 auto CALLBACK window_proc(
   HWND window, UINT message, WPARAM wParam, LPARAM lParam
 ) -> LRESULT;
 
 } // namespace
+
+void run() {
+  const auto app = IApplication::create();
+  BASALT_ASSERT(app);
+
+  const auto config {Config::defaults()};
+  BASALT_LOG_INFO("config");
+  BASALT_LOG_INFO("  app name: {}", config.appName);
+  BASALT_LOG_INFO(
+    "  window: {}x{}{} {}{}"
+  , config.windowSize.width(), config.windowSize.height()
+  , config.windowMode == WindowMode::FullscreenExclusive ? " exclusive" : ""
+  , config.windowMode != WindowMode::Windowed ? "fullscreen" : "windowed"
+  , config.isWindowResizeable ? " resizeable" : "");
+
+  create_main_window(config);
+
+  input::init();
+
+  startup(sWindowData.gfxContext.get());
+
+  app->on_init();
+
+  basalt::run(app.get(), sWindowData.gfxContext.get());
+
+  app->on_shutdown();
+
+  shutdown();
+
+  if (sWindowData.handle) {
+    ::DestroyWindow(sWindowData.handle);
+    sWindowData.handle = nullptr;
+  }
+
+  if (!::UnregisterClassW(WINDOW_CLASS_NAME, sInstance)) {
+    BASALT_LOG_ERROR(
+      "failed to unregister window class: {}",
+      create_winapi_error_message(::GetLastError())
+    );
+  }
+}
+
+namespace {
+
+void register_window_class() {
+  auto* const cursor = static_cast<HCURSOR>(::LoadImageW(
+    nullptr, MAKEINTRESOURCEW(OCR_NORMAL), IMAGE_CURSOR, 0, 0
+  , LR_DEFAULTSIZE | LR_SHARED));
+  if (!cursor) {
+    BASALT_LOG_ERROR("failed to load cursor");
+  }
+
+  WNDCLASSEXW windowClass {
+    sizeof(WNDCLASSEXW)
+  , CS_OWNDC | CS_HREDRAW | CS_VREDRAW
+  , &window_proc
+  , 0 // cbClsExtra
+  , 0 // cbWndExtra
+  , sInstance
+  , nullptr // hIcon
+  , cursor
+  , reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1)
+  , nullptr // lpszMenuName
+  , WINDOW_CLASS_NAME
+  , nullptr // hIconSm
+  };
+
+  if (!::RegisterClassExW(&windowClass)) {
+    throw system_error(
+      ::GetLastError(), std::system_category()
+    , "Failed to register window class");
+  }
+}
 
 void create_main_window(const Config& config) {
   register_window_class();
@@ -116,38 +196,7 @@ void create_main_window(const Config& config) {
   // TODO: error handling
   sWindowData.factory = D3D9ContextFactory::create().value();
   sWindowData.gfxContext = sWindowData.factory->create_context(sWindowData.handle);
-}
-
-namespace {
-
-void register_window_class() {
-  auto* const cursor = static_cast<HCURSOR>(::LoadImageW(
-    nullptr, MAKEINTRESOURCEW(OCR_NORMAL), IMAGE_CURSOR, 0, 0
-  , LR_DEFAULTSIZE | LR_SHARED));
-  if (!cursor) {
-    BASALT_LOG_ERROR("failed to load cursor");
-  }
-
-  WNDCLASSEXW windowClass {
-    sizeof(WNDCLASSEXW)
-  , CS_OWNDC | CS_HREDRAW | CS_VREDRAW
-  , &window_proc
-  , 0 // cbClsExtra
-  , 0 // cbWndExtra
-  , sInstance
-  , nullptr // hIcon
-  , cursor
-  , reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1)
-  , nullptr // lpszMenuName
-  , WINDOW_CLASS_NAME
-  , nullptr // hIconSm
-  };
-
-  if (!::RegisterClassExW(&windowClass)) {
-    throw system_error(
-      ::GetLastError(), std::system_category()
-    , "Failed to register window class");
-  }
+  BASALT_ASSERT(sWindowData.gfxContext);
 }
 
 void dispatch_platform_event(const Event& event) {
@@ -340,6 +389,36 @@ auto CALLBACK window_proc(
 
   return ::DefWindowProcW(window, message, wParam, lParam);
 }
+
+///**
+// * \brief Processes the windows command line string and populates an argv
+// *        style vector.
+// *
+// * No program name will be added to the array.
+// *
+// * \param commandLine the windows command line arguments.
+// */
+//void process_args(const WCHAR* commandLine) {
+//  // check if the command line string is empty to avoid adding
+//  // the program name to the argument vector
+//  if (commandLine[0] == L'\0') {
+//    return;
+//  }
+//
+//  auto argc = 0;
+//  auto** argv = ::CommandLineToArgvW(commandLine, &argc);
+//  if (argv == nullptr) {
+//    // no logging because the log might not be initialized yet
+//    return;
+//  }
+//
+//  sArgs.reserve(argc);
+//  for (auto i = 0; i < argc; i++) {
+//    sArgs.push_back(create_utf8_from_wide(argv[i]));
+//  }
+//
+//  ::LocalFree(argv);
+//}
 
 } // namespace
 
