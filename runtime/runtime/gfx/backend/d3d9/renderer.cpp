@@ -13,10 +13,12 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_dx9.h>
 
+#include <cstring>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
-#include <cstring> // for memcpy
+using Microsoft::WRL::ComPtr;
 
 namespace basalt::gfx::backend {
 
@@ -58,14 +60,14 @@ void fill_primitive_info(
 
 } // namespace
 
-D3D9Renderer::D3D9Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp)
-: mDevice(device)
-, mPresentParams(pp) {
-  BASALT_ASSERT(device);
-  mDevice->AddRef();
-  D3D9CALL(mDevice->GetDeviceCaps(&mDeviceCaps));
+D3D9Renderer::D3D9Renderer(
+  ComPtr<IDirect3DDevice9> device, const D3DPRESENT_PARAMETERS& pp
+)
+  : mDevice {std::move(device)}, mPresentParams {pp} {
+  BASALT_ASSERT(mDevice);
 
-  ImGui_ImplDX9_Init(mDevice);
+  D3D9CALL(mDevice->GetDeviceCaps(&mDeviceCaps));
+  ImGui_ImplDX9_Init(mDevice.Get());
 }
 
 D3D9Renderer::~D3D9Renderer() {
@@ -74,11 +76,6 @@ D3D9Renderer::~D3D9Renderer() {
   mTextures.for_each([](IDirect3DTexture9*& texture){
     texture->Release();
   });
-  mMeshes.for_each([](D3D9Mesh& mesh){
-    mesh.vertexBuffer->Release();
-  });
-
-  mDevice->Release();
 }
 
 void D3D9Renderer::on_window_resize(const WindowResizedEvent& event) {
@@ -95,38 +92,35 @@ void D3D9Renderer::on_window_resize(const WindowResizedEvent& event) {
  * Stores the vertex data into a new static vertex buffer in the managed pool.
  */
 auto D3D9Renderer::add_mesh(
-  void* data, const i32 numVertices, const VertexLayout& layout,
-  const PrimitiveType primitiveType
+  void* data, const i32 numVertices, const VertexLayout& layout
+, const PrimitiveType primitiveType
 ) -> MeshHandle {
   BASALT_ASSERT(data);
   BASALT_ASSERT(numVertices > 0);
   BASALT_ASSERT(!layout.empty());
 
-  const auto fvf = to_fvf(layout);
-  BASALT_ASSERT_MSG(verify_fvf(fvf), "invalid fvf. Consult the log for details");
+  const auto [meshHandle, mesh] = mMeshes.allocate();
+  mesh.fvf = to_fvf(layout);
+  BASALT_ASSERT_MSG(
+    verify_fvf(mesh.fvf), "invalid fvf. Consult the log for details");
 
-  const auto vertexSize = D3DXGetFVFVertexSize(fvf);
-  const auto bufferSize = vertexSize * numVertices;
+  mesh.vertexSize = ::D3DXGetFVFVertexSize(mesh.fvf);
 
-  IDirect3DVertexBuffer9* vertexBuffer = nullptr;
-  D3D9CALL(mDevice->CreateVertexBuffer(
-    bufferSize, D3DUSAGE_WRITEONLY, fvf, D3DPOOL_MANAGED, &vertexBuffer,
-    nullptr
-  ));
+
+  const auto bufferSize = mesh.vertexSize * numVertices;
+  D3D9CALL(
+    mDevice->CreateVertexBuffer(bufferSize, D3DUSAGE_WRITEONLY, mesh.fvf,
+      D3DPOOL_MANAGED, mesh.vertexBuffer.GetAddressOf(), nullptr));
 
   // upload vertex data
   void* vertexBufferData = nullptr;
-  if (SUCCEEDED(vertexBuffer->Lock(0u, 0u, &vertexBufferData, 0u))) {
+  if (SUCCEEDED(mesh.vertexBuffer->Lock(0u, 0u, &vertexBufferData, 0u))) {
     std::memcpy(vertexBufferData, data, bufferSize);
-    D3D9CALL(vertexBuffer->Unlock());
+    D3D9CALL(mesh.vertexBuffer->Unlock());
   } else {
     BASALT_LOG_ERROR("Failed to lock vertex buffer");
   }
 
-  const auto [meshHandle, mesh] = mMeshes.allocate();
-  mesh.vertexBuffer = vertexBuffer;
-  mesh.fvf = fvf;
-  mesh.vertexSize = vertexSize;
   fill_primitive_info(mesh, primitiveType, numVertices);
 
   return meshHandle;
@@ -135,8 +129,7 @@ auto D3D9Renderer::add_mesh(
 void D3D9Renderer::remove_mesh(const MeshHandle meshHandle) {
   auto& mesh = mMeshes.get(meshHandle);
 
-  mesh.vertexBuffer->Release();
-  mesh.vertexBuffer = nullptr;
+  mesh.vertexBuffer.Reset();
 
   mMeshes.deallocate(meshHandle);
 }
@@ -146,7 +139,7 @@ auto D3D9Renderer::add_texture(const std::string_view filePath) -> TextureHandle
 
   IDirect3DTexture9* texture = nullptr;
   if (FAILED(::D3DXCreateTextureFromFileW(
-    mDevice, wideFilePath.c_str(), &texture
+    mDevice.Get(), wideFilePath.c_str(), &texture
   ))) {
     throw std::runtime_error("loading texture file failed");
   }
@@ -293,7 +286,7 @@ void D3D9Renderer::render_commands(const RenderCommandBuffer& commands) {
 
     const D3D9Mesh& mesh = mMeshes.get(command.mMesh);
     D3D9CALL(mDevice->SetStreamSource(
-      0u, mesh.vertexBuffer, 0u, mesh.vertexSize
+      0u, mesh.vertexBuffer.Get(), 0u, mesh.vertexSize
     ));
     D3D9CALL(mDevice->SetFVF(mesh.fvf));
 

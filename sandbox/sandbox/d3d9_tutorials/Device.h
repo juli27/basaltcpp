@@ -1,6 +1,6 @@
 #pragma once
-#ifndef D3D9_TUTORIALS_DEVICE_H
-#define D3D9_TUTORIALS_DEVICE_H
+#ifndef SANDBOX_D3D9_DEVICE_H
+#define SANDBOX_D3D9_DEVICE_H
 
 #include "sandbox/TestCase.h"
 
@@ -8,7 +8,7 @@
 
 #include <memory>
 
-namespace d3d9_tuts {
+namespace d3d9 {
 
 struct Device final : TestCase {
   Device();
@@ -29,6 +29,6 @@ private:
   std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();
 };
 
-} // namespace d3d9_tuts
+} // namespace d3d9
 
-#endif // D3D9_TUTORIALS_DEVICE_H
+#endif // SANDBOX_D3D9_DEVICE_H

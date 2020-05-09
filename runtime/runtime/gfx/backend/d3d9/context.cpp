@@ -12,8 +12,8 @@ D3D9GfxContext::D3D9GfxContext(
 ) : mDevice {std::move(device)}, mPresentParams {pp} {
 }
 
-auto D3D9GfxContext::create_renderer() -> gfx::backend::IRenderer* {
-  return new gfx::backend::D3D9Renderer(mDevice.Get(), mPresentParams);
+auto D3D9GfxContext::create_renderer() -> IRenderer* {
+  return new D3D9Renderer(mDevice, mPresentParams);
 }
 
 void D3D9GfxContext::present() {

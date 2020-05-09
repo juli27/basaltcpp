@@ -9,10 +9,7 @@
 #include <runtime/gfx/backend/IRenderer.h>
 #include <runtime/gfx/backend/Types.h>
 
-#include <entt/entity/registry.hpp>
-
 #include <array>
-#include <tuple>
 
 using std::array;
 
@@ -22,13 +19,16 @@ using basalt::gfx::backend::PrimitiveType;
 using basalt::gfx::backend::VertexElement;
 using basalt::gfx::backend::VertexLayout;
 
-namespace d3d9_tuts {
+namespace d3d9 {
 
 Vertices::Vertices() {
   mScene->set_background_color(Color {0.0f, 0.0f, 1.0f});
 
   struct Vertex final {
-    f32 x, y, z, rhw;
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 rhw;
     ColorEncoding::A8R8G8B8 color;
   };
 
@@ -50,10 +50,8 @@ Vertices::Vertices() {
     VertexElement::PositionTransformed4F32, VertexElement::ColorDiffuse1U32
   };
 
-  auto& entityRegistry = mScene->get_entity_registry();
-  const auto triangleEntity = entityRegistry.create<RenderComponent>();
-
-  std::get<1>(triangleEntity).mMesh = basalt::get_renderer()->add_mesh(
+  const auto [entity, renderComp] = mScene->create_entity<RenderComponent>();
+  renderComp.mMesh = basalt::get_renderer()->add_mesh(
     vertices.data(), static_cast<i32>(vertices.size()), vertexLayout,
     PrimitiveType::TriangleList
   );
@@ -70,4 +68,4 @@ void Vertices::on_update() {
   mScene->display_debug_gui();
 }
 
-} // namespace d3d9_tuts
+} // namespace d3d9

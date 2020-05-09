@@ -1,110 +1,81 @@
-#include "Sandbox.h"
+#include "sandbox/Sandbox.h"
 
-#include "d3d9_tutorials/Device.h"
-#include "d3d9_tutorials/Lights.h"
-#include "d3d9_tutorials/Matrices.h"
-#include "d3d9_tutorials/Textures.h"
-#include "d3d9_tutorials/Vertices.h"
-
-#include <runtime/Prelude.h>
+#include "sandbox/d3d9_tutorials/Device.h"
+#include "sandbox/d3d9_tutorials/Lights.h"
+#include "sandbox/d3d9_tutorials/Matrices.h"
+#include "sandbox/d3d9_tutorials/Textures.h"
+#include "sandbox/d3d9_tutorials/Vertices.h"
 
 #include <runtime/Engine.h>
 #include <runtime/Input.h>
+#include <runtime/Prelude.h>
 
 #include <runtime/platform/Platform.h>
-
 #include <runtime/shared/Asserts.h>
-#include <runtime/shared/Config.h>
 
 #include <imgui/imgui.h>
 
 using basalt::WindowMode;
 using basalt::input::Key;
 
-// TODO: entity update system
-// TODO: ImGui updater editor
-
-void SandboxApp::next_scene() {
-  mScenes.at(mCurrentSceneIndex)->on_hide();
-  mCurrentSceneIndex++;
-  if (mCurrentSceneIndex >= static_cast<i32>(mScenes.size())) {
-    mCurrentSceneIndex = 0;
-  }
-
-  mScenes.at(mCurrentSceneIndex)->on_show();
-}
-
-void SandboxApp::prev_scene() {
-  mScenes.at(mCurrentSceneIndex)->on_hide();
-  mCurrentSceneIndex--;
-  if (mCurrentSceneIndex < 0) {
-    mCurrentSceneIndex = static_cast<i32>(mScenes.size() - 1);
-  }
-
-  mScenes.at(mCurrentSceneIndex)->on_show();
-}
-
-void SandboxApp::set_scene(const i32 index) {
-  BASALT_ASSERT(index < static_cast<i32>(mScenes.size()));
-  BASALT_ASSERT(index >= 0);
-
-  mScenes.at(mCurrentSceneIndex)->on_hide();
-  mCurrentSceneIndex = index;
-  mScenes.at(mCurrentSceneIndex)->on_show();
+auto basalt::IApplication::create() -> IApplication* {
+  return new SandboxApp {};
 }
 
 void SandboxApp::on_init() {
-  mScenes.push_back(std::make_unique<d3d9_tuts::Device>());
-  mScenes.push_back(std::make_unique<d3d9_tuts::Vertices>());
+  mScenes.reserve(5u);
+  mScenes.push_back(std::make_unique<d3d9::Device>());
+  mScenes.push_back(std::make_unique<d3d9::Vertices>());
   mScenes.push_back(std::make_unique<d3d9_tuts::Matrices>());
   mScenes.push_back(std::make_unique<d3d9_tuts::Lights>());
   mScenes.push_back(std::make_unique<d3d9_tuts::Textures>());
 
-  mScenes.at(mCurrentSceneIndex)->on_show();
+  mScenes[mCurrentSceneIndex]->on_show();
 }
 
 void SandboxApp::on_shutdown() {
+  mScenes[mCurrentSceneIndex]->on_hide();
+
   mScenes.clear();
 }
 
 void SandboxApp::on_update() {
-  // HACK
-  static auto rightPressed = false;
-  static auto leftPressed = false;
+  static auto pageUpPressed = false;
+  static auto pageDownPressed = false;
   if (basalt::input::is_key_pressed(Key::PageUp)) {
-    if (!rightPressed) {
-      rightPressed = true;
+    if (!pageUpPressed) {
+      pageUpPressed = true;
 
       next_scene();
     }
   } else {
-    rightPressed = false;
+    pageUpPressed = false;
   }
 
   if (basalt::input::is_key_pressed(Key::PageDown)) {
-    if (!leftPressed) {
-      leftPressed = true;
+    if (!pageDownPressed) {
+      pageDownPressed = true;
 
       prev_scene();
     }
   } else {
-    leftPressed = false;
+    pageDownPressed = false;
   }
 
-  mScenes.at(mCurrentSceneIndex)->on_update();
+  mScenes[mCurrentSceneIndex]->on_update();
 
-  static auto sShowDemo = false;
-  static auto sShowMetrics = false;
-  static auto sShowAbout = false;
+  static auto showDemo = false;
+  static auto showMetrics = false;
+  static auto showAbout = false;
 
-  if (sShowDemo) {
-    ImGui::ShowDemoWindow(&sShowDemo);
+  if (showDemo) {
+    ImGui::ShowDemoWindow(&showDemo);
   }
-  if (sShowMetrics) {
-    ImGui::ShowMetricsWindow(&sShowMetrics);
+  if (showMetrics) {
+    ImGui::ShowMetricsWindow(&showMetrics);
   }
-  if (sShowAbout) {
-    ImGui::ShowAboutWindow(&sShowAbout);
+  if (showAbout) {
+    ImGui::ShowAboutWindow(&showAbout);
   }
 
   if (ImGui::BeginMainMenuBar()) {
@@ -173,13 +144,13 @@ void SandboxApp::on_update() {
 
     if (ImGui::BeginMenu("Help")) {
       if (ImGui::MenuItem("Dear ImGui Demo")) {
-        sShowDemo = true;
+        showDemo = true;
       }
       if (ImGui::MenuItem("Dear ImGui Metrics")) {
-        sShowMetrics = true;
+        showMetrics = true;
       }
       if (ImGui::MenuItem("About Dear ImGui")) {
-        sShowAbout = true;
+        showAbout = true;
       }
 
       ImGui::EndMenu();
@@ -189,6 +160,33 @@ void SandboxApp::on_update() {
   }
 }
 
-auto basalt::IApplication::create() -> IApplication* {
-  return new SandboxApp();
+void SandboxApp::next_scene() {
+  mScenes[mCurrentSceneIndex]->on_hide();
+
+  mCurrentSceneIndex++;
+  if (mCurrentSceneIndex >= static_cast<i32>(mScenes.size())) {
+    mCurrentSceneIndex = 0;
+  }
+
+  mScenes[mCurrentSceneIndex]->on_show();
+}
+
+void SandboxApp::prev_scene() {
+  mScenes[mCurrentSceneIndex]->on_hide();
+
+  mCurrentSceneIndex--;
+  if (mCurrentSceneIndex < 0) {
+    mCurrentSceneIndex = static_cast<i32>(mScenes.size() - 1);
+  }
+
+  mScenes[mCurrentSceneIndex]->on_show();
+}
+
+void SandboxApp::set_scene(const i32 index) {
+  BASALT_ASSERT(index < static_cast<i32>(mScenes.size()));
+  BASALT_ASSERT(index >= 0);
+
+  mScenes[mCurrentSceneIndex]->on_hide();
+  mCurrentSceneIndex = index;
+  mScenes[mCurrentSceneIndex]->on_show();
 }

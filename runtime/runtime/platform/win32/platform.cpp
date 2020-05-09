@@ -194,33 +194,31 @@ namespace {
 
 void register_window_class() {
   auto* const cursor = static_cast<HCURSOR>(::LoadImageW(
-    nullptr, MAKEINTRESOURCEW(OCR_NORMAL), IMAGE_CURSOR, 0, 0,
-    LR_DEFAULTSIZE | LR_SHARED
-  ));
+    nullptr, MAKEINTRESOURCEW(OCR_NORMAL), IMAGE_CURSOR, 0, 0
+  , LR_DEFAULTSIZE | LR_SHARED));
   if (!cursor) {
     BASALT_LOG_ERROR("failed to load cursor");
   }
 
-  WNDCLASSEXW windowClass{
-    sizeof(WNDCLASSEXW),
-    CS_OWNDC | CS_HREDRAW | CS_VREDRAW,
-    &window_proc,
-    0, // cbClsExtra
-    0, // cbWndExtra
-    sInstance,
-    nullptr, // hIcon
-    cursor,
-    reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1),
-    nullptr, // lpszMenuName
-    WINDOW_CLASS_NAME,
-    nullptr // hIconSm
+  WNDCLASSEXW windowClass {
+    sizeof(WNDCLASSEXW)
+  , CS_OWNDC | CS_HREDRAW | CS_VREDRAW
+  , &window_proc
+  , 0 // cbClsExtra
+  , 0 // cbWndExtra
+  , sInstance
+  , nullptr // hIcon
+  , cursor
+  , reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1)
+  , nullptr // lpszMenuName
+  , WINDOW_CLASS_NAME
+  , nullptr // hIconSm
   };
 
   if (!::RegisterClassExW(&windowClass)) {
     throw system_error(
-      ::GetLastError(), std::system_category(),
-      "Failed to register window class"
-    );
+      ::GetLastError(), std::system_category()
+    , "Failed to register window class");
   }
 }
 

@@ -21,17 +21,17 @@ struct SandboxApp final : basalt::IApplication {
   auto operator=(const SandboxApp&) -> SandboxApp& = delete;
   auto operator=(SandboxApp&&) -> SandboxApp& = delete;
 
-  void next_scene();
-  void prev_scene();
-  void set_scene(basalt::i32 index);
-
   void on_init() override;
   void on_shutdown() override;
   void on_update() override;
 
 private:
-  std::vector<std::unique_ptr<TestCase>> mScenes;
-  basalt::i32 mCurrentSceneIndex = 0u;
+  std::vector<std::unique_ptr<TestCase>> mScenes {};
+  basalt::i32 mCurrentSceneIndex {0};
+
+  void next_scene();
+  void prev_scene();
+  void set_scene(basalt::i32 index);
 };
 
 #endif // !SANDBOX_H

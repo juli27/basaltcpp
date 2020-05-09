@@ -51,6 +51,11 @@ struct Scene final {
 
   auto get_entity_registry() -> entt::registry&;
 
+  template <typename... Component>
+  auto create_entity() {
+    return mEntityRegistry.create<Component...>();
+  }
+
   void set_background_color(const Color& background);
   auto get_background_color() const -> const Color&;
 

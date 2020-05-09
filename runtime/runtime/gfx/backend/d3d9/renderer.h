@@ -9,10 +9,12 @@
 
 #include "runtime/shared/HandlePool.h"
 
+#include <wrl/client.h>
+
 namespace basalt::gfx::backend {
 
 struct D3D9Mesh {
-  IDirect3DVertexBuffer9* vertexBuffer = nullptr;
+  Microsoft::WRL::ComPtr<IDirect3DVertexBuffer9> vertexBuffer {};
   DWORD fvf = 0u;
   UINT vertexSize = 0u;
   D3DPRIMITIVETYPE primType = D3DPT_POINTLIST;
@@ -21,7 +23,10 @@ struct D3D9Mesh {
 
 struct D3D9Renderer final : IRenderer {
   D3D9Renderer() = delete;
-  explicit D3D9Renderer(IDirect3DDevice9* device, const D3DPRESENT_PARAMETERS& pp);
+  D3D9Renderer(
+    Microsoft::WRL::ComPtr<IDirect3DDevice9> device
+  , const D3DPRESENT_PARAMETERS& pp
+  );
   D3D9Renderer(const D3D9Renderer&) = delete;
   D3D9Renderer(D3D9Renderer&&) = delete;
   ~D3D9Renderer();
@@ -51,7 +56,7 @@ struct D3D9Renderer final : IRenderer {
 private:
   void render_commands(const RenderCommandBuffer& commands);
 
-  IDirect3DDevice9* mDevice = nullptr;
+  Microsoft::WRL::ComPtr<IDirect3DDevice9> mDevice {};
   D3DCAPS9 mDeviceCaps = {};
   D3DPRESENT_PARAMETERS mPresentParams;
   HandlePool<D3D9Mesh, MeshHandle> mMeshes;
