@@ -194,9 +194,6 @@
     <ClInclude Include="runtime\shared\Types.h" />
     <ClInclude Include="runtime\shared\Size2D.h" />
   </ItemGroup>
-  <ItemGroup>
-    <Manifest Include="..\sandbox\App.manifest" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -84,4 +84,7 @@
       <UniqueIdentifier>{997bb90f-60df-4fd8-a0e2-c963b2747e42}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="..\sandbox\App.manifest" />
+  </ItemGroup>
 </Project>

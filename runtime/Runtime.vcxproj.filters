@@ -131,7 +131,4 @@
       <UniqueIdentifier>{379b7f59-3f65-4474-8023-60106a6d8da1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
-  <ItemGroup>
-    <Manifest Include="..\sandbox\App.manifest" />
-  </ItemGroup>
 </Project>
