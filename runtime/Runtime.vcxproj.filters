@@ -28,6 +28,7 @@
     <ClCompile Include="runtime\math\Vec3.cpp">
       <Filter>math</Filter>
     </ClCompile>
+    <ClCompile Include="runtime\dear_imgui.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="runtime\shared\Asserts.h">
@@ -110,6 +111,7 @@
     <ClInclude Include="runtime\gfx\backend\context.h">
       <Filter>gfx\backend</Filter>
     </ClInclude>
+    <ClInclude Include="runtime\dear_imgui.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="platform">

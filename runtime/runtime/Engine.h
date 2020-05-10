@@ -8,7 +8,6 @@
 
 namespace basalt {
 
-struct Config;
 struct IApplication;
 struct Scene;
 
@@ -25,7 +24,7 @@ void shutdown();
 void run(IApplication* app, gfx::backend::IGfxContext* ctx);
 void quit();
 auto get_delta_time() -> f64;
-void set_current_scene(const std::shared_ptr<Scene>& scene);
+void set_current_scene(std::shared_ptr<Scene> scene);
 auto get_renderer() -> gfx::backend::IRenderer*;
 
 } // namespace basalt

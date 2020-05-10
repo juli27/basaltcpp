@@ -1,8 +1,7 @@
 #include "runtime/Engine.h"
 
+#include "runtime/dear_imgui.h"
 #include "runtime/IApplication.h"
-#include "runtime/Input.h"
-#include "runtime/Scene.h"
 
 #include "runtime/gfx/Gfx.h"
 
@@ -12,109 +11,30 @@
 #include "runtime/platform/Platform.h"
 
 #include "runtime/platform/events/Event.h"
-#include "runtime/platform/events/KeyEvents.h"
-#include "runtime/platform/events/MouseEvents.h"
 #include "runtime/platform/events/WindowEvents.h"
 
 #include "runtime/shared/Asserts.h"
-#include "runtime/shared/Log.h"
-
-#include <imgui/imgui.h>
 
 #include <chrono>
+#include <utility>
 
 using std::shared_ptr;
 
 namespace basalt {
 
 using gfx::backend::IGfxContext;
-using input::Key;
-using input::MouseButton;
-using platform::CharactersTyped;
-using platform::Event;
-using platform::EventDispatcher;
+using gfx::backend::IRenderer;
 using platform::EventType;
-using platform::KeyPressedEvent;
-using platform::KeyReleasedEvent;
-using platform::MouseWheelScrolledEvent;
 using platform::WindowResizedEvent;
 
 namespace {
 
 f64 sCurrentDeltaTime {0.0};
 shared_ptr<Scene> sCurrentScene {};
-gfx::backend::IRenderer* sRenderer {nullptr};
+IRenderer* sRenderer {nullptr};
 bool sRunning {true};
 
 void update(IApplication* app, IGfxContext* ctx);
-
-void init_dear_imgui() {
-  IMGUI_CHECKVERSION();
-  ImGui::CreateContext();
-
-  auto& imguiIo = ImGui::GetIO();
-  imguiIo.KeyMap[ImGuiKey_Tab] = enum_cast(Key::Tab);
-  imguiIo.KeyMap[ImGuiKey_LeftArrow] = enum_cast(Key::LeftArrow);
-  imguiIo.KeyMap[ImGuiKey_RightArrow] = enum_cast(Key::RightArrow);
-  imguiIo.KeyMap[ImGuiKey_UpArrow] = enum_cast(Key::UpArrow);
-  imguiIo.KeyMap[ImGuiKey_DownArrow] = enum_cast(Key::DownArrow);
-  imguiIo.KeyMap[ImGuiKey_PageUp] = enum_cast(Key::PageUp);
-  imguiIo.KeyMap[ImGuiKey_PageDown] = enum_cast(Key::PageDown);
-  imguiIo.KeyMap[ImGuiKey_Home] = enum_cast(Key::Home);
-  imguiIo.KeyMap[ImGuiKey_End] = enum_cast(Key::End);
-  imguiIo.KeyMap[ImGuiKey_Insert] = enum_cast(Key::Insert);
-  imguiIo.KeyMap[ImGuiKey_Delete] = enum_cast(Key::Delete);
-  imguiIo.KeyMap[ImGuiKey_Backspace] = enum_cast(Key::Backspace);
-  imguiIo.KeyMap[ImGuiKey_Space] = enum_cast(Key::Space);
-  imguiIo.KeyMap[ImGuiKey_Enter] = enum_cast(Key::Enter);
-  imguiIo.KeyMap[ImGuiKey_Escape] = enum_cast(Key::Escape);
-  imguiIo.KeyMap[ImGuiKey_KeyPadEnter] = enum_cast(Key::NumpadEnter);
-  imguiIo.KeyMap[ImGuiKey_A] = enum_cast(Key::A);
-  imguiIo.KeyMap[ImGuiKey_C] = enum_cast(Key::C);
-  imguiIo.KeyMap[ImGuiKey_V] = enum_cast(Key::V);
-  imguiIo.KeyMap[ImGuiKey_X] = enum_cast(Key::X);
-  imguiIo.KeyMap[ImGuiKey_Y] = enum_cast(Key::Y);
-  imguiIo.KeyMap[ImGuiKey_Z] = enum_cast(Key::Z);
-
-  platform::add_event_listener([](const Event& e) {
-    const EventDispatcher dispatcher(e);
-    auto& io = ImGui::GetIO();
-    dispatcher.dispatch<KeyPressedEvent>([&](const KeyPressedEvent& event) {
-      io.KeysDown[enum_cast(event.mKey)] = true;
-    });
-    dispatcher.dispatch<KeyReleasedEvent>([&](const KeyReleasedEvent& event) {
-      io.KeysDown[enum_cast(event.mKey)] = false;
-    });
-    dispatcher.dispatch<CharactersTyped>([&](const CharactersTyped& event) {
-      io.AddInputCharactersUTF8(event.mChars.c_str());
-    });
-    dispatcher.dispatch<MouseWheelScrolledEvent>(
-      [&](const MouseWheelScrolledEvent& event) {
-      io.MouseWheel = event.mOffset;
-    });
-  });
-}
-
-void new_dear_im_gui_frame() {
-  auto& io = ImGui::GetIO();
-  const auto windowSize = platform::get_window_size();
-  io.DisplaySize = ImVec2(
-    static_cast<float>(windowSize.width()), static_cast<float>(windowSize.height())
-  );
-  io.DeltaTime = static_cast<float>(sCurrentDeltaTime);
-  io.KeyCtrl = input::is_key_pressed(Key::Control);
-  io.KeyShift = input::is_key_pressed(Key::Shift);
-  io.KeyAlt = input::is_key_pressed(Key::Alt);
-  io.KeySuper = input::is_key_pressed(Key::Super);
-  io.MousePos = ImVec2(static_cast<float>(input::get_mouse_pos().x()), static_cast<float>(input::get_mouse_pos().y()));
-  io.MouseDown[0] = input::is_mouse_button_pressed(MouseButton::Left);
-  io.MouseDown[1] = input::is_mouse_button_pressed(MouseButton::Right);
-  io.MouseDown[2] = input::is_mouse_button_pressed(MouseButton::Middle);
-  io.MouseDown[3] = input::is_mouse_button_pressed(MouseButton::Button4);
-  io.MouseDown[4] = input::is_mouse_button_pressed(MouseButton::Button5);
-  sRenderer->new_gui_frame();
-  ImGui::NewFrame();
-}
 
 void dispatch_pending_events() {
   const auto events = platform::poll_events();
@@ -141,7 +61,7 @@ void dispatch_pending_events() {
 
 void startup(IGfxContext* const ctx) {
   // init imgui before gfx. Renderer initializes imgui render backend
-  init_dear_imgui();
+  DearImGui::init();
   sRenderer = ctx->create_renderer();
 }
 
@@ -149,7 +69,7 @@ void shutdown() {
   delete sRenderer;
   sRenderer = nullptr;
 
-  ImGui::DestroyContext();
+  DearImGui::shutdown();
 }
 
 void run(IApplication* app, IGfxContext* const ctx) {
@@ -160,7 +80,7 @@ void run(IApplication* app, IGfxContext* const ctx) {
 
   auto startTime = Clock::now();
   do {
-    new_dear_im_gui_frame();
+    DearImGui::new_frame();
 
     update(app, ctx);
 
@@ -181,11 +101,11 @@ auto get_delta_time() -> f64 {
   return sCurrentDeltaTime;
 }
 
-void set_current_scene(const shared_ptr<Scene>& scene) {
-  sCurrentScene = scene;
+void set_current_scene(shared_ptr<Scene> scene) {
+  sCurrentScene = std::move(scene);
 }
 
-auto get_renderer() -> gfx::backend::IRenderer* {
+auto get_renderer() -> IRenderer* {
   return sRenderer;
 }
 
