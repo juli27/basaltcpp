@@ -4,16 +4,19 @@
 
 #include "runtime/shared/Log.h"
 
+using std::unique_ptr;
+
 namespace basalt::gfx::backend {
 
 D3D9GfxContext::D3D9GfxContext(
   Microsoft::WRL::ComPtr<IDirect3DDevice9> device
 , const D3DPRESENT_PARAMETERS& pp
-) : mDevice {std::move(device)}, mPresentParams {pp} {
+)
+  : mDevice {std::move(device)}, mPresentParams {pp} {
 }
 
-auto D3D9GfxContext::create_renderer() -> IRenderer* {
-  return new D3D9Renderer(mDevice, mPresentParams);
+auto D3D9GfxContext::create_renderer() -> unique_ptr<IRenderer> {
+  return std::make_unique<D3D9Renderer>(mDevice, mPresentParams);
 }
 
 void D3D9GfxContext::present() {

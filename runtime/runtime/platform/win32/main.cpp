@@ -1,5 +1,4 @@
 #include "runtime/platform/win32/app.h"
-#include "runtime/platform/win32/globals.h"
 
 #include "runtime/shared/win32/util.h"
 #include "runtime/shared/win32/Windows_custom.h"
@@ -13,15 +12,13 @@ using std::exception;
 using std::wstring;
 
 _Use_decl_annotations_
-auto CALLBACK wWinMain(HINSTANCE instance, HINSTANCE, WCHAR*, int showCommand)
--> int try {
+auto CALLBACK wWinMain(
+  const HINSTANCE instance, HINSTANCE, WCHAR*, const int showCommand
+) -> int try {
   basalt::Log::init();
 
-  basalt::win32::sInstance = instance;
-  basalt::win32::sShowCommand = showCommand;
-
   try {
-    basalt::win32::run();
+    basalt::win32::run(instance, showCommand);
   } catch (const exception& ex) {
     BASALT_LOG_FATAL("unhandled exception: {}", ex.what());
 
@@ -36,16 +33,14 @@ auto CALLBACK wWinMain(HINSTANCE instance, HINSTANCE, WCHAR*, int showCommand)
   wstring mbText = L"Unhandled exception: \r\n";
   mbText.append(basalt::win32::create_wide_from_utf8(ex.what()));
   ::MessageBoxW(
-    nullptr, mbText.c_str(), L"Basalt Fatal Error",
-    MB_OK | MB_ICONERROR | MB_SYSTEMMODAL
-  );
+    nullptr, mbText.c_str(), L"Basalt Fatal Error"
+  , MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
 
   return 0;
 } catch (...) {
   ::MessageBoxW(
-    nullptr, L"An unknown fatal error occurred!", L"Basalt Fatal Error",
-    MB_OK | MB_ICONERROR | MB_SYSTEMMODAL
-  );
+    nullptr, L"An unknown fatal error occurred!", L"Basalt Fatal Error"
+  , MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
 
   return 0;
 }

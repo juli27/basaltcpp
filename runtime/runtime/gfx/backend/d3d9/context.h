@@ -7,6 +7,8 @@
 
 #include <wrl/client.h>
 
+#include <memory>
+
 namespace basalt::gfx::backend {
 
 struct D3D9GfxContext final : IGfxContext {
@@ -21,7 +23,7 @@ struct D3D9GfxContext final : IGfxContext {
   auto operator=(const D3D9GfxContext&) -> D3D9GfxContext& = delete;
   auto operator=(D3D9GfxContext&&) -> D3D9GfxContext& = delete;
 
-  auto create_renderer() -> IRenderer* override;
+  auto create_renderer() -> std::unique_ptr<IRenderer> override;
   void present() override;
 
 private:

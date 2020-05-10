@@ -4,6 +4,8 @@
 
 #include "runtime/gfx/backend/IRenderer.h"
 
+#include <memory>
+
 namespace basalt::gfx::backend {
 
 // A gfx context is directly tied to a window. If another gfx context is
@@ -17,7 +19,7 @@ struct IGfxContext {
   auto operator=(const IGfxContext&) -> IGfxContext& = delete;
   auto operator=(IGfxContext&&) -> IGfxContext& = delete;
 
-  virtual auto create_renderer() -> IRenderer* = 0;
+  virtual auto create_renderer() -> std::unique_ptr<IRenderer> = 0;
   virtual void present() = 0;
 };
 

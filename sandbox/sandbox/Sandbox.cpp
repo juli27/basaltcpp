@@ -11,20 +11,29 @@
 #include <runtime/Prelude.h>
 
 #include <runtime/platform/Platform.h>
+
 #include <runtime/shared/Asserts.h>
+#include <runtime/shared/Config.h>
 
 #include <imgui/imgui.h>
 
 using std::unique_ptr;
 
+using basalt::Config;
+using basalt::IApplication;
 using basalt::WindowMode;
 using basalt::input::Key;
 
-auto basalt::IApplication::create() -> unique_ptr<IApplication> {
+auto IApplication::configure() -> Config {
+  return Config::defaults();
+}
+
+
+auto IApplication::create() -> unique_ptr<IApplication> {
   return std::make_unique<SandboxApp>();
 }
 
-void SandboxApp::on_init() {
+SandboxApp::SandboxApp() {
   mScenes.reserve(5u);
   mScenes.push_back(std::make_unique<d3d9::Device>());
   mScenes.push_back(std::make_unique<d3d9::Vertices>());
@@ -35,10 +44,8 @@ void SandboxApp::on_init() {
   mScenes[mCurrentSceneIndex]->on_show();
 }
 
-void SandboxApp::on_shutdown() {
+SandboxApp::~SandboxApp() {
   mScenes[mCurrentSceneIndex]->on_hide();
-
-  mScenes.clear();
 }
 
 void SandboxApp::on_update() {

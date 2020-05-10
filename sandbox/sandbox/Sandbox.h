@@ -11,18 +11,16 @@
 struct TestCase;
 
 struct SandboxApp final : basalt::IApplication {
-  SandboxApp() = default;
+  SandboxApp();
 
   SandboxApp(const SandboxApp&) = delete;
   SandboxApp(SandboxApp&&) = delete;
 
-  ~SandboxApp() override = default;
+  ~SandboxApp() override;
 
   auto operator=(const SandboxApp&) -> SandboxApp& = delete;
   auto operator=(SandboxApp&&) -> SandboxApp& = delete;
 
-  void on_init() override;
-  void on_shutdown() override;
   void on_update() override;
 
 private:

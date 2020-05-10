@@ -19,6 +19,7 @@
 #include <utility>
 
 using std::shared_ptr;
+using std::unique_ptr;
 
 namespace basalt {
 
@@ -31,7 +32,7 @@ namespace {
 
 f64 sCurrentDeltaTime {0.0};
 shared_ptr<Scene> sCurrentScene {};
-IRenderer* sRenderer {nullptr};
+unique_ptr<IRenderer> sRenderer {};
 bool sRunning {true};
 
 void update(IApplication* app, IGfxContext* ctx);
@@ -59,17 +60,12 @@ void dispatch_pending_events() {
 
 } // namespace
 
-void startup(IGfxContext* const ctx) {
-  // init imgui before gfx. Renderer initializes imgui render backend
-  DearImGui::init();
-  sRenderer = ctx->create_renderer();
+void init(unique_ptr<IRenderer> renderer) {
+  sRenderer = std::move(renderer);
 }
 
 void shutdown() {
-  delete sRenderer;
-  sRenderer = nullptr;
-
-  DearImGui::shutdown();
+  sRenderer.reset();
 }
 
 void run(IApplication* app, IGfxContext* const ctx) {
@@ -106,7 +102,7 @@ void set_current_scene(shared_ptr<Scene> scene) {
 }
 
 auto get_renderer() -> IRenderer* {
-  return sRenderer;
+  return sRenderer.get();
 }
 
 namespace {
@@ -115,7 +111,7 @@ void update(IApplication* app, IGfxContext* const ctx) {
   app->on_update();
 
   // also calls ImGui::Render()
-  gfx::render(sRenderer, sCurrentScene);
+  gfx::render(sRenderer.get(), sCurrentScene);
 
   ctx->present();
 }

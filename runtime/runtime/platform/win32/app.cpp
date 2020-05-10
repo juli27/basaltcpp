@@ -7,6 +7,7 @@
 #include "runtime/shared/win32/Windows_custom.h"
 #include "runtime/shared/win32/util.h"
 
+#include "runtime/dear_imgui.h"
 #include "runtime/Engine.h"
 #include "runtime/IApplication.h"
 #include "runtime/Input.h"
@@ -30,6 +31,7 @@
 #include <string>
 #include <system_error>
 #include <memory>
+#include <utility>
 #include <vector>
 
 using std::runtime_error;
@@ -47,8 +49,6 @@ using namespace platform;
 using gfx::backend::IGfxContext;
 using gfx::backend::D3D9ContextFactory;
 
-HINSTANCE sInstance;
-int sShowCommand;
 vector<PlatformEventCallback> sEventListener;
 vector<shared_ptr<Event>> sPendingEvents;
 WindowData sWindowData;
@@ -56,6 +56,11 @@ WindowData sWindowData;
 namespace {
 
 constexpr auto WINDOW_CLASS_NAME = L"BS_WINDOW_CLASS";
+
+HINSTANCE sInstance;
+int sShowCommand;
+
+void dump_config(const Config& config);
 
 void create_main_window(const Config& config);
 
@@ -65,33 +70,33 @@ auto CALLBACK window_proc(
 
 } // namespace
 
-void run() {
-  const auto app = IApplication::create();
-  BASALT_ASSERT(app);
+void run(const HINSTANCE instance, const int showCommand) {
+  sInstance = instance;
+  sShowCommand = showCommand;
 
-  const auto config {Config::defaults()};
-  BASALT_LOG_INFO("config");
-  BASALT_LOG_INFO("  app name: {}", config.appName);
-  BASALT_LOG_INFO(
-    "  window: {}x{}{} {}{}"
-  , config.windowSize.width(), config.windowSize.height()
-  , config.windowMode == WindowMode::FullscreenExclusive ? " exclusive" : ""
-  , config.windowMode != WindowMode::Windowed ? "fullscreen" : "windowed"
-  , config.isWindowResizeable ? " resizeable" : "");
+  // let the client app configure us
+  const auto config {IApplication::configure()};
+  dump_config(config);
 
   create_main_window(config);
 
   input::init();
 
-  startup(sWindowData.gfxContext.get());
+  // init imgui before gfx. Renderer initializes imgui render backend
+  DearImGui::init();
 
-  app->on_init();
+  init(sWindowData.gfxContext->create_renderer());
 
-  basalt::run(app.get(), sWindowData.gfxContext.get());
+  {
+    const auto app = IApplication::create();
+    BASALT_ASSERT(app);
 
-  app->on_shutdown();
+    basalt::run(app.get(), sWindowData.gfxContext.get());
+  }
 
   shutdown();
+
+  DearImGui::shutdown();
 
   if (sWindowData.handle) {
     ::DestroyWindow(sWindowData.handle);
@@ -100,13 +105,23 @@ void run() {
 
   if (!::UnregisterClassW(WINDOW_CLASS_NAME, sInstance)) {
     BASALT_LOG_ERROR(
-      "failed to unregister window class: {}",
-      create_winapi_error_message(::GetLastError())
-    );
+      "failed to unregister window class: {}"
+    , create_winapi_error_message(::GetLastError()));
   }
 }
 
 namespace {
+
+void dump_config(const Config& config) {
+  BASALT_LOG_INFO("config");
+  BASALT_LOG_INFO("  app name: {}", config.appName);
+  BASALT_LOG_INFO(
+    "  window: {}x{}{} {}{}"
+  , config.windowSize.width(), config.windowSize.height()
+  , config.windowMode == WindowMode::FullscreenExclusive ? " exclusive" : ""
+  , config.windowMode != WindowMode::Windowed ? "fullscreen" : "windowed"
+  , config.isWindowResizeable ? " resizeable" : "");
+}
 
 void register_window_class() {
   auto* const cursor = static_cast<HCURSOR>(::LoadImageW(

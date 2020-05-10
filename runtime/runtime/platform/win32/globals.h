@@ -23,9 +23,6 @@ struct Event;
 
 namespace basalt::win32 {
 
-extern HINSTANCE sInstance;
-extern int sShowCommand;
-
 struct WindowData final {
   WindowData() noexcept = default;
   WindowData(const WindowData&) noexcept = delete;

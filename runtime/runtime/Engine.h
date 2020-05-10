@@ -18,7 +18,7 @@ struct IRenderer;
 
 } // gfx::backend
 
-void startup(gfx::backend::IGfxContext*);
+void init(std::unique_ptr<gfx::backend::IRenderer> renderer);
 void shutdown();
 
 void run(IApplication* app, gfx::backend::IGfxContext* ctx);
