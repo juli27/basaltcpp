@@ -4,10 +4,14 @@
 
 namespace basalt {
 
+namespace gfx::backend {
+struct IRenderer;
+} // gfx::backend
+
 struct DearImGui final {
   static void init();
   static void shutdown();
-  static void new_frame();
+  static void new_frame(gfx::backend::IRenderer*);
 };
 
 } //namespace basalt

@@ -12,7 +12,7 @@
 
 namespace basalt::gfx {
 
-void render(backend::IRenderer* renderer, const std::shared_ptr<Scene>& scene) {
+void render(backend::IRenderer* renderer, Scene* const scene) {
   BASALT_ASSERT(renderer);
 
   renderer->set_clear_color(scene->get_background_color());

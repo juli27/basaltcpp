@@ -1,5 +1,6 @@
 target_sources(App PRIVATE
   "app.cpp"
+  "engine.cpp"
   "main.cpp"
   "messages.cpp"
   "platform.cpp"

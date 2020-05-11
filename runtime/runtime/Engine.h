@@ -18,13 +18,15 @@ struct IRenderer;
 
 } // gfx::backend
 
-void init(std::unique_ptr<gfx::backend::IRenderer> renderer);
-void shutdown();
+void run(
+  IApplication* app, gfx::backend::IGfxContext* ctx
+, gfx::backend::IRenderer* renderer
+);
 
-void run(IApplication* app, gfx::backend::IGfxContext* ctx);
 void quit();
 auto get_delta_time() -> f64;
 void set_current_scene(std::shared_ptr<Scene> scene);
+auto get_current_scene() -> Scene*;
 auto get_renderer() -> gfx::backend::IRenderer*;
 
 } // namespace basalt

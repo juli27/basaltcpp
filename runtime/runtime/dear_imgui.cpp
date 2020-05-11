@@ -16,6 +16,7 @@
 
 namespace basalt {
 
+using gfx::backend::IRenderer;
 using platform::CharactersTyped;
 using platform::Event;
 using platform::EventDispatcher;
@@ -76,7 +77,7 @@ void DearImGui::shutdown() {
   ImGui::DestroyContext();
 }
 
-void DearImGui::new_frame() {
+void DearImGui::new_frame(IRenderer* const renderer) {
   auto& io = ImGui::GetIO();
   const auto windowSize = platform::get_window_size();
   io.DisplaySize = ImVec2(
@@ -93,7 +94,7 @@ void DearImGui::new_frame() {
   io.MouseDown[2] = input::is_mouse_button_pressed(MouseButton::Middle);
   io.MouseDown[3] = input::is_mouse_button_pressed(MouseButton::Button4);
   io.MouseDown[4] = input::is_mouse_button_pressed(MouseButton::Button5);
-  get_renderer()->new_gui_frame();
+  renderer->new_gui_frame();
   ImGui::NewFrame();
 }
 

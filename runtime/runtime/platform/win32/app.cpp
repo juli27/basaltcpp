@@ -31,7 +31,6 @@
 #include <string>
 #include <system_error>
 #include <memory>
-#include <utility>
 #include <vector>
 
 using std::runtime_error;
@@ -46,12 +45,15 @@ namespace basalt::win32 {
 
 using namespace platform;
 
-using gfx::backend::IGfxContext;
 using gfx::backend::D3D9ContextFactory;
+using gfx::backend::IGfxContext;
+using gfx::backend::IRenderer;
 
 vector<PlatformEventCallback> sEventListener;
 vector<shared_ptr<Event>> sPendingEvents;
 WindowData sWindowData;
+unique_ptr<IRenderer> sRenderer {};
+shared_ptr<Scene> sCurrentScene {};
 
 namespace {
 
@@ -84,18 +86,17 @@ void run(const HINSTANCE instance, const int showCommand) {
 
   // init imgui before gfx. Renderer initializes imgui render backend
   DearImGui::init();
-
-  init(sWindowData.gfxContext->create_renderer());
+  sRenderer = sWindowData.gfxContext->create_renderer();
 
   {
     const auto app = IApplication::create();
     BASALT_ASSERT(app);
+    BASALT_ASSERT_MSG(sCurrentScene, "no scene set");
 
-    basalt::run(app.get(), sWindowData.gfxContext.get());
+    basalt::run(app.get(), sWindowData.gfxContext.get(), sRenderer.get());
   }
 
-  shutdown();
-
+  sRenderer.reset();
   DearImGui::shutdown();
 
   if (sWindowData.handle) {

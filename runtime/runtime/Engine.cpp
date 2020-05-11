@@ -13,13 +13,9 @@
 #include "runtime/platform/events/Event.h"
 #include "runtime/platform/events/WindowEvents.h"
 
-#include "runtime/shared/Asserts.h"
-
 #include <chrono>
-#include <utility>
 
 using std::shared_ptr;
-using std::unique_ptr;
 
 namespace basalt {
 
@@ -31,13 +27,11 @@ using platform::WindowResizedEvent;
 namespace {
 
 f64 sCurrentDeltaTime {0.0};
-shared_ptr<Scene> sCurrentScene {};
-unique_ptr<IRenderer> sRenderer {};
 bool sRunning {true};
 
-void update(IApplication* app, IGfxContext* ctx);
+void update(IApplication* app, IGfxContext* ctx, IRenderer* renderer, Scene* scene);
 
-void dispatch_pending_events() {
+void dispatch_pending_events(IRenderer* const renderer) {
   const auto events = platform::poll_events();
   for (const auto& event : events) {
     switch (event->mType) {
@@ -48,7 +42,7 @@ void dispatch_pending_events() {
 
     case EventType::WindowResized: {
       const auto resizedEvent = std::static_pointer_cast<WindowResizedEvent>(event);
-      sRenderer->on_window_resize(*resizedEvent);
+      renderer->on_window_resize(*resizedEvent);
       break;
     }
 
@@ -60,32 +54,22 @@ void dispatch_pending_events() {
 
 } // namespace
 
-void init(unique_ptr<IRenderer> renderer) {
-  sRenderer = std::move(renderer);
-}
-
-void shutdown() {
-  sRenderer.reset();
-}
-
-void run(IApplication* app, IGfxContext* const ctx) {
-  BASALT_ASSERT_MSG(sCurrentScene, "no scene set");
-
+void run(IApplication* app, IGfxContext* const ctx, IRenderer* const renderer) {
   static_assert(std::chrono::high_resolution_clock::is_steady);
   using Clock = std::chrono::high_resolution_clock;
 
   auto startTime = Clock::now();
   do {
-    DearImGui::new_frame();
+    DearImGui::new_frame(renderer);
 
-    update(app, ctx);
+    update(app, ctx, renderer, get_current_scene());
 
     const auto endTime = Clock::now();
     sCurrentDeltaTime = static_cast<f64>((endTime - startTime).count()) /
       (Clock::period::den * Clock::period::num);
     startTime = endTime;
 
-    dispatch_pending_events();
+    dispatch_pending_events(renderer);
   } while (sRunning);
 }
 
@@ -97,21 +81,16 @@ auto get_delta_time() -> f64 {
   return sCurrentDeltaTime;
 }
 
-void set_current_scene(shared_ptr<Scene> scene) {
-  sCurrentScene = std::move(scene);
-}
-
-auto get_renderer() -> IRenderer* {
-  return sRenderer.get();
-}
-
 namespace {
 
-void update(IApplication* app, IGfxContext* const ctx) {
+void update(
+  IApplication* app, IGfxContext* const ctx, IRenderer* const renderer
+, Scene* scene
+) {
   app->on_update();
 
   // also calls ImGui::Render()
-  gfx::render(sRenderer.get(), sCurrentScene);
+  gfx::render(renderer, scene);
 
   ctx->present();
 }

@@ -167,6 +167,41 @@ void SandboxApp::on_update() {
 
     ImGui::EndMainMenuBar();
   }
+
+  const auto distanceToEdge = 10.0f;
+  static auto corner = 2;
+  auto& io = ImGui::GetIO();
+  const ImVec2 windowPos {(corner & 1) ? io.DisplaySize.x - distanceToEdge : distanceToEdge, (corner & 2) ? io.DisplaySize.y - distanceToEdge : distanceToEdge};
+  const ImVec2 windowPosPivot {(corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f};
+
+  ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always, windowPosPivot);
+
+  ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
+  if (ImGui::Begin(
+    "Example: Simple overlay", nullptr
+  , ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration |
+    ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings |
+    ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav)) {
+    ImGui::Text(
+      "%.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+
+    if (ImGui::BeginPopupContextWindow()) {
+      if (ImGui::MenuItem("Top-left", nullptr, corner == 0)) {
+        corner = 0;
+      }
+      if (ImGui::MenuItem("Top-right", nullptr, corner == 1)) {
+        corner = 1;
+      }
+      if (ImGui::MenuItem("Bottom-left", nullptr, corner == 2)) {
+        corner = 2;
+      }
+      if (ImGui::MenuItem("Bottom-right", nullptr, corner == 3)) {
+        corner = 3;
+      }
+      ImGui::EndPopup();
+    }
+  }
+  ImGui::End();
 }
 
 void SandboxApp::next_scene() {

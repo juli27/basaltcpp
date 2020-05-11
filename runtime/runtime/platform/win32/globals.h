@@ -12,16 +12,21 @@
 #include <memory>
 #include <vector>
 
-namespace basalt::gfx::backend {
+namespace basalt {
+
+struct Scene;
+
+namespace gfx::backend {
 struct D3D9ContextFactory;
 struct IGfxContext;
-}
+struct IRenderer;
+} // namespace gfx::backend
 
-namespace basalt::platform {
+namespace platform {
 struct Event;
-}
+} //namespace platform
 
-namespace basalt::win32 {
+namespace win32 {
 
 struct WindowData final {
   WindowData() noexcept = default;
@@ -47,6 +52,10 @@ extern WindowData sWindowData;
 extern std::vector<platform::PlatformEventCallback> sEventListener;
 extern std::vector<std::shared_ptr<platform::Event>> sPendingEvents;
 
-} // namespace basalt::win32
+extern std::unique_ptr<gfx::backend::IRenderer> sRenderer;
+extern std::shared_ptr<Scene> sCurrentScene;
+
+} // namespace win32
+} // namespace basalt
 
 #endif // !BASALT_RUNTIME_PLATFORM_WIN32_GLOBALS_H
