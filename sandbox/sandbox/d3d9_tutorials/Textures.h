@@ -5,6 +5,7 @@
 #include "sandbox/TestCase.h"
 
 #include <runtime/Scene.h>
+#include <runtime/gfx/backend/IRenderer.h>
 
 #include <entt/entity/fwd.hpp>
 
@@ -13,7 +14,8 @@
 namespace d3d9_tuts {
 
 struct Textures final : TestCase {
-  Textures();
+  Textures() = delete;
+  Textures(basalt::gfx::backend::IRenderer*);
 
   Textures(const Textures&) = delete;
   Textures(Textures&&) = delete;

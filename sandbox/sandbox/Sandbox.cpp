@@ -10,6 +10,7 @@
 #include <runtime/Input.h>
 #include <runtime/Prelude.h>
 
+#include <runtime/gfx/backend/IRenderer.h>
 #include <runtime/platform/Platform.h>
 
 #include <runtime/shared/Asserts.h>
@@ -22,6 +23,7 @@ using std::unique_ptr;
 using basalt::Config;
 using basalt::IApplication;
 using basalt::WindowMode;
+using basalt::gfx::backend::IRenderer;
 using basalt::input::Key;
 
 auto IApplication::configure() -> Config {
@@ -29,17 +31,17 @@ auto IApplication::configure() -> Config {
 }
 
 
-auto IApplication::create() -> unique_ptr<IApplication> {
-  return std::make_unique<SandboxApp>();
+auto IApplication::create(IRenderer* const renderer) -> unique_ptr<IApplication> {
+  return std::make_unique<SandboxApp>(renderer);
 }
 
-SandboxApp::SandboxApp() {
+SandboxApp::SandboxApp(IRenderer* const renderer) {
   mScenes.reserve(5u);
   mScenes.push_back(std::make_unique<d3d9::Device>());
-  mScenes.push_back(std::make_unique<d3d9::Vertices>());
-  mScenes.push_back(std::make_unique<d3d9_tuts::Matrices>());
-  mScenes.push_back(std::make_unique<d3d9_tuts::Lights>());
-  mScenes.push_back(std::make_unique<d3d9_tuts::Textures>());
+  mScenes.push_back(std::make_unique<d3d9::Vertices>(renderer));
+  mScenes.push_back(std::make_unique<d3d9_tuts::Matrices>(renderer));
+  mScenes.push_back(std::make_unique<d3d9_tuts::Lights>(renderer));
+  mScenes.push_back(std::make_unique<d3d9_tuts::Textures>(renderer));
 
   mScenes[mCurrentSceneIndex]->on_show();
 }

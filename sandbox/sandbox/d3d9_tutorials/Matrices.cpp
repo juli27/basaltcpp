@@ -27,6 +27,7 @@ using basalt::math::PI;
 using basalt::math::Vec3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::RenderComponent;
+using basalt::gfx::backend::IRenderer;
 using basalt::gfx::backend::PrimitiveType;
 using basalt::gfx::backend::RenderFlagCullNone;
 using basalt::gfx::backend::RenderFlagDisableLighting;
@@ -35,7 +36,7 @@ using basalt::gfx::backend::VertexLayout;
 
 namespace d3d9_tuts {
 
-Matrices::Matrices() {
+Matrices::Matrices(IRenderer* const renderer) {
   mScene->set_background_color(Color {0.0f, 0.0f, 0.0f});
 
   const Vec3f32 cameraPos(0.0f, 3.0f, -5.0f);
@@ -64,11 +65,9 @@ Matrices::Matrices() {
   mTriangleEntity = std::get<0>(entity);
 
   auto& renderComponent = std::get<2>(entity);
-  renderComponent.mMesh =
-    basalt::get_renderer()->add_mesh(
-      vertices.data(),
-      static_cast<i32>(vertices.size()),
-      vertexLayout, PrimitiveType::TriangleList);
+  renderComponent.mMesh = renderer->add_mesh(
+    vertices.data(), static_cast<i32>(vertices.size()), vertexLayout
+  , PrimitiveType::TriangleList);
   renderComponent.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 }
 

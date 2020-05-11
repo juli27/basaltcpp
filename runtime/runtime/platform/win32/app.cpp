@@ -37,7 +37,6 @@ using std::runtime_error;
 using std::shared_ptr;
 using std::string;
 using std::system_error;
-using std::unique_ptr;
 using std::vector;
 using std::wstring;
 
@@ -52,7 +51,6 @@ using gfx::backend::IRenderer;
 vector<PlatformEventCallback> sEventListener;
 vector<shared_ptr<Event>> sPendingEvents;
 WindowData sWindowData;
-unique_ptr<IRenderer> sRenderer {};
 shared_ptr<Scene> sCurrentScene {};
 
 namespace {
@@ -86,17 +84,19 @@ void run(const HINSTANCE instance, const int showCommand) {
 
   // init imgui before gfx. Renderer initializes imgui render backend
   DearImGui::init();
-  sRenderer = sWindowData.gfxContext->create_renderer();
 
   {
-    const auto app = IApplication::create();
+    const auto renderer = sWindowData.gfxContext->create_renderer();
+
+    const auto app = IApplication::create(renderer.get());
     BASALT_ASSERT(app);
     BASALT_ASSERT_MSG(sCurrentScene, "no scene set");
 
-    basalt::run(app.get(), sWindowData.gfxContext.get(), sRenderer.get());
+    basalt::run(app.get(), sWindowData.gfxContext.get(), renderer.get());
+
+    sCurrentScene.reset();
   }
 
-  sRenderer.reset();
   DearImGui::shutdown();
 
   if (sWindowData.handle) {

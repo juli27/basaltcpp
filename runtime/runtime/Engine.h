@@ -27,7 +27,6 @@ void quit();
 auto get_delta_time() -> f64;
 void set_current_scene(std::shared_ptr<Scene> scene);
 auto get_current_scene() -> Scene*;
-auto get_renderer() -> gfx::backend::IRenderer*;
 
 } // namespace basalt
 

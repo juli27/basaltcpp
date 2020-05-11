@@ -28,6 +28,7 @@ using basalt::math::Vec2f32;
 using basalt::math::Vec3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::RenderComponent;
+using basalt::gfx::backend::IRenderer;
 using basalt::gfx::backend::PrimitiveType;
 using basalt::gfx::backend::RenderFlagCullNone;
 using basalt::gfx::backend::RenderFlagDisableLighting;
@@ -36,7 +37,7 @@ using basalt::gfx::backend::VertexLayout;
 
 namespace d3d9_tuts {
 
-Textures::Textures() {
+Textures::Textures(IRenderer* const renderer) {
   mScene->set_background_color(Color {0.0f, 0.0f, 1.0f});
   mScene->set_camera(Camera(
     {0.0f, 3.0f, -5.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}
@@ -74,10 +75,9 @@ Textures::Textures() {
   mCylinderEntity = std::get<0>(entity);
 
   auto& renderComponent = std::get<2>(entity);
-  auto* renderer = basalt::get_renderer();
-  renderComponent.mMesh =
-    renderer->add_mesh(vertices.data(), static_cast<i32>(vertices.size()),
-                       vertexLayout, PrimitiveType::TriangleStrip);
+  renderComponent.mMesh = renderer->add_mesh(
+    vertices.data(), static_cast<i32>(vertices.size()), vertexLayout
+  , PrimitiveType::TriangleStrip);
   renderComponent.mTexture = renderer->add_texture("data/banana.bmp");
   renderComponent.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 }

@@ -3,6 +3,7 @@
 #define SANDBOX_H
 
 #include <runtime/IApplication.h>
+#include <runtime/gfx/backend/IRenderer.h>
 #include <runtime/shared/Types.h>
 
 #include <memory>
@@ -11,7 +12,8 @@
 struct TestCase;
 
 struct SandboxApp final : basalt::IApplication {
-  SandboxApp();
+  SandboxApp() = delete;
+  SandboxApp(basalt::gfx::backend::IRenderer*);
 
   SandboxApp(const SandboxApp&) = delete;
   SandboxApp(SandboxApp&&) = delete;

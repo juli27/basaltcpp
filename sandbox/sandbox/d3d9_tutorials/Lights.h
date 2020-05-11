@@ -5,6 +5,7 @@
 #include "sandbox/TestCase.h"
 
 #include <runtime/Scene.h>
+#include <runtime/gfx/backend/IRenderer.h>
 #include <runtime/shared/Types.h>
 
 #include <entt/entity/fwd.hpp>
@@ -14,7 +15,8 @@
 namespace d3d9_tuts {
 
 struct Lights final : TestCase {
-  Lights();
+  Lights() = delete;
+  Lights(basalt::gfx::backend::IRenderer*);
 
   Lights(const Lights&) = delete;
   Lights(Lights&&) = delete;
@@ -32,6 +34,9 @@ private:
   std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();
   basalt::f32 mLightAngle = 0.0f;
   entt::entity mCylinderEntity = entt::null;
+
+  // TODO: no no
+  basalt::gfx::backend::IRenderer* mRenderer;
 };
 
 } // namespace d3d9_tuts

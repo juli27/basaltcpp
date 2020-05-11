@@ -15,13 +15,14 @@ using std::array;
 
 using basalt::TransformComponent;
 using basalt::gfx::RenderComponent;
+using basalt::gfx::backend::IRenderer;
 using basalt::gfx::backend::PrimitiveType;
 using basalt::gfx::backend::VertexElement;
 using basalt::gfx::backend::VertexLayout;
 
 namespace d3d9 {
 
-Vertices::Vertices() {
+Vertices::Vertices(IRenderer* const renderer) {
   mScene->set_background_color(Color {0.0f, 0.0f, 1.0f});
 
   struct Vertex final {
@@ -51,10 +52,9 @@ Vertices::Vertices() {
   };
 
   const auto [entity, renderComp] = mScene->create_entity<RenderComponent>();
-  renderComp.mMesh = basalt::get_renderer()->add_mesh(
-    vertices.data(), static_cast<i32>(vertices.size()), vertexLayout,
-    PrimitiveType::TriangleList
-  );
+  renderComp.mMesh = renderer->add_mesh(
+    vertices.data(), static_cast<i32>(vertices.size()), vertexLayout
+  , PrimitiveType::TriangleList);
 }
 
 void Vertices::on_show() {

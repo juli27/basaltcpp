@@ -5,13 +5,15 @@
 #include "sandbox/TestCase.h"
 
 #include <runtime/Scene.h>
+#include <runtime/gfx/backend/IRenderer.h>
 
 #include <memory>
 
 namespace d3d9 {
 
 struct Vertices final : TestCase {
-  Vertices();
+  Vertices() = delete;
+  Vertices(basalt::gfx::backend::IRenderer*);
 
   Vertices(const Vertices&) = delete;
   Vertices(Vertices&&) = delete;

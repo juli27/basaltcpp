@@ -19,7 +19,6 @@ struct Scene;
 namespace gfx::backend {
 struct D3D9ContextFactory;
 struct IGfxContext;
-struct IRenderer;
 } // namespace gfx::backend
 
 namespace platform {
@@ -52,7 +51,6 @@ extern WindowData sWindowData;
 extern std::vector<platform::PlatformEventCallback> sEventListener;
 extern std::vector<std::shared_ptr<platform::Event>> sPendingEvents;
 
-extern std::unique_ptr<gfx::backend::IRenderer> sRenderer;
 extern std::shared_ptr<Scene> sCurrentScene;
 
 } // namespace win32

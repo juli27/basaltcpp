@@ -8,6 +8,10 @@
 
 namespace basalt {
 
+namespace gfx::backend {
+struct IRenderer;
+} // gfx::backend
+
 struct IApplication {
   IApplication() = default;
 
@@ -22,7 +26,7 @@ struct IApplication {
   virtual void on_update() = 0;
 
   static auto configure() -> Config;
-  static auto create() -> std::unique_ptr<IApplication>;
+  static auto create(gfx::backend::IRenderer*) -> std::unique_ptr<IApplication>;
 };
 
 } // namespace basalt
