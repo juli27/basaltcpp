@@ -27,7 +27,7 @@ struct Textures final : TestCase {
 
   void on_show() override;
   void on_hide() override;
-  void on_update() override;
+  void on_update(basalt::f64 deltaTime) override;
 
 private:
   std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();

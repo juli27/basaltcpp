@@ -10,8 +10,6 @@
 #include "runtime/platform/events/KeyEvents.h"
 #include "runtime/platform/events/MouseEvents.h"
 
-#include "runtime/shared/Types.h"
-
 #include <imgui/imgui.h>
 
 namespace basalt {
@@ -77,13 +75,13 @@ void DearImGui::shutdown() {
   ImGui::DestroyContext();
 }
 
-void DearImGui::new_frame(IRenderer* const renderer) {
+void DearImGui::new_frame(IRenderer* const renderer, const f64 deltaTime) {
   auto& io = ImGui::GetIO();
   const auto windowSize = platform::get_window_size();
   io.DisplaySize = ImVec2(
     static_cast<float>(windowSize.width()), static_cast<float>(windowSize.height())
   );
-  io.DeltaTime = static_cast<float>(get_delta_time());
+  io.DeltaTime = static_cast<float>(deltaTime);
   io.KeyCtrl = input::is_key_pressed(Key::Control);
   io.KeyShift = input::is_key_pressed(Key::Shift);
   io.KeyAlt = input::is_key_pressed(Key::Alt);

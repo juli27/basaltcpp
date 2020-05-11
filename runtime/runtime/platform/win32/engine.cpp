@@ -16,5 +16,8 @@ auto get_current_scene() -> Scene* {
   return sCurrentScene.get();
 }
 
+void quit() {
+  sRunning = false;
+}
 
 } // namespace basalt

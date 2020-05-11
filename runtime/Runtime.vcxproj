@@ -151,7 +151,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="runtime\dear_imgui.cpp" />
-    <ClCompile Include="runtime\Engine.cpp" />
     <ClCompile Include="runtime\gfx\backend\Types.cpp" />
     <ClCompile Include="runtime\gfx\Camera.cpp" />
     <ClCompile Include="runtime\gfx\Gfx.cpp" />

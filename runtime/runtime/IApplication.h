@@ -3,6 +3,7 @@
 #define BASALT_IAPPLICATION_H
 
 #include "runtime/shared/Config.h"
+#include "runtime/shared/Types.h"
 
 #include <memory>
 
@@ -23,7 +24,7 @@ struct IApplication {
   auto operator=(const IApplication&) -> IApplication& = delete;
   auto operator=(IApplication&&) -> IApplication& = delete;
 
-  virtual void on_update() = 0;
+  virtual void on_update(f64 deltaTime) = 0;
 
   static auto configure() -> Config;
   static auto create(gfx::backend::IRenderer*) -> std::unique_ptr<IApplication>;

@@ -88,9 +88,8 @@ void Textures::on_show() {
 
 void Textures::on_hide() {}
 
-void Textures::on_update() {
-  const auto deltaTime = static_cast<f32>(basalt::get_delta_time());
-  const auto radOffsetX = PI * 0.5f * deltaTime;
+void Textures::on_update(const f64 deltaTime) {
+  const auto radOffsetX = PI * 0.5f * static_cast<f32>(deltaTime);
   auto& transform =
     mScene->get_entity_registry().get<TransformComponent>(mCylinderEntity);
   transform.rotate(radOffsetX, 0.0f, 0.0f);

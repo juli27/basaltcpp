@@ -23,7 +23,7 @@ struct SandboxApp final : basalt::IApplication {
   auto operator=(const SandboxApp&) -> SandboxApp& = delete;
   auto operator=(SandboxApp&&) -> SandboxApp& = delete;
 
-  void on_update() override;
+  void on_update(basalt::f64 deltaTime) override;
 
 private:
   std::vector<std::unique_ptr<TestCase>> mScenes {};

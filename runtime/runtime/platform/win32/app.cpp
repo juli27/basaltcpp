@@ -12,6 +12,8 @@
 #include "runtime/IApplication.h"
 #include "runtime/Input.h"
 
+#include "runtime/gfx/Gfx.h"
+
 #include "runtime/gfx/backend/d3d9/context_factory.h"
 #include "runtime/gfx/backend/context.h"
 
@@ -27,6 +29,7 @@
 
 #include <windowsx.h>
 
+#include <chrono>
 #include <stdexcept>
 #include <string>
 #include <system_error>
@@ -52,6 +55,7 @@ vector<PlatformEventCallback> sEventListener;
 vector<shared_ptr<Event>> sPendingEvents;
 WindowData sWindowData;
 shared_ptr<Scene> sCurrentScene {};
+bool sRunning {true};
 
 namespace {
 
@@ -92,7 +96,46 @@ void run(const HINSTANCE instance, const int showCommand) {
     BASALT_ASSERT(app);
     BASALT_ASSERT_MSG(sCurrentScene, "no scene set");
 
-    basalt::run(app.get(), sWindowData.gfxContext.get(), renderer.get());
+    static_assert(std::chrono::high_resolution_clock::is_steady);
+    using Clock = std::chrono::high_resolution_clock;
+    auto startTime = Clock::now();
+    auto currentDeltaTime = 0.0;
+
+    do {
+      DearImGui::new_frame(renderer.get(), currentDeltaTime);
+
+      app->on_update(currentDeltaTime);
+
+      // also calls ImGui::Render()
+      gfx::render(renderer.get(), sCurrentScene.get());
+
+      sWindowData.gfxContext->present();
+
+      const auto endTime = Clock::now();
+      currentDeltaTime = static_cast<f64>((endTime - startTime).count()) / (
+        Clock::period::den * Clock::period::num);
+      startTime = endTime;
+
+      const auto events = poll_events();
+      for (const auto& event : events) {
+        switch (event->mType) {
+        case EventType::Quit:
+        case EventType::WindowCloseRequest:
+          quit();
+          break;
+
+        case EventType::WindowResized: {
+          const auto resizedEvent = std::static_pointer_cast<
+            WindowResizedEvent>(event);
+          renderer->on_window_resize(*resizedEvent);
+          break;
+        }
+
+        default:
+          break;
+        }
+      }
+    } while (sRunning);
 
     sCurrentScene.reset();
   }

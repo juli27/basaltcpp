@@ -78,11 +78,9 @@ void Matrices::on_show() {
 void Matrices::on_hide() {
 }
 
-void Matrices::on_update() {
-  const auto deltaTime = static_cast<f32>(basalt::get_delta_time());
-
+void Matrices::on_update(const f64 deltaTime) {
   static auto speed = 2.0f;
-  const auto radOffsetY = deltaTime * speed * PI;
+  const auto radOffsetY = static_cast<f32>(deltaTime) * speed * PI;
   auto& transform =
     mScene->get_entity_registry().get<TransformComponent>(mTriangleEntity);
   transform.rotate(0.0f, radOffsetY, 0.0f);

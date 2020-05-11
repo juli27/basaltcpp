@@ -50,7 +50,7 @@ SandboxApp::~SandboxApp() {
   mScenes[mCurrentSceneIndex]->on_hide();
 }
 
-void SandboxApp::on_update() {
+void SandboxApp::on_update(const f64 deltaTime) {
   static auto pageUpPressed = false;
   static auto pageDownPressed = false;
   if (basalt::input::is_key_pressed(Key::PageUp)) {
@@ -73,7 +73,7 @@ void SandboxApp::on_update() {
     pageDownPressed = false;
   }
 
-  mScenes[mCurrentSceneIndex]->on_update();
+  mScenes[mCurrentSceneIndex]->on_update(deltaTime);
 
   static auto showDemo = false;
   static auto showMetrics = false;

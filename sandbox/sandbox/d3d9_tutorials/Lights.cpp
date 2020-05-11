@@ -81,9 +81,8 @@ void Lights::on_show() {
 
 void Lights::on_hide() {}
 
-void Lights::on_update() {
-  const auto deltaTime = static_cast<f32>(basalt::get_delta_time());
-  const auto radOffsetX = PI * 0.5f * deltaTime;
+void Lights::on_update(const f64 deltaTime) {
+  const auto radOffsetX = PI * 0.5f * static_cast<f32>(deltaTime);
   auto& transform =
     mScene->get_entity_registry().get<TransformComponent>(mCylinderEntity);
   transform.rotate(radOffsetX, 0.0f, 0.0f);
@@ -91,7 +90,7 @@ void Lights::on_update() {
   LightSetup lights;
   lights.set_global_ambient_color(Color::from_rgba(32, 32, 32));
 
-  mLightAngle += PI * 0.25f * deltaTime;
+  mLightAngle += PI * 0.25f * static_cast<f32>(deltaTime);
   // reset when rotated 360°
   while (mLightAngle >= PI * 2.0f) {
     mLightAngle -= PI * 2.0f;

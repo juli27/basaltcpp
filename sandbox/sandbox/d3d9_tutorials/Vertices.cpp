@@ -64,7 +64,7 @@ void Vertices::on_show() {
 void Vertices::on_hide() {
 }
 
-void Vertices::on_update() {
+void Vertices::on_update(const f64) {
   mScene->display_debug_gui();
 }
 

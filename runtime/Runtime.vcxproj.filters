@@ -10,7 +10,6 @@
     <ClCompile Include="runtime\math\Mat4.cpp">
       <Filter>math</Filter>
     </ClCompile>
-    <ClCompile Include="runtime\Engine.cpp" />
     <ClCompile Include="runtime\Input.cpp" />
     <ClCompile Include="runtime\Scene.cpp" />
     <ClCompile Include="runtime\gfx\Camera.cpp">

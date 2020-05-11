@@ -1,7 +1,6 @@
 target_sources(Runtime
   PRIVATE
     "dear_imgui.cpp"
-    "Engine.cpp"
     "Input.cpp"
     "Scene.cpp"
   PUBLIC

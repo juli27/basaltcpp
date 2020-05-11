@@ -52,6 +52,7 @@ extern std::vector<platform::PlatformEventCallback> sEventListener;
 extern std::vector<std::shared_ptr<platform::Event>> sPendingEvents;
 
 extern std::shared_ptr<Scene> sCurrentScene;
+extern bool sRunning;
 
 } // namespace win32
 } // namespace basalt

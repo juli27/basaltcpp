@@ -16,7 +16,7 @@ void Device::on_show() {
 void Device::on_hide() {
 }
 
-void Device::on_update() {
+void Device::on_update(const f64) {
   mScene->display_debug_gui();
 }
 
