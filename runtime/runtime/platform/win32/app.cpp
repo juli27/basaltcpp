@@ -2,13 +2,13 @@
 
 #include "runtime/platform/win32/globals.h"
 #include "runtime/platform/win32/key_map.h"
+// #include "runtime/platform/win32/messages.h"
 #include "runtime/platform/win32/util.h"
 
 #include "runtime/shared/win32/Windows_custom.h"
 #include "runtime/shared/win32/util.h"
 
 #include "runtime/dear_imgui.h"
-#include "runtime/Engine.h"
 #include "runtime/IApplication.h"
 #include "runtime/Input.h"
 
@@ -52,25 +52,30 @@ using gfx::backend::IGfxContext;
 using gfx::backend::IRenderer;
 
 vector<PlatformEventCallback> sEventListener;
-vector<shared_ptr<Event>> sPendingEvents;
 WindowData sWindowData;
 shared_ptr<Scene> sCurrentScene {};
 bool sRunning {true};
 
 namespace {
 
+struct Window final {
+  static auto CALLBACK window_proc(
+    HWND window, UINT message, WPARAM wParam, LPARAM lParam
+  ) -> LRESULT;
+};
+
 constexpr auto WINDOW_CLASS_NAME = L"BS_WINDOW_CLASS";
 
 HINSTANCE sInstance;
 int sShowCommand;
+vector<shared_ptr<Event>> sPendingEvents;
 
 void dump_config(const Config& config);
 
 void create_main_window(const Config& config);
 
-auto CALLBACK window_proc(
-  HWND window, UINT message, WPARAM wParam, LPARAM lParam
-) -> LRESULT;
+[[nodiscard]]
+auto poll_events() -> std::vector<std::shared_ptr<Event>>;
 
 } // namespace
 
@@ -119,15 +124,10 @@ void run(const HINSTANCE instance, const int showCommand) {
       const auto events = poll_events();
       for (const auto& event : events) {
         switch (event->mType) {
-        case EventType::Quit:
-        case EventType::WindowCloseRequest:
-          quit();
-          break;
-
         case EventType::WindowResized: {
           const auto resizedEvent = std::static_pointer_cast<
             WindowResizedEvent>(event);
-          renderer->on_window_resize(*resizedEvent);
+          renderer->on_window_resize(resizedEvent->mNewSize);
           break;
         }
 
@@ -178,7 +178,7 @@ void register_window_class() {
   WNDCLASSEXW windowClass {
     sizeof(WNDCLASSEXW)
   , CS_OWNDC | CS_HREDRAW | CS_VREDRAW
-  , &window_proc
+  , &Window::window_proc
   , 0 // cbClsExtra
   , 0 // cbWndExtra
   , sInstance
@@ -267,10 +267,14 @@ void dispatch_platform_event(const Event& event) {
   );
 }
 
-auto CALLBACK window_proc(
-  HWND window, const UINT message, const WPARAM wParam, const LPARAM lParam
+void on_resize(const Size2Du16 clientArea) {
+  sPendingEvents.push_back(std::make_shared<WindowResizedEvent>(clientArea));
+}
+
+auto CALLBACK Window::window_proc(
+  const HWND window, const UINT message, const WPARAM wParam, const LPARAM lParam
 ) -> LRESULT {
-  //BASALT_LOG_TRACE("received message: {}", message_to_string(message, wParam, lParam));
+  // BASALT_LOG_TRACE("received message: {}", message_to_string(message, wParam, lParam));
 
   switch (message) {
   case WM_MOUSEMOVE:
@@ -385,42 +389,27 @@ auto CALLBACK window_proc(
 
   case WM_EXITSIZEMOVE:
     sWindowData.isSizing = false;
-    sPendingEvents.push_back(
-      std::make_shared<WindowResizedEvent>(sWindowData.clientAreaSize)
-    );
+    on_resize(sWindowData.clientAreaSize);
     return 0;
 
   case WM_SIZE:
     switch (wParam) {
     case SIZE_RESTORED:
-      if (sWindowData.isMinimized) {
-        sWindowData.isMinimized = false;
-        sPendingEvents.push_back(std::make_shared<WindowRestoredEvent>());
-      }
       if (!sWindowData.isSizing) {
         if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam));
           sWindowData.clientAreaSize != newSize) {
           sWindowData.clientAreaSize = newSize;
 
-          sPendingEvents.push_back(
-            std::make_shared<WindowResizedEvent>(
-              sWindowData.clientAreaSize));
+          on_resize(sWindowData.clientAreaSize);
         }
       }
-      break;
-
-    case SIZE_MINIMIZED:
-      sWindowData.isMinimized = true;
-      sPendingEvents.push_back(std::make_shared<WindowMinimizedEvent>());
       break;
 
     case SIZE_MAXIMIZED:
       if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam));
         sWindowData.clientAreaSize != newSize) {
         sWindowData.clientAreaSize = {LOWORD(lParam), HIWORD(lParam)};
-        sPendingEvents.push_back(
-          std::make_shared<WindowResizedEvent>(sWindowData.clientAreaSize)
-        );
+        on_resize(sWindowData.clientAreaSize);
       }
       break;
 
@@ -429,11 +418,6 @@ auto CALLBACK window_proc(
     }
 
     break;
-
-  case WM_CLOSE:
-    sPendingEvents.push_back(std::make_shared<WindowCloseRequestEvent>());
-    // DefWindowProc would destroy the window
-    return 0;
 
   case WM_DESTROY:
     sWindowData.gfxContext.reset();
@@ -448,6 +432,53 @@ auto CALLBACK window_proc(
 
   return ::DefWindowProcW(window, message, wParam, lParam);
 }
+
+auto poll_events() -> vector<shared_ptr<Event>> {
+  MSG msg {};
+  while (::PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
+    ::TranslateMessage(&msg);
+    ::DispatchMessageW(&msg);
+
+    if (!msg.hwnd) {
+      switch (msg.message) {
+      case WM_QUIT:
+        sRunning = false;
+        break;
+
+      default:
+        // 275 is WM_TIMER
+        // is received upon focus change
+        BASALT_LOG_DEBUG("unhandled thread message: {}", msg.message);
+        break;
+      }
+    }
+  }
+
+  // sPendingEvents is guaranteed to be empty after move
+  return std::move(sPendingEvents);
+}
+
+//auto wait_for_events() -> vector<shared_ptr<Event>> {
+//  MSG msg{};
+//  const auto ret = ::GetMessageW(&msg, nullptr, 0u, 0u);
+//  if (ret == -1) {
+//    BASALT_LOG_ERROR(create_winapi_error_message(::GetLastError()));
+//    // TODO: fixme
+//    BASALT_ASSERT_MSG(false, "::GetMessageW error");
+//  }
+//
+//  // GetMessage retrieved WM_QUIT
+//  if (ret == 0) {
+//    sPendingEvents.push_back(std::make_shared<QuitEvent>());
+//    return sPendingEvents;
+//  }
+//
+//  ::TranslateMessage(&msg);
+//  ::DispatchMessageW(&msg);
+//
+//  // handle any remainig messages in the queue
+//  return poll_events();
+//}
 
 ///**
 // * \brief Processes the windows command line string and populates an argv

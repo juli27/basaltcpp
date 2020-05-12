@@ -5,6 +5,7 @@
 #include "runtime/gfx/backend/Types.h"
 
 #include "runtime/math/Mat4.h"
+#include "runtime/shared/Size2D.h"
 #include "runtime/shared/Types.h"
 
 #include <string>
@@ -13,11 +14,6 @@ namespace basalt {
 
 struct Color;
 
-namespace platform {
-
-struct WindowResizedEvent;
-
-}
 }
 
 namespace basalt::gfx::backend {
@@ -43,7 +39,7 @@ struct IRenderer {
 
   // TODO: method to retrieve a preferred vertex layout ?
 
-  virtual void on_window_resize(const platform::WindowResizedEvent& event) = 0;
+  virtual void on_window_resize(Size2Du16 size) = 0;
 
   /**
    * \brief Adds a static mesh to the renderer to prepare it for rendering.

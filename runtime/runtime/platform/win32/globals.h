@@ -21,10 +21,6 @@ struct D3D9ContextFactory;
 struct IGfxContext;
 } // namespace gfx::backend
 
-namespace platform {
-struct Event;
-} //namespace platform
-
 namespace win32 {
 
 struct WindowData final {
@@ -42,14 +38,12 @@ struct WindowData final {
   Size2Du16 clientAreaSize {Size2Du16::dont_care()};
   WindowMode mode {WindowMode::Windowed};
   bool isResizeable {false};
-  bool isMinimized {false};
   bool isSizing {false};
 };
 
 extern WindowData sWindowData;
 
 extern std::vector<platform::PlatformEventCallback> sEventListener;
-extern std::vector<std::shared_ptr<platform::Event>> sPendingEvents;
 
 extern std::shared_ptr<Scene> sCurrentScene;
 extern bool sRunning;

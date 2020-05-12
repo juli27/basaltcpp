@@ -1,7 +1,6 @@
 #include "runtime/gfx/backend/d3d9/renderer.h"
 
 #include "runtime/gfx/backend/d3d9/util.h"
-#include "runtime/platform/events/WindowEvents.h"
 
 #include "runtime/shared/Asserts.h"
 #include "runtime/shared/Color.h"
@@ -21,8 +20,6 @@
 using Microsoft::WRL::ComPtr;
 
 namespace basalt::gfx::backend {
-
-using platform::WindowResizedEvent;
 
 namespace {
 
@@ -78,10 +75,10 @@ D3D9Renderer::~D3D9Renderer() {
   });
 }
 
-void D3D9Renderer::on_window_resize(const WindowResizedEvent& event) {
+void D3D9Renderer::on_window_resize(const Size2Du16 size) {
   ImGui_ImplDX9_InvalidateDeviceObjects();
-  mPresentParams.BackBufferWidth = event.mNewSize.width();
-  mPresentParams.BackBufferHeight = event.mNewSize.height();
+  mPresentParams.BackBufferWidth = size.width();
+  mPresentParams.BackBufferHeight = size.height();
   mDevice->Reset(&mPresentParams);
   ImGui_ImplDX9_CreateDeviceObjects();
 
