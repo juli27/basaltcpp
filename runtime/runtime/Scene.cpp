@@ -1,5 +1,6 @@
 #include "runtime/Scene.h"
 
+#include "runtime/gfx/RenderComponent.h"
 #include "runtime/math/Constants.h"
 
 #include <imgui/imgui.h>
@@ -57,7 +58,7 @@ void Scene::display_debug_gui() {
       std::array<char, 16> str {};
       std::to_chars(str.data(), str.data() + str.size(), enum_cast(entity));
       if (ImGui::CollapsingHeader(str.data())) {
-        display_entity_gui_impl(entity);
+        this->display_entity_gui_impl(entity);
       }
     });
   }
@@ -86,29 +87,80 @@ auto Scene::get_camera() const -> const gfx::Camera& {
 }
 
 void Scene::display_entity_gui_impl(const entt::entity entity) {
-  if (!mEntityRegistry.has<TransformComponent>(entity)) {
-    return;
+  if (mEntityRegistry.has<TransformComponent>(entity)) {
+    auto& transform = mEntityRegistry.get<TransformComponent>(entity);
+
+    if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
+      f32 position[3] = {
+        transform.mPosition.x(), transform.mPosition.y()
+      , transform.mPosition.z()
+      };
+      ImGui::DragFloat3("Position", position, 0.1f);
+      transform.mPosition.set(position[0], position[1], position[2]);
+
+      f32 rotation[3] = {
+        transform.mRotation.x(), transform.mRotation.y()
+      , transform.mRotation.z()
+      };
+      ImGui::DragFloat3("Rotation", rotation, 0.01f, 0.0f, 2.0f * math::PI);
+      transform.mRotation.set(rotation[0], rotation[1], rotation[2]);
+
+      f32 scaling[3] = {
+        transform.mScale.x(), transform.mScale.y()
+      , transform.mScale.z()
+      };
+      ImGui::DragFloat3("Scaling", scaling, 0.1f, 0.0f);
+      transform.mScale.set(scaling[0], scaling[1], scaling[2]);
+
+      ImGui::TreePop();
+    }
   }
 
-  auto& transform = mEntityRegistry.get<TransformComponent>(entity);
+  if (mEntityRegistry.has<gfx::RenderComponent>(entity)) {
+    auto& renderComponent = mEntityRegistry.get<gfx::RenderComponent>(entity);
 
-  if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
-    f32 position[3] = {transform.mPosition.x(), transform.mPosition.y()
-                     , transform.mPosition.z()};
-    ImGui::DragFloat3("Position", position, 0.1f);
-    transform.mPosition.set(position[0], position[1], position[2]);
+    if (ImGui::TreeNodeEx("RenderComponent", ImGuiTreeNodeFlags_DefaultOpen)) {
+      ImGui::Text("Mesh: %#x", renderComponent.mMesh.get_value());
+      ImGui::Text("Texture: %#x", renderComponent.mTexture.get_value());
 
-    f32 rotation[3] = {transform.mRotation.x(), transform.mRotation.y()
-                     , transform.mRotation.z()};
-    ImGui::DragFloat3("Rotation", rotation, 0.01f, 0.0f, 2.0f * math::PI);
-    transform.mRotation.set(rotation[0], rotation[1], rotation[2]);
+      using std::get;
+      std::array<float, 4> color {};
+      get<0>(color) = renderComponent.mDiffuseColor.red();
+      get<1>(color) = renderComponent.mDiffuseColor.green();
+      get<2>(color) = renderComponent.mDiffuseColor.blue();
+      get<3>(color) = renderComponent.mDiffuseColor.alpha();
 
-    f32 scaling[3] = {transform.mScale.x(), transform.mScale.y()
-                    , transform.mScale.z()};
-    ImGui::DragFloat3("Scaling", scaling, 0.1f, 0.0f);
-    transform.mScale.set(scaling[0], scaling[1], scaling[2]);
+      ImGui::ColorEdit4("Diffuse", color.data(), ImGuiColorEditFlags_Float);
 
-    ImGui::TreePop();
+      renderComponent.mDiffuseColor = Color {
+        get<0>(color), get<1>(color), get<2>(color), get<3>(color)
+      };
+
+      get<0>(color) = renderComponent.mAmbientColor.red();
+      get<1>(color) = renderComponent.mAmbientColor.green();
+      get<2>(color) = renderComponent.mAmbientColor.blue();
+      get<3>(color) = renderComponent.mAmbientColor.alpha();
+
+      ImGui::ColorEdit4("Ambient", color.data(), ImGuiColorEditFlags_Float);
+
+      renderComponent.mAmbientColor = Color {
+        get<0>(color), get<1>(color), get<2>(color), get<3>(color)
+      };
+
+      if (renderComponent.mRenderFlags == gfx::backend::RenderFlagNone) {
+        ImGui::TextUnformatted("Flag: RenderFlagNone");
+      } else {
+        if (renderComponent.mRenderFlags & gfx::backend::RenderFlagCullNone) {
+          ImGui::TextUnformatted("Flag: RenderFlagCullNone");
+        }
+
+        if (renderComponent.mRenderFlags & gfx::backend::RenderFlagDisableLighting) {
+          ImGui::TextUnformatted("Flag: RenderFlagDisableLighting");
+        }
+      }
+
+      ImGui::TreePop();
+    }
   }
 }
 
