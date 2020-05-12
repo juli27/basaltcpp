@@ -180,7 +180,6 @@
     <ClInclude Include="runtime\platform\events\Event.h" />
     <ClInclude Include="runtime\platform\events\KeyEvents.h" />
     <ClInclude Include="runtime\platform\events\MouseEvents.h" />
-    <ClInclude Include="runtime\platform\events\WindowEvents.h" />
     <ClInclude Include="runtime\gfx\backend\context.h" />
     <ClInclude Include="runtime\platform\Platform.h" />
     <ClInclude Include="runtime\Prelude.h" />

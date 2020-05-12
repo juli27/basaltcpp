@@ -1,6 +1,7 @@
 #include "runtime/Engine.h"
 
 #include "runtime/platform/win32/globals.h"
+#include "runtime/shared/win32/Windows_custom.h"
 
 using std::shared_ptr;
 
@@ -17,7 +18,7 @@ auto get_current_scene() -> Scene* {
 }
 
 void quit() {
-  sRunning = false;
+  ::PostQuitMessage(0);
 }
 
 } // namespace basalt

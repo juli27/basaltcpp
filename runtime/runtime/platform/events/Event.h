@@ -8,7 +8,6 @@ namespace basalt::platform {
 
 enum class EventType : u8 {
   Unknown = 0
-, WindowResized
 , KeyPressed
 , KeyReleased
 , MouseMoved

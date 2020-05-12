@@ -72,9 +72,6 @@
     <ClInclude Include="runtime\gfx\backend\RenderCommand.h">
       <Filter>gfx\backend</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\platform\events\WindowEvents.h">
-      <Filter>platform\events</Filter>
-    </ClInclude>
     <ClInclude Include="runtime\platform\events\Event.h">
       <Filter>platform\events</Filter>
     </ClInclude>

@@ -2,7 +2,7 @@
 
 #include "runtime/platform/win32/globals.h"
 #include "runtime/platform/win32/key_map.h"
-// #include "runtime/platform/win32/messages.h"
+//#include "runtime/platform/win32/messages.h"
 #include "runtime/platform/win32/util.h"
 
 #include "runtime/shared/win32/Windows_custom.h"
@@ -15,17 +15,17 @@
 #include "runtime/gfx/Gfx.h"
 
 #include "runtime/gfx/backend/d3d9/context_factory.h"
-#include "runtime/gfx/backend/context.h"
+#include "runtime/gfx/backend/d3d9/context.h"
 
 #include "runtime/platform/Platform.h"
 
 #include "runtime/platform/events/Event.h"
 #include "runtime/platform/events/KeyEvents.h"
 #include "runtime/platform/events/MouseEvents.h"
-#include "runtime/platform/events/WindowEvents.h"
 
 #include "runtime/shared/Asserts.h"
 #include "runtime/shared/Log.h"
+#include "runtime/shared/Size2D.h"
 
 #include <windowsx.h>
 
@@ -34,12 +34,14 @@
 #include <string>
 #include <system_error>
 #include <memory>
+#include <utility>
 #include <vector>
 
 using std::runtime_error;
 using std::shared_ptr;
 using std::string;
 using std::system_error;
+using std::unique_ptr;
 using std::vector;
 using std::wstring;
 
@@ -48,57 +50,89 @@ namespace basalt::win32 {
 using namespace platform;
 
 using gfx::backend::D3D9ContextFactory;
-using gfx::backend::IGfxContext;
+using gfx::backend::D3D9GfxContext;
 using gfx::backend::IRenderer;
 
 vector<PlatformEventCallback> sEventListener;
 WindowData sWindowData;
 shared_ptr<Scene> sCurrentScene {};
-bool sRunning {true};
 
 namespace {
 
 struct Window final {
+  Window() = delete;
+
+  Window(const Window&) = delete;
+  Window(Window&&) = delete;
+
+  ~Window();
+
+  auto operator=(const Window&) -> Window& = delete;
+  auto operator=(Window&&) -> Window& = delete;
+
+  void present() const {
+    mContext->present();
+  }
+
+  [[nodiscard]]
+  auto renderer() const -> IRenderer* {
+    return mRenderer.get();
+  }
+
+  [[nodiscard]]
+  static auto create(
+    HINSTANCE instance, int showCommand, const Config& config
+  ) -> unique_ptr<Window>;
+
+private:
+  static constexpr auto CLASS_NAME = L"BS_WINDOW_CLASS";
+
+  HINSTANCE mInstance {nullptr};
+  HWND mHandle {nullptr};
+  unique_ptr<D3D9ContextFactory> mFactory {};
+  unique_ptr<D3D9GfxContext> mContext {};
+  unique_ptr<IRenderer> mRenderer {};
+  bool mInSizingMode {false};
+
+  Window(
+    HINSTANCE instance, HWND handle, unique_ptr<D3D9ContextFactory> factory
+  , unique_ptr<D3D9GfxContext> context, unique_ptr<IRenderer> renderer
+  );
+
+  [[nodiscard]]
+  auto dispatch_message(UINT message, WPARAM, LPARAM) -> LRESULT;
+
+  void resize(Size2Du16 clientArea) const;
+
+  static void register_class(HINSTANCE instance);
+
   static auto CALLBACK window_proc(
-    HWND window, UINT message, WPARAM wParam, LPARAM lParam
+    HWND, UINT message, WPARAM, LPARAM
   ) -> LRESULT;
 };
 
-constexpr auto WINDOW_CLASS_NAME = L"BS_WINDOW_CLASS";
-
-HINSTANCE sInstance;
-int sShowCommand;
-vector<shared_ptr<Event>> sPendingEvents;
-
 void dump_config(const Config& config);
 
-void create_main_window(const Config& config);
-
 [[nodiscard]]
-auto poll_events() -> std::vector<std::shared_ptr<Event>>;
+auto poll_events() -> bool;
 
 } // namespace
 
 void run(const HINSTANCE instance, const int showCommand) {
-  sInstance = instance;
-  sShowCommand = showCommand;
-
   // let the client app configure us
   const auto config {IApplication::configure()};
   dump_config(config);
-
-  create_main_window(config);
-
-  input::init();
 
   // init imgui before gfx. Renderer initializes imgui render backend
   DearImGui::init();
 
   {
-    const auto renderer = sWindowData.gfxContext->create_renderer();
+    // creates the window, the associated gfx context and the renderer
+    const auto window = Window::create(instance, showCommand, config);
+    input::init();
 
-    const auto app = IApplication::create(renderer.get());
-    BASALT_ASSERT(app);
+    const auto clientApp = IApplication::create(window->renderer());
+    BASALT_ASSERT(clientApp);
     BASALT_ASSERT_MSG(sCurrentScene, "no scene set");
 
     static_assert(std::chrono::high_resolution_clock::is_steady);
@@ -107,51 +141,25 @@ void run(const HINSTANCE instance, const int showCommand) {
     auto currentDeltaTime = 0.0;
 
     do {
-      DearImGui::new_frame(renderer.get(), currentDeltaTime);
+      DearImGui::new_frame(window->renderer(), currentDeltaTime);
 
-      app->on_update(currentDeltaTime);
+      clientApp->on_update(currentDeltaTime);
 
       // also calls ImGui::Render()
-      gfx::render(renderer.get(), sCurrentScene.get());
+      gfx::render(window->renderer(), sCurrentScene.get());
 
-      sWindowData.gfxContext->present();
+      window->present();
 
       const auto endTime = Clock::now();
       currentDeltaTime = static_cast<f64>((endTime - startTime).count()) / (
         Clock::period::den * Clock::period::num);
       startTime = endTime;
-
-      const auto events = poll_events();
-      for (const auto& event : events) {
-        switch (event->mType) {
-        case EventType::WindowResized: {
-          const auto resizedEvent = std::static_pointer_cast<
-            WindowResizedEvent>(event);
-          renderer->on_window_resize(resizedEvent->mNewSize);
-          break;
-        }
-
-        default:
-          break;
-        }
-      }
-    } while (sRunning);
+    } while (poll_events());
 
     sCurrentScene.reset();
   }
 
   DearImGui::shutdown();
-
-  if (sWindowData.handle) {
-    ::DestroyWindow(sWindowData.handle);
-    sWindowData.handle = nullptr;
-  }
-
-  if (!::UnregisterClassW(WINDOW_CLASS_NAME, sInstance)) {
-    BASALT_LOG_ERROR(
-      "failed to unregister window class: {}"
-    , create_winapi_error_message(::GetLastError()));
-  }
 }
 
 namespace {
@@ -167,41 +175,26 @@ void dump_config(const Config& config) {
   , config.isWindowResizeable ? " resizeable" : "");
 }
 
-void register_window_class() {
-  auto* const cursor = static_cast<HCURSOR>(::LoadImageW(
-    nullptr, MAKEINTRESOURCEW(OCR_NORMAL), IMAGE_CURSOR, 0, 0
-  , LR_DEFAULTSIZE | LR_SHARED));
-  if (!cursor) {
-    BASALT_LOG_ERROR("failed to load cursor");
+Window::~Window() {
+  if (!::DestroyWindow(mHandle)) {
+    BASALT_LOG_ERROR(
+      "::DestroyWindow failed: {}"
+    , create_winapi_error_message(::GetLastError()));
   }
 
-  WNDCLASSEXW windowClass {
-    sizeof(WNDCLASSEXW)
-  , CS_OWNDC | CS_HREDRAW | CS_VREDRAW
-  , &Window::window_proc
-  , 0 // cbClsExtra
-  , 0 // cbWndExtra
-  , sInstance
-  , nullptr // hIcon
-  , cursor
-  , reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1)
-  , nullptr // lpszMenuName
-  , WINDOW_CLASS_NAME
-  , nullptr // hIconSm
-  };
-
-  if (!::RegisterClassExW(&windowClass)) {
-    throw system_error(
-      ::GetLastError(), std::system_category()
-    , "Failed to register window class");
+  if (!::UnregisterClassW(CLASS_NAME, mInstance)) {
+    BASALT_LOG_ERROR(
+      "::UnregisterClassW failed: {}"
+    , create_winapi_error_message(::GetLastError()));
   }
 }
 
-void create_main_window(const Config& config) {
-  register_window_class();
+auto Window::create(
+  const HINSTANCE instance, const int showCommand, const Config& config
+) -> unique_ptr<Window> {
+  register_class(instance);
 
   sWindowData.mode = config.windowMode;
-  sWindowData.isResizeable = config.isWindowResizeable;
 
   RECT rect {0, 0, config.windowSize.width(), config.windowSize.height()};
   // handle don't care cases
@@ -233,29 +226,41 @@ void create_main_window(const Config& config) {
     styleEx |= WS_EX_TOPMOST;
   }
 
-  const auto windowTitle = win32::create_wide_from_utf8(config.appName);
-  sWindowData.handle = ::CreateWindowExW(
-    styleEx, WINDOW_CLASS_NAME, windowTitle.c_str(), style,
+  const auto windowTitle = create_wide_from_utf8(config.appName);
+  auto* const handle = ::CreateWindowExW(
+    styleEx, CLASS_NAME, windowTitle.c_str(), style,
     CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, nullptr, nullptr,
-    sInstance, nullptr
+    instance, nullptr
   );
-  if (!sWindowData.handle) {
+  if (!handle) {
     throw runtime_error("failed to create window");
   }
 
-  ::ShowWindow(sWindowData.handle, sShowCommand);
+  // TODO: error handling
+  auto factory = D3D9ContextFactory::create().value();
+  auto gfxContext = factory->create_context(handle);
+  auto renderer = gfxContext->create_renderer();
+
+  auto* const window = new Window {
+    instance, handle, std::move(factory), std::move(gfxContext)
+  , std::move(renderer)
+  };
+
+  // unique_ptr is actually a lie
+  // see the comment at the WM_CLOSE message for details
+  ::SetWindowLongPtrW(
+    handle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
+
+  ::ShowWindow(handle, showCommand);
   if (config.windowMode != WindowMode::Windowed) {
-    ::ShowWindow(sWindowData.handle, SW_SHOWMAXIMIZED);
+    ::ShowWindow(handle, SW_SHOWMAXIMIZED);
   }
 
-  ::GetClientRect(sWindowData.handle, &rect);
+  ::GetClientRect(handle, &rect);
   sWindowData.clientAreaSize.set(
     static_cast<u16>(rect.right), static_cast<u16>(rect.bottom));
 
-  // TODO: error handling
-  sWindowData.factory = D3D9ContextFactory::create().value();
-  sWindowData.gfxContext = sWindowData.factory->create_context(sWindowData.handle);
-  BASALT_ASSERT(sWindowData.gfxContext);
+  return unique_ptr<Window> {window};
 }
 
 void dispatch_platform_event(const Event& event) {
@@ -267,61 +272,67 @@ void dispatch_platform_event(const Event& event) {
   );
 }
 
-void on_resize(const Size2Du16 clientArea) {
-  sPendingEvents.push_back(std::make_shared<WindowResizedEvent>(clientArea));
+Window::Window(
+  const HINSTANCE instance, const HWND handle
+, unique_ptr<D3D9ContextFactory> factory, unique_ptr<D3D9GfxContext> context
+, unique_ptr<IRenderer> renderer
+)
+  : mInstance {instance}
+  , mHandle {handle}
+  , mFactory {std::move(factory)}
+  , mContext {std::move(context)}
+  , mRenderer {std::move(renderer)} {
+  BASALT_ASSERT(mInstance);
+  BASALT_ASSERT(mHandle);
+  BASALT_ASSERT(mFactory);
+  BASALT_ASSERT(mContext);
+  BASALT_ASSERT(mRenderer);
 }
 
-auto CALLBACK Window::window_proc(
-  const HWND window, const UINT message, const WPARAM wParam, const LPARAM lParam
+auto Window::dispatch_message(
+  const UINT message, const WPARAM wParam, const LPARAM lParam
 ) -> LRESULT {
-  // BASALT_LOG_TRACE("received message: {}", message_to_string(message, wParam, lParam));
-
   switch (message) {
-  case WM_MOUSEMOVE:
-    dispatch_platform_event(
-      MouseMovedEvent({GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)})
-    );
-    return 0;
+  case WM_SIZE:
+    switch (wParam) {
+    case SIZE_RESTORED:
+      if (!mInSizingMode) {
+        if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam));
+          sWindowData.clientAreaSize != newSize) {
+          sWindowData.clientAreaSize = newSize;
 
-  case WM_MOUSEWHEEL: {
-    const auto offset = GET_WHEEL_DELTA_WPARAM(wParam) / static_cast<f32>(
-      WHEEL_DELTA);
-    dispatch_platform_event(MouseWheelScrolledEvent(offset));
-    return 0;
-  }
+          resize(sWindowData.clientAreaSize);
+        }
+      }
+      break;
 
-  case WM_LBUTTONDOWN:
-    ::SetCapture(window);
-    dispatch_platform_event(MouseButtonPressedEvent(MouseButton::Left));
-    return 0;
+    case SIZE_MAXIMIZED:
+      if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam));
+        sWindowData.clientAreaSize != newSize) {
+        sWindowData.clientAreaSize = {LOWORD(lParam), HIWORD(lParam)};
+        resize(sWindowData.clientAreaSize);
+      }
+      break;
 
-  case WM_LBUTTONUP:
-    if (!::ReleaseCapture()) {
-      BASALT_LOG_ERROR(
-        "Releasing mouse capture in WM_LBUTTONUP failed: {}",
-        create_winapi_error_message(::GetLastError())
-      );
+    default:
+      break;
     }
-    dispatch_platform_event(MouseButtonReleasedEvent(MouseButton::Left));
-    return 0;
+    break;
 
-  case WM_RBUTTONDOWN:
-    dispatch_platform_event(MouseButtonPressedEvent(MouseButton::Right));
-    return 0;
+  case WM_KILLFOCUS:
+    // TODO: move somewhere else?
+    if (sWindowData.mode != WindowMode::Windowed) {
+      ::ShowWindow(mHandle, SW_MINIMIZE);
+    }
+    break;
 
-  case WM_RBUTTONUP:
-    dispatch_platform_event(MouseButtonReleasedEvent(MouseButton::Right));
+  case WM_CLOSE:
+    // ::DefWindowProcW would destroy the window.
+    // In order to not lie about the lifetime of the window object, we handle
+    // the WM_CLOSE message here and post the quit message to trigger our normal
+    // shutdown path
+    ::PostQuitMessage(0);
     return 0;
-
-  case WM_MBUTTONDOWN:
-    dispatch_platform_event(MouseButtonPressedEvent(MouseButton::Middle));
-    return 0;
-
-  case WM_MBUTTONUP:
-    dispatch_platform_event(MouseButtonReleasedEvent(MouseButton::Middle));
-    return 0;
-
-    // TODO: XBUTTON4 and XBUTTON5
 
   case WM_KEYDOWN:
   case WM_KEYUP: {
@@ -376,64 +387,118 @@ auto CALLBACK Window::window_proc(
     return 0;
   }
 
-  case WM_KILLFOCUS:
-    // TODO: move somewhere else?
-    if (sWindowData.mode != WindowMode::Windowed) {
-      ::ShowWindow(sWindowData.handle, SW_MINIMIZE);
+  case WM_MOUSEMOVE:
+    dispatch_platform_event(
+      MouseMovedEvent({GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)})
+    );
+    return 0;
+
+  case WM_LBUTTONDOWN:
+    ::SetCapture(mHandle);
+    dispatch_platform_event(MouseButtonPressedEvent(MouseButton::Left));
+    return 0;
+
+  case WM_LBUTTONUP:
+    if (!::ReleaseCapture()) {
+      BASALT_LOG_ERROR(
+        "Releasing mouse capture in WM_LBUTTONUP failed: {}",
+        create_winapi_error_message(::GetLastError())
+      );
     }
-    break;
+    dispatch_platform_event(MouseButtonReleasedEvent(MouseButton::Left));
+    return 0;
+
+  case WM_RBUTTONDOWN:
+    dispatch_platform_event(MouseButtonPressedEvent(MouseButton::Right));
+    return 0;
+
+  case WM_RBUTTONUP:
+    dispatch_platform_event(MouseButtonReleasedEvent(MouseButton::Right));
+    return 0;
+
+  case WM_MBUTTONDOWN:
+    dispatch_platform_event(MouseButtonPressedEvent(MouseButton::Middle));
+    return 0;
+
+  case WM_MBUTTONUP:
+    dispatch_platform_event(MouseButtonReleasedEvent(MouseButton::Middle));
+    return 0;
+
+    // TODO: XBUTTON4 and XBUTTON5
+
+  case WM_MOUSEWHEEL: {
+    const auto offset = GET_WHEEL_DELTA_WPARAM(wParam) / static_cast<f32>(
+      WHEEL_DELTA);
+    dispatch_platform_event(MouseWheelScrolledEvent(offset));
+    return 0;
+  }
 
   case WM_ENTERSIZEMOVE:
-    sWindowData.isSizing = true;
+    mInSizingMode = true;
     return 0;
 
   case WM_EXITSIZEMOVE:
-    sWindowData.isSizing = false;
-    on_resize(sWindowData.clientAreaSize);
+    mInSizingMode = false;
+    resize(sWindowData.clientAreaSize);
     return 0;
-
-  case WM_SIZE:
-    switch (wParam) {
-    case SIZE_RESTORED:
-      if (!sWindowData.isSizing) {
-        if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam));
-          sWindowData.clientAreaSize != newSize) {
-          sWindowData.clientAreaSize = newSize;
-
-          on_resize(sWindowData.clientAreaSize);
-        }
-      }
-      break;
-
-    case SIZE_MAXIMIZED:
-      if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam));
-        sWindowData.clientAreaSize != newSize) {
-        sWindowData.clientAreaSize = {LOWORD(lParam), HIWORD(lParam)};
-        on_resize(sWindowData.clientAreaSize);
-      }
-      break;
-
-    default:
-      break;
-    }
-
-    break;
-
-  case WM_DESTROY:
-    sWindowData.gfxContext.reset();
-    sWindowData.factory.reset();
-    sWindowData.handle = nullptr;
-    ::PostQuitMessage(0);
-    break;
 
   default:
     break;
   }
 
-  return ::DefWindowProcW(window, message, wParam, lParam);
+  return ::DefWindowProcW(mHandle, message, wParam, lParam);
 }
 
-auto poll_events() -> vector<shared_ptr<Event>> {
+void Window::resize(const Size2Du16 clientArea) const {
+  mRenderer->on_window_resize(clientArea);
+}
+
+void Window::register_class(const HINSTANCE instance) {
+  auto* const cursor = static_cast<HCURSOR>(::LoadImageW(
+    nullptr, MAKEINTRESOURCEW(OCR_NORMAL), IMAGE_CURSOR, 0, 0
+  , LR_DEFAULTSIZE | LR_SHARED));
+  if (!cursor) {
+    BASALT_LOG_ERROR("failed to load cursor");
+  }
+
+  WNDCLASSEXW windowClass {
+    sizeof(WNDCLASSEXW)
+  , CS_OWNDC | CS_HREDRAW | CS_VREDRAW
+  , &Window::window_proc
+  , 0 // cbClsExtra
+  , 0 // cbWndExtra
+  , instance
+  , nullptr // hIcon
+  , cursor
+  , reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1)
+  , nullptr // lpszMenuName
+  , CLASS_NAME
+  , nullptr // hIconSm
+  };
+
+  if (!::RegisterClassExW(&windowClass)) {
+    throw system_error(
+      ::GetLastError(), std::system_category()
+    , "Failed to register window class");
+  }
+}
+
+auto CALLBACK Window::window_proc(
+  const HWND handle, const UINT message, const WPARAM wParam
+, const LPARAM lParam
+) -> LRESULT {
+  /*BASALT_LOG_TRACE(
+    "received message: {}", message_to_string(message, wParam, lParam));*/
+
+  if (const auto window = ::GetWindowLongPtrW(handle, GWLP_USERDATA)) {
+    return reinterpret_cast<Window*>(window)->dispatch_message(
+      message, wParam, lParam);
+  }
+
+  return ::DefWindowProcW(handle, message, wParam, lParam);
+}
+
+auto poll_events() -> bool {
   MSG msg {};
   while (::PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
     ::TranslateMessage(&msg);
@@ -442,8 +507,7 @@ auto poll_events() -> vector<shared_ptr<Event>> {
     if (!msg.hwnd) {
       switch (msg.message) {
       case WM_QUIT:
-        sRunning = false;
-        break;
+        return false;
 
       default:
         // 275 is WM_TIMER
@@ -454,8 +518,7 @@ auto poll_events() -> vector<shared_ptr<Event>> {
     }
   }
 
-  // sPendingEvents is guaranteed to be empty after move
-  return std::move(sPendingEvents);
+  return true;
 }
 
 //auto wait_for_events() -> vector<shared_ptr<Event>> {
