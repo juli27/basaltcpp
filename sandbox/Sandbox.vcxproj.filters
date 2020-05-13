@@ -36,6 +36,9 @@
       <Filter>testcases\d3d9</Filter>
     </ClInclude>
     <ClInclude Include="sandbox\TestCase.h" />
+    <ClInclude Include="sandbox\d3d9\utils.h">
+      <Filter>testcases\d3d9</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="BasaltApp.props" />

@@ -11,8 +11,15 @@ namespace basalt::gfx {
 struct Camera final {
   Camera() = delete;
 
-  Camera(const math::Vec3f32& position, const math::Vec3f32& lookAt
-       , const math::Vec3f32& up);
+  Camera(
+    const math::Vec3f32& position, const math::Vec3f32& lookAt
+  , const math::Vec3f32& up
+  );
+
+  Camera(
+    const math::Vec3f32& position, const math::Vec3f32& lookAt
+  , const math::Vec3f32& up, const math::Mat4f32& projection
+  );
 
   Camera(const Camera&) = default;
   Camera(Camera&&) = default;
@@ -28,12 +35,12 @@ struct Camera final {
 private:
   void update_view() const;
 
-  mutable math::Mat4f32 mView;
-  math::Mat4f32 mProjection;
-  math::Vec3f32 mPosition;
-  math::Vec3f32 mLookAt;
-  math::Vec3f32 mUp;
-  mutable bool mDirty{ false };
+  math::Mat4f32 mProjection {};
+  mutable math::Mat4f32 mView {};
+  math::Vec3f32 mPosition {};
+  math::Vec3f32 mLookAt {};
+  math::Vec3f32 mUp {};
+  mutable bool mDirty {false};
 };
 
 } // namespace basalt::gfx

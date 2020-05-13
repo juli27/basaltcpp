@@ -1,4 +1,6 @@
-#include "Vertices.h"
+#include "sandbox/d3d9_tutorials/Vertices.h"
+
+#include "sandbox/d3d9/utils.h"
 
 #include <runtime/Prelude.h>
 
@@ -13,10 +15,8 @@
 
 using std::array;
 
-using basalt::TransformComponent;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::backend::IRenderer;
-using basalt::gfx::backend::PrimitiveType;
 using basalt::gfx::backend::VertexElement;
 using basalt::gfx::backend::VertexLayout;
 
@@ -35,7 +35,8 @@ Vertices::Vertices(IRenderer* const renderer) {
 
   array<Vertex, 3u> vertices {
     Vertex {
-      150.0f, 50.0f, 0.5f, 1.0f, ColorEncoding::pack_logical_a8r8g8b8(255, 0, 0)
+      150.0f, 50.0f, 0.5f, 1.0f
+    , ColorEncoding::pack_logical_a8r8g8b8(255, 0, 0)
     }
   , Vertex {
       250.0f, 250.0f, 0.5f, 1.0f
@@ -52,9 +53,7 @@ Vertices::Vertices(IRenderer* const renderer) {
   };
 
   const auto [entity, renderComp] = mScene->create_entity<RenderComponent>();
-  renderComp.mMesh = renderer->add_mesh(
-    vertices.data(), static_cast<i32>(vertices.size()), vertexLayout
-  , PrimitiveType::TriangleList);
+  renderComp.mMesh = add_triangle_list_mesh(renderer, vertices, vertexLayout);
 }
 
 void Vertices::on_show() {

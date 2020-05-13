@@ -4,4 +4,5 @@ target_sources(Sandbox PRIVATE
   "TestCase.h"
   "Sandbox.h")
 
+add_subdirectory("d3d9")
 add_subdirectory("d3d9_tutorials")

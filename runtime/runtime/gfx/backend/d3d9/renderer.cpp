@@ -258,9 +258,11 @@ void D3D9Renderer::new_gui_frame() {
 
 void D3D9Renderer::render_commands(const RenderCommandBuffer& commands) {
   for (const auto& command : commands.get_commands()) {
+    const bool disableLighting = command.mFlags & RenderFlagDisableLighting;
+
     // apply custom render flags
     if (command.mFlags) {
-      if (command.mFlags & RenderFlagDisableLighting) {
+      if (disableLighting) {
         D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
       }
       if (command.mFlags & RenderFlagCullNone) {
@@ -268,33 +270,40 @@ void D3D9Renderer::render_commands(const RenderCommandBuffer& commands) {
       }
     }
 
-    D3DMATERIAL9 material{};
-    material.Diffuse = to_d3d_color_value(command.mDiffuseColor);
-    material.Ambient = to_d3d_color_value(command.mAmbientColor);
-    material.Emissive = to_d3d_color_value(command.mEmissiveColor);
-    D3D9CALL(mDevice->SetMaterial(&material));
+    const auto& mesh = mMeshes.get(command.mMesh);
+    const bool noLightingAndTransform = mesh.fvf & D3DFVF_XYZRHW;
+    if (!disableLighting && !noLightingAndTransform) {
+      D3DMATERIAL9 material {};
+      material.Diffuse = to_d3d_color_value(command.mDiffuseColor);
+      material.Ambient = to_d3d_color_value(command.mAmbientColor);
+      material.Emissive = to_d3d_color_value(command.mEmissiveColor);
+      D3D9CALL(mDevice->SetMaterial(&material));
+    }
 
     if (command.mTexture) {
       const auto& texture = mTextures.get(command.mTexture);
       D3D9CALL(mDevice->SetTexture(0, texture));
-    } else {
+    }
+
+    if (!(mesh.fvf & D3DFVF_XYZRHW)) {
+      const auto transform {to_d3d_matrix(command.mWorld)};
+      D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &transform));
+    }
+
+    D3D9CALL(
+      mDevice->SetStreamSource(0u, mesh.vertexBuffer.Get(), 0u, mesh.vertexSize
+      ));
+
+    D3D9CALL(mDevice->SetFVF(mesh.fvf));
+    D3D9CALL(mDevice->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
+
+    if (command.mTexture) {
       D3D9CALL(mDevice->SetTexture(0, nullptr));
     }
 
-    const D3D9Mesh& mesh = mMeshes.get(command.mMesh);
-    D3D9CALL(mDevice->SetStreamSource(
-      0u, mesh.vertexBuffer.Get(), 0u, mesh.vertexSize
-    ));
-    D3D9CALL(mDevice->SetFVF(mesh.fvf));
-
-    const auto transform {to_d3d_matrix(command.mWorld)};
-    D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &transform));
-
-    D3D9CALL(mDevice->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
-
     // revert custom render flags
     if (command.mFlags) {
-      if (command.mFlags & RenderFlagDisableLighting) {
+      if (disableLighting) {
         D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
       }
       if (command.mFlags & RenderFlagCullNone) {

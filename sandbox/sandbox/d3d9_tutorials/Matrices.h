@@ -1,6 +1,6 @@
 #pragma once
-#ifndef D3D9_TUTORIALS_MATRICES_H
-#define D3D9_TUTORIALS_MATRICES_H
+#ifndef SANDBOX_D3D9_MATRICES_H
+#define SANDBOX_D3D9_MATRICES_H
 
 #include "sandbox/TestCase.h"
 
@@ -11,11 +11,11 @@
 
 #include <memory>
 
-namespace d3d9_tuts {
+namespace d3d9 {
 
 struct Matrices final : TestCase {
   Matrices() = delete;
-  Matrices(basalt::gfx::backend::IRenderer*);
+  explicit Matrices(basalt::gfx::backend::IRenderer*);
 
   Matrices(const Matrices&) = delete;
   Matrices(Matrices&&) = delete;
@@ -31,9 +31,9 @@ struct Matrices final : TestCase {
 
 private:
   std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();
-  entt::entity mTriangleEntity = entt::null;
+  entt::entity mTriangleEntity {entt::null};
 };
 
-} // namespace d3d9_tuts
+} // namespace d3d9
 
-#endif // !D3D9_TUTORIALS_MATRICES_H
+#endif // !SANDBOX_D3D9_MATRICES_H

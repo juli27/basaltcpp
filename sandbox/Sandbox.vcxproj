@@ -177,6 +177,7 @@
     <ClCompile Include="sandbox\d3d9_tutorials\Vertices.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="sandbox\d3d9\utils.h" />
     <ClInclude Include="sandbox\d3d9_tutorials\Device.h" />
     <ClInclude Include="sandbox\d3d9_tutorials\Lights.h" />
     <ClInclude Include="sandbox\d3d9_tutorials\Matrices.h" />

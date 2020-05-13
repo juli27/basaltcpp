@@ -13,7 +13,7 @@ namespace d3d9 {
 
 struct Vertices final : TestCase {
   Vertices() = delete;
-  Vertices(basalt::gfx::backend::IRenderer*);
+  explicit Vertices(basalt::gfx::backend::IRenderer*);
 
   Vertices(const Vertices&) = delete;
   Vertices(Vertices&&) = delete;
