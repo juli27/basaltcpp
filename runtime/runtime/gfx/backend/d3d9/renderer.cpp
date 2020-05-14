@@ -1,6 +1,9 @@
 #include "runtime/gfx/backend/d3d9/renderer.h"
 
 #include "runtime/gfx/backend/d3d9/util.h"
+#include "runtime/gfx/backend/render_command.h"
+
+#include "runtime/math/Mat4.h"
 
 #include "runtime/shared/Asserts.h"
 #include "runtime/shared/Color.h"
@@ -156,20 +159,6 @@ void D3D9Renderer::remove_texture(const TextureHandle textureHandle) {
   mTextures.deallocate(textureHandle);
 }
 
-void D3D9Renderer::submit(const RenderCommand& command) {
-  mCommandBuffer.add(command);
-}
-
-void D3D9Renderer::set_view_proj(
-  const math::Mat4f32& view, const math::Mat4f32& projection
-) {
-  BASALT_ASSERT_MSG(projection.m34 >= 0,
-    "m34 can't be negative in a projection matrix");
-
-  mCommandBuffer.set_view(view);
-  mCommandBuffer.set_projection(projection);
-}
-
 void D3D9Renderer::set_lights(const LightSetup& lights) {
   const auto maxLights = mDeviceCaps.MaxActiveLights;
 
@@ -195,8 +184,6 @@ void D3D9Renderer::set_lights(const LightSetup& lights) {
   for (; lightIndex < maxLights; lightIndex++) {
     D3D9CALL(mDevice->LightEnable(lightIndex, FALSE));
   }
-
-  mCommandBuffer.set_ambient_light(lights.global_ambient_color());
 }
 
 void D3D9Renderer::set_clear_color(const Color color) {
@@ -205,7 +192,7 @@ void D3D9Renderer::set_clear_color(const Color color) {
 
 // TODO: shading mode
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
-void D3D9Renderer::render() {
+void D3D9Renderer::render(const RenderCommandList& commandList) {
   const auto hr = mDevice->TestCooperativeLevel();
   if (hr == D3DERR_DEVICENOTRESET) {
     BASALT_LOG_INFO("resetting d3d9 device");
@@ -223,18 +210,22 @@ void D3D9Renderer::render() {
   // on the success of BeginScene? -> Log error and/or throw exception
   D3D9CALL(mDevice->BeginScene());
 
-  auto transform {to_d3d_matrix(mCommandBuffer.view())};
+  auto transform {to_d3d_matrix(commandList.view())};
   D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &transform));
 
-  transform = to_d3d_matrix(mCommandBuffer.projection());
+  transform = to_d3d_matrix(commandList.projection());
+
+  BASALT_ASSERT_MSG(
+    transform._34 >= 0, "(3,4) can't be negative in a projection matrix");
+
   D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &transform));
 
-  const auto ambientLightColor = to_d3d_color(mCommandBuffer.ambient_light());
+  const auto ambientLightColor = to_d3d_color(commandList.ambient_light());
   if (ambientLightColor) {
     D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, ambientLightColor));
   }
 
-  render_commands(mCommandBuffer);
+  render_commands(commandList);
 
   // render imgui
   ImGui::Render();
@@ -250,8 +241,6 @@ void D3D9Renderer::render() {
   D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
 
   D3D9CALL(mDevice->EndScene());
-
-  mCommandBuffer.clear();
 }
 
 auto D3D9Renderer::name() -> std::string_view {

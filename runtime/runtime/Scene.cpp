@@ -13,6 +13,13 @@ using entt::registry;
 
 namespace basalt {
 
+namespace {
+
+void edit_color3(const char* label, Color& color);
+void edit_color4(const char* label, Color& color);
+
+} // namespace
+
 void TransformComponent::move(const f32 offsetX, const f32 offsetY
                             , const f32 offsetZ) noexcept {
   mPosition += math::Vec3f32(offsetX, offsetY, offsetZ);
@@ -73,25 +80,17 @@ void Scene::display_debug_gui() {
   using std::get;
 
   if (ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-    std::array<float, 3> clearColor {};
-    get<0>(clearColor) = mBackgroundColor.red();
-    get<1>(clearColor) = mBackgroundColor.green();
-    get<2>(clearColor) = mBackgroundColor.blue();
+    edit_color3("Background Color", mBackgroundColor);
+    edit_color4("Ambient Light", mAmbientLightColor);
 
-    ImGui::ColorEdit3(
-      "background color", clearColor.data(), ImGuiColorEditFlags_Float);
-
-    mBackgroundColor = Color {
-      get<0>(clearColor), get<1>(clearColor), get<2>(clearColor)
-    };
-
-    mEntityRegistry.each([this](const auto entity) {
-      std::array<char, 16> str {};
-      std::to_chars(str.data(), str.data() + str.size(), enum_cast(entity));
-      if (ImGui::CollapsingHeader(str.data())) {
-        this->display_entity_gui_impl(entity);
-      }
-    });
+    mEntityRegistry.each(
+      [this](const entity entity) -> void {
+        std::array<char, 16> str {};
+        std::to_chars(str.data(), str.data() + str.size(), enum_cast(entity));
+        if (ImGui::CollapsingHeader(str.data())) {
+          this->display_entity_gui_impl(entity);
+        }
+      });
   }
 
   ImGui::End();
@@ -134,29 +133,8 @@ void Scene::display_entity_gui_impl(const entity entity) {
       ImGui::Text("Mesh: %#x", renderComponent.mMesh.get_value());
       ImGui::Text("Texture: %#x", renderComponent.mTexture.get_value());
 
-      using std::get;
-      std::array<float, 4> color {};
-      get<0>(color) = renderComponent.mDiffuseColor.red();
-      get<1>(color) = renderComponent.mDiffuseColor.green();
-      get<2>(color) = renderComponent.mDiffuseColor.blue();
-      get<3>(color) = renderComponent.mDiffuseColor.alpha();
-
-      ImGui::ColorEdit4("Diffuse", color.data(), ImGuiColorEditFlags_Float);
-
-      renderComponent.mDiffuseColor = Color {
-        get<0>(color), get<1>(color), get<2>(color), get<3>(color)
-      };
-
-      get<0>(color) = renderComponent.mAmbientColor.red();
-      get<1>(color) = renderComponent.mAmbientColor.green();
-      get<2>(color) = renderComponent.mAmbientColor.blue();
-      get<3>(color) = renderComponent.mAmbientColor.alpha();
-
-      ImGui::ColorEdit4("Ambient", color.data(), ImGuiColorEditFlags_Float);
-
-      renderComponent.mAmbientColor = Color {
-        get<0>(color), get<1>(color), get<2>(color), get<3>(color)
-      };
+      edit_color4("Diffuse", renderComponent.mDiffuseColor);
+      edit_color4("Ambient", renderComponent.mAmbientColor);
 
       if (renderComponent.mRenderFlags == gfx::backend::RenderFlagNone) {
         ImGui::TextUnformatted("Flag: RenderFlagNone");
@@ -174,5 +152,36 @@ void Scene::display_entity_gui_impl(const entity entity) {
     }
   }
 }
+
+namespace {
+
+void edit_color3(const char* label, Color& color) {
+  std::array<float, 3> colorArray {
+    color.red(), color.green(), color.blue()
+  };
+
+  ImGui::ColorEdit3(label, colorArray.data(), ImGuiColorEditFlags_Float);
+
+  using std::get;
+  color = Color {
+    get<0>(colorArray), get<1>(colorArray), get<2>(colorArray)
+  };
+}
+
+void edit_color4(const char* label, Color& color) {
+  std::array<float, 4> colorArray {
+    color.red(), color.green(), color.blue(), color.alpha()
+  };
+
+  ImGui::ColorEdit4(label, colorArray.data(), ImGuiColorEditFlags_Float);
+
+  using std::get;
+  color = Color {
+    get<0>(colorArray), get<1>(colorArray), get<2>(colorArray)
+  , get<3>(colorArray)
+  };
+}
+
+} // namespace
 
 } // namespace basalt

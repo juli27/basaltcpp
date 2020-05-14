@@ -70,17 +70,11 @@ struct LightSetup final {
     const math::Vec3f32& direction, const Color& diffuseColor
   );
 
-  void set_global_ambient_color(const Color& ambientColor);
-
   [[nodiscard]]
   auto directional_lights() const -> const std::vector<DirectionalLight>&;
 
-  [[nodiscard]]
-  auto global_ambient_color() const -> Color;
-
 private:
   std::vector<DirectionalLight> mDirectionalLights;
-  Color mAmbientColor;
 };
 
 } // namespace basalt::gfx::backend

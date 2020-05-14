@@ -4,7 +4,6 @@
 
 #include "runtime/gfx/backend/Types.h"
 
-#include "runtime/math/Mat4.h"
 #include "runtime/shared/Size2D.h"
 #include "runtime/shared/Types.h"
 
@@ -18,7 +17,7 @@ struct Color;
 
 namespace basalt::gfx::backend {
 
-struct RenderCommand;
+struct RenderCommandList;
 
 struct IRenderer {
   IRenderer(const IRenderer&) = delete;
@@ -74,17 +73,6 @@ struct IRenderer {
   virtual void remove_texture(TextureHandle textureHandle) = 0;
 
   /*
-   * Adds a command to the default command buffer.
-   */
-  virtual void submit(const RenderCommand& command) = 0;
-
-  /**
-   * Sets the view and projection matrix for the default command buffer.
-   */
-  virtual void set_view_proj(const math::Mat4f32& view
-                           , const math::Mat4f32& projection) = 0;
-
-  /*
    * Sets the lights for this renderer. Lights apply  and
    * valid for every frame until changed again.
    *
@@ -97,7 +85,8 @@ struct IRenderer {
    */
   virtual void set_clear_color(Color color) = 0;
 
-  virtual void render() = 0;
+  virtual void render(const RenderCommandList&) = 0;
+
   virtual auto name() -> std::string_view = 0;
 
   virtual void new_gui_frame() = 0;

@@ -2,11 +2,9 @@
 #ifndef BASALT_RUNTIME_GFX_BACKEND_D3D9_RENDERER_H
 #define BASALT_RUNTIME_GFX_BACKEND_D3D9_RENDERER_H
 
-#include "runtime/gfx/backend/d3d9/d3d9_custom.h"
-
 #include "runtime/gfx/backend/IRenderer.h"
-#include "runtime/gfx/backend/render_command.h"
 
+#include "runtime/gfx/backend/d3d9/d3d9_custom.h"
 #include "runtime/shared/HandlePool.h"
 
 #include <wrl/client.h>
@@ -42,13 +40,9 @@ struct D3D9Renderer final : IRenderer {
   void remove_mesh(MeshHandle meshHandle) override;
   auto add_texture(std::string_view filePath) -> TextureHandle override;
   void remove_texture(TextureHandle textureHandle) override;
-  void submit(const RenderCommand& command) override;
-  void set_view_proj(
-    const math::Mat4f32& view, const math::Mat4f32& projection
-  ) override;
   void set_lights(const LightSetup& lights) override;
   void set_clear_color(Color color) override;
-  void render() override;
+  void render(const RenderCommandList&) override;
   auto name() -> std::string_view override;
 
   void new_gui_frame() override;
@@ -61,7 +55,6 @@ private:
   D3DPRESENT_PARAMETERS mPresentParams;
   HandlePool<D3D9Mesh, MeshHandle> mMeshes;
   HandlePool<IDirect3DTexture9*, TextureHandle> mTextures;
-  RenderCommandList mCommandBuffer;
   D3DCOLOR mClearColor = D3DCOLOR_XRGB(0, 0, 0);
 };
 

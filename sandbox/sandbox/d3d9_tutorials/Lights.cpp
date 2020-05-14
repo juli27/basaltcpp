@@ -2,9 +2,8 @@
 
 #include "sandbox/d3d9/utils.h"
 
-#include <runtime/Prelude.h>
-
 #include <runtime/Engine.h>
+#include <runtime/Prelude.h>
 
 #include <runtime/gfx/Camera.h>
 #include <runtime/gfx/RenderComponent.h>
@@ -55,6 +54,8 @@ Lights::Lights(IRenderer* const renderer)
   };
   mScene->set_camera(Camera {cameraPos, lookAt, up, projection});
 
+  mScene->set_ambient_light(Color::from_rgba(32, 32, 32));
+
   struct Vertex final {
     Vec3f32 pos;
     Vec3f32 normal;
@@ -100,7 +101,6 @@ void Lights::on_update(const f64 deltaTime) {
   transform.rotate(radOffsetX, 0.0f, 0.0f);
 
   LightSetup lights {};
-  lights.set_global_ambient_color(Color::from_rgba(32, 32, 32));
 
   // TODO: fix rotation speed
   mLightAngle += PI * 0.25f * static_cast<f32>(deltaTime);

@@ -8,17 +8,9 @@ void LightSetup::add_directional_light(
   mDirectionalLights.push_back(DirectionalLight {direction, diffuseColor});
 }
 
-void LightSetup::set_global_ambient_color(const Color& ambientColor) {
-  mAmbientColor = ambientColor;
-}
-
 auto LightSetup::directional_lights() const -> const std::vector<
   DirectionalLight>& {
   return mDirectionalLights;
-}
-
-auto LightSetup::global_ambient_color() const -> Color {
-  return mAmbientColor;
 }
 
 } // namespace basalt::gfx::backend

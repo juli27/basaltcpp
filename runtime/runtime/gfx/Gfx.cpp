@@ -12,18 +12,24 @@
 
 namespace basalt::gfx {
 
+using backend::RenderCommandList;
+
 void render(backend::IRenderer* renderer, Scene* const scene) {
   BASALT_ASSERT(renderer);
 
   renderer->set_clear_color(scene->background_color());
 
   const auto& camera = scene->camera();
-  renderer->set_view_proj(camera.view_matrix(), camera.projection_matrix());
+  RenderCommandList commandList {
+    camera.view_matrix(), camera.projection_matrix()
+  };
+
+  commandList.set_ambient_light(scene->ambient_light());
 
   const auto& registry = scene->get_entity_registry();
 
   registry.view<const RenderComponent>().each(
-    [renderer, &registry](
+    [&commandList, &registry](
     const entt::entity entity, const RenderComponent& renderComponent
   ) {
       backend::RenderCommand command;
@@ -43,10 +49,10 @@ void render(backend::IRenderer* renderer, Scene* const scene) {
       command.mDiffuseColor = renderComponent.mDiffuseColor;
       command.mAmbientColor = renderComponent.mAmbientColor;
       command.mFlags = renderComponent.mRenderFlags;
-      renderer->submit(command);
+      commandList.add(command);
     });
 
-  renderer->render();
+  renderer->render(commandList);
 }
 
 } // namespace basalt::gfx
