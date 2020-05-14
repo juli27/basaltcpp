@@ -8,6 +8,7 @@
 namespace basalt {
 
 struct Color final {
+  // sets everything to zero
   constexpr Color() noexcept = default;
 
   constexpr Color(

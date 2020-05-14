@@ -50,20 +50,31 @@ struct RenderCommandBuffer final {
   auto operator=(const RenderCommandBuffer&) -> RenderCommandBuffer& = delete;
   auto operator=(RenderCommandBuffer&&) -> RenderCommandBuffer& = default;
 
-  inline void add_command(const RenderCommand& command);
-  inline void clear();
+  [[nodiscard]]
+  inline auto commands() const -> const std::vector<RenderCommand>&;
+
   inline void set_view(const math::Mat4f32& view);
+
+  [[nodiscard]]
+  inline auto view() const -> const math::Mat4f32&;
+
   inline void set_projection(const math::Mat4f32& projection);
 
   [[nodiscard]]
-  inline auto get_commands() const -> const std::vector<RenderCommand>&;
-  [[nodiscard]] inline auto view() const -> const math::Mat4f32&;
-  [[nodiscard]] inline auto projection() const -> const math::Mat4f32&;
+  inline auto projection() const -> const math::Mat4f32&;
+
+  [[nodiscard]]
+  auto ambient_light() const -> const Color&;
+  void set_ambient_light(const Color&);
+
+  inline void add_command(const RenderCommand& command);
+  inline void clear();
 
 private:
   std::vector<RenderCommand> mCommands;
   math::Mat4f32 mView;
   math::Mat4f32 mProjection;
+  Color mAmbientLightColor;
 };
 
 
@@ -92,7 +103,7 @@ RenderCommandBuffer::set_projection(const math::Mat4f32& projection) {
   mProjection = projection;
 }
 
-inline auto RenderCommandBuffer::get_commands() const
+inline auto RenderCommandBuffer::commands() const
 -> const std::vector<RenderCommand>& {
   return mCommands;
 }

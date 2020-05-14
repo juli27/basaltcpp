@@ -28,6 +28,9 @@
       <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="runtime\dear_imgui.cpp" />
+    <ClCompile Include="runtime\gfx\backend\render_command.cpp">
+      <Filter>gfx\backend</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="runtime\shared\Asserts.h">

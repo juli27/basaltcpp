@@ -196,9 +196,7 @@ void D3D9Renderer::set_lights(const LightSetup& lights) {
     D3D9CALL(mDevice->LightEnable(lightIndex, FALSE));
   }
 
-  D3D9CALL(mDevice->SetRenderState(
-    D3DRS_AMBIENT, to_d3d_color(lights.global_ambient_color())
-  ));
+  mCommandBuffer.set_ambient_light(lights.global_ambient_color());
 }
 
 void D3D9Renderer::set_clear_color(const Color color) {
@@ -231,6 +229,11 @@ void D3D9Renderer::render() {
   transform = to_d3d_matrix(mCommandBuffer.projection());
   D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &transform));
 
+  const auto ambientLightColor = to_d3d_color(mCommandBuffer.ambient_light());
+  if (ambientLightColor) {
+    D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, ambientLightColor));
+  }
+
   render_commands(mCommandBuffer);
 
   // render imgui
@@ -238,6 +241,10 @@ void D3D9Renderer::render() {
   auto* drawData = ImGui::GetDrawData();
   if (drawData) {
     ImGui_ImplDX9_RenderDrawData(drawData);
+  }
+
+  if (ambientLightColor) {
+    D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
   }
 
   D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
@@ -257,7 +264,7 @@ void D3D9Renderer::new_gui_frame() {
 }
 
 void D3D9Renderer::render_commands(const RenderCommandBuffer& commands) {
-  for (const auto& command : commands.get_commands()) {
+  for (const auto& command : commands.commands()) {
     const bool disableLighting = command.mFlags & RenderFlagDisableLighting;
 
     // apply custom render flags

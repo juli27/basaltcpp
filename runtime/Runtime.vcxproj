@@ -150,6 +150,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="runtime\gfx\backend\render_command.cpp" />
     <ClCompile Include="runtime\dear_imgui.cpp" />
     <ClCompile Include="runtime\gfx\backend\Types.cpp" />
     <ClCompile Include="runtime\gfx\Camera.cpp" />
