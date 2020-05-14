@@ -72,9 +72,6 @@
     <ClInclude Include="runtime\gfx\backend\IRenderer.h">
       <Filter>gfx\backend</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\gfx\backend\RenderCommand.h">
-      <Filter>gfx\backend</Filter>
-    </ClInclude>
     <ClInclude Include="runtime\platform\events\Event.h">
       <Filter>platform\events</Filter>
     </ClInclude>
@@ -111,6 +108,9 @@
       <Filter>gfx\backend</Filter>
     </ClInclude>
     <ClInclude Include="runtime\dear_imgui.h" />
+    <ClInclude Include="runtime\gfx\backend\render_command.h">
+      <Filter>gfx\backend</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="platform">

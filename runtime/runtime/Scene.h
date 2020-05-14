@@ -46,28 +46,32 @@ struct Scene final {
   auto operator=(const Scene&) -> Scene& = delete;
   auto operator=(Scene&&) -> Scene& = delete;
 
-  void display_entity_gui(entt::entity entity);
-  void display_debug_gui();
-
   auto get_entity_registry() -> entt::registry&;
+
+  void set_background_color(const Color& background);
+  auto background_color() const -> const Color&;
+
+  void set_camera(const gfx::Camera& camera);
+  auto camera() const -> const gfx::Camera&;
+
+  void set_ambient_light(const Color&);
+  auto ambient_light() const -> const Color&;
 
   template <typename... Component>
   auto create_entity() {
     return mEntityRegistry.create<Component...>();
   }
 
-  void set_background_color(const Color& background);
-  auto get_background_color() const -> const Color&;
-
-  void set_camera(const gfx::Camera& camera);
-  auto get_camera() const -> const gfx::Camera&;
+  void display_entity_gui(entt::entity entity);
+  void display_debug_gui();
 
 private:
-  void display_entity_gui_impl(entt::entity entity);
-
-  entt::registry mEntityRegistry;
+  entt::registry mEntityRegistry {};
   Color mBackgroundColor {0.0f, 0.0f, 0.0f};
   gfx::Camera mCamera = {{}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}};
+  Color mAmbientLightColor {};
+
+  void display_entity_gui_impl(entt::entity entity);
 };
 
 } // namespace basalt

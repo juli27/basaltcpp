@@ -167,7 +167,7 @@
     <ClInclude Include="runtime\dear_imgui.h" />
     <ClInclude Include="runtime\Engine.h" />
     <ClInclude Include="runtime\gfx\backend\IRenderer.h" />
-    <ClInclude Include="runtime\gfx\backend\RenderCommand.h" />
+    <ClInclude Include="runtime\gfx\backend\render_command.h" />
     <ClInclude Include="runtime\gfx\backend\Types.h" />
     <ClInclude Include="runtime\gfx\Camera.h" />
     <ClInclude Include="runtime\gfx\Gfx.h" />

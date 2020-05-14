@@ -2,7 +2,7 @@
 #ifndef BASALT_GFX_RENDER_COMPONENT_H
 #define BASALT_GFX_RENDER_COMPONENT_H
 
-#include "runtime/gfx/backend/RenderCommand.h"
+#include "runtime/gfx/backend/render_command.h"
 #include "runtime/gfx/backend/Types.h"
 
 #include "runtime/shared/Color.h"

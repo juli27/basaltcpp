@@ -5,7 +5,7 @@
 #include "runtime/gfx/backend/d3d9/d3d9_custom.h"
 
 #include "runtime/gfx/backend/IRenderer.h"
-#include "runtime/gfx/backend/RenderCommand.h"
+#include "runtime/gfx/backend/render_command.h"
 
 #include "runtime/shared/HandlePool.h"
 

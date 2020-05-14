@@ -8,6 +8,9 @@
 #include <array>
 #include <charconv>
 
+using entt::entity;
+using entt::registry;
+
 namespace basalt {
 
 void TransformComponent::move(const f32 offsetX, const f32 offsetY
@@ -30,7 +33,35 @@ void TransformComponent::rotate(const f32 radOffsetX, const f32 radOffsetY
 
 Scene::Scene(const gfx::Camera& camera) : mCamera(camera) {}
 
-void Scene::display_entity_gui(const entt::entity entity) {
+auto Scene::get_entity_registry() -> registry& {
+  return mEntityRegistry;
+}
+
+auto Scene::background_color() const -> const Color& {
+  return mBackgroundColor;
+}
+
+void Scene::set_background_color(const Color& background) {
+  mBackgroundColor = background;
+}
+
+void Scene::set_camera(const gfx::Camera& camera) {
+  mCamera = camera;
+}
+
+auto Scene::camera() const -> const gfx::Camera& {
+  return mCamera;
+}
+
+void Scene::set_ambient_light(const Color& color) {
+  mAmbientLightColor = color;
+}
+
+auto Scene::ambient_light() const -> const Color& {
+  return mAmbientLightColor;
+}
+
+void Scene::display_entity_gui(const entity entity) {
   if (ImGui::Begin("Entity")) {
     display_entity_gui_impl(entity);
   }
@@ -66,27 +97,7 @@ void Scene::display_debug_gui() {
   ImGui::End();
 }
 
-auto Scene::get_entity_registry() -> entt::registry& {
-  return mEntityRegistry;
-}
-
-auto Scene::get_background_color() const -> const Color& {
-  return mBackgroundColor;
-}
-
-void Scene::set_background_color(const Color& background) {
-  mBackgroundColor = background;
-}
-
-void Scene::set_camera(const gfx::Camera& camera) {
-  mCamera = camera;
-}
-
-auto Scene::get_camera() const -> const gfx::Camera& {
-  return mCamera;
-}
-
-void Scene::display_entity_gui_impl(const entt::entity entity) {
+void Scene::display_entity_gui_impl(const entity entity) {
   if (mEntityRegistry.has<TransformComponent>(entity)) {
     auto& transform = mEntityRegistry.get<TransformComponent>(entity);
 

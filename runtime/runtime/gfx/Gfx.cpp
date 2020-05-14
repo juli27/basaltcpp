@@ -6,7 +6,7 @@
 #include "runtime/gfx/RenderComponent.h"
 
 #include "runtime/gfx/backend/IRenderer.h"
-#include "runtime/gfx/backend/RenderCommand.h"
+#include "runtime/gfx/backend/render_command.h"
 
 #include "runtime/shared/Asserts.h"
 
@@ -15,9 +15,9 @@ namespace basalt::gfx {
 void render(backend::IRenderer* renderer, Scene* const scene) {
   BASALT_ASSERT(renderer);
 
-  renderer->set_clear_color(scene->get_background_color());
+  renderer->set_clear_color(scene->background_color());
 
-  const auto& camera = scene->get_camera();
+  const auto& camera = scene->camera();
   renderer->set_view_proj(camera.view_matrix(), camera.projection_matrix());
 
   const auto& registry = scene->get_entity_registry();

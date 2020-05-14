@@ -5,7 +5,7 @@ target_sources(Runtime
   PUBLIC
     "context.h"
     "IRenderer.h"
-    "RenderCommand.h"
+    "render_command.h"
     "Types.h")
 
 add_subdirectory("d3d9")

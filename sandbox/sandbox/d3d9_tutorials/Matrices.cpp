@@ -9,7 +9,6 @@
 #include <runtime/gfx/RenderComponent.h>
 
 #include <runtime/gfx/backend/IRenderer.h>
-#include <runtime/gfx/backend/RenderCommand.h>
 #include <runtime/gfx/backend/Types.h>
 
 #include <runtime/platform/Platform.h>

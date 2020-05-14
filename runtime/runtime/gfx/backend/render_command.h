@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BASALT_GFX_BACKEND_RENDERCOMMAND_H
-#define BASALT_GFX_BACKEND_RENDERCOMMAND_H
+#ifndef BASALT_RUNTIME_GFX_BACKEND_RENDER_COMMAND_H
+#define BASALT_RUNTIME_GFX_BACKEND_RENDER_COMMAND_H
 
 #include "runtime/gfx/backend/Types.h"
 #include "runtime/math/Mat4.h"
@@ -87,4 +87,4 @@ RenderCommandList::set_projection(const math::Mat4f32& projection) {
 
 } // namespace basalt::gfx::backend
 
-#endif // !BASALT_GFX_BACKEND_RENDERCOMMAND_H
+#endif // !BASALT_RUNTIME_GFX_BACKEND_RENDER_COMMAND_H
