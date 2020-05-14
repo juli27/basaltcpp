@@ -3,7 +3,6 @@
 #include "sandbox/d3d9/utils.h"
 
 #include <runtime/Engine.h>
-#include <runtime/platform/Platform.h>
 #include <runtime/Prelude.h>
 
 #include <runtime/gfx/Camera.h>
@@ -12,6 +11,8 @@
 #include <runtime/gfx/backend/IRenderer.h>
 #include <runtime/gfx/backend/RenderCommand.h>
 #include <runtime/gfx/backend/Types.h>
+
+#include <runtime/platform/Platform.h>
 
 #include <runtime/math/Constants.h>
 #include <runtime/math/Mat4.h>

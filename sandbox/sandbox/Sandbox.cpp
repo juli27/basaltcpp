@@ -40,7 +40,7 @@ SandboxApp::SandboxApp(IRenderer* const renderer) {
   mScenes.push_back(std::make_unique<d3d9::Device>());
   mScenes.push_back(std::make_unique<d3d9::Vertices>(renderer));
   mScenes.push_back(std::make_unique<d3d9::Matrices>(renderer));
-  mScenes.push_back(std::make_unique<d3d9_tuts::Lights>(renderer));
+  mScenes.push_back(std::make_unique<d3d9::Lights>(renderer));
   mScenes.push_back(std::make_unique<d3d9_tuts::Textures>(renderer));
 
   mScenes[mCurrentSceneIndex]->on_show();

@@ -26,7 +26,7 @@ struct SandboxApp final : basalt::IApplication {
 
 private:
   std::vector<std::unique_ptr<TestCase>> mScenes {};
-  basalt::i32 mCurrentSceneIndex {0};
+  basalt::i32 mCurrentSceneIndex {3};
 
   void next_scene();
   void prev_scene();
