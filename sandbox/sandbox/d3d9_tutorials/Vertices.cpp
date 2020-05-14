@@ -6,7 +6,7 @@
 
 #include <runtime/Engine.h> // get_renderer
 
-#include <runtime/gfx/RenderComponent.h> // RenderComponent
+#include <runtime/gfx/types.h> // RenderComponent
 
 #include <runtime/gfx/backend/IRenderer.h>
 #include <runtime/gfx/backend/Types.h>

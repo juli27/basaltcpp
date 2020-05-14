@@ -3,7 +3,7 @@
 #include "runtime/Scene.h"
 
 #include "runtime/gfx/Camera.h"
-#include "runtime/gfx/RenderComponent.h"
+#include "runtime/gfx/types.h"
 
 #include "runtime/gfx/backend/IRenderer.h"
 #include "runtime/gfx/backend/render_command.h"

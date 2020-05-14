@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BASALT_GFX_RENDER_COMPONENT_H
-#define BASALT_GFX_RENDER_COMPONENT_H
+#ifndef BASALT_RUNTIME_GFX_TYPES_H
+#define BASALT_RUNTIME_GFX_TYPES_H
 
 #include "runtime/gfx/backend/render_command.h"
 #include "runtime/gfx/backend/Types.h"
@@ -29,4 +29,4 @@ struct RenderComponent final {
 
 } // namespace basalt::gfx
 
-#endif // BASALT_GFX_RENDER_COMPONENT_H
+#endif // BASALT_RUNTIME_GFX_TYPES_H

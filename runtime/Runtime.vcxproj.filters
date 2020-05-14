@@ -95,9 +95,6 @@
     <ClInclude Include="runtime\gfx\Gfx.h">
       <Filter>gfx</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\gfx\RenderComponent.h">
-      <Filter>gfx</Filter>
-    </ClInclude>
     <ClInclude Include="runtime\shared\Size2D.h">
       <Filter>shared</Filter>
     </ClInclude>
@@ -110,6 +107,9 @@
     <ClInclude Include="runtime\dear_imgui.h" />
     <ClInclude Include="runtime\gfx\backend\render_command.h">
       <Filter>gfx\backend</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\gfx\types.h">
+      <Filter>gfx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

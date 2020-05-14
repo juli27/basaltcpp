@@ -5,6 +5,6 @@ target_sources(Runtime
   PUBLIC
     "Camera.h"
     "Gfx.h"
-    "RenderComponent.h")
+    "types.h")
 
 add_subdirectory("backend")

@@ -6,7 +6,7 @@
 #include <runtime/Prelude.h>
 
 #include <runtime/gfx/Camera.h>
-#include <runtime/gfx/RenderComponent.h>
+#include <runtime/gfx/types.h>
 
 #include <runtime/gfx/backend/Types.h>
 

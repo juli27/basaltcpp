@@ -171,7 +171,7 @@
     <ClInclude Include="runtime\gfx\backend\Types.h" />
     <ClInclude Include="runtime\gfx\Camera.h" />
     <ClInclude Include="runtime\gfx\Gfx.h" />
-    <ClInclude Include="runtime\gfx\RenderComponent.h" />
+    <ClInclude Include="runtime\gfx\types.h" />
     <ClInclude Include="runtime\IApplication.h" />
     <ClInclude Include="runtime\Input.h" />
     <ClInclude Include="runtime\math\Constants.h" />

@@ -1,6 +1,6 @@
 #include "runtime/Scene.h"
 
-#include "runtime/gfx/RenderComponent.h"
+#include "runtime/gfx/types.h"
 #include "runtime/math/Constants.h"
 
 #include <imgui/imgui.h>
