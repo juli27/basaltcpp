@@ -7,15 +7,13 @@
 #include "runtime/shared/Size2D.h"
 #include "runtime/shared/Types.h"
 
-#include <string>
+#include <string_view>
 
 namespace basalt {
 
 struct Color;
 
-}
-
-namespace basalt::gfx::backend {
+namespace gfx::backend {
 
 struct RenderCommandList;
 
@@ -49,12 +47,13 @@ struct IRenderer {
    * \param primitiveType the primitive type of the mesh
    * \return handle of the added mesh
    */
-  virtual auto add_mesh(void* data, i32 numVertices, const VertexLayout& layout
-                      , PrimitiveType primitiveType) -> MeshHandle = 0;
+  virtual auto add_mesh(
+    void* data, i32 numVertices, const VertexLayout& layout
+  , PrimitiveType primitiveType) -> MeshHandle = 0;
 
   /**
    * \brief Removes a static mesh from the renderer which makes it unavailable
-   *        for renderering.
+   *        for rendering.
    *
    * \param meshHandle handle to mesh to be removed
    */
@@ -66,7 +65,7 @@ struct IRenderer {
 
   /**
    * \brief Removes a static texture from the renderer which makes it
-   *        unavailable for renderering.
+   *        unavailable for rendering.
    *
    * \param textureHandle handle to texture to be removed
    */
@@ -75,11 +74,9 @@ struct IRenderer {
   /**
    * Sets the back buffer clear color.
    */
-  virtual void set_clear_color(Color color) = 0;
+  virtual void set_clear_color(const Color& color) = 0;
 
   virtual void render(const RenderCommandList&) = 0;
-
-  virtual auto name() -> std::string_view = 0;
 
   virtual void new_gui_frame() = 0;
 
@@ -87,6 +84,8 @@ protected:
     IRenderer() = default;
 };
 
-} // namespace basalt::gfx::backend
+} // namespace gfx::backend
+
+} // namespace basalt
 
 #endif // !BASALT_GFX_BACKEND_IRENDERER_H

@@ -1,14 +1,12 @@
 #include "runtime/gfx/backend/d3d9/renderer.h"
 
 #include "runtime/gfx/backend/d3d9/util.h"
-#include "runtime/gfx/backend/render_command.h"
 
 #include "runtime/math/Mat4.h"
 
 #include "runtime/shared/Asserts.h"
 #include "runtime/shared/Color.h"
 #include "runtime/shared/Log.h"
-#include "runtime/shared/Types.h"
 
 #include "runtime/shared/win32/util.h"
 
@@ -17,7 +15,7 @@
 
 #include <cstring>
 #include <stdexcept>
-#include <string>
+#include <string_view>
 #include <utility>
 
 using Microsoft::WRL::ComPtr;
@@ -26,24 +24,21 @@ namespace basalt::gfx::backend {
 
 namespace {
 
-constexpr std::string_view RENDERER_NAME = "Direct3D 9 fixed function";
-
 constexpr auto to_d3d_color(const Color& color) noexcept -> D3DCOLOR {
   return enum_cast(color.to_argb());
 }
 
 constexpr auto to_d3d_color_value(
-  const Color& color
-) noexcept -> D3DCOLORVALUE {
+  const Color& color) noexcept -> D3DCOLORVALUE {
   return {color.red(), color.green(), color.blue(), color.alpha()};
 }
 
 constexpr auto to_d3d_matrix(const math::Mat4f32& mat) noexcept -> D3DMATRIX {
   return {
-    mat.m11, mat.m12, mat.m13, mat.m14,
-    mat.m21, mat.m22, mat.m23, mat.m24,
-    mat.m31, mat.m32, mat.m33, mat.m34,
-    mat.m41, mat.m42, mat.m43, mat.m44
+    mat.m11, mat.m12, mat.m13, mat.m14
+  , mat.m21, mat.m22, mat.m23, mat.m24
+  , mat.m31, mat.m32, mat.m33, mat.m34
+  , mat.m41, mat.m42, mat.m43, mat.m44
   };
 }
 
@@ -55,14 +50,12 @@ auto to_fvf(const VertexLayout& layout) -> DWORD;
 auto verify_fvf(DWORD fvf) -> bool;
 
 void fill_primitive_info(
-  D3D9Mesh& mesh, PrimitiveType primitiveType, i32 numVtx
-);
+  D3D9Mesh& mesh, PrimitiveType primitiveType, i32 numVtx);
 
 } // namespace
 
 D3D9Renderer::D3D9Renderer(
-  ComPtr<IDirect3DDevice9> device, const D3DPRESENT_PARAMETERS& pp
-)
+  ComPtr<IDirect3DDevice9> device, const D3DPRESENT_PARAMETERS& pp)
   : mDevice {std::move(device)}, mPresentParams {pp} {
   BASALT_ASSERT(mDevice);
 
@@ -80,12 +73,14 @@ D3D9Renderer::~D3D9Renderer() {
 
 void D3D9Renderer::on_window_resize(const Size2Du16 size) {
   ImGui_ImplDX9_InvalidateDeviceObjects();
+
   mPresentParams.BackBufferWidth = size.width();
   mPresentParams.BackBufferHeight = size.height();
-  mDevice->Reset(&mPresentParams);
+  D3D9CALL(mDevice->Reset(&mPresentParams));
+
   ImGui_ImplDX9_CreateDeviceObjects();
 
-  BASALT_LOG_TRACE("resized d3d9 back buffer");
+  BASALT_LOG_DEBUG("resized d3d9 back buffer");
 }
 
 /*
@@ -105,7 +100,6 @@ auto D3D9Renderer::add_mesh(
     verify_fvf(mesh.fvf), "invalid fvf. Consult the log for details");
 
   mesh.vertexSize = ::D3DXGetFVFVertexSize(mesh.fvf);
-
 
   const auto bufferSize = mesh.vertexSize * numVertices;
   D3D9CALL(
@@ -159,7 +153,7 @@ void D3D9Renderer::remove_texture(const TextureHandle textureHandle) {
   mTextures.deallocate(textureHandle);
 }
 
-void D3D9Renderer::set_clear_color(const Color color) {
+void D3D9Renderer::set_clear_color(const Color& color) {
   mClearColor = to_d3d_color(color);
 }
 
@@ -170,14 +164,15 @@ void D3D9Renderer::render(const RenderCommandList& commandList) {
   if (hr == D3DERR_DEVICENOTRESET) {
     BASALT_LOG_INFO("resetting d3d9 device");
     D3D9CALL(mDevice->Reset(&mPresentParams));
+
     ImGui_ImplDX9_CreateDeviceObjects();
   } else if (hr != D3DERR_DEVICELOST) {
     BASALT_ASSERT(SUCCEEDED(hr));
   }
 
-  D3D9CALL(mDevice->Clear(
-    0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, mClearColor, 1.0f, 0u
-  ));
+  D3D9CALL(
+    mDevice->Clear(0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, mClearColor,
+      1.0f, 0u));
 
   // TODO: should we make all rendering code dependent
   // on the success of BeginScene? -> Log error and/or throw exception
@@ -198,11 +193,10 @@ void D3D9Renderer::render(const RenderCommandList& commandList) {
     D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, ambientLightColor));
   }
 
-  const auto maxLights = mDeviceCaps.MaxActiveLights;
   const auto& directionalLights = commandList.directional_lights();
-  if (directionalLights.size() > maxLights) {
-    throw std::runtime_error("the renderer doesn't support that many lights");
-  }
+  BASALT_ASSERT_MSG(
+    directionalLights.size() <= mDeviceCaps.MaxActiveLights
+  , "the renderer doesn't support that many lights");
 
   DWORD lightIndex = 0u;
   for (const auto& light : directionalLights) {
@@ -215,7 +209,9 @@ void D3D9Renderer::render(const RenderCommandList& commandList) {
     D3D9CALL(mDevice->LightEnable(lightIndex++, TRUE));
   }
 
-  render_commands(commandList);
+  for (const auto& command : commandList.commands()) {
+    render_command(command);
+  }
 
   // render imgui
   ImGui::Render();
@@ -238,68 +234,60 @@ void D3D9Renderer::render(const RenderCommandList& commandList) {
   D3D9CALL(mDevice->EndScene());
 }
 
-auto D3D9Renderer::name() -> std::string_view {
-  return RENDERER_NAME;
-}
-
-
 void D3D9Renderer::new_gui_frame() {
   ImGui_ImplDX9_NewFrame();
 }
 
-void D3D9Renderer::render_commands(const RenderCommandList& commands) {
-  for (const auto& command : commands.commands()) {
-    const bool disableLighting = command.mFlags & RenderFlagDisableLighting;
+void D3D9Renderer::render_command(const RenderCommand& command) {
+  const bool disableLighting = command.mFlags & RenderFlagDisableLighting;
 
-    // apply custom render flags
-    if (command.mFlags) {
-      if (disableLighting) {
-        D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
-      }
-      if (command.mFlags & RenderFlagCullNone) {
-        D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-      }
+  // apply custom render flags
+  if (command.mFlags) {
+    if (disableLighting) {
+      D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
     }
-
-    const auto& mesh = mMeshes.get(command.mMesh);
-    const bool noLightingAndTransform = mesh.fvf & D3DFVF_XYZRHW;
-    if (!disableLighting && !noLightingAndTransform) {
-      D3DMATERIAL9 material {};
-      material.Diffuse = to_d3d_color_value(command.mDiffuseColor);
-      material.Ambient = to_d3d_color_value(command.mAmbientColor);
-      material.Emissive = to_d3d_color_value(command.mEmissiveColor);
-      D3D9CALL(mDevice->SetMaterial(&material));
+    if (command.mFlags & RenderFlagCullNone) {
+      D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
     }
+  }
 
-    if (command.mTexture) {
-      const auto& texture = mTextures.get(command.mTexture);
-      D3D9CALL(mDevice->SetTexture(0, texture));
+  const auto& mesh = mMeshes.get(command.mMesh);
+  const bool noLightingAndTransform = mesh.fvf & D3DFVF_XYZRHW;
+  if (!disableLighting && !noLightingAndTransform) {
+    D3DMATERIAL9 material {};
+    material.Diffuse = to_d3d_color_value(command.mDiffuseColor);
+    material.Ambient = to_d3d_color_value(command.mAmbientColor);
+    material.Emissive = to_d3d_color_value(command.mEmissiveColor);
+    D3D9CALL(mDevice->SetMaterial(&material));
+  }
+
+  if (command.mTexture) {
+    const auto& texture = mTextures.get(command.mTexture);
+    D3D9CALL(mDevice->SetTexture(0, texture));
+  }
+
+  if (!noLightingAndTransform) {
+    const auto transform {to_d3d_matrix(command.mWorld)};
+    D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &transform));
+  }
+
+  D3D9CALL(
+    mDevice->SetStreamSource(0u, mesh.vertexBuffer.Get(), 0u, mesh.vertexSize));
+
+  D3D9CALL(mDevice->SetFVF(mesh.fvf));
+  D3D9CALL(mDevice->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
+
+  if (command.mTexture) {
+    D3D9CALL(mDevice->SetTexture(0, nullptr));
+  }
+
+  // revert custom render flags
+  if (command.mFlags) {
+    if (disableLighting) {
+      D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
     }
-
-    if (!(mesh.fvf & D3DFVF_XYZRHW)) {
-      const auto transform {to_d3d_matrix(command.mWorld)};
-      D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &transform));
-    }
-
-    D3D9CALL(
-      mDevice->SetStreamSource(0u, mesh.vertexBuffer.Get(), 0u, mesh.vertexSize
-      ));
-
-    D3D9CALL(mDevice->SetFVF(mesh.fvf));
-    D3D9CALL(mDevice->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
-
-    if (command.mTexture) {
-      D3D9CALL(mDevice->SetTexture(0, nullptr));
-    }
-
-    // revert custom render flags
-    if (command.mFlags) {
-      if (disableLighting) {
-        D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
-      }
-      if (command.mFlags & RenderFlagCullNone) {
-        D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
-      }
+    if (command.mFlags & RenderFlagCullNone) {
+      D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
     }
   }
 }

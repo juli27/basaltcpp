@@ -5,6 +5,9 @@
 #include "runtime/gfx/backend/IRenderer.h"
 
 #include "runtime/gfx/backend/d3d9/d3d9_custom.h"
+
+#include "runtime/gfx/backend/render_command.h"
+
 #include "runtime/shared/HandlePool.h"
 
 #include <wrl/client.h>
@@ -13,10 +16,10 @@ namespace basalt::gfx::backend {
 
 struct D3D9Mesh {
   Microsoft::WRL::ComPtr<IDirect3DVertexBuffer9> vertexBuffer {};
-  DWORD fvf = 0u;
-  UINT vertexSize = 0u;
-  D3DPRIMITIVETYPE primType = D3DPT_POINTLIST;
-  UINT primCount = 0u;
+  DWORD fvf {0u};
+  UINT vertexSize {0u};
+  D3DPRIMITIVETYPE primType {D3DPT_POINTLIST};
+  UINT primCount {0u};
 };
 
 struct D3D9Renderer final : IRenderer {
@@ -40,21 +43,20 @@ struct D3D9Renderer final : IRenderer {
   void remove_mesh(MeshHandle meshHandle) override;
   auto add_texture(std::string_view filePath) -> TextureHandle override;
   void remove_texture(TextureHandle textureHandle) override;
-  void set_clear_color(Color color) override;
+  void set_clear_color(const Color& color) override;
   void render(const RenderCommandList&) override;
-  auto name() -> std::string_view override;
 
   void new_gui_frame() override;
 
 private:
-  void render_commands(const RenderCommandList& commands);
+  void render_command(const RenderCommand&);
 
   Microsoft::WRL::ComPtr<IDirect3DDevice9> mDevice {};
-  D3DCAPS9 mDeviceCaps = {};
-  D3DPRESENT_PARAMETERS mPresentParams;
-  HandlePool<D3D9Mesh, MeshHandle> mMeshes;
-  HandlePool<IDirect3DTexture9*, TextureHandle> mTextures;
-  D3DCOLOR mClearColor = D3DCOLOR_XRGB(0, 0, 0);
+  D3DCAPS9 mDeviceCaps {};
+  D3DPRESENT_PARAMETERS mPresentParams {};
+  HandlePool<D3D9Mesh, MeshHandle> mMeshes {};
+  HandlePool<IDirect3DTexture9*, TextureHandle> mTextures {};
+  D3DCOLOR mClearColor {D3DCOLOR_XRGB(0, 0, 0)};
 };
 
 } // namespace basalt::gfx::backend
