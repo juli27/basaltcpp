@@ -31,15 +31,13 @@ using basalt::math::Vec3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::backend::IRenderer;
-using basalt::gfx::backend::LightSetup;
 using basalt::gfx::backend::RenderFlagCullNone;
 using basalt::gfx::backend::VertexElement;
 using basalt::gfx::backend::VertexLayout;
 
 namespace d3d9 {
 
-Lights::Lights(IRenderer* const renderer)
-  : mRenderer {renderer} {
+Lights::Lights(IRenderer* const renderer) {
   mScene->set_background_color(Color {0.0f, 0.0f, 1.0f});
 
   const Vec3f32 cameraPos {0.0f, 3.0f, -5.0f};
@@ -100,8 +98,6 @@ void Lights::on_update(const f64 deltaTime) {
     mCylinderEntity);
   transform.rotate(radOffsetX, 0.0f, 0.0f);
 
-  LightSetup lights {};
-
   // TODO: fix rotation speed
   mLightAngle += PI * 0.25f * static_cast<f32>(deltaTime);
   // reset when rotated 360°
@@ -109,10 +105,10 @@ void Lights::on_update(const f64 deltaTime) {
     mLightAngle -= PI * 2.0f;
   }
 
+  mScene->clear_directional_lights();
+
   const Vec3f32 lightDir {std::cos(mLightAngle), 1.0f, std::sin(mLightAngle)};
-  lights.add_directional_light(
-    Vec3f32::normalize(lightDir), Color {1.0f, 1.0f, 1.0f});
-  mRenderer->set_lights(lights);
+  mScene->add_directional_light(Vec3f32::normalize(lightDir), Color {1.0f, 1.0f, 1.0f});
 
   mScene->display_debug_gui();
 }

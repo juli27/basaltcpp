@@ -10,6 +10,8 @@
 
 namespace basalt::gfx {
 
+using backend::DirectionalLight;
+
 struct RenderComponent final {
   backend::MeshHandle mMesh;
   backend::TextureHandle mTexture;

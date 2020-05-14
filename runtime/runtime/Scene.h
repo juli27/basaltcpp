@@ -3,12 +3,16 @@
 #define BASALT_SCENE_H
 
 #include "runtime/gfx/Camera.h"
+#include "runtime/gfx/types.h"
+
 #include "runtime/math/Vec3.h"
 
 #include "runtime/shared/Color.h"
 #include "runtime/shared/Types.h"
 
 #include <entt/entity/registry.hpp>
+
+#include <vector>
 
 namespace basalt {
 
@@ -57,6 +61,11 @@ struct Scene final {
   void set_ambient_light(const Color&);
   auto ambient_light() const -> const Color&;
 
+  [[nodiscard]]
+  auto directional_lights() const -> const std::vector<gfx::DirectionalLight>&;
+  void add_directional_light(const math::Vec3f32& dir, const Color&);
+  void clear_directional_lights();
+
   template <typename... Component>
   auto create_entity() {
     return mEntityRegistry.create<Component...>();
@@ -67,6 +76,7 @@ struct Scene final {
 
 private:
   entt::registry mEntityRegistry {};
+  std::vector<gfx::DirectionalLight> mDirectionalLights {};
   Color mBackgroundColor {0.0f, 0.0f, 0.0f};
   gfx::Camera mCamera = {{}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}};
   Color mAmbientLightColor {};

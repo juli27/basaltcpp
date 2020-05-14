@@ -33,9 +33,6 @@ private:
   std::shared_ptr<basalt::Scene> mScene {std::make_shared<basalt::Scene>()};
   basalt::f32 mLightAngle {0.0f};
   entt::entity mCylinderEntity {entt::null};
-
-  // TODO: no no
-  basalt::gfx::backend::IRenderer* mRenderer;
 };
 
 } // namespace d3d9

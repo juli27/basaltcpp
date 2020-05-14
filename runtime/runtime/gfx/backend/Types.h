@@ -49,7 +49,6 @@ struct TextureTypeTag {
 using MeshHandle = Handle<_internal::MeshTypeTag>;
 using TextureHandle = Handle<_internal::TextureTypeTag>;
 
-
 struct DirectionalLight final {
   math::Vec3f32 direction;
   Color diffuseColor;

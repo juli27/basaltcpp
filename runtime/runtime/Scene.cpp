@@ -13,6 +13,10 @@ using entt::registry;
 
 namespace basalt {
 
+using gfx::DirectionalLight;
+using math::PI;
+using math::Vec3f32;
+
 namespace {
 
 void edit_color3(const char* label, Color& color);
@@ -22,14 +26,14 @@ void edit_color4(const char* label, Color& color);
 
 void TransformComponent::move(const f32 offsetX, const f32 offsetY
                             , const f32 offsetZ) noexcept {
-  mPosition += math::Vec3f32(offsetX, offsetY, offsetZ);
+  mPosition += Vec3f32(offsetX, offsetY, offsetZ);
 }
 
 void TransformComponent::rotate(const f32 radOffsetX, const f32 radOffsetY
                               , const f32 radOffsetZ) noexcept {
-  mRotation += math::Vec3f32(radOffsetX, radOffsetY, radOffsetZ);
+  mRotation += Vec3f32(radOffsetX, radOffsetY, radOffsetZ);
 
-  constexpr auto maxAngle = math::PI * 2.0f;
+  constexpr auto maxAngle = PI * 2.0f;
   if (mRotation.x() < 0.0f) mRotation.set_x(maxAngle);
   if (mRotation.x() > maxAngle) mRotation.set_x(0.0f);
   if (mRotation.y() < 0.0f) mRotation.set_y(maxAngle);
@@ -66,6 +70,19 @@ void Scene::set_ambient_light(const Color& color) {
 
 auto Scene::ambient_light() const -> const Color& {
   return mAmbientLightColor;
+}
+
+auto Scene::directional_lights() const -> const std::vector<DirectionalLight>& {
+  return mDirectionalLights;
+}
+
+// TODO: ambient color support
+void Scene::add_directional_light(const Vec3f32& dir, const Color& color) {
+  mDirectionalLights.push_back(DirectionalLight {dir, color, Color {}});
+}
+
+void Scene::clear_directional_lights() {
+  mDirectionalLights.clear();
 }
 
 void Scene::display_entity_gui(const entity entity) {
@@ -112,7 +129,7 @@ void Scene::display_entity_gui_impl(const entity entity) {
         transform.mRotation.x(), transform.mRotation.y()
       , transform.mRotation.z()
       };
-      ImGui::DragFloat3("Rotation", rotation, 0.01f, 0.0f, 2.0f * math::PI);
+      ImGui::DragFloat3("Rotation", rotation, 0.01f, 0.0f, 2.0f * PI);
       transform.mRotation.set(rotation[0], rotation[1], rotation[2]);
 
       f32 scaling[3] = {
