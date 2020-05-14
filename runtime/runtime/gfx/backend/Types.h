@@ -55,27 +55,6 @@ struct DirectionalLight final {
   Color ambientColor;
 };
 
-
-struct LightSetup final {
-  LightSetup() = default;
-  LightSetup(const LightSetup&) = default;
-  LightSetup(LightSetup&&) = default;
-  ~LightSetup() = default;
-
-  auto operator=(const LightSetup&) -> LightSetup& = default;
-  auto operator=(LightSetup&&) -> LightSetup& = default;
-
-  void add_directional_light(
-    const math::Vec3f32& direction, const Color& diffuseColor
-  );
-
-  [[nodiscard]]
-  auto directional_lights() const -> const std::vector<DirectionalLight>&;
-
-private:
-  std::vector<DirectionalLight> mDirectionalLights;
-};
-
 } // namespace basalt::gfx::backend
 
 #endif // !BASALT_GFX_BACKEND_TYPES_H

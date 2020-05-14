@@ -94,11 +94,38 @@ void Scene::display_entity_gui(const entity entity) {
 }
 
 void Scene::display_debug_gui() {
-  using std::get;
-
   if (ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
     edit_color3("Background Color", mBackgroundColor);
     edit_color4("Ambient Light", mAmbientLightColor);
+
+    if (ImGui::CollapsingHeader("Directional Lights")) {
+      ImGui::PushID("Directional Lights");
+      for (uSize i = 0; i < mDirectionalLights.size(); i++) {
+        std::array<char, 16> str {};
+        std::to_chars(str.data(), str.data() + str.size(), i);
+        if (ImGui::TreeNode(str.data())) {
+          edit_color4("Diffuse", mDirectionalLights[i].diffuseColor);
+          edit_color4("Ambient", mDirectionalLights[i].ambientColor);
+
+          std::array<f32, 3> direction = {
+            mDirectionalLights[i].direction.x()
+          , mDirectionalLights[i].direction.y()
+          , mDirectionalLights[i].direction.z()
+          };
+          ImGui::DragFloat3("Direction", direction.data(), 0.1f);
+
+          using std::get;
+          mDirectionalLights[i].direction = Vec3f32::normalize(
+            Vec3f32 {
+              get<0>(direction), get<1>(direction), get<2>(direction)
+            });
+
+          ImGui::TreePop();
+        }
+      }
+
+      ImGui::PopID();
+    }
 
     mEntityRegistry.each(
       [this](const entity entity) -> void {

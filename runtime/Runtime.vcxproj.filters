@@ -18,9 +18,6 @@
     <ClCompile Include="runtime\gfx\Gfx.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
-    <ClCompile Include="runtime\gfx\backend\Types.cpp">
-      <Filter>gfx\backend</Filter>
-    </ClCompile>
     <ClCompile Include="runtime\math\Vec2.cpp">
       <Filter>math</Filter>
     </ClCompile>

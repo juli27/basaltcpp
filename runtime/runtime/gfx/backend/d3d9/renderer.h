@@ -40,7 +40,6 @@ struct D3D9Renderer final : IRenderer {
   void remove_mesh(MeshHandle meshHandle) override;
   auto add_texture(std::string_view filePath) -> TextureHandle override;
   void remove_texture(TextureHandle textureHandle) override;
-  void set_lights(const LightSetup& lights) override;
   void set_clear_color(Color color) override;
   void render(const RenderCommandList&) override;
   auto name() -> std::string_view override;

@@ -25,14 +25,7 @@ void render(backend::IRenderer* renderer, Scene* const scene) {
   };
 
   commandList.set_ambient_light(scene->ambient_light());
-
-  backend::LightSetup lights {};
-  for (const auto& directionLight : scene->directional_lights()) {
-    lights.add_directional_light(
-      directionLight.direction, directionLight.diffuseColor);
-  }
-
-  renderer->set_lights(lights);
+  commandList.set_directional_lights(scene->directional_lights());
 
   const auto& registry = scene->get_entity_registry();
 

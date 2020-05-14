@@ -52,12 +52,8 @@ struct RenderCommandList final {
   [[nodiscard]]
   auto commands() const -> const std::vector<RenderCommand>&;
 
-  inline void set_view(const math::Mat4f32& view);
-
   [[nodiscard]]
   auto view() const -> const math::Mat4f32&;
-
-  inline void set_projection(const math::Mat4f32& projection);
 
   [[nodiscard]]
   auto projection() const -> const math::Mat4f32&;
@@ -66,24 +62,19 @@ struct RenderCommandList final {
   auto ambient_light() const -> const Color&;
   void set_ambient_light(const Color&);
 
+  [[nodiscard]]
+  auto directional_lights() const -> const std::vector<DirectionalLight>&;
+  void set_directional_lights(const std::vector<DirectionalLight>&);
+
   void add(const RenderCommand&);
-  void clear();
 
 private:
   std::vector<RenderCommand> mCommands {};
+  std::vector<DirectionalLight> mDirectionalLights {};
   math::Mat4f32 mView {math::Mat4f32::identity()};
   math::Mat4f32 mProjection {math::Mat4f32::identity()};
   Color mAmbientLightColor {};
 };
-
-inline void RenderCommandList::set_view(const math::Mat4f32& view) {
-  mView = view;
-}
-
-inline void
-RenderCommandList::set_projection(const math::Mat4f32& projection) {
-  mProjection = projection;
-}
 
 } // namespace basalt::gfx::backend
 

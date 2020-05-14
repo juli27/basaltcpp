@@ -72,14 +72,6 @@ struct IRenderer {
    */
   virtual void remove_texture(TextureHandle textureHandle) = 0;
 
-  /*
-   * Sets the lights for this renderer. Lights apply  and
-   * valid for every frame until changed again.
-   *
-   * TODO: move lights into the command buffer ?
-   */
-  virtual void set_lights(const LightSetup& lights) = 0;
-
   /**
    * Sets the back buffer clear color.
    */

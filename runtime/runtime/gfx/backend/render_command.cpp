@@ -32,12 +32,19 @@ void RenderCommandList::set_ambient_light(const Color& color) {
   mAmbientLightColor = color;
 }
 
-void RenderCommandList::add(const RenderCommand& command) {
-  mCommands.push_back(command);
+auto RenderCommandList::directional_lights() const -> const std::vector<
+  DirectionalLight>& {
+  return mDirectionalLights;
 }
 
-void RenderCommandList::clear() {
-  mCommands.clear();
+void RenderCommandList::set_directional_lights(
+  const std::vector<DirectionalLight>& lights
+) {
+  mDirectionalLights = lights;
+}
+
+void RenderCommandList::add(const RenderCommand& command) {
+  mCommands.push_back(command);
 }
 
 } // namespace basalt::gfx::backend

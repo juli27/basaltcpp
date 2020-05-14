@@ -159,33 +159,6 @@ void D3D9Renderer::remove_texture(const TextureHandle textureHandle) {
   mTextures.deallocate(textureHandle);
 }
 
-void D3D9Renderer::set_lights(const LightSetup& lights) {
-  const auto maxLights = mDeviceCaps.MaxActiveLights;
-
-  const auto& directionalLights = lights.directional_lights();
-  if (directionalLights.size() > maxLights) {
-    throw std::runtime_error("the renderer doesn't support that many lights");
-  }
-
-  DWORD lightIndex = 0u;
-  for (const auto& light : directionalLights) {
-    D3DLIGHT9 d3dLight{};
-    d3dLight.Type = D3DLIGHT_DIRECTIONAL;
-    d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
-    d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
-    d3dLight.Direction = to_d3d_vector(light.direction);
-
-    D3D9CALL(mDevice->SetLight(lightIndex, &d3dLight));
-    D3D9CALL(mDevice->LightEnable(lightIndex, TRUE));
-    lightIndex++;
-  }
-
-  // disable not used lights
-  for (; lightIndex < maxLights; lightIndex++) {
-    D3D9CALL(mDevice->LightEnable(lightIndex, FALSE));
-  }
-}
-
 void D3D9Renderer::set_clear_color(const Color color) {
   mClearColor = to_d3d_color(color);
 }
@@ -225,6 +198,23 @@ void D3D9Renderer::render(const RenderCommandList& commandList) {
     D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, ambientLightColor));
   }
 
+  const auto maxLights = mDeviceCaps.MaxActiveLights;
+  const auto& directionalLights = commandList.directional_lights();
+  if (directionalLights.size() > maxLights) {
+    throw std::runtime_error("the renderer doesn't support that many lights");
+  }
+
+  DWORD lightIndex = 0u;
+  for (const auto& light : directionalLights) {
+    D3DLIGHT9 d3dLight {D3DLIGHT_DIRECTIONAL};
+    d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
+    d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
+    d3dLight.Direction = to_d3d_vector(light.direction);
+
+    D3D9CALL(mDevice->SetLight(lightIndex, &d3dLight));
+    D3D9CALL(mDevice->LightEnable(lightIndex++, TRUE));
+  }
+
   render_commands(commandList);
 
   // render imgui
@@ -232,6 +222,11 @@ void D3D9Renderer::render(const RenderCommandList& commandList) {
   auto* drawData = ImGui::GetDrawData();
   if (drawData) {
     ImGui_ImplDX9_RenderDrawData(drawData);
+  }
+
+  // disable used lights
+  for (lightIndex = 0; lightIndex < directionalLights.size(); lightIndex++) {
+    D3D9CALL(mDevice->LightEnable(lightIndex, FALSE));
   }
 
   if (ambientLightColor) {

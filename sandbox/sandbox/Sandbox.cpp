@@ -180,7 +180,7 @@ void SandboxApp::on_update(const f64 deltaTime) {
 
   ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
   if (ImGui::Begin(
-    "Example: Simple overlay", nullptr
+    "Overlay", nullptr
   , ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration |
     ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings |
     ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav)) {
