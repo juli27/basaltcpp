@@ -157,7 +157,7 @@ void D3D9Renderer::remove_texture(const TextureHandle textureHandle) {
 }
 
 void D3D9Renderer::submit(const RenderCommand& command) {
-  mCommandBuffer.add_command(command);
+  mCommandBuffer.add(command);
 }
 
 void D3D9Renderer::set_view_proj(
@@ -263,7 +263,7 @@ void D3D9Renderer::new_gui_frame() {
   ImGui_ImplDX9_NewFrame();
 }
 
-void D3D9Renderer::render_commands(const RenderCommandBuffer& commands) {
+void D3D9Renderer::render_commands(const RenderCommandList& commands) {
   for (const auto& command : commands.commands()) {
     const bool disableLighting = command.mFlags & RenderFlagDisableLighting;
 

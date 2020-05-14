@@ -54,14 +54,14 @@ struct D3D9Renderer final : IRenderer {
   void new_gui_frame() override;
 
 private:
-  void render_commands(const RenderCommandBuffer& commands);
+  void render_commands(const RenderCommandList& commands);
 
   Microsoft::WRL::ComPtr<IDirect3DDevice9> mDevice {};
   D3DCAPS9 mDeviceCaps = {};
   D3DPRESENT_PARAMETERS mPresentParams;
   HandlePool<D3D9Mesh, MeshHandle> mMeshes;
   HandlePool<IDirect3DTexture9*, TextureHandle> mTextures;
-  RenderCommandBuffer mCommandBuffer;
+  RenderCommandList mCommandBuffer;
   D3DCOLOR mClearColor = D3DCOLOR_XRGB(0, 0, 0);
 };
 

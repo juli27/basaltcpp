@@ -37,83 +37,52 @@ struct RenderCommand final {
 // defines defaults for render state flags (lighting on/off, ...)
 // (TODO: can every state flag be overridden by each command
 //        or only some, or none)
-struct RenderCommandBuffer final {
-  inline RenderCommandBuffer();
-  inline RenderCommandBuffer(const math::Mat4f32& view
-                           , const math::Mat4f32& projection);
+struct RenderCommandList final {
+  RenderCommandList() = default;
+  RenderCommandList(const math::Mat4f32& view, const math::Mat4f32& projection);
 
-  RenderCommandBuffer(const RenderCommandBuffer&) = delete;
-  RenderCommandBuffer(RenderCommandBuffer&&) = default;
+  RenderCommandList(const RenderCommandList&) = delete;
+  RenderCommandList(RenderCommandList&&) = default;
 
-  ~RenderCommandBuffer() = default;
+  ~RenderCommandList() = default;
 
-  auto operator=(const RenderCommandBuffer&) -> RenderCommandBuffer& = delete;
-  auto operator=(RenderCommandBuffer&&) -> RenderCommandBuffer& = default;
+  auto operator=(const RenderCommandList&) -> RenderCommandList& = delete;
+  auto operator=(RenderCommandList&&) -> RenderCommandList& = default;
 
   [[nodiscard]]
-  inline auto commands() const -> const std::vector<RenderCommand>&;
+  auto commands() const -> const std::vector<RenderCommand>&;
 
   inline void set_view(const math::Mat4f32& view);
 
   [[nodiscard]]
-  inline auto view() const -> const math::Mat4f32&;
+  auto view() const -> const math::Mat4f32&;
 
   inline void set_projection(const math::Mat4f32& projection);
 
   [[nodiscard]]
-  inline auto projection() const -> const math::Mat4f32&;
+  auto projection() const -> const math::Mat4f32&;
 
   [[nodiscard]]
   auto ambient_light() const -> const Color&;
   void set_ambient_light(const Color&);
 
-  inline void add_command(const RenderCommand& command);
-  inline void clear();
+  void add(const RenderCommand&);
+  void clear();
 
 private:
-  std::vector<RenderCommand> mCommands;
-  math::Mat4f32 mView;
-  math::Mat4f32 mProjection;
-  Color mAmbientLightColor;
+  std::vector<RenderCommand> mCommands {};
+  math::Mat4f32 mView {math::Mat4f32::identity()};
+  math::Mat4f32 mProjection {math::Mat4f32::identity()};
+  Color mAmbientLightColor {};
 };
 
-
-inline RenderCommandBuffer::RenderCommandBuffer()
-  : mView(math::Mat4f32::identity())
-  , mProjection(math::Mat4f32::identity()) {}
-
-inline RenderCommandBuffer::RenderCommandBuffer(const math::Mat4f32& view
-                                              , const math::Mat4f32& projection)
-  : mView(view), mProjection(projection) {}
-
-inline void RenderCommandBuffer::add_command(const RenderCommand& command) {
-  mCommands.push_back(command);
-}
-
-inline void RenderCommandBuffer::clear() {
-  mCommands.clear();
-}
-
-inline void RenderCommandBuffer::set_view(const math::Mat4f32& view) {
+inline void RenderCommandList::set_view(const math::Mat4f32& view) {
   mView = view;
 }
 
 inline void
-RenderCommandBuffer::set_projection(const math::Mat4f32& projection) {
+RenderCommandList::set_projection(const math::Mat4f32& projection) {
   mProjection = projection;
-}
-
-inline auto RenderCommandBuffer::commands() const
--> const std::vector<RenderCommand>& {
-  return mCommands;
-}
-
-inline const math::Mat4f32& RenderCommandBuffer::view() const {
-  return mView;
-}
-
-inline const math::Mat4f32& RenderCommandBuffer::projection() const {
-  return mProjection;
 }
 
 } // namespace basalt::gfx::backend
