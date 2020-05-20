@@ -3,8 +3,6 @@
 #define BASALT_GFX_BACKEND_IRENDERER_H
 
 #include "runtime/gfx/backend/Types.h"
-
-#include "runtime/shared/Size2D.h"
 #include "runtime/shared/Types.h"
 
 #include <string_view>
@@ -35,8 +33,6 @@ struct IRenderer {
   //       or an API to get a list of supported usages and types
 
   // TODO: method to retrieve a preferred vertex layout ?
-
-  virtual void on_window_resize(Size2Du16 size) = 0;
 
   /**
    * \brief Adds a static mesh to the renderer to prepare it for rendering.

@@ -16,6 +16,7 @@
 
 #include "runtime/gfx/backend/d3d9/context_factory.h"
 #include "runtime/gfx/backend/d3d9/context.h"
+#include "runtime/gfx/backend/d3d9/renderer.h"
 
 #include "runtime/platform/Platform.h"
 
@@ -76,7 +77,7 @@ struct Window final {
 
   [[nodiscard]]
   auto renderer() const -> IRenderer* {
-    return mRenderer.get();
+    return mContext->renderer().get();
   }
 
   [[nodiscard]]
@@ -91,12 +92,11 @@ private:
   HWND mHandle {nullptr};
   unique_ptr<D3D9ContextFactory> mFactory {};
   unique_ptr<D3D9GfxContext> mContext {};
-  unique_ptr<IRenderer> mRenderer {};
   bool mInSizingMode {false};
 
   Window(
     HINSTANCE instance, HWND handle, unique_ptr<D3D9ContextFactory> factory
-  , unique_ptr<D3D9GfxContext> context, unique_ptr<IRenderer> renderer
+  , unique_ptr<D3D9GfxContext> context
   );
 
   [[nodiscard]]
@@ -239,11 +239,9 @@ auto Window::create(
   // TODO: error handling
   auto factory = D3D9ContextFactory::create().value();
   auto gfxContext = factory->create_context(handle);
-  auto renderer = gfxContext->create_renderer();
 
   auto* const window = new Window {
     instance, handle, std::move(factory), std::move(gfxContext)
-  , std::move(renderer)
   };
 
   // unique_ptr is actually a lie
@@ -275,18 +273,15 @@ void dispatch_platform_event(const Event& event) {
 Window::Window(
   const HINSTANCE instance, const HWND handle
 , unique_ptr<D3D9ContextFactory> factory, unique_ptr<D3D9GfxContext> context
-, unique_ptr<IRenderer> renderer
 )
   : mInstance {instance}
   , mHandle {handle}
   , mFactory {std::move(factory)}
-  , mContext {std::move(context)}
-  , mRenderer {std::move(renderer)} {
+  , mContext {std::move(context)} {
   BASALT_ASSERT(mInstance);
   BASALT_ASSERT(mHandle);
   BASALT_ASSERT(mFactory);
   BASALT_ASSERT(mContext);
-  BASALT_ASSERT(mRenderer);
 }
 
 auto Window::dispatch_message(
@@ -316,13 +311,6 @@ auto Window::dispatch_message(
 
     default:
       break;
-    }
-    break;
-
-  case WM_KILLFOCUS:
-    // TODO: move somewhere else?
-    if (sWindowData.mode != WindowMode::Windowed) {
-      ::ShowWindow(mHandle, SW_MINIMIZE);
     }
     break;
 
@@ -437,10 +425,16 @@ auto Window::dispatch_message(
     mInSizingMode = true;
     return 0;
 
-  case WM_EXITSIZEMOVE:
+  case WM_EXITSIZEMOVE: {
     mInSizingMode = false;
+    RECT clientRect {};
+    ::GetClientRect(mHandle, &clientRect);
+    sWindowData.clientAreaSize.set(
+      static_cast<u16>(clientRect.right)
+    , static_cast<u16>(clientRect.bottom));
     resize(sWindowData.clientAreaSize);
     return 0;
+  }
 
   default:
     break;
@@ -450,7 +444,7 @@ auto Window::dispatch_message(
 }
 
 void Window::resize(const Size2Du16 clientArea) const {
-  mRenderer->on_window_resize(clientArea);
+  mContext->resize(clientArea);
 }
 
 void Window::register_class(const HINSTANCE instance) {
@@ -505,15 +499,12 @@ auto poll_events() -> bool {
     ::DispatchMessageW(&msg);
 
     if (!msg.hwnd) {
-      switch (msg.message) {
-      case WM_QUIT:
-        return false;
+      /*BASALT_LOG_TRACE(
+        "received thread message: {}"
+      , message_to_string(msg.message, msg.wParam, msg.lParam));*/
 
-      default:
-        // 275 is WM_TIMER
-        // is received upon focus change
-        BASALT_LOG_DEBUG("unhandled thread message: {}", msg.message);
-        break;
+      if (msg.message == WM_QUIT) {
+        return false;
       }
     }
   }

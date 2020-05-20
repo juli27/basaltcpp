@@ -2,10 +2,7 @@
 #ifndef BASALT_RUNTIME_GFX_BACKEND_D3D9_CONTEXT_FACTORY_H
 #define BASALT_RUNTIME_GFX_BACKEND_D3D9_CONTEXT_FACTORY_H
 
-#include "runtime/gfx/backend/d3d9/context.h"
 #include "runtime/gfx/backend/d3d9/d3d9_custom.h"
-
-#include "runtime/shared/win32/Windows_custom.h"
 
 #include <wrl/client.h>
 
@@ -13,6 +10,8 @@
 #include <optional>
 
 namespace basalt::gfx::backend {
+
+struct D3D9GfxContext;
 
 struct D3D9ContextFactory final {
   D3D9ContextFactory() = delete;
@@ -24,8 +23,7 @@ struct D3D9ContextFactory final {
   ~D3D9ContextFactory() = default;
 
   auto operator=(
-    const D3D9ContextFactory& other
-  ) -> D3D9ContextFactory& = delete;
+    const D3D9ContextFactory& other) -> D3D9ContextFactory& = delete;
   auto operator=(D3D9ContextFactory&& other) -> D3D9ContextFactory& = delete;
 
   auto create_context(HWND window) const -> std::unique_ptr<D3D9GfxContext>;

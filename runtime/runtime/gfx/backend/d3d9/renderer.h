@@ -35,7 +35,9 @@ struct D3D9Renderer final : IRenderer {
   auto operator=(const D3D9Renderer&) -> D3D9Renderer& = delete;
   auto operator=(D3D9Renderer&&) -> D3D9Renderer& = delete;
 
-  void on_window_resize(Size2Du16 size) override;
+  void before_reset();
+  void after_reset();
+
   auto add_mesh(
     void* data, i32 numVertices, const VertexLayout& layout,
     PrimitiveType primitiveType

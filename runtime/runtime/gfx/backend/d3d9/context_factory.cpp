@@ -1,6 +1,8 @@
 #include "runtime/gfx/backend/d3d9/context_factory.h"
 
+#include "runtime/gfx/backend/d3d9/context.h"
 #include "runtime/gfx/backend/d3d9/util.h"
+
 #include "runtime/platform/Platform.h"
 #include "runtime/shared/Log.h"
 
@@ -16,13 +18,14 @@ D3D9ContextFactory::D3D9ContextFactory(ComPtr<IDirect3D9> factory)
   : mFactory {std::move(factory)} {
 }
 
-auto D3D9ContextFactory::create_context(const HWND window) const -> unique_ptr<D3D9GfxContext> {
+auto D3D9ContextFactory::create_context(
+  const HWND window) const -> unique_ptr<D3D9GfxContext> {
   D3DPRESENT_PARAMETERS pp {
-    0u, 0u, D3DFMT_UNKNOWN, 1u, // back buffer
-    D3DMULTISAMPLE_NONE, 0u, // multi sampling
-    D3DSWAPEFFECT_DISCARD, window, TRUE, // window
-    TRUE, D3DFMT_D16, 0u, // depth stencil buffer + flags
-    0u, D3DPRESENT_INTERVAL_ONE // refresh rate + VSync
+    0u, 0u, D3DFMT_UNKNOWN, 1u // back buffer
+  , D3DMULTISAMPLE_NONE, 0u // multi sampling
+  , D3DSWAPEFFECT_DISCARD, window, TRUE // window
+  , TRUE, D3DFMT_D16, 0u // depth stencil buffer + flags
+  , 0u, D3DPRESENT_INTERVAL_ONE // refresh rate + VSync
   };
 
   const auto windowMode = platform::get_window_mode();
@@ -30,9 +33,7 @@ auto D3D9ContextFactory::create_context(const HWND window) const -> unique_ptr<D
   // setup exclusive fullscreen
   if (windowMode == WindowMode::FullscreenExclusive) {
     D3DDISPLAYMODE displayMode {};
-    D3D9CALL(
-      mFactory->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &displayMode)
-    );
+    D3D9CALL(mFactory->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &displayMode));
 
     pp.BackBufferWidth = displayMode.Width;
     pp.BackBufferHeight = displayMode.Height;
@@ -43,11 +44,8 @@ auto D3D9ContextFactory::create_context(const HWND window) const -> unique_ptr<D
 
   ComPtr<IDirect3DDevice9> device {};
   D3D9CALL(
-    mFactory->CreateDevice(
-      D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, window,
-      D3DCREATE_HARDWARE_VERTEXPROCESSING, &pp, device.GetAddressOf()
-    )
-  );
+    mFactory->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, window,
+      D3DCREATE_HARDWARE_VERTEXPROCESSING, &pp, device.GetAddressOf()));
 
   return std::make_unique<D3D9GfxContext>(std::move(device), pp);
 }

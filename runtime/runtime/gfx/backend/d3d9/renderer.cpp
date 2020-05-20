@@ -71,16 +71,12 @@ D3D9Renderer::~D3D9Renderer() {
   });
 }
 
-void D3D9Renderer::on_window_resize(const Size2Du16 size) {
+void D3D9Renderer::before_reset() {
   ImGui_ImplDX9_InvalidateDeviceObjects();
+}
 
-  mPresentParams.BackBufferWidth = size.width();
-  mPresentParams.BackBufferHeight = size.height();
-  D3D9CALL(mDevice->Reset(&mPresentParams));
-
+void D3D9Renderer::after_reset() {
   ImGui_ImplDX9_CreateDeviceObjects();
-
-  BASALT_LOG_DEBUG("resized d3d9 back buffer");
 }
 
 /*

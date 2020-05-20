@@ -9,7 +9,7 @@
 namespace basalt::win32 {
 namespace {
 
-constexpr std::array<std::string_view, 43u> MESSAGE_NAMES {
+constexpr std::array<std::string_view, 0x50> MESSAGE_NAMES {
   "WM_NULL",
   "WM_CREATE",
   "WM_DESTROY",
@@ -53,6 +53,43 @@ constexpr std::array<std::string_view, 43u> MESSAGE_NAMES {
   "WM_NEXTDLGCTL",
   "unknown(0x29)",
   "WM_SPOOLERSTATUS",
+  "WM_DRAWITEM"
+, "WM_MEASUREITEM"
+, "WM_DELETEITEM"
+, "WM_VKEYTOITEM"
+, "WM_CHARTOITEM"
+, "WM_SETFONT"
+, "WM_GETFONT"
+, "WM_SETHOTKEY"
+, "WM_GETHOTKEY"
+, "unknown(0x34)"
+, "unknown(0x35)"
+, "unknown(0x36)"
+, "WM_QUERYDRAGICON"
+, "unknown(0x38)"
+, "WM_COMPAREITEM"
+, "unknown(0x3A)"
+, "unknown(0x3B)"
+, "unknown(0x3C)"
+, "WM_GETOBJECT"
+, "unknown(0x3E)"
+, "unknown(0x3F)"
+, "unknown(0x40)"
+, "WM_COMPACTING"
+, "unknown(0x42)"
+, "unknown(0x43)"
+, "WM_COMMNOTIFY"
+, "unknown(0x45)"
+, "WM_WINDOWPOSCHANGING"
+, "WM_WINDOWPOSCHANGED"
+, "WM_POWER"
+, "unknown(0x49)"
+, "WM_COPYDATA"
+, "WM_CANCELJOURNAL"
+, "unknown(0x4C)"
+, "unknown(0x4D)"
+, "WM_NOTIFY"
+, "unknown(0x4F)"
 };
 
 std::string_view size_w_param_to_string(WPARAM wParam);
@@ -189,6 +226,36 @@ std::string message_to_string(
     return fmt::format("{} wParam={:#x} numJobs={}"
     , MESSAGE_NAMES[message], wParam, LOWORD(lParam));
 
+  case WM_DRAWITEM:
+    return fmt::format(
+      "{} id={} DRAWITEMSTRUCT*={}", MESSAGE_NAMES[message], wParam, fmt::ptr(
+        reinterpret_cast<DRAWITEMSTRUCT*>(lParam)));
+
+  case WM_MEASUREITEM:
+    return fmt::format(
+      "{} id={} MEASUREITEMSTRUCT*={}", MESSAGE_NAMES[message], wParam
+    , fmt::ptr(reinterpret_cast<MEASUREITEMSTRUCT*>(lParam)));
+
+  case WM_DELETEITEM:
+    return fmt::format(
+      "{} id={} DELETEITEMSTRUCT*={}", MESSAGE_NAMES[message], wParam
+    , fmt::ptr(reinterpret_cast<DELETEITEMSTRUCT*>(lParam)));
+
+  case WM_SETFONT:
+    return fmt::format(
+      "{} font={} redraw={}", MESSAGE_NAMES[message]
+    , fmt::ptr(reinterpret_cast<HFONT>(wParam)), lParam);
+
+  case WM_WINDOWPOSCHANGING:
+  case WM_WINDOWPOSCHANGED: {
+    auto* windowPos = reinterpret_cast<WINDOWPOS*>(lParam);
+    return fmt::format(
+      "{} WINDOWPOS: hwndInsertAfter={} hwnd={} x={} y={} cx={} cy={} flags={:#x}"
+    , MESSAGE_NAMES[message], fmt::ptr(windowPos->hwndInsertAfter)
+    , fmt::ptr(windowPos->hwnd), windowPos->x, windowPos->y, windowPos->cx
+    , windowPos->cy, windowPos->flags);
+  }
+
   case WM_DESTROY:
   case WM_GETTEXTLENGTH:
   case WM_PAINT:
@@ -205,7 +272,7 @@ std::string message_to_string(
   }
 
   if (message < MESSAGE_NAMES.size()) {
-    return std::string {MESSAGE_NAMES[message]};
+    return fmt::format("{} wParam={} lParam={}", MESSAGE_NAMES[message], wParam, lParam);
   }
 
   return fmt::format(
