@@ -24,12 +24,12 @@ using std::unique_ptr;
 using namespace std::literals;
 
 using basalt::Config;
-using basalt::IApplication;
+using basalt::ClientApp;
 using basalt::WindowMode;
 using basalt::gfx::backend::IRenderer;
 using basalt::input::Key;
 
-auto IApplication::configure() -> Config {
+auto ClientApp::configure() -> Config {
   auto config {Config::defaults()};
   config.appName = "Sandbox"s;
 
@@ -37,7 +37,7 @@ auto IApplication::configure() -> Config {
 }
 
 
-auto IApplication::create(IRenderer* const renderer) -> unique_ptr<IApplication> {
+auto ClientApp::create(IRenderer* const renderer) -> unique_ptr<ClientApp> {
   return std::make_unique<SandboxApp>(renderer);
 }
 

@@ -4,9 +4,9 @@ target_sources(Runtime
     "Input.cpp"
     "Scene.cpp"
   PUBLIC
+    "client_app.h"
     "dear_imgui.h"
     "Engine.h"
-    "IApplication.h"
     "Input.h"
     "Prelude.h"
     "Scene.h")

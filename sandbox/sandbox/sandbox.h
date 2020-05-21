@@ -2,7 +2,7 @@
 #ifndef SANDBOX_H
 #define SANDBOX_H
 
-#include <runtime/IApplication.h>
+#include <runtime/client_app.h>
 #include <runtime/shared/Types.h>
 
 #include <memory>
@@ -10,7 +10,7 @@
 
 struct TestCase;
 
-struct SandboxApp final : basalt::IApplication {
+struct SandboxApp final : basalt::ClientApp {
   SandboxApp() = delete;
   explicit SandboxApp(basalt::gfx::backend::IRenderer*);
 

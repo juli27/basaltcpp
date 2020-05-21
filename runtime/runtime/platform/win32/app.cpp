@@ -9,7 +9,7 @@
 #include "runtime/shared/win32/util.h"
 
 #include "runtime/dear_imgui.h"
-#include "runtime/IApplication.h"
+#include "runtime/client_app.h"
 #include "runtime/Input.h"
 
 #include "runtime/gfx/Gfx.h"
@@ -120,7 +120,7 @@ auto poll_events() -> bool;
 
 void run(const HINSTANCE instance, const int showCommand) {
   // let the client app configure us
-  const auto config {IApplication::configure()};
+  const auto config {ClientApp::configure()};
   dump_config(config);
 
   // init imgui before gfx. Renderer initializes imgui render backend
@@ -131,7 +131,7 @@ void run(const HINSTANCE instance, const int showCommand) {
     const auto window = Window::create(instance, showCommand, config);
     input::init();
 
-    const auto clientApp = IApplication::create(window->renderer());
+    const auto clientApp = ClientApp::create(window->renderer());
     BASALT_ASSERT(clientApp);
     BASALT_ASSERT_MSG(sCurrentScene, "no scene set");
 

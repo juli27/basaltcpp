@@ -82,7 +82,6 @@
       <Filter>platform</Filter>
     </ClInclude>
     <ClInclude Include="runtime\Engine.h" />
-    <ClInclude Include="runtime\IApplication.h" />
     <ClInclude Include="runtime\Input.h" />
     <ClInclude Include="runtime\Prelude.h" />
     <ClInclude Include="runtime\Scene.h" />
@@ -108,6 +107,7 @@
     <ClInclude Include="runtime\gfx\types.h">
       <Filter>gfx</Filter>
     </ClInclude>
+    <ClInclude Include="runtime\client_app.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="platform">
