@@ -170,23 +170,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="sandbox\d3d9\textures_tci.cpp" />
-    <ClCompile Include="sandbox\d3d9_tutorials\Device.cpp" />
-    <ClCompile Include="sandbox\d3d9_tutorials\Lights.cpp" />
-    <ClCompile Include="sandbox\d3d9_tutorials\Matrices.cpp" />
-    <ClCompile Include="sandbox\d3d9_tutorials\Textures.cpp" />
-    <ClCompile Include="sandbox\Sandbox.cpp" />
-    <ClCompile Include="sandbox\d3d9_tutorials\Vertices.cpp" />
+    <ClCompile Include="sandbox\d3d9\device.cpp" />
+    <ClCompile Include="sandbox\d3d9\lights.cpp" />
+    <ClCompile Include="sandbox\d3d9\matrices.cpp" />
+    <ClCompile Include="sandbox\d3d9\textures.cpp" />
+    <ClCompile Include="sandbox\sandbox.cpp" />
+    <ClCompile Include="sandbox\d3d9\vertices.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sandbox\d3d9\textures_tci.h" />
     <ClInclude Include="sandbox\d3d9\utils.h" />
-    <ClInclude Include="sandbox\d3d9_tutorials\Device.h" />
-    <ClInclude Include="sandbox\d3d9_tutorials\Lights.h" />
-    <ClInclude Include="sandbox\d3d9_tutorials\Matrices.h" />
-    <ClInclude Include="sandbox\d3d9_tutorials\Textures.h" />
-    <ClInclude Include="sandbox\TestCase.h" />
-    <ClInclude Include="sandbox\Sandbox.h" />
-    <ClInclude Include="sandbox\d3d9_tutorials\Vertices.h" />
+    <ClInclude Include="sandbox\d3d9\device.h" />
+    <ClInclude Include="sandbox\d3d9\lights.h" />
+    <ClInclude Include="sandbox\d3d9\matrices.h" />
+    <ClInclude Include="sandbox\d3d9\textures.h" />
+    <ClInclude Include="sandbox\test_case.h" />
+    <ClInclude Include="sandbox\sandbox.h" />
+    <ClInclude Include="sandbox\d3d9\vertices.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="BasaltApp.props" />

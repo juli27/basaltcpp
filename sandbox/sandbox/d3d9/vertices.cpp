@@ -1,4 +1,4 @@
-#include "sandbox/d3d9_tutorials/Vertices.h"
+#include "sandbox/d3d9/vertices.h"
 
 #include "sandbox/d3d9/utils.h"
 

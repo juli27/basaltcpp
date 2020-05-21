@@ -1,6 +1,6 @@
 #pragma once
-#ifndef TESTCASE_H
-#define TESTCASE_H
+#ifndef SANDBOX_TEST_CASE_H
+#define SANDBOX_TEST_CASE_H
 
 #include "runtime/shared/Types.h"
 
@@ -23,4 +23,4 @@ struct TestCase {
   virtual auto name() -> std::string_view = 0;
 };
 
-#endif // !TESTCASE_H
+#endif // !SANDBOX_TEST_CASE_H

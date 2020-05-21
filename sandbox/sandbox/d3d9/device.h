@@ -2,7 +2,7 @@
 #ifndef SANDBOX_D3D9_DEVICE_H
 #define SANDBOX_D3D9_DEVICE_H
 
-#include "sandbox/TestCase.h"
+#include "sandbox/test_case.h"
 
 #include <runtime/Scene.h>
 

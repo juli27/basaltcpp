@@ -1,8 +1,8 @@
 #pragma once
-#ifndef SANDBOX_D3D9_LIGHTS_H
-#define SANDBOX_D3D9_LIGHTS_H
+#ifndef SANDBOX_D3D9_TEXTURES_H
+#define SANDBOX_D3D9_TEXTURES_H
 
-#include "sandbox/TestCase.h"
+#include "sandbox/test_case.h"
 
 #include <runtime/Scene.h>
 #include <runtime/gfx/backend/IRenderer.h>
@@ -13,17 +13,17 @@
 
 namespace d3d9 {
 
-struct Lights final : TestCase {
-  Lights() = delete;
-  explicit Lights(basalt::gfx::backend::IRenderer*);
+struct Textures final : TestCase {
+  Textures() = delete;
+  explicit Textures(basalt::gfx::backend::IRenderer*);
 
-  Lights(const Lights&) = delete;
-  Lights(Lights&&) = delete;
+  Textures(const Textures&) = delete;
+  Textures(Textures&&) = delete;
 
-  ~Lights() override = default;
+  ~Textures() override = default;
 
-  auto operator=(const Lights&) -> Lights& = delete;
-  auto operator=(Lights&&) -> Lights& = delete;
+  auto operator=(const Textures&) -> Textures& = delete;
+  auto operator=(Textures&&) -> Textures& = delete;
 
   void on_show() override;
   void on_hide() override;
@@ -32,10 +32,9 @@ struct Lights final : TestCase {
 
 private:
   std::shared_ptr<basalt::Scene> mScene {std::make_shared<basalt::Scene>()};
-  basalt::f32 mLightAngle {0.0f};
   entt::entity mCylinderEntity {entt::null};
 };
 
 } // namespace d3d9
 
-#endif // !SANDBOX_D3D9_LIGHTS_H
+#endif // !SANDBOX_D3D9_TEXTURES_H

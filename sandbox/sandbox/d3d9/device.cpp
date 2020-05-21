@@ -1,4 +1,4 @@
-#include "sandbox/d3d9_tutorials/Device.h"
+#include "sandbox/d3d9/device.h"
 
 #include <runtime/Engine.h>
 #include <runtime/Prelude.h>

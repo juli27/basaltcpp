@@ -1,11 +1,11 @@
-#include "sandbox/Sandbox.h"
+#include "sandbox/sandbox.h"
 
+#include "sandbox/d3d9/device.h"
+#include "sandbox/d3d9/lights.h"
+#include "sandbox/d3d9/matrices.h"
+#include "sandbox/d3d9/textures.h"
 #include "sandbox/d3d9/textures_tci.h"
-#include "sandbox/d3d9_tutorials/Device.h"
-#include "sandbox/d3d9_tutorials/Lights.h"
-#include "sandbox/d3d9_tutorials/Matrices.h"
-#include "sandbox/d3d9_tutorials/Textures.h"
-#include "sandbox/d3d9_tutorials/Vertices.h"
+#include "sandbox/d3d9/vertices.h"
 
 #include <runtime/Engine.h>
 #include <runtime/Input.h>
