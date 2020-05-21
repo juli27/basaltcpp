@@ -1,29 +1,9 @@
 #include "runtime/gfx/Camera.h"
 
-#include "runtime/platform/Platform.h"
-
-#include "runtime/math/Constants.h"
-
 namespace basalt::gfx {
 
 using math::Mat4f32;
 using math::Vec3f32;
-
-Camera::Camera(const math::Vec3f32& position, const math::Vec3f32& lookAt
-             , const math::Vec3f32& up)
-  : mPosition(position)
-  , mLookAt(lookAt)
-  , mUp(up) {
-  const auto windowSize{ platform::get_window_size() };
-  const auto aspectRatio{
-    static_cast<float>(windowSize.width()) /
-    static_cast<float>(windowSize.height()) };
-  mProjection = math::Mat4f32::perspective_projection(math::PI / 4.0f
-                                                    , aspectRatio, 1.0f
-                                                    , 100.0f);
-
-  update_view();
-}
 
 Camera::Camera(
   const Vec3f32& position, const Vec3f32& lookAt, const Vec3f32& up

@@ -65,10 +65,6 @@ D3D9Renderer::D3D9Renderer(
 
 D3D9Renderer::~D3D9Renderer() {
   ImGui_ImplDX9_Shutdown();
-
-  mTextures.for_each([](IDirect3DTexture9*& texture){
-    texture->Release();
-  });
 }
 
 void D3D9Renderer::before_reset() {
@@ -141,11 +137,7 @@ auto D3D9Renderer::add_texture(const std::string_view filePath) -> TextureHandle
 }
 
 void D3D9Renderer::remove_texture(const TextureHandle textureHandle) {
-  auto& texture = mTextures.get(textureHandle);
-
-  texture->Release();
-  texture = nullptr;
-
+  mTextures.get(textureHandle).Reset();
   mTextures.deallocate(textureHandle);
 }
 
@@ -259,7 +251,8 @@ void D3D9Renderer::render_command(const RenderCommand& command) {
 
   if (command.mTexture) {
     const auto& texture = mTextures.get(command.mTexture);
-    D3D9CALL(mDevice->SetTexture(0, texture));
+    D3D9CALL(mDevice->SetTexture(0, texture.Get()));
+    D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
   }
 
   if (!noLightingAndTransform) {
@@ -274,6 +267,7 @@ void D3D9Renderer::render_command(const RenderCommand& command) {
   D3D9CALL(mDevice->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
 
   if (command.mTexture) {
+    D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1));
     D3D9CALL(mDevice->SetTexture(0, nullptr));
   }
 

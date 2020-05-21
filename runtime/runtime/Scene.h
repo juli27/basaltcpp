@@ -71,14 +71,13 @@ struct Scene final {
     return mEntityRegistry.create<Component...>();
   }
 
-  void display_entity_gui(entt::entity entity);
   void display_debug_gui();
 
 private:
   entt::registry mEntityRegistry {};
   std::vector<gfx::DirectionalLight> mDirectionalLights {};
   Color mBackgroundColor {0.0f, 0.0f, 0.0f};
-  gfx::Camera mCamera = {{}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}};
+  gfx::Camera mCamera {};
   Color mAmbientLightColor {};
 
   void display_entity_gui_impl(entt::entity entity);

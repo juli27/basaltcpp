@@ -51,14 +51,16 @@ struct D3D9Renderer final : IRenderer {
   void new_gui_frame() override;
 
 private:
-  void render_command(const RenderCommand&);
+  using Texture = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
 
   Microsoft::WRL::ComPtr<IDirect3DDevice9> mDevice {};
   D3DCAPS9 mDeviceCaps {};
   D3DPRESENT_PARAMETERS mPresentParams {};
   HandlePool<D3D9Mesh, MeshHandle> mMeshes {};
-  HandlePool<IDirect3DTexture9*, TextureHandle> mTextures {};
+  HandlePool<Texture, TextureHandle> mTextures {};
   D3DCOLOR mClearColor {D3DCOLOR_XRGB(0, 0, 0)};
+
+  void render_command(const RenderCommand&);
 };
 
 } // namespace basalt::gfx::backend

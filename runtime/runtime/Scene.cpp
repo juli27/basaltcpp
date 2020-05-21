@@ -85,14 +85,6 @@ void Scene::clear_directional_lights() {
   mDirectionalLights.clear();
 }
 
-void Scene::display_entity_gui(const entity entity) {
-  if (ImGui::Begin("Entity")) {
-    display_entity_gui_impl(entity);
-  }
-
-  ImGui::End();
-}
-
 void Scene::display_debug_gui() {
   if (ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
     edit_color3("Background Color", mBackgroundColor);

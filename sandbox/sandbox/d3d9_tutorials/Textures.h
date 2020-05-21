@@ -1,6 +1,6 @@
 #pragma once
-#ifndef D3D9_TUTORIALS_TEXTURES_H
-#define D3D9_TUTORIALS_TEXTURES_H
+#ifndef SANDBOX_D3D9_TEXTURES_H
+#define SANDBOX_D3D9_TEXTURES_H
 
 #include "sandbox/TestCase.h"
 
@@ -11,11 +11,11 @@
 
 #include <memory>
 
-namespace d3d9_tuts {
+namespace d3d9 {
 
 struct Textures final : TestCase {
   Textures() = delete;
-  Textures(basalt::gfx::backend::IRenderer*);
+  explicit Textures(basalt::gfx::backend::IRenderer*);
 
   Textures(const Textures&) = delete;
   Textures(Textures&&) = delete;
@@ -30,10 +30,10 @@ struct Textures final : TestCase {
   void on_update(basalt::f64 deltaTime) override;
 
 private:
-  std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();
-  entt::entity mCylinderEntity = entt::null;
+  std::shared_ptr<basalt::Scene> mScene {std::make_shared<basalt::Scene>()};
+  entt::entity mCylinderEntity {entt::null};
 };
 
-} // namespace d3d9_tuts
+} // namespace d3d9
 
-#endif // !D3D9_TUTORIALS_TEXTURES_H
+#endif // !SANDBOX_D3D9_TEXTURES_H

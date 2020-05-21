@@ -4,7 +4,6 @@
 
 #include "Types.h"
 
-#include <algorithm>
 #include <limits>
 #include <stdexcept>
 #include <tuple>
@@ -14,8 +13,6 @@ namespace basalt {
 
 template <typename T, typename HandleT>
 struct HandlePool final {
-  using ForEachFn = void (*)(T&);
-
   HandlePool() noexcept = default;
   HandlePool(const HandlePool&) = delete;
   HandlePool(HandlePool&&) noexcept = default;
@@ -30,8 +27,6 @@ struct HandlePool final {
 
   [[nodiscard]]
   auto get(HandleT handle) -> T&;
-
-  void for_each(ForEachFn fn);
 
 private:
   struct Slot {
@@ -88,17 +83,6 @@ auto HandlePool<T, HandleT>::get(HandleT handle) -> T& {
   // throws exception with invalid index
   Slot& slot = mSlots.at(handle.get_value());
   return slot.data;
-}
-
-template <typename T, typename HandleT>
-void HandlePool<T, HandleT>::for_each(const ForEachFn fn) {
-  std::for_each(
-    std::begin(mSlots), std::end(mSlots), [=](Slot& slot) {
-      if (slot.handle) {
-        fn(slot.data);
-      }
-    }
-  );
 }
 
 } // namespace basalt
