@@ -1,11 +1,13 @@
 target_sources(Runtime
   PRIVATE
     "dear_imgui.cpp"
+    "debug.cpp"
     "Input.cpp"
     "Scene.cpp"
   PUBLIC
     "client_app.h"
     "dear_imgui.h"
+    "debug.h"
     "Engine.h"
     "Input.h"
     "Prelude.h"

@@ -1,6 +1,6 @@
 #include "runtime/Engine.h"
 
-#include "runtime/Scene.h"
+#include "runtime/debug.h"
 #include "runtime/gfx/types.h"
 
 #include "runtime/platform/win32/globals.h"
@@ -17,7 +17,7 @@ void set_view(const View& view) {
 }
 
 void draw_scene_debug_ui(bool* open) {
-  sCurrentView.scene->display_debug_gui(open);
+  Debug::draw_scene_debug_ui(open, sCurrentView.scene.get());
 }
 
 void quit() {

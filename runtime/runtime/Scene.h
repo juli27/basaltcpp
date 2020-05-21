@@ -4,7 +4,6 @@
 
 #include "runtime/scene/types.h"
 #include "runtime/math/Vec3.h"
-
 #include "runtime/shared/Color.h"
 
 #include <entt/entity/registry.hpp>
@@ -27,9 +26,11 @@ struct Scene final {
   auto get_entity_registry() -> entt::registry&;
 
   void set_background_color(const Color& background);
+  [[nodiscard]]
   auto background_color() const -> const Color&;
 
   void set_ambient_light(const Color&);
+  [[nodiscard]]
   auto ambient_light() const -> const Color&;
 
   [[nodiscard]]
@@ -42,15 +43,13 @@ struct Scene final {
     return mEntityRegistry.create<Component...>();
   }
 
-  void display_debug_gui(bool* open);
-
 private:
+  friend struct Debug;
+
   entt::registry mEntityRegistry {};
   std::vector<DirectionalLight> mDirectionalLights {};
   Color mBackgroundColor {0.0f, 0.0f, 0.0f};
   Color mAmbientLightColor {};
-
-  void display_entity_gui_impl(entt::entity entity);
 };
 
 } // namespace basalt

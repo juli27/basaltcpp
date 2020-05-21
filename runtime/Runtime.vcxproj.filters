@@ -31,6 +31,7 @@
     <ClCompile Include="runtime\scene\transform.cpp">
       <Filter>scene</Filter>
     </ClCompile>
+    <ClCompile Include="runtime\debug.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="runtime\shared\Asserts.h">
@@ -117,6 +118,7 @@
     <ClInclude Include="runtime\scene\transform.h">
       <Filter>scene</Filter>
     </ClInclude>
+    <ClInclude Include="runtime\debug.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="platform">
