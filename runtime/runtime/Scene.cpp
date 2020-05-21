@@ -85,8 +85,8 @@ void Scene::clear_directional_lights() {
   mDirectionalLights.clear();
 }
 
-void Scene::display_debug_gui() {
-  if (ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+void Scene::display_debug_gui(bool* open) {
+  if (ImGui::Begin("Scene", open, ImGuiWindowFlags_AlwaysAutoResize)) {
     edit_color3("Background Color", mBackgroundColor);
     edit_color4("Ambient Light", mAmbientLightColor);
 

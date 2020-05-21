@@ -3,6 +3,8 @@
 #include <runtime/Engine.h>
 #include <runtime/Prelude.h>
 
+using namespace std::string_view_literals;
+
 namespace d3d9 {
 
 Device::Device() {
@@ -17,7 +19,10 @@ void Device::on_hide() {
 }
 
 void Device::on_update(const f64) {
-  mScene->display_debug_gui();
+}
+
+auto Device::name() -> std::string_view {
+  return "Tutorial 1: Creating a Device"sv;
 }
 
 } // namespace d3d9

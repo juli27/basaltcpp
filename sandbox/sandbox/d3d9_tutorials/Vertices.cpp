@@ -14,6 +14,7 @@
 #include <array>
 
 using std::array;
+using namespace std::string_view_literals;
 
 using basalt::gfx::RenderComponent;
 using basalt::gfx::backend::IRenderer;
@@ -64,7 +65,10 @@ void Vertices::on_hide() {
 }
 
 void Vertices::on_update(const f64) {
-  mScene->display_debug_gui();
+}
+
+auto Vertices::name() -> std::string_view {
+  return "Tutorial 2: Rendering Vertices"sv;
 }
 
 } // namespace d3d9

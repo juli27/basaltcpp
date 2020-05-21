@@ -22,6 +22,7 @@
 #include <array>
 
 using std::array;
+using namespace std::string_view_literals;
 
 using basalt::TransformComponent;
 using basalt::math::Mat4f32;
@@ -96,8 +97,10 @@ void Matrices::on_update(const f64 deltaTime) {
     mTriangleEntity);
 
   transform.rotate(0.0f, radOffsetY, 0.0f);
+}
 
-  mScene->display_debug_gui();
+auto Matrices::name() -> std::string_view {
+  return "Tutorial 3: Using Matrices"sv;
 }
 
 } // namespace d3d9

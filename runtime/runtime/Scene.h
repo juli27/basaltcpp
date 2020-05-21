@@ -71,7 +71,7 @@ struct Scene final {
     return mEntityRegistry.create<Component...>();
   }
 
-  void display_debug_gui();
+  void display_debug_gui(bool* open);
 
 private:
   entt::registry mEntityRegistry {};

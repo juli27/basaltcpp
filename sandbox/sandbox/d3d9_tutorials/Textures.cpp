@@ -24,6 +24,8 @@
 #include <tuple>
 
 using std::array;
+using std::string_view;
+using namespace std::string_view_literals;
 
 using basalt::TransformComponent;
 using basalt::math::Mat4f32;
@@ -104,8 +106,10 @@ void Textures::on_update(const f64 deltaTime) {
   auto& transform = mScene->get_entity_registry().get<TransformComponent>(
     mCylinderEntity);
   transform.rotate(radOffsetX, 0.0f, 0.0f);
+}
 
-  mScene->display_debug_gui();
+auto Textures::name() -> string_view {
+  return "Tutorial 5: Using Texture Maps"sv;
 }
 
 } // namespace d3d9

@@ -23,6 +23,7 @@
 #include <tuple>
 
 using std::array;
+using namespace std::string_view_literals;
 
 using basalt::TransformComponent;
 using basalt::math::Mat4f32;
@@ -109,8 +110,10 @@ void Lights::on_update(const f64 deltaTime) {
 
   const Vec3f32 lightDir {std::cos(mLightAngle), 1.0f, std::sin(mLightAngle)};
   mScene->add_directional_light(Vec3f32::normalize(lightDir), Color {1.0f, 1.0f, 1.0f});
+}
 
-  mScene->display_debug_gui();
+auto Lights::name() -> std::string_view {
+  return "Tutorial 4: Creating and Using Lights"sv;
 }
 
 } // namespace d3d9

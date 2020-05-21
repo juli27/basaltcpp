@@ -18,7 +18,10 @@
 
 #include <imgui/imgui.h>
 
+#include <string>
+
 using std::unique_ptr;
+using namespace std::literals;
 
 using basalt::Config;
 using basalt::IApplication;
@@ -27,7 +30,10 @@ using basalt::gfx::backend::IRenderer;
 using basalt::input::Key;
 
 auto IApplication::configure() -> Config {
-  return Config::defaults();
+  auto config {Config::defaults()};
+  config.appName = "Sandbox"s;
+
+  return config;
 }
 
 
@@ -57,7 +63,7 @@ void SandboxApp::on_update(const f64 deltaTime) {
     if (!pageUpPressed) {
       pageUpPressed = true;
 
-      next_scene();
+      prev_scene();
     }
   } else {
     pageUpPressed = false;
@@ -67,13 +73,18 @@ void SandboxApp::on_update(const f64 deltaTime) {
     if (!pageDownPressed) {
       pageDownPressed = true;
 
-      prev_scene();
+      next_scene();
     }
   } else {
     pageDownPressed = false;
   }
 
   mScenes[mCurrentSceneIndex]->on_update(deltaTime);
+
+  static bool showSceneDebugUi = false;
+  if (showSceneDebugUi) {
+    basalt::draw_scene_debug_ui(&showSceneDebugUi);
+  }
 
   static auto showDemo = false;
   static auto showMetrics = false;
@@ -91,6 +102,24 @@ void SandboxApp::on_update(const f64 deltaTime) {
 
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("File")) {
+      for (i32 i = 0; i < 5; i++) {
+        const bool isCurrent = mCurrentSceneIndex == i;
+        if (ImGui::MenuItem(mScenes[i]->name().data(), nullptr, isCurrent, !isCurrent)) {
+          set_scene(i);
+        }
+      }
+
+      ImGui::Separator();
+
+      if (ImGui::MenuItem("Next Scene", "PgDn")) {
+        next_scene();
+      }
+      if (ImGui::MenuItem("Prev Scene", "PgUp")) {
+        prev_scene();
+      }
+
+      ImGui::Separator();
+
       if (ImGui::MenuItem("Exit", "Alt+F4")) {
         basalt::quit();
       }
@@ -98,40 +127,11 @@ void SandboxApp::on_update(const f64 deltaTime) {
       ImGui::EndMenu();
     }
 
-    if (ImGui::BeginMenu("Scene")) {
-      if (ImGui::MenuItem("Next", "PgUp")) {
-        next_scene();
-      }
-      if (ImGui::MenuItem("Prev", "PgDn")) {
-        prev_scene();
-      }
+    if (ImGui::BeginMenu("View")) {
+      ImGui::MenuItem("Scene Debug UI", nullptr, &showSceneDebugUi);
 
       ImGui::Separator();
 
-      if (ImGui::BeginMenu("Direct3D 9 Tutorials")) {
-        if (ImGui::MenuItem("1: Creating a Device")) {
-          set_scene(0);
-        }
-        if (ImGui::MenuItem("2: Rendering Vertices")) {
-          set_scene(1);
-        }
-        if (ImGui::MenuItem("3: Using Matrices")) {
-          set_scene(2);
-        }
-        if (ImGui::MenuItem("4: Creating and Using Lights")) {
-          set_scene(3);
-        }
-        if (ImGui::MenuItem("5: Using Texture Maps")) {
-          set_scene(4);
-        }
-
-        ImGui::EndMenu();
-      }
-
-      ImGui::EndMenu();
-    }
-
-    if (ImGui::BeginMenu("Window")) {
       const auto currentMode = basalt::platform::get_window_mode();
       if (ImGui::MenuItem(
         "Windowed", nullptr, currentMode == WindowMode::Windowed, false
@@ -154,15 +154,9 @@ void SandboxApp::on_update(const f64 deltaTime) {
     }
 
     if (ImGui::BeginMenu("Help")) {
-      if (ImGui::MenuItem("Dear ImGui Demo")) {
-        showDemo = true;
-      }
-      if (ImGui::MenuItem("Dear ImGui Metrics")) {
-        showMetrics = true;
-      }
-      if (ImGui::MenuItem("About Dear ImGui")) {
-        showAbout = true;
-      }
+      ImGui::MenuItem("Dear ImGui Demo", nullptr, &showDemo);
+      ImGui::MenuItem("Dear ImGui Metrics", nullptr, &showMetrics);
+      ImGui::MenuItem("About Dear ImGui", nullptr, &showAbout);
 
       ImGui::EndMenu();
     }
