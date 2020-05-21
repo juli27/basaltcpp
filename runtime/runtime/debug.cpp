@@ -1,7 +1,8 @@
 #include "runtime/debug.h"
 
-#include "runtime/Scene.h"
 #include "runtime/gfx/types.h"
+
+#include "runtime/scene/scene.h"
 #include "runtime/scene/transform.h"
 
 #include "runtime/math/Constants.h"

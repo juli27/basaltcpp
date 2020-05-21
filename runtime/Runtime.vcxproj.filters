@@ -11,7 +11,6 @@
       <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="runtime\Input.cpp" />
-    <ClCompile Include="runtime\Scene.cpp" />
     <ClCompile Include="runtime\gfx\Camera.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
@@ -32,6 +31,9 @@
       <Filter>scene</Filter>
     </ClCompile>
     <ClCompile Include="runtime\debug.cpp" />
+    <ClCompile Include="runtime\scene\scene.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="runtime\shared\Asserts.h">
@@ -88,7 +90,6 @@
     <ClInclude Include="runtime\Engine.h" />
     <ClInclude Include="runtime\Input.h" />
     <ClInclude Include="runtime\Prelude.h" />
-    <ClInclude Include="runtime\Scene.h" />
     <ClInclude Include="runtime\gfx\Camera.h">
       <Filter>gfx</Filter>
     </ClInclude>
@@ -119,6 +120,9 @@
       <Filter>scene</Filter>
     </ClInclude>
     <ClInclude Include="runtime\debug.h" />
+    <ClInclude Include="runtime\scene\scene.h">
+      <Filter>scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="platform">

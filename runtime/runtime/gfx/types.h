@@ -2,13 +2,12 @@
 #ifndef BASALT_RUNTIME_GFX_TYPES_H
 #define BASALT_RUNTIME_GFX_TYPES_H
 
-#include "runtime/Scene.h"
-
 #include "runtime/gfx/Camera.h"
 
 #include "runtime/gfx/backend/render_command.h"
 #include "runtime/gfx/backend/Types.h"
 
+#include "runtime/scene/scene.h"
 #include "runtime/math/Mat4.h"
 
 #include "runtime/shared/Color.h"

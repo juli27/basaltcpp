@@ -4,8 +4,8 @@
 
 #include "sandbox/test_case.h"
 
-#include <runtime/Scene.h>
 #include <runtime/gfx/backend/IRenderer.h>
+#include <runtime/scene/scene.h>
 
 #include <memory>
 

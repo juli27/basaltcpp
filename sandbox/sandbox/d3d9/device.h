@@ -4,7 +4,7 @@
 
 #include "sandbox/test_case.h"
 
-#include <runtime/Scene.h>
+#include <runtime/scene/scene.h>
 
 #include <memory>
 

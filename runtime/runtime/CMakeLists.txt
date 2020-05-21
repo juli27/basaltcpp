@@ -3,7 +3,6 @@ target_sources(Runtime
     "dear_imgui.cpp"
     "debug.cpp"
     "Input.cpp"
-    "Scene.cpp"
   PUBLIC
     "client_app.h"
     "dear_imgui.h"
@@ -11,7 +10,7 @@ target_sources(Runtime
     "Engine.h"
     "Input.h"
     "Prelude.h"
-    "Scene.h")
+)
 
 add_subdirectory("gfx")
 add_subdirectory("math")

@@ -1,4 +1,4 @@
-#include "runtime/Scene.h"
+#include "runtime/scene/scene.h"
 
 using std::vector;
 

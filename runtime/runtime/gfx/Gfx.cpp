@@ -1,13 +1,12 @@
 #include "runtime/gfx/Gfx.h"
 
-#include "runtime/Scene.h"
-
 #include "runtime/gfx/Camera.h"
 #include "runtime/gfx/types.h"
 
 #include "runtime/gfx/backend/IRenderer.h"
 #include "runtime/gfx/backend/render_command.h"
 
+#include "runtime/scene/scene.h"
 #include "runtime/scene/transform.h"
 
 #include "runtime/shared/Asserts.h"
