@@ -3,6 +3,7 @@
 #define BASALT_RUNTIME_GFX_BACKEND_RENDER_COMMAND_H
 
 #include "runtime/gfx/backend/Types.h"
+#include "runtime/scene/types.h"
 #include "runtime/math/Mat4.h"
 
 #include "runtime/shared/Color.h"

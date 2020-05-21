@@ -3,7 +3,6 @@
 #include "sandbox/d3d9/utils.h"
 
 #include <runtime/Engine.h>
-#include <runtime/platform/Platform.h>
 #include <runtime/Prelude.h>
 
 #include <runtime/gfx/Camera.h>
@@ -44,18 +43,6 @@ namespace d3d9 {
 TexturesTci::TexturesTci(IRenderer* const renderer) {
   mScene->set_background_color(Color {0.0f, 0.0f, 1.0f});
 
-  const Vec3f32 cameraPos {0.0f, 3.0f, -5.0f};
-  const Vec3f32 lookAt {0.0f, 0.0f, 0.0f};
-  const Vec3f32 up {0.0f, 1.0f, 0.0f};
-  const auto windowSize {basalt::platform::get_window_size()};
-  const auto aspectRatio {
-    static_cast<f32>(windowSize.width()) / static_cast<f32>(windowSize.height())
-  };
-  const auto projection {
-    Mat4f32::perspective_projection(PI / 4.0f, aspectRatio, 1.0f, 100.0f)
-  };
-  mScene->set_camera(Camera {cameraPos, lookAt, up, projection});
-
   struct Vertex final {
     Vec3f32 pos {};
     ColorEncoding::A8R8G8B8 color {};
@@ -89,13 +76,14 @@ TexturesTci::TexturesTci(IRenderer* const renderer) {
   rc.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 
   // TODO: fix jitter
-  rc.texTransform = projection * Mat4f32::scaling({0.5f, -0.5f, 1.0f}) *
-    Mat4f32::translation({0.5f, 0.5f, 0.0f});
+  const Camera camera = create_default_camera();
+  rc.texTransform = camera.projection_matrix() * Mat4f32::scaling(
+    {0.5f, -0.5f, 1.0f}) * Mat4f32::translation({0.5f, 0.5f, 0.0f});
   rc.tcs = TexCoordinateSrc::PositionCameraSpace;
 }
 
 void TexturesTci::on_show() {
-  set_current_scene(mScene);
+  basalt::set_view({mScene, create_default_camera()});
 }
 
 void TexturesTci::on_hide() {

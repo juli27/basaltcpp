@@ -13,6 +13,7 @@
 #include "runtime/Input.h"
 
 #include "runtime/gfx/Gfx.h"
+#include "runtime/gfx/types.h"
 
 #include "runtime/gfx/backend/d3d9/context_factory.h"
 #include "runtime/gfx/backend/d3d9/context.h"
@@ -39,7 +40,6 @@
 #include <vector>
 
 using std::runtime_error;
-using std::shared_ptr;
 using std::string;
 using std::system_error;
 using std::unique_ptr;
@@ -50,13 +50,14 @@ namespace basalt::win32 {
 
 using namespace platform;
 
+using gfx::View;
 using gfx::backend::D3D9ContextFactory;
 using gfx::backend::D3D9GfxContext;
 using gfx::backend::IRenderer;
 
 vector<PlatformEventCallback> sEventListener;
 WindowData sWindowData;
-shared_ptr<Scene> sCurrentScene {};
+View sCurrentView {};
 
 namespace {
 
@@ -133,7 +134,7 @@ void run(const HINSTANCE instance, const int showCommand) {
 
     const auto clientApp = ClientApp::create(window->renderer());
     BASALT_ASSERT(clientApp);
-    BASALT_ASSERT_MSG(sCurrentScene, "no scene set");
+    BASALT_ASSERT_MSG(sCurrentView.scene, "no scene set");
 
     static_assert(std::chrono::high_resolution_clock::is_steady);
     using Clock = std::chrono::high_resolution_clock;
@@ -146,7 +147,7 @@ void run(const HINSTANCE instance, const int showCommand) {
       clientApp->on_update(currentDeltaTime);
 
       // also calls ImGui::Render()
-      gfx::render(window->renderer(), sCurrentScene.get());
+      gfx::render(window->renderer(), sCurrentView);
 
       window->present();
 
@@ -156,7 +157,7 @@ void run(const HINSTANCE instance, const int showCommand) {
       startTime = endTime;
     } while (poll_events());
 
-    sCurrentScene.reset();
+    sCurrentView.scene.reset();
   }
 
   DearImGui::shutdown();

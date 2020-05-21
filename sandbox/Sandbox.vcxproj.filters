@@ -20,6 +20,9 @@
       <Filter>d3d9</Filter>
     </ClCompile>
     <ClCompile Include="sandbox\sandbox.cpp" />
+    <ClCompile Include="sandbox\d3d9\utils.cpp">
+      <Filter>d3d9</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sandbox\d3d9\utils.h">

@@ -108,6 +108,9 @@
       <Filter>gfx</Filter>
     </ClInclude>
     <ClInclude Include="runtime\client_app.h" />
+    <ClInclude Include="runtime\scene\types.h">
+      <Filter>scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="platform">
@@ -127,6 +130,9 @@
     </Filter>
     <Filter Include="platform\events">
       <UniqueIdentifier>{379b7f59-3f65-4474-8023-60106a6d8da1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scene">
+      <UniqueIdentifier>{7a0f3822-a52e-4443-8845-ec0e7fb828d9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

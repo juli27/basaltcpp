@@ -5,17 +5,12 @@
 #include <runtime/Engine.h>
 #include <runtime/Prelude.h>
 
-#include <runtime/gfx/Camera.h>
 #include <runtime/gfx/types.h>
 
 #include <runtime/gfx/backend/IRenderer.h>
 #include <runtime/gfx/backend/Types.h>
 
-#include <runtime/platform/Platform.h>
-
 #include <runtime/math/Constants.h>
-#include <runtime/math/Mat4.h>
-#include <runtime/math/Vec3.h>
 
 #include <entt/entity/registry.hpp>
 
@@ -25,10 +20,7 @@ using std::array;
 using namespace std::string_view_literals;
 
 using basalt::TransformComponent;
-using basalt::math::Mat4f32;
 using basalt::math::PI;
-using basalt::math::Vec3f32;
-using basalt::gfx::Camera;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::backend::IRenderer;
 using basalt::gfx::backend::RenderFlagCullNone;
@@ -40,17 +32,6 @@ namespace d3d9 {
 
 Matrices::Matrices(IRenderer* const renderer) {
   mScene->set_background_color(Color {0.0f, 0.0f, 0.0f});
-
-  const Vec3f32 cameraPos {0.0f, 3.0f, -5.0f};
-  const Vec3f32 lookAt {0.0f, 0.0f, 0.0f};
-  const Vec3f32 up {0.0f, 1.0f, 0.0f};
-  const auto windowSize = basalt::platform::get_window_size();
-  const auto aspectRatio {
-    static_cast<f32>(windowSize.width()) / static_cast<f32>(windowSize.height())
-  };
-  const auto projection = Mat4f32::perspective_projection(
-    PI / 4.0f, aspectRatio, 1.0f, 100.0f);
-  mScene->set_camera(Camera {cameraPos, lookAt, up, projection});
 
   struct Vertex final {
     f32 x;
@@ -84,7 +65,7 @@ Matrices::Matrices(IRenderer* const renderer) {
 }
 
 void Matrices::on_show() {
-  set_current_scene(mScene);
+  basalt::set_view({mScene, create_default_camera()});
 }
 
 void Matrices::on_hide() {

@@ -2,6 +2,8 @@
 #ifndef SANDBOX_D3D9_UTILS_H
 #define SANDBOX_D3D9_UTILS_H
 
+#include <runtime/gfx/Camera.h>
+
 #include <runtime/gfx/backend/IRenderer.h>
 #include <runtime/gfx/backend/Types.h>
 
@@ -10,6 +12,8 @@
 #include <array>
 
 namespace d3d9 {
+
+auto create_default_camera() -> basalt::gfx::Camera;
 
 template <typename T, std::size_t Size>
 auto add_triangle_list_mesh(

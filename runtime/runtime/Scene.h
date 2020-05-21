@@ -2,9 +2,7 @@
 #ifndef BASALT_SCENE_H
 #define BASALT_SCENE_H
 
-#include "runtime/gfx/Camera.h"
-#include "runtime/gfx/types.h"
-
+#include "runtime/scene/types.h"
 #include "runtime/math/Vec3.h"
 
 #include "runtime/shared/Color.h"
@@ -40,7 +38,6 @@ struct TransformComponent {
 
 struct Scene final {
   Scene() = default;
-  explicit Scene(const gfx::Camera& camera);
 
   Scene(const Scene&) = delete;
   Scene(Scene&&) = delete;
@@ -55,14 +52,11 @@ struct Scene final {
   void set_background_color(const Color& background);
   auto background_color() const -> const Color&;
 
-  void set_camera(const gfx::Camera& camera);
-  auto camera() const -> const gfx::Camera&;
-
   void set_ambient_light(const Color&);
   auto ambient_light() const -> const Color&;
 
   [[nodiscard]]
-  auto directional_lights() const -> const std::vector<gfx::DirectionalLight>&;
+  auto directional_lights() const -> const std::vector<DirectionalLight>&;
   void add_directional_light(const math::Vec3f32& dir, const Color&);
   void clear_directional_lights();
 
@@ -75,9 +69,8 @@ struct Scene final {
 
 private:
   entt::registry mEntityRegistry {};
-  std::vector<gfx::DirectionalLight> mDirectionalLights {};
+  std::vector<DirectionalLight> mDirectionalLights {};
   Color mBackgroundColor {0.0f, 0.0f, 0.0f};
-  gfx::Camera mCamera {};
   Color mAmbientLightColor {};
 
   void display_entity_gui_impl(entt::entity entity);

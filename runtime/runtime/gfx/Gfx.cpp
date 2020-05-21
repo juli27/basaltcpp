@@ -14,20 +14,20 @@ namespace basalt::gfx {
 
 using backend::RenderCommandList;
 
-void render(backend::IRenderer* renderer, Scene* const scene) {
+void render(backend::IRenderer* renderer, const View& view) {
   BASALT_ASSERT(renderer);
 
-  renderer->set_clear_color(scene->background_color());
+  renderer->set_clear_color(view.scene->background_color());
 
-  const auto& camera = scene->camera();
+  const auto& camera = view.camera;
   RenderCommandList commandList {
     camera.view_matrix(), camera.projection_matrix()
   };
 
-  commandList.set_ambient_light(scene->ambient_light());
-  commandList.set_directional_lights(scene->directional_lights());
+  commandList.set_ambient_light(view.scene->ambient_light());
+  commandList.set_directional_lights(view.scene->directional_lights());
 
-  const auto& registry = scene->get_entity_registry();
+  const auto& registry = view.scene->get_entity_registry();
 
   registry.view<const RenderComponent>().each(
     [&commandList, &registry](

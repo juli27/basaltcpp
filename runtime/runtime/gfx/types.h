@@ -2,6 +2,10 @@
 #ifndef BASALT_RUNTIME_GFX_TYPES_H
 #define BASALT_RUNTIME_GFX_TYPES_H
 
+#include "runtime/Scene.h"
+
+#include "runtime/gfx/Camera.h"
+
 #include "runtime/gfx/backend/render_command.h"
 #include "runtime/gfx/backend/Types.h"
 
@@ -10,9 +14,9 @@
 #include "runtime/shared/Color.h"
 #include "runtime/shared/Types.h"
 
-namespace basalt::gfx {
+#include <memory>
 
-using backend::DirectionalLight;
+namespace basalt::gfx {
 
 struct RenderComponent final {
   backend::MeshHandle mMesh;
@@ -22,6 +26,11 @@ struct RenderComponent final {
   math::Mat4f32 texTransform {math::Mat4f32::identity()};
   backend::TexCoordinateSrc tcs {backend::TexCoordinateSrc::Vertex};
   u8 mRenderFlags = backend::RenderFlagNone;
+};
+
+struct View final {
+  std::shared_ptr<Scene> scene {};
+  Camera camera {};
 };
 
 // GfxComponent

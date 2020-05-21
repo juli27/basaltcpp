@@ -3,17 +3,17 @@
 #define BASALT_GFX_H
 
 namespace basalt {
-
-struct Scene;
-
 namespace gfx {
+
+struct View;
+
 namespace backend {
 
 struct IRenderer;
 
 } // namespace backend
 
-void render(backend::IRenderer* renderer, Scene* scene);
+void render(backend::IRenderer* renderer, const View&);
 
 } // namespace gfx
 } // namespace basalt

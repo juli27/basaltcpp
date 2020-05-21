@@ -3,6 +3,8 @@
 #include <runtime/Engine.h>
 #include <runtime/Prelude.h>
 
+#include <runtime/gfx/types.h>
+
 using namespace std::string_view_literals;
 
 namespace d3d9 {
@@ -12,7 +14,7 @@ Device::Device() {
 }
 
 void Device::on_show() {
-  set_current_scene(mScene);
+  basalt::set_view({mScene});
 }
 
 void Device::on_hide() {

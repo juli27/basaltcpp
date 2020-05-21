@@ -13,8 +13,7 @@ struct Camera final {
 
   Camera(
     const math::Vec3f32& position, const math::Vec3f32& lookAt
-  , const math::Vec3f32& up, const math::Mat4f32& projection
-  );
+  , const math::Vec3f32& up, const math::Mat4f32& projection);
 
   Camera(const Camera&) = default;
   Camera(Camera&&) = default;

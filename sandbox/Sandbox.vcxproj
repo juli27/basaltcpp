@@ -174,6 +174,7 @@
     <ClCompile Include="sandbox\d3d9\lights.cpp" />
     <ClCompile Include="sandbox\d3d9\matrices.cpp" />
     <ClCompile Include="sandbox\d3d9\textures.cpp" />
+    <ClCompile Include="sandbox\d3d9\utils.cpp" />
     <ClCompile Include="sandbox\sandbox.cpp" />
     <ClCompile Include="sandbox\d3d9\vertices.cpp" />
   </ItemGroup>

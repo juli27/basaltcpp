@@ -13,7 +13,6 @@ using entt::registry;
 
 namespace basalt {
 
-using gfx::DirectionalLight;
 using math::PI;
 using math::Vec3f32;
 
@@ -42,8 +41,6 @@ void TransformComponent::rotate(const f32 radOffsetX, const f32 radOffsetY
   if (mRotation.z() > maxAngle) mRotation.set_z(0.0f);
 }
 
-Scene::Scene(const gfx::Camera& camera) : mCamera(camera) {}
-
 auto Scene::get_entity_registry() -> registry& {
   return mEntityRegistry;
 }
@@ -54,14 +51,6 @@ auto Scene::background_color() const -> const Color& {
 
 void Scene::set_background_color(const Color& background) {
   mBackgroundColor = background;
-}
-
-void Scene::set_camera(const gfx::Camera& camera) {
-  mCamera = camera;
-}
-
-auto Scene::camera() const -> const gfx::Camera& {
-  return mCamera;
 }
 
 void Scene::set_ambient_light(const Color& color) {

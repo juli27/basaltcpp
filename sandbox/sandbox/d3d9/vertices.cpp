@@ -4,7 +4,7 @@
 
 #include <runtime/Prelude.h>
 
-#include <runtime/Engine.h> // get_renderer
+#include <runtime/Engine.h>
 
 #include <runtime/gfx/types.h> // RenderComponent
 
@@ -58,7 +58,7 @@ Vertices::Vertices(IRenderer* const renderer) {
 }
 
 void Vertices::on_show() {
-  set_current_scene(mScene);
+  basalt::set_view({mScene});
 }
 
 void Vertices::on_hide() {

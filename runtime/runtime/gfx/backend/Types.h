@@ -2,9 +2,6 @@
 #ifndef BASALT_GFX_BACKEND_TYPES_H
 #define BASALT_GFX_BACKEND_TYPES_H
 
-#include "runtime/math/Vec3.h"
-
-#include "runtime/shared/Color.h"
 #include "runtime/shared/Handle.h"
 #include "runtime/shared/Types.h"
 
@@ -48,12 +45,6 @@ struct TextureTypeTag {
 
 using MeshHandle = Handle<_internal::MeshTypeTag>;
 using TextureHandle = Handle<_internal::TextureTypeTag>;
-
-struct DirectionalLight final {
-  math::Vec3f32 direction;
-  Color diffuseColor;
-  Color ambientColor;
-};
 
 } // namespace basalt::gfx::backend
 

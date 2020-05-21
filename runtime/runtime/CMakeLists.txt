@@ -14,4 +14,5 @@ target_sources(Runtime
 add_subdirectory("gfx")
 add_subdirectory("math")
 add_subdirectory("platform")
+add_subdirectory("scene")
 add_subdirectory("shared")

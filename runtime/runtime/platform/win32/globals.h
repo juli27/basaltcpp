@@ -7,12 +7,15 @@
 #include "runtime/shared/Config.h"
 #include "runtime/shared/Size2D.h"
 
-#include <memory>
 #include <vector>
 
 namespace basalt {
 
-struct Scene;
+namespace gfx {
+
+struct View;
+
+} // namespace gfx
 
 namespace win32 {
 
@@ -33,7 +36,7 @@ extern WindowData sWindowData;
 
 extern std::vector<platform::PlatformEventCallback> sEventListener;
 
-extern std::shared_ptr<Scene> sCurrentScene;
+extern gfx::View sCurrentView;
 
 } // namespace win32
 } // namespace basalt

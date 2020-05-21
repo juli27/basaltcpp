@@ -4,6 +4,7 @@ target_sources(Sandbox PRIVATE
   "matrices.cpp"
   "textures.cpp"
   "textures_tci.cpp"
+  "utils.cpp"
   "vertices.cpp"
 
   "device.h"

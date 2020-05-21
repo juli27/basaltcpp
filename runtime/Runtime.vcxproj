@@ -184,6 +184,7 @@
     <ClInclude Include="runtime\platform\Platform.h" />
     <ClInclude Include="runtime\Prelude.h" />
     <ClInclude Include="runtime\Scene.h" />
+    <ClInclude Include="runtime\scene\types.h" />
     <ClInclude Include="runtime\shared\Asserts.h" />
     <ClInclude Include="runtime\shared\Color.h" />
     <ClInclude Include="runtime\shared\Data.h" />
