@@ -8,6 +8,8 @@
 #include "runtime/gfx/backend/IRenderer.h"
 #include "runtime/gfx/backend/render_command.h"
 
+#include "runtime/scene/transform.h"
+
 #include "runtime/shared/Asserts.h"
 
 namespace basalt::gfx {
@@ -35,8 +37,8 @@ void render(backend::IRenderer* renderer, const View& view) {
   ) {
       backend::RenderCommand command;
 
-      if (registry.has<TransformComponent>(entity)) {
-        const auto& transform = registry.get<TransformComponent>(
+      if (registry.has<Transform>(entity)) {
+        const auto& transform = registry.get<Transform>(
           entity);
         command.mWorld = math::Mat4f32::scaling(transform.mScale) *
           math::Mat4f32::rotation(transform.mRotation) *

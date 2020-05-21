@@ -1,3 +1,7 @@
-target_sources(Runtime PUBLIC
-  "types.h"
+target_sources(Runtime
+  PRIVATE
+    "transform.cpp"
+  PUBLIC
+    "transform.h"
+    "types.h"
 )

@@ -11,6 +11,8 @@
 #include <runtime/gfx/backend/IRenderer.h>
 #include <runtime/gfx/backend/Types.h>
 
+#include <runtime/scene/transform.h>
+
 #include <runtime/math/Constants.h>
 #include <runtime/math/Mat4.h>
 #include <runtime/math/Vec3.h>
@@ -25,7 +27,7 @@ using std::array;
 using std::string_view;
 using namespace std::literals;
 
-using basalt::TransformComponent;
+using basalt::Transform;
 using basalt::math::Mat4f32;
 using basalt::math::PI;
 using basalt::math::Vec3f32;
@@ -67,7 +69,7 @@ TexturesTci::TexturesTci(IRenderer* const renderer) {
     VertexElement::Position3F32, VertexElement::ColorDiffuse1U32
   };
 
-  const auto [entity, transform, rc] = mScene->create_entity<TransformComponent,
+  const auto [entity, transform, rc] = mScene->create_entity<Transform,
     RenderComponent>();
   mCylinderEntity = entity;
 
@@ -91,7 +93,7 @@ void TexturesTci::on_hide() {
 
 void TexturesTci::on_update(const f64 deltaTime) {
   const auto radOffsetX = PI * 0.5f * static_cast<f32>(deltaTime);
-  auto& transform = mScene->get_entity_registry().get<TransformComponent>(
+  auto& transform = mScene->get_entity_registry().get<Transform>(
     mCylinderEntity);
   transform.rotate(radOffsetX, 0.0f, 0.0f);
 }

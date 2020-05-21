@@ -28,6 +28,9 @@
     <ClCompile Include="runtime\gfx\backend\render_command.cpp">
       <Filter>gfx\backend</Filter>
     </ClCompile>
+    <ClCompile Include="runtime\scene\transform.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="runtime\shared\Asserts.h">
@@ -109,6 +112,9 @@
     </ClInclude>
     <ClInclude Include="runtime\client_app.h" />
     <ClInclude Include="runtime\scene\types.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\scene\transform.h">
       <Filter>scene</Filter>
     </ClInclude>
   </ItemGroup>

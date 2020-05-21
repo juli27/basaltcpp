@@ -10,6 +10,7 @@
 #include <runtime/gfx/backend/IRenderer.h>
 #include <runtime/gfx/backend/Types.h>
 
+#include <runtime/scene/transform.h>
 #include <runtime/math/Constants.h>
 
 #include <entt/entity/registry.hpp>
@@ -19,7 +20,7 @@
 using std::array;
 using namespace std::string_view_literals;
 
-using basalt::TransformComponent;
+using basalt::Transform;
 using basalt::math::PI;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::backend::IRenderer;
@@ -56,8 +57,8 @@ Matrices::Matrices(IRenderer* const renderer) {
     VertexElement::Position3F32, VertexElement::ColorDiffuse1U32
   };
 
-  const auto [entity, transform, rc] =
-    mScene->create_entity<TransformComponent, RenderComponent>();
+  const auto [entity, transform, rc] = mScene->create_entity<Transform,
+    RenderComponent>();
   mTriangleEntity = entity;
 
   rc.mMesh = add_triangle_list_mesh(renderer, vertices, vertexLayout);
@@ -74,7 +75,7 @@ void Matrices::on_hide() {
 void Matrices::on_update(const f64 deltaTime) {
   // 1 full rotation per second
   const auto radOffsetY = 2.0f * PI * static_cast<f32>(deltaTime);
-  auto& transform = mScene->get_entity_registry().get<TransformComponent>(
+  auto& transform = mScene->get_entity_registry().get<Transform>(
     mTriangleEntity);
 
   transform.rotate(0.0f, radOffsetY, 0.0f);

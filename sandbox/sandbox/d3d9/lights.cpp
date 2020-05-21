@@ -9,6 +9,8 @@
 
 #include <runtime/gfx/backend/Types.h>
 
+#include <runtime/scene/transform.h>
+
 #include <runtime/math/Constants.h>
 #include <runtime/math/Vec3.h>
 
@@ -21,7 +23,7 @@
 using std::array;
 using namespace std::string_view_literals;
 
-using basalt::TransformComponent;
+using basalt::Transform;
 using basalt::math::PI;
 using basalt::math::Vec3f32;
 using basalt::gfx::RenderComponent;
@@ -56,8 +58,8 @@ Lights::Lights(IRenderer* const renderer) {
     VertexElement::Position3F32, VertexElement::Normal3F32
   };
 
-  const auto [entity, transform, rc] =
-    mScene->create_entity<TransformComponent, RenderComponent>();
+  const auto [entity, transform, rc] = mScene->create_entity<Transform,
+    RenderComponent>();
   mCylinderEntity = entity;
 
   rc.mMesh = add_triangle_strip_mesh(renderer, vertices, vertexLayout);
@@ -76,7 +78,7 @@ void Lights::on_hide() {
 void Lights::on_update(const f64 deltaTime) {
   // TODO: fix rotation speed
   const auto radOffsetX = PI * 0.5f * static_cast<f32>(deltaTime);
-  auto& transform = mScene->get_entity_registry().get<TransformComponent>(
+  auto& transform = mScene->get_entity_registry().get<Transform>(
     mCylinderEntity);
   transform.rotate(radOffsetX, 0.0f, 0.0f);
 

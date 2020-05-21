@@ -1,6 +1,7 @@
 #include "runtime/Scene.h"
 
 #include "runtime/gfx/types.h"
+#include "runtime/scene/transform.h"
 #include "runtime/math/Constants.h"
 
 #include <imgui/imgui.h>
@@ -22,24 +23,6 @@ void edit_color3(const char* label, Color& color);
 void edit_color4(const char* label, Color& color);
 
 } // namespace
-
-void TransformComponent::move(const f32 offsetX, const f32 offsetY
-                            , const f32 offsetZ) noexcept {
-  mPosition += Vec3f32(offsetX, offsetY, offsetZ);
-}
-
-void TransformComponent::rotate(const f32 radOffsetX, const f32 radOffsetY
-                              , const f32 radOffsetZ) noexcept {
-  mRotation += Vec3f32(radOffsetX, radOffsetY, radOffsetZ);
-
-  constexpr auto maxAngle = PI * 2.0f;
-  if (mRotation.x() < 0.0f) mRotation.set_x(maxAngle);
-  if (mRotation.x() > maxAngle) mRotation.set_x(0.0f);
-  if (mRotation.y() < 0.0f) mRotation.set_y(maxAngle);
-  if (mRotation.y() > maxAngle) mRotation.set_y(0.0f);
-  if (mRotation.z() < 0.0f) mRotation.set_z(maxAngle);
-  if (mRotation.z() > maxAngle) mRotation.set_z(0.0f);
-}
 
 auto Scene::get_entity_registry() -> registry& {
   return mEntityRegistry;
@@ -122,8 +105,8 @@ void Scene::display_debug_gui(bool* open) {
 }
 
 void Scene::display_entity_gui_impl(const entity entity) {
-  if (mEntityRegistry.has<TransformComponent>(entity)) {
-    auto& transform = mEntityRegistry.get<TransformComponent>(entity);
+  if (mEntityRegistry.has<Transform>(entity)) {
+    auto& transform = mEntityRegistry.get<Transform>(entity);
 
     if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
       f32 position[3] = {

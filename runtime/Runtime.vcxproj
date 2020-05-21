@@ -159,6 +159,7 @@
     <ClCompile Include="runtime\math\Vec2.cpp" />
     <ClCompile Include="runtime\math\Vec3.cpp" />
     <ClCompile Include="runtime\Scene.cpp" />
+    <ClCompile Include="runtime\scene\transform.cpp" />
     <ClCompile Include="runtime\shared\Asserts.cpp" />
     <ClCompile Include="runtime\shared\Log.cpp" />
   </ItemGroup>
@@ -184,6 +185,7 @@
     <ClInclude Include="runtime\platform\Platform.h" />
     <ClInclude Include="runtime\Prelude.h" />
     <ClInclude Include="runtime\Scene.h" />
+    <ClInclude Include="runtime\scene\transform.h" />
     <ClInclude Include="runtime\scene\types.h" />
     <ClInclude Include="runtime\shared\Asserts.h" />
     <ClInclude Include="runtime\shared\Color.h" />

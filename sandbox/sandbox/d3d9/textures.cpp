@@ -10,6 +10,8 @@
 #include <runtime/gfx/backend/IRenderer.h>
 #include <runtime/gfx/backend/Types.h>
 
+#include <runtime/scene/transform.h>
+
 #include <runtime/math/Constants.h>
 #include <runtime/math/Vec2.h>
 #include <runtime/math/Vec3.h>
@@ -24,7 +26,7 @@ using std::array;
 using std::string_view;
 using namespace std::string_view_literals;
 
-using basalt::TransformComponent;
+using basalt::Transform;
 using basalt::math::PI;
 using basalt::math::Vec2f32;
 using basalt::math::Vec3f32;
@@ -68,7 +70,7 @@ Textures::Textures(IRenderer* const renderer) {
   , VertexElement::TextureCoords2F32
   };
 
-  const auto [entity, transform, rc] = mScene->create_entity<TransformComponent,
+  const auto [entity, transform, rc] = mScene->create_entity<Transform,
     RenderComponent>();
   mCylinderEntity = entity;
 
@@ -86,7 +88,7 @@ void Textures::on_hide() {
 
 void Textures::on_update(const f64 deltaTime) {
   const auto radOffsetX = PI * 0.5f * static_cast<f32>(deltaTime);
-  auto& transform = mScene->get_entity_registry().get<TransformComponent>(
+  auto& transform = mScene->get_entity_registry().get<Transform>(
     mCylinderEntity);
   transform.rotate(radOffsetX, 0.0f, 0.0f);
 }
