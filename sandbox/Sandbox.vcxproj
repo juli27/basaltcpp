@@ -169,6 +169,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="sandbox\d3d9\textures_tci.cpp" />
     <ClCompile Include="sandbox\d3d9_tutorials\Device.cpp" />
     <ClCompile Include="sandbox\d3d9_tutorials\Lights.cpp" />
     <ClCompile Include="sandbox\d3d9_tutorials\Matrices.cpp" />
@@ -177,6 +178,7 @@
     <ClCompile Include="sandbox\d3d9_tutorials\Vertices.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="sandbox\d3d9\textures_tci.h" />
     <ClInclude Include="sandbox\d3d9\utils.h" />
     <ClInclude Include="sandbox\d3d9_tutorials\Device.h" />
     <ClInclude Include="sandbox\d3d9_tutorials\Lights.h" />

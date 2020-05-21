@@ -49,6 +49,8 @@ void render(backend::IRenderer* renderer, Scene* const scene) {
       command.mTexture = renderComponent.mTexture;
       command.mDiffuseColor = renderComponent.mDiffuseColor;
       command.mAmbientColor = renderComponent.mAmbientColor;
+      command.texTransform = renderComponent.texTransform;
+      command.texCoordinateSrc = renderComponent.tcs;
       command.mFlags = renderComponent.mRenderFlags;
       commandList.add(command);
     });

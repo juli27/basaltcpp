@@ -17,6 +17,9 @@
     <ClCompile Include="sandbox\d3d9_tutorials\Vertices.cpp">
       <Filter>testcases\d3d9</Filter>
     </ClCompile>
+    <ClCompile Include="sandbox\d3d9\textures_tci.cpp">
+      <Filter>testcases\d3d9</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sandbox\Sandbox.h" />
@@ -37,6 +40,9 @@
     </ClInclude>
     <ClInclude Include="sandbox\TestCase.h" />
     <ClInclude Include="sandbox\d3d9\utils.h">
+      <Filter>testcases\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="sandbox\d3d9\textures_tci.h">
       <Filter>testcases\d3d9</Filter>
     </ClInclude>
   </ItemGroup>

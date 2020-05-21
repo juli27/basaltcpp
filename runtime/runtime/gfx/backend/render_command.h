@@ -18,6 +18,10 @@ enum RenderFlags : u8 {
   RenderFlagDisableLighting = 0x2
 };
 
+enum class TexCoordinateSrc : u8 {
+  Vertex, PositionCameraSpace
+};
+
 
 struct RenderCommand final {
   MeshHandle mMesh;
@@ -29,6 +33,8 @@ struct RenderCommand final {
   TextureHandle mTexture;
 
   math::Mat4f32 mWorld;
+  math::Mat4f32 texTransform {math::Mat4f32::identity()};
+  TexCoordinateSrc texCoordinateSrc {TexCoordinateSrc::Vertex};
   u8 mFlags = RenderFlagNone;
 };
 

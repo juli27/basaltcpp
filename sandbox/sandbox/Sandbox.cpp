@@ -1,5 +1,6 @@
 #include "sandbox/Sandbox.h"
 
+#include "sandbox/d3d9/textures_tci.h"
 #include "sandbox/d3d9_tutorials/Device.h"
 #include "sandbox/d3d9_tutorials/Lights.h"
 #include "sandbox/d3d9_tutorials/Matrices.h"
@@ -13,7 +14,6 @@
 #include <runtime/gfx/backend/IRenderer.h>
 #include <runtime/platform/Platform.h>
 
-#include <runtime/shared/Asserts.h>
 #include <runtime/shared/Config.h>
 
 #include <imgui/imgui.h>
@@ -42,12 +42,13 @@ auto IApplication::create(IRenderer* const renderer) -> unique_ptr<IApplication>
 }
 
 SandboxApp::SandboxApp(IRenderer* const renderer) {
-  mScenes.reserve(5u);
+  mScenes.reserve(6u);
   mScenes.push_back(std::make_unique<d3d9::Device>());
   mScenes.push_back(std::make_unique<d3d9::Vertices>(renderer));
   mScenes.push_back(std::make_unique<d3d9::Matrices>(renderer));
   mScenes.push_back(std::make_unique<d3d9::Lights>(renderer));
   mScenes.push_back(std::make_unique<d3d9::Textures>(renderer));
+  mScenes.push_back(std::make_unique<d3d9::TexturesTci>(renderer));
 
   mScenes[mCurrentSceneIndex]->on_show();
 }
@@ -102,7 +103,7 @@ void SandboxApp::on_update(const f64 deltaTime) {
 
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("File")) {
-      for (i32 i = 0; i < 5; i++) {
+      for (uSize i = 0; i < mScenes.size(); i++) {
         const bool isCurrent = mCurrentSceneIndex == i;
         if (ImGui::MenuItem(mScenes[i]->name().data(), nullptr, isCurrent, !isCurrent)) {
           set_scene(i);
@@ -214,18 +215,16 @@ void SandboxApp::next_scene() {
 void SandboxApp::prev_scene() {
   mScenes[mCurrentSceneIndex]->on_hide();
 
-  mCurrentSceneIndex--;
-  if (mCurrentSceneIndex < 0) {
+  if (mCurrentSceneIndex == 0) {
     mCurrentSceneIndex = static_cast<i32>(mScenes.size() - 1);
+  } else {
+    mCurrentSceneIndex--;
   }
 
   mScenes[mCurrentSceneIndex]->on_show();
 }
 
-void SandboxApp::set_scene(const i32 index) {
-  BASALT_ASSERT(index < static_cast<i32>(mScenes.size()));
-  BASALT_ASSERT(index >= 0);
-
+void SandboxApp::set_scene(const uSize index) {
   mScenes[mCurrentSceneIndex]->on_hide();
   mCurrentSceneIndex = index;
   mScenes[mCurrentSceneIndex]->on_show();

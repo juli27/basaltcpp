@@ -22,6 +22,8 @@ using Microsoft::WRL::ComPtr;
 
 namespace basalt::gfx::backend {
 
+using math::Mat4f32;
+
 namespace {
 
 constexpr auto to_d3d_color(const Color& color) noexcept -> D3DCOLOR {
@@ -33,7 +35,7 @@ constexpr auto to_d3d_color_value(
   return {color.red(), color.green(), color.blue(), color.alpha()};
 }
 
-constexpr auto to_d3d_matrix(const math::Mat4f32& mat) noexcept -> D3DMATRIX {
+constexpr auto to_d3d_matrix(const Mat4f32& mat) noexcept -> D3DMATRIX {
   return {
     mat.m11, mat.m12, mat.m13, mat.m14
   , mat.m21, mat.m22, mat.m23, mat.m24
@@ -253,6 +255,31 @@ void D3D9Renderer::render_command(const RenderCommand& command) {
     const auto& texture = mTextures.get(command.mTexture);
     D3D9CALL(mDevice->SetTexture(0, texture.Get()));
     D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
+
+    // transform tex coords
+    if (command.texTransform != Mat4f32::identity()) {
+      const D3DMATRIX texTransform {to_d3d_matrix(command.texTransform)};
+      D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &texTransform));
+
+      D3D9CALL(
+        mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
+          D3DTTFF_COUNT4 | D3DTTFF_PROJECTED));
+    }
+
+    // set texture coordinate index
+    DWORD tci {0};
+    switch (command.texCoordinateSrc) {
+    case TexCoordinateSrc::PositionCameraSpace:
+      tci = D3DTSS_TCI_CAMERASPACEPOSITION;
+      break;
+
+    case TexCoordinateSrc::Vertex:
+      break;
+    }
+
+    if (!(mesh.fvf & D3DFVF_TEX1)) {
+      D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, tci));
+    }
   }
 
   if (!noLightingAndTransform) {
@@ -267,6 +294,21 @@ void D3D9Renderer::render_command(const RenderCommand& command) {
   D3D9CALL(mDevice->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
 
   if (command.mTexture) {
+    // revert TCI usage
+    if (command.texCoordinateSrc != TexCoordinateSrc::Vertex) {
+      D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
+    }
+
+    // revert tex coords transform
+    if (command.texTransform != Mat4f32::identity()) {
+      D3D9CALL(
+        mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
+          D3DTTFF_DISABLE));
+
+      const D3DMATRIX identity {to_d3d_matrix(Mat4f32::identity())};
+      D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &identity));
+    }
+
     D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1));
     D3D9CALL(mDevice->SetTexture(0, nullptr));
   }

@@ -5,6 +5,8 @@
 #include "runtime/gfx/backend/render_command.h"
 #include "runtime/gfx/backend/Types.h"
 
+#include "runtime/math/Mat4.h"
+
 #include "runtime/shared/Color.h"
 #include "runtime/shared/Types.h"
 
@@ -17,6 +19,8 @@ struct RenderComponent final {
   backend::TextureHandle mTexture;
   Color mDiffuseColor;
   Color mAmbientColor;
+  math::Mat4f32 texTransform {math::Mat4f32::identity()};
+  backend::TexCoordinateSrc tcs {backend::TexCoordinateSrc::Vertex};
   u8 mRenderFlags = backend::RenderFlagNone;
 };
 
