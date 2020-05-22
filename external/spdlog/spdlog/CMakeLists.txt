@@ -1,0 +1,25 @@
+target_sources(spdlog
+  PRIVATE
+    "async.cpp"
+    "color_sinks.cpp"
+    "file_sinks.cpp"
+    "spdlog.cpp"
+    "stdout_sinks.cpp"
+  PUBLIC
+    "async.h"
+    "async_logger.h"
+    "async_logger-inl.h"
+    "common.h"
+    "common-inl.h"
+    "formatter.h"
+    "logger.h"
+    "logger-inl.h"
+    "spdlog.h"
+    "spdlog-inl.h"
+    "tweakme.h"
+    "version.h"
+)
+
+add_subdirectory("details")
+add_subdirectory("fmt")
+add_subdirectory("sinks")

@@ -85,9 +85,9 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BASALT_BUILD;BASALT_DEV_BUILD;BASALT_DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SPDLOG_COMPILED_LIB;BASALT_BUILD;BASALT_DEV_BUILD;BASALT_DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)external\spdlog\</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
       <StringPooling>true</StringPooling>
@@ -109,9 +109,9 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BASALT_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SPDLOG_COMPILED_LIB;BASALT_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)external\spdlog\</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -133,9 +133,9 @@
       <WarningLevel>Level4</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BASALT_BUILD;BASALT_DEV_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SPDLOG_COMPILED_LIB;BASALT_BUILD;BASALT_DEV_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)external\spdlog\</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -184,6 +184,9 @@
     </ProjectReference>
     <ProjectReference Include="..\external\Fmt\Fmt.vcxproj">
       <Project>{dde86b7b-a6ab-47bf-b6d6-b8e9dd67ba12}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\external\spdlog\spdlog.vcxproj">
+      <Project>{5b0be96d-2c1b-448c-8cc3-1ac475ad569a}</Project>
     </ProjectReference>
     <ProjectReference Include="..\sandbox\Sandbox.vcxproj">
       <Project>{96c9ff62-adec-4083-b527-e83624317b4e}</Project>

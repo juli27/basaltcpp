@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated EnTT (19ef290 -> v3.1.1)
 - Updated fmt (5.3.0 -> 6.0.0)
 - Updated spdlog (1.3.1 -> 1.4.1)
+  - now compiled as a static library
 
 ### Deprecated
 

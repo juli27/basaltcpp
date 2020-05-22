@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Runtime", "runtime\Runtime.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "App", "runtime\App.vcxproj", "{3A793261-A377-48A0-974A-F26DA516E506}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spdlog", "external\spdlog\spdlog.vcxproj", "{5B0BE96D-2C1B-448C-8CC3-1AC475AD569A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86-64 = Debug|x86-64
@@ -52,6 +54,12 @@ Global
 		{3A793261-A377-48A0-974A-F26DA516E506}.Release|x86-64.Build.0 = Release|x64
 		{3A793261-A377-48A0-974A-F26DA516E506}.RelWithDebInfo|x86-64.ActiveCfg = RelWithDebInfo|x64
 		{3A793261-A377-48A0-974A-F26DA516E506}.RelWithDebInfo|x86-64.Build.0 = RelWithDebInfo|x64
+		{5B0BE96D-2C1B-448C-8CC3-1AC475AD569A}.Debug|x86-64.ActiveCfg = Debug|x64
+		{5B0BE96D-2C1B-448C-8CC3-1AC475AD569A}.Debug|x86-64.Build.0 = Debug|x64
+		{5B0BE96D-2C1B-448C-8CC3-1AC475AD569A}.Release|x86-64.ActiveCfg = Release|x64
+		{5B0BE96D-2C1B-448C-8CC3-1AC475AD569A}.Release|x86-64.Build.0 = Release|x64
+		{5B0BE96D-2C1B-448C-8CC3-1AC475AD569A}.RelWithDebInfo|x86-64.ActiveCfg = RelWithDebInfo|x64
+		{5B0BE96D-2C1B-448C-8CC3-1AC475AD569A}.RelWithDebInfo|x86-64.Build.0 = RelWithDebInfo|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,6 +67,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{B1A92639-8420-47CC-8101-ABB4F82D7649} = {F3208677-87E9-4837-A282-4E40BB549A7F}
 		{DDE86B7B-A6AB-47BF-B6D6-B8E9DD67BA12} = {F3208677-87E9-4837-A282-4E40BB549A7F}
+		{5B0BE96D-2C1B-448C-8CC3-1AC475AD569A} = {F3208677-87E9-4837-A282-4E40BB549A7F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {574E3214-9EDD-4999-839F-780FEAC5E9B4}

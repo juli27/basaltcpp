@@ -70,14 +70,14 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BASALT_DEV_BUILD;BASALT_DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SPDLOG_COMPILED_LIB;BASALT_DEV_BUILD;BASALT_DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>true</TreatWarningAsError>
       <StringPooling>true</StringPooling>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)runtime;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)runtime;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)external\spdlog\</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalOptions>/w44062 /w34191 %(AdditionalOptions)</AdditionalOptions>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -104,12 +104,12 @@
       <WarningLevel>Level4</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SPDLOG_COMPILED_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>true</TreatWarningAsError>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)runtime;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)runtime;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)external\spdlog\</AdditionalIncludeDirectories>
       <AdditionalOptions>/w44062 /w34191 %(AdditionalOptions)</AdditionalOptions>
       <FloatingPointModel>Fast</FloatingPointModel>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -139,12 +139,12 @@
       <WarningLevel>Level4</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BASALT_DEV_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SPDLOG_COMPILED_LIB;BASALT_DEV_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>true</TreatWarningAsError>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)runtime;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)runtime;$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)external\spdlog\</AdditionalIncludeDirectories>
       <AdditionalOptions>/w44062 /w34191 %(AdditionalOptions)</AdditionalOptions>
       <FloatingPointModel>Fast</FloatingPointModel>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>

@@ -2,7 +2,7 @@ add_library(Runtime STATIC)
 
 add_subdirectory("runtime")
 
-target_link_libraries(Runtime PUBLIC ExternalHeaderOnly DearImGui Fmt)
+target_link_libraries(Runtime PUBLIC ExternalHeaderOnly DearImGui Fmt spdlog)
 
 target_include_directories(Runtime PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -14,7 +14,7 @@ target_compile_definitions(Runtime
     BASALT_DEV_BUILD
 )
 
-target_compile_features(Fmt PUBLIC cxx_std_17)
+target_compile_features(Runtime PUBLIC cxx_std_17)
 
 target_compile_options(Runtime
   PUBLIC
