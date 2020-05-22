@@ -38,3 +38,6 @@
 * physics
 * editor
 * unified resource management
+* entities
+  * prototypes
+  * shared components

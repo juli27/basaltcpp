@@ -200,7 +200,7 @@ class basic_registry {
     struct group_data {
         const std::size_t extent[3];
         std::unique_ptr<void, void(*)(void *)> group;
-        bool(* const is_same)(const component *);
+        bool(* const is_same)(const component *) ENTT_NOEXCEPT;
     };
 
     struct ctx_variable {
@@ -606,7 +606,8 @@ public:
         });
 
         if constexpr(sizeof...(Component) > 0) {
-            return std::make_tuple(assure<Component>()->batch(*this, first, last)...);
+            // the reverse iterators guarantee the ordering between entities and components (hint: the pools return begin())
+            return std::make_tuple(assure<Component>()->batch(*this, std::make_reverse_iterator(last), std::make_reverse_iterator(first))...);
         }
     }
 
@@ -614,6 +615,14 @@ public:
      * @brief Creates a new entity from a prototype entity.
      *
      * @sa create
+     *
+     * The components must be copyable for obvious reasons. The source entity
+     * must be a valid one.<br/>
+     * If no components are provided, the registry will try to copy all the
+     * existing types. The non-copyable ones will be ignored.
+     *
+     * @note
+     * Specifying the list of components is ways faster than an opaque copy.
      *
      * @tparam Component Types of components to copy.
      * @tparam Exclude Types of components not to be copied.
@@ -632,6 +641,15 @@ public:
      * @brief Assigns each element in a range an entity from a prototype entity.
      *
      * @sa create
+     *
+     * The components must be copyable for obvious reasons. The entities must be
+     * all valid.<br/>
+     * If no components are provided, the registry will try to copy all the
+     * existing types. The non-copyable ones will be ignored.
+     *
+     * @note
+     * Specifying the list of components is ways faster than an opaque copy and
+     * uses the batch creation under the hood.
      *
      * @tparam Component Types of components to copy.
      * @tparam Exclude Types of components not to be copied.
@@ -1361,7 +1379,7 @@ public:
             groups.push_back(group_data{
                 { sizeof...(Owned), sizeof...(Get), sizeof...(Exclude) },
                 decltype(group_data::group){new handler_type{}, [](void *gptr) { delete static_cast<handler_type *>(gptr); }},
-                [](const component *other) {
+                [](const component *other) ENTT_NOEXCEPT {
                     const component ctypes[] = { type<Owned>()..., type<Get>()..., type<Exclude>()... };
                     return std::equal(std::begin(ctypes), std::end(ctypes), other);
                 }

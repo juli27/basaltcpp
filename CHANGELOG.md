@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
-- Updated EnTT (19ef290 -> 4bd645d)
+- Updated EnTT (19ef290 -> v3.1.1)
 - Updated fmt (5.3.0 -> 6.0.0)
 
 ### Deprecated

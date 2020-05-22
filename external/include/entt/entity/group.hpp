@@ -839,13 +839,9 @@ public:
         }
 
         for(auto next = *length; next; --next) {
-            ([next = next-1, curr = cpool->data()[next-1]](auto *cpool) {
-                const auto pos = cpool->index(curr);
-
-                if(pos != next) {
-                    cpool->swap(next, cpool->index(curr));
-                }
-            }(std::get<pool_type<Other> *>(pools)), ...);
+            const auto pos = next - 1;
+            const auto entt = cpool->data()[pos];
+            (std::get<pool_type<Other> *>(pools)->swap(pos, std::get<pool_type<Other> *>(pools)->index(entt)), ...);
         }
     }
 
