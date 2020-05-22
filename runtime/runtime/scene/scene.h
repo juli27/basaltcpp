@@ -6,7 +6,13 @@
 #include "runtime/math/Vec3.h"
 #include "runtime/shared/Color.h"
 
+// TODO: remove
+#pragma warning(push)
+#pragma warning(disable : 4458) // declaration of 'identifier' hides class member
+
 #include <entt/entity/registry.hpp>
+
+#pragma warning(pop)
 
 #include <vector>
 

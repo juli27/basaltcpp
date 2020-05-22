@@ -28,7 +28,8 @@ namespace entt {
  *
  * @note
  * Entities and objects have the same order. It's guaranteed both in case of raw
- * access (either to entities or objects) and when using input iterators.
+ * access (either to entities or objects) and when using random or input access
+ * iterators.
  *
  * @note
  * Internal data structures arrange elements to maximize performance. Because of
@@ -173,13 +174,13 @@ public:
      *
      * @param cap Desired capacity.
      */
-    void reserve(const size_type cap) override {
+    void reserve(const size_type cap) {
         underlying_type::reserve(cap);
         instances.reserve(cap);
     }
 
     /*! @brief Requests the removal of unused capacity. */
-    void shrink_to_fit() override {
+    void shrink_to_fit() {
         underlying_type::shrink_to_fit();
         instances.shrink_to_fit();
     }
@@ -215,8 +216,8 @@ public:
      * the storage is empty, the returned iterator will be equal to `end()`.
      *
      * @note
-     * Input iterators stay true to the order imposed by a call to either `sort`
-     * or `respect`.
+     * Random access iterators stay true to the order imposed by a call to
+     * either `sort` or `respect`.
      *
      * @return An iterator to the first instance of the given type.
      */
@@ -244,8 +245,8 @@ public:
      * results in undefined behavior.
      *
      * @note
-     * Input iterators stay true to the order imposed by a call to either `sort`
-     * or `respect`.
+     * Random access iterators stay true to the order imposed by a call to
+     * either `sort` or `respect`.
      *
      * @return An iterator to the element following the last instance of the
      * given type.
@@ -277,7 +278,7 @@ public:
      * @return The object associated with the entity.
      */
     const object_type & get(const entity_type entt) const ENTT_NOEXCEPT {
-        return instances[underlying_type::get(entt)];
+        return instances[underlying_type::index(entt)];
     }
 
     /*! @copydoc get */
@@ -291,7 +292,7 @@ public:
      * @return The object associated with the entity, if any.
      */
     const object_type * try_get(const entity_type entt) const ENTT_NOEXCEPT {
-        return underlying_type::has(entt) ? (instances.data() + underlying_type::get(entt)) : nullptr;
+        return underlying_type::has(entt) ? (instances.data() + underlying_type::index(entt)) : nullptr;
     }
 
     /*! @copydoc try_get */
@@ -331,10 +332,10 @@ public:
     }
 
     /**
-     * @brief Assigns one or more entities to a storage and constructs their
-     * objects.
+     * @brief Assigns one or more entities to a storage and default constructs
+     * their objects.
      *
-     * The object type must be at least default constructible.
+     * The object type must be at least move and default insertable.
      *
      * @warning
      * Attempting to assign an entity that already belongs to the storage
@@ -345,17 +346,38 @@ public:
      * @tparam It Type of forward iterator.
      * @param first An iterator to the first element of the range of entities.
      * @param last An iterator past the last element of the range of entities.
-     * @return A pointer to the array of instances just created and sorted the
+     * @return An iterator to the list of instances just created and sorted the
      * same of the entities.
      */
     template<typename It>
-    object_type * batch(It first, It last) {
-        static_assert(std::is_default_constructible_v<object_type>);
-        const auto skip = instances.size();
-        instances.insert(instances.end(), last-first, {});
+    iterator_type batch(It first, It last) {
+        instances.resize(instances.size() + std::distance(first, last));
         // entity goes after component in case constructor throws
         underlying_type::batch(first, last);
-        return instances.data() + skip;
+        return begin();
+    }
+
+    /**
+     * @brief Assigns one or more entities to a storage and copy constructs
+     * their objects.
+     *
+     * The object type must be at least move and copy insertable.
+     *
+     * @sa batch
+     *
+     * @tparam It Type of forward iterator.
+     * @param first An iterator to the first element of the range of entities.
+     * @param last An iterator past the last element of the range of entities.
+     * @param value The value to initialize the new objects with.
+     * @return An iterator to the list of instances just created and sorted the
+     * same of the entities.
+     */
+    template<typename It>
+    iterator_type batch(It first, It last, const object_type &value) {
+        instances.resize(instances.size() + std::distance(first, last), value);
+        // entity goes after component in case constructor throws
+        underlying_type::batch(first, last);
+        return begin();
     }
 
     /**
@@ -369,9 +391,9 @@ public:
      *
      * @param entt A valid entity identifier.
      */
-    void destroy(const entity_type entt) override {
+    void destroy(const entity_type entt) {
         auto other = std::move(instances.back());
-        instances[underlying_type::get(entt)] = std::move(other);
+        instances[underlying_type::index(entt)] = std::move(other);
         instances.pop_back();
         underlying_type::destroy(entt);
     }
@@ -450,7 +472,7 @@ public:
             static_assert(!std::is_empty_v<object_type>);
 
             underlying_type::sort(from, to, [this, compare = std::move(compare)](const auto lhs, const auto rhs) {
-                return compare(std::as_const(instances[underlying_type::get(lhs)]), std::as_const(instances[underlying_type::get(rhs)]));
+                return compare(std::as_const(instances[underlying_type::index(lhs)]), std::as_const(instances[underlying_type::index(rhs)]));
             }, std::move(algo), std::forward<Args>(args)...);
         } else {
             underlying_type::sort(from, to, std::move(compare), std::move(algo), std::forward<Args>(args)...);
@@ -458,7 +480,7 @@ public:
     }
 
     /*! @brief Resets a storage. */
-    void reset() override {
+    void reset() {
         underlying_type::reset();
         instances.clear();
     }
@@ -645,6 +667,29 @@ public:
     object_type get([[maybe_unused]] const entity_type entt) const ENTT_NOEXCEPT {
         ENTT_ASSERT(underlying_type::has(entt));
         return {};
+    }
+
+    /**
+     * @brief Assigns one or more entities to a storage.
+     *
+     * The object type must be at least default constructible.
+     *
+     * @warning
+     * Attempting to assign an entity that already belongs to the storage
+     * results in undefined behavior.<br/>
+     * An assertion will abort the execution at runtime in debug mode if the
+     * storage already contains the given entity.
+     *
+     * @tparam It Type of forward iterator.
+     * @param first An iterator to the first element of the range of entities.
+     * @param last An iterator past the last element of the range of entities.
+     * @return An iterator to the list of instances just created and sorted the
+     * same of the entities.
+     */
+    template<typename It>
+    iterator_type batch(It first, It last, const object_type & = {}) {
+        underlying_type::batch(first, last);
+        return begin();
     }
 };
 

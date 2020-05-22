@@ -9,42 +9,11 @@
 #include "../core/type_traits.hpp"
 #include "sparse_set.hpp"
 #include "storage.hpp"
+#include "utility.hpp"
 #include "fwd.hpp"
 
 
 namespace entt {
-
-
-/**
- * @brief Alias for exclusion lists.
- * @tparam Type List of types.
- */
-template<typename... Type>
-struct exclude_t: type_list<Type...> {};
-
-
-/**
- * @brief Variable template for exclusion lists.
- * @tparam Type List of types.
- */
-template<typename... Type>
-constexpr exclude_t<Type...> exclude{};
-
-
-/**
- * @brief Alias for lists of observed components.
- * @tparam Type List of types.
- */
-template<typename... Type>
-struct get_t: type_list<Type...> {};
-
-
-/**
- * @brief Variable template for lists of observed components.
- * @tparam Type List of types.
- */
-template<typename... Type>
-constexpr get_t<Type...> get{};
 
 
 /**
@@ -871,10 +840,10 @@ public:
 
         for(auto next = *length; next; --next) {
             ([next = next-1, curr = cpool->data()[next-1]](auto *cpool) {
-                const auto pos = cpool->sparse_set<entity_type>::get(curr);
+                const auto pos = cpool->index(curr);
 
                 if(pos != next) {
-                    cpool->swap(next, cpool->sparse_set<entity_type>::get(curr));
+                    cpool->swap(next, cpool->index(curr));
                 }
             }(std::get<pool_type<Other> *>(pools)), ...);
         }
