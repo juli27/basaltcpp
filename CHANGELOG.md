@@ -2,6 +2,19 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - *Unreleased*
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
 ## [0.3.0] - 2020-05-22
 ### Added
 - Basic Scene API with an entity component system (entt)
@@ -74,6 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Direct3D 9 tutorial 2 - 5
 - Navigate with the left and right arrow keys between the test cases
 
+[0.4.0]: https://github.com/juli27/basaltcpp/compare/v0.3.0...HEAD
 [0.3.0]: https://github.com/juli27/basaltcpp/releases/tag/v0.3.0
 [0.2.0]: https://github.com/juli27/basaltcpp/releases/tag/v0.2.0
 [0.1.0]: https://github.com/juli27/basaltcpp/releases/tag/v0.1.0
