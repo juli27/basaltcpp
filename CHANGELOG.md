@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - enum_cast: cast an enumerator to its value of the underlying type
 - ColorEncoding
 - Dear ImGui
-- CMake build support for Windows x86-64
 - BASALT_ASSERT_MSG
-- Sandbox
-  - D3D9 Tutorial 1: Creating a Device
+- [sandbox] D3D9 Tutorial 1: Creating a Device
+- [build] CMake build support for Windows x86-64
+- [build-vs] RelWithDebInfo configuration
+- [build-vs] BASALT_DEV_BUILD macro or Debug and RelWithDebInfo builds
 
 ### Changed
 - Refactored platform events
