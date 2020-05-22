@@ -26,10 +26,7 @@ struct D3D9Mesh {
 
 struct D3D9Renderer final : IRenderer {
   D3D9Renderer() = delete;
-  D3D9Renderer(
-    Microsoft::WRL::ComPtr<IDirect3DDevice9> device
-  , const D3DPRESENT_PARAMETERS& pp
-  );
+  explicit D3D9Renderer(Microsoft::WRL::ComPtr<IDirect3DDevice9> device);
   D3D9Renderer(const D3D9Renderer&) = delete;
   D3D9Renderer(D3D9Renderer&&) = delete;
   ~D3D9Renderer();
@@ -65,7 +62,6 @@ private:
 
   Microsoft::WRL::ComPtr<IDirect3DDevice9> mDevice {};
   D3DCAPS9 mDeviceCaps {};
-  D3DPRESENT_PARAMETERS mPresentParams {};
   HandlePool<D3D9Mesh, MeshHandle> mMeshes {};
   HandlePool<Texture, TextureHandle> mTextures {};
   HandlePool<Model, ModelHandle> mModels {};

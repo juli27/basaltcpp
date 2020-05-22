@@ -12,7 +12,7 @@ D3D9GfxContext::D3D9GfxContext(
   Microsoft::WRL::ComPtr<IDirect3DDevice9> device
 , const D3DPRESENT_PARAMETERS& pp)
   : mDevice {std::move(device)}
-  , mRenderer {std::make_unique<D3D9Renderer>(mDevice, mPresentParams)}
+  , mRenderer {std::make_unique<D3D9Renderer>(mDevice)}
   , mPresentParams {pp} {
 }
 
@@ -33,7 +33,27 @@ void D3D9GfxContext::resize(const Size2Du16 size) {
 }
 
 void D3D9GfxContext::present() {
-  mDevice->Present(nullptr, nullptr, nullptr, nullptr);
+  if (auto hr = mDevice->Present(nullptr, nullptr, nullptr, nullptr);
+    FAILED(hr)) {
+    if (hr == D3DERR_DEVICELOST) {
+      mRenderer->before_reset();
+
+      // TODO: get rid of busy wait
+      do {
+        hr = mDevice->TestCooperativeLevel();
+      } while (hr == D3DERR_DEVICELOST);
+
+      BASALT_ASSERT(hr == D3DERR_DEVICENOTRESET);
+
+      D3D9CALL(mDevice->Reset(&mPresentParams));
+
+      mRenderer->after_reset();
+
+      BASALT_LOG_INFO("d3d9 device reset");
+    } else {
+      BASALT_ASSERT_MSG(false, "present failed");
+    }
+  }
 }
 
 } // basalt::gfx::backend

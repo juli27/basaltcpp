@@ -59,9 +59,8 @@ void fill_primitive_info(
 
 } // namespace
 
-D3D9Renderer::D3D9Renderer(
-  ComPtr<IDirect3DDevice9> device, const D3DPRESENT_PARAMETERS& pp)
-  : mDevice {std::move(device)}, mPresentParams {pp} {
+D3D9Renderer::D3D9Renderer(ComPtr<IDirect3DDevice9> device)
+  : mDevice {std::move(device)} {
   BASALT_ASSERT(mDevice);
 
   D3D9CALL(mDevice->GetDeviceCaps(&mDeviceCaps));
@@ -196,16 +195,6 @@ void D3D9Renderer::set_clear_color(const Color& color) {
 // TODO: shading mode
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
 void D3D9Renderer::render(const RenderCommandList& commandList) {
-  const auto hr = mDevice->TestCooperativeLevel();
-  if (hr == D3DERR_DEVICENOTRESET) {
-    BASALT_LOG_INFO("resetting d3d9 device");
-    D3D9CALL(mDevice->Reset(&mPresentParams));
-
-    ImGui_ImplDX9_CreateDeviceObjects();
-  } else if (hr != D3DERR_DEVICELOST) {
-    BASALT_ASSERT(SUCCEEDED(hr));
-  }
-
   D3D9CALL(
     mDevice->Clear(0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, mClearColor,
       1.0f, 0u));
