@@ -18,7 +18,10 @@ target_compile_definitions(App
   PRIVATE
     BASALT_BUILD
     BASALT_DEBUG_BUILD
-    _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING)
+    BASALT_DEV_BUILD
+    _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+    _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING
+)
 
 target_compile_options(App PRIVATE
   /diagnostics:column /FC /fp:fast /GF /guard:cf /Gy /sdl /W4 /WX /Zc:inline

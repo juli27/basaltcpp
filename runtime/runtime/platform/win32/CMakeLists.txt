@@ -6,7 +6,7 @@ target_sources(App PRIVATE
   "platform.cpp"
   "util.cpp"
   
-  "app.h
+  "app.h"
   "globals.h"
   "key_map.h"
   "messages.h"
