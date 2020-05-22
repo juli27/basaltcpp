@@ -1,5 +1,7 @@
 #include "Asserts.h"
 
+#if BASALT_DEV_BUILD
+
 #include "Log.h"
 
 #include <cstdlib>
@@ -15,3 +17,5 @@ void fail_assert(
 }
 
 } // namespace basalt::detail
+
+#endif // BASALT_DEV_BUILD

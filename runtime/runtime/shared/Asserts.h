@@ -2,6 +2,8 @@
 #ifndef BASALT_SHARED_ASSERTS_H
 #define BASALT_SHARED_ASSERTS_H
 
+#if BASALT_DEV_BUILD
+
 namespace basalt::detail {
 
 void fail_assert(
@@ -31,5 +33,12 @@ void fail_assert(
         #b " (" msg ")", __FILE__, __LINE__, BASALT_FUNCTION_SIGNATURE); \
     }                                                                    \
   } while (false)
+
+#else // !BASALT_DEV_BUILD
+
+#define BASALT_ASSERT(b)
+#define BASALT_ASSERT_MSG(b, msg)
+
+#endif // BASALT_DEV_BUILD
 
 #endif  // !BASALT_SHARED_ASSERTS_H
