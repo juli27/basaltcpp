@@ -29,15 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BASALT_ASSERT takes only one parameter
   - use the new BASALT_ASSERT_MSG for the old behaviour
 
-### Deprecated
-
 ### Removed
 - Mat4::Camera (use gfx::Camera instead)
 
 ### Fixed
 - AltGr leaves a pushed down Ctrl key behind
-
-### Security
 
 ## [0.2.0] - 2019-08-06
 ### Added

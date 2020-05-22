@@ -149,10 +149,11 @@ auto D3D9Renderer::load_model(const std::string_view filePath) -> ModelHandle {
 
   ComPtr<ID3DXBuffer> materialBuffer {};
   DWORD numMaterials {};
-  BASALT_ASSERT(
-    SUCCEEDED(::D3DXLoadMeshFromXW(wideFilePath.c_str(), D3DXMESH_SYSTEMMEM,
-      mDevice.Get(), nullptr, materialBuffer.GetAddressOf(), nullptr, &numMaterials,
-      model.mesh.GetAddressOf())));
+  auto hr = ::D3DXLoadMeshFromXW(
+    wideFilePath.c_str(), D3DXMESH_SYSTEMMEM, mDevice.Get(), nullptr
+  , materialBuffer.GetAddressOf(), nullptr, &numMaterials
+  , model.mesh.GetAddressOf());
+  BASALT_ASSERT(SUCCEEDED(hr));
 
   auto const* materials = static_cast<D3DXMATERIAL*>(materialBuffer->GetBufferPointer());
   model.materials.reserve(numMaterials);
@@ -170,9 +171,9 @@ auto D3D9Renderer::load_model(const std::string_view filePath) -> ModelHandle {
       strcpy_s(texPath.data(), texPath.size(), "data/");
       strcat_s(texPath.data(), texPath.size(), materials[i].pTextureFilename);
 
-      BASALT_ASSERT(
-        SUCCEEDED(::D3DXCreateTextureFromFileA(mDevice.Get(), texPath.data(),
-          model.textures[i].GetAddressOf())));
+      hr = ::D3DXCreateTextureFromFileA(
+        mDevice.Get(), texPath.data(), model.textures[i].GetAddressOf());
+      BASALT_ASSERT(SUCCEEDED(hr));
     }
   }
 
