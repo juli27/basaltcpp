@@ -76,7 +76,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>SPDLOG_COMPILED_LIB;BASALT_BUILD;BASALT_DEV_BUILD;BASALT_DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)external\spdlog\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\;$(SolutionDir)external\Fmt\include;$(SolutionDir)external\spdlog\</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
       <StringPooling>true</StringPooling>
@@ -103,7 +103,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>SPDLOG_COMPILED_LIB;BASALT_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)external\spdlog\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\;$(SolutionDir)external\Fmt\include;$(SolutionDir)external\spdlog\</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <FloatingPointModel>Fast</FloatingPointModel>
       <ControlFlowGuard>Guard</ControlFlowGuard>
@@ -130,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>SPDLOG_COMPILED_LIB;BASALT_BUILD;BASALT_DEV_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\include;$(SolutionDir)external\Fmt\include;$(SolutionDir)external\spdlog\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\include;$(SolutionDir)external\DearImGui\;$(SolutionDir)external\Fmt\include;$(SolutionDir)external\spdlog\</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <FloatingPointModel>Fast</FloatingPointModel>
       <ControlFlowGuard>Guard</ControlFlowGuard>

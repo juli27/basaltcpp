@@ -1,0 +1,16 @@
+target_sources(DearImGui
+  PRIVATE
+    "imgui.cpp"
+    "imgui_demo.cpp"
+    "imgui_draw.cpp"
+    "imgui_widgets.cpp"
+    "imgui_impl_dx9.cpp"
+  PUBLIC
+    "imgui.h"
+    "imconfig.h"
+    "imgui_internal.h"
+    "imstb_rectpack.h"
+    "imstb_textedit.h"
+    "imstb_truetype.h"
+    "imgui_impl_dx9.h"
+)

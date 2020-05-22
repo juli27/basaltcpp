@@ -1,23 +1,8 @@
 add_library(DearImGui STATIC)
 
-target_sources(DearImGui
-  PRIVATE
-    "src/imgui.cpp"
-    "src/imgui_demo.cpp"
-    "src/imgui_draw.cpp"
-    "src/imgui_widgets.cpp"
-    "src/imgui_impl_dx9.cpp"
-  PUBLIC
-    "include/imgui/imgui.h"
-    "include/imgui/imconfig.h"
-    "include/imgui/imgui_internal.h"
-    "include/imgui/imstb_rectpack.h"
-    "include/imgui/imstb_textedit.h"
-    "include/imgui/imstb_truetype.h"
-    "include/imgui/imgui_impl_dx9.h")
+add_subdirectory("imgui")
 
-target_include_directories(DearImGui PRIVATE "include/imgui"
-  INTERFACE "include")
+target_include_directories(DearImGui INTERFACE "include")
 
 target_compile_definitions(DearImGui PRIVATE _UNICODE UNICODE)
 
