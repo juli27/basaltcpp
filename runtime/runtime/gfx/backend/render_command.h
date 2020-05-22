@@ -26,6 +26,7 @@ enum class TexCoordinateSrc : u8 {
 
 struct RenderCommand final {
   MeshHandle mMesh;
+  ModelHandle model;
 
   // TODO: Material
   Color mDiffuseColor;

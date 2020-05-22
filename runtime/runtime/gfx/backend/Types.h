@@ -32,7 +32,7 @@ enum class PrimitiveType : u8 {
 };
 
 
-namespace _internal {
+namespace detail {
 
 struct MeshTypeTag {
 };
@@ -40,11 +40,14 @@ struct MeshTypeTag {
 struct TextureTypeTag {
 };
 
-} // namespace _internal
+struct ModelTypeTag {
+};
 
+} // namespace detail
 
-using MeshHandle = Handle<_internal::MeshTypeTag>;
-using TextureHandle = Handle<_internal::TextureTypeTag>;
+using MeshHandle = Handle<detail::MeshTypeTag>;
+using TextureHandle = Handle<detail::TextureTypeTag>;
+using ModelHandle = Handle<detail::ModelTypeTag>;
 
 } // namespace basalt::gfx::backend
 

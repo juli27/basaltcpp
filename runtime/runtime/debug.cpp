@@ -115,13 +115,18 @@ void Debug::draw_scene_debug_ui(bool* open, Scene* const scene) {
 
             if (ImGui::TreeNodeEx(
               "RenderComponent", ImGuiTreeNodeFlags_DefaultOpen)) {
-              ImGui::Text(
-                "Mesh: %#x", renderComponent.mMesh.get_value());
-              ImGui::Text(
-                "Texture: %#x", renderComponent.mTexture.get_value());
+              if (renderComponent.model) {
+                ImGui::Text(
+                "Model: %#x", renderComponent.model.get_value());
+              } else {
+                ImGui::Text(
+                  "Mesh: %#x", renderComponent.mMesh.get_value());
+                ImGui::Text(
+                  "Texture: %#x", renderComponent.mTexture.get_value());
 
-              edit_color4("Diffuse", renderComponent.mDiffuseColor);
-              edit_color4("Ambient", renderComponent.mAmbientColor);
+                edit_color4("Diffuse", renderComponent.mDiffuseColor);
+                edit_color4("Ambient", renderComponent.mAmbientColor);
+              }
 
               if (renderComponent.mRenderFlags ==
                 gfx::backend::RenderFlagNone) {

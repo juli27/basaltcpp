@@ -12,6 +12,8 @@
 
 #include <wrl/client.h>
 
+#include <vector>
+
 namespace basalt::gfx::backend {
 
 struct D3D9Mesh {
@@ -45,6 +47,8 @@ struct D3D9Renderer final : IRenderer {
   void remove_mesh(MeshHandle meshHandle) override;
   auto add_texture(std::string_view filePath) -> TextureHandle override;
   void remove_texture(TextureHandle textureHandle) override;
+  auto load_model(std::string_view filePath) -> ModelHandle override;
+  void remove_model(ModelHandle) override;
   void set_clear_color(const Color& color) override;
   void render(const RenderCommandList&) override;
 
@@ -53,11 +57,18 @@ struct D3D9Renderer final : IRenderer {
 private:
   using Texture = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
 
+  struct Model {
+    std::vector<D3DMATERIAL9> materials {};
+    std::vector<Texture> textures {};
+    Microsoft::WRL::ComPtr<ID3DXMesh> mesh {};
+  };
+
   Microsoft::WRL::ComPtr<IDirect3DDevice9> mDevice {};
   D3DCAPS9 mDeviceCaps {};
   D3DPRESENT_PARAMETERS mPresentParams {};
   HandlePool<D3D9Mesh, MeshHandle> mMeshes {};
   HandlePool<Texture, TextureHandle> mTextures {};
+  HandlePool<Model, ModelHandle> mModels {};
   D3DCOLOR mClearColor {D3DCOLOR_XRGB(0, 0, 0)};
 
   void render_command(const RenderCommand&);

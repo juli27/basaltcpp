@@ -26,7 +26,7 @@ struct SandboxApp final : basalt::ClientApp {
 
 private:
   std::vector<std::unique_ptr<TestCase>> mScenes {};
-  basalt::uSize mCurrentSceneIndex {5};
+  basalt::uSize mCurrentSceneIndex {6};
 
   void next_scene();
   void prev_scene();

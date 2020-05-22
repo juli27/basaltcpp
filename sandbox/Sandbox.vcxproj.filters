@@ -23,6 +23,9 @@
     <ClCompile Include="sandbox\d3d9\utils.cpp">
       <Filter>d3d9</Filter>
     </ClCompile>
+    <ClCompile Include="sandbox\d3d9\meshes.cpp">
+      <Filter>d3d9</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sandbox\d3d9\utils.h">
@@ -48,6 +51,9 @@
     </ClInclude>
     <ClInclude Include="sandbox\test_case.h" />
     <ClInclude Include="sandbox\sandbox.h" />
+    <ClInclude Include="sandbox\d3d9\meshes.h">
+      <Filter>d3d9</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="BasaltApp.props" />

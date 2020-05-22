@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dear ImGui
 - BASALT_ASSERT_MSG
 - [sandbox] D3D9 Tutorial 1: Creating a Device
+- [sandbox] D3D9 Tutorial 6: Using Meshes
 - [build] CMake build support for Windows x86-64
 - [build-vs] RelWithDebInfo configuration
 - [build-vs] BASALT_DEV_BUILD macro or Debug and RelWithDebInfo builds

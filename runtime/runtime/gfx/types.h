@@ -20,6 +20,7 @@ namespace basalt::gfx {
 struct RenderComponent final {
   backend::MeshHandle mMesh;
   backend::TextureHandle mTexture;
+  backend::ModelHandle model;
   Color mDiffuseColor;
   Color mAmbientColor;
   math::Mat4f32 texTransform {math::Mat4f32::identity()};

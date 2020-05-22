@@ -47,6 +47,7 @@ void render(backend::IRenderer* renderer, const View& view) {
       }
 
       command.mMesh = renderComponent.mMesh;
+      command.model = renderComponent.model;
       command.mTexture = renderComponent.mTexture;
       command.mDiffuseColor = renderComponent.mDiffuseColor;
       command.mAmbientColor = renderComponent.mAmbientColor;

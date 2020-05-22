@@ -3,6 +3,7 @@
 #include "sandbox/d3d9/device.h"
 #include "sandbox/d3d9/lights.h"
 #include "sandbox/d3d9/matrices.h"
+#include "sandbox/d3d9/meshes.h"
 #include "sandbox/d3d9/textures.h"
 #include "sandbox/d3d9/textures_tci.h"
 #include "sandbox/d3d9/vertices.h"
@@ -42,13 +43,14 @@ auto ClientApp::create(IRenderer* const renderer) -> unique_ptr<ClientApp> {
 }
 
 SandboxApp::SandboxApp(IRenderer* const renderer) {
-  mScenes.reserve(6u);
+  mScenes.reserve(7u);
   mScenes.push_back(std::make_unique<d3d9::Device>());
   mScenes.push_back(std::make_unique<d3d9::Vertices>(renderer));
   mScenes.push_back(std::make_unique<d3d9::Matrices>(renderer));
   mScenes.push_back(std::make_unique<d3d9::Lights>(renderer));
   mScenes.push_back(std::make_unique<d3d9::Textures>(renderer));
   mScenes.push_back(std::make_unique<d3d9::TexturesTci>(renderer));
+  mScenes.push_back(std::make_unique<d3d9::Meshes>(renderer));
 
   mScenes[mCurrentSceneIndex]->on_show();
 }
