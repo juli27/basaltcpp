@@ -19,7 +19,6 @@ target_compile_definitions(App
     BASALT_BUILD
     BASALT_DEBUG_BUILD
     BASALT_DEV_BUILD
-    _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 )
 
 target_compile_options(App PRIVATE

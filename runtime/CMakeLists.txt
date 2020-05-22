@@ -12,7 +12,6 @@ target_compile_definitions(Runtime
     BASALT_BUILD
     BASALT_DEBUG_BUILD
     BASALT_DEV_BUILD
-    _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 )
 
 target_compile_features(Fmt PUBLIC cxx_std_17)
