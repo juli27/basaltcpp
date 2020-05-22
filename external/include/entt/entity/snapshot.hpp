@@ -135,25 +135,7 @@ public:
      */
     template<typename... Component, typename Archive>
     const basic_snapshot & component(Archive &archive) const {
-        if constexpr(sizeof...(Component) == 1) {
-            const auto sz = reg->template size<Component...>();
-            const auto *entities = reg->template data<Component...>();
-
-            archive(typename traits_type::entity_type(sz));
-
-            for(std::remove_const_t<decltype(sz)> pos{}; pos < sz; ++pos) {
-                const auto entt = entities[pos];
-
-                if constexpr(std::is_empty_v<Component...>) {
-                    archive(entt);
-                } else {
-                    archive(entt, reg->template get<Component...>(entt));
-                }
-            };
-        } else {
-            (component<Component>(archive), ...);
-        }
-
+        (component<Component>(archive, reg->template data<Component>(), reg->template data<Component>() + reg->template size<Component>()), ...);
         return *this;
     }
 
@@ -173,7 +155,7 @@ public:
      */
     template<typename... Component, typename Archive, typename It>
     const basic_snapshot & component(Archive &archive, It first, It last) const {
-        component<Component...>(archive, first, last, std::make_index_sequence<sizeof...(Component)>{});
+        component<Component...>(archive, first, last, std::index_sequence_for<Component...>{});
         return *this;
     }
 
@@ -371,6 +353,40 @@ class basic_continuous_loader {
         }
     }
 
+    template<typename Container>
+    auto update(int, Container &container)
+    -> decltype(typename Container::mapped_type{}, void()) {
+        // map like container
+        Container other;
+
+        for(auto &&pair: container) {
+            using first_type = std::remove_const_t<typename std::decay_t<decltype(pair)>::first_type>;
+            using second_type = typename std::decay_t<decltype(pair)>::second_type;
+
+            if constexpr(std::is_same_v<first_type, Entity> && std::is_same_v<second_type, Entity>) {
+                other.emplace(map(pair.first), map(pair.second));
+            } else if constexpr(std::is_same_v<first_type, Entity>) {
+                other.emplace(map(pair.first), std::move(pair.second));
+            } else {
+                static_assert(std::is_same_v<second_type, Entity>);
+                other.emplace(std::move(pair.first), map(pair.second));
+            }
+        }
+
+        std::swap(container, other);
+    }
+
+    template<typename Container>
+    auto update(char, Container &container)
+    -> decltype(typename Container::value_type{}, void()) {
+        // vector like container
+        static_assert(std::is_same_v<typename Container::value_type, Entity>);
+
+        for(auto &&entt: container) {
+            entt = map(entt);
+        }
+    }
+
     template<typename Other, typename Type, typename Member>
     void update(Other &instance, Member Type:: *member) {
         if constexpr(!std::is_same_v<Other, Type>) {
@@ -379,9 +395,7 @@ class basic_continuous_loader {
             instance.*member = map(instance.*member);
         } else {
             // maybe a container? let's try...
-            for(auto &entt: instance.*member) {
-                entt = map(entt);
-            }
+            update(0, instance.*member);
         }
     }
 

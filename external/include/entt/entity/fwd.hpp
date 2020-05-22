@@ -2,7 +2,6 @@
 #define ENTT_ENTITY_FWD_HPP
 
 
-#include <cstdint>
 #include "../config/config.h"
 #include "../core/type_traits.hpp"
 
@@ -14,7 +13,7 @@ template <typename>
 class basic_registry;
 
 /*! @class basic_view */
-template<typename, typename...>
+template<typename...>
 class basic_view;
 
 /*! @class basic_runtime_view */
@@ -29,13 +28,9 @@ class basic_group;
 template<typename>
 class basic_observer;
 
-/*! @class basic_actor */
+/*! @struct basic_actor */
 template <typename>
 struct basic_actor;
-
-/*! @class basic_prototype */
-template<typename>
-class basic_prototype;
 
 /*! @class basic_snapshot */
 template<typename>
@@ -50,10 +45,10 @@ template<typename>
 class basic_continuous_loader;
 
 /*! @brief Alias declaration for the most common use case. */
-ENTT_OPAQUE_TYPE(entity, ENTT_ID_TYPE)
+ENTT_OPAQUE_TYPE(entity, ENTT_ID_TYPE);
 
 /*! @brief Alias declaration for the most common use case. */
-ENTT_OPAQUE_TYPE(component, ENTT_ID_TYPE)
+ENTT_OPAQUE_TYPE(component, ENTT_ID_TYPE);
 
 /*! @brief Alias declaration for the most common use case. */
 using registry = basic_registry<entity>;
@@ -63,9 +58,6 @@ using observer = basic_observer<entity>;
 
 /*! @brief Alias declaration for the most common use case. */
 using actor = basic_actor<entity>;
-
-/*! @brief Alias declaration for the most common use case. */
-using prototype = basic_prototype<entity>;
 
 /*! @brief Alias declaration for the most common use case. */
 using snapshot = basic_snapshot<entity>;
@@ -78,7 +70,7 @@ using continuous_loader = basic_continuous_loader<entity>;
 
 /**
  * @brief Alias declaration for the most common use case.
- * @tparam Component Types of components iterated by the view.
+ * @tparam Types Types of components iterated by the view.
  */
 template<typename... Types>
 using view = basic_view<entity, Types...>;

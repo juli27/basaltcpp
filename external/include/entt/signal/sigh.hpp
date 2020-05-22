@@ -2,9 +2,10 @@
 #define ENTT_SIGNAL_SIGH_HPP
 
 
-#include <algorithm>
-#include <utility>
 #include <vector>
+#include <utility>
+#include <iterator>
+#include <algorithm>
 #include <functional>
 #include <type_traits>
 #include "../config/config.h"
@@ -61,7 +62,7 @@ class sigh<Ret(Args...)> {
 
 public:
     /*! @brief Unsigned integer type. */
-    using size_type = typename std::vector<delegate<Ret(Args...)>>::size_type;
+    using size_type = std::size_t;
     /*! @brief Sink type. */
     using sink_type = entt::sink<Ret(Args...)>;
 
@@ -96,9 +97,9 @@ public:
      * @param args Arguments to use to invoke listeners.
      */
     void publish(Args... args) const {
-        for(auto pos = calls.size(); pos; --pos) {
-            calls[pos-1](args...);
-        }
+        std::for_each(calls.cbegin(), calls.cend(), [&args...](auto &&call) {
+            call(args...);
+        });
     }
 
     /**
@@ -117,22 +118,20 @@ public:
      */
     template<typename Func>
     void collect(Func func, Args... args) const {
-        bool stop = false;
-
-        for(auto pos = calls.size(); pos && !stop; --pos) {
+        for(auto &&call: calls) {
             if constexpr(std::is_void_v<Ret>) {
                 if constexpr(std::is_invocable_r_v<bool, Func>) {
-                    calls[pos-1](args...);
-                    stop = func();
+                    call(args...);
+                    if(func()) { break; }
                 } else {
-                    calls[pos-1](args...);
+                    call(args...);
                     func();
                 }
             } else {
                 if constexpr(std::is_invocable_r_v<bool, Func, Ret>) {
-                    stop = func(calls[pos-1](args...));
+                    if(func(call(args...))) { break; }
                 } else {
-                    func(calls[pos-1](args...));
+                    func(call(args...));
                 }
             }
         }
@@ -227,6 +226,9 @@ private:
  * when it goes out of scope.
  */
 struct scoped_connection: private connection {
+    using connection::operator bool;
+    using connection::release;
+
     /*! @brief Default constructor. */
     scoped_connection() = default;
 
@@ -280,9 +282,6 @@ struct scoped_connection: private connection {
         static_cast<connection &>(*this) = std::move(other);
         return *this;
     }
-
-    using connection::operator bool;
-    using connection::release;
 };
 
 
@@ -303,9 +302,10 @@ struct scoped_connection: private connection {
 template<typename Ret, typename... Args>
 class sink<Ret(Args...)> {
     using signal_type = sigh<Ret(Args...)>;
+    using difference_type = typename std::iterator_traits<typename decltype(signal_type::calls)::iterator>::difference_type;
 
     template<auto Candidate, typename Type>
-    static void release(Type &value_or_instance, void *signal) {
+    static void release(Type value_or_instance, void *signal) {
         sink{*static_cast<signal_type *>(signal)}.disconnect<Candidate>(value_or_instance);
     }
 
@@ -320,7 +320,8 @@ public:
      * @param ref A valid reference to a signal object.
      */
     sink(sigh<Ret(Args...)> &ref) ENTT_NOEXCEPT
-        : signal{&ref}
+        : offset{},
+          signal{&ref}
     {}
 
     /**
@@ -329,6 +330,111 @@ public:
      */
     bool empty() const ENTT_NOEXCEPT {
         return signal->calls.empty();
+    }
+
+    /**
+     * @brief Returns a sink that connects before a given function.
+     * @tparam Function A valid free function pointer.
+     * @return A properly initialized sink object.
+     */
+    template<auto Function>
+    sink before() {
+        delegate<Ret(Args...)> call{};
+        call.template connect<Function>();
+
+        const auto &calls = signal->calls;
+        const auto it = std::find(calls.cbegin(), calls.cend(), std::move(call));
+
+        sink other{*this};
+        other.offset = std::distance(it, calls.cend());
+        return other;
+    }
+
+    /**
+     * @brief Returns a sink that connects before a given member function or
+     * free function with payload.
+     * @tparam Candidate Member or free function to look for.
+     * @tparam Type Type of class or type of payload.
+     * @param value_or_instance A valid reference that fits the purpose.
+     * @return A properly initialized sink object.
+     */
+    template<auto Candidate, typename Type>
+    sink before(Type &value_or_instance) {
+        delegate<Ret(Args...)> call{};
+        call.template connect<Candidate>(value_or_instance);
+
+        const auto &calls = signal->calls;
+        const auto it = std::find(calls.cbegin(), calls.cend(), std::move(call));
+
+        sink other{*this};
+        other.offset = std::distance(it, calls.cend());
+        return other;
+    }
+
+    /**
+     * @brief Returns a sink that connects before a given member function or
+     * free function with payload.
+     * @tparam Candidate Member or free function to look for.
+     * @tparam Type Type of class or type of payload.
+     * @param value_or_instance A valid pointer that fits the purpose.
+     * @return A properly initialized sink object.
+     */
+    template<auto Candidate, typename Type>
+    sink before(Type *value_or_instance) {
+        delegate<Ret(Args...)> call{};
+        call.template connect<Candidate>(value_or_instance);
+
+        const auto &calls = signal->calls;
+        const auto it = std::find(calls.cbegin(), calls.cend(), std::move(call));
+
+        sink other{*this};
+        other.offset = std::distance(it, calls.cend());
+        return other;
+    }
+
+    /**
+     * @brief Returns a sink that connects before a given instance or specific
+     * payload.
+     * @tparam Type Type of class or type of payload.
+     * @param value_or_instance A valid object that fits the purpose.
+     * @return A properly initialized sink object.
+     */
+    template<typename Type>
+    sink before(Type &value_or_instance) {
+        return before(&value_or_instance);
+    }
+
+    /**
+     * @brief Returns a sink that connects before a given instance or specific
+     * payload.
+     * @tparam Type Type of class or type of payload.
+     * @param value_or_instance A valid pointer that fits the purpose.
+     * @return A properly initialized sink object.
+     */
+    template<typename Type>
+    sink before(Type *value_or_instance) {
+        sink other{*this};
+
+        if(value_or_instance) {
+            const auto &calls = signal->calls;
+            const auto it = std::find_if(calls.cbegin(), calls.cend(), [value_or_instance](const auto &delegate) {
+                return delegate.instance() == value_or_instance;
+            });
+
+            other.offset = std::distance(it, calls.cend());
+        }
+
+        return other;
+    }
+
+    /**
+     * @brief Returns a sink that connects before anything else.
+     * @return A properly initialized sink object.
+     */
+    sink before() {
+        sink other{*this};
+        other.offset = signal->calls.size();
+        return other;
     }
 
     /**
@@ -343,9 +449,13 @@ public:
     template<auto Function>
     connection connect() {
         disconnect<Function>();
+
+        delegate<Ret(Args...)> call{};
+        call.template connect<Function>();
+        signal->calls.insert(signal->calls.end() - offset, std::move(call));
+
         delegate<void(void *)> conn{};
         conn.template connect<&release<Function>>();
-        signal->calls.emplace_back(delegate<Ret(Args...)>{connect_arg<Function>});
         return { std::move(conn), signal };
     }
 
@@ -369,9 +479,43 @@ public:
     template<auto Candidate, typename Type>
     connection connect(Type &value_or_instance) {
         disconnect<Candidate>(value_or_instance);
+
+        delegate<Ret(Args...)> call{};
+        call.template connect<Candidate>(value_or_instance);
+        signal->calls.insert(signal->calls.end() - offset, std::move(call));
+
         delegate<void(void *)> conn{};
-        conn.template connect<&sink::release<Candidate, Type>>(value_or_instance);
-        signal->calls.emplace_back(delegate<Ret(Args...)>{connect_arg<Candidate>, value_or_instance});
+        conn.template connect<&release<Candidate, Type &>>(value_or_instance);
+        return { std::move(conn), signal };
+    }
+
+    /**
+     * @brief Connects a member function or a free function with payload to a
+     * signal.
+     *
+     * The signal isn't responsible for the connected object or the payload.
+     * Users must always guarantee that the lifetime of the instance overcomes
+     * the one  of the delegate. On the other side, the signal handler performs
+     * checks to avoid multiple connections for the same function.<br/>
+     * When used to connect a free function with payload, its signature must be
+     * such that the instance is the first argument before the ones used to
+     * define the delegate itself.
+     *
+     * @tparam Candidate Member or free function to connect to the signal.
+     * @tparam Type Type of class or type of payload.
+     * @param value_or_instance A valid pointer that fits the purpose.
+     * @return A properly initialized connection object.
+     */
+    template<auto Candidate, typename Type>
+    connection connect(Type *value_or_instance) {
+        disconnect<Candidate>(value_or_instance);
+
+        delegate<Ret(Args...)> call{};
+        call.template connect<Candidate>(value_or_instance);
+        signal->calls.insert(signal->calls.end() - offset, std::move(call));
+
+        delegate<void(void *)> conn{};
+        conn.template connect<&release<Candidate, Type *>>(value_or_instance);
         return { std::move(conn), signal };
     }
 
@@ -382,9 +526,9 @@ public:
     template<auto Function>
     void disconnect() {
         auto &calls = signal->calls;
-        delegate<Ret(Args...)> delegate{};
-        delegate.template connect<Function>();
-        calls.erase(std::remove(calls.begin(), calls.end(), delegate), calls.end());
+        delegate<Ret(Args...)> call{};
+        call.template connect<Function>();
+        calls.erase(std::remove(calls.begin(), calls.end(), std::move(call)), calls.end());
     }
 
     /**
@@ -397,23 +541,51 @@ public:
     template<auto Candidate, typename Type>
     void disconnect(Type &value_or_instance) {
         auto &calls = signal->calls;
-        delegate<Ret(Args...)> delegate{};
-        delegate.template connect<Candidate>(value_or_instance);
-        calls.erase(std::remove(calls.begin(), calls.end(), delegate), calls.end());
+        delegate<Ret(Args...)> call{};
+        call.template connect<Candidate>(value_or_instance);
+        calls.erase(std::remove(calls.begin(), calls.end(), std::move(call)), calls.end());
+    }
+
+    /**
+     * @brief Disconnects a member function or a free function with payload from
+     * a signal.
+     * @tparam Candidate Member or free function to disconnect from the signal.
+     * @tparam Type Type of class or type of payload.
+     * @param value_or_instance A valid pointer that fits the purpose.
+     */
+    template<auto Candidate, typename Type>
+    void disconnect(Type *value_or_instance) {
+        auto &calls = signal->calls;
+        delegate<Ret(Args...)> call{};
+        call.template connect<Candidate>(value_or_instance);
+        calls.erase(std::remove(calls.begin(), calls.end(), std::move(call)), calls.end());
     }
 
     /**
      * @brief Disconnects member functions or free functions based on an
      * instance or specific payload.
      * @tparam Type Type of class or type of payload.
-     * @param value_or_instance A valid reference that fits the purpose.
+     * @param value_or_instance A valid object that fits the purpose.
      */
     template<typename Type>
-    void disconnect(const Type &value_or_instance) {
-        auto &calls = signal->calls;
-        calls.erase(std::remove_if(calls.begin(), calls.end(), [&value_or_instance](const auto &delegate) {
-            return delegate.instance() == &value_or_instance;
-        }), calls.end());
+    void disconnect(Type &value_or_instance) {
+        disconnect(&value_or_instance);
+    }
+
+    /**
+     * @brief Disconnects member functions or free functions based on an
+     * instance or specific payload.
+     * @tparam Type Type of class or type of payload.
+     * @param value_or_instance A valid pointer that fits the purpose.
+     */
+    template<typename Type>
+    void disconnect(Type *value_or_instance) {
+        if(value_or_instance) {
+            auto &calls = signal->calls;
+            calls.erase(std::remove_if(calls.begin(), calls.end(), [value_or_instance](const auto &delegate) {
+                return delegate.instance() == value_or_instance;
+            }), calls.end());
+        }
     }
 
     /*! @brief Disconnects all the listeners from a signal. */
@@ -422,6 +594,7 @@ public:
     }
 
 private:
+    difference_type offset;
     signal_type *signal;
 };
 

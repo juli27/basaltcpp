@@ -2,12 +2,39 @@
 #define ENTT_CORE_TYPE_TRAITS_HPP
 
 
+#include <cstddef>
 #include <type_traits>
 #include "../config/config.h"
 #include "../core/hashed_string.hpp"
 
 
 namespace entt {
+
+
+/**
+ * @brief Utility class to disambiguate overloaded functions.
+ * @tparam N Number of choices available.
+ */
+template<std::size_t N>
+struct choice_t
+        // Unfortunately, doxygen cannot parse such a construct.
+        /*! @cond TURN_OFF_DOXYGEN */
+        : choice_t<N-1>
+        /*! @endcond TURN_OFF_DOXYGEN */
+{};
+
+
+/*! @copybrief choice_t */
+template<>
+struct choice_t<0> {};
+
+
+/**
+ * @brief Variable template for the choice trick.
+ * @tparam N Number of choices available.
+ */
+template<std::size_t N>
+constexpr choice_t<N> choice{};
 
 
 /*! @brief A class to use to push around lists of types, nothing more. */
@@ -120,6 +147,28 @@ template<typename Type>
 using type_list_unique_t = typename type_list_unique<Type>::type;
 
 
+/**
+ * @brief Provides the member constant `value` to true if a given type is
+ * equality comparable, false otherwise.
+ * @tparam Type Potentially equality comparable type.
+ */
+template<typename Type, typename = std::void_t<>>
+struct is_equality_comparable: std::false_type {};
+
+
+/*! @copydoc is_equality_comparable */
+template<typename Type>
+struct is_equality_comparable<Type, std::void_t<decltype(std::declval<Type>() == std::declval<Type>())>>: std::true_type {};
+
+
+/**
+ * @brief Helper variable template.
+ * @tparam Type Potentially equality comparable type.
+ */
+template<class Type>
+constexpr auto is_equality_comparable_v = is_equality_comparable<Type>::value;
+
+
 /*! @brief Traits class used mainly to push things across boundaries. */
 template<typename>
 struct named_type_traits;
@@ -144,11 +193,11 @@ using named_type_traits_t = typename named_type_traits<Type>::type;
 
 
 /**
- * @brief Provides the member constant `value` to true if a given type has a
- * name. In all other cases, `value` is false.
+ * @brief Helper variable template.
+ * @tparam Type Potentially named type.
  */
-template<typename, typename = std::void_t<>>
-struct is_named_type: std::false_type {};
+template<class Type>
+constexpr auto named_type_traits_v = named_type_traits<Type>::value;
 
 
 /**
@@ -156,6 +205,11 @@ struct is_named_type: std::false_type {};
  * name. In all other cases, `value` is false.
  * @tparam Type Potentially named type.
  */
+template<typename Type, typename = std::void_t<>>
+struct is_named_type: std::false_type {};
+
+
+/*! @copydoc is_named_type */
 template<typename Type>
 struct is_named_type<Type, std::void_t<named_type_traits_t<std::decay_t<Type>>>>: std::true_type {};
 
@@ -178,7 +232,8 @@ constexpr auto is_named_type_v = is_named_type<Type>::value;
     enum class clazz: type {};\
     constexpr auto to_integer(const clazz id) ENTT_NOEXCEPT {\
         return std::underlying_type_t<clazz>(id);\
-    }
+    }\
+    static_assert(true)
 
 
 }
@@ -216,8 +271,9 @@ constexpr auto is_named_type_v = is_named_type<Type>::value;
     struct entt::named_type_traits<type>\
         : std::integral_constant<ENTT_ID_TYPE, entt::basic_hashed_string<std::remove_cv_t<std::remove_pointer_t<std::decay_t<decltype(#type)>>>>{#type}>\
     {\
-        static_assert(std::is_same_v<std::decay_t<type>, type>);\
-    };
+        static_assert(std::is_same_v<std::remove_cv_t<type>, type>);\
+        static_assert(std::is_object_v<type>);\
+    }
 
 
 /**

@@ -333,9 +333,10 @@ public:
 
     /**
      * @brief Assigns one or more entities to a storage and default constructs
-     * their objects.
+     * or copy constructs their objects.
      *
-     * The object type must be at least move and default insertable.
+     * The object type must be at least move and default insertable if no
+     * arguments are provided, move and copy insertable otherwise.
      *
      * @warning
      * Attempting to assign an entity that already belongs to the storage
@@ -344,37 +345,21 @@ public:
      * storage already contains the given entity.
      *
      * @tparam It Type of forward iterator.
+     * @tparam Args Types of arguments to use to construct the object.
      * @param first An iterator to the first element of the range of entities.
      * @param last An iterator past the last element of the range of entities.
+     * @param args Parameters to use to construct an object for the entities.
      * @return An iterator to the list of instances just created and sorted the
      * same of the entities.
      */
-    template<typename It>
-    iterator_type batch(It first, It last) {
-        instances.resize(instances.size() + std::distance(first, last));
-        // entity goes after component in case constructor throws
-        underlying_type::batch(first, last);
-        return begin();
-    }
+    template<typename It, typename... Args>
+    iterator_type batch(It first, It last, Args &&... args) {
+        if constexpr(sizeof...(Args) == 0) {
+            instances.resize(instances.size() + std::distance(first, last));
+        } else {
+            instances.resize(instances.size() + std::distance(first, last), Type{std::forward<Args>(args)...});
+        }
 
-    /**
-     * @brief Assigns one or more entities to a storage and copy constructs
-     * their objects.
-     *
-     * The object type must be at least move and copy insertable.
-     *
-     * @sa batch
-     *
-     * @tparam It Type of forward iterator.
-     * @param first An iterator to the first element of the range of entities.
-     * @param last An iterator past the last element of the range of entities.
-     * @param value The value to initialize the new objects with.
-     * @return An iterator to the list of instances just created and sorted the
-     * same of the entities.
-     */
-    template<typename It>
-    iterator_type batch(It first, It last, const object_type &value) {
-        instances.resize(instances.size() + std::distance(first, last), value);
         // entity goes after component in case constructor throws
         underlying_type::batch(first, last);
         return begin();
@@ -407,13 +392,11 @@ public:
      * An assertion will abort the execution at runtime in debug mode if the
      * sparse set doesn't contain the given entities.
      *
-     * @param lhs A valid position within the sparse set.
-     * @param rhs A valid position within the sparse set.
+     * @param lhs A valid entity identifier.
+     * @param rhs A valid entity identifier.
      */
-    void swap(const size_type lhs, const size_type rhs) ENTT_NOEXCEPT override {
-        ENTT_ASSERT(lhs < instances.size());
-        ENTT_ASSERT(rhs < instances.size());
-        std::swap(instances[lhs], instances[rhs]);
+    void swap(const entity_type lhs, const entity_type rhs) ENTT_NOEXCEPT override {
+        std::swap(instances[underlying_type::index(lhs)], instances[underlying_type::index(rhs)]);
         underlying_type::swap(lhs, rhs);
     }
 
@@ -443,10 +426,6 @@ public:
      * * An iterator past the last element of the range to sort.
      * * A comparison function to use to compare the elements.
      *
-     * The comparison function object received by the sort function object
-     * hasn't necessarily the type of the one passed along with the other
-     * parameters to this member function.
-     *
      * @note
      * Attempting to iterate elements using a raw pointer returned by a call to
      * either `data` or `raw` gives no guarantees on the order, even though
@@ -463,19 +442,22 @@ public:
      */
     template<typename Compare, typename Sort = std_sort, typename... Args>
     void sort(iterator_type first, iterator_type last, Compare compare, Sort algo = Sort{}, Args &&... args) {
-        ENTT_ASSERT(!(first > last));
+        ENTT_ASSERT(!(last < first));
+        ENTT_ASSERT(!(last > end()));
 
         const auto from = underlying_type::begin() + std::distance(begin(), first);
         const auto to = from + std::distance(first, last);
 
-        if constexpr(std::is_invocable_v<Compare, const object_type &, const object_type &>) {
-            static_assert(!std::is_empty_v<object_type>);
+        const auto apply = [this](const auto lhs, const auto rhs) {
+            std::swap(instances[underlying_type::index(lhs)], instances[underlying_type::index(rhs)]);
+        };
 
-            underlying_type::sort(from, to, [this, compare = std::move(compare)](const auto lhs, const auto rhs) {
+        if constexpr(std::is_invocable_v<Compare, const object_type &, const object_type &>) {
+            underlying_type::arrange(from, to, std::move(apply), [this, compare = std::move(compare)](const auto lhs, const auto rhs) {
                 return compare(std::as_const(instances[underlying_type::index(lhs)]), std::as_const(instances[underlying_type::index(rhs)]));
             }, std::move(algo), std::forward<Args>(args)...);
         } else {
-            underlying_type::sort(from, to, std::move(compare), std::move(algo), std::forward<Args>(args)...);
+            underlying_type::arrange(from, to, std::move(apply), std::move(compare), std::move(algo), std::forward<Args>(args)...);
         }
     }
 
@@ -492,7 +474,7 @@ private:
 
 /*! @copydoc basic_storage */
 template<typename Entity, typename Type>
-class basic_storage<Entity, Type, std::enable_if_t<std::is_empty_v<Type>>>: public sparse_set<Entity> {
+class basic_storage<Entity, Type, std::enable_if_t<ENTT_ENABLE_ETO(Type)>>: public sparse_set<Entity> {
     using traits_type = entt_traits<std::underlying_type_t<Entity>>;
     using underlying_type = sparse_set<Entity>;
 
