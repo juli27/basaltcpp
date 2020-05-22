@@ -1,12 +1,4 @@
 # Roadmap
-## v0.3.0
-* Dear ImGui integration ([#7](https://github.com/juli27/basaltcpp/issues/7))
-* Very basic scene abstraction
-* refactor gfx backend creation ([#8](https://github.com/juli27/basaltcpp/issues/8))
-* turn the platform projects into executables which statically link the
-  application project ([#9](https://github.com/juli27/basaltcpp/issues/9))
-* CMake build support ([#10](https://github.com/juli27/basaltcpp/issues/10))
-
 ## v0.4.0
 * First draft of the architecture
   * which sub projects: runtime, framework, platform launcher, ...
@@ -42,7 +34,6 @@
 * Vulkan 1.0 renderer
 * audio support
 * controller support
-* entity component system
 * animation
 * physics
 * editor
