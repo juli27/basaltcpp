@@ -76,14 +76,11 @@ void Lights::on_hide() {
 }
 
 void Lights::on_update(const f64 deltaTime) {
-  // TODO: fix rotation speed
-  const auto radOffsetX = PI * 0.5f * static_cast<f32>(deltaTime);
   auto& transform = mScene->get_entity_registry().get<Transform>(
     mCylinderEntity);
-  transform.rotate(radOffsetX, 0.0f, 0.0f);
+  transform.rotate(2.0f * static_cast<f32>(deltaTime), 0.0f, 0.0f);
 
-  // TODO: fix rotation speed
-  mLightAngle += PI * 0.25f * static_cast<f32>(deltaTime);
+  mLightAngle += 20.0f / 7.0f * static_cast<f32>(deltaTime);
   // reset when rotated 360°
   while (mLightAngle >= PI * 2.0f) {
     mLightAngle -= PI * 2.0f;

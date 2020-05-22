@@ -38,7 +38,8 @@ void Debug::draw_scene_debug_ui(bool* open, Scene* const scene) {
     edit_color3("Background Color", scene->mBackgroundColor);
     edit_color4("Ambient Light", scene->mAmbientLightColor);
 
-    if (ImGui::CollapsingHeader("Directional Lights")) {
+    if (!scene->mDirectionalLights.empty() && ImGui::CollapsingHeader(
+      "Directional Lights")) {
       ImGui::PushID("Directional Lights");
       for (uSize i = 0; i < scene->mDirectionalLights.size(); i++) {
         array<char, 16> str {};

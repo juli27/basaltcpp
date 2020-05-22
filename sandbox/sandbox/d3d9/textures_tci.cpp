@@ -92,10 +92,9 @@ void TexturesTci::on_hide() {
 }
 
 void TexturesTci::on_update(const f64 deltaTime) {
-  const auto radOffsetX = PI * 0.5f * static_cast<f32>(deltaTime);
   auto& transform = mScene->get_entity_registry().get<Transform>(
     mCylinderEntity);
-  transform.rotate(radOffsetX, 0.0f, 0.0f);
+  transform.rotate(static_cast<f32>(deltaTime), 0.0f, 0.0f);
 }
 
 auto TexturesTci::name() -> string_view {
