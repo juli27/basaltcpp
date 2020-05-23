@@ -11,10 +11,12 @@
 
 namespace basalt::platform {
 
+// TODO: readd super/meta key for linux/osx
+//       should not map to windows key on windows
 enum class Key : u8 {
   Unknown = 0,
   F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
-  Escape, Tab, CapsLock, Shift, Control, Alt, Super,
+  Escape, Tab, CapsLock, Shift, Control, Alt, /*Super,*/
   Insert, Delete, Home, End, PageUp, PageDown, Pause,
   LeftArrow, RightArrow, UpArrow, DownArrow,
   Numpad0, Numpad1, Numpad2, Numpad3, Numpad4,

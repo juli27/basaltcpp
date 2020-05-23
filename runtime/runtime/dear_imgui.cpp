@@ -71,6 +71,8 @@ DearImGui::DearImGui() {
       io.MouseWheel = event.mOffset;
     });
   });
+
+  static_assert(input::KEY_COUNT < 512);
 }
 
 DearImGui::~DearImGui() {
@@ -87,7 +89,13 @@ void DearImGui::new_frame(IRenderer* const renderer, const f64 deltaTime) {
   io.KeyCtrl = input::is_key_pressed(Key::Control);
   io.KeyShift = input::is_key_pressed(Key::Shift);
   io.KeyAlt = input::is_key_pressed(Key::Alt);
-  io.KeySuper = input::is_key_pressed(Key::Super);
+
+  // TODO: reenable once super/meta key has been implemented on linux/osx
+  //       the super key mapping to the windows key on windows caused
+  //       some interoperability problems with OS functionality e.g.
+  //       a pressed down super key sticking around after Win+V
+  io.KeySuper = false;
+
   io.MousePos = ImVec2(static_cast<float>(input::get_mouse_pos().x()), static_cast<float>(input::get_mouse_pos().y()));
   io.MouseDown[0] = input::is_mouse_button_pressed(MouseButton::Left);
   io.MouseDown[1] = input::is_mouse_button_pressed(MouseButton::Right);

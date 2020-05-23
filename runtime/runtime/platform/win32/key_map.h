@@ -12,7 +12,6 @@ using platform::Key;
 
 // TODO: syskeys
 // TODO: left and right variants
-// TODO: disable SUPER? (only in fullscreen?)
 constexpr std::array<Key, 256> VK_TO_KEY_MAP = {
   /* unassigned             */ Key::Unknown,
   /* VK_LBUTTON             */ Key::Unknown,
@@ -105,8 +104,8 @@ constexpr std::array<Key, 256> VK_TO_KEY_MAP = {
   /* X                      */ Key::X,
   /* Y                      */ Key::Y,
   /* Z                      */ Key::Z,
-  /* VK_LWIN                */ Key::Super, // TODO
-  /* VK_RWIN                */ Key::Super, // TODO
+  /* VK_LWIN                */ Key::Unknown,
+  /* VK_RWIN                */ Key::Unknown,
   /* VK_APPS                */ Key::Menu,
   /* reserved               */ Key::Unknown,
   /* VK_SLEEP               */ Key::Unknown,
