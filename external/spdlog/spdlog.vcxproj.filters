@@ -6,6 +6,7 @@
     <ClCompile Include="spdlog\color_sinks.cpp" />
     <ClCompile Include="spdlog\file_sinks.cpp" />
     <ClCompile Include="spdlog\stdout_sinks.cpp" />
+    <ClCompile Include="spdlog\cfg.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="spdlog\async.h" />
@@ -63,12 +64,6 @@
       <Filter>details</Filter>
     </ClInclude>
     <ClInclude Include="spdlog\details\os-inl.h">
-      <Filter>details</Filter>
-    </ClInclude>
-    <ClInclude Include="spdlog\details\pattern_formatter.h">
-      <Filter>details</Filter>
-    </ClInclude>
-    <ClInclude Include="spdlog\details\pattern_formatter-inl.h">
       <Filter>details</Filter>
     </ClInclude>
     <ClInclude Include="spdlog\details\periodic_worker.h">
@@ -179,6 +174,39 @@
     <ClInclude Include="spdlog\sinks\ringbuffer_sink.h">
       <Filter>sinks</Filter>
     </ClInclude>
+    <ClInclude Include="spdlog\cfg\argv.h">
+      <Filter>cfg</Filter>
+    </ClInclude>
+    <ClInclude Include="spdlog\cfg\env.h">
+      <Filter>cfg</Filter>
+    </ClInclude>
+    <ClInclude Include="spdlog\cfg\helpers.h">
+      <Filter>cfg</Filter>
+    </ClInclude>
+    <ClInclude Include="spdlog\cfg\helpers-inl.h">
+      <Filter>cfg</Filter>
+    </ClInclude>
+    <ClInclude Include="spdlog\cfg\log_levels.h">
+      <Filter>cfg</Filter>
+    </ClInclude>
+    <ClInclude Include="spdlog\details\tcp_client.h">
+      <Filter>details</Filter>
+    </ClInclude>
+    <ClInclude Include="spdlog\details\tcp_client-windows.h">
+      <Filter>details</Filter>
+    </ClInclude>
+    <ClInclude Include="spdlog\fwd.h" />
+    <ClInclude Include="spdlog\pattern_formatter.h" />
+    <ClInclude Include="spdlog\pattern_formatter-inl.h" />
+    <ClInclude Include="spdlog\details\windows_include.h">
+      <Filter>details</Filter>
+    </ClInclude>
+    <ClInclude Include="spdlog\sinks\tcp_sink.h">
+      <Filter>sinks</Filter>
+    </ClInclude>
+    <ClInclude Include="spdlog\sinks\win_eventlog_sink.h">
+      <Filter>sinks</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="details">
@@ -189,6 +217,9 @@
     </Filter>
     <Filter Include="sinks">
       <UniqueIdentifier>{59cbbe4c-5f3c-4116-b3a4-f62b508e3944}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cfg">
+      <UniqueIdentifier>{69ad39a9-037a-417b-9c5b-811e21359e13}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

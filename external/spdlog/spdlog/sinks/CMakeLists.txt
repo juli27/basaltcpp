@@ -23,6 +23,8 @@ target_sources(spdlog PUBLIC
   "stdout_sinks-inl.h"
   "syslog_sink.h"
   "systemd_sink.h"
+  "tcp_sink.h"
+  "win_eventlog_sink.h"
   "wincolor_sink.h"
   "wincolor_sink-inl.h"
 )

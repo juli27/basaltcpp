@@ -148,6 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="spdlog\async.cpp" />
+    <ClCompile Include="spdlog\cfg.cpp" />
     <ClCompile Include="spdlog\color_sinks.cpp" />
     <ClCompile Include="spdlog\file_sinks.cpp" />
     <ClCompile Include="spdlog\spdlog.cpp" />
@@ -157,6 +158,11 @@
     <ClInclude Include="spdlog\async.h" />
     <ClInclude Include="spdlog\async_logger-inl.h" />
     <ClInclude Include="spdlog\async_logger.h" />
+    <ClInclude Include="spdlog\cfg\argv.h" />
+    <ClInclude Include="spdlog\cfg\env.h" />
+    <ClInclude Include="spdlog\cfg\helpers-inl.h" />
+    <ClInclude Include="spdlog\cfg\helpers.h" />
+    <ClInclude Include="spdlog\cfg\log_levels.h" />
     <ClInclude Include="spdlog\common-inl.h" />
     <ClInclude Include="spdlog\common.h" />
     <ClInclude Include="spdlog\details\backtracer-inl.h" />
@@ -174,21 +180,25 @@
     <ClInclude Include="spdlog\details\null_mutex.h" />
     <ClInclude Include="spdlog\details\os-inl.h" />
     <ClInclude Include="spdlog\details\os.h" />
-    <ClInclude Include="spdlog\details\pattern_formatter-inl.h" />
-    <ClInclude Include="spdlog\details\pattern_formatter.h" />
     <ClInclude Include="spdlog\details\periodic_worker-inl.h" />
     <ClInclude Include="spdlog\details\periodic_worker.h" />
     <ClInclude Include="spdlog\details\registry-inl.h" />
     <ClInclude Include="spdlog\details\registry.h" />
     <ClInclude Include="spdlog\details\synchronous_factory.h" />
+    <ClInclude Include="spdlog\details\tcp_client-windows.h" />
+    <ClInclude Include="spdlog\details\tcp_client.h" />
     <ClInclude Include="spdlog\details\thread_pool-inl.h" />
     <ClInclude Include="spdlog\details\thread_pool.h" />
+    <ClInclude Include="spdlog\details\windows_include.h" />
     <ClInclude Include="spdlog\fmt\bin_to_hex.h" />
     <ClInclude Include="spdlog\fmt\fmt.h" />
     <ClInclude Include="spdlog\fmt\ostr.h" />
     <ClInclude Include="spdlog\formatter.h" />
+    <ClInclude Include="spdlog\fwd.h" />
     <ClInclude Include="spdlog\logger-inl.h" />
     <ClInclude Include="spdlog\logger.h" />
+    <ClInclude Include="spdlog\pattern_formatter-inl.h" />
+    <ClInclude Include="spdlog\pattern_formatter.h" />
     <ClInclude Include="spdlog\sinks\android_sink.h" />
     <ClInclude Include="spdlog\sinks\ansicolor_sink-inl.h" />
     <ClInclude Include="spdlog\sinks\ansicolor_sink.h" />
@@ -213,8 +223,10 @@
     <ClInclude Include="spdlog\sinks\stdout_sinks.h" />
     <ClInclude Include="spdlog\sinks\syslog_sink.h" />
     <ClInclude Include="spdlog\sinks\systemd_sink.h" />
+    <ClInclude Include="spdlog\sinks\tcp_sink.h" />
     <ClInclude Include="spdlog\sinks\wincolor_sink-inl.h" />
     <ClInclude Include="spdlog\sinks\wincolor_sink.h" />
+    <ClInclude Include="spdlog\sinks\win_eventlog_sink.h" />
     <ClInclude Include="spdlog\spdlog-inl.h" />
     <ClInclude Include="spdlog\spdlog.h" />
     <ClInclude Include="spdlog\tweakme.h" />
