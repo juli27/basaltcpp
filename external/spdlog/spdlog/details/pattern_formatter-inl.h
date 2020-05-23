@@ -25,6 +25,9 @@
 #include <utility>
 #include <vector>
 
+// TODO[BASALT]: remove
+#include <cassert>
+
 namespace spdlog {
 namespace details {
 
