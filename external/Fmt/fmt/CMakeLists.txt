@@ -1,0 +1,9 @@
+target_sources(Fmt
+  PRIVATE
+    "format.cc"
+    "format-inl.h"
+  PUBLIC
+    "core.h"
+    "format.h"
+    "ostream.h"
+)

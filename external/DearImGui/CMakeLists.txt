@@ -2,7 +2,7 @@ add_library(DearImGui STATIC)
 
 add_subdirectory("imgui")
 
-target_include_directories(DearImGui INTERFACE "include")
+target_include_directories(DearImGui INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}")
 
 target_compile_definitions(DearImGui PRIVATE _UNICODE UNICODE)
 

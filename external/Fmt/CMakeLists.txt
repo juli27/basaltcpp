@@ -1,15 +1,8 @@
 add_library(Fmt STATIC)
 
-target_sources(Fmt
-  PRIVATE
-    "src/format.cc"
-    "include/fmt/format-inl.h"
-  PUBLIC
-    "include/fmt/core.h"
-    "include/fmt/format.h"
-    "include/fmt/ostream.h")
+add_subdirectory("fmt")
 
-target_include_directories(Fmt PUBLIC "include")
+target_include_directories(Fmt PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
 target_compile_definitions(Fmt PRIVATE _UNICODE UNICODE)
 
