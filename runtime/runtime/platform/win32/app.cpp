@@ -29,6 +29,8 @@
 #include "runtime/shared/Log.h"
 #include "runtime/shared/Size2D.h"
 
+#include <imgui/imgui.h>
+
 #include <windowsx.h>
 
 #include <chrono>
@@ -77,6 +79,11 @@ struct Window final {
   }
 
   [[nodiscard]]
+  auto handle() const -> HWND {
+    return mHandle;
+  }
+
+  [[nodiscard]]
   auto renderer() const -> IRenderer* {
     return mContext->renderer().get();
   }
@@ -114,6 +121,9 @@ private:
 
 void dump_config(const Config& config);
 
+// setup additional imgui platform functionality
+void init_dear_imgui_additional(const Window* window);
+
 [[nodiscard]]
 auto poll_events() -> bool;
 
@@ -131,6 +141,8 @@ void run(const HINSTANCE instance, const int showCommand) {
     // creates the window, the associated gfx context and the renderer
     const auto window = Window::create(instance, showCommand, config);
     input::init();
+
+    init_dear_imgui_additional(window.get());
 
     const auto clientApp = ClientApp::create(window->renderer());
     BASALT_ASSERT(clientApp);
@@ -175,6 +187,12 @@ void dump_config(const Config& config) {
   , config.windowMode != WindowMode::Windowed ? "fullscreen" : "windowed"
   , config.isWindowResizeable ? " resizeable" : "");
 }
+
+void init_dear_imgui_additional(const Window* const window) {
+  auto& io = ImGui::GetIO();
+  io.ImeWindowHandle = window->handle();
+}
+
 
 Window::~Window() {
   if (!::DestroyWindow(mHandle)) {
