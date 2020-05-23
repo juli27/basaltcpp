@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
-- Updated Dear ImGui (v1.72b -> v1.75)
+- Updated Dear ImGui (v1.72b -> v1.76)
 - Updated EnTT (19ef290 -> v3.3.2)
 - Updated fmt (5.3.0 -> 6.2.0)
 - Updated spdlog (1.3.1 -> 1.5.0)
