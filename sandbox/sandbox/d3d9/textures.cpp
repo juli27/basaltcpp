@@ -72,9 +72,9 @@ Textures::Textures(IRenderer* const renderer) {
 
   auto& ecs = mScene->ecs();
   mCylinderEntity = ecs.create();
-  ecs.assign<Transform>(mCylinderEntity);
+  ecs.emplace<Transform>(mCylinderEntity);
 
-  auto& rc = ecs.assign<RenderComponent>(mCylinderEntity);
+  auto& rc = ecs.emplace<RenderComponent>(mCylinderEntity);
   rc.mMesh = add_triangle_strip_mesh(renderer, vertices, vertexLayout);
   rc.mTexture = renderer->add_texture("data/banana.bmp");
   rc.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;

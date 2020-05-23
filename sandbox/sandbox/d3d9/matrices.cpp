@@ -59,8 +59,8 @@ Matrices::Matrices(IRenderer* const renderer) {
 
   auto& ecs = mScene->ecs();
   mTriangleEntity = ecs.create();
-  ecs.assign<Transform>(mTriangleEntity);
-  auto& rc = ecs.assign<RenderComponent>(mTriangleEntity);
+  ecs.emplace<Transform>(mTriangleEntity);
+  auto& rc = ecs.emplace<RenderComponent>(mTriangleEntity);
 
   rc.mMesh = add_triangle_list_mesh(renderer, vertices, vertexLayout);
   rc.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;

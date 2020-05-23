@@ -21,9 +21,9 @@ Meshes::Meshes(basalt::gfx::backend::IRenderer* const renderer) {
 
   auto& ecs = mScene->ecs();
   mTiger = ecs.create();
-  ecs.assign<Transform>(mTiger);
+  ecs.emplace<Transform>(mTiger);
 
-  auto& rc = ecs.assign<RenderComponent>(mTiger);
+  auto& rc = ecs.emplace<RenderComponent>(mTiger);
   rc.model = renderer->load_model("data/Tiger.x");
 }
 

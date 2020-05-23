@@ -60,9 +60,9 @@ Lights::Lights(IRenderer* const renderer) {
 
   auto& ecs = mScene->ecs();
   mCylinderEntity = ecs.create();
-  ecs.assign<Transform>(mCylinderEntity);
+  ecs.emplace<Transform>(mCylinderEntity);
 
-  auto& rc = ecs.assign<RenderComponent>(mCylinderEntity);
+  auto& rc = ecs.emplace<RenderComponent>(mCylinderEntity);
   rc.mMesh = add_triangle_strip_mesh(renderer, vertices, vertexLayout);
   rc.mDiffuseColor = Color {1.0f, 1.0f, 0.0f};
   rc.mAmbientColor = Color {1.0f, 1.0f, 0.0f};

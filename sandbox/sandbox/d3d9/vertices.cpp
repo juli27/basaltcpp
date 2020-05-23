@@ -55,7 +55,7 @@ Vertices::Vertices(IRenderer* const renderer) {
 
   auto& ecs = mScene->ecs();
   const auto entity = ecs.create();
-  auto& renderComp = ecs.assign<RenderComponent>(entity);
+  auto& renderComp = ecs.emplace<RenderComponent>(entity);
   renderComp.mMesh = add_triangle_list_mesh(renderer, vertices, vertexLayout);
 }
 
