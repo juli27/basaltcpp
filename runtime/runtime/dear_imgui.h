@@ -11,9 +11,17 @@ struct IRenderer;
 } // gfx::backend
 
 struct DearImGui final {
-  static void init();
-  static void shutdown();
-  static void new_frame(gfx::backend::IRenderer*, f64 deltaTime);
+  DearImGui();
+
+  DearImGui(const DearImGui&) = delete;
+  DearImGui(DearImGui&&) = delete;
+
+  ~DearImGui();
+
+  auto operator=(const DearImGui&) -> DearImGui& = delete;
+  auto operator=(DearImGui&&) -> DearImGui& = delete;
+
+  void new_frame(gfx::backend::IRenderer*, f64 deltaTime);
 };
 
 } //namespace basalt

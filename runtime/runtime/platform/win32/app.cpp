@@ -134,45 +134,41 @@ void run(const HINSTANCE instance, const int showCommand) {
   const auto config {ClientApp::configure()};
   dump_config(config);
 
-  // init imgui before gfx. Renderer initializes imgui render backend
-  DearImGui::init();
+  // init imgui before window. Renderer initializes imgui render backend
+  DearImGui dearImGui {};
 
-  {
-    // creates the window, the associated gfx context and the renderer
-    const auto window = Window::create(instance, showCommand, config);
-    input::init();
+  // creates the window, the associated gfx context and the renderer
+  const auto window = Window::create(instance, showCommand, config);
+  input::init();
 
-    init_dear_imgui_additional(window.get());
+  init_dear_imgui_additional(window.get());
 
-    const auto clientApp = ClientApp::create(window->renderer());
-    BASALT_ASSERT(clientApp);
-    BASALT_ASSERT_MSG(sCurrentView.scene, "no scene set");
+  const auto clientApp = ClientApp::create(window->renderer());
+  BASALT_ASSERT(clientApp);
+  BASALT_ASSERT_MSG(sCurrentView.scene, "no scene set");
 
-    static_assert(std::chrono::high_resolution_clock::is_steady);
-    using Clock = std::chrono::high_resolution_clock;
-    auto startTime = Clock::now();
-    auto currentDeltaTime = 0.0;
+  static_assert(std::chrono::high_resolution_clock::is_steady);
+  using Clock = std::chrono::high_resolution_clock;
+  auto startTime = Clock::now();
+  auto currentDeltaTime = 0.0;
 
-    do {
-      DearImGui::new_frame(window->renderer(), currentDeltaTime);
+  do {
+    dearImGui.new_frame(window->renderer(), currentDeltaTime);
 
-      clientApp->on_update(currentDeltaTime);
+    clientApp->on_update(currentDeltaTime);
 
-      // also calls ImGui::Render()
-      gfx::render(window->renderer(), sCurrentView);
+    // also calls ImGui::Render()
+    gfx::render(window->renderer(), sCurrentView);
 
-      window->present();
+    window->present();
 
-      const auto endTime = Clock::now();
-      currentDeltaTime = static_cast<f64>((endTime - startTime).count()) / (
-        Clock::period::den * Clock::period::num);
-      startTime = endTime;
-    } while (poll_events());
+    const auto endTime = Clock::now();
+    currentDeltaTime = static_cast<f64>((endTime - startTime).count()) / (
+      Clock::period::den * Clock::period::num);
+    startTime = endTime;
+  } while (poll_events());
 
-    sCurrentView.scene.reset();
-  }
-
-  DearImGui::shutdown();
+  sCurrentView.scene.reset();
 }
 
 namespace {

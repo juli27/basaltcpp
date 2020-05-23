@@ -1,6 +1,5 @@
 #include "runtime/dear_imgui.h"
 
-#include "runtime/Engine.h"
 #include "runtime/Input.h"
 
 #include "runtime/gfx/backend/IRenderer.h"
@@ -24,37 +23,40 @@ using platform::KeyReleasedEvent;
 using platform::MouseButton;
 using platform::MouseWheelScrolledEvent;
 
-void DearImGui::init() {
+DearImGui::DearImGui() {
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
 
-  auto& imguiIo = ImGui::GetIO();
-  imguiIo.KeyMap[ImGuiKey_Tab] = enum_cast(Key::Tab);
-  imguiIo.KeyMap[ImGuiKey_LeftArrow] = enum_cast(Key::LeftArrow);
-  imguiIo.KeyMap[ImGuiKey_RightArrow] = enum_cast(Key::RightArrow);
-  imguiIo.KeyMap[ImGuiKey_UpArrow] = enum_cast(Key::UpArrow);
-  imguiIo.KeyMap[ImGuiKey_DownArrow] = enum_cast(Key::DownArrow);
-  imguiIo.KeyMap[ImGuiKey_PageUp] = enum_cast(Key::PageUp);
-  imguiIo.KeyMap[ImGuiKey_PageDown] = enum_cast(Key::PageDown);
-  imguiIo.KeyMap[ImGuiKey_Home] = enum_cast(Key::Home);
-  imguiIo.KeyMap[ImGuiKey_End] = enum_cast(Key::End);
-  imguiIo.KeyMap[ImGuiKey_Insert] = enum_cast(Key::Insert);
-  imguiIo.KeyMap[ImGuiKey_Delete] = enum_cast(Key::Delete);
-  imguiIo.KeyMap[ImGuiKey_Backspace] = enum_cast(Key::Backspace);
-  imguiIo.KeyMap[ImGuiKey_Space] = enum_cast(Key::Space);
-  imguiIo.KeyMap[ImGuiKey_Enter] = enum_cast(Key::Enter);
-  imguiIo.KeyMap[ImGuiKey_Escape] = enum_cast(Key::Escape);
-  imguiIo.KeyMap[ImGuiKey_KeyPadEnter] = enum_cast(Key::NumpadEnter);
-  imguiIo.KeyMap[ImGuiKey_A] = enum_cast(Key::A);
-  imguiIo.KeyMap[ImGuiKey_C] = enum_cast(Key::C);
-  imguiIo.KeyMap[ImGuiKey_V] = enum_cast(Key::V);
-  imguiIo.KeyMap[ImGuiKey_X] = enum_cast(Key::X);
-  imguiIo.KeyMap[ImGuiKey_Y] = enum_cast(Key::Y);
-  imguiIo.KeyMap[ImGuiKey_Z] = enum_cast(Key::Z);
+  auto& io = ImGui::GetIO();
+  io.BackendPlatformName = "Basalt";
+
+  io.KeyMap[ImGuiKey_Tab] = enum_cast(Key::Tab);
+  io.KeyMap[ImGuiKey_LeftArrow] = enum_cast(Key::LeftArrow);
+  io.KeyMap[ImGuiKey_RightArrow] = enum_cast(Key::RightArrow);
+  io.KeyMap[ImGuiKey_UpArrow] = enum_cast(Key::UpArrow);
+  io.KeyMap[ImGuiKey_DownArrow] = enum_cast(Key::DownArrow);
+  io.KeyMap[ImGuiKey_PageUp] = enum_cast(Key::PageUp);
+  io.KeyMap[ImGuiKey_PageDown] = enum_cast(Key::PageDown);
+  io.KeyMap[ImGuiKey_Home] = enum_cast(Key::Home);
+  io.KeyMap[ImGuiKey_End] = enum_cast(Key::End);
+  io.KeyMap[ImGuiKey_Insert] = enum_cast(Key::Insert);
+  io.KeyMap[ImGuiKey_Delete] = enum_cast(Key::Delete);
+  io.KeyMap[ImGuiKey_Backspace] = enum_cast(Key::Backspace);
+  io.KeyMap[ImGuiKey_Space] = enum_cast(Key::Space);
+  io.KeyMap[ImGuiKey_Enter] = enum_cast(Key::Enter);
+  io.KeyMap[ImGuiKey_Escape] = enum_cast(Key::Escape);
+  io.KeyMap[ImGuiKey_KeyPadEnter] = enum_cast(Key::NumpadEnter);
+  io.KeyMap[ImGuiKey_A] = enum_cast(Key::A);
+  io.KeyMap[ImGuiKey_C] = enum_cast(Key::C);
+  io.KeyMap[ImGuiKey_V] = enum_cast(Key::V);
+  io.KeyMap[ImGuiKey_X] = enum_cast(Key::X);
+  io.KeyMap[ImGuiKey_Y] = enum_cast(Key::Y);
+  io.KeyMap[ImGuiKey_Z] = enum_cast(Key::Z);
 
   platform::add_event_listener([](const Event& e) {
-    const EventDispatcher dispatcher(e);
     auto& io = ImGui::GetIO();
+
+    const EventDispatcher dispatcher {e};
     dispatcher.dispatch<KeyPressedEvent>([&](const KeyPressedEvent& event) {
       io.KeysDown[enum_cast(event.mKey)] = true;
     });
@@ -71,7 +73,7 @@ void DearImGui::init() {
   });
 }
 
-void DearImGui::shutdown() {
+DearImGui::~DearImGui() {
   ImGui::DestroyContext();
 }
 
