@@ -18,7 +18,7 @@ auto create_default_camera() -> Camera {
   const Vec3f32 cameraPos {0.0f, 3.0f, -5.0f};
   const Vec3f32 lookAt {0.0f, 0.0f, 0.0f};
   const Vec3f32 up {0.0f, 1.0f, 0.0f};
-  const auto windowSize {basalt::platform::get_window_size()};
+  const auto windowSize {basalt::platform::window_size()};
   const auto aspectRatio {
     static_cast<f32>(windowSize.width()) / static_cast<f32>(windowSize.height())
   };

@@ -13,26 +13,26 @@ std::bitset<MOUSE_BUTTON_COUNT> sButtonStates;
 math::Vec2i32 sMousePos;
 
 void on_key_pressed(const platform::KeyPressedEvent& event) {
-  const auto index = enum_cast(event.mKey);
+  const auto index = enum_cast(event.key);
   sKeyStates[index] = true;
 }
 
 void on_key_released(const platform::KeyReleasedEvent& event) {
-  const auto index = enum_cast(event.mKey);
+  const auto index = enum_cast(event.key);
   sKeyStates[index] = false;
 }
 
 void on_mouse_moved(const platform::MouseMovedEvent& event) {
-  sMousePos = event.mPos;
+  sMousePos = event.pos;
 }
 
 void on_button_pressed(const platform::MouseButtonPressedEvent& event) {
-  const auto index = enum_cast(event.mButton);
+  const auto index = enum_cast(event.button);
   sButtonStates[index] = true;
 }
 
 void on_button_released(const platform::MouseButtonReleasedEvent& event) {
-  const auto index = enum_cast(event.mButton);
+  const auto index = enum_cast(event.button);
   sButtonStates[index] = false;
 }
 
@@ -56,7 +56,7 @@ auto is_key_pressed(const Key key) -> bool {
   return sKeyStates[enum_cast(key)];
 }
 
-auto get_mouse_pos() -> const math::Vec2i32& {
+auto mouse_pos() -> math::Vec2i32 {
   return sMousePos;
 }
 

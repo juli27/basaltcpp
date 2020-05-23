@@ -36,6 +36,7 @@
 #include <chrono>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <system_error>
 #include <memory>
 #include <utility>
@@ -46,7 +47,7 @@ using std::string;
 using std::system_error;
 using std::unique_ptr;
 using std::vector;
-using std::wstring;
+using std::wstring_view;
 
 namespace basalt::win32 {
 
@@ -376,17 +377,18 @@ auto Window::dispatch_message(
   }
 
   case WM_CHAR: {
-    const auto typedChar = create_utf8_from_wide(
-      wstring(1, static_cast<WCHAR>(wParam))
-    );
+    // TODO: filter control characters
+    // TODO: handle supplementary plane characters
+    //       two messages are posted. create_utf8_from_wide handles the
+    //       surrogates individually as invalid characters
+    BASALT_ASSERT(wParam < 0x10000);
+    const auto c {static_cast<wchar_t>(wParam)};
+    const string typedChar {create_utf8_from_wide(wstring_view {&c, 1})};
 
-    string typedChars;
-    auto repCount = LOWORD(lParam);
-    for (; repCount > 0; repCount--) {
-      typedChars.append(typedChar);
+    for (u16 repCount {LOWORD(lParam)}; repCount > 0; repCount--) {
+      dispatch_platform_event(CharactersTyped(typedChar));
     }
 
-    dispatch_platform_event(CharactersTyped(typedChars));
     return 0;
   }
 
@@ -430,8 +432,10 @@ auto Window::dispatch_message(
     // TODO: XBUTTON4 and XBUTTON5
 
   case WM_MOUSEWHEEL: {
-    const auto offset = GET_WHEEL_DELTA_WPARAM(wParam) / static_cast<f32>(
-      WHEEL_DELTA);
+    const f32 offset {
+      static_cast<f32>(GET_WHEEL_DELTA_WPARAM(wParam)) / static_cast<f32>(
+        WHEEL_DELTA)
+    };
     dispatch_platform_event(MouseWheelScrolledEvent(offset));
     return 0;
   }

@@ -1,7 +1,10 @@
 #include "runtime/platform/Platform.h"
 
 #include "runtime/platform/win32/globals.h"
+
+#if BASALT_DEV_BUILD
 #include "runtime/shared/win32/Windows_custom.h"
+#endif // BASALT_DEV_BUILD
 
 #include "runtime/shared/Log.h"
 
@@ -13,7 +16,7 @@ void add_event_listener(const PlatformEventCallback& callback) {
   sEventListener.push_back(callback);
 }
 
-auto get_window_size() -> Size2Du16 {
+auto window_size() -> Size2Du16 {
   return sWindowData.clientAreaSize;
 }
 

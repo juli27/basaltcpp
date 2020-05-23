@@ -15,7 +15,7 @@ using PlatformEventCallback = std::function<void(const Event&)>;
 void add_event_listener(const PlatformEventCallback& callback);
 
 [[nodiscard]]
-auto get_window_size() -> Size2Du16;
+auto window_size() -> Size2Du16;
 
 [[nodiscard]]
 auto get_window_mode() -> WindowMode;

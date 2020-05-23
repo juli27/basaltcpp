@@ -37,54 +37,55 @@ enum class Key : u8 {
 constexpr uSize KEY_COUNT = 103u;
 
 
-struct KeyPressedEvent : EventTyped<EventType::KeyPressed> {
-  constexpr explicit KeyPressedEvent(Key key) noexcept;
+struct KeyPressedEvent final : EventTyped<EventType::KeyPressed> {
+  Key key {Key::Unknown};
+
+  constexpr explicit KeyPressedEvent(const Key key) noexcept
+    : key {key} {
+  }
+
   constexpr KeyPressedEvent(const KeyPressedEvent&) noexcept = default;
   constexpr KeyPressedEvent(KeyPressedEvent&&) noexcept = default;
+
   ~KeyPressedEvent() noexcept = default;
 
   auto operator=(const KeyPressedEvent&) noexcept -> KeyPressedEvent& = default;
   auto operator=(KeyPressedEvent&&) noexcept -> KeyPressedEvent& = default;
-
-  Key mKey = Key::Unknown;
 };
-
-constexpr KeyPressedEvent::KeyPressedEvent(const Key key) noexcept
-: mKey(key) {}
-
 
 struct KeyReleasedEvent : EventTyped<EventType::KeyReleased> {
-  constexpr explicit KeyReleasedEvent(Key key) noexcept;
+  Key key {Key::Unknown};
+
+  constexpr explicit KeyReleasedEvent(const Key key) noexcept
+    : key(key) {
+  }
+
   constexpr KeyReleasedEvent(const KeyReleasedEvent&) noexcept = default;
   constexpr KeyReleasedEvent(KeyReleasedEvent&&) noexcept = default;
+
   ~KeyReleasedEvent() noexcept = default;
 
-  auto operator=(const KeyReleasedEvent&) noexcept -> KeyReleasedEvent&
-    = default;
+  auto operator=(
+    const KeyReleasedEvent&) noexcept -> KeyReleasedEvent& = default;
   auto operator=(KeyReleasedEvent&&) noexcept -> KeyReleasedEvent& = default;
-
-  Key mKey = Key::Unknown;
 };
 
-constexpr KeyReleasedEvent::KeyReleasedEvent(const Key key) noexcept
-: mKey(key) {}
+struct CharactersTyped final : EventTyped<EventType::CharactersTyped> {
+  // TODO: optimization: use static char array instead of string?
+  std::string chars;
 
+  explicit CharactersTyped(std::string chars)
+    : chars(std::move(chars)) {
+  }
 
-struct CharactersTyped : EventTyped<EventType::CharactersTyped> {
-  inline explicit CharactersTyped(std::string chars);
   CharactersTyped(const CharactersTyped&) = default;
   CharactersTyped(CharactersTyped&&) noexcept = default;
+
   ~CharactersTyped() noexcept = default;
 
   auto operator=(const CharactersTyped&) -> CharactersTyped& = default;
   auto operator=(CharactersTyped&&) -> CharactersTyped& = default;
-
-  // TODO: optimization: use static char array instead of string?
-  std::string mChars;
 };
-
-inline CharactersTyped::CharactersTyped(std::string chars)
-: mChars(std::move(chars)) {}
 
 } // namespace basalt::platform
 

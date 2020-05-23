@@ -9,6 +9,9 @@
 #include "runtime/platform/events/KeyEvents.h"
 #include "runtime/platform/events/MouseEvents.h"
 
+#include "runtime/math/Vec2.h"
+#include "runtime/shared/Size2D.h"
+
 #include <imgui/imgui.h>
 
 namespace basalt {
@@ -22,6 +25,7 @@ using platform::KeyPressedEvent;
 using platform::KeyReleasedEvent;
 using platform::MouseButton;
 using platform::MouseWheelScrolledEvent;
+using math::Vec2i32;
 
 DearImGui::DearImGui() {
   IMGUI_CHECKVERSION();
@@ -58,17 +62,17 @@ DearImGui::DearImGui() {
 
     const EventDispatcher dispatcher {e};
     dispatcher.dispatch<KeyPressedEvent>([&](const KeyPressedEvent& event) {
-      io.KeysDown[enum_cast(event.mKey)] = true;
+      io.KeysDown[enum_cast(event.key)] = true;
     });
     dispatcher.dispatch<KeyReleasedEvent>([&](const KeyReleasedEvent& event) {
-      io.KeysDown[enum_cast(event.mKey)] = false;
+      io.KeysDown[enum_cast(event.key)] = false;
     });
     dispatcher.dispatch<CharactersTyped>([&](const CharactersTyped& event) {
-      io.AddInputCharactersUTF8(event.mChars.c_str());
+      io.AddInputCharactersUTF8(event.chars.c_str());
     });
     dispatcher.dispatch<MouseWheelScrolledEvent>(
       [&](const MouseWheelScrolledEvent& event) {
-      io.MouseWheel = event.mOffset;
+      io.MouseWheel += event.offset;
     });
   });
 
@@ -81,7 +85,7 @@ DearImGui::~DearImGui() {
 
 void DearImGui::new_frame(IRenderer* const renderer, const f64 deltaTime) {
   auto& io = ImGui::GetIO();
-  const auto windowSize = platform::get_window_size();
+  const Size2Du16 windowSize = platform::window_size();
   io.DisplaySize = ImVec2(
     static_cast<float>(windowSize.width()), static_cast<float>(windowSize.height())
   );
@@ -96,12 +100,14 @@ void DearImGui::new_frame(IRenderer* const renderer, const f64 deltaTime) {
   //       a pressed down super key sticking around after Win+V
   io.KeySuper = false;
 
-  io.MousePos = ImVec2(static_cast<float>(input::get_mouse_pos().x()), static_cast<float>(input::get_mouse_pos().y()));
-  io.MouseDown[0] = input::is_mouse_button_pressed(MouseButton::Left);
-  io.MouseDown[1] = input::is_mouse_button_pressed(MouseButton::Right);
-  io.MouseDown[2] = input::is_mouse_button_pressed(MouseButton::Middle);
-  io.MouseDown[3] = input::is_mouse_button_pressed(MouseButton::Button4);
-  io.MouseDown[4] = input::is_mouse_button_pressed(MouseButton::Button5);
+  const Vec2i32 mousePos = input::mouse_pos();
+  io.MousePos = ImVec2 {static_cast<float>(mousePos.x()), static_cast<float>(mousePos.y())};
+
+  static_assert(input::MOUSE_BUTTON_COUNT >= 5);
+  for (uSize i = 0; i < 5; i++) {
+    io.MouseDown[i] = input::is_mouse_button_pressed(static_cast<MouseButton>(i + 1));
+  }
+
   renderer->new_gui_frame();
   ImGui::NewFrame();
 }
