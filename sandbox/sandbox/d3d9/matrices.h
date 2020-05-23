@@ -7,8 +7,6 @@
 #include <runtime/gfx/backend/IRenderer.h>
 #include <runtime/scene/scene.h>
 
-#include <entt/entity/fwd.hpp>
-
 #include <memory>
 
 namespace d3d9 {
@@ -32,7 +30,7 @@ struct Matrices final : TestCase {
 
 private:
   std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();
-  entt::entity mTriangleEntity {entt::null};
+  entt::entity mTriangle {entt::null};
 };
 
 } // namespace d3d9

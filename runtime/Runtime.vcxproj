@@ -185,7 +185,7 @@
     <ClInclude Include="runtime\platform\events\MouseEvents.h" />
     <ClInclude Include="runtime\gfx\backend\context.h" />
     <ClInclude Include="runtime\platform\Platform.h" />
-    <ClInclude Include="runtime\Prelude.h" />
+    <ClInclude Include="runtime\prelude.h" />
     <ClInclude Include="runtime\scene\scene.h" />
     <ClInclude Include="runtime\scene\transform.h" />
     <ClInclude Include="runtime\scene\types.h" />

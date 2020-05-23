@@ -1,11 +1,10 @@
 #include "sandbox/d3d9/device.h"
 
 #include <runtime/Engine.h>
-#include <runtime/Prelude.h>
+#include <runtime/prelude.h>
 
-#include <runtime/gfx/types.h>
-
-using namespace std::string_view_literals;
+using std::string_view;
+using namespace std::literals;
 
 namespace d3d9 {
 
@@ -23,7 +22,7 @@ void Device::on_hide() {
 void Device::on_update(const f64) {
 }
 
-auto Device::name() -> std::string_view {
+auto Device::name() -> string_view {
   return "Tutorial 1: Creating a Device"sv;
 }
 

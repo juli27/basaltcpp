@@ -18,9 +18,6 @@ struct Debug final {
   auto operator=(Debug&&) -> Debug& = delete;
 
   static void draw_scene_debug_ui(bool* open, Scene*);
-
-private:
-
 };
 
 } // namespace basalt

@@ -4,10 +4,8 @@
 
 #include "sandbox/test_case.h"
 
-#include <runtime/scene/scene.h>
 #include <runtime/gfx/backend/IRenderer.h>
-
-#include <entt/entity/fwd.hpp>
+#include <runtime/scene/scene.h>
 
 #include <memory>
 
@@ -32,7 +30,7 @@ struct TexturesTci final : TestCase {
 
 private:
   std::shared_ptr<basalt::Scene> mScene {std::make_shared<basalt::Scene>()};
-  entt::entity mCylinderEntity {entt::null};
+  entt::entity mCylinder {entt::null};
 };
 
 } // namespace d3d9

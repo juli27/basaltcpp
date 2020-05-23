@@ -2,21 +2,17 @@
 
 #include "sandbox/d3d9/utils.h"
 
-#include <runtime/Prelude.h>
-
 #include <runtime/Engine.h>
-
-#include <runtime/gfx/types.h> // RenderComponent
-
-#include <runtime/gfx/backend/IRenderer.h>
-#include <runtime/gfx/backend/Types.h>
+#include <runtime/prelude.h>
 
 #include <array>
 
 using std::array;
-using namespace std::string_view_literals;
+using std::string_view;
+using namespace std::literals;
 
 using basalt::gfx::RenderComponent;
+using basalt::gfx::View;
 using basalt::gfx::backend::IRenderer;
 using basalt::gfx::backend::VertexElement;
 using basalt::gfx::backend::VertexLayout;
@@ -53,14 +49,14 @@ Vertices::Vertices(IRenderer* const renderer) {
     VertexElement::PositionTransformed4F32, VertexElement::ColorDiffuse1U32
   };
 
-  auto& ecs = mScene->ecs();
-  const auto entity = ecs.create();
-  auto& renderComp = ecs.emplace<RenderComponent>(entity);
-  renderComp.mMesh = add_triangle_list_mesh(renderer, vertices, vertexLayout);
+  entt::registry& ecs {mScene->ecs()};
+  const entt::entity entity {ecs.create()};
+  auto& rc {ecs.emplace<RenderComponent>(entity)};
+  rc.mMesh = add_triangle_list_mesh(renderer, vertices, vertexLayout);
 }
 
 void Vertices::on_show() {
-  basalt::set_view({mScene});
+  basalt::set_view(View {mScene});
 }
 
 void Vertices::on_hide() {
@@ -69,7 +65,7 @@ void Vertices::on_hide() {
 void Vertices::on_update(const f64) {
 }
 
-auto Vertices::name() -> std::string_view {
+auto Vertices::name() -> string_view {
   return "Tutorial 2: Rendering Vertices"sv;
 }
 

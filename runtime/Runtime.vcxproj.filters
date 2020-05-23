@@ -89,7 +89,6 @@
     </ClInclude>
     <ClInclude Include="runtime\Engine.h" />
     <ClInclude Include="runtime\Input.h" />
-    <ClInclude Include="runtime\Prelude.h" />
     <ClInclude Include="runtime\gfx\Camera.h">
       <Filter>gfx</Filter>
     </ClInclude>
@@ -123,6 +122,7 @@
     <ClInclude Include="runtime\scene\scene.h">
       <Filter>scene</Filter>
     </ClInclude>
+    <ClInclude Include="runtime\prelude.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="platform">

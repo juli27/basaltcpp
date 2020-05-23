@@ -1,6 +1,9 @@
 #pragma once
-#ifndef BASALT_PRELUDE_H
-#define BASALT_PRELUDE_H
+#ifndef BASALT_RUNTIME_PRELUDE_H
+#define BASALT_RUNTIME_PRELUDE_H
+
+#include "runtime/gfx/types.h"
+#include "runtime/gfx/backend/Types.h"
 
 #include "runtime/shared/Color.h"
 #include "runtime/shared/Data.h"
@@ -21,4 +24,4 @@ using basalt::f64;
 using basalt::Color;
 using basalt::ColorEncoding;
 
-#endif // BASALT_PRELUDE_H
+#endif // BASALT_RUNTIME_PRELUDE_H

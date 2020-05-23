@@ -10,7 +10,7 @@
 
 #include <runtime/Engine.h>
 #include <runtime/Input.h>
-#include <runtime/Prelude.h>
+#include <runtime/prelude.h>
 
 #include <runtime/gfx/backend/IRenderer.h>
 #include <runtime/platform/Platform.h>

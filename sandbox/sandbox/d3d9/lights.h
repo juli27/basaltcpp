@@ -7,8 +7,6 @@
 #include <runtime/gfx/backend/IRenderer.h>
 #include <runtime/scene/scene.h>
 
-#include <entt/entity/fwd.hpp>
-
 #include <memory>
 
 namespace d3d9 {
@@ -33,7 +31,7 @@ struct Lights final : TestCase {
 private:
   std::shared_ptr<basalt::Scene> mScene {std::make_shared<basalt::Scene>()};
   basalt::f32 mLightAngle {0.0f};
-  entt::entity mCylinderEntity {entt::null};
+  entt::entity mCylinder {entt::null};
 };
 
 } // namespace d3d9
