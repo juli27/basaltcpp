@@ -202,6 +202,7 @@
     <ClInclude Include="spdlog\sinks\msvc_sink.h" />
     <ClInclude Include="spdlog\sinks\null_sink.h" />
     <ClInclude Include="spdlog\sinks\ostream_sink.h" />
+    <ClInclude Include="spdlog\sinks\ringbuffer_sink.h" />
     <ClInclude Include="spdlog\sinks\rotating_file_sink-inl.h" />
     <ClInclude Include="spdlog\sinks\rotating_file_sink.h" />
     <ClInclude Include="spdlog\sinks\sink-inl.h" />

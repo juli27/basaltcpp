@@ -12,6 +12,7 @@ target_sources(spdlog PUBLIC
   "msvc_sink.h"
   "null_sink.h"
   "ostream_sink.h"
+  "ringbuffer_sink.h"
   "rotating_file_sink.h"
   "rotating_file_sink-inl.h"
   "sink.h"

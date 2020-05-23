@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated Dear ImGui (v1.72b -> v1.74)
 - Updated EnTT (19ef290 -> v3.2.2)
 - Updated fmt (5.3.0 -> 6.1.2)
-- Updated spdlog (1.3.1 -> 1.4.2)
+- Updated spdlog (1.3.1 -> 1.5.0)
   - now compiled as a static library
 
 ### Deprecated
