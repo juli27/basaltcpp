@@ -23,7 +23,7 @@ struct Scene final {
   auto operator=(const Scene&) -> Scene& = delete;
   auto operator=(Scene&&) -> Scene& = delete;
 
-  auto get_entity_registry() -> entt::registry&;
+  auto ecs() -> entt::registry&;
 
   void set_background_color(const Color& background);
   [[nodiscard]]
@@ -37,11 +37,6 @@ struct Scene final {
   auto directional_lights() const -> const std::vector<DirectionalLight>&;
   void add_directional_light(const math::Vec3f32& dir, const Color&);
   void clear_directional_lights();
-
-  template <typename... Component>
-  auto create_entity() {
-    return mEntityRegistry.create<Component...>();
-  }
 
 private:
   friend struct Debug;

@@ -57,9 +57,10 @@ Matrices::Matrices(IRenderer* const renderer) {
     VertexElement::Position3F32, VertexElement::ColorDiffuse1U32
   };
 
-  const auto [entity, transform, rc] = mScene->create_entity<Transform,
-    RenderComponent>();
-  mTriangleEntity = entity;
+  auto& ecs = mScene->ecs();
+  mTriangleEntity = ecs.create();
+  ecs.assign<Transform>(mTriangleEntity);
+  auto& rc = ecs.assign<RenderComponent>(mTriangleEntity);
 
   rc.mMesh = add_triangle_list_mesh(renderer, vertices, vertexLayout);
   rc.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
@@ -75,8 +76,7 @@ void Matrices::on_hide() {
 void Matrices::on_update(const f64 deltaTime) {
   // 1 full rotation per second
   const auto radOffsetY = 2.0f * PI * static_cast<f32>(deltaTime);
-  auto& transform = mScene->get_entity_registry().get<Transform>(
-    mTriangleEntity);
+  auto& transform = mScene->ecs().get<Transform>(mTriangleEntity);
 
   transform.rotate(0.0f, radOffsetY, 0.0f);
 }

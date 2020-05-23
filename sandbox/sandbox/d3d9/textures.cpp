@@ -70,10 +70,11 @@ Textures::Textures(IRenderer* const renderer) {
   , VertexElement::TextureCoords2F32
   };
 
-  const auto [entity, transform, rc] = mScene->create_entity<Transform,
-    RenderComponent>();
-  mCylinderEntity = entity;
+  auto& ecs = mScene->ecs();
+  mCylinderEntity = ecs.create();
+  ecs.assign<Transform>(mCylinderEntity);
 
+  auto& rc = ecs.assign<RenderComponent>(mCylinderEntity);
   rc.mMesh = add_triangle_strip_mesh(renderer, vertices, vertexLayout);
   rc.mTexture = renderer->add_texture("data/banana.bmp");
   rc.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
@@ -87,8 +88,7 @@ void Textures::on_hide() {
 }
 
 void Textures::on_update(const f64 deltaTime) {
-  auto& transform = mScene->get_entity_registry().get<Transform>(
-    mCylinderEntity);
+  auto& transform = mScene->ecs().get<Transform>(mCylinderEntity);
   transform.rotate(static_cast<f32>(deltaTime), 0.0f, 0.0f);
 }
 

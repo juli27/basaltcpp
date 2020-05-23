@@ -53,7 +53,9 @@ Vertices::Vertices(IRenderer* const renderer) {
     VertexElement::PositionTransformed4F32, VertexElement::ColorDiffuse1U32
   };
 
-  const auto [entity, renderComp] = mScene->create_entity<RenderComponent>();
+  auto& ecs = mScene->ecs();
+  const auto entity = ecs.create();
+  auto& renderComp = ecs.assign<RenderComponent>(entity);
   renderComp.mMesh = add_triangle_list_mesh(renderer, vertices, vertexLayout);
 }
 

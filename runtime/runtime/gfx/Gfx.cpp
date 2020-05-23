@@ -28,16 +28,16 @@ void render(backend::IRenderer* renderer, const View& view) {
   commandList.set_ambient_light(view.scene->ambient_light());
   commandList.set_directional_lights(view.scene->directional_lights());
 
-  const auto& registry = view.scene->get_entity_registry();
+  const auto& ecs = view.scene->ecs();
 
-  registry.view<const RenderComponent>().each(
-    [&commandList, &registry](
+  ecs.view<const RenderComponent>().each(
+    [&commandList, &ecs](
     const entt::entity entity, const RenderComponent& renderComponent
   ) {
       backend::RenderCommand command;
 
-      if (registry.has<Transform>(entity)) {
-        const auto& transform = registry.get<Transform>(
+      if (ecs.has<Transform>(entity)) {
+        const auto& transform = ecs.get<Transform>(
           entity);
         command.mWorld = math::Mat4f32::scaling(transform.mScale) *
           math::Mat4f32::rotation(transform.mRotation) *

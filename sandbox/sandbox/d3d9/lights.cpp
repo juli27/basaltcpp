@@ -58,10 +58,11 @@ Lights::Lights(IRenderer* const renderer) {
     VertexElement::Position3F32, VertexElement::Normal3F32
   };
 
-  const auto [entity, transform, rc] = mScene->create_entity<Transform,
-    RenderComponent>();
-  mCylinderEntity = entity;
+  auto& ecs = mScene->ecs();
+  mCylinderEntity = ecs.create();
+  ecs.assign<Transform>(mCylinderEntity);
 
+  auto& rc = ecs.assign<RenderComponent>(mCylinderEntity);
   rc.mMesh = add_triangle_strip_mesh(renderer, vertices, vertexLayout);
   rc.mDiffuseColor = Color {1.0f, 1.0f, 0.0f};
   rc.mAmbientColor = Color {1.0f, 1.0f, 0.0f};
@@ -76,8 +77,7 @@ void Lights::on_hide() {
 }
 
 void Lights::on_update(const f64 deltaTime) {
-  auto& transform = mScene->get_entity_registry().get<Transform>(
-    mCylinderEntity);
+  auto& transform = mScene->ecs().get<Transform>(mCylinderEntity);
   transform.rotate(2.0f * static_cast<f32>(deltaTime), 0.0f, 0.0f);
 
   mLightAngle += 20.0f / 7.0f * static_cast<f32>(deltaTime);

@@ -8,7 +8,7 @@ namespace basalt {
 
 using math::Vec3f32;
 
-auto Scene::get_entity_registry() -> registry& {
+auto Scene::ecs() -> registry& {
   return mEntityRegistry;
 }
 

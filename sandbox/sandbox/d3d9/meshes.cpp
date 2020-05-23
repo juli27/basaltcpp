@@ -19,10 +19,11 @@ Meshes::Meshes(basalt::gfx::backend::IRenderer* const renderer) {
   mScene->set_background_color(Color {0.0f, 0.0f, 1.0f});
   mScene->set_ambient_light(Color {1.0f, 1.0f, 1.0f});
 
-  const auto [entity, transform, rc] = mScene->create_entity<Transform,
-    RenderComponent>();
-  mTiger = entity;
+  auto& ecs = mScene->ecs();
+  mTiger = ecs.create();
+  ecs.assign<Transform>(mTiger);
 
+  auto& rc = ecs.assign<RenderComponent>(mTiger);
   rc.model = renderer->load_model("data/Tiger.x");
 }
 
@@ -34,7 +35,7 @@ void Meshes::on_hide() {
 }
 
 void Meshes::on_update(const f64 deltaTime) {
-  auto& transform = mScene->get_entity_registry().get<Transform>(mTiger);
+  auto& transform = mScene->ecs().get<Transform>(mTiger);
   transform.rotate(0.0f, static_cast<f32>(deltaTime), 0.0f);
 }
 
