@@ -50,10 +50,10 @@ class basic_registry {
     struct pool_handler: storage<Entity, Component> {
         std::size_t super{};
 
-        pool_handler() ENTT_NOEXCEPT = default;
-
-        pool_handler(const storage<Entity, Component> &other)
-            : storage<Entity, Component>{other}
+        template<typename... Args>
+        pool_handler(Args &&... args)
+            : storage<Entity, Component>{std::forward<Args>(args)...},
+              super{}
         {}
 
         auto on_construct() ENTT_NOEXCEPT {
@@ -326,7 +326,7 @@ public:
      * Identifiers aren't guaranteed to be stable between different runs.
      *
      * @tparam Component Type of component to query.
-     * @return Runtime the opaque identifier of the given type of component.
+     * @return The opaque identifier of the given type of component.
      */
     template<typename Component>
     static component type() ENTT_NOEXCEPT {
