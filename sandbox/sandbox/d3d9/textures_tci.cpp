@@ -36,7 +36,7 @@ using basalt::math::Vec3f32;
 namespace d3d9 {
 
 TexturesTci::TexturesTci(IRenderer* const renderer) {
-  mScene->set_background_color(Color {0.0f, 0.0f, 1.0f});
+  mScene->set_background_color(Colors::BLUE);
 
   struct Vertex final {
     Vec3f32 pos {};

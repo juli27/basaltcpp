@@ -84,6 +84,14 @@ private:
   f32 mAlpha {0};
 };
 
+struct Colors final {
+  static constexpr Color BLACK {0.0f, 0.0f, 0.0f};
+  static constexpr Color WHITE {1.0f, 1.0f, 1.0f};
+  static constexpr Color RED {1.0f, 0.0f, 0.0f};
+  static constexpr Color GREEN {0.0f, 1.0f, 0.0f};
+  static constexpr Color BLUE {0.0f, 0.0f, 1.0f};
+};
+
 } // namespace basalt
 
 #endif // !BASALT_SHARED_COLOR_H

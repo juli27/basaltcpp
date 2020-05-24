@@ -30,7 +30,7 @@ using basalt::math::Vec3f32;
 namespace d3d9 {
 
 Lights::Lights(IRenderer* const renderer) {
-  mScene->set_background_color(Color {0.0f, 0.0f, 1.0f});
+  mScene->set_background_color(Colors::BLUE);
   mScene->set_ambient_light(Color::from_rgba(32, 32, 32));
 
   struct Vertex final {
@@ -85,7 +85,7 @@ void Lights::on_update(const f64 deltaTime) {
   mScene->clear_directional_lights();
 
   const Vec3f32 lightDir {std::cos(mLightAngle), 1.0f, std::sin(mLightAngle)};
-  mScene->add_directional_light(Vec3f32::normalize(lightDir), Color {1.0f, 1.0f, 1.0f});
+  mScene->add_directional_light(Vec3f32::normalize(lightDir), Colors::WHITE);
 }
 
 auto Lights::name() -> string_view {

@@ -4,6 +4,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.0] - *Unreleased*
 ### Added
+- Colors
 - **/types.h includes to prelude.h
 - Dear ImGui clipboard support
 - Dear ImGui IME support

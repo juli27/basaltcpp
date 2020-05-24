@@ -20,7 +20,7 @@ using basalt::gfx::backend::VertexLayout;
 namespace d3d9 {
 
 Vertices::Vertices(IRenderer* const renderer) {
-  mScene->set_background_color(Color {0.0f, 0.0f, 1.0f});
+  mScene->set_background_color(Colors::BLUE);
 
   struct Vertex final {
     f32 x;

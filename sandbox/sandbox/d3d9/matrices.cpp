@@ -29,7 +29,7 @@ using basalt::math::PI;
 namespace d3d9 {
 
 Matrices::Matrices(IRenderer* const renderer) {
-  mScene->set_background_color(Color {0.0f, 0.0f, 0.0f});
+  mScene->set_background_color(Colors::BLACK);
 
   struct Vertex final {
     f32 x {};

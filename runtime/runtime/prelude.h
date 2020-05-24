@@ -22,6 +22,7 @@ using basalt::f32;
 using basalt::f64;
 
 using basalt::Color;
+using basalt::Colors;
 using basalt::ColorEncoding;
 
 #endif // BASALT_RUNTIME_PRELUDE_H

@@ -18,8 +18,8 @@ using basalt::gfx::backend::IRenderer;
 namespace d3d9 {
 
 Meshes::Meshes(IRenderer* const renderer) {
-  mScene->set_background_color(Color {0.0f, 0.0f, 1.0f});
-  mScene->set_ambient_light(Color {1.0f, 1.0f, 1.0f});
+  mScene->set_background_color(Colors::BLUE);
+  mScene->set_ambient_light(Colors::WHITE);
 
   entt::registry& ecs {mScene->ecs()};
   mTiger = ecs.create();

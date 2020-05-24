@@ -43,7 +43,7 @@ private:
 
   entt::registry mEntityRegistry {};
   std::vector<DirectionalLight> mDirectionalLights {};
-  Color mBackgroundColor {0.0f, 0.0f, 0.0f};
+  Color mBackgroundColor {Colors::BLACK};
   Color mAmbientLightColor {};
 };
 
