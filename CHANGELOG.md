@@ -4,8 +4,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.0] - *Unreleased*
 ### Added
+- **/types.h includes to prelude.h
+- Dear ImGui clipboard support
+- Dear ImGui IME support
 
 ### Changed
+- Renamed various public fields, methods and functions
 - Updated Dear ImGui (v1.72b -> v1.76)
 - Updated EnTT (19ef290 -> v3.4.0)
 - Updated fmt (5.3.0 -> 6.2.1)
@@ -15,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 ### Removed
+- Super key
+  - the super key is not supported on Windows. It will be added again on other
+    platforms once the need arises
 
 ### Fixed
 

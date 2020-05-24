@@ -150,7 +150,7 @@ auto D3D9Renderer::load_model(const std::string_view filePath) -> ModelHandle {
   ComPtr<ID3DXBuffer> materialBuffer {};
   DWORD numMaterials {};
   auto hr = ::D3DXLoadMeshFromXW(
-    wideFilePath.c_str(), D3DXMESH_SYSTEMMEM, mDevice.Get(), nullptr
+    wideFilePath.c_str(), D3DXMESH_MANAGED, mDevice.Get(), nullptr
   , materialBuffer.GetAddressOf(), nullptr, &numMaterials
   , model.mesh.GetAddressOf());
   BASALT_ASSERT(SUCCEEDED(hr));
