@@ -7,87 +7,156 @@ namespace basalt::math {
 template struct Vec3<f32>;
 
 template <typename T>
-auto Vec3<T>::operator-() const noexcept -> Vec3 {
-  return Vec3(-x(), -y(), -z());
-}
-
-template auto Vec3<f32>::operator-() const noexcept -> Vec3;
-
-template <typename T>
-auto Vec3<T>::operator+=(const Vec3& rhs) noexcept -> Vec3& {
-  std::get<0>(mData) += rhs.x();
-  std::get<1>(mData) += rhs.y();
-  std::get<2>(mData) += rhs.z();
+auto Vec3<T>::operator+=(const Vec3& v) noexcept -> Vec3& {
+  x += v.x;
+  y += v.y;
+  z += v.z;
 
   return *this;
 }
 
-template auto Vec3<f32>::operator+=(const Vec3& rhs) noexcept -> Vec3&;
+template auto Vec3<f32>::operator+=(const Vec3&) noexcept -> Vec3&;
 
-template<typename T>
+
+template <typename T>
+auto Vec3<T>::operator-=(const Vec3& v) noexcept -> Vec3& {
+  x -= v.x;
+  y -= v.y;
+  z -= v.z;
+
+  return *this;
+}
+
+template auto Vec3<f32>::operator-=(const Vec3&) noexcept -> Vec3&;
+
+
+template <typename T>
+auto Vec3<T>::operator*=(const T s) noexcept -> Vec3& {
+  x *= s;
+  y *= s;
+  z *= s;
+
+  return *this;
+}
+
+template auto Vec3<f32>::operator*=(f32) noexcept -> Vec3&;
+
+
+template <typename T>
+auto Vec3<T>::operator/=(const T s) noexcept -> Vec3& {
+  x /= s;
+  y /= s;
+  z /= s;
+
+  return *this;
+}
+
+template auto Vec3<f32>::operator/=(f32) noexcept -> Vec3&;
+
+
+template <typename T>
+auto Vec3<T>::operator-() const noexcept -> Vec3 {
+  return Vec3 {-x, -y, -z};
+}
+
+template auto Vec3<f32>::operator-() const noexcept -> Vec3;
+
+
+template <typename T>
+auto Vec3<T>::operator==(const Vec3& o) const -> bool {
+  return x == o.x && y == o.y && z == o.z;
+}
+
+template auto Vec3<f32>::operator==(const Vec3&) const -> bool;
+
+
+template <typename T>
+auto Vec3<T>::operator!=(const Vec3& o) const -> bool {
+  return !(*this == o);
+}
+
+template auto Vec3<f32>::operator!=(const Vec3&) const -> bool;
+
+
+template <typename T>
+auto Vec3<T>::length_squared() const -> T {
+  return x * x + y * y + z * z;
+}
+
+template auto Vec3<f32>::length_squared() const -> f32;
+
+
+template <typename T>
 auto Vec3<T>::length() const -> T {
-  // TODO: specialize/guard this function call
-  return std::sqrt(x() * x() + y() * y() + z() * z());
+  return std::sqrt(length_squared());
 }
 
-template auto Vec3<f32>::length() const->f32;
+template auto Vec3<f32>::length() const -> f32;
 
-template<typename T>
-void Vec3<T>::set(T x, T y, T z) noexcept {
-  set_x(x);
-  set_y(y);
-  set_z(z);
+
+template <typename T>
+void Vec3<T>::set(const T ax, const T ay, const T az) noexcept {
+  x = ax;
+  y = ay;
+  z = az;
 }
 
-template void Vec3<f32>::set(f32 x, f32 y, f32 z) noexcept;
+template void Vec3<f32>::set(f32 ax, f32 ay, f32 az) noexcept;
 
-template<typename T>
-void Vec3<T>::set_x(T x) noexcept {
-  std::get<0>(mData) = x;
-}
 
-template void Vec3<f32>::set_x(f32 x) noexcept;
-
-template<typename T>
-void Vec3<T>::set_y(T y) noexcept {
-  std::get<1>(mData) = y;
-}
-
-template void Vec3<f32>::set_y(f32 y) noexcept;
-
-template<typename T>
-void Vec3<T>::set_z(T z) noexcept {
-  std::get<2>(mData) = z;
-}
-
-template void Vec3<f32>::set_z(f32 z) noexcept;
-
-template<typename T>
+template <typename T>
 auto Vec3<T>::normalize(const Vec3& v) -> Vec3 {
   return v / v.length();
 }
 
-template auto Vec3<f32>::normalize(const Vec3& v) -> Vec3;
+template auto Vec3<f32>::normalize(const Vec3&) -> Vec3;
 
-template<typename T>
-auto operator-(const Vec3<T>& lhs, const Vec3<T>& rhs) -> Vec3<T> {
-  return Vec3<T>(lhs.x() - rhs.x(), lhs.y() - rhs.y(), lhs.z() - rhs.z());
+
+template <typename T>
+auto Vec3<T>::dot(const Vec3& l, const Vec3& r) -> T {
+  return l.x * r.x + l.y * r.y + l.z * r.z;
 }
 
-template auto operator-(const Vec3f32& lhs, const Vec3f32& rhs) -> Vec3f32;
+template auto Vec3<f32>::dot(const Vec3&, const Vec3&) -> f32;
 
-template<typename T>
-auto operator*(const Vec3<T>& v, T f) noexcept -> Vec3<T> {
-  return Vec3<T>(v.x() * f, v.y() * f, v.z() * f);
+
+template <typename T>
+auto operator+(const Vec3<T>& l, const Vec3<T>& r) -> Vec3<T> {
+  return Vec3<T> {l.x + r.x, l.y + r.y, l.z + r.z};
 }
 
-template auto operator*(const Vec3f32& v, f32 f) noexcept -> Vec3f32;
+template auto operator+(const Vec3<f32>&, const Vec3<f32>&) -> Vec3<f32>;
 
-template<typename T>
-auto operator/(const Vec3<T>& v, T f) -> Vec3<T> {
-  return Vec3<T>(v.x() / f, v.y() / f, v.z() / f);
+
+template <typename T>
+auto operator-(const Vec3<T>& l, const Vec3<T>& r) -> Vec3<T> {
+  return Vec3<T> {l.x - r.x, l.y - r.y, l.z - r.z};
 }
 
-template auto operator/(const Vec3f32& v, f32 f) -> Vec3f32;
+template auto operator-(const Vec3<f32>&, const Vec3<f32>&) -> Vec3<f32>;
+
+
+template <typename T>
+auto operator*(const Vec3<T>& v, const T s) noexcept -> Vec3<T> {
+  return Vec3<T> {v.x * s, v.y * s, v.z * s};
+}
+
+template auto operator*(const Vec3<f32>&, f32) noexcept -> Vec3<f32>;
+
+
+template <typename T>
+auto operator*(const T s, const Vec3<T>& v) noexcept -> Vec3<T> {
+  return v * s;
+}
+
+template auto operator*(f32, const Vec3<f32>&) noexcept -> Vec3<f32>;
+
+
+template <typename T>
+auto operator/(const Vec3<T>& v, const T s) -> Vec3<T> {
+  return Vec3<T> {v.x / s, v.y / s, v.z / s};
+}
+
+template auto operator/(const Vec3<f32>&, f32) -> Vec3<f32>;
 
 } // namespace basalt::math

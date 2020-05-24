@@ -17,12 +17,12 @@ void Transform::rotate(const f32 radOffsetX, const f32 radOffsetY
   mRotation += Vec3f32(radOffsetX, radOffsetY, radOffsetZ);
 
   constexpr auto maxAngle = PI * 2.0f;
-  if (mRotation.x() < 0.0f) mRotation.set_x(maxAngle);
-  if (mRotation.x() > maxAngle) mRotation.set_x(0.0f);
-  if (mRotation.y() < 0.0f) mRotation.set_y(maxAngle);
-  if (mRotation.y() > maxAngle) mRotation.set_y(0.0f);
-  if (mRotation.z() < 0.0f) mRotation.set_z(maxAngle);
-  if (mRotation.z() > maxAngle) mRotation.set_z(0.0f);
+  if (mRotation.x < 0.0f) mRotation.x = maxAngle;
+  if (mRotation.x > maxAngle) mRotation.x = 0.0f;
+  if (mRotation.y < 0.0f) mRotation.y = maxAngle;
+  if (mRotation.y > maxAngle) mRotation.y = 0.0f;
+  if (mRotation.z < 0.0f) mRotation.z = maxAngle;
+  if (mRotation.z > maxAngle) mRotation.z = 0.0f;
 }
 
 } // namespace basalt

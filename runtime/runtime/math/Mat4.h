@@ -2,22 +2,24 @@
 #ifndef BASALT_MATH_MAT4_H
 #define BASALT_MATH_MAT4_H
 
-#include "Vec3.h"
-
+#include "runtime/math/Vec3.h"
 #include "runtime/shared/Types.h"
 
 namespace basalt::math {
 
 struct Mat4 final {
   constexpr Mat4() noexcept = default;
+
   constexpr Mat4(
-    f32 m11, f32 m12, f32 m13, f32 m14,
-    f32 m21, f32 m22, f32 m23, f32 m24,
-    f32 m31, f32 m32, f32 m33, f32 m34,
-    f32 m41, f32 m42, f32 m43, f32 m44
+    f32 m11, f32 m12, f32 m13, f32 m14
+  , f32 m21, f32 m22, f32 m23, f32 m24
+  , f32 m31, f32 m32, f32 m33, f32 m34
+  , f32 m41, f32 m42, f32 m43, f32 m44
   ) noexcept;
+
   constexpr Mat4(const Mat4&) noexcept = default;
   constexpr Mat4(Mat4&&) noexcept = default;
+
   ~Mat4() noexcept = default;
 
   auto operator=(const Mat4&) noexcept -> Mat4& = default;
@@ -116,7 +118,7 @@ constexpr auto Mat4::operator*=(const f32 rhs) noexcept -> Mat4& {
 }
 
 inline auto Mat4::operator/=(const Mat4& rhs) noexcept -> Mat4& {
-  *this *= Mat4::invert(rhs);
+  *this *= invert(rhs);
   return *this;
 }
 
@@ -150,15 +152,15 @@ constexpr auto Mat4::translation(const math::Vec3f32& v) -> Mat4 {
     1.0f, 0.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 1.0f, 0.0f,
-    v.x() , v.y() , v.z() , 1.0f
+    v.x , v.y , v.z , 1.0f
   );
 }
 
 constexpr auto Mat4::scaling(const Vec3f32& v) -> Mat4 {
   return Mat4(
-    v.x(), 0.0f    , 0.0f    , 0.0f,
-    0.0f    , v.y(), 0.0f    , 0.0f,
-    0.0f    , 0.0f    , v.z(), 0.0f,
+    v.x, 0.0f    , 0.0f    , 0.0f,
+    0.0f    , v.y, 0.0f    , 0.0f,
+    0.0f    , 0.0f    , v.z, 0.0f,
     0.0f    , 0.0f    , 0.0f    , 1.0f
   );
 }

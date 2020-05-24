@@ -49,9 +49,9 @@ void Debug::draw_scene_debug_ui(bool* open, Scene* const scene) {
           edit_color4("Ambient", scene->mDirectionalLights[i].ambientColor);
 
           array<f32, 3> direction = {
-            scene->mDirectionalLights[i].direction.x()
-          , scene->mDirectionalLights[i].direction.y()
-          , scene->mDirectionalLights[i].direction.z()
+            scene->mDirectionalLights[i].direction.x
+          , scene->mDirectionalLights[i].direction.y
+          , scene->mDirectionalLights[i].direction.z
           };
           ImGui::DragFloat3("Direction", direction.data(), 0.1f);
 
@@ -81,16 +81,16 @@ void Debug::draw_scene_debug_ui(bool* open, Scene* const scene) {
             if (ImGui::TreeNodeEx(
               "Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
               f32 position[3] = {
-                transform.mPosition.x(), transform.mPosition.y()
-              , transform.mPosition.z()
+                transform.mPosition.x, transform.mPosition.y
+              , transform.mPosition.z
               };
               ImGui::DragFloat3("Position", position, 0.1f);
               transform.mPosition.set(
                 position[0], position[1], position[2]);
 
               f32 rotation[3] = {
-                transform.mRotation.x(), transform.mRotation.y()
-              , transform.mRotation.z()
+                transform.mRotation.x, transform.mRotation.y
+              , transform.mRotation.z
               };
               ImGui::DragFloat3(
                 "Rotation", rotation, 0.01f, 0.0f, 2.0f * PI);
@@ -98,8 +98,8 @@ void Debug::draw_scene_debug_ui(bool* open, Scene* const scene) {
                 rotation[0], rotation[1], rotation[2]);
 
               f32 scaling[3] = {
-                transform.mScale.x(), transform.mScale.y()
-              , transform.mScale.z()
+                transform.mScale.x, transform.mScale.y
+              , transform.mScale.z
               };
               ImGui::DragFloat3("Scaling", scaling, 0.1f, 0.0f);
               transform.mScale.set(scaling[0], scaling[1], scaling[2]);

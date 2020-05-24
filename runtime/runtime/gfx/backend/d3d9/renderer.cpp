@@ -48,7 +48,7 @@ constexpr auto to_d3d_matrix(const Mat4f32& mat) noexcept -> D3DMATRIX {
 }
 
 constexpr auto to_d3d_vector(const math::Vec3f32& vec) noexcept -> D3DVECTOR {
-  return {vec.x(), vec.y(), vec.z()};
+  return {vec.x, vec.y, vec.z};
 }
 
 auto to_fvf(const VertexLayout& layout) -> DWORD;

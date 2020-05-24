@@ -101,7 +101,7 @@ void DearImGui::new_frame(IRenderer* const renderer, const f64 deltaTime) {
   io.KeySuper = false;
 
   const Vec2i32 mousePos = input::mouse_pos();
-  io.MousePos = ImVec2 {static_cast<float>(mousePos.x()), static_cast<float>(mousePos.y())};
+  io.MousePos = ImVec2 {static_cast<float>(mousePos.x), static_cast<float>(mousePos.y)};
 
   static_assert(input::MOUSE_BUTTON_COUNT >= 5);
   for (uSize i = 0; i < 5; i++) {

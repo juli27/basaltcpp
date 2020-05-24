@@ -64,9 +64,9 @@ auto Mat4::rotation_z(const f32 rad) -> Mat4 {
 }
 
 auto Mat4::rotation(const Vec3f32& xyzRad) -> Mat4 {
-  const auto x = rotation_x(xyzRad.x());
-  const auto y = rotation_y(xyzRad.y());
-  const auto z = rotation_z(xyzRad.z());
+  const auto x = rotation_x(xyzRad.x);
+  const auto y = rotation_y(xyzRad.y);
+  const auto z = rotation_z(xyzRad.z);
   return z * x * y;
 }
 
