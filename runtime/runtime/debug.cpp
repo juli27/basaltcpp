@@ -15,7 +15,6 @@
 #include <imgui/imgui.h>
 
 #include <array>
-#include <charconv>
 
 using std::array;
 
@@ -33,123 +32,116 @@ void edit_color4(const char* label, Color& color);
 
 } // namespace
 
-void Debug::draw_scene_debug_ui(bool* open, Scene* const scene) {
-  if (ImGui::Begin("Scene", open, ImGuiWindowFlags_AlwaysAutoResize)) {
-    edit_color3("Background Color", scene->mBackgroundColor);
-    edit_color4("Ambient Light", scene->mAmbientLightColor);
+void Debug::draw_scene_debug_ui(bool* const open, Scene* const scene) {
+  ImGui::SetNextWindowSize(ImVec2 {400.0f, 600.0f}, ImGuiCond_FirstUseEver);
+  if (!ImGui::Begin("Scene Inspector", open)) {
+    ImGui::End();
+    return;
+  }
 
-    if (!scene->mDirectionalLights.empty() && ImGui::CollapsingHeader(
-      "Directional Lights")) {
-      ImGui::PushID("Directional Lights");
-      for (uSize i = 0; i < scene->mDirectionalLights.size(); i++) {
-        array<char, 16> str {};
-        std::to_chars(str.data(), str.data() + str.size(), i);
-        if (ImGui::TreeNode(str.data())) {
-          edit_color4("Diffuse", scene->mDirectionalLights[i].diffuseColor);
-          edit_color4("Ambient", scene->mDirectionalLights[i].ambientColor);
+  edit_color3("Background Color", scene->mBackgroundColor);
 
-          array<f32, 3> direction = {
-            scene->mDirectionalLights[i].direction.x
-          , scene->mDirectionalLights[i].direction.y
-          , scene->mDirectionalLights[i].direction.z
-          };
-          ImGui::DragFloat3("Direction", direction.data(), 0.1f);
+  ImGui::Separator();
 
-          using std::get;
-          scene->mDirectionalLights[i].direction = Vec3f32::normalize(
-            Vec3f32 {
-              get<0>(direction), get<1>(direction), get<2>(direction)
-            });
+  edit_color4("Ambient Light", scene->mAmbientLightColor);
 
-          ImGui::TreePop();
-        }
+  if (!scene->mDirectionalLights.empty()) {
+    ImGui::PushID("Directional Lights");
+    for (uSize i = 0; i < scene->mDirectionalLights.size(); i++) {
+      ImGui::PushID(static_cast<i32>(i));
+      if (ImGui::TreeNode(
+        "Directional Light", "Directional Light %zo", i + 1)) {
+        edit_color4("Diffuse", scene->mDirectionalLights[i].diffuseColor);
+        edit_color4("Ambient", scene->mDirectionalLights[i].ambientColor);
+
+        array<f32, 3> direction = {
+          scene->mDirectionalLights[i].direction.x
+        , scene->mDirectionalLights[i].direction.y
+        , scene->mDirectionalLights[i].direction.z
+        };
+        ImGui::DragFloat3("Direction", direction.data(), 0.1f);
+
+        using std::get;
+        scene->mDirectionalLights[i].direction = Vec3f32::normalize(
+          Vec3f32 {
+            get<0>(direction), get<1>(direction), get<2>(direction)
+          });
+
+        ImGui::TreePop();
       }
 
       ImGui::PopID();
     }
 
-    scene->mEntityRegistry.each(
-      [scene](const entity entity) -> void {
-        array<char, 16> str {};
-        std::to_chars(
-          str.data(), str.data() + str.size(), enum_cast(entity));
-        if (ImGui::CollapsingHeader(str.data())) {
-          if (scene->mEntityRegistry.has<Transform>(entity)) {
-            auto& transform = scene->mEntityRegistry.get<Transform>(
-              entity);
+    ImGui::PopID();
+  }
 
-            if (ImGui::TreeNodeEx(
-              "Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
-              f32 position[3] = {
-                transform.mPosition.x, transform.mPosition.y
-              , transform.mPosition.z
-              };
-              ImGui::DragFloat3("Position", position, 0.1f);
-              transform.mPosition.set(
-                position[0], position[1], position[2]);
+  ImGui::Separator();
 
-              f32 rotation[3] = {
-                transform.mRotation.x, transform.mRotation.y
-              , transform.mRotation.z
-              };
-              ImGui::DragFloat3(
-                "Rotation", rotation, 0.01f, 0.0f, 2.0f * PI);
-              transform.mRotation.set(
-                rotation[0], rotation[1], rotation[2]);
+  scene->mEntityRegistry.each(
+    [scene](const entity entity) -> void {
+      ImGui::PushID(enum_cast(entity));
 
-              f32 scaling[3] = {
-                transform.mScale.x, transform.mScale.y
-              , transform.mScale.z
-              };
-              ImGui::DragFloat3("Scaling", scaling, 0.1f, 0.0f);
-              transform.mScale.set(scaling[0], scaling[1], scaling[2]);
+      if (ImGui::TreeNode("Entity", "Entity %d", enum_cast(entity))) {
+        // show its transform component
+        if (auto* const transform = scene->
+                                    mEntityRegistry.try_get<Transform>(
+                                      entity)) {
+          if (ImGui::TreeNode("Transform")) {
+            ImGui::DragFloat3("Position", &transform->mPosition.x, 0.1f);
 
-              ImGui::TreePop();
-            }
-          }
+            ImGui::DragFloat3(
+              "Rotation", &transform->mRotation.x, 0.01f, 0.0f
+            , 2.0f * PI);
 
-          if (scene->mEntityRegistry.has<gfx::RenderComponent>(entity)) {
-            auto& renderComponent = scene->
-                                    mEntityRegistry.get<
-                                      gfx::RenderComponent>(entity);
+            ImGui::DragFloat3("Scale", &transform->mScale.x, 0.1f, 0.0f);
 
-            if (ImGui::TreeNodeEx(
-              "RenderComponent", ImGuiTreeNodeFlags_DefaultOpen)) {
-              if (renderComponent.model) {
-                ImGui::Text(
-                "Model: %#x", renderComponent.model.get_value());
-              } else {
-                ImGui::Text(
-                  "Mesh: %#x", renderComponent.mMesh.get_value());
-                ImGui::Text(
-                  "Texture: %#x", renderComponent.mTexture.get_value());
-
-                edit_color4("Diffuse", renderComponent.mDiffuseColor);
-                edit_color4("Ambient", renderComponent.mAmbientColor);
-              }
-
-              if (renderComponent.mRenderFlags ==
-                gfx::backend::RenderFlagNone) {
-                ImGui::TextUnformatted("Flag: RenderFlagNone");
-              } else {
-                if (renderComponent.mRenderFlags &
-                  gfx::backend::RenderFlagCullNone) {
-                  ImGui::TextUnformatted("Flag: RenderFlagCullNone");
-                }
-
-                if (renderComponent.mRenderFlags &
-                  gfx::backend::RenderFlagDisableLighting) {
-                  ImGui::TextUnformatted(
-                    "Flag: RenderFlagDisableLighting");
-                }
-              }
-
-              ImGui::TreePop();
-            }
+            ImGui::TreePop();
           }
         }
-      });
-  }
+
+        if (auto* const rc = scene->
+                             mEntityRegistry.try_get<gfx::RenderComponent
+                             >(
+                               entity)) {
+          if (ImGui::TreeNode("RenderComponent")) {
+            if (rc->model) {
+              ImGui::Text("Model: %#x", rc->model.get_value());
+            } else {
+              ImGui::Text(
+                "Mesh: %#x", rc->mMesh.get_value());
+              ImGui::Text(
+                "Texture: %#x", rc->mTexture.get_value());
+
+              edit_color4("Diffuse", rc->mDiffuseColor);
+              edit_color4("Ambient", rc->mAmbientColor);
+            }
+
+            if (rc->mRenderFlags ==
+              gfx::backend::RenderFlagNone) {
+              ImGui::TextUnformatted("Flag: RenderFlagNone");
+            } else {
+              if (rc->mRenderFlags &
+                gfx::backend::RenderFlagCullNone) {
+                ImGui::TextUnformatted("Flag: RenderFlagCullNone");
+              }
+
+              if (rc->mRenderFlags &
+                gfx::backend::RenderFlagDisableLighting) {
+                ImGui::TextUnformatted(
+                  "Flag: RenderFlagDisableLighting");
+              }
+            }
+
+            ImGui::TreePop();
+          }
+        }
+
+        ImGui::TreePop();
+      }
+
+      ImGui::PopID();
+    });
 
   ImGui::End();
 }
