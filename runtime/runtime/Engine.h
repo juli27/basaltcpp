@@ -14,8 +14,6 @@ void quit();
 
 void set_view(const gfx::View&);
 
-void draw_scene_debug_ui(bool* open);
-
 } // namespace basalt
 
 #endif // !BASALT_ENGINE_H

@@ -1,6 +1,5 @@
 #include "runtime/Engine.h"
 
-#include "runtime/debug.h"
 #include "runtime/gfx/types.h"
 
 #include "runtime/platform/win32/globals.h"
@@ -14,10 +13,6 @@ using namespace win32;
 
 void set_view(const View& view) {
   sCurrentView = view;
-}
-
-void draw_scene_debug_ui(bool* open) {
-  Debug::draw_scene_debug_ui(open, sCurrentView.scene.get());
 }
 
 void quit() {

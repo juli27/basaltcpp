@@ -6,6 +6,12 @@ namespace basalt {
 
 struct Scene;
 
+namespace gfx {
+
+struct View;
+
+} // namespace gfx
+
 struct Debug final {
   Debug() = delete;
 
@@ -17,7 +23,15 @@ struct Debug final {
   auto operator=(const Debug&) -> Debug& = delete;
   auto operator=(Debug&&) -> Debug& = delete;
 
-  static void draw_scene_debug_ui(bool* open, Scene*);
+  static void update(const gfx::View&);
+
+private:
+  static bool sShowSceneDebugUi;
+  static bool sShowDemo;
+  static bool sShowMetrics;
+  static bool sShowAbout;
+
+  static void draw_scene_debug_ui(Scene*);
 };
 
 } // namespace basalt

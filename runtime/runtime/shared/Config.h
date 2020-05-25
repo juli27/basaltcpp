@@ -31,7 +31,7 @@ struct Config final {
   WindowMode windowMode {WindowMode::Windowed};
   bool isWindowResizeable {true};
   GfxBackendApi gfxBackendApi {GfxBackendApi::Default};
-
+  bool debugUiEnabled {false};
 
   Config() = default;
 

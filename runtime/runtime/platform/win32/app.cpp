@@ -9,6 +9,7 @@
 #include "runtime/shared/win32/util.h"
 
 #include "runtime/dear_imgui.h"
+#include "runtime/debug.h"
 #include "runtime/client_app.h"
 #include "runtime/Input.h"
 
@@ -157,6 +158,10 @@ void run(const HINSTANCE instance, const int showCommand) {
     dearImGui.new_frame(window->renderer(), currentDeltaTime);
 
     clientApp->on_update(currentDeltaTime);
+
+    if (config.debugUiEnabled) {
+      Debug::update(sCurrentView);
+    }
 
     // also calls ImGui::Render()
     gfx::render(window->renderer(), sCurrentView);

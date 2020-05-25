@@ -1,5 +1,6 @@
 #include "runtime/debug.h"
 
+#include "runtime/Engine.h"
 #include "runtime/gfx/types.h"
 
 #include "runtime/scene/scene.h"
@@ -22,19 +23,71 @@ using entt::entity;
 
 namespace basalt {
 
+using gfx::View;
 using math::PI;
 using math::Vec3f32;
 
 namespace {
+
+void show_overlay();
 
 void edit_color3(const char* label, Color& color);
 void edit_color4(const char* label, Color& color);
 
 } // namespace
 
-void Debug::draw_scene_debug_ui(bool* const open, Scene* const scene) {
+bool Debug::sShowSceneDebugUi {false};
+bool Debug::sShowDemo {false};
+bool Debug::sShowMetrics {false};
+bool Debug::sShowAbout {false};
+
+void Debug::update(const View& view) {
+  show_overlay();
+
+  if (ImGui::BeginMainMenuBar()) {
+    if (ImGui::BeginMenu("File")) {
+      if (ImGui::MenuItem("Exit", "Alt+F4")) {
+        quit();
+      }
+
+      ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("View")) {
+      ImGui::MenuItem("Scene Debug UI", nullptr, &sShowSceneDebugUi);
+
+      ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("Help")) {
+      ImGui::MenuItem("Dear ImGui Demo", nullptr, &sShowDemo);
+      ImGui::MenuItem("Dear ImGui Metrics", nullptr, &sShowMetrics);
+      ImGui::MenuItem("About Dear ImGui", nullptr, &sShowAbout);
+
+      ImGui::EndMenu();
+    }
+
+    ImGui::EndMainMenuBar();
+  }
+
+  if (sShowSceneDebugUi) {
+    draw_scene_debug_ui(view.scene.get());
+  }
+
+  if (sShowDemo) {
+    ImGui::ShowDemoWindow(&sShowDemo);
+  }
+  if (sShowMetrics) {
+    ImGui::ShowMetricsWindow(&sShowMetrics);
+  }
+  if (sShowAbout) {
+    ImGui::ShowAboutWindow(&sShowAbout);
+  }
+}
+
+void Debug::draw_scene_debug_ui(Scene* const scene) {
   ImGui::SetNextWindowSize(ImVec2 {400.0f, 600.0f}, ImGuiCond_FirstUseEver);
-  if (!ImGui::Begin("Scene Inspector", open)) {
+  if (!ImGui::Begin("Scene Inspector", &sShowSceneDebugUi)) {
     ImGui::End();
     return;
   }
@@ -147,6 +200,55 @@ void Debug::draw_scene_debug_ui(bool* const open, Scene* const scene) {
 }
 
 namespace {
+
+void show_overlay() {
+  static i8 corner = 2;
+
+  const f32 distanceToEdge = 10.0f;
+  auto& io = ImGui::GetIO();
+  const f32 windowPosX = corner & 0x1
+                           ? io.DisplaySize.x - distanceToEdge
+                           : distanceToEdge;
+  const f32 windowPosY = corner & 0x2
+                           ? io.DisplaySize.y - distanceToEdge
+                           : distanceToEdge + 15.0f;
+  const ImVec2 windowPosPivot {
+    corner & 0x1 ? 1.0f : 0.0f, corner & 0x2 ? 1.0f : 0.0f
+  };
+
+  ImGui::SetNextWindowPos(
+    ImVec2 {windowPosX, windowPosY}, ImGuiCond_Always, windowPosPivot);
+  ImGui::SetNextWindowBgAlpha(0.35f);
+
+  const ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove |
+    ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
+    ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
+    ImGuiWindowFlags_NoNav;
+
+  if (ImGui::Begin("Overlay", nullptr, flags)) {
+    ImGui::Text(
+      "%.3f ms/frame (%.1f fps)", 1000.0f / io.Framerate, io.Framerate);
+
+    if (ImGui::BeginPopupContextWindow()) {
+      if (ImGui::MenuItem("Top-left", nullptr, corner == 0, corner != 0)) {
+        corner = 0;
+      }
+      if (ImGui::MenuItem("Top-right", nullptr, corner == 1, corner != 1)) {
+        corner = 1;
+      }
+      if (ImGui::MenuItem("Bottom-left", nullptr, corner == 2, corner != 2)) {
+        corner = 2;
+      }
+      if (ImGui::MenuItem("Bottom-right", nullptr, corner == 3, corner != 3)) {
+        corner = 3;
+      }
+
+      ImGui::EndPopup();
+    }
+  }
+
+  ImGui::End();
+}
 
 void edit_color3(const char* label, Color& color) {
   array<float, 3> colorArray {

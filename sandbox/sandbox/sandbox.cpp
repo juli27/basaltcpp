@@ -33,6 +33,7 @@ using basalt::input::Key;
 auto ClientApp::configure() -> Config {
   auto config {Config::defaults()};
   config.appName = "Sandbox"s;
+  config.debugUiEnabled = true;
 
   return config;
 }
@@ -84,25 +85,6 @@ void SandboxApp::on_update(const f64 deltaTime) {
 
   mScenes[mCurrentSceneIndex]->on_update(deltaTime);
 
-  static bool showSceneDebugUi = false;
-  if (showSceneDebugUi) {
-    basalt::draw_scene_debug_ui(&showSceneDebugUi);
-  }
-
-  static auto showDemo = false;
-  static auto showMetrics = false;
-  static auto showAbout = false;
-
-  if (showDemo) {
-    ImGui::ShowDemoWindow(&showDemo);
-  }
-  if (showMetrics) {
-    ImGui::ShowMetricsWindow(&showMetrics);
-  }
-  if (showAbout) {
-    ImGui::ShowAboutWindow(&showAbout);
-  }
-
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("File")) {
       for (uSize i = 0; i < mScenes.size(); i++) {
@@ -123,18 +105,10 @@ void SandboxApp::on_update(const f64 deltaTime) {
 
       ImGui::Separator();
 
-      if (ImGui::MenuItem("Exit", "Alt+F4")) {
-        basalt::quit();
-      }
-
       ImGui::EndMenu();
     }
 
     if (ImGui::BeginMenu("View")) {
-      ImGui::MenuItem("Scene Debug UI", nullptr, &showSceneDebugUi);
-
-      ImGui::Separator();
-
       const auto currentMode = basalt::platform::get_window_mode();
       if (ImGui::MenuItem(
         "Windowed", nullptr, currentMode == WindowMode::Windowed, false
@@ -153,54 +127,13 @@ void SandboxApp::on_update(const f64 deltaTime) {
         basalt::platform::set_window_mode(WindowMode::FullscreenExclusive);
       }
 
-      ImGui::EndMenu();
-    }
-
-    if (ImGui::BeginMenu("Help")) {
-      ImGui::MenuItem("Dear ImGui Demo", nullptr, &showDemo);
-      ImGui::MenuItem("Dear ImGui Metrics", nullptr, &showMetrics);
-      ImGui::MenuItem("About Dear ImGui", nullptr, &showAbout);
+      ImGui::Separator();
 
       ImGui::EndMenu();
     }
 
     ImGui::EndMainMenuBar();
   }
-
-  const auto distanceToEdge = 10.0f;
-  static auto corner = 2;
-  auto& io = ImGui::GetIO();
-  const ImVec2 windowPos {(corner & 1) ? io.DisplaySize.x - distanceToEdge : distanceToEdge, (corner & 2) ? io.DisplaySize.y - distanceToEdge : distanceToEdge};
-  const ImVec2 windowPosPivot {(corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f};
-
-  ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always, windowPosPivot);
-
-  ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
-  if (ImGui::Begin(
-    "Overlay", nullptr
-  , ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration |
-    ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings |
-    ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav)) {
-    ImGui::Text(
-      "%.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-
-    if (ImGui::BeginPopupContextWindow()) {
-      if (ImGui::MenuItem("Top-left", nullptr, corner == 0)) {
-        corner = 0;
-      }
-      if (ImGui::MenuItem("Top-right", nullptr, corner == 1)) {
-        corner = 1;
-      }
-      if (ImGui::MenuItem("Bottom-left", nullptr, corner == 2)) {
-        corner = 2;
-      }
-      if (ImGui::MenuItem("Bottom-right", nullptr, corner == 3)) {
-        corner = 3;
-      }
-      ImGui::EndPopup();
-    }
-  }
-  ImGui::End();
 }
 
 void SandboxApp::next_scene() {
