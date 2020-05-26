@@ -1,8 +1,13 @@
 #include "runtime/platform/win32/app.h"
 
+#include "runtime/platform/win32/build_config.h"
 #include "runtime/platform/win32/globals.h"
 #include "runtime/platform/win32/key_map.h"
-//#include "runtime/platform/win32/messages.h"
+
+#if BASALT_TRACE_WINDOWS_MESSAGES
+#include "runtime/platform/win32/messages.h"
+#endif // BASALT_TRACE_WINDOWS_MESSAGES
+
 #include "runtime/platform/win32/util.h"
 
 #include "runtime/shared/win32/Windows_custom.h"
@@ -50,6 +55,7 @@ using std::string;
 using std::system_error;
 using std::unique_ptr;
 using std::vector;
+using std::wstring;
 using std::wstring_view;
 using namespace std::literals;
 
@@ -68,6 +74,9 @@ WindowData sWindowData;
 View sCurrentView {};
 
 namespace {
+
+struct Window;
+using WindowPtr = unique_ptr<Window>;
 
 struct Window final {
   Window() = delete;
@@ -100,7 +109,7 @@ struct Window final {
   [[nodiscard]]
   static auto create(
     HINSTANCE instance, int showCommand, const Config& config
-  ) -> unique_ptr<Window>;
+  ) -> WindowPtr;
 
 private:
   static constexpr auto CLASS_NAME = L"BS_WINDOW_CLASS";
@@ -121,7 +130,7 @@ private:
 
   void resize(Size2Du16 clientArea) const;
 
-  static void register_class(HINSTANCE instance);
+  static ATOM register_class(HINSTANCE instance);
 
   static auto CALLBACK window_proc(
     HWND, UINT message, WPARAM, LPARAM) -> LRESULT;
@@ -226,47 +235,57 @@ auto Window::context_factory() const -> const D3D9ContextFactoryPtr& {
 
 auto Window::create(
   const HINSTANCE instance, const int showCommand, const Config& config
-) -> unique_ptr<Window> {
-  register_class(instance);
+) -> WindowPtr {
+  const ATOM windowClass {register_class(instance)};
+  if (!windowClass) {
+    throw system_error {
+      static_cast<int>(::GetLastError()), std::system_category()
+    , "Failed to register window class"s
+    };
+  }
 
   sWindowData.mode = config.windowMode;
 
-  RECT rect {0, 0, config.windowSize.width(), config.windowSize.height()};
+  RECT rect {0l, 0l, config.windowSize.width(), config.windowSize.height()};
   // handle don't care cases
-  if (rect.right == 0) {
-    rect.right = 1280;
+  if (rect.right == 0l) {
+    rect.right = 1280l;
   }
-  if (rect.bottom == 0) {
-    rect.bottom = 720;
+  if (rect.bottom == 0l) {
+    rect.bottom = 720l;
   }
 
-  DWORD style = WS_OVERLAPPEDWINDOW;
+  DWORD style {WS_OVERLAPPEDWINDOW};
   if (!config.isWindowResizeable) {
     style &= ~(WS_MAXIMIZEBOX | WS_SIZEBOX);
   }
 
-  DWORD styleEx = 0u;
+  // WS_EX_WINDOWEDGE is added automatically (tested on W10)
+  DWORD styleEx {WS_EX_WINDOWEDGE};
 
   // calculate the window size for the given client area size
-  if (!::AdjustWindowRectEx(
-    &rect, style, FALSE, styleEx)) {
-    throw system_error(::GetLastError(), std::system_category());
+  if (!::AdjustWindowRectEx(&rect, style, FALSE, styleEx)) {
+    throw system_error {
+      static_cast<int>(::GetLastError()), std::system_category()
+    };
   }
 
-  const auto windowWidth = static_cast<int>(rect.right - rect.left);
-  const auto windowHeight = static_cast<int>(rect.bottom - rect.top);
+  const auto windowWidth {static_cast<int>(rect.right - rect.left)};
+  const auto windowHeight {static_cast<int>(rect.bottom - rect.top)};
 
   if (config.windowMode != WindowMode::Windowed) {
-    style = WS_POPUP;
-    styleEx |= WS_EX_TOPMOST;
+    BASALT_LOG_ERROR("fullscreen not implemented");
+    /*style = WS_POPUP;
+    styleEx |= WS_EX_TOPMOST;*/
   }
 
-  const auto windowTitle = create_wide_from_utf8(config.appName);
-  auto* const handle = ::CreateWindowExW(
-    styleEx, CLASS_NAME, windowTitle.c_str(), style,
-    CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, nullptr, nullptr,
-    instance, nullptr
-  );
+  const wstring windowTitle {create_wide_from_utf8(config.appName)};
+  const HWND handle {
+    ::CreateWindowExW(
+      styleEx, reinterpret_cast<LPCWSTR>(windowClass), windowTitle.c_str()
+    , style, CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, nullptr
+    , nullptr, instance, nullptr)
+  };
   if (!handle) {
     throw runtime_error("failed to create window");
   }
@@ -275,6 +294,7 @@ auto Window::create(
   auto factory = D3D9ContextFactory::create().value();
   auto gfxContext = factory->create_context(handle);
 
+  // can't use make_unique because of the private constructor
   auto* const window = new Window {
     instance, handle, std::move(factory), std::move(gfxContext)
   };
@@ -285,9 +305,6 @@ auto Window::create(
     handle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
 
   ::ShowWindow(handle, showCommand);
-  if (config.windowMode != WindowMode::Windowed) {
-    ::ShowWindow(handle, SW_SHOWMAXIMIZED);
-  }
 
   ::GetClientRect(handle, &rect);
   sWindowData.clientAreaSize.set(
@@ -485,7 +502,14 @@ void Window::resize(const Size2Du16 clientArea) const {
   mContext->resize(clientArea);
 }
 
-void Window::register_class(const HINSTANCE instance) {
+auto Window::register_class(const HINSTANCE instance) -> ATOM {
+  auto* const icon = static_cast<HICON>(::LoadImageW(
+    nullptr, MAKEINTRESOURCEW(OIC_SAMPLE), IMAGE_ICON, 0, 0
+  , LR_DEFAULTSIZE | LR_SHARED));
+  if (!icon) {
+    BASALT_LOG_ERROR("failed to load icon");
+  }
+
   auto* const cursor = static_cast<HCURSOR>(::LoadImageW(
     nullptr, MAKEINTRESOURCEW(OCR_NORMAL), IMAGE_CURSOR, 0, 0
   , LR_DEFAULTSIZE | LR_SHARED));
@@ -493,34 +517,41 @@ void Window::register_class(const HINSTANCE instance) {
     BASALT_LOG_ERROR("failed to load cursor");
   }
 
+  const int smallIconSizeX = ::GetSystemMetrics(SM_CXSMICON);
+  const int smallIconSizeY = ::GetSystemMetrics(SM_CYSMICON);
+  auto* const smallIcon = static_cast<HICON>(::LoadImageW(
+    nullptr, MAKEINTRESOURCEW(OIC_SAMPLE), IMAGE_ICON, smallIconSizeX
+  , smallIconSizeY, LR_SHARED));
+  if (!smallIcon) {
+    BASALT_LOG_ERROR("failed to load small icon");
+  }
+
   WNDCLASSEXW windowClass {
     sizeof(WNDCLASSEXW)
-  , CS_OWNDC | CS_HREDRAW | CS_VREDRAW
+  , CS_CLASSDC | CS_HREDRAW | CS_VREDRAW
   , &Window::window_proc
   , 0 // cbClsExtra
   , 0 // cbWndExtra
   , instance
-  , nullptr // hIcon
+  , icon
   , cursor
   , reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1)
   , nullptr // lpszMenuName
   , CLASS_NAME
-  , nullptr // hIconSm
+  , smallIcon
   };
 
-  if (!::RegisterClassExW(&windowClass)) {
-    throw system_error(
-      ::GetLastError(), std::system_category()
-    , "Failed to register window class");
-  }
+  return RegisterClassExW(&windowClass);
 }
 
 auto CALLBACK Window::window_proc(
   const HWND handle, const UINT message, const WPARAM wParam
 , const LPARAM lParam
 ) -> LRESULT {
-  /*BASALT_LOG_TRACE(
-    "received message: {}", message_to_string(message, wParam, lParam));*/
+#if BASALT_TRACE_WINDOWS_MESSAGES
+  BASALT_LOG_TRACE(
+    "received message: {}", message_to_string(message, wParam, lParam));
+#endif // BASALT_TRACE_WINDOWS_MESSAGES
 
   if (const auto window = ::GetWindowLongPtrW(handle, GWLP_USERDATA)) {
     return reinterpret_cast<Window*>(window)->dispatch_message(
@@ -537,9 +568,11 @@ auto poll_events() -> bool {
     ::DispatchMessageW(&msg);
 
     if (!msg.hwnd) {
-      /*BASALT_LOG_TRACE(
+#if BASALT_TRACE_WINDOWS_MESSAGES
+      BASALT_LOG_TRACE(
         "received thread message: {}"
-      , message_to_string(msg.message, msg.wParam, msg.lParam));*/
+      , message_to_string(msg.message, msg.wParam, msg.lParam));
+#endif // BASALT_TRACE_WINDOWS_MESSAGES
 
       if (msg.message == WM_QUIT) {
         return false;

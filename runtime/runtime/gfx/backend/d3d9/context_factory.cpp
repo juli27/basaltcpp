@@ -92,11 +92,11 @@ auto D3D9ContextFactory::adapter_info() const -> const AdapterInfo& {
 auto D3D9ContextFactory::create_context(
   const HWND window) const -> unique_ptr<D3D9GfxContext> {
   D3DPRESENT_PARAMETERS pp {
-    0u, 0u, D3DFMT_UNKNOWN, 1u // back buffer
+    0u, 0u, D3DFMT_UNKNOWN, 0u // back buffer
   , D3DMULTISAMPLE_NONE, 0u // multi sampling
   , D3DSWAPEFFECT_DISCARD, window, TRUE // window
   , TRUE, D3DFMT_D16, 0u // depth stencil buffer + flags
-  , 0u, D3DPRESENT_INTERVAL_ONE // refresh rate + VSync
+  , 0u, D3DPRESENT_INTERVAL_DEFAULT // refresh rate + VSync
   };
 
   const auto windowMode = platform::get_window_mode();

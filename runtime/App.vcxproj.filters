@@ -75,6 +75,9 @@
     <ClInclude Include="runtime\gfx\backend\d3d9\types.h">
       <Filter>gfx\backend\d3d9</Filter>
     </ClInclude>
+    <ClInclude Include="runtime\platform\win32\build_config.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="platform">

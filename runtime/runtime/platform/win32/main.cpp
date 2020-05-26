@@ -5,28 +5,29 @@
 
 #include "runtime/shared/Log.h"
 
-#include <stdexcept>
+#include <exception>
 #include <string>
 
 using std::exception;
 using std::wstring;
 
+using basalt::Log;
+
 _Use_decl_annotations_
-auto CALLBACK wWinMain(
-  const HINSTANCE instance, HINSTANCE, WCHAR*, const int showCommand
-) -> int try {
-  basalt::Log::init();
+auto WINAPI wWinMain(
+  const HINSTANCE hInstance, HINSTANCE, LPWSTR, const int nShowCmd) -> int try {
+  Log::init();
 
   try {
-    basalt::win32::run(instance, showCommand);
+    basalt::win32::run(hInstance, nShowCmd);
   } catch (const exception& ex) {
     BASALT_LOG_FATAL("unhandled exception: {}", ex.what());
 
-    // written to log. now rethrow to trigger the message box
+    // rethrow to trigger the message box
     throw;
   }
 
-  basalt::Log::shutdown();
+  Log::shutdown();
 
   return 0;
 } catch (const exception& ex) {

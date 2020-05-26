@@ -3,6 +3,7 @@
 #define BASALT_RUNTIME_SHARED_WIN32_UTIL_H
 
 #include <string>
+#include <string_view>
 
 namespace basalt::win32 {
 

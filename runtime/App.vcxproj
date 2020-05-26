@@ -171,6 +171,7 @@
     <ClInclude Include="runtime\gfx\backend\d3d9\context_factory.h" />
     <ClInclude Include="runtime\gfx\backend\d3d9\context.h" />
     <ClInclude Include="runtime\platform\win32\app.h" />
+    <ClInclude Include="runtime\platform\win32\build_config.h" />
     <ClInclude Include="runtime\platform\win32\globals.h" />
     <ClInclude Include="runtime\platform\win32\messages.h" />
     <ClInclude Include="runtime\platform\win32\key_map.h" />
