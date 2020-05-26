@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="app\main.cpp" />
+    <ClCompile Include="app\d3d9\context.cpp">
+      <Filter>d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="app\d3d9\renderer.cpp">
+      <Filter>d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="app\d3d9\context_factory.cpp">
+      <Filter>d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="app\shared\util.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="app\util.cpp" />
+    <ClCompile Include="app\messages.cpp" />
+    <ClCompile Include="app\platform.cpp" />
+    <ClCompile Include="app\app.cpp" />
+    <ClCompile Include="app\engine.cpp" />
+    <ClCompile Include="app\d3d9\util.cpp">
+      <Filter>d3d9</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="app\d3d9\context.h">
+      <Filter>d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="app\d3d9\renderer.h">
+      <Filter>d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="app\d3d9\util.h">
+      <Filter>d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="app\d3d9\context_factory.h">
+      <Filter>d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="app\d3d9\d3d9_custom.h">
+      <Filter>d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="app\shared\Windows_custom.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="app\shared\util.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="app\util.h" />
+    <ClInclude Include="app\globals.h" />
+    <ClInclude Include="app\messages.h" />
+    <ClInclude Include="app\key_map.h" />
+    <ClInclude Include="app\app.h" />
+    <ClInclude Include="app\d3d9\types.h">
+      <Filter>d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="app\build_config.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="d3d9">
+      <UniqueIdentifier>{997b614f-a00f-4e31-9f0d-c78a448c90b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared">
+      <UniqueIdentifier>{7c76cdc2-0e39-4628-8c2f-402e1f43aaa0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="..\sandbox\App.manifest" />
+  </ItemGroup>
+</Project>

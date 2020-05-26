@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dear ImGui IME support
 
 ### Changed
+- Moved app code into its own folder
 - Renamed various public fields, methods and functions
 - Updated Dear ImGui (v1.72b -> v1.76)
 - Updated EnTT (19ef290 -> v3.4.0)

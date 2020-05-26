@@ -6,5 +6,3 @@ target_sources(Runtime
     "IRenderer.h"
     "render_command.h"
     "Types.h")
-
-add_subdirectory("d3d9")

@@ -11,5 +11,3 @@ target_sources(Runtime
     "Log.h"
     "Size2D.h"
     "Types.h")
-
-add_subdirectory("win32")

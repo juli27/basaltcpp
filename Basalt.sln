@@ -13,7 +13,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Fmt", "external\Fmt\Fmt.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Runtime", "runtime\Runtime.vcxproj", "{5CD3BE49-51E3-4D4C-B3B7-47262FC53969}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "App", "runtime\App.vcxproj", "{3A793261-A377-48A0-974A-F26DA516E506}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "App", "app\App.vcxproj", "{3A793261-A377-48A0-974A-F26DA516E506}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spdlog", "external\spdlog\spdlog.vcxproj", "{5B0BE96D-2C1B-448C-8CC3-1AC475AD569A}"
 EndProject

@@ -17,8 +17,8 @@ target_include_directories(Sandbox PRIVATE
   "../sandbox"
   "../runtime"
   "../external/include"
-  "../external/DearImGui/include"
-  "../external/Fmt/include")
+  "../external/DearImGui/"
+  "../external/Fmt/")
 
 set_target_properties(Sandbox PROPERTIES
   STATIC_LIBRARY_OPTIONS "/WX"
