@@ -64,6 +64,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="..\sandbox\App.manifest" />
+    <Manifest Include="App.manifest" />
   </ItemGroup>
 </Project>

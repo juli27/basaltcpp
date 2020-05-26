@@ -8,5 +8,3 @@ add_subdirectory("runtime")
 add_subdirectory("sandbox")
 
 add_subdirectory("app")
-
-target_sources(App PRIVATE "sandbox/App.manifest")

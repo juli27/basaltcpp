@@ -1,5 +1,7 @@
 add_executable(App WIN32)
 
+target_sources(App PRIVATE "App.manifest")
+
 add_subdirectory("app")
 
 target_include_directories(App SYSTEM PRIVATE "$ENV{DXSDK_DIR}Include")
