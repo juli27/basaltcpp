@@ -160,7 +160,7 @@
     <ClCompile Include="app\app.cpp" />
     <ClCompile Include="app\engine.cpp" />
     <ClCompile Include="app\main.cpp" />
-    <ClCompile Include="app\messages.cpp" />
+    <ClCompile Include="app\debug.cpp" />
     <ClCompile Include="app\platform.cpp" />
     <ClCompile Include="app\util.cpp" />
     <ClCompile Include="app\shared\util.cpp" />
@@ -173,7 +173,7 @@
     <ClInclude Include="app\app.h" />
     <ClInclude Include="app\build_config.h" />
     <ClInclude Include="app\globals.h" />
-    <ClInclude Include="app\messages.h" />
+    <ClInclude Include="app\debug.h" />
     <ClInclude Include="app\key_map.h" />
     <ClInclude Include="app\util.h" />
     <ClInclude Include="app\d3d9\d3d9_custom.h" />

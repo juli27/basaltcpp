@@ -3,12 +3,11 @@
 #include "build_config.h"
 #include "globals.h"
 #include "key_map.h"
+#include "util.h"
 
 #if BASALT_TRACE_WINDOWS_MESSAGES
-#include "messages.h"
+#include "debug.h"
 #endif // BASALT_TRACE_WINDOWS_MESSAGES
-
-#include "util.h"
 
 #include "d3d9/context_factory.h"
 #include "d3d9/context.h"

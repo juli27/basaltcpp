@@ -15,13 +15,13 @@
       <Filter>shared</Filter>
     </ClCompile>
     <ClCompile Include="app\util.cpp" />
-    <ClCompile Include="app\messages.cpp" />
     <ClCompile Include="app\platform.cpp" />
     <ClCompile Include="app\app.cpp" />
     <ClCompile Include="app\engine.cpp" />
     <ClCompile Include="app\d3d9\util.cpp">
       <Filter>d3d9</Filter>
     </ClCompile>
+    <ClCompile Include="app\debug.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app\d3d9\context.h">
@@ -47,13 +47,13 @@
     </ClInclude>
     <ClInclude Include="app\util.h" />
     <ClInclude Include="app\globals.h" />
-    <ClInclude Include="app\messages.h" />
     <ClInclude Include="app\key_map.h" />
     <ClInclude Include="app\app.h" />
     <ClInclude Include="app\d3d9\types.h">
       <Filter>d3d9</Filter>
     </ClInclude>
     <ClInclude Include="app\build_config.h" />
+    <ClInclude Include="app\debug.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="d3d9">
