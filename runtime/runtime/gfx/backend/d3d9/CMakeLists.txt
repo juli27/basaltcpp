@@ -3,9 +3,12 @@ target_sources(App
     "context.cpp"
     "context_factory.cpp"
     "renderer.cpp"
+    "util.cpp"
   PUBLIC
     "context.h"
     "context_factory.h"
     "d3d9_custom.h"
     "renderer.h"
-    "util.h")
+    "types.h"
+    "util.h"
+)

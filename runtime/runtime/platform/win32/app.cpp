@@ -19,6 +19,8 @@
 #include "runtime/gfx/backend/d3d9/context_factory.h"
 #include "runtime/gfx/backend/d3d9/context.h"
 #include "runtime/gfx/backend/d3d9/renderer.h"
+#include "runtime/gfx/backend/d3d9/types.h"
+#include "runtime/gfx/backend/d3d9/util.h"
 
 #include "runtime/platform/Platform.h"
 
@@ -49,6 +51,7 @@ using std::system_error;
 using std::unique_ptr;
 using std::vector;
 using std::wstring_view;
+using namespace std::literals;
 
 namespace basalt::win32 {
 
@@ -56,6 +59,7 @@ using namespace platform;
 
 using gfx::View;
 using gfx::backend::D3D9ContextFactory;
+using gfx::backend::D3D9ContextFactoryPtr;
 using gfx::backend::D3D9GfxContext;
 using gfx::backend::IRenderer;
 
@@ -86,6 +90,9 @@ struct Window final {
   }
 
   [[nodiscard]]
+  auto context_factory() const -> const D3D9ContextFactoryPtr&;
+
+  [[nodiscard]]
   auto renderer() const -> IRenderer* {
     return mContext->renderer().get();
   }
@@ -100,12 +107,12 @@ private:
 
   HINSTANCE mInstance {nullptr};
   HWND mHandle {nullptr};
-  unique_ptr<D3D9ContextFactory> mFactory {};
+  D3D9ContextFactoryPtr mFactory {};
   unique_ptr<D3D9GfxContext> mContext {};
   bool mInSizingMode {false};
 
   Window(
-    HINSTANCE instance, HWND handle, unique_ptr<D3D9ContextFactory> factory
+    HINSTANCE instance, HWND handle, D3D9ContextFactoryPtr factory
   , unique_ptr<D3D9GfxContext> context
   );
 
@@ -117,8 +124,7 @@ private:
   static void register_class(HINSTANCE instance);
 
   static auto CALLBACK window_proc(
-    HWND, UINT message, WPARAM, LPARAM
-  ) -> LRESULT;
+    HWND, UINT message, WPARAM, LPARAM) -> LRESULT;
 };
 
 void dump_config(const Config& config);
@@ -128,6 +134,8 @@ void init_dear_imgui_additional(const Window* window);
 
 [[nodiscard]]
 auto poll_events() -> bool;
+
+void draw_debug_ui_additional(const D3D9ContextFactoryPtr&);
 
 } // namespace
 
@@ -162,6 +170,8 @@ void run(const HINSTANCE instance, const int showCommand) {
     if (config.debugUiEnabled) {
       Debug::update(sCurrentView);
     }
+
+    draw_debug_ui_additional(window->context_factory());
 
     // also calls ImGui::Render()
     gfx::render(window->renderer(), sCurrentView);
@@ -208,6 +218,10 @@ Window::~Window() {
       "::UnregisterClassW failed: {}"
     , create_winapi_error_message(::GetLastError()));
   }
+}
+
+auto Window::context_factory() const -> const D3D9ContextFactoryPtr& {
+  return mFactory;
 }
 
 auto Window::create(
@@ -293,7 +307,7 @@ void dispatch_platform_event(const Event& event) {
 
 Window::Window(
   const HINSTANCE instance, const HWND handle
-, unique_ptr<D3D9ContextFactory> factory, unique_ptr<D3D9GfxContext> context
+, D3D9ContextFactoryPtr factory, unique_ptr<D3D9GfxContext> context
 )
   : mInstance {instance}
   , mHandle {handle}
@@ -361,7 +375,7 @@ auto Window::dispatch_message(
       // a keyup message for right Alt
       if (keyCode == Key::Control) {
         const DWORD ctrlMessageTime = ::GetMessageTime();
-        MSG next{};
+        MSG next {};
         if (::PeekMessageW(&next, nullptr, 0u, 0u, PM_NOREMOVE)) {
           if (next.message == WM_KEYDOWN) {
             if (next.wParam == VK_MENU
@@ -534,6 +548,77 @@ auto poll_events() -> bool {
   }
 
   return true;
+}
+
+void draw_debug_ui_additional(const D3D9ContextFactoryPtr& ctxFactory) {
+  // https://github.com/ocornut/imgui/issues/331
+  enum class OpenPopup : u8 {
+    None, GfxInfo
+  };
+  OpenPopup shouldOpenPopup {OpenPopup::None};
+
+  if (ImGui::BeginMainMenuBar()) {
+    if (ImGui::BeginMenu("View")) {
+      ImGui::Separator();
+
+      if (ImGui::MenuItem("GFX Info...")) {
+        shouldOpenPopup = OpenPopup::GfxInfo;
+      }
+
+      ImGui::EndMenu();
+    }
+
+    ImGui::EndMainMenuBar();
+  }
+
+  if (shouldOpenPopup == OpenPopup::GfxInfo) {
+    ImGui::OpenPopup("Gfx Info");
+  }
+
+  if (ImGui::BeginPopupModal(
+    "Gfx Info", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+    const auto& adapterInfo = ctxFactory->adapter_info();
+
+    ImGui::Text(
+      "GFX Adapter: %s", adapterInfo.displayName.c_str());
+    ImGui::Text(
+      "Driver: %s (%s)", adapterInfo.driver.c_str()
+    , adapterInfo.driverVersion.c_str());
+
+    static string current = fmt::format(
+      "{}x{} {}Hz {}", adapterInfo.defaultAdapterMode.width
+    , adapterInfo.defaultAdapterMode.height
+    , adapterInfo.defaultAdapterMode.refreshRate, to_string(
+        adapterInfo.defaultAdapterMode.displayFormat));
+
+    if (ImGui::BeginCombo("Adapter Modes", current.c_str())) {
+      for (const auto& adapterMode : adapterInfo.adapterModes) {
+        string rep {
+          fmt::format(
+            "{}x{} {}Hz {}", adapterMode.width, adapterMode.height
+          , adapterMode.refreshRate, to_string(adapterMode.displayFormat))
+        };
+
+        const bool isSelected = current == rep;
+
+        if (ImGui::Selectable(rep.c_str(), isSelected)) {
+          current = std::move(rep);
+        }
+
+        if (isSelected) {
+          ImGui::SetItemDefaultFocus();
+        }
+      }
+
+      ImGui::EndCombo();
+    }
+
+    if (ImGui::Button("OK", ImVec2 {120.0f, 0.0f})) {
+      ImGui::CloseCurrentPopup();
+    }
+
+    ImGui::EndPopup();
+  }
 }
 
 //auto wait_for_events() -> vector<shared_ptr<Event>> {

@@ -3,6 +3,7 @@
 #define BASALT_RUNTIME_GFX_BACKEND_D3D9_CONTEXT_FACTORY_H
 
 #include "runtime/gfx/backend/d3d9/d3d9_custom.h"
+#include "runtime/gfx/backend/d3d9/types.h"
 
 #include <wrl/client.h>
 
@@ -10,6 +11,9 @@
 #include <optional>
 
 namespace basalt::gfx::backend {
+
+struct D3D9ContextFactory;
+using D3D9ContextFactoryPtr = std::unique_ptr<D3D9ContextFactory>;
 
 struct D3D9GfxContext;
 
@@ -26,13 +30,17 @@ struct D3D9ContextFactory final {
     const D3D9ContextFactory& other) -> D3D9ContextFactory& = delete;
   auto operator=(D3D9ContextFactory&& other) -> D3D9ContextFactory& = delete;
 
+  [[nodiscard]]
+  auto adapter_info() const -> const AdapterInfo&;
+
   auto create_context(HWND window) const -> std::unique_ptr<D3D9GfxContext>;
 
 private:
   Microsoft::WRL::ComPtr<IDirect3D9> mFactory;
+  AdapterInfo mAdapterInfo {};
 
 public:
-  static auto create() -> std::optional<std::unique_ptr<D3D9ContextFactory>>;
+  static auto create() -> std::optional<D3D9ContextFactoryPtr>;
 };
 
 } // namespace basalt::gfx::backend

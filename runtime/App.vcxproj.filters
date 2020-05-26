@@ -31,6 +31,9 @@
     <ClCompile Include="runtime\platform\win32\engine.cpp">
       <Filter>platform\win32</Filter>
     </ClCompile>
+    <ClCompile Include="runtime\gfx\backend\d3d9\util.cpp">
+      <Filter>gfx\backend\d3d9</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="runtime\gfx\backend\d3d9\context.h">
@@ -68,6 +71,9 @@
     </ClInclude>
     <ClInclude Include="runtime\platform\win32\app.h">
       <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\gfx\backend\d3d9\types.h">
+      <Filter>gfx\backend\d3d9</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

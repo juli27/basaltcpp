@@ -156,6 +156,7 @@
     <ClCompile Include="runtime\gfx\backend\d3d9\renderer.cpp" />
     <ClCompile Include="runtime\gfx\backend\d3d9\context_factory.cpp" />
     <ClCompile Include="runtime\gfx\backend\d3d9\context.cpp" />
+    <ClCompile Include="runtime\gfx\backend\d3d9\util.cpp" />
     <ClCompile Include="runtime\platform\win32\app.cpp" />
     <ClCompile Include="runtime\platform\win32\engine.cpp" />
     <ClCompile Include="runtime\platform\win32\main.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="runtime\gfx\backend\d3d9\d3d9_custom.h" />
     <ClInclude Include="runtime\shared\win32\Windows_custom.h" />
     <ClInclude Include="runtime\shared\win32\util.h" />
+    <ClInclude Include="runtime\gfx\backend\d3d9\types.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\external\DearImGui\DearImGui.vcxproj">
