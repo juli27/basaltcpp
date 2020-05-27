@@ -3,14 +3,14 @@ target_sources(DearImGui
     "imgui.cpp"
     "imgui_demo.cpp"
     "imgui_draw.cpp"
-    "imgui_widgets.cpp"
     "imgui_impl_dx9.cpp"
+    "imgui_widgets.cpp"
   PUBLIC
-    "imgui.h"
     "imconfig.h"
+    "imgui.h"
+    "imgui_impl_dx9.h"
     "imgui_internal.h"
     "imstb_rectpack.h"
     "imstb_textedit.h"
     "imstb_truetype.h"
-    "imgui_impl_dx9.h"
 )
