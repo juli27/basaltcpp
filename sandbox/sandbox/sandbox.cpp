@@ -26,6 +26,7 @@ using namespace std::literals;
 
 using basalt::Config;
 using basalt::ClientApp;
+using basalt::UpdateContext;
 using basalt::WindowMode;
 using basalt::gfx::backend::IRenderer;
 using basalt::input::Key;
@@ -39,35 +40,35 @@ auto ClientApp::configure() -> Config {
 }
 
 
-auto ClientApp::create(IRenderer* const renderer) -> unique_ptr<ClientApp> {
-  return std::make_unique<SandboxApp>(renderer);
+auto ClientApp::create(IRenderer* const renderer, const basalt::Size2Du16 windowSize) -> unique_ptr<ClientApp> {
+  return std::make_unique<SandboxApp>(renderer, windowSize);
 }
 
-SandboxApp::SandboxApp(IRenderer* const renderer) {
+SandboxApp::SandboxApp(IRenderer* const renderer, const basalt::Size2Du16 windowSize) {
   mScenes.reserve(7u);
   mScenes.push_back(std::make_unique<d3d9::Device>());
   mScenes.push_back(std::make_unique<d3d9::Vertices>(renderer));
   mScenes.push_back(std::make_unique<d3d9::Matrices>(renderer));
   mScenes.push_back(std::make_unique<d3d9::Lights>(renderer));
   mScenes.push_back(std::make_unique<d3d9::Textures>(renderer));
-  mScenes.push_back(std::make_unique<d3d9::TexturesTci>(renderer));
+  mScenes.push_back(std::make_unique<d3d9::TexturesTci>(renderer, windowSize));
   mScenes.push_back(std::make_unique<d3d9::Meshes>(renderer));
 
-  mScenes[mCurrentSceneIndex]->on_show();
+  mScenes[mCurrentSceneIndex]->on_show(windowSize);
 }
 
 SandboxApp::~SandboxApp() {
   mScenes[mCurrentSceneIndex]->on_hide();
 }
 
-void SandboxApp::on_update(const f64 deltaTime) {
+void SandboxApp::on_update(const UpdateContext& ctx) {
   static auto pageUpPressed = false;
   static auto pageDownPressed = false;
   if (basalt::input::is_key_pressed(Key::PageUp)) {
     if (!pageUpPressed) {
       pageUpPressed = true;
 
-      prev_scene();
+      prev_scene(ctx.windowSize);
     }
   } else {
     pageUpPressed = false;
@@ -77,30 +78,30 @@ void SandboxApp::on_update(const f64 deltaTime) {
     if (!pageDownPressed) {
       pageDownPressed = true;
 
-      next_scene();
+      next_scene(ctx.windowSize);
     }
   } else {
     pageDownPressed = false;
   }
 
-  mScenes[mCurrentSceneIndex]->on_update(deltaTime);
+  mScenes[mCurrentSceneIndex]->on_update(ctx.deltaTime);
 
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("File")) {
       for (uSize i = 0; i < mScenes.size(); i++) {
         const bool isCurrent = mCurrentSceneIndex == i;
         if (ImGui::MenuItem(mScenes[i]->name().data(), nullptr, isCurrent, !isCurrent)) {
-          set_scene(i);
+          set_scene(i, ctx.windowSize);
         }
       }
 
       ImGui::Separator();
 
       if (ImGui::MenuItem("Next Scene", "PgDn")) {
-        next_scene();
+        next_scene(ctx.windowSize);
       }
       if (ImGui::MenuItem("Prev Scene", "PgUp")) {
-        prev_scene();
+        prev_scene(ctx.windowSize);
       }
 
       ImGui::Separator();
@@ -136,7 +137,7 @@ void SandboxApp::on_update(const f64 deltaTime) {
   }
 }
 
-void SandboxApp::next_scene() {
+void SandboxApp::next_scene(const basalt::Size2Du16 windowSize) {
   mScenes[mCurrentSceneIndex]->on_hide();
 
   mCurrentSceneIndex++;
@@ -144,10 +145,10 @@ void SandboxApp::next_scene() {
     mCurrentSceneIndex = 0;
   }
 
-  mScenes[mCurrentSceneIndex]->on_show();
+  mScenes[mCurrentSceneIndex]->on_show(windowSize);
 }
 
-void SandboxApp::prev_scene() {
+void SandboxApp::prev_scene(const basalt::Size2Du16 windowSize) {
   mScenes[mCurrentSceneIndex]->on_hide();
 
   if (mCurrentSceneIndex == 0) {
@@ -156,11 +157,11 @@ void SandboxApp::prev_scene() {
     mCurrentSceneIndex--;
   }
 
-  mScenes[mCurrentSceneIndex]->on_show();
+  mScenes[mCurrentSceneIndex]->on_show(windowSize);
 }
 
-void SandboxApp::set_scene(const uSize index) {
+void SandboxApp::set_scene(const uSize index, const basalt::Size2Du16 windowSize) {
   mScenes[mCurrentSceneIndex]->on_hide();
   mCurrentSceneIndex = index;
-  mScenes[mCurrentSceneIndex]->on_show();
+  mScenes[mCurrentSceneIndex]->on_show(windowSize);
 }

@@ -12,7 +12,7 @@ Device::Device() {
   mScene->set_background_color(Colors::BLUE);
 }
 
-void Device::on_show() {
+void Device::on_show(const basalt::Size2Du16) {
   basalt::set_view({mScene});
 }
 

@@ -83,13 +83,12 @@ DearImGui::~DearImGui() {
   ImGui::DestroyContext();
 }
 
-void DearImGui::new_frame(IRenderer* const renderer, const f64 deltaTime) {
+void DearImGui::new_frame(IRenderer* const renderer, const UpdateContext& ctx) {
   auto& io = ImGui::GetIO();
-  const Size2Du16 windowSize = platform::window_size();
   io.DisplaySize = ImVec2(
-    static_cast<float>(windowSize.width()), static_cast<float>(windowSize.height())
+    static_cast<float>(ctx.windowSize.width()), static_cast<float>(ctx.windowSize.height())
   );
-  io.DeltaTime = static_cast<float>(deltaTime);
+  io.DeltaTime = static_cast<float>(ctx.deltaTime);
   io.KeyCtrl = input::is_key_pressed(Key::Control);
   io.KeyShift = input::is_key_pressed(Key::Shift);
   io.KeyAlt = input::is_key_pressed(Key::Alt);

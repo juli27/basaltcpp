@@ -13,7 +13,7 @@ add_library(CommonOptions INTERFACE)
 
 target_compile_definitions(CommonOptions INTERFACE "_UNICODE" "UNICODE")
 target_compile_options(CommonOptions INTERFACE
-  /diagnostics:column /FC /fp:fast /guard:cf /Gy /sdl /W4 /WX /Zc:inline
+  /diagnostics:caret /FC /fp:fast /guard:cf /Gy /sdl /W4 /WX /Zc:inline
   /Zc:rvalueCast
   $<$<CONFIG:Debug>:/GF>
   $<$<CONFIG:RelWithDebInfo>:/Ob2>

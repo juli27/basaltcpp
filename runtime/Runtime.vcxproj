@@ -86,6 +86,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <AdditionalOptions>/w44062 /w34191 %(AdditionalOptions)</AdditionalOptions>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -111,6 +112,7 @@
       <AdditionalOptions>/w44062 /w34191 %(AdditionalOptions)</AdditionalOptions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -137,6 +139,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <AdditionalOptions>/w44062 /w34191 %(AdditionalOptions)</AdditionalOptions>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -198,6 +201,7 @@
     <ClInclude Include="runtime\shared\Log.h" />
     <ClInclude Include="runtime\shared\Types.h" />
     <ClInclude Include="runtime\shared\Size2D.h" />
+    <ClInclude Include="runtime\types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

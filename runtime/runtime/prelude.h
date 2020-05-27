@@ -2,12 +2,13 @@
 #ifndef BASALT_RUNTIME_PRELUDE_H
 #define BASALT_RUNTIME_PRELUDE_H
 
-#include "runtime/gfx/types.h"
-#include "runtime/gfx/backend/Types.h"
+#include "types.h"
+#include "gfx/types.h"
+#include "gfx/backend/Types.h"
 
-#include "runtime/shared/Color.h"
-#include "runtime/shared/Data.h"
-#include "runtime/shared/Types.h"
+#include "shared/Color.h"
+#include "shared/Data.h"
+#include "shared/Types.h"
 
 using basalt::i8;
 using basalt::i16;

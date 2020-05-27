@@ -63,8 +63,8 @@ Matrices::Matrices(IRenderer* const renderer) {
   rc.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 }
 
-void Matrices::on_show() {
-  basalt::set_view(View {mScene, create_default_camera()});
+void Matrices::on_show(const basalt::Size2Du16 windowSize) {
+  basalt::set_view(View {mScene, create_default_camera(windowSize)});
 }
 
 void Matrices::on_hide() {

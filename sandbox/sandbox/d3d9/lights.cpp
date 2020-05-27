@@ -64,8 +64,8 @@ Lights::Lights(IRenderer* const renderer) {
   rc.mRenderFlags = RenderFlagCullNone;
 }
 
-void Lights::on_show() {
-  basalt::set_view(View {mScene, create_default_camera()});
+void Lights::on_show(const basalt::Size2Du16 windowSize) {
+  basalt::set_view(View {mScene, create_default_camera(windowSize)});
 }
 
 void Lights::on_hide() {

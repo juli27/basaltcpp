@@ -2,8 +2,10 @@
 #ifndef BASALT_CLIENT_APP_H
 #define BASALT_CLIENT_APP_H
 
+#include "types.h"
+
 #include "runtime/shared/Config.h"
-#include "runtime/shared/Types.h"
+#include "runtime/shared/Size2D.h"
 
 #include <memory>
 
@@ -24,10 +26,12 @@ struct ClientApp {
   auto operator=(const ClientApp&) -> ClientApp& = delete;
   auto operator=(ClientApp&&) -> ClientApp& = delete;
 
-  virtual void on_update(f64 deltaTime) = 0;
+  virtual void on_update(const UpdateContext&) = 0;
 
   static auto configure() -> Config;
-  static auto create(gfx::backend::IRenderer*) -> std::unique_ptr<ClientApp>;
+  static auto create(
+    gfx::backend::IRenderer*
+  , Size2Du16 windowSize) -> std::unique_ptr<ClientApp>;
 };
 
 } // namespace basalt

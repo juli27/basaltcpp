@@ -6,6 +6,7 @@
 
 #include <runtime/gfx/backend/IRenderer.h>
 #include <runtime/scene/scene.h>
+#include <runtime/shared/Size2D.h>
 
 #include <memory>
 
@@ -13,7 +14,7 @@ namespace d3d9 {
 
 struct TexturesTci final : TestCase {
   TexturesTci() = delete;
-  explicit TexturesTci(basalt::gfx::backend::IRenderer*);
+  TexturesTci(basalt::gfx::backend::IRenderer*, basalt::Size2Du16 windowSize);
 
   TexturesTci(const TexturesTci&) = delete;
   TexturesTci(TexturesTci&&) = delete;
@@ -23,7 +24,7 @@ struct TexturesTci final : TestCase {
   auto operator=(const TexturesTci&) -> TexturesTci& = delete;
   auto operator=(TexturesTci&&) -> TexturesTci& = delete;
 
-  void on_show() override;
+  void on_show(basalt::Size2Du16 windowSize) override;
   void on_hide() override;
   void on_update(basalt::f64 deltaTime) override;
   auto name() -> std::string_view override;

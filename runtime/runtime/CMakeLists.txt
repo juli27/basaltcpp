@@ -10,6 +10,7 @@ target_sources(Runtime
     "Engine.h"
     "Input.h"
     "prelude.h"
+    "types.h"
 )
 
 add_subdirectory("gfx")

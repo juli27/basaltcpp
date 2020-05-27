@@ -82,6 +82,7 @@
       <AdditionalOptions>/w44062 /w34191 %(AdditionalOptions)</AdditionalOptions>
       <FloatingPointModel>Fast</FloatingPointModel>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
       <SuppressStartupBanner>false</SuppressStartupBanner>
@@ -114,6 +115,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <DebugInformationFormat>None</DebugInformationFormat>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -148,6 +150,7 @@
       <AdditionalOptions>/w44062 /w34191 %(AdditionalOptions)</AdditionalOptions>
       <FloatingPointModel>Fast</FloatingPointModel>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

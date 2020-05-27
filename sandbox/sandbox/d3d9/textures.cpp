@@ -73,8 +73,8 @@ Textures::Textures(IRenderer* const renderer) {
   rc.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 }
 
-void Textures::on_show() {
-  basalt::set_view(View {mScene, create_default_camera()});
+void Textures::on_show(const basalt::Size2Du16 windowSize) {
+  basalt::set_view(View {mScene, create_default_camera(windowSize)});
 }
 
 void Textures::on_hide() {

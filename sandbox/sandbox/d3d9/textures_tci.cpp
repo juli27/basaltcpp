@@ -35,7 +35,8 @@ using basalt::math::Vec3f32;
 
 namespace d3d9 {
 
-TexturesTci::TexturesTci(IRenderer* const renderer) {
+TexturesTci::TexturesTci(
+  IRenderer* const renderer, const basalt::Size2Du16 windowSize) {
   mScene->set_background_color(Colors::BLUE);
 
   struct Vertex final {
@@ -71,14 +72,14 @@ TexturesTci::TexturesTci(IRenderer* const renderer) {
   rc.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 
   // TODO: fix jitter
-  const Camera camera {create_default_camera()};
+  const Camera camera {create_default_camera(windowSize)};
   rc.texTransform = camera.projection_matrix() * Mat4f32::scaling(
     {0.5f, -0.5f, 1.0f}) * Mat4f32::translation({0.5f, 0.5f, 0.0f});
   rc.tcs = TexCoordinateSrc::PositionCameraSpace;
 }
 
-void TexturesTci::on_show() {
-  basalt::set_view(View {mScene, create_default_camera()});
+void TexturesTci::on_show(const basalt::Size2Du16 windowSize) {
+  basalt::set_view(View {mScene, create_default_camera(windowSize)});
 }
 
 void TexturesTci::on_hide() {

@@ -6,7 +6,7 @@
 
 namespace basalt::win32 {
 
-void run(HINSTANCE instance, int showCommand);
+void run(HMODULE, int showCommand);
 
 } // namespace basalt::win32
 

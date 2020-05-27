@@ -97,6 +97,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <AdditionalOptions>/w44062 /w14165 /w34191 %(AdditionalOptions)</AdditionalOptions>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -120,6 +121,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -142,6 +144,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <AdditionalOptions>/w44062 /w14165 /w34191 %(AdditionalOptions)</AdditionalOptions>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

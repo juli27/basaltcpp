@@ -7,13 +7,14 @@
 #include <runtime/gfx/backend/IRenderer.h>
 #include <runtime/gfx/backend/Types.h>
 
+#include <runtime/shared/Size2D.h>
 #include <runtime/shared/Types.h>
 
 #include <array>
 
 namespace d3d9 {
 
-auto create_default_camera() -> basalt::gfx::Camera;
+auto create_default_camera(basalt::Size2Du16 windowSize) -> basalt::gfx::Camera;
 
 template <typename T, std::size_t Size>
 auto add_triangle_list_mesh(

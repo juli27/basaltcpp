@@ -123,6 +123,7 @@
       <Filter>scene</Filter>
     </ClInclude>
     <ClInclude Include="runtime\prelude.h" />
+    <ClInclude Include="runtime\types.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="platform">

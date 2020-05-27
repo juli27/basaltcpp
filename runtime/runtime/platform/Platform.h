@@ -3,7 +3,6 @@
 #define BASALT_PLATFORM_H
 
 #include "runtime/shared/Config.h"
-#include "runtime/shared/Size2D.h"
 
 #include <functional>
 
@@ -13,9 +12,6 @@ struct Event;
 using PlatformEventCallback = std::function<void(const Event&)>;
 
 void add_event_listener(const PlatformEventCallback& callback);
-
-[[nodiscard]]
-auto window_size() -> Size2Du16;
 
 [[nodiscard]]
 auto get_window_mode() -> WindowMode;

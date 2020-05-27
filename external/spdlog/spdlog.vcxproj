@@ -87,6 +87,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <FloatingPointModel>Fast</FloatingPointModel>
       <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\Fmt\</AdditionalIncludeDirectories>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -110,6 +111,7 @@
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <FloatingPointModel>Fast</FloatingPointModel>
       <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\Fmt\</AdditionalIncludeDirectories>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -134,6 +136,7 @@
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <FloatingPointModel>Fast</FloatingPointModel>
       <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)external\Fmt\</AdditionalIncludeDirectories>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
       <SubSystem>

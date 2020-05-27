@@ -29,8 +29,8 @@ Meshes::Meshes(IRenderer* const renderer) {
   rc.model = renderer->load_model("data/Tiger.x");
 }
 
-void Meshes::on_show() {
-  basalt::set_view(View {mScene, create_default_camera()});
+void Meshes::on_show(const basalt::Size2Du16 windowSize) {
+  basalt::set_view(View {mScene, create_default_camera(windowSize)});
 }
 
 void Meshes::on_hide() {

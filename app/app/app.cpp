@@ -69,7 +69,7 @@ using gfx::backend::D3D9GfxContext;
 using gfx::backend::IRenderer;
 
 vector<PlatformEventCallback> sEventListener;
-WindowData sWindowData;
+WindowMode sWindowMode;
 View sCurrentView {};
 
 namespace {
@@ -87,6 +87,11 @@ struct Window final {
 
   auto operator=(const Window&) -> Window& = delete;
   auto operator=(Window&&) -> Window& = delete;
+
+  [[nodiscard]]
+  auto size() const -> Size2Du16 {
+    return mClientAreaSize;
+  }
 
   void present() const {
     mContext->present();
@@ -107,29 +112,28 @@ struct Window final {
 
   [[nodiscard]]
   static auto create(
-    HINSTANCE instance, int showCommand, const Config& config
-  ) -> WindowPtr;
+    HMODULE, int showCommand, const Config& config) -> WindowPtr;
 
 private:
   static constexpr auto CLASS_NAME = L"BS_WINDOW_CLASS";
 
-  HINSTANCE mInstance {nullptr};
+  HMODULE mModuleHandle {nullptr};
   HWND mHandle {nullptr};
   D3D9ContextFactoryPtr mFactory {};
   unique_ptr<D3D9GfxContext> mContext {};
+  Size2Du16 mClientAreaSize {Size2Du16::dont_care()};
   bool mInSizingMode {false};
 
   Window(
-    HINSTANCE instance, HWND handle, D3D9ContextFactoryPtr factory
-  , unique_ptr<D3D9GfxContext> context
-  );
+    HMODULE, HWND handle, D3D9ContextFactoryPtr factory
+  , unique_ptr<D3D9GfxContext> context, Size2Du16 clientAreaSize);
 
   [[nodiscard]]
   auto dispatch_message(UINT message, WPARAM, LPARAM) -> LRESULT;
 
-  void resize(Size2Du16 clientArea) const;
+  void on_resize(Size2Du16 clientArea) const;
 
-  static ATOM register_class(HINSTANCE instance);
+  static ATOM register_class(HMODULE);
 
   static auto CALLBACK window_proc(
     HWND, UINT message, WPARAM, LPARAM) -> LRESULT;
@@ -147,7 +151,7 @@ void draw_debug_ui_additional(const D3D9ContextFactoryPtr&);
 
 } // namespace
 
-void run(const HINSTANCE instance, const int showCommand) {
+void run(const HMODULE moduleHandle, const int showCommand) {
   // let the client app configure us
   const auto config {ClientApp::configure()};
   dump_config(config);
@@ -156,12 +160,12 @@ void run(const HINSTANCE instance, const int showCommand) {
   DearImGui dearImGui {};
 
   // creates the window, the associated gfx context and the renderer
-  const auto window = Window::create(instance, showCommand, config);
+  const auto window = Window::create(moduleHandle, showCommand, config);
   input::init();
 
   init_dear_imgui_additional(window.get());
 
-  const auto clientApp = ClientApp::create(window->renderer());
+  const auto clientApp = ClientApp::create(window->renderer(), window->size());
   BASALT_ASSERT(clientApp);
   BASALT_ASSERT_MSG(sCurrentView.scene, "no scene set");
 
@@ -171,9 +175,10 @@ void run(const HINSTANCE instance, const int showCommand) {
   auto currentDeltaTime = 0.0;
 
   do {
-    dearImGui.new_frame(window->renderer(), currentDeltaTime);
+    const UpdateContext ctx {currentDeltaTime, window->size()};
+    dearImGui.new_frame(window->renderer(), ctx);
 
-    clientApp->on_update(currentDeltaTime);
+    clientApp->on_update(ctx);
 
     if (config.debugUiEnabled) {
       Debug::update(sCurrentView);
@@ -221,7 +226,7 @@ Window::~Window() {
     , create_winapi_error_message(::GetLastError()));
   }
 
-  if (!::UnregisterClassW(CLASS_NAME, mInstance)) {
+  if (!::UnregisterClassW(CLASS_NAME, mModuleHandle)) {
     BASALT_LOG_ERROR(
       "::UnregisterClassW failed: {}"
     , create_winapi_error_message(::GetLastError()));
@@ -233,9 +238,9 @@ auto Window::context_factory() const -> const D3D9ContextFactoryPtr& {
 }
 
 auto Window::create(
-  const HINSTANCE instance, const int showCommand, const Config& config
-) -> WindowPtr {
-  const ATOM windowClass {register_class(instance)};
+  const HMODULE moduleHandle, const int showCommand
+, const Config& config) -> WindowPtr {
+  const ATOM windowClass {register_class(moduleHandle)};
   if (!windowClass) {
     throw system_error {
       static_cast<int>(::GetLastError()), std::system_category()
@@ -243,7 +248,8 @@ auto Window::create(
     };
   }
 
-  sWindowData.mode = config.windowMode;
+  // TODO: support other modes
+  sWindowMode = WindowMode::Windowed;
 
   RECT rect {0l, 0l, config.windowSize.width(), config.windowSize.height()};
   // handle don't care cases
@@ -283,7 +289,7 @@ auto Window::create(
     ::CreateWindowExW(
       styleEx, reinterpret_cast<LPCWSTR>(windowClass), windowTitle.c_str()
     , style, CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, nullptr
-    , nullptr, instance, nullptr)
+    , nullptr, moduleHandle, nullptr)
   };
   if (!handle) {
     throw runtime_error("failed to create window");
@@ -295,7 +301,8 @@ auto Window::create(
 
   // can't use make_unique because of the private constructor
   auto* const window = new Window {
-    instance, handle, std::move(factory), std::move(gfxContext)
+    moduleHandle, handle, std::move(factory), std::move(gfxContext)
+  , config.windowSize
   };
 
   // unique_ptr is actually a lie
@@ -304,10 +311,6 @@ auto Window::create(
     handle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
 
   ::ShowWindow(handle, showCommand);
-
-  ::GetClientRect(handle, &rect);
-  sWindowData.clientAreaSize.set(
-    static_cast<u16>(rect.right), static_cast<u16>(rect.bottom));
 
   return unique_ptr<Window> {window};
 }
@@ -322,14 +325,16 @@ void dispatch_platform_event(const Event& event) {
 }
 
 Window::Window(
-  const HINSTANCE instance, const HWND handle
+  const HMODULE moduleHandle, const HWND handle
 , D3D9ContextFactoryPtr factory, unique_ptr<D3D9GfxContext> context
+, const Size2Du16 clientAreaSize
 )
-  : mInstance {instance}
+  : mModuleHandle {moduleHandle}
   , mHandle {handle}
   , mFactory {std::move(factory)}
-  , mContext {std::move(context)} {
-  BASALT_ASSERT(mInstance);
+  , mContext {std::move(context)}
+  , mClientAreaSize {clientAreaSize} {
+  BASALT_ASSERT(mModuleHandle);
   BASALT_ASSERT(mHandle);
   BASALT_ASSERT(mFactory);
   BASALT_ASSERT(mContext);
@@ -344,19 +349,19 @@ auto Window::dispatch_message(
     case SIZE_RESTORED:
       if (!mInSizingMode) {
         if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam));
-          sWindowData.clientAreaSize != newSize) {
-          sWindowData.clientAreaSize = newSize;
+          mClientAreaSize != newSize) {
+          mClientAreaSize = newSize;
 
-          resize(sWindowData.clientAreaSize);
+          on_resize(mClientAreaSize);
         }
       }
       break;
 
     case SIZE_MAXIMIZED:
       if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam));
-        sWindowData.clientAreaSize != newSize) {
-        sWindowData.clientAreaSize = {LOWORD(lParam), HIWORD(lParam)};
-        resize(sWindowData.clientAreaSize);
+        mClientAreaSize != newSize) {
+        mClientAreaSize = {LOWORD(lParam), HIWORD(lParam)};
+        on_resize(mClientAreaSize);
       }
       break;
 
@@ -364,6 +369,20 @@ auto Window::dispatch_message(
       break;
     }
     break;
+
+  case WM_PAINT: {
+    PAINTSTRUCT ps {};
+    const HDC dc = ::BeginPaint(mHandle, &ps);
+    if (dc && ps.fErase) {
+      // this will never be called as long as our window class has a background
+      // brush and ::DefWindowProcW handles WM_ERASEBKGND
+      ::FillRect(dc, &ps.rcPaint, reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1));
+    }
+
+    ::EndPaint(mHandle, &ps);
+
+    return 0;
+  }
 
   case WM_CLOSE:
     // ::DefWindowProcW would destroy the window.
@@ -483,10 +502,10 @@ auto Window::dispatch_message(
     mInSizingMode = false;
     RECT clientRect {};
     ::GetClientRect(mHandle, &clientRect);
-    sWindowData.clientAreaSize.set(
+    mClientAreaSize.set(
       static_cast<u16>(clientRect.right)
     , static_cast<u16>(clientRect.bottom));
-    resize(sWindowData.clientAreaSize);
+    on_resize(mClientAreaSize);
     return 0;
   }
 
@@ -497,11 +516,11 @@ auto Window::dispatch_message(
   return ::DefWindowProcW(mHandle, message, wParam, lParam);
 }
 
-void Window::resize(const Size2Du16 clientArea) const {
+void Window::on_resize(const Size2Du16 clientArea) const {
   mContext->resize(clientArea);
 }
 
-auto Window::register_class(const HINSTANCE instance) -> ATOM {
+auto Window::register_class(const HMODULE moduleHandle) -> ATOM {
   auto* const icon = static_cast<HICON>(::LoadImageW(
     nullptr, MAKEINTRESOURCEW(OIC_SAMPLE), IMAGE_ICON, 0, 0
   , LR_DEFAULTSIZE | LR_SHARED));
@@ -527,11 +546,11 @@ auto Window::register_class(const HINSTANCE instance) -> ATOM {
 
   WNDCLASSEXW windowClass {
     sizeof(WNDCLASSEXW)
-  , CS_CLASSDC | CS_HREDRAW | CS_VREDRAW
+  , CS_CLASSDC
   , &Window::window_proc
   , 0 // cbClsExtra
   , 0 // cbWndExtra
-  , instance
+  , moduleHandle
   , icon
   , cursor
   , reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1)

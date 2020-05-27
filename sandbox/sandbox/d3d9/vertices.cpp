@@ -55,7 +55,7 @@ Vertices::Vertices(IRenderer* const renderer) {
   rc.mMesh = add_triangle_list_mesh(renderer, vertices, vertexLayout);
 }
 
-void Vertices::on_show() {
+void Vertices::on_show(const basalt::Size2Du16) {
   basalt::set_view(View {mScene});
 }
 
