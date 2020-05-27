@@ -22,6 +22,7 @@
       <Filter>d3d9</Filter>
     </ClCompile>
     <ClCompile Include="app\debug.cpp" />
+    <ClCompile Include="app\window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app\d3d9\context.h">
@@ -54,6 +55,7 @@
     </ClInclude>
     <ClInclude Include="app\build_config.h" />
     <ClInclude Include="app\debug.h" />
+    <ClInclude Include="app\window.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="d3d9">

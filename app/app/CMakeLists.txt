@@ -5,13 +5,16 @@ target_sources(App PRIVATE
   "main.cpp"
   "platform.cpp"
   "util.cpp"
+  "window.cpp"
   
   "app.h"
   "build_config.h"
   "debug.h"
   "globals.h"
   "key_map.h"
-  "util.h")
+  "util.h"
+  "window.h"
+)
 
 add_subdirectory("shared")
 add_subdirectory("d3d9")

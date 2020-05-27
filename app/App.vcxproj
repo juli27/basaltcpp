@@ -167,6 +167,7 @@
     <ClCompile Include="app\platform.cpp" />
     <ClCompile Include="app\util.cpp" />
     <ClCompile Include="app\shared\util.cpp" />
+    <ClCompile Include="app\window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app\d3d9\renderer.h" />
@@ -183,6 +184,7 @@
     <ClInclude Include="app\shared\Windows_custom.h" />
     <ClInclude Include="app\shared\util.h" />
     <ClInclude Include="app\d3d9\types.h" />
+    <ClInclude Include="app\window.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\external\DearImGui\DearImGui.vcxproj">
