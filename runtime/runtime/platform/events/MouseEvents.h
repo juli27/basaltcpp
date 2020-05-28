@@ -4,25 +4,9 @@
 
 #include "Event.h"
 
-#include "runtime/math/Vec2.h"
 #include "runtime/shared/Types.h"
 
 namespace basalt::platform {
-
-struct MouseMovedEvent final : EventTyped<EventType::MouseMoved> {
-  math::Vec2i32 pos {};
-
-  constexpr explicit MouseMovedEvent(const math::Vec2i32& pos) noexcept
-    : pos {pos} {
-  }
-  constexpr MouseMovedEvent(const MouseMovedEvent&) noexcept = default;
-  constexpr MouseMovedEvent(MouseMovedEvent&&) noexcept = default;
-
-  ~MouseMovedEvent() noexcept = default;
-
-  auto operator=(const MouseMovedEvent&) -> MouseMovedEvent& = default;
-  auto operator=(MouseMovedEvent&&) -> MouseMovedEvent& = default;
-};
 
 struct MouseWheelScrolledEvent final
   : EventTyped<EventType::MouseWheelScrolled> {

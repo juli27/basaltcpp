@@ -10,7 +10,6 @@ enum class EventType : u8 {
   Unknown = 0
 , KeyPressed
 , KeyReleased
-, MouseMoved
 , MouseWheelScrolled
 , CharactersTyped
 };

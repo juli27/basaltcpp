@@ -93,6 +93,25 @@ DearImGui::~DearImGui() {
 
 void DearImGui::new_frame(const UpdateContext& ctx) {
   auto& io = ImGui::GetIO();
+
+  const Input& input {ctx.input};
+  const Vec2i32 mousePos {input.mouse_position()};
+  io.MousePos = ImVec2 {
+    static_cast<float>(mousePos.x), static_cast<float>(mousePos.y)
+  };
+
+  static_assert(ImGuiMouseButton_COUNT == MOUSE_BUTTON_COUNT);
+
+  for (const InputEventPtr& event : input.events()) {
+    if (event->type == InputEventType::MouseButtonPressed) {
+      const auto* mbPressed {event->as<MouseButtonPressed>()};
+      io.MouseDown[enum_cast(mbPressed->button)] = true;
+    } else if (event->type == InputEventType::MouseButtonReleased) {
+      const auto* mbReleased {event->as<MouseButtonReleased>()};
+      io.MouseDown[enum_cast(mbReleased->button)] = false;
+    }
+  }
+
   io.DisplaySize = ImVec2(
     static_cast<float>(ctx.windowSize.width())
   , static_cast<float>(ctx.windowSize.height())
@@ -107,21 +126,6 @@ void DearImGui::new_frame(const UpdateContext& ctx) {
   //       some interoperability problems with OS functionality e.g.
   //       a pressed down super key sticking around after Win+V
   io.KeySuper = false;
-
-  const Vec2i32 mousePos = input::mouse_pos();
-  io.MousePos = ImVec2 {
-    static_cast<float>(mousePos.x), static_cast<float>(mousePos.y)
-  };
-
-  for (const InputEventPtr& event : ctx.input.events()) {
-    if (event->type == InputEventType::MouseButtonPressed) {
-      const auto* mbPressed {event->as<MouseButtonPressed>()};
-      io.MouseDown[enum_cast(mbPressed->button)] = true;
-    } else if (event->type == InputEventType::MouseButtonReleased) {
-      const auto* mbReleased {event->as<MouseButtonReleased>()};
-      io.MouseDown[enum_cast(mbReleased->button)] = false;
-    }
-  }
 
   mRenderer->new_gui_frame();
   ImGui::NewFrame();

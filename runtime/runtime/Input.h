@@ -38,6 +38,10 @@ struct Input final {
   auto events() const -> const std::vector<InputEventPtr>&;
 
   [[nodiscard]]
+  auto mouse_position() const -> math::Vec2i32;
+  void mouse_moved(i32 x, i32 y);
+
+  [[nodiscard]]
   auto is_mouse_button_down(MouseButton) const -> bool;
   void mouse_button_pressed(MouseButton);
   void mouse_button_released(MouseButton);
@@ -45,10 +49,12 @@ struct Input final {
 private:
   std::vector<InputEventPtr> mEvents {};
   std::bitset<MOUSE_BUTTON_COUNT> mMouseButtonsDown {};
+  math::Vec2i32 mMousePosition {};
 };
 
 enum class InputEventType : u8 {
-  Unknown = 0
+  Unknown
+, MouseMoved
 , MouseButtonPressed
 , MouseButtonReleased
 };
@@ -90,6 +96,21 @@ struct InputEventT : InputEvent {
 
   auto operator=(const InputEventT&) noexcept -> InputEventT& = default;
   auto operator=(InputEventT&&) noexcept -> InputEventT& = default;
+};
+
+struct MouseMoved final : InputEventT<InputEventType::MouseMoved> {
+  math::Vec2i32 position {};
+
+  constexpr explicit MouseMoved(const math::Vec2i32& pos) noexcept
+    : position {pos} {
+  }
+  constexpr MouseMoved(const MouseMoved&) noexcept = default;
+  constexpr MouseMoved(MouseMoved&&) noexcept = default;
+
+  ~MouseMoved() noexcept = default;
+
+  auto operator=(const MouseMoved&) -> MouseMoved& = default;
+  auto operator=(MouseMoved&&) -> MouseMoved& = default;
 };
 
 struct MouseButtonPressed final
@@ -134,8 +155,6 @@ using platform::KEY_COUNT;
 void init();
 
 auto is_key_pressed(Key key) -> bool;
-
-auto mouse_pos() -> math::Vec2i32;
 
 } // namespace input
 } // namespace basalt

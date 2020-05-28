@@ -49,7 +49,6 @@ using platform::Event;
 using platform::Key;
 using platform::KeyPressedEvent;
 using platform::KeyReleasedEvent;
-using platform::MouseMovedEvent;
 using platform::MouseWheelScrolledEvent;
 using platform::PlatformEventCallback;
 
@@ -281,9 +280,7 @@ auto Window::dispatch_message(
   }
 
   case WM_MOUSEMOVE:
-    dispatch_platform_event(
-      MouseMovedEvent({GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)})
-    );
+    mInput.mouse_moved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
     return 0;
 
   case WM_LBUTTONDOWN:
