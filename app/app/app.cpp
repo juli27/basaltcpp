@@ -36,8 +36,6 @@ using std::string;
 
 namespace basalt::win32 {
 
-using namespace platform;
-
 using gfx::View;
 using gfx::backend::AdapterInfo;
 using gfx::backend::D3D9ContextFactoryPtr;
@@ -60,30 +58,28 @@ void draw_debug_ui_additional(const D3D9ContextFactoryPtr&);
 
 void run(const HMODULE moduleHandle, const int showCommand) {
   // let the client app configure us
-  const auto config {ClientApp::configure()};
+  const Config config {ClientApp::configure()};
   dump_config(config);
 
-  // init imgui before window. Renderer initializes imgui render backend
-  DearImGui dearImGui {};
-
   // creates the window, the associated gfx context and the renderer
-  const auto window = Window::create(moduleHandle, showCommand, config);
+  const WindowPtr window = Window::create(moduleHandle, showCommand, config);
   input::init();
 
+  DearImGui dearImGui {window->renderer()};
   init_dear_imgui_additional(window.get());
 
-  const auto clientApp = ClientApp::create(window->renderer(), window->size());
+  const auto clientApp {ClientApp::create(window->renderer(), window->size())};
   BASALT_ASSERT(clientApp);
   BASALT_ASSERT_MSG(sCurrentView.scene, "no scene set");
 
-  static_assert(std::chrono::high_resolution_clock::is_steady);
   using Clock = std::chrono::high_resolution_clock;
-  auto startTime = Clock::now();
-  auto currentDeltaTime = 0.0;
+  static_assert(Clock::is_steady);
+  auto startTime {Clock::now()};
+  f64 currentDeltaTime {0.0};
 
   do {
     const UpdateContext ctx {currentDeltaTime, window->size()};
-    dearImGui.new_frame(window->renderer(), ctx);
+    dearImGui.new_frame(ctx);
 
     clientApp->on_update(ctx);
 
@@ -121,7 +117,7 @@ void dump_config(const Config& config) {
 }
 
 void init_dear_imgui_additional(const Window* const window) {
-  auto& io = ImGui::GetIO();
+  ImGuiIO& io = ImGui::GetIO();
   io.ImeWindowHandle = window->handle();
 }
 

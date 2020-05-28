@@ -77,6 +77,8 @@ struct IRenderer {
 
   virtual void render(const RenderCommandList&) = 0;
 
+  virtual void init_dear_imgui() = 0;
+  virtual void shutdown_dear_imgui() = 0;
   virtual void new_gui_frame() = 0;
 
 protected:

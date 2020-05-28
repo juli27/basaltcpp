@@ -76,7 +76,8 @@ private:
 
   Window(
     HMODULE, HWND handle, gfx::backend::D3D9ContextFactoryPtr factory
-  , std::unique_ptr<gfx::backend::D3D9GfxContext> context, Size2Du16 clientAreaSize);
+  , std::unique_ptr<gfx::backend::D3D9GfxContext> context
+  , Size2Du16 clientAreaSize);
 
   [[nodiscard]]
   auto dispatch_message(UINT message, WPARAM, LPARAM) -> LRESULT;

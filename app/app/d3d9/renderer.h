@@ -29,7 +29,7 @@ struct D3D9Renderer final : IRenderer {
   explicit D3D9Renderer(Microsoft::WRL::ComPtr<IDirect3DDevice9> device);
   D3D9Renderer(const D3D9Renderer&) = delete;
   D3D9Renderer(D3D9Renderer&&) = delete;
-  ~D3D9Renderer();
+  ~D3D9Renderer() override = default;
 
   auto operator=(const D3D9Renderer&) -> D3D9Renderer& = delete;
   auto operator=(D3D9Renderer&&) -> D3D9Renderer& = delete;
@@ -49,6 +49,8 @@ struct D3D9Renderer final : IRenderer {
   void set_clear_color(const Color& color) override;
   void render(const RenderCommandList&) override;
 
+  void init_dear_imgui() override;
+  void shutdown_dear_imgui() override;
   void new_gui_frame() override;
 
 private:

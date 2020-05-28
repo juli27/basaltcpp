@@ -27,7 +27,8 @@ using platform::MouseButton;
 using platform::MouseWheelScrolledEvent;
 using math::Vec2i32;
 
-DearImGui::DearImGui() {
+DearImGui::DearImGui(IRenderer* const renderer)
+  : mRenderer {renderer} {
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
 
@@ -57,36 +58,45 @@ DearImGui::DearImGui() {
   io.KeyMap[ImGuiKey_Y] = enum_cast(Key::Y);
   io.KeyMap[ImGuiKey_Z] = enum_cast(Key::Z);
 
-  platform::add_event_listener([](const Event& e) {
-    auto& io = ImGui::GetIO();
+  platform::add_event_listener(
+    [](const Event& e) {
+      auto& io = ImGui::GetIO();
 
-    const EventDispatcher dispatcher {e};
-    dispatcher.dispatch<KeyPressedEvent>([&](const KeyPressedEvent& event) {
-      io.KeysDown[enum_cast(event.key)] = true;
+      const EventDispatcher dispatcher {e};
+      dispatcher.dispatch<KeyPressedEvent>(
+        [&](const KeyPressedEvent& event) {
+          io.KeysDown[enum_cast(event.key)] = true;
+        });
+      dispatcher.dispatch<KeyReleasedEvent>(
+        [&](const KeyReleasedEvent& event) {
+          io.KeysDown[enum_cast(event.key)] = false;
+        });
+      dispatcher.dispatch<CharactersTyped>(
+        [&](const CharactersTyped& event) {
+          io.AddInputCharactersUTF8(event.chars.c_str());
+        });
+      dispatcher.dispatch<MouseWheelScrolledEvent>(
+        [&](const MouseWheelScrolledEvent& event) {
+          io.MouseWheel += event.offset;
+        });
     });
-    dispatcher.dispatch<KeyReleasedEvent>([&](const KeyReleasedEvent& event) {
-      io.KeysDown[enum_cast(event.key)] = false;
-    });
-    dispatcher.dispatch<CharactersTyped>([&](const CharactersTyped& event) {
-      io.AddInputCharactersUTF8(event.chars.c_str());
-    });
-    dispatcher.dispatch<MouseWheelScrolledEvent>(
-      [&](const MouseWheelScrolledEvent& event) {
-      io.MouseWheel += event.offset;
-    });
-  });
 
   static_assert(input::KEY_COUNT < 512);
+
+  mRenderer->init_dear_imgui();
 }
 
 DearImGui::~DearImGui() {
+  mRenderer->shutdown_dear_imgui();
+
   ImGui::DestroyContext();
 }
 
-void DearImGui::new_frame(IRenderer* const renderer, const UpdateContext& ctx) {
+void DearImGui::new_frame(const UpdateContext& ctx) {
   auto& io = ImGui::GetIO();
   io.DisplaySize = ImVec2(
-    static_cast<float>(ctx.windowSize.width()), static_cast<float>(ctx.windowSize.height())
+    static_cast<float>(ctx.windowSize.width())
+  , static_cast<float>(ctx.windowSize.height())
   );
   io.DeltaTime = static_cast<float>(ctx.deltaTime);
   io.KeyCtrl = input::is_key_pressed(Key::Control);
@@ -100,14 +110,17 @@ void DearImGui::new_frame(IRenderer* const renderer, const UpdateContext& ctx) {
   io.KeySuper = false;
 
   const Vec2i32 mousePos = input::mouse_pos();
-  io.MousePos = ImVec2 {static_cast<float>(mousePos.x), static_cast<float>(mousePos.y)};
+  io.MousePos = ImVec2 {
+    static_cast<float>(mousePos.x), static_cast<float>(mousePos.y)
+  };
 
   static_assert(input::MOUSE_BUTTON_COUNT >= 5);
   for (uSize i = 0; i < 5; i++) {
-    io.MouseDown[i] = input::is_mouse_button_pressed(static_cast<MouseButton>(i + 1));
+    io.MouseDown[i] = input::is_mouse_button_pressed(
+      static_cast<MouseButton>(i + 1));
   }
 
-  renderer->new_gui_frame();
+  mRenderer->new_gui_frame();
   ImGui::NewFrame();
 }
 

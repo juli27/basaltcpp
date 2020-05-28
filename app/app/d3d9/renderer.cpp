@@ -63,11 +63,6 @@ D3D9Renderer::D3D9Renderer(ComPtr<IDirect3DDevice9> device)
   BASALT_ASSERT(mDevice);
 
   D3D9CALL(mDevice->GetDeviceCaps(&mDeviceCaps));
-  ImGui_ImplDX9_Init(mDevice.Get());
-}
-
-D3D9Renderer::~D3D9Renderer() {
-  ImGui_ImplDX9_Shutdown();
 }
 
 void D3D9Renderer::before_reset() {
@@ -257,6 +252,14 @@ void D3D9Renderer::render(const RenderCommandList& commandList) {
   D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
 
   D3D9CALL(mDevice->EndScene());
+}
+
+void D3D9Renderer::init_dear_imgui() {
+  ImGui_ImplDX9_Init(mDevice.Get());
+}
+
+void D3D9Renderer::shutdown_dear_imgui() {
+  ImGui_ImplDX9_Shutdown();
 }
 
 void D3D9Renderer::new_gui_frame() {

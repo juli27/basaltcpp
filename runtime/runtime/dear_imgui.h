@@ -11,7 +11,7 @@ struct IRenderer;
 } // gfx::backend
 
 struct DearImGui final {
-  DearImGui();
+  explicit DearImGui(gfx::backend::IRenderer*);
 
   DearImGui(const DearImGui&) = delete;
   DearImGui(DearImGui&&) = delete;
@@ -21,7 +21,10 @@ struct DearImGui final {
   auto operator=(const DearImGui&) -> DearImGui& = delete;
   auto operator=(DearImGui&&) -> DearImGui& = delete;
 
-  void new_frame(gfx::backend::IRenderer*, const UpdateContext&);
+  void new_frame(const UpdateContext&);
+
+private:
+  gfx::backend::IRenderer* mRenderer {};
 };
 
 } //namespace basalt
