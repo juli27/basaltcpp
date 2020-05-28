@@ -11,8 +11,6 @@ enum class EventType : u8 {
 , KeyPressed
 , KeyReleased
 , MouseMoved
-, MouseButtonPressed
-, MouseButtonReleased
 , MouseWheelScrolled
 , CharactersTyped
 };

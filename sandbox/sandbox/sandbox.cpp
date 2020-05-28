@@ -39,12 +39,15 @@ auto ClientApp::configure() -> Config {
   return config;
 }
 
-
-auto ClientApp::create(IRenderer* const renderer, const basalt::Size2Du16 windowSize) -> unique_ptr<ClientApp> {
+auto ClientApp::create(
+  IRenderer* const renderer
+, const basalt::Size2Du16 windowSize) -> unique_ptr<ClientApp> {
   return std::make_unique<SandboxApp>(renderer, windowSize);
 }
 
-SandboxApp::SandboxApp(IRenderer* const renderer, const basalt::Size2Du16 windowSize) {
+
+SandboxApp::SandboxApp(
+  IRenderer* const renderer, const basalt::Size2Du16 windowSize) {
   mScenes.reserve(7u);
   mScenes.push_back(std::make_unique<d3d9::Device>());
   mScenes.push_back(std::make_unique<d3d9::Vertices>(renderer));
@@ -90,7 +93,8 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
     if (ImGui::BeginMenu("File")) {
       for (uSize i = 0; i < mScenes.size(); i++) {
         const bool isCurrent = mCurrentSceneIndex == i;
-        if (ImGui::MenuItem(mScenes[i]->name().data(), nullptr, isCurrent, !isCurrent)) {
+        if (ImGui::MenuItem(
+          mScenes[i]->name().data(), nullptr, isCurrent, !isCurrent)) {
           set_scene(i, ctx.windowSize);
         }
       }
@@ -160,7 +164,8 @@ void SandboxApp::prev_scene(const basalt::Size2Du16 windowSize) {
   mScenes[mCurrentSceneIndex]->on_show(windowSize);
 }
 
-void SandboxApp::set_scene(const uSize index, const basalt::Size2Du16 windowSize) {
+void SandboxApp::set_scene(
+  const uSize index, const basalt::Size2Du16 windowSize) {
   mScenes[mCurrentSceneIndex]->on_hide();
   mCurrentSceneIndex = index;
   mScenes[mCurrentSceneIndex]->on_show(windowSize);

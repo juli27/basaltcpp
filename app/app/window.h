@@ -6,6 +6,7 @@
 #include "d3d9/context_factory.h"
 #include "shared/Windows_custom.h"
 
+#include <runtime/Input.h>
 #include <runtime/shared/Size2D.h>
 
 #include <memory>
@@ -56,6 +57,8 @@ struct Window final {
     return mContext->renderer().get();
   }
 
+  auto drain_input() -> Input;
+
   void present() const {
     mContext->present();
   }
@@ -69,8 +72,11 @@ private:
 
   HMODULE mModuleHandle {nullptr};
   HWND mHandle {nullptr};
+
   gfx::backend::D3D9ContextFactoryPtr mFactory {};
   std::unique_ptr<gfx::backend::D3D9GfxContext> mContext {};
+
+  Input mInput {};
   Size2Du16 mClientAreaSize {Size2Du16::dont_care()};
   bool mInSizingMode {false};
 

@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dear ImGui IME support
 
 ### Changed
+- The ClientApp::update method now receives a UpdateContext instead of only
+  the delta time
+- Input is now part of the update context
 - Moved app code into its own folder
 - Renamed various public fields, methods and functions
 - Updated Dear ImGui (v1.72b -> v1.76)
@@ -24,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Super key
   - the super key is not supported on Windows. It will be added again on other
     platforms once the need arises
+- free standing input functions
+  - input is now part of the update context
 
 ### Fixed
 

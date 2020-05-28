@@ -23,7 +23,6 @@ using platform::EventDispatcher;
 using platform::Key;
 using platform::KeyPressedEvent;
 using platform::KeyReleasedEvent;
-using platform::MouseButton;
 using platform::MouseWheelScrolledEvent;
 using math::Vec2i32;
 
@@ -114,10 +113,14 @@ void DearImGui::new_frame(const UpdateContext& ctx) {
     static_cast<float>(mousePos.x), static_cast<float>(mousePos.y)
   };
 
-  static_assert(input::MOUSE_BUTTON_COUNT >= 5);
-  for (uSize i = 0; i < 5; i++) {
-    io.MouseDown[i] = input::is_mouse_button_pressed(
-      static_cast<MouseButton>(i + 1));
+  for (const InputEventPtr& event : ctx.input.events()) {
+    if (event->type == InputEventType::MouseButtonPressed) {
+      const auto* mbPressed {event->as<MouseButtonPressed>()};
+      io.MouseDown[enum_cast(mbPressed->button)] = true;
+    } else if (event->type == InputEventType::MouseButtonReleased) {
+      const auto* mbReleased {event->as<MouseButtonReleased>()};
+      io.MouseDown[enum_cast(mbReleased->button)] = false;
+    }
   }
 
   mRenderer->new_gui_frame();

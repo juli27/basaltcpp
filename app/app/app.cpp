@@ -78,7 +78,9 @@ void run(const HMODULE moduleHandle, const int showCommand) {
   f64 currentDeltaTime {0.0};
 
   do {
-    const UpdateContext ctx {currentDeltaTime, window->size()};
+    const UpdateContext ctx {
+      currentDeltaTime, window->size(), window->drain_input()
+    };
     dearImGui.new_frame(ctx);
 
     clientApp->on_update(ctx);

@@ -49,9 +49,6 @@ using platform::Event;
 using platform::Key;
 using platform::KeyPressedEvent;
 using platform::KeyReleasedEvent;
-using platform::MouseButton;
-using platform::MouseButtonPressedEvent;
-using platform::MouseButtonReleasedEvent;
 using platform::MouseMovedEvent;
 using platform::MouseWheelScrolledEvent;
 using platform::PlatformEventCallback;
@@ -77,6 +74,10 @@ Window::~Window() {
       "::UnregisterClassW failed: {}"
     , create_winapi_error_message(::GetLastError()));
   }
+}
+
+auto Window::drain_input() -> Input {
+  return std::move(mInput);
 }
 
 auto Window::create(
@@ -286,34 +287,34 @@ auto Window::dispatch_message(
     return 0;
 
   case WM_LBUTTONDOWN:
+    mInput.mouse_button_pressed(MouseButton::Left);
     ::SetCapture(mHandle);
-    dispatch_platform_event(MouseButtonPressedEvent(MouseButton::Left));
     return 0;
 
   case WM_LBUTTONUP:
+    mInput.mouse_button_released(MouseButton::Left);
     if (!::ReleaseCapture()) {
       BASALT_LOG_ERROR(
         "Releasing mouse capture in WM_LBUTTONUP failed: {}",
         create_winapi_error_message(::GetLastError())
       );
     }
-    dispatch_platform_event(MouseButtonReleasedEvent(MouseButton::Left));
     return 0;
 
   case WM_RBUTTONDOWN:
-    dispatch_platform_event(MouseButtonPressedEvent(MouseButton::Right));
+    mInput.mouse_button_pressed(MouseButton::Right);
     return 0;
 
   case WM_RBUTTONUP:
-    dispatch_platform_event(MouseButtonReleasedEvent(MouseButton::Right));
+    mInput.mouse_button_released(MouseButton::Right);
     return 0;
 
   case WM_MBUTTONDOWN:
-    dispatch_platform_event(MouseButtonPressedEvent(MouseButton::Middle));
+    mInput.mouse_button_pressed(MouseButton::Middle);
     return 0;
 
   case WM_MBUTTONUP:
-    dispatch_platform_event(MouseButtonReleasedEvent(MouseButton::Middle));
+    mInput.mouse_button_released(MouseButton::Middle);
     return 0;
 
     // TODO: XBUTTON4 and XBUTTON5
