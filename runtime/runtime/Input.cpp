@@ -22,6 +22,10 @@ void Input::mouse_moved(const i32 x, const i32 y) {
   mMousePosition.set(x, y);
 }
 
+void Input::mouse_wheel(const f32 offset) {
+  mEvents.push_back(std::make_unique<MouseWheel>(offset));
+}
+
 auto Input::is_mouse_button_down(const MouseButton button) const -> bool {
   return mMouseButtonsDown[enum_cast(button)];
 }

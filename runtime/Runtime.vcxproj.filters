@@ -81,9 +81,6 @@
     <ClInclude Include="runtime\platform\events\KeyEvents.h">
       <Filter>platform\events</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\platform\events\MouseEvents.h">
-      <Filter>platform\events</Filter>
-    </ClInclude>
     <ClInclude Include="runtime\platform\Platform.h">
       <Filter>platform</Filter>
     </ClInclude>

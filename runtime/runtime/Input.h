@@ -41,6 +41,8 @@ struct Input final {
   auto mouse_position() const -> math::Vec2i32;
   void mouse_moved(i32 x, i32 y);
 
+  void mouse_wheel(f32 offset);
+
   [[nodiscard]]
   auto is_mouse_button_down(MouseButton) const -> bool;
   void mouse_button_pressed(MouseButton);
@@ -55,6 +57,7 @@ private:
 enum class InputEventType : u8 {
   Unknown
 , MouseMoved
+, MouseWheel
 , MouseButtonPressed
 , MouseButtonReleased
 };
@@ -104,6 +107,7 @@ struct MouseMoved final : InputEventT<InputEventType::MouseMoved> {
   constexpr explicit MouseMoved(const math::Vec2i32& pos) noexcept
     : position {pos} {
   }
+
   constexpr MouseMoved(const MouseMoved&) noexcept = default;
   constexpr MouseMoved(MouseMoved&&) noexcept = default;
 
@@ -111,6 +115,22 @@ struct MouseMoved final : InputEventT<InputEventType::MouseMoved> {
 
   auto operator=(const MouseMoved&) -> MouseMoved& = default;
   auto operator=(MouseMoved&&) -> MouseMoved& = default;
+};
+
+struct MouseWheel final : InputEventT<InputEventType::MouseWheel> {
+  f32 offset {};
+
+  constexpr explicit MouseWheel(const f32 offset) noexcept
+    : offset {offset} {
+  }
+
+  constexpr MouseWheel(const MouseWheel&) noexcept = default;
+  constexpr MouseWheel(MouseWheel&&) noexcept = default;
+
+  ~MouseWheel() noexcept = default;
+
+  auto operator=(const MouseWheel&) -> MouseWheel& = default;
+  auto operator=(MouseWheel&&) -> MouseWheel& = default;
 };
 
 struct MouseButtonPressed final

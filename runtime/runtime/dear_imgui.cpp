@@ -7,7 +7,6 @@
 
 #include "runtime/platform/events/Event.h"
 #include "runtime/platform/events/KeyEvents.h"
-#include "runtime/platform/events/MouseEvents.h"
 
 #include "runtime/math/Vec2.h"
 #include "runtime/shared/Size2D.h"
@@ -23,7 +22,6 @@ using platform::EventDispatcher;
 using platform::Key;
 using platform::KeyPressedEvent;
 using platform::KeyReleasedEvent;
-using platform::MouseWheelScrolledEvent;
 using math::Vec2i32;
 
 DearImGui::DearImGui(IRenderer* const renderer)
@@ -75,10 +73,6 @@ DearImGui::DearImGui(IRenderer* const renderer)
         [&](const CharactersTyped& event) {
           io.AddInputCharactersUTF8(event.chars.c_str());
         });
-      dispatcher.dispatch<MouseWheelScrolledEvent>(
-        [&](const MouseWheelScrolledEvent& event) {
-          io.MouseWheel += event.offset;
-        });
     });
 
   static_assert(input::KEY_COUNT < 512);
@@ -106,12 +100,27 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
   static_assert(ImGuiMouseButton_COUNT == MOUSE_BUTTON_COUNT);
 
   for (const InputEventPtr& event : input.events()) {
-    if (event->type == InputEventType::MouseButtonPressed) {
+    switch (event->type) {
+    case InputEventType::MouseButtonPressed: {
       const auto* mbPressed {event->as<MouseButtonPressed>()};
       io.MouseDown[enum_cast(mbPressed->button)] = true;
-    } else if (event->type == InputEventType::MouseButtonReleased) {
+      break;
+    }
+
+    case InputEventType::MouseButtonReleased: {
       const auto* mbReleased {event->as<MouseButtonReleased>()};
       io.MouseDown[enum_cast(mbReleased->button)] = false;
+      break;
+    }
+
+    case InputEventType::MouseWheel: {
+      const auto* mouseWheel {event->as<MouseWheel>()};
+      io.MouseWheel += mouseWheel->offset;
+      break;
+    }
+
+    default:
+      break;
     }
   }
 

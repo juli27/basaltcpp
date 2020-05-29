@@ -16,7 +16,6 @@
 #include <runtime/platform/Platform.h>
 #include <runtime/platform/events/Event.h>
 #include <runtime/platform/events/KeyEvents.h>
-#include <runtime/platform/events/MouseEvents.h>
 
 #include <runtime/shared/Config.h>
 #include <runtime/shared/Log.h>
@@ -51,7 +50,6 @@ using platform::Event;
 using platform::Key;
 using platform::KeyPressedEvent;
 using platform::KeyReleasedEvent;
-using platform::MouseWheelScrolledEvent;
 using platform::PlatformEventCallback;
 
 vector<PlatformEventCallback> sEventListener;
@@ -364,7 +362,7 @@ auto Window::dispatch_message(
       static_cast<f32>(GET_WHEEL_DELTA_WPARAM(wParam)) / static_cast<f32>(
         WHEEL_DELTA)
     };
-    dispatch_platform_event(MouseWheelScrolledEvent(offset));
+    mInput.mouse_wheel(offset);
     return 0;
   }
 
