@@ -305,12 +305,12 @@ auto Window::dispatch_message(
     return 0;
 
   case WM_LBUTTONDOWN:
-    mInput.mouse_button_pressed(MouseButton::Left);
+    mInput.mouse_button_down(MouseButton::Left);
     ::SetCapture(mHandle);
     return 0;
 
   case WM_LBUTTONUP:
-    mInput.mouse_button_released(MouseButton::Left);
+    mInput.mouse_button_up(MouseButton::Left);
     if (!::ReleaseCapture()) {
       BASALT_LOG_ERROR(
         "Releasing mouse capture in WM_LBUTTONUP failed: {}",
@@ -320,19 +320,19 @@ auto Window::dispatch_message(
     return 0;
 
   case WM_RBUTTONDOWN:
-    mInput.mouse_button_pressed(MouseButton::Right);
+    mInput.mouse_button_down(MouseButton::Right);
     return 0;
 
   case WM_RBUTTONUP:
-    mInput.mouse_button_released(MouseButton::Right);
+    mInput.mouse_button_up(MouseButton::Right);
     return 0;
 
   case WM_MBUTTONDOWN:
-    mInput.mouse_button_pressed(MouseButton::Middle);
+    mInput.mouse_button_down(MouseButton::Middle);
     return 0;
 
   case WM_MBUTTONUP:
-    mInput.mouse_button_released(MouseButton::Middle);
+    mInput.mouse_button_up(MouseButton::Middle);
     return 0;
 
     // TODO: XBUTTON4 and XBUTTON5

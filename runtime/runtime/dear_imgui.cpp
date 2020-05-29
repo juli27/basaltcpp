@@ -71,14 +71,14 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
 
   for (const InputEventPtr& event : input.events()) {
     switch (event->type) {
-    case InputEventType::MouseButtonPressed: {
-      const auto* mbPressed {event->as<MouseButtonPressed>()};
+    case InputEventType::MouseButtonDown: {
+      const auto* mbPressed {event->as<MouseButtonDown>()};
       io.MouseDown[enum_cast(mbPressed->button)] = true;
       break;
     }
 
-    case InputEventType::MouseButtonReleased: {
-      const auto* mbReleased {event->as<MouseButtonReleased>()};
+    case InputEventType::MouseButtonUp: {
+      const auto* mbReleased {event->as<MouseButtonUp>()};
       io.MouseDown[enum_cast(mbReleased->button)] = false;
       break;
     }

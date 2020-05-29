@@ -70,8 +70,8 @@ struct Input final {
 
   [[nodiscard]]
   auto is_mouse_button_down(MouseButton) const -> bool;
-  void mouse_button_pressed(MouseButton);
-  void mouse_button_released(MouseButton);
+  void mouse_button_down(MouseButton);
+  void mouse_button_up(MouseButton);
 
   [[nodiscard]]
   auto is_key_down(Key) const -> bool;
@@ -91,8 +91,8 @@ enum class InputEventType : u8 {
   Unknown
 , MouseMoved
 , MouseWheel
-, MouseButtonPressed
-, MouseButtonReleased
+, MouseButtonDown
+, MouseButtonUp
 , KeyDown
 , KeyUp
 , CharactersTyped
@@ -169,38 +169,36 @@ struct MouseWheel final : InputEventT<InputEventType::MouseWheel> {
   auto operator=(MouseWheel&&) -> MouseWheel& = default;
 };
 
-struct MouseButtonPressed final
-  : InputEventT<InputEventType::MouseButtonPressed> {
+struct MouseButtonDown final : InputEventT<InputEventType::MouseButtonDown> {
   MouseButton button;
 
-  constexpr explicit MouseButtonPressed(const MouseButton button) noexcept
+  constexpr explicit MouseButtonDown(const MouseButton button) noexcept
     : button {button} {
   }
 
-  constexpr MouseButtonPressed(const MouseButtonPressed&) noexcept = default;
-  constexpr MouseButtonPressed(MouseButtonPressed&&) noexcept = default;
+  constexpr MouseButtonDown(const MouseButtonDown&) noexcept = default;
+  constexpr MouseButtonDown(MouseButtonDown&&) noexcept = default;
 
-  ~MouseButtonPressed() noexcept = default;
+  ~MouseButtonDown() noexcept = default;
 
-  auto operator=(const MouseButtonPressed&) -> MouseButtonPressed& = default;
-  auto operator=(MouseButtonPressed&&) -> MouseButtonPressed& = default;
+  auto operator=(const MouseButtonDown&) -> MouseButtonDown& = default;
+  auto operator=(MouseButtonDown&&) -> MouseButtonDown& = default;
 };
 
-struct MouseButtonReleased final
-  : InputEventT<InputEventType::MouseButtonReleased> {
+struct MouseButtonUp final : InputEventT<InputEventType::MouseButtonUp> {
   MouseButton button;
 
-  constexpr explicit MouseButtonReleased(const MouseButton button) noexcept
+  constexpr explicit MouseButtonUp(const MouseButton button) noexcept
     : button {button} {
   }
 
-  constexpr MouseButtonReleased(const MouseButtonReleased&) noexcept = default;
-  constexpr MouseButtonReleased(MouseButtonReleased&&) noexcept = default;
+  constexpr MouseButtonUp(const MouseButtonUp&) noexcept = default;
+  constexpr MouseButtonUp(MouseButtonUp&&) noexcept = default;
 
-  ~MouseButtonReleased() noexcept = default;
+  ~MouseButtonUp() noexcept = default;
 
-  auto operator=(const MouseButtonReleased&) -> MouseButtonReleased& = default;
-  auto operator=(MouseButtonReleased&&) -> MouseButtonReleased& = default;
+  auto operator=(const MouseButtonUp&) -> MouseButtonUp& = default;
+  auto operator=(MouseButtonUp&&) -> MouseButtonUp& = default;
 };
 
 struct KeyDown final : InputEventT<InputEventType::KeyDown> {

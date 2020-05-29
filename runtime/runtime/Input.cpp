@@ -27,13 +27,13 @@ auto Input::is_mouse_button_down(const MouseButton button) const -> bool {
   return mMouseButtonsDown[enum_cast(button)];
 }
 
-void Input::mouse_button_pressed(const MouseButton button) {
-  mEvents.push_back(std::make_unique<MouseButtonPressed>(button));
+void Input::mouse_button_down(const MouseButton button) {
+  mEvents.push_back(std::make_unique<MouseButtonDown>(button));
   mMouseButtonsDown[enum_cast(button)] = true;
 }
 
-void Input::mouse_button_released(const MouseButton button) {
-  mEvents.push_back(std::make_unique<MouseButtonReleased>(button));
+void Input::mouse_button_up(const MouseButton button) {
+  mEvents.push_back(std::make_unique<MouseButtonUp>(button));
   mMouseButtonsDown[enum_cast(button)] = false;
 }
 
