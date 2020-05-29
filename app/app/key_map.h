@@ -2,13 +2,11 @@
 #ifndef BASALT_APP_KEY_MAP_H
 #define BASALT_APP_KEY_MAP_H
 
-#include "runtime/platform/events/KeyEvents.h"
+#include "runtime/Input.h"
 
 #include <array>
 
 namespace basalt::win32 {
-
-using platform::Key;
 
 // TODO: syskeys
 // TODO: left and right variants

@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     platforms once the need arises
 - free standing input functions
   - input is now part of the update context
+- platform events
 
 ### Fixed
 

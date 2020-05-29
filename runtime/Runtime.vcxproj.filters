@@ -75,12 +75,6 @@
     <ClInclude Include="runtime\gfx\backend\IRenderer.h">
       <Filter>gfx\backend</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\platform\events\Event.h">
-      <Filter>platform\events</Filter>
-    </ClInclude>
-    <ClInclude Include="runtime\platform\events\KeyEvents.h">
-      <Filter>platform\events</Filter>
-    </ClInclude>
     <ClInclude Include="runtime\platform\Platform.h">
       <Filter>platform</Filter>
     </ClInclude>
@@ -137,9 +131,6 @@
     </Filter>
     <Filter Include="math">
       <UniqueIdentifier>{31be4d67-d608-4c74-a95c-318cf4132785}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="platform\events">
-      <UniqueIdentifier>{379b7f59-3f65-4474-8023-60106a6d8da1}</UniqueIdentifier>
     </Filter>
     <Filter Include="scene">
       <UniqueIdentifier>{7a0f3822-a52e-4443-8845-ec0e7fb828d9}</UniqueIdentifier>

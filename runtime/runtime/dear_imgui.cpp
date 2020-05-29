@@ -3,10 +3,6 @@
 #include "runtime/Input.h"
 
 #include "runtime/gfx/backend/IRenderer.h"
-#include "runtime/platform/Platform.h"
-
-#include "runtime/platform/events/Event.h"
-#include "runtime/platform/events/KeyEvents.h"
 
 #include "runtime/math/Vec2.h"
 #include "runtime/shared/Size2D.h"
@@ -16,11 +12,6 @@
 namespace basalt {
 
 using gfx::backend::IRenderer;
-using platform::Event;
-using platform::EventDispatcher;
-using platform::Key;
-using platform::KeyPressedEvent;
-using platform::KeyReleasedEvent;
 using math::Vec2i32;
 
 DearImGui::DearImGui(IRenderer* const renderer)
@@ -55,23 +46,6 @@ DearImGui::DearImGui(IRenderer* const renderer)
   io.KeyMap[ImGuiKey_Y] = enum_cast(Key::Y);
   io.KeyMap[ImGuiKey_Z] = enum_cast(Key::Z);
 
-  platform::add_event_listener(
-    [](const Event& e) {
-      auto& io = ImGui::GetIO();
-
-      const EventDispatcher dispatcher {e};
-      dispatcher.dispatch<KeyPressedEvent>(
-        [&](const KeyPressedEvent& event) {
-          io.KeysDown[enum_cast(event.key)] = true;
-        });
-      dispatcher.dispatch<KeyReleasedEvent>(
-        [&](const KeyReleasedEvent& event) {
-          io.KeysDown[enum_cast(event.key)] = false;
-        });
-    });
-
-  static_assert(input::KEY_COUNT < 512);
-
   mRenderer->init_dear_imgui();
 }
 
@@ -93,6 +67,7 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
   };
 
   static_assert(ImGuiMouseButton_COUNT == MOUSE_BUTTON_COUNT);
+  static_assert(KEY_COUNT <= 512);
 
   for (const InputEventPtr& event : input.events()) {
     switch (event->type) {
@@ -114,9 +89,22 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
       break;
     }
 
+    case InputEventType::KeyDown: {
+      const auto* keyDown {event->as<KeyDown>()};
+      io.KeysDown[enum_cast(keyDown->key)] = true;
+      break;
+    }
+
+    case InputEventType::KeyUp: {
+      const auto* keyUp {event->as<KeyUp>()};
+      io.KeysDown[enum_cast(keyUp->key)] = false;
+      break;
+    }
+
     case InputEventType::CharactersTyped: {
       const auto* charactersTyped {event->as<CharactersTyped>()};
       io.AddInputCharactersUTF8(charactersTyped->chars.c_str());
+      break;
     }
 
     default:
@@ -129,9 +117,9 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
   , static_cast<float>(ctx.windowSize.height())
   );
   io.DeltaTime = static_cast<float>(ctx.deltaTime);
-  io.KeyCtrl = input::is_key_pressed(Key::Control);
-  io.KeyShift = input::is_key_pressed(Key::Shift);
-  io.KeyAlt = input::is_key_pressed(Key::Alt);
+  io.KeyCtrl = input.is_key_down(Key::Control);
+  io.KeyShift = input.is_key_down(Key::Shift);
+  io.KeyAlt = input.is_key_down(Key::Alt);
 
   // TODO: reenable once super/meta key has been implemented on linux/osx
   //       the super key mapping to the windows key on windows caused

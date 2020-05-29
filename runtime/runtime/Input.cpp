@@ -1,8 +1,5 @@
 #include "runtime/Input.h"
 
-#include "runtime/platform/Platform.h"
-#include "runtime/platform/events/Event.h"
-
 using std::vector;
 
 namespace basalt {
@@ -40,41 +37,22 @@ void Input::mouse_button_released(const MouseButton button) {
   mMouseButtonsDown[enum_cast(button)] = false;
 }
 
+auto Input::is_key_down(const Key key) const -> bool {
+  return mKeysDown[enum_cast(key)];
+}
+
+void Input::key_down(const Key key) {
+  mEvents.push_back(std::make_unique<KeyDown>(key));
+  mKeysDown[enum_cast(key)] = true;
+}
+
+void Input::key_up(const Key key) {
+  mEvents.push_back(std::make_unique<KeyUp>(key));
+  mKeysDown[enum_cast(key)] = false;
+}
+
 void Input::characters_typed(std::string characters) {
   mEvents.push_back(std::make_unique<CharactersTyped>(std::move(characters)));
 }
 
-namespace input {
-namespace {
-
-std::bitset<KEY_COUNT> sKeyStates;
-
-void on_key_pressed(const platform::KeyPressedEvent& event) {
-  const auto index = enum_cast(event.key);
-  sKeyStates[index] = true;
-}
-
-void on_key_released(const platform::KeyReleasedEvent& event) {
-  const auto index = enum_cast(event.key);
-  sKeyStates[index] = false;
-}
-
-void platform_event_callback(const platform::Event& event) {
-  const platform::EventDispatcher dispatcher(event);
-  dispatcher.dispatch<platform::KeyPressedEvent>(&on_key_pressed);
-  dispatcher.dispatch<platform::KeyReleasedEvent>(&on_key_released);
-}
-
-} // namespace
-
-
-void init() {
-  add_event_listener(&platform_event_callback);
-}
-
-auto is_key_pressed(const Key key) -> bool {
-  return sKeyStates[enum_cast(key)];
-}
-
-} // namespace input
 } // namespace basalt

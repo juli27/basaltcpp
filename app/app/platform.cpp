@@ -12,10 +12,6 @@ namespace basalt::platform {
 
 using namespace win32;
 
-void add_event_listener(const PlatformEventCallback& callback) {
-  sEventListener.push_back(callback);
-}
-
 auto get_window_mode() -> WindowMode {
   return sWindowMode;
 }

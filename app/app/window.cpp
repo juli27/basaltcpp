@@ -13,22 +13,16 @@
 
 #include <runtime/Engine.h>
 
-#include <runtime/platform/Platform.h>
-#include <runtime/platform/events/Event.h>
-#include <runtime/platform/events/KeyEvents.h>
-
 #include <runtime/shared/Config.h>
 #include <runtime/shared/Log.h>
 
 #include <windowsx.h>
 
-#include <algorithm>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <system_error>
 #include <utility>
-#include <vector>
 
 using namespace std::literals;
 
@@ -38,27 +32,14 @@ using std::system_error;
 using std::unique_ptr;
 using std::wstring;
 using std::wstring_view;
-using std::vector;
 
 namespace basalt::win32 {
 
 using gfx::backend::D3D9ContextFactory;
 using gfx::backend::D3D9ContextFactoryPtr;
 using gfx::backend::D3D9GfxContext;
-using platform::Event;
-using platform::Key;
-using platform::KeyPressedEvent;
-using platform::KeyReleasedEvent;
-using platform::PlatformEventCallback;
 
-vector<PlatformEventCallback> sEventListener;
 WindowMode sWindowMode;
-
-namespace {
-
-void dispatch_platform_event(const Event&);
-
-} // namespace
 
 Window::~Window() {
   if (!::DestroyWindow(mHandle)) {
@@ -296,9 +277,9 @@ auto Window::dispatch_message(
         }
       }
 
-      dispatch_platform_event(KeyPressedEvent(keyCode));
+      mInput.key_down(keyCode);
     } else {
-      dispatch_platform_event(KeyReleasedEvent(keyCode));
+      mInput.key_up(keyCode);
     }
     return 0;
   }
@@ -442,18 +423,5 @@ auto CALLBACK Window::window_proc(
 
   return ::DefWindowProcW(handle, message, wParam, lParam);
 }
-
-namespace {
-
-void dispatch_platform_event(const Event& event) {
-  std::for_each(
-    sEventListener.cbegin(), sEventListener.cend(),
-    [&event](const PlatformEventCallback& callback) {
-      callback(event);
-    }
-  );
-}
-
-} // namespace
 
 } // namespace basalt::win32

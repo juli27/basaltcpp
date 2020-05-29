@@ -183,8 +183,6 @@
     <ClInclude Include="runtime\math\Mat4.h" />
     <ClInclude Include="runtime\math\Vec2.h" />
     <ClInclude Include="runtime\math\Vec3.h" />
-    <ClInclude Include="runtime\platform\events\Event.h" />
-    <ClInclude Include="runtime\platform\events\KeyEvents.h" />
     <ClInclude Include="runtime\gfx\backend\context.h" />
     <ClInclude Include="runtime\platform\Platform.h" />
     <ClInclude Include="runtime\prelude.h" />

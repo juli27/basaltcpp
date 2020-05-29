@@ -4,14 +4,7 @@
 
 #include "runtime/shared/Config.h"
 
-#include <functional>
-
 namespace basalt::platform {
-
-struct Event;
-using PlatformEventCallback = std::function<void(const Event&)>;
-
-void add_event_listener(const PlatformEventCallback& callback);
 
 [[nodiscard]]
 auto get_window_mode() -> WindowMode;

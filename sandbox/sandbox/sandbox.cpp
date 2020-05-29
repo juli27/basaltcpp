@@ -28,7 +28,7 @@ using basalt::ClientApp;
 using basalt::UpdateContext;
 using basalt::WindowMode;
 using basalt::gfx::backend::IRenderer;
-using basalt::input::Key;
+using basalt::Key;
 
 auto ClientApp::configure() -> Config {
   auto config {Config::defaults()};
@@ -66,7 +66,7 @@ SandboxApp::~SandboxApp() {
 void SandboxApp::on_update(const UpdateContext& ctx) {
   static auto pageUpPressed = false;
   static auto pageDownPressed = false;
-  if (basalt::input::is_key_pressed(Key::PageUp)) {
+  if (ctx.input.is_key_down(Key::PageUp)) {
     if (!pageUpPressed) {
       pageUpPressed = true;
 
@@ -76,7 +76,7 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
     pageUpPressed = false;
   }
 
-  if (basalt::input::is_key_pressed(Key::PageDown)) {
+  if (ctx.input.is_key_down(Key::PageDown)) {
     if (!pageDownPressed) {
       pageDownPressed = true;
 

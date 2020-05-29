@@ -2,8 +2,6 @@
 #ifndef BASALT_INPUT_H
 #define BASALT_INPUT_H
 
-#include "runtime/platform/events/KeyEvents.h"
-
 #include "math/Vec2.h"
 #include "shared/Asserts.h"
 #include "shared/Types.h"
@@ -21,6 +19,31 @@ enum class MouseButton : u8 {
 };
 
 constexpr uSize MOUSE_BUTTON_COUNT = 5u;
+
+// TODO: add super/meta key for linux/osx
+//       should not map to windows key on windows
+enum class Key : u8 {
+  Unknown = 0,
+  F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
+  Escape, Tab, CapsLock, Shift, Control, Alt, /*Super,*/
+  Insert, Delete, Home, End, PageUp, PageDown, Pause,
+  LeftArrow, RightArrow, UpArrow, DownArrow,
+  Numpad0, Numpad1, Numpad2, Numpad3, Numpad4,
+  Numpad5, Numpad6, Numpad7, Numpad8, Numpad9,
+  NumpadAdd, NumpadSub, NumpadMul, NumpadDiv,
+  NumpadDecimal, NumpadLock, NumpadEnter,
+  Zero, One, Two, Three, Four,
+  Five, Six, Seven, Eight, Nine,
+  Backspace, Space, Enter, Menu,
+  ScrollLock, Print, Plus,
+  A, B, C, D, E, F, G, H, I, J, K, L, M,
+  N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+  Minus,
+  Comma, Period,
+  Oem1, Oem2, Oem3, Oem4, Oem5, Oem6, Oem7, Oem8, Oem9,
+};
+
+constexpr uSize KEY_COUNT = 103u;
 
 struct InputEvent;
 using InputEventPtr = std::unique_ptr<InputEvent>;
@@ -50,12 +73,18 @@ struct Input final {
   void mouse_button_pressed(MouseButton);
   void mouse_button_released(MouseButton);
 
+  [[nodiscard]]
+  auto is_key_down(Key) const -> bool;
+  void key_down(Key);
+  void key_up(Key);
+
   void characters_typed(std::string);
 
 private:
   std::vector<InputEventPtr> mEvents {};
   std::bitset<MOUSE_BUTTON_COUNT> mMouseButtonsDown {};
   math::Vec2i32 mMousePosition {};
+  std::bitset<KEY_COUNT> mKeysDown {};
 };
 
 enum class InputEventType : u8 {
@@ -64,6 +93,8 @@ enum class InputEventType : u8 {
 , MouseWheel
 , MouseButtonPressed
 , MouseButtonReleased
+, KeyDown
+, KeyUp
 , CharactersTyped
 };
 
@@ -107,7 +138,7 @@ struct InputEventT : InputEvent {
 };
 
 struct MouseMoved final : InputEventT<InputEventType::MouseMoved> {
-  math::Vec2i32 position {};
+  math::Vec2i32 position;
 
   constexpr explicit MouseMoved(const math::Vec2i32& pos) noexcept
     : position {pos} {
@@ -123,7 +154,7 @@ struct MouseMoved final : InputEventT<InputEventType::MouseMoved> {
 };
 
 struct MouseWheel final : InputEventT<InputEventType::MouseWheel> {
-  f32 offset {};
+  f32 offset;
 
   constexpr explicit MouseWheel(const f32 offset) noexcept
     : offset {offset} {
@@ -172,6 +203,38 @@ struct MouseButtonReleased final
   auto operator=(MouseButtonReleased&&) -> MouseButtonReleased& = default;
 };
 
+struct KeyDown final : InputEventT<InputEventType::KeyDown> {
+  Key key;
+
+  constexpr explicit KeyDown(const Key key) noexcept
+    : key {key} {
+  }
+
+  constexpr KeyDown(const KeyDown&) noexcept = default;
+  constexpr KeyDown(KeyDown&&) noexcept = default;
+
+  ~KeyDown() noexcept = default;
+
+  auto operator=(const KeyDown&) noexcept -> KeyDown& = default;
+  auto operator=(KeyDown&&) noexcept -> KeyDown& = default;
+};
+
+struct KeyUp : InputEventT<InputEventType::KeyUp> {
+  Key key;
+
+  constexpr explicit KeyUp(const Key key) noexcept
+    : key(key) {
+  }
+
+  constexpr KeyUp(const KeyUp&) noexcept = default;
+  constexpr KeyUp(KeyUp&&) noexcept = default;
+
+  ~KeyUp() noexcept = default;
+
+  auto operator=(const KeyUp&) noexcept -> KeyUp& = default;
+  auto operator=(KeyUp&&) noexcept -> KeyUp& = default;
+};
+
 struct CharactersTyped final : InputEventT<InputEventType::CharactersTyped> {
   // TODO: optimization: use static char array instead of string?
   std::string chars;
@@ -189,16 +252,6 @@ struct CharactersTyped final : InputEventT<InputEventType::CharactersTyped> {
   auto operator=(CharactersTyped&&) -> CharactersTyped& = default;
 };
 
-namespace input {
-
-using platform::Key;
-using platform::KEY_COUNT;
-
-void init();
-
-auto is_key_pressed(Key key) -> bool;
-
-} // namespace input
 } // namespace basalt
 
 #endif // !BASALT_INPUT_H

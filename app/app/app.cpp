@@ -64,9 +64,8 @@ void run(const HMODULE moduleHandle, const int showCommand) {
 
   // creates the window, the associated gfx context and the renderer
   const WindowPtr window = Window::create(moduleHandle, showCommand, config);
-  input::init();
 
-  DearImGui dearImGui {window->renderer()};
+  const DearImGui dearImGui {window->renderer()};
   init_dear_imgui_additional(window.get());
 
   Engine engine {};
