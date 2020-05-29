@@ -10,6 +10,8 @@
 
 #include <bitset>
 #include <memory>
+#include <string>
+#include <utility>
 #include <vector>
 
 namespace basalt {
@@ -48,6 +50,8 @@ struct Input final {
   void mouse_button_pressed(MouseButton);
   void mouse_button_released(MouseButton);
 
+  void characters_typed(std::string);
+
 private:
   std::vector<InputEventPtr> mEvents {};
   std::bitset<MOUSE_BUTTON_COUNT> mMouseButtonsDown {};
@@ -60,6 +64,7 @@ enum class InputEventType : u8 {
 , MouseWheel
 , MouseButtonPressed
 , MouseButtonReleased
+, CharactersTyped
 };
 
 struct InputEvent {
@@ -165,6 +170,23 @@ struct MouseButtonReleased final
 
   auto operator=(const MouseButtonReleased&) -> MouseButtonReleased& = default;
   auto operator=(MouseButtonReleased&&) -> MouseButtonReleased& = default;
+};
+
+struct CharactersTyped final : InputEventT<InputEventType::CharactersTyped> {
+  // TODO: optimization: use static char array instead of string?
+  std::string chars;
+
+  explicit CharactersTyped(std::string chars)
+    : chars(std::move(chars)) {
+  }
+
+  CharactersTyped(const CharactersTyped&) = default;
+  CharactersTyped(CharactersTyped&&) noexcept = default;
+
+  ~CharactersTyped() noexcept = default;
+
+  auto operator=(const CharactersTyped&) -> CharactersTyped& = default;
+  auto operator=(CharactersTyped&&) -> CharactersTyped& = default;
 };
 
 namespace input {

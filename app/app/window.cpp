@@ -45,7 +45,6 @@ namespace basalt::win32 {
 using gfx::backend::D3D9ContextFactory;
 using gfx::backend::D3D9ContextFactoryPtr;
 using gfx::backend::D3D9GfxContext;
-using platform::CharactersTyped;
 using platform::Event;
 using platform::Key;
 using platform::KeyPressedEvent;
@@ -314,7 +313,7 @@ auto Window::dispatch_message(
     const string typedChar {create_utf8_from_wide(wstring_view {&c, 1})};
 
     for (u16 repCount {LOWORD(lParam)}; repCount > 0; repCount--) {
-      dispatch_platform_event(CharactersTyped(typedChar));
+      mInput.characters_typed(typedChar);
     }
 
     return 0;

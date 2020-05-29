@@ -40,6 +40,10 @@ void Input::mouse_button_released(const MouseButton button) {
   mMouseButtonsDown[enum_cast(button)] = false;
 }
 
+void Input::characters_typed(std::string characters) {
+  mEvents.push_back(std::make_unique<CharactersTyped>(std::move(characters)));
+}
+
 namespace input {
 namespace {
 

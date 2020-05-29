@@ -16,7 +16,6 @@
 namespace basalt {
 
 using gfx::backend::IRenderer;
-using platform::CharactersTyped;
 using platform::Event;
 using platform::EventDispatcher;
 using platform::Key;
@@ -69,10 +68,6 @@ DearImGui::DearImGui(IRenderer* const renderer)
         [&](const KeyReleasedEvent& event) {
           io.KeysDown[enum_cast(event.key)] = false;
         });
-      dispatcher.dispatch<CharactersTyped>(
-        [&](const CharactersTyped& event) {
-          io.AddInputCharactersUTF8(event.chars.c_str());
-        });
     });
 
   static_assert(input::KEY_COUNT < 512);
@@ -117,6 +112,11 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
       const auto* mouseWheel {event->as<MouseWheel>()};
       io.MouseWheel += mouseWheel->offset;
       break;
+    }
+
+    case InputEventType::CharactersTyped: {
+      const auto* charactersTyped {event->as<CharactersTyped>()};
+      io.AddInputCharactersUTF8(charactersTyped->chars.c_str());
     }
 
     default:

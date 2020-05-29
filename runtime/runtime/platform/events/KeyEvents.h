@@ -6,9 +6,6 @@
 
 #include "runtime/shared/Types.h"
 
-#include <string>
-#include <utility> // move
-
 namespace basalt::platform {
 
 // TODO: readd super/meta key for linux/osx
@@ -68,23 +65,6 @@ struct KeyReleasedEvent : EventTyped<EventType::KeyReleased> {
   auto operator=(
     const KeyReleasedEvent&) noexcept -> KeyReleasedEvent& = default;
   auto operator=(KeyReleasedEvent&&) noexcept -> KeyReleasedEvent& = default;
-};
-
-struct CharactersTyped final : EventTyped<EventType::CharactersTyped> {
-  // TODO: optimization: use static char array instead of string?
-  std::string chars;
-
-  explicit CharactersTyped(std::string chars)
-    : chars(std::move(chars)) {
-  }
-
-  CharactersTyped(const CharactersTyped&) = default;
-  CharactersTyped(CharactersTyped&&) noexcept = default;
-
-  ~CharactersTyped() noexcept = default;
-
-  auto operator=(const CharactersTyped&) -> CharactersTyped& = default;
-  auto operator=(CharactersTyped&&) -> CharactersTyped& = default;
 };
 
 } // namespace basalt::platform
