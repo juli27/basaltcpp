@@ -12,9 +12,10 @@
 #include "d3d9/types.h"
 #include "d3d9/util.h"
 
+#include "runtime/client_app.h"
 #include "runtime/dear_imgui.h"
 #include "runtime/debug.h"
-#include "runtime/client_app.h"
+#include "runtime/Engine.h"
 #include "runtime/Input.h"
 
 #include "runtime/gfx/Gfx.h"
@@ -68,6 +69,8 @@ void run(const HMODULE moduleHandle, const int showCommand) {
   DearImGui dearImGui {window->renderer()};
   init_dear_imgui_additional(window.get());
 
+  Engine engine {};
+
   const auto clientApp {ClientApp::create(window->renderer(), window->size())};
   BASALT_ASSERT(clientApp);
   BASALT_ASSERT_MSG(sCurrentView.scene, "no scene set");
@@ -79,7 +82,7 @@ void run(const HMODULE moduleHandle, const int showCommand) {
 
   do {
     const UpdateContext ctx {
-      currentDeltaTime, window->size(), window->drain_input()
+      engine, currentDeltaTime, window->size(), window->drain_input()
     };
     dearImGui.new_frame(ctx);
 
@@ -95,6 +98,7 @@ void run(const HMODULE moduleHandle, const int showCommand) {
     gfx::render(window->renderer(), sCurrentView);
 
     window->present();
+    window->update(engine);
 
     const auto endTime = Clock::now();
     currentDeltaTime = static_cast<f64>((endTime - startTime).count()) / (

@@ -8,7 +8,6 @@
 #include "sandbox/d3d9/textures_tci.h"
 #include "sandbox/d3d9/vertices.h"
 
-#include <runtime/Engine.h>
 #include <runtime/Input.h>
 #include <runtime/prelude.h>
 

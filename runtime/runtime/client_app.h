@@ -2,7 +2,7 @@
 #ifndef BASALT_CLIENT_APP_H
 #define BASALT_CLIENT_APP_H
 
-#include "types.h"
+#include "Engine.h"
 
 #include "runtime/shared/Config.h"
 #include "runtime/shared/Size2D.h"

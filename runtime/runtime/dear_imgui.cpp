@@ -33,6 +33,7 @@ DearImGui::DearImGui(IRenderer* const renderer)
 
   auto& io = ImGui::GetIO();
   io.BackendPlatformName = "Basalt";
+  io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 
   io.KeyMap[ImGuiKey_Tab] = enum_cast(Key::Tab);
   io.KeyMap[ImGuiKey_LeftArrow] = enum_cast(Key::LeftArrow);
@@ -91,10 +92,12 @@ DearImGui::~DearImGui() {
   ImGui::DestroyContext();
 }
 
-void DearImGui::new_frame(const UpdateContext& ctx) {
-  auto& io = ImGui::GetIO();
+void DearImGui::new_frame(const UpdateContext& ctx) const {
+  mRenderer->new_gui_frame();
 
+  auto& io = ImGui::GetIO();
   const Input& input {ctx.input};
+
   const Vec2i32 mousePos {input.mouse_position()};
   io.MousePos = ImVec2 {
     static_cast<float>(mousePos.x), static_cast<float>(mousePos.y)
@@ -127,7 +130,15 @@ void DearImGui::new_frame(const UpdateContext& ctx) {
   //       a pressed down super key sticking around after Win+V
   io.KeySuper = false;
 
-  mRenderer->new_gui_frame();
+  static_assert(ImGuiMouseCursor_COUNT == 9);
+  if (!(io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)) {
+    const ImGuiMouseCursor cursor = ImGui::GetMouseCursor();
+    // TODO: no mouse cursor / imgui cursor drawing
+    if (cursor != ImGuiMouseCursor_None) {
+      ctx.engine.mouseCursor = MouseCursor {static_cast<u8>(cursor)};
+    }
+  }
+
   ImGui::NewFrame();
 }
 

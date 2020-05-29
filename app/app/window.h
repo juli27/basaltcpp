@@ -7,13 +7,16 @@
 #include "shared/Windows_custom.h"
 
 #include <runtime/Input.h>
+#include <runtime/types.h>
 #include <runtime/shared/Size2D.h>
 
+#include <array>
 #include <memory>
 
 namespace basalt {
 
 struct Config;
+struct Engine;
 
 namespace gfx::backend {
 
@@ -63,6 +66,8 @@ struct Window final {
     mContext->present();
   }
 
+  void update(Engine&);
+
   [[nodiscard]]
   static auto create(
     HMODULE, int showCommand, const Config& config) -> WindowPtr;
@@ -79,6 +84,9 @@ private:
   Input mInput {};
   Size2Du16 mClientAreaSize {Size2Du16::dont_care()};
   bool mInSizingMode {false};
+
+  std::array<HCURSOR, MOUSE_CURSOR_COUNT> mLoadedCursors {};
+  MouseCursor mCurrentCursor {};
 
   Window(
     HMODULE, HWND handle, gfx::backend::D3D9ContextFactoryPtr factory

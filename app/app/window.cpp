@@ -11,6 +11,8 @@
 
 #include "shared/util.h"
 
+#include <runtime/Engine.h>
+
 #include <runtime/platform/Platform.h>
 #include <runtime/platform/events/Event.h>
 #include <runtime/platform/events/KeyEvents.h>
@@ -77,6 +79,10 @@ Window::~Window() {
 
 auto Window::drain_input() -> Input {
   return std::move(mInput);
+}
+
+void Window::update(Engine& engine) {
+  mCurrentCursor = engine.mouseCursor;
 }
 
 auto Window::create(
@@ -171,6 +177,30 @@ Window::Window(
   BASALT_ASSERT(mHandle);
   BASALT_ASSERT(mFactory);
   BASALT_ASSERT(mContext);
+
+  auto loadCursor = [](const LPCWSTR name, const UINT flags) -> HCURSOR {
+    return static_cast<HCURSOR>(::LoadImageW(
+      nullptr, name, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | flags));
+  };
+
+  std::get<enum_cast(MouseCursor::Arrow)>(mLoadedCursors) = loadCursor(
+    MAKEINTRESOURCEW(OCR_NORMAL), LR_SHARED);
+  std::get<enum_cast(MouseCursor::TextInput)>(mLoadedCursors) = loadCursor(
+    MAKEINTRESOURCEW(OCR_IBEAM), LR_SHARED);
+  std::get<enum_cast(MouseCursor::ResizeAll)>(mLoadedCursors) = loadCursor(
+    MAKEINTRESOURCEW(OCR_SIZEALL), LR_SHARED);
+  std::get<enum_cast(MouseCursor::ResizeNS)>(mLoadedCursors) = loadCursor(
+    MAKEINTRESOURCEW(OCR_SIZENS), LR_SHARED);
+  std::get<enum_cast(MouseCursor::ResizeEW)>(mLoadedCursors) = loadCursor(
+    MAKEINTRESOURCEW(OCR_SIZEWE), LR_SHARED);
+  std::get<enum_cast(MouseCursor::ResizeNESW)>(mLoadedCursors) = loadCursor(
+    MAKEINTRESOURCEW(OCR_SIZENESW), LR_SHARED);
+  std::get<enum_cast(MouseCursor::ResizeNWSE)>(mLoadedCursors) = loadCursor(
+    MAKEINTRESOURCEW(OCR_SIZENWSE), LR_SHARED);
+  std::get<enum_cast(MouseCursor::Hand)>(mLoadedCursors) = loadCursor(
+    MAKEINTRESOURCEW(OCR_HAND), LR_SHARED);
+  std::get<enum_cast(MouseCursor::NotAllowed)>(mLoadedCursors) = loadCursor(
+    MAKEINTRESOURCEW(OCR_NO), LR_SHARED);
 }
 
 auto Window::dispatch_message(
@@ -224,6 +254,19 @@ auto Window::dispatch_message(
     // shutdown path
     ::PostQuitMessage(0);
     return 0;
+
+  case WM_SETCURSOR:
+    // TODO: issue with our input handling
+    //       the WM_MOUSEMOVE before the set cursor is handled and put in our
+    //       input queue -> the rest of the app gets the ability to set the
+    //       cursor only in the next frame -> the new cursor is only set at the
+    //       next WM_MOUSEMOVE/WM_SETCURSOR
+    if (LOWORD(lParam) == HTCLIENT) {
+      ::SetCursor(mLoadedCursors[enum_cast(mCurrentCursor)]);
+      return TRUE;
+    }
+
+    break;
 
   case WM_KEYDOWN:
   case WM_KEYUP: {
@@ -359,13 +402,6 @@ auto Window::register_class(const HMODULE moduleHandle) -> ATOM {
     BASALT_LOG_ERROR("failed to load icon");
   }
 
-  auto* const cursor = static_cast<HCURSOR>(::LoadImageW(
-    nullptr, MAKEINTRESOURCEW(OCR_NORMAL), IMAGE_CURSOR, 0, 0
-  , LR_DEFAULTSIZE | LR_SHARED));
-  if (!cursor) {
-    BASALT_LOG_ERROR("failed to load cursor");
-  }
-
   const int smallIconSizeX = ::GetSystemMetrics(SM_CXSMICON);
   const int smallIconSizeY = ::GetSystemMetrics(SM_CYSMICON);
   auto* const smallIcon = static_cast<HICON>(::LoadImageW(
@@ -383,7 +419,7 @@ auto Window::register_class(const HMODULE moduleHandle) -> ATOM {
   , 0 // cbWndExtra
   , moduleHandle
   , icon
-  , cursor
+  , nullptr
   , reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1)
   , nullptr // lpszMenuName
   , CLASS_NAME

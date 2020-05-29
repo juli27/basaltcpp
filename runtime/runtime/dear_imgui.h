@@ -2,7 +2,7 @@
 #ifndef BASALT_RUNTIME_DEAR_IMGUI_H
 #define BASALT_RUNTIME_DEAR_IMGUI_H
 
-#include "types.h"
+#include "Engine.h"
 
 namespace basalt {
 
@@ -21,7 +21,7 @@ struct DearImGui final {
   auto operator=(const DearImGui&) -> DearImGui& = delete;
   auto operator=(DearImGui&&) -> DearImGui& = delete;
 
-  void new_frame(const UpdateContext&);
+  void new_frame(const UpdateContext&) const;
 
 private:
   gfx::backend::IRenderer* mRenderer {};

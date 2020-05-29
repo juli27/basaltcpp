@@ -5,6 +5,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.0] - *Unreleased*
 ### Added
 - Colors
+- Engine object to query and configure runtime behaviour
+  - Engine.mouseCursor to get or set the current mouse cursor
 - **/types.h includes to prelude.h
 - Dear ImGui clipboard support
 - Dear ImGui IME support
