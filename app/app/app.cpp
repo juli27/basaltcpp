@@ -37,11 +37,8 @@ using std::string;
 
 namespace basalt::win32 {
 
-using gfx::View;
 using gfx::backend::AdapterInfo;
 using gfx::backend::D3D9ContextFactoryPtr;
-
-View sCurrentView {};
 
 namespace {
 
@@ -59,7 +56,7 @@ void draw_debug_ui_additional(const D3D9ContextFactoryPtr&);
 
 void run(const HMODULE moduleHandle, const int showCommand) {
   // let the client app configure us
-  const Config config {ClientApp::configure()};
+  Config config {ClientApp::configure()};
   dump_config(config);
 
   // creates the window, the associated gfx context and the renderer
@@ -68,11 +65,11 @@ void run(const HMODULE moduleHandle, const int showCommand) {
   const DearImGui dearImGui {window->renderer()};
   init_dear_imgui_additional(window.get());
 
-  Engine engine {};
+  Engine engine {window->renderer()};
 
-  const auto clientApp {ClientApp::create(window->renderer(), window->size())};
+  const auto clientApp {ClientApp::create(engine, window->size())};
   BASALT_ASSERT(clientApp);
-  BASALT_ASSERT_MSG(sCurrentView.scene, "no scene set");
+  BASALT_ASSERT_MSG(engine.currentView.scene, "no scene set");
 
   using Clock = std::chrono::high_resolution_clock;
   static_assert(Clock::is_steady);
@@ -80,21 +77,22 @@ void run(const HMODULE moduleHandle, const int showCommand) {
   f64 currentDeltaTime {0.0};
 
   while (poll_events()) {
+    config.windowSize = window->size();
     const UpdateContext ctx {
-      engine, currentDeltaTime, window->size(), window->drain_input()
+      engine, currentDeltaTime, config.windowSize, window->drain_input()
     };
     dearImGui.new_frame(ctx);
 
     clientApp->on_update(ctx);
 
     if (config.debugUiEnabled) {
-      Debug::update(sCurrentView);
+      Debug::update(engine.currentView);
     }
 
     draw_debug_ui_additional(window->context_factory());
 
     // also calls ImGui::Render()
-    gfx::render(window->renderer(), sCurrentView);
+    gfx::render(engine.renderer, engine.currentView);
 
     window->present();
     window->update(engine);
@@ -104,8 +102,6 @@ void run(const HMODULE moduleHandle, const int showCommand) {
       Clock::period::den * Clock::period::num);
     startTime = endTime;
   }
-
-  sCurrentView.scene.reset();
 }
 
 namespace {

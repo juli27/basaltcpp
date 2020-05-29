@@ -11,10 +11,6 @@
 
 namespace basalt {
 
-namespace gfx::backend {
-struct IRenderer;
-} // gfx::backend
-
 struct ClientApp {
   ClientApp() = default;
 
@@ -30,8 +26,7 @@ struct ClientApp {
 
   static auto configure() -> Config;
   static auto create(
-    gfx::backend::IRenderer*
-  , Size2Du16 windowSize) -> std::unique_ptr<ClientApp>;
+    Engine&, Size2Du16 windowSize) -> std::unique_ptr<ClientApp>;
 };
 
 } // namespace basalt

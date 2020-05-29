@@ -2,7 +2,6 @@
 
 #include "sandbox/d3d9/utils.h"
 
-#include <runtime/Engine.h>
 #include <runtime/prelude.h>
 
 #include <runtime/scene/transform.h>
@@ -29,11 +28,8 @@ Meshes::Meshes(IRenderer* const renderer) {
   rc.model = renderer->load_model("data/Tiger.x");
 }
 
-void Meshes::on_show(const basalt::Size2Du16 windowSize) {
-  basalt::set_view(View {mScene, create_default_camera(windowSize)});
-}
-
-void Meshes::on_hide() {
+auto Meshes::view(const basalt::Size2Du16 windowSize) -> View {
+  return View {mScene, create_default_camera(windowSize)};
 }
 
 void Meshes::on_update(const f64 deltaTime) {

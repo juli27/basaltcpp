@@ -5,17 +5,21 @@
 #include "Input.h"
 #include "types.h"
 
+#include "gfx/types.h"
+
 #include "shared/Size2D.h"
 
 namespace basalt {
 
-namespace gfx {
+namespace gfx::backend {
 
-struct View;
+struct IRenderer;
 
-} // namespace gfx
+} // namespace gfx::backend
 
 struct Engine {
+  gfx::backend::IRenderer* renderer {};
+  gfx::View currentView {};
   MouseCursor mouseCursor {};
 
   Engine() = default;
@@ -38,8 +42,6 @@ struct UpdateContext final {
 };
 
 void quit();
-
-void set_view(const gfx::View&);
 
 } // namespace basalt
 

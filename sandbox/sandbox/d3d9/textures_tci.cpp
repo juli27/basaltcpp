@@ -2,7 +2,6 @@
 
 #include "sandbox/d3d9/utils.h"
 
-#include <runtime/Engine.h>
 #include <runtime/prelude.h>
 
 #include <runtime/gfx/Camera.h>
@@ -78,11 +77,8 @@ TexturesTci::TexturesTci(
   rc.tcs = TexCoordinateSrc::PositionCameraSpace;
 }
 
-void TexturesTci::on_show(const basalt::Size2Du16 windowSize) {
-  basalt::set_view(View {mScene, create_default_camera(windowSize)});
-}
-
-void TexturesTci::on_hide() {
+auto TexturesTci::view(const basalt::Size2Du16 windowSize) -> View {
+  return View {mScene, create_default_camera(windowSize)};
 }
 
 void TexturesTci::on_update(const f64 deltaTime) {

@@ -2,7 +2,6 @@
 
 #include "sandbox/d3d9/utils.h"
 
-#include <runtime/Engine.h>
 #include <runtime/prelude.h>
 
 #include <array>
@@ -55,11 +54,8 @@ Vertices::Vertices(IRenderer* const renderer) {
   rc.mMesh = add_triangle_list_mesh(renderer, vertices, vertexLayout);
 }
 
-void Vertices::on_show(const basalt::Size2Du16) {
-  basalt::set_view(View {mScene});
-}
-
-void Vertices::on_hide() {
+auto Vertices::view(const basalt::Size2Du16) -> View {
+  return View {mScene};
 }
 
 void Vertices::on_update(const f64) {

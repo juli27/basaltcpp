@@ -14,13 +14,12 @@ struct TestCase;
 
 struct SandboxApp final : basalt::ClientApp {
   SandboxApp() = delete;
-  explicit SandboxApp(
-    basalt::gfx::backend::IRenderer*, basalt::Size2Du16 windowSize);
+  explicit SandboxApp(basalt::Engine&, basalt::Size2Du16 windowSize);
 
   SandboxApp(const SandboxApp&) = delete;
   SandboxApp(SandboxApp&&) = delete;
 
-  ~SandboxApp() override;
+  ~SandboxApp() override = default;
 
   auto operator=(const SandboxApp&) -> SandboxApp& = delete;
   auto operator=(SandboxApp&&) -> SandboxApp& = delete;
@@ -31,9 +30,9 @@ private:
   std::vector<std::unique_ptr<TestCase>> mScenes {};
   basalt::uSize mCurrentSceneIndex {6};
 
-  void next_scene(basalt::Size2Du16 windowSize);
-  void prev_scene(basalt::Size2Du16 windowSize);
-  void set_scene(basalt::uSize index, basalt::Size2Du16 windowSize);
+  void next_scene(const basalt::UpdateContext&);
+  void prev_scene(const basalt::UpdateContext&);
+  void set_scene(const basalt::UpdateContext&, basalt::uSize index);
 };
 
 #endif // !SANDBOX_H

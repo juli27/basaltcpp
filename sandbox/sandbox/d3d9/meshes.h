@@ -23,8 +23,7 @@ struct Meshes final : TestCase {
   auto operator=(const Meshes&) -> Meshes& = delete;
   auto operator=(Meshes&&) -> Meshes& = delete;
 
-  void on_show(basalt::Size2Du16 windowSize) override;
-  void on_hide() override;
+  auto view(basalt::Size2Du16 windowSize) -> basalt::gfx::View override;
   void on_update(basalt::f64 deltaTime) override;
   auto name() -> std::string_view override;
 

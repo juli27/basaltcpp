@@ -1,10 +1,12 @@
 #include "sandbox/d3d9/device.h"
 
-#include <runtime/Engine.h>
 #include <runtime/prelude.h>
 
-using std::string_view;
 using namespace std::literals;
+
+using std::string_view;
+
+using basalt::gfx::View;
 
 namespace d3d9 {
 
@@ -12,11 +14,8 @@ Device::Device() {
   mScene->set_background_color(Colors::BLUE);
 }
 
-void Device::on_show(const basalt::Size2Du16) {
-  basalt::set_view({mScene});
-}
-
-void Device::on_hide() {
+auto Device::view(const basalt::Size2Du16) -> View {
+  return View {mScene};
 }
 
 void Device::on_update(const f64) {

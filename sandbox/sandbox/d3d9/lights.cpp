@@ -2,7 +2,6 @@
 
 #include "sandbox/d3d9/utils.h"
 
-#include <runtime/Engine.h>
 #include <runtime/prelude.h>
 
 #include <runtime/scene/transform.h>
@@ -64,11 +63,8 @@ Lights::Lights(IRenderer* const renderer) {
   rc.mRenderFlags = RenderFlagCullNone;
 }
 
-void Lights::on_show(const basalt::Size2Du16 windowSize) {
-  basalt::set_view(View {mScene, create_default_camera(windowSize)});
-}
-
-void Lights::on_hide() {
+auto Lights::view(const basalt::Size2Du16 windowSize) -> View {
+  return View {mScene, create_default_camera(windowSize)};
 }
 
 void Lights::on_update(const f64 deltaTime) {

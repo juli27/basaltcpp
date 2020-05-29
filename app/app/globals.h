@@ -4,21 +4,10 @@
 
 #include "runtime/shared/Config.h"
 
-namespace basalt {
-
-namespace gfx {
-
-struct View;
-
-} // namespace gfx
-
-namespace win32 {
+namespace basalt::win32 {
 
 extern WindowMode sWindowMode;
 
-extern gfx::View sCurrentView;
-
-} // namespace win32
-} // namespace basalt
+} // namespace basalt::win32
 
 #endif // !BASALT_APP_GLOBALS_H

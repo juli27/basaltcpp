@@ -2,7 +2,6 @@
 
 #include "sandbox/d3d9/utils.h"
 
-#include <runtime/Engine.h>
 #include <runtime/prelude.h>
 
 #include <runtime/scene/transform.h>
@@ -63,11 +62,8 @@ Matrices::Matrices(IRenderer* const renderer) {
   rc.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 }
 
-void Matrices::on_show(const basalt::Size2Du16 windowSize) {
-  basalt::set_view(View {mScene, create_default_camera(windowSize)});
-}
-
-void Matrices::on_hide() {
+auto Matrices::view(const basalt::Size2Du16 windowSize) -> View {
+  return View {mScene, create_default_camera(windowSize)};
 }
 
 void Matrices::on_update(const f64 deltaTime) {
