@@ -80,7 +80,7 @@ void run(const HMODULE moduleHandle, const int showCommand) {
   auto startTime {Clock::now()};
   f64 currentDeltaTime {0.0};
 
-  do {
+  while (poll_events()) {
     const UpdateContext ctx {
       engine, currentDeltaTime, window->size(), window->drain_input()
     };
@@ -104,7 +104,7 @@ void run(const HMODULE moduleHandle, const int showCommand) {
     currentDeltaTime = static_cast<f64>((endTime - startTime).count()) / (
       Clock::period::den * Clock::period::num);
     startTime = endTime;
-  } while (poll_events());
+  }
 
   sCurrentView.scene.reset();
 }
