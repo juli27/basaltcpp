@@ -98,6 +98,8 @@ private:
 
   void do_resize(Size2Du16 clientArea) const;
 
+  void process_mouse_message_states(WPARAM);
+
   static ATOM register_class(HMODULE);
 
   static auto CALLBACK window_proc(

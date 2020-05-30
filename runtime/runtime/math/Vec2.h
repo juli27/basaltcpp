@@ -31,7 +31,7 @@ struct Vec2 final {
   }
 
   [[nodiscard]]
-  constexpr auto operator!=(const Vec2& other) noexcept -> bool {
+  constexpr auto operator!=(const Vec2& other) const noexcept -> bool {
     return !(*this == other);
   }
 

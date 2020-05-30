@@ -15,8 +15,10 @@ auto Input::mouse_position() const -> Vec2i32 {
 }
 
 void Input::mouse_moved(const i32 x, const i32 y) {
-  mEvents.push_back(std::make_unique<MouseMoved>(Vec2i32 {x, y}));
-  mMousePosition.set(x, y);
+  if (const Vec2i32 input {x, y}; input != mMousePosition) {
+    mEvents.push_back(std::make_unique<MouseMoved>(input));
+    mMousePosition = input;
+  }
 }
 
 void Input::mouse_wheel(const f32 offset) {
@@ -28,13 +30,17 @@ auto Input::is_mouse_button_down(const MouseButton button) const -> bool {
 }
 
 void Input::mouse_button_down(const MouseButton button) {
-  mEvents.push_back(std::make_unique<MouseButtonDown>(button));
-  mMouseButtonsDown[enum_cast(button)] = true;
+  if (const auto index = enum_cast(button); !mMouseButtonsDown[index]) {
+    mEvents.push_back(std::make_unique<MouseButtonDown>(button));
+    mMouseButtonsDown[index] = true;
+  }
 }
 
 void Input::mouse_button_up(const MouseButton button) {
-  mEvents.push_back(std::make_unique<MouseButtonUp>(button));
-  mMouseButtonsDown[enum_cast(button)] = false;
+  if (const auto index = enum_cast(button); mMouseButtonsDown[index]) {
+    mEvents.push_back(std::make_unique<MouseButtonUp>(button));
+    mMouseButtonsDown[index] = false;
+  }
 }
 
 auto Input::is_key_down(const Key key) const -> bool {
@@ -42,13 +48,17 @@ auto Input::is_key_down(const Key key) const -> bool {
 }
 
 void Input::key_down(const Key key) {
-  mEvents.push_back(std::make_unique<KeyDown>(key));
-  mKeysDown[enum_cast(key)] = true;
+  if (const auto index = enum_cast(key); !mKeysDown[index]) {
+    mEvents.push_back(std::make_unique<KeyDown>(key));
+    mKeysDown[index] = true;
+  }
 }
 
 void Input::key_up(const Key key) {
-  mEvents.push_back(std::make_unique<KeyUp>(key));
-  mKeysDown[enum_cast(key)] = false;
+  if (const auto index = enum_cast(key); mKeysDown[index]) {
+    mEvents.push_back(std::make_unique<KeyUp>(key));
+    mKeysDown[index] = false;
+  }
 }
 
 void Input::characters_typed(std::string characters) {

@@ -300,44 +300,47 @@ auto Window::dispatch_message(
     return 0;
   }
 
+    // we process all passed input data (wParam & lParam) for every message:
+    // "When mouse messages are posted faster than a thread can process them,
+    // the system discards all but the most recent mouse message"
+    // https://docs.microsoft.com/en-us/windows/win32/inputdev/about-mouse-input#mouse-messages
   case WM_MOUSEMOVE:
+    process_mouse_message_states(wParam);
     mInput.mouse_moved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
     return 0;
 
   case WM_LBUTTONDOWN:
-    mInput.mouse_button_down(MouseButton::Left);
-    ::SetCapture(mHandle);
-    return 0;
-
   case WM_LBUTTONUP:
-    mInput.mouse_button_up(MouseButton::Left);
-    if (!::ReleaseCapture()) {
-      BASALT_LOG_ERROR(
-        "Releasing mouse capture in WM_LBUTTONUP failed: {}",
-        create_winapi_error_message(::GetLastError())
-      );
+  case WM_RBUTTONDOWN:
+  case WM_RBUTTONUP:
+  case WM_MBUTTONDOWN:
+  case WM_MBUTTONUP: {
+    mInput.mouse_moved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+    process_mouse_message_states(wParam);
+
+    constexpr u16 anyButton = MK_LBUTTON | MK_RBUTTON | MK_MBUTTON | MK_XBUTTON1
+      | MK_XBUTTON2;
+    if (wParam & anyButton) {
+      ::SetCapture(mHandle);
+    } else {
+      // release capture if all buttons are up
+      // TODO: assert on the return value
+      ::ReleaseCapture();
     }
     return 0;
+  }
 
-  case WM_RBUTTONDOWN:
-    mInput.mouse_button_down(MouseButton::Right);
-    return 0;
+  case WM_XBUTTONDOWN:
+  case WM_XBUTTONUP:
+    mInput.mouse_moved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+    process_mouse_message_states(wParam);
 
-  case WM_RBUTTONUP:
-    mInput.mouse_button_up(MouseButton::Right);
-    return 0;
-
-  case WM_MBUTTONDOWN:
-    mInput.mouse_button_down(MouseButton::Middle);
-    return 0;
-
-  case WM_MBUTTONUP:
-    mInput.mouse_button_up(MouseButton::Middle);
-    return 0;
-
-    // TODO: XBUTTON4 and XBUTTON5
+    // WM_XBUTTONDOWN and WM_XBUTTONUP requires us to return TRUE
+    return TRUE;
 
   case WM_MOUSEWHEEL: {
+    mInput.mouse_moved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+    process_mouse_message_states(wParam);
     const f32 offset {
       static_cast<f32>(GET_WHEEL_DELTA_WPARAM(wParam)) / static_cast<f32>(
         WHEEL_DELTA)
@@ -372,6 +375,44 @@ void Window::do_resize(const Size2Du16 clientArea) const {
   mContext->resize(clientArea);
 }
 
+void Window::process_mouse_message_states(const WPARAM wParam) {
+  if (wParam & MK_SHIFT) {
+    mInput.key_down(Key::Shift);
+  } else {
+    mInput.key_up(Key::Shift);
+  }
+  if (wParam & MK_CONTROL) {
+    mInput.key_down(Key::Control);
+  } else {
+    mInput.key_up(Key::Control);
+  }
+  if (wParam & MK_LBUTTON) {
+    mInput.mouse_button_down(MouseButton::Left);
+  } else {
+    mInput.mouse_button_up(MouseButton::Left);
+  }
+  if (wParam & MK_RBUTTON) {
+    mInput.mouse_button_down(MouseButton::Right);
+  } else {
+    mInput.mouse_button_up(MouseButton::Right);
+  }
+  if (wParam & MK_MBUTTON) {
+    mInput.mouse_button_down(MouseButton::Middle);
+  } else {
+    mInput.mouse_button_up(MouseButton::Middle);
+  }
+  if (wParam & MK_XBUTTON1) {
+    mInput.mouse_button_down(MouseButton::Button4);
+  } else {
+    mInput.mouse_button_up(MouseButton::Button4);
+  }
+  if (wParam & MK_XBUTTON2) {
+    mInput.mouse_button_down(MouseButton::Button5);
+  } else {
+    mInput.mouse_button_up(MouseButton::Button5);
+  }
+}
+
 auto Window::register_class(const HMODULE moduleHandle) -> ATOM {
   auto* const icon = static_cast<HICON>(::LoadImageW(
     nullptr, MAKEINTRESOURCEW(OIC_SAMPLE), IMAGE_ICON, 0, 0
@@ -391,7 +432,7 @@ auto Window::register_class(const HMODULE moduleHandle) -> ATOM {
 
   WNDCLASSEXW windowClass {
     sizeof(WNDCLASSEXW)
-  , CS_CLASSDC
+  , CS_OWNDC
   , &Window::window_proc
   , 0 // cbClsExtra
   , 0 // cbWndExtra
