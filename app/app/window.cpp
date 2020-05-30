@@ -305,6 +305,7 @@ auto Window::dispatch_message(
     // the system discards all but the most recent mouse message"
     // https://docs.microsoft.com/en-us/windows/win32/inputdev/about-mouse-input#mouse-messages
   case WM_MOUSEMOVE:
+    // insert the mouse moved last, because this is the most recent message
     process_mouse_message_states(wParam);
     mInput.mouse_moved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
     return 0;
@@ -314,7 +315,9 @@ auto Window::dispatch_message(
   case WM_RBUTTONDOWN:
   case WM_RBUTTONUP:
   case WM_MBUTTONDOWN:
-  case WM_MBUTTONUP: {
+  case WM_MBUTTONUP:
+  case WM_XBUTTONDOWN:
+  case WM_XBUTTONUP: {
     mInput.mouse_moved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
     process_mouse_message_states(wParam);
 
@@ -327,16 +330,10 @@ auto Window::dispatch_message(
       // TODO: assert on the return value
       ::ReleaseCapture();
     }
-    return 0;
-  }
-
-  case WM_XBUTTONDOWN:
-  case WM_XBUTTONUP:
-    mInput.mouse_moved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-    process_mouse_message_states(wParam);
 
     // WM_XBUTTONDOWN and WM_XBUTTONUP requires us to return TRUE
-    return TRUE;
+    return message == WM_XBUTTONDOWN || message == WM_XBUTTONUP;
+  }
 
   case WM_MOUSEWHEEL: {
     mInput.mouse_moved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
