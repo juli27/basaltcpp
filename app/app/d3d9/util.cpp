@@ -5,7 +5,7 @@ using namespace std::literals;
 
 namespace basalt::gfx::backend {
 
-auto to_string(const SurfaceFormat format) -> std::string_view {
+auto to_string(const SurfaceFormat format) noexcept -> std::string_view {
   switch (format) {
   case SurfaceFormat::B5G6R5:
     return "B5G6R5"sv;

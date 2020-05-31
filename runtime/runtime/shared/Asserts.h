@@ -1,6 +1,4 @@
 #pragma once
-#ifndef BASALT_SHARED_ASSERTS_H
-#define BASALT_SHARED_ASSERTS_H
 
 #if BASALT_DEV_BUILD
 
@@ -40,5 +38,3 @@ void fail_assert(
 #define BASALT_ASSERT_MSG(b, msg)
 
 #endif // BASALT_DEV_BUILD
-
-#endif  // !BASALT_SHARED_ASSERTS_H

@@ -22,13 +22,13 @@ struct D3D9Factory final {
   D3D9Factory(const D3D9Factory& other) = delete;
   D3D9Factory(D3D9Factory&& other) = delete;
 
-  ~D3D9Factory() = default;
+  ~D3D9Factory() noexcept = default;
 
   auto operator=(const D3D9Factory& other) -> D3D9Factory& = delete;
   auto operator=(D3D9Factory&& other) -> D3D9Factory& = delete;
 
   [[nodiscard]]
-  auto adapter_info() const -> const AdapterInfo&;
+  auto adapter_info() const noexcept -> const AdapterInfo&;
 
   auto create_context(HWND window) const -> std::unique_ptr<D3D9Context>;
 

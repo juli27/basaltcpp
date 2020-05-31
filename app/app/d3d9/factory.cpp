@@ -85,7 +85,7 @@ D3D9Factory::D3D9Factory(ComPtr<IDirect3D9> factory)
   }
 }
 
-auto D3D9Factory::adapter_info() const -> const AdapterInfo& {
+auto D3D9Factory::adapter_info() const noexcept -> const AdapterInfo& {
   return mAdapterInfo;
 }
 

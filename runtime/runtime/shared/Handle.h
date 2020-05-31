@@ -1,6 +1,4 @@
 #pragma once
-#ifndef BASALT_SHARED_HANDLE_H
-#define BASALT_SHARED_HANDLE_H
 
 #include "Asserts.h"
 #include "Types.h"
@@ -8,7 +6,7 @@
 #include <limits>
 
 namespace basalt {
-namespace _internal {
+namespace detail {
 
 struct HandleBase {
   using ValueT = u32;
@@ -30,7 +28,9 @@ struct HandleBase {
   constexpr void invalidate() noexcept;
 
   [[nodiscard]]
-  constexpr auto get_value() const noexcept -> ValueT;
+  constexpr auto value() const noexcept -> ValueT {
+    return mValue;
+  }
 
 private:
   static constexpr ValueT INVALID_VALUE {std::numeric_limits<ValueT>::max()};
@@ -64,18 +64,12 @@ constexpr void HandleBase::invalidate() noexcept {
   mValue = INVALID_VALUE;
 }
 
-constexpr HandleBase::ValueT HandleBase::get_value() const noexcept {
-  return mValue;
-}
-
-} // namespace _internal
+} // namespace detail
 
 template <typename Tag>
-struct Handle final : _internal::HandleBase {
+struct Handle final : detail::HandleBase {
   // inherit base class constructors
   using HandleBase::HandleBase;
 };
 
 } // namespace basalt
-
-#endif // !BASALT_SHARED_HANDLE_H

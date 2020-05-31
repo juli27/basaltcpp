@@ -35,11 +35,13 @@ constexpr auto to_d3d_color(const Color& color) noexcept -> D3DCOLOR {
 
 constexpr auto to_d3d_color_value(
   const Color& color) noexcept -> D3DCOLORVALUE {
-  return {color.red(), color.green(), color.blue(), color.alpha()};
+  return D3DCOLORVALUE {
+    color.red(), color.green(), color.blue(), color.alpha()
+  };
 }
 
 constexpr auto to_d3d_matrix(const Mat4f32& mat) noexcept -> D3DMATRIX {
-  return {
+  return D3DMATRIX {
     mat.m11, mat.m12, mat.m13, mat.m14
   , mat.m21, mat.m22, mat.m23, mat.m24
   , mat.m31, mat.m32, mat.m33, mat.m34
@@ -48,7 +50,7 @@ constexpr auto to_d3d_matrix(const Mat4f32& mat) noexcept -> D3DMATRIX {
 }
 
 constexpr auto to_d3d_vector(const math::Vec3f32& vec) noexcept -> D3DVECTOR {
-  return {vec.x, vec.y, vec.z};
+  return D3DVECTOR {vec.x, vec.y, vec.z};
 }
 
 auto to_fvf(const VertexLayout& layout) -> DWORD;
@@ -119,13 +121,15 @@ void D3D9Renderer::remove_mesh(const MeshHandle meshHandle) {
   mMeshes.deallocate(meshHandle);
 }
 
-auto D3D9Renderer::add_texture(const std::string_view filePath) -> TextureHandle {
+auto D3D9Renderer::add_texture(
+  const std::string_view filePath) -> TextureHandle {
   const auto [handle, texture] = mTextures.allocate();
 
   const auto wideFilePath = win32::create_wide_from_utf8(filePath);
-  if (FAILED(::D3DXCreateTextureFromFileW(
-    mDevice.Get(), wideFilePath.c_str(), texture.GetAddressOf()
-  ))) {
+  if (FAILED(
+    ::D3DXCreateTextureFromFileW(
+      mDevice.Get(), wideFilePath.c_str(), texture.GetAddressOf()
+    ))) {
     throw std::runtime_error("loading texture file failed");
   }
 
@@ -150,7 +154,8 @@ auto D3D9Renderer::load_model(const std::string_view filePath) -> ModelHandle {
   , model.mesh.GetAddressOf());
   BASALT_ASSERT(SUCCEEDED(hr));
 
-  auto const* materials = static_cast<D3DXMATERIAL*>(materialBuffer->GetBufferPointer());
+  auto const* materials = static_cast<D3DXMATERIAL*>(materialBuffer->
+    GetBufferPointer());
   model.materials.reserve(numMaterials);
   model.textures.resize(numMaterials);
 
@@ -282,7 +287,7 @@ void D3D9Renderer::render_command(const RenderCommand& command) {
 
   if (command.model) {
     const auto transform {to_d3d_matrix(command.mWorld)};
-      D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &transform));
+    D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &transform));
 
     const auto& model = mModels.get(command.model);
     for (DWORD i = 0; i < model.materials.size(); i++) {
@@ -308,7 +313,8 @@ void D3D9Renderer::render_command(const RenderCommand& command) {
     if (command.mTexture) {
       const auto& texture = mTextures.get(command.mTexture);
       D3D9CALL(mDevice->SetTexture(0, texture.Get()));
-      D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
+      D3D9CALL(
+        mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
 
       // transform tex coords
       if (command.texTransform != Mat4f32::identity()) {
@@ -342,7 +348,8 @@ void D3D9Renderer::render_command(const RenderCommand& command) {
     }
 
     D3D9CALL(
-      mDevice->SetStreamSource(0u, mesh.vertexBuffer.Get(), 0u, mesh.vertexSize));
+      mDevice->SetStreamSource(0u, mesh.vertexBuffer.Get(), 0u, mesh.vertexSize
+      ));
 
     D3D9CALL(mDevice->SetFVF(mesh.fvf));
     D3D9CALL(mDevice->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
@@ -363,7 +370,8 @@ void D3D9Renderer::render_command(const RenderCommand& command) {
         D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &identity));
       }
 
-      D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1));
+      D3D9CALL(
+        mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1));
       D3D9CALL(mDevice->SetTexture(0, nullptr));
     }
   }
@@ -386,29 +394,29 @@ auto to_fvf(const VertexLayout& layout) -> DWORD {
 
   for (const auto& element : layout) {
     switch (element) {
-      case VertexElement::Position3F32:
-        fvf |= D3DFVF_XYZ;
-        break;
+    case VertexElement::Position3F32:
+      fvf |= D3DFVF_XYZ;
+      break;
 
-      case VertexElement::PositionTransformed4F32:
-        fvf |= D3DFVF_XYZRHW;
-        break;
+    case VertexElement::PositionTransformed4F32:
+      fvf |= D3DFVF_XYZRHW;
+      break;
 
-      case VertexElement::Normal3F32:
-        fvf |= D3DFVF_NORMAL;
-        break;
+    case VertexElement::Normal3F32:
+      fvf |= D3DFVF_NORMAL;
+      break;
 
-      case VertexElement::ColorDiffuse1U32:
-        fvf |= D3DFVF_DIFFUSE;
-        break;
+    case VertexElement::ColorDiffuse1U32:
+      fvf |= D3DFVF_DIFFUSE;
+      break;
 
-      case VertexElement::ColorSpecular1U32:
-        fvf |= D3DFVF_SPECULAR;
-        break;
+    case VertexElement::ColorSpecular1U32:
+      fvf |= D3DFVF_SPECULAR;
+      break;
 
-      case VertexElement::TextureCoords2F32:
-        fvf |= D3DFVF_TEX1;
-        break;
+    case VertexElement::TextureCoords2F32:
+      fvf |= D3DFVF_TEX1;
+      break;
     }
   }
 
@@ -417,7 +425,8 @@ auto to_fvf(const VertexLayout& layout) -> DWORD {
 
 auto verify_fvf(const DWORD fvf) -> bool {
   if (fvf & D3DFVF_XYZRHW && (fvf & D3DFVF_XYZ || fvf & D3DFVF_NORMAL)) {
-    BASALT_LOG_ERROR("can't use transformed positions with untransformed"
+    BASALT_LOG_ERROR(
+      "can't use transformed positions with untransformed"
       "positions or normals");
     return false;
   }

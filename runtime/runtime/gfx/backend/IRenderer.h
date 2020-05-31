@@ -19,7 +19,7 @@ struct IRenderer {
   IRenderer(const IRenderer&) = delete;
   IRenderer(IRenderer&&) = delete;
 
-  virtual ~IRenderer() = default;
+  virtual ~IRenderer() noexcept = default;
 
   auto operator=(const IRenderer&) -> IRenderer& = delete;
   auto operator=(IRenderer&&) -> IRenderer& = delete;
@@ -82,7 +82,7 @@ struct IRenderer {
   virtual void new_gui_frame() = 0;
 
 protected:
-    IRenderer() = default;
+    IRenderer() noexcept = default;
 };
 
 } // namespace gfx::backend

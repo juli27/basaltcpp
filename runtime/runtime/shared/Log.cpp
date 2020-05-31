@@ -1,12 +1,13 @@
-#include "runtime/shared/Log.h"
-
-#include "runtime/platform/Platform.h"
+#include "Log.h"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
 
 #if BASALT_DEV_BUILD
+
+#include <runtime/platform/Platform.h>
 #include <spdlog/sinks/msvc_sink.h>
+
 #endif // BASALT_DEV_BUILD
 
 #include <memory>
@@ -70,12 +71,12 @@ void Log::shutdown() {
 }
 
 
-auto Log::core_logger() -> logger* {
-  return sCoreLogger.get();
+auto Log::core_logger() noexcept -> logger& {
+  return *sCoreLogger.get();
 }
 
-auto Log::client_logger() -> logger* {
-  return sClientLogger.get();
+auto Log::client_logger() noexcept -> logger& {
+  return *sClientLogger.get();
 }
 
 } // namespace basalt

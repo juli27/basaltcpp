@@ -18,7 +18,7 @@ D3D9Context::D3D9Context(
   BASALT_ASSERT(mDevice);
 }
 
-auto D3D9Context::renderer() const -> const unique_ptr<D3D9Renderer>& {
+auto D3D9Context::renderer() const noexcept -> const unique_ptr<D3D9Renderer>& {
   return mRenderer;
 }
 

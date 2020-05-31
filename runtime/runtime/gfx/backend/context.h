@@ -7,12 +7,12 @@ namespace basalt::gfx::backend {
 // A gfx context is directly tied to a window. If another gfx context is
 // required (e.g. change of rendering API), the window must be recreated.
 struct IGfxContext {
-  IGfxContext() = default;
+  IGfxContext() noexcept = default;
 
   IGfxContext(const IGfxContext&) = delete;
   IGfxContext(IGfxContext&&) = delete;
 
-  virtual ~IGfxContext() = default;
+  virtual ~IGfxContext() noexcept = default;
 
   auto operator=(const IGfxContext&) -> IGfxContext& = delete;
   auto operator=(IGfxContext&&) -> IGfxContext& = delete;

@@ -1,9 +1,7 @@
 #pragma once
-#ifndef BASALT_SHARED_CONFIG_H
-#define BASALT_SHARED_CONFIG_H
 
-#include "runtime/shared/Size2D.h"
-#include "runtime/shared/Types.h"
+#include "Size2D.h"
+#include "Types.h"
 
 #include <string>
 
@@ -49,5 +47,3 @@ struct Config final {
 };
 
 } // namespace basalt
-
-#endif // !BASALT_SHARED_CONFIG_H

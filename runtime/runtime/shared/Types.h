@@ -1,6 +1,4 @@
 #pragma once
-#ifndef BASALT_SHARED_TYPES_H
-#define BASALT_SHARED_TYPES_H
 
 #include <cstddef>
 #include <cstdint>
@@ -64,10 +62,8 @@ using f32 = float;
 using f64 = double;
 
 template <typename E, std::enable_if_t<std::is_enum_v<E>, int> = 0>
-constexpr auto enum_cast(const E e) {
+constexpr auto enum_cast(const E e) noexcept {
   return static_cast<std::underlying_type_t<E>>(e);
 }
 
 } // namespace basalt
-
-#endif // !BASALT_SHARED_TYPES_H

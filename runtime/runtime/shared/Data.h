@@ -1,8 +1,6 @@
 #pragma once
-#ifndef BASALT_SHARED_COLORS_H
-#define BASALT_SHARED_COLORS_H
 
-#include "runtime/shared/Types.h"
+#include "Types.h"
 
 namespace basalt {
 
@@ -25,5 +23,3 @@ struct ColorEncoding final {
 };
 
 } // namespace basalt
-
-#endif // BASALT_SHARED_COLORS_H

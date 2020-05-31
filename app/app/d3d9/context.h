@@ -20,13 +20,13 @@ struct D3D9Context final : IGfxContext {
   D3D9Context(const D3D9Context&) = delete;
   D3D9Context(D3D9Context&&) = delete;
 
-  ~D3D9Context() override = default;
+  ~D3D9Context() noexcept override = default;
 
   auto operator=(const D3D9Context&) -> D3D9Context& = delete;
   auto operator=(D3D9Context&&) -> D3D9Context& = delete;
 
   [[nodiscard]]
-  auto renderer() const -> const std::unique_ptr<D3D9Renderer>&;
+  auto renderer() const noexcept -> const std::unique_ptr<D3D9Renderer>&;
 
   void resize(Size2Du16);
   void present() override;

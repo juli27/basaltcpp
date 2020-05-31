@@ -20,6 +20,6 @@
 
 namespace basalt::gfx::backend {
 
-auto to_string(SurfaceFormat) -> std::string_view;
+auto to_string(SurfaceFormat) noexcept -> std::string_view;
 
 } // namespace basalt::gfx::backend

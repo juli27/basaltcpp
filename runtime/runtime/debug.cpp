@@ -159,12 +159,12 @@ void Debug::draw_scene_debug_ui(Scene* const scene) {
                                entity)) {
           if (ImGui::TreeNode("RenderComponent")) {
             if (rc->model) {
-              ImGui::Text("Model: %#x", rc->model.get_value());
+              ImGui::Text("Model: %#x", rc->model.value());
             } else {
               ImGui::Text(
-                "Mesh: %#x", rc->mMesh.get_value());
+                "Mesh: %#x", rc->mMesh.value());
               ImGui::Text(
-                "Texture: %#x", rc->mTexture.get_value());
+                "Texture: %#x", rc->mTexture.value());
 
               edit_color4("Diffuse", rc->mDiffuseColor);
               edit_color4("Ambient", rc->mAmbientColor);
