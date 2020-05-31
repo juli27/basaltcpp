@@ -3,7 +3,7 @@
 #define BASALT_APP_WINDOW_H
 
 #include "d3d9/context.h"
-#include "d3d9/context_factory.h"
+#include "d3d9/factory.h"
 #include "shared/Windows_custom.h"
 
 #include <runtime/Input.h>
@@ -50,7 +50,7 @@ struct Window final {
   }
 
   [[nodiscard]]
-  auto context_factory() const -> const gfx::backend::D3D9ContextFactoryPtr& {
+  auto context_factory() const -> const gfx::backend::D3D9FactoryPtr& {
     return mFactory;
   }
 
@@ -77,8 +77,8 @@ private:
   HMODULE mModuleHandle {nullptr};
   HWND mHandle {nullptr};
 
-  gfx::backend::D3D9ContextFactoryPtr mFactory {};
-  std::unique_ptr<gfx::backend::D3D9GfxContext> mContext {};
+  gfx::backend::D3D9FactoryPtr mFactory {};
+  std::unique_ptr<gfx::backend::D3D9Context> mContext {};
 
   Input mInput {};
   Size2Du16 mClientAreaSize {Size2Du16::dont_care()};
@@ -88,9 +88,8 @@ private:
   MouseCursor mCurrentCursor {};
 
   Window(
-    HMODULE, HWND handle, gfx::backend::D3D9ContextFactoryPtr factory
-  , std::unique_ptr<gfx::backend::D3D9GfxContext> context
-  , Size2Du16 clientAreaSize);
+    HMODULE, HWND, gfx::backend::D3D9FactoryPtr
+  , std::unique_ptr<gfx::backend::D3D9Context>, Size2Du16 clientAreaSize);
 
   [[nodiscard]]
   auto dispatch_message(UINT message, WPARAM, LPARAM) -> LRESULT;

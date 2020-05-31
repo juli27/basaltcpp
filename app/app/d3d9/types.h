@@ -1,8 +1,6 @@
 #pragma once
-#ifndef BASALT_APP_D3D9_TYPES_H
-#define BASALT_APP_D3D9_TYPES_H
 
-#include "runtime/shared/Types.h"
+#include <runtime/shared/Types.h>
 
 #include <string>
 #include <vector>
@@ -39,5 +37,3 @@ struct AdapterInfo final {
 };
 
 } // namespace basalt::gfx::backend
-
-#endif // BASALT_APP_D3D9_TYPES_H

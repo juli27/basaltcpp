@@ -157,7 +157,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="app\d3d9\renderer.cpp" />
-    <ClCompile Include="app\d3d9\context_factory.cpp" />
+    <ClCompile Include="app\d3d9\factory.cpp" />
     <ClCompile Include="app\d3d9\context.cpp" />
     <ClCompile Include="app\d3d9\util.cpp" />
     <ClCompile Include="app\app.cpp" />
@@ -172,7 +172,7 @@
   <ItemGroup>
     <ClInclude Include="app\d3d9\renderer.h" />
     <ClInclude Include="app\d3d9\util.h" />
-    <ClInclude Include="app\d3d9\context_factory.h" />
+    <ClInclude Include="app\d3d9\factory.h" />
     <ClInclude Include="app\d3d9\context.h" />
     <ClInclude Include="app\app.h" />
     <ClInclude Include="app\build_config.h" />

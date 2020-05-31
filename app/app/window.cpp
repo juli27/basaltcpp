@@ -35,9 +35,9 @@ using std::wstring_view;
 
 namespace basalt::win32 {
 
-using gfx::backend::D3D9ContextFactory;
-using gfx::backend::D3D9ContextFactoryPtr;
-using gfx::backend::D3D9GfxContext;
+using gfx::backend::D3D9Factory;
+using gfx::backend::D3D9FactoryPtr;
+using gfx::backend::D3D9Context;
 
 WindowMode sWindowMode;
 
@@ -128,7 +128,7 @@ auto Window::create(
   }
 
   // TODO: error handling
-  auto factory = D3D9ContextFactory::create().value();
+  auto factory = D3D9Factory::create().value();
   auto gfxContext = factory->create_context(handle);
 
   // can't use make_unique because of the private constructor
@@ -148,10 +148,8 @@ auto Window::create(
 }
 
 Window::Window(
-  const HMODULE moduleHandle, const HWND handle
-, D3D9ContextFactoryPtr factory, unique_ptr<D3D9GfxContext> context
-, const Size2Du16 clientAreaSize
-)
+  const HMODULE moduleHandle, const HWND handle, D3D9FactoryPtr factory
+, unique_ptr<D3D9Context> context, const Size2Du16 clientAreaSize)
   : mModuleHandle {moduleHandle}
   , mHandle {handle}
   , mFactory {std::move(factory)}

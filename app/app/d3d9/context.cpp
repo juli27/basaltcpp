@@ -6,21 +6,23 @@
 
 using std::unique_ptr;
 
+using Microsoft::WRL::ComPtr;
+
 namespace basalt::gfx::backend {
 
-D3D9GfxContext::D3D9GfxContext(
-  Microsoft::WRL::ComPtr<IDirect3DDevice9> device
-, const D3DPRESENT_PARAMETERS& pp)
+D3D9Context::D3D9Context(
+  ComPtr<IDirect3DDevice9> device, const D3DPRESENT_PARAMETERS& pp)
   : mDevice {std::move(device)}
   , mRenderer {std::make_unique<D3D9Renderer>(mDevice)}
   , mPresentParams {pp} {
+  BASALT_ASSERT(mDevice);
 }
 
-auto D3D9GfxContext::renderer() const -> const std::unique_ptr<D3D9Renderer>& {
+auto D3D9Context::renderer() const -> const unique_ptr<D3D9Renderer>& {
   return mRenderer;
 }
 
-void D3D9GfxContext::resize(const Size2Du16 size) {
+void D3D9Context::resize(const Size2Du16 size) {
   mRenderer->before_reset();
 
   mPresentParams.BackBufferWidth = size.width();
@@ -32,7 +34,7 @@ void D3D9GfxContext::resize(const Size2Du16 size) {
   BASALT_LOG_DEBUG("resized d3d9 back buffer");
 }
 
-void D3D9GfxContext::present() {
+void D3D9Context::present() {
   if (auto hr = mDevice->Present(nullptr, nullptr, nullptr, nullptr);
     FAILED(hr)) {
     if (hr == D3DERR_DEVICELOST) {

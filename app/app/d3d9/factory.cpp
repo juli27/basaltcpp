@@ -1,10 +1,10 @@
-#include "context_factory.h"
+#include "factory.h"
 
 #include "context.h"
 #include "util.h"
 
-#include "runtime/platform/Platform.h"
-#include "runtime/shared/Log.h"
+#include <runtime/platform/Platform.h>
+#include <runtime/shared/Log.h>
 
 #include <fmt/format.h>
 
@@ -37,7 +37,7 @@ auto to_surface_format(D3DFORMAT) -> SurfaceFormat;
 
 } // namespace
 
-D3D9ContextFactory::D3D9ContextFactory(ComPtr<IDirect3D9> factory)
+D3D9Factory::D3D9Factory(ComPtr<IDirect3D9> factory)
   : mFactory {std::move(factory)} {
   D3DADAPTER_IDENTIFIER9 adapterIdentifier;
   D3D9CALL(
@@ -85,19 +85,18 @@ D3D9ContextFactory::D3D9ContextFactory(ComPtr<IDirect3D9> factory)
   }
 }
 
-auto D3D9ContextFactory::adapter_info() const -> const AdapterInfo& {
+auto D3D9Factory::adapter_info() const -> const AdapterInfo& {
   return mAdapterInfo;
 }
 
-auto D3D9ContextFactory::create_context(
-  const HWND window) const -> unique_ptr<D3D9GfxContext> {
-  D3DPRESENT_PARAMETERS pp {
-    0u, 0u, D3DFMT_UNKNOWN, 0u // back buffer
-  , D3DMULTISAMPLE_NONE, 0u // multi sampling
-  , D3DSWAPEFFECT_DISCARD, window, TRUE // window
-  , TRUE, D3DFMT_D16, 0u // depth stencil buffer + flags
-  , 0u, D3DPRESENT_INTERVAL_DEFAULT // refresh rate + VSync
-  };
+auto D3D9Factory::create_context(
+  const HWND window) const -> unique_ptr<D3D9Context> {
+  D3DPRESENT_PARAMETERS pp {};
+  pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+  pp.hDeviceWindow = window;
+  pp.Windowed = TRUE;
+  pp.EnableAutoDepthStencil = TRUE;
+  pp.AutoDepthStencilFormat = D3DFMT_D16;
 
   const auto windowMode = platform::get_window_mode();
 
@@ -119,13 +118,13 @@ auto D3D9ContextFactory::create_context(
       D3DCREATE_HARDWARE_VERTEXPROCESSING, &pp, device.GetAddressOf()));
 
   BASALT_LOG_INFO(
-    "Direct3D 9 context created: adapter={}, driver={}({})"
+    "Direct3D9 context created: adapter={}, driver={}({})"
   , mAdapterInfo.displayName, mAdapterInfo.driver, mAdapterInfo.driverVersion);
 
-  return std::make_unique<D3D9GfxContext>(std::move(device), pp);
+  return std::make_unique<D3D9Context>(std::move(device), pp);
 }
 
-auto D3D9ContextFactory::create() -> std::optional<D3D9ContextFactoryPtr> {
+auto D3D9Factory::create() -> std::optional<D3D9FactoryPtr> {
   ComPtr<IDirect3D9> factory {};
   factory.Attach(Direct3DCreate9(D3D_SDK_VERSION));
   if (!factory) {
@@ -140,7 +139,7 @@ auto D3D9ContextFactory::create() -> std::optional<D3D9ContextFactoryPtr> {
     return std::nullopt;
   }
 
-  return std::make_unique<D3D9ContextFactory>(std::move(factory));
+  return std::make_unique<D3D9Factory>(std::move(factory));
 }
 
 namespace {

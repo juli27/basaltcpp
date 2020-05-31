@@ -8,9 +8,6 @@
     <ClCompile Include="app\d3d9\renderer.cpp">
       <Filter>d3d9</Filter>
     </ClCompile>
-    <ClCompile Include="app\d3d9\context_factory.cpp">
-      <Filter>d3d9</Filter>
-    </ClCompile>
     <ClCompile Include="app\shared\util.cpp">
       <Filter>shared</Filter>
     </ClCompile>
@@ -23,6 +20,9 @@
     </ClCompile>
     <ClCompile Include="app\debug.cpp" />
     <ClCompile Include="app\window.cpp" />
+    <ClCompile Include="app\d3d9\factory.cpp">
+      <Filter>d3d9</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app\d3d9\context.h">
@@ -32,9 +32,6 @@
       <Filter>d3d9</Filter>
     </ClInclude>
     <ClInclude Include="app\d3d9\util.h">
-      <Filter>d3d9</Filter>
-    </ClInclude>
-    <ClInclude Include="app\d3d9\context_factory.h">
       <Filter>d3d9</Filter>
     </ClInclude>
     <ClInclude Include="app\d3d9\d3d9_custom.h">
@@ -56,6 +53,9 @@
     <ClInclude Include="app\build_config.h" />
     <ClInclude Include="app\debug.h" />
     <ClInclude Include="app\window.h" />
+    <ClInclude Include="app\d3d9\factory.h">
+      <Filter>d3d9</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="d3d9">

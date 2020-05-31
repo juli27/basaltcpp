@@ -1,14 +1,11 @@
 #pragma once
-#ifndef BASALT_APP_D3D9_RENDERER_H
-#define BASALT_APP_D3D9_RENDERER_H
 
-#include "runtime/gfx/backend/IRenderer.h"
+#include <runtime/gfx/backend/IRenderer.h>
 
 #include "d3d9_custom.h"
 
-#include "runtime/gfx/backend/render_command.h"
-
-#include "runtime/shared/HandlePool.h"
+#include <runtime/gfx/backend/render_command.h>
+#include <runtime/shared/HandlePool.h>
 
 #include <wrl/client.h>
 
@@ -73,5 +70,3 @@ private:
 };
 
 } // namespace basalt::gfx::backend
-
-#endif // !BASALT_APP_D3D9_RENDERER_H

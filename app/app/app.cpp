@@ -8,7 +8,7 @@
 #include "debug.h"
 #endif // BASALT_TRACE_WINDOWS_MESSAGES
 
-#include "d3d9/context_factory.h"
+#include "d3d9/factory.h"
 #include "d3d9/types.h"
 #include "d3d9/util.h"
 
@@ -38,7 +38,7 @@ using std::string;
 namespace basalt::win32 {
 
 using gfx::backend::AdapterInfo;
-using gfx::backend::D3D9ContextFactoryPtr;
+using gfx::backend::D3D9FactoryPtr;
 
 namespace {
 
@@ -50,7 +50,7 @@ void init_dear_imgui_additional(const Window* window);
 [[nodiscard]]
 auto poll_events() -> bool;
 
-void draw_debug_ui_additional(const D3D9ContextFactoryPtr&);
+void draw_debug_ui_additional(const D3D9FactoryPtr&);
 
 } // namespace
 
@@ -148,7 +148,7 @@ auto poll_events() -> bool {
   return true;
 }
 
-void draw_debug_ui_additional(const D3D9ContextFactoryPtr& ctxFactory) {
+void draw_debug_ui_additional(const D3D9FactoryPtr& ctxFactory) {
   // https://github.com/ocornut/imgui/issues/331
   enum class OpenPopup : u8 {
     None, GfxInfo

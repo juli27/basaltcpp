@@ -1,6 +1,4 @@
 #pragma once
-#ifndef BASALT_APP_D3D9_UTIL_H
-#define BASALT_APP_D3D9_UTIL_H
 
 #include "d3d9_custom.h"
 #include "types.h"
@@ -25,5 +23,3 @@ namespace basalt::gfx::backend {
 auto to_string(SurfaceFormat) -> std::string_view;
 
 } // namespace basalt::gfx::backend
-
-#endif  // !BASALT_APP_D3D9_UTIL_H
