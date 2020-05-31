@@ -85,6 +85,11 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
 
     clientApp->on_update(ctx);
 
+    if (app.mIsDirty) {
+      app.mIsDirty = false;
+      window->set_cursor(app.mMouseCursor);
+    }
+
     if (config.debugUiEnabled) {
       Debug::update(app.currentView);
     }
@@ -95,11 +100,6 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
     gfx::render(app.renderer, app.currentView);
 
     window->present();
-
-    if (app.mIsDirty) {
-      app.mIsDirty = false;
-      window->set_cursor(app.mMouseCursor);
-    }
 
     const auto endTime = Clock::now();
     currentDeltaTime = static_cast<f64>((endTime - startTime).count()) / (

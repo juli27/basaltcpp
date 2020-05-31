@@ -55,8 +55,14 @@ Window::~Window() {
   }
 }
 
+// issue with our input handling
+//   WM_MOUSEMOVE is handled before WM_SETCURSOR and put in our
+//   input queue -> the rest of the app gets the ability to set the
+//   cursor only in the next frame -> the new cursor is only set at the
+//   next WM_MOUSEMOVE/WM_SETCURSOR
 void Window::set_cursor(const MouseCursor cursor) {
   mCurrentCursor = cursor;
+  ::SetCursor(mLoadedCursors[enum_cast(mCurrentCursor)]);
 }
 
 auto Window::drain_input() -> Input {
@@ -233,16 +239,11 @@ auto Window::dispatch_message(
     return 0;
 
   case WM_SETCURSOR:
-    // TODO: issue with our input handling
-    //       WM_MOUSEMOVE is handled before WM_SETCURSOR and put in our
-    //       input queue -> the rest of the app gets the ability to set the
-    //       cursor only in the next frame -> the new cursor is only set at the
-    //       next WM_MOUSEMOVE/WM_SETCURSOR
     if (LOWORD(lParam) == HTCLIENT) {
       ::SetCursor(mLoadedCursors[enum_cast(mCurrentCursor)]);
+
       return TRUE;
     }
-
     break;
 
   case WM_KEYDOWN:
