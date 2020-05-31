@@ -55,12 +55,12 @@ Window::~Window() {
   }
 }
 
-auto Window::drain_input() -> Input {
-  return std::move(mInput);
+void Window::set_cursor(const MouseCursor cursor) {
+  mCurrentCursor = cursor;
 }
 
-void Window::update(Engine& engine) {
-  mCurrentCursor = engine.mouseCursor;
+auto Window::drain_input() -> Input {
+  return std::move(mInput);
 }
 
 auto Window::create(
@@ -77,7 +77,7 @@ auto Window::create(
   // TODO: support other modes
   sWindowMode = WindowMode::Windowed;
 
-  RECT rect {0l, 0l, config.windowSize.width(), config.windowSize.height()};
+  RECT rect {0l, 0l, config.windowedSize.width(), config.windowedSize.height()};
   // handle don't care cases
   if (rect.right == 0l) {
     rect.right = 1280l;
@@ -128,7 +128,7 @@ auto Window::create(
   // can't use make_unique because of the private constructor
   auto* const window = new Window {
     moduleHandle, handle, std::move(factory), std::move(gfxContext)
-  , config.windowSize
+  , config.windowedSize
   };
 
   // unique_ptr is actually a lie
@@ -228,14 +228,13 @@ auto Window::dispatch_message(
   case WM_CLOSE:
     // ::DefWindowProcW would destroy the window.
     // In order to not lie about the lifetime of the window object, we handle
-    // the WM_CLOSE message here and post the quit message to trigger our normal
-    // shutdown path
-    ::PostQuitMessage(0);
+    // the WM_CLOSE message here to trigger our normal shutdown path
+    quit();
     return 0;
 
   case WM_SETCURSOR:
     // TODO: issue with our input handling
-    //       the WM_MOUSEMOVE before the set cursor is handled and put in our
+    //       WM_MOUSEMOVE is handled before WM_SETCURSOR and put in our
     //       input queue -> the rest of the app gets the ability to set the
     //       cursor only in the next frame -> the new cursor is only set at the
     //       next WM_MOUSEMOVE/WM_SETCURSOR
@@ -337,7 +336,7 @@ auto Window::dispatch_message(
 
   case WM_MOUSEWHEEL: {
     mInput.mouse_moved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-    process_mouse_message_states(wParam);
+    process_mouse_message_states(LOWORD(wParam));
     const f32 offset {
       static_cast<f32>(GET_WHEEL_DELTA_WPARAM(wParam)) / static_cast<f32>(
         WHEEL_DELTA)

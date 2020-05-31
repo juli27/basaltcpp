@@ -132,7 +132,7 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
     const ImGuiMouseCursor cursor = ImGui::GetMouseCursor();
     // TODO: no mouse cursor / imgui cursor drawing
     if (cursor != ImGuiMouseCursor_None) {
-      ctx.engine.mouseCursor = MouseCursor {static_cast<u8>(cursor)};
+      ctx.engine.set_mouse_cursor(MouseCursor {static_cast<u8>(cursor)});
     }
   }
 

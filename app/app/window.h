@@ -16,7 +16,6 @@
 namespace basalt {
 
 struct Config;
-struct Engine;
 
 namespace gfx::backend {
 
@@ -60,13 +59,13 @@ struct Window final {
     return mContext->renderer().get();
   }
 
+  void set_cursor(MouseCursor);
+
   auto drain_input() -> Input;
 
   void present() const {
     mContext->present();
   }
-
-  void update(Engine&);
 
   [[nodiscard]]
   static auto create(

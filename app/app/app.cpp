@@ -54,7 +54,7 @@ void draw_debug_ui_additional(const D3D9ContextFactoryPtr&);
 
 } // namespace
 
-void run(const HMODULE moduleHandle, const int showCommand) {
+void App::run(const HMODULE moduleHandle, const int showCommand) {
   // let the client app configure us
   Config config {ClientApp::configure()};
   dump_config(config);
@@ -65,11 +65,11 @@ void run(const HMODULE moduleHandle, const int showCommand) {
   const DearImGui dearImGui {window->renderer()};
   init_dear_imgui_additional(window.get());
 
-  Engine engine {window->renderer()};
+  App app {config, window->renderer()};
 
-  const auto clientApp {ClientApp::create(engine, window->size())};
+  const auto clientApp {ClientApp::create(app, window->size())};
   BASALT_ASSERT(clientApp);
-  BASALT_ASSERT_MSG(engine.currentView.scene, "no scene set");
+  BASALT_ASSERT_MSG(app.currentView.scene, "no scene set");
 
   using Clock = std::chrono::high_resolution_clock;
   static_assert(Clock::is_steady);
@@ -77,25 +77,29 @@ void run(const HMODULE moduleHandle, const int showCommand) {
   f64 currentDeltaTime {0.0};
 
   while (poll_events()) {
-    config.windowSize = window->size();
+    config.windowedSize = window->size();
     const UpdateContext ctx {
-      engine, currentDeltaTime, config.windowSize, window->drain_input()
+      app, currentDeltaTime, config.windowedSize, window->drain_input()
     };
     dearImGui.new_frame(ctx);
 
     clientApp->on_update(ctx);
 
     if (config.debugUiEnabled) {
-      Debug::update(engine.currentView);
+      Debug::update(app.currentView);
     }
 
     draw_debug_ui_additional(window->context_factory());
 
     // also calls ImGui::Render()
-    gfx::render(engine.renderer, engine.currentView);
+    gfx::render(app.renderer, app.currentView);
 
     window->present();
-    window->update(engine);
+
+    if (app.mIsDirty) {
+      app.mIsDirty = false;
+      window->set_cursor(app.mMouseCursor);
+    }
 
     const auto endTime = Clock::now();
     currentDeltaTime = static_cast<f64>((endTime - startTime).count()) / (
@@ -111,7 +115,7 @@ void dump_config(const Config& config) {
   BASALT_LOG_INFO("  app name: {}", config.appName);
   BASALT_LOG_INFO(
     "  window: {}x{}{} {}{}"
-  , config.windowSize.width(), config.windowSize.height()
+  , config.windowedSize.width(), config.windowedSize.height()
   , config.windowMode == WindowMode::FullscreenExclusive ? " exclusive" : ""
   , config.windowMode != WindowMode::Windowed ? "fullscreen" : "windowed"
   , config.isWindowResizeable ? " resizeable" : "");

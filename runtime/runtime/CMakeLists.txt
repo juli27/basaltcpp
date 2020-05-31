@@ -2,6 +2,7 @@ target_sources(Runtime
   PRIVATE
     "dear_imgui.cpp"
     "debug.cpp"
+    "engine.cpp"
     "Input.cpp"
   PUBLIC
     "client_app.h"

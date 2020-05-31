@@ -19,9 +19,10 @@ auto WINAPI wWinMain(
   Log::init();
 
   try {
-    basalt::win32::run(hInstance, nShowCmd);
+    basalt::win32::App::run(hInstance, nShowCmd);
   } catch (const exception& ex) {
     BASALT_LOG_FATAL("unhandled exception: {}", ex.what());
+    Log::shutdown();
 
     // rethrow to trigger the message box
     throw;

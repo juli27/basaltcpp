@@ -7,6 +7,7 @@
 
 #include "gfx/types.h"
 
+#include "shared/Config.h"
 #include "shared/Size2D.h"
 
 namespace basalt {
@@ -18,11 +19,10 @@ struct IRenderer;
 } // namespace gfx::backend
 
 struct Engine {
-  gfx::backend::IRenderer* renderer {};
+  gfx::backend::IRenderer* const renderer {};
   gfx::View currentView {};
-  MouseCursor mouseCursor {};
 
-  Engine() = default;
+  Engine() = delete;
 
   Engine(const Engine&) = delete;
   Engine(Engine&&) = delete;
@@ -31,6 +31,18 @@ struct Engine {
 
   auto operator=(const Engine&) -> Engine& = delete;
   auto operator=(Engine&&) -> Engine& = delete;
+
+  auto config() const -> const Config&;
+
+  auto mouse_cursor() const -> MouseCursor;
+  void set_mouse_cursor(MouseCursor);
+
+protected:
+  Config& mConfig;
+  MouseCursor mMouseCursor {};
+  bool mIsDirty {false};
+
+  Engine(Config&, gfx::backend::IRenderer*);
 };
 
 struct UpdateContext final {

@@ -4,9 +4,15 @@
 
 #include "shared/Windows_custom.h"
 
+#include <runtime/Engine.h>
+
 namespace basalt::win32 {
 
-void run(HMODULE, int showCommand);
+struct App final : Engine {
+  using Engine::Engine;
+
+  static void run(HMODULE, int showCommand);
+};
 
 } // namespace basalt::win32
 

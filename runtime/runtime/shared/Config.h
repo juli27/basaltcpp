@@ -18,7 +18,7 @@ enum class WindowMode : u8 {
 
 enum class GfxBackendApi : u8 {
   Default,
-  D3D9,
+  Direct3D9,
 };
 
 
@@ -26,7 +26,7 @@ struct Config final {
   std::string appName {"Basalt App"};
 
   // the window size is only used for the windowed window mode
-  Size2Du16 windowSize = Size2Du16::dont_care();
+  Size2Du16 windowedSize {Size2Du16::dont_care()};
 
   WindowMode windowMode {WindowMode::Windowed};
   bool isWindowResizeable {true};
@@ -44,7 +44,7 @@ struct Config final {
   auto operator=(Config&&) -> Config& = default;
 
   static auto defaults() -> Config {
-    return {};
+    return Config {};
   }
 };
 
