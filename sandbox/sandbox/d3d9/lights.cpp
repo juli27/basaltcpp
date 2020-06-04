@@ -18,7 +18,7 @@ using namespace std::literals;
 
 using basalt::Transform;
 using basalt::gfx::RenderComponent;
-using basalt::gfx::View;
+using basalt::gfx::SceneView;
 using basalt::gfx::backend::IRenderer;
 using basalt::gfx::backend::RenderFlagCullNone;
 using basalt::gfx::backend::VertexElement;
@@ -63,8 +63,8 @@ Lights::Lights(IRenderer* const renderer) {
   rc.mRenderFlags = RenderFlagCullNone;
 }
 
-auto Lights::view(const basalt::Size2Du16 windowSize) -> View {
-  return View {mScene, create_default_camera(windowSize)};
+auto Lights::view(const basalt::Size2Du16 windowSize) -> SceneView {
+  return SceneView {mScene, create_default_camera(windowSize)};
 }
 
 void Lights::on_update(const f64 deltaTime) {

@@ -5,7 +5,7 @@
 namespace basalt {
 namespace gfx {
 
-struct View;
+struct SceneView;
 
 namespace backend {
 
@@ -13,7 +13,7 @@ struct IRenderer;
 
 } // namespace backend
 
-void render(backend::IRenderer* renderer, const View&);
+void render(backend::IRenderer* renderer, const SceneView&);
 
 } // namespace gfx
 } // namespace basalt

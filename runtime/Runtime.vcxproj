@@ -159,6 +159,7 @@
     <ClCompile Include="runtime\dear_imgui.cpp" />
     <ClCompile Include="runtime\gfx\Camera.cpp" />
     <ClCompile Include="runtime\gfx\Gfx.cpp" />
+    <ClCompile Include="runtime\gfx\scene_view.cpp" />
     <ClCompile Include="runtime\Input.cpp" />
     <ClCompile Include="runtime\math\Mat4.cpp" />
     <ClCompile Include="runtime\math\Vec2.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="runtime\gfx\backend\Types.h" />
     <ClInclude Include="runtime\gfx\Camera.h" />
     <ClInclude Include="runtime\gfx\Gfx.h" />
+    <ClInclude Include="runtime\gfx\scene_view.h" />
     <ClInclude Include="runtime\gfx\types.h" />
     <ClInclude Include="runtime\client_app.h" />
     <ClInclude Include="runtime\Input.h" />

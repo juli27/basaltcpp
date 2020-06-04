@@ -30,7 +30,7 @@ using basalt::WindowMode;
 using basalt::Key;
 
 auto ClientApp::configure() -> Config {
-  auto config {Config::defaults()};
+  Config config {Config::defaults()};
   config.appName = "Sandbox"s;
   config.debugUiEnabled = true;
 
@@ -47,13 +47,13 @@ SandboxApp::SandboxApp(
   Engine& engine, const basalt::Size2Du16 windowSize) {
   mScenes.reserve(7u);
   mScenes.push_back(std::make_unique<d3d9::Device>());
-  mScenes.push_back(std::make_unique<d3d9::Vertices>(engine.renderer));
-  mScenes.push_back(std::make_unique<d3d9::Matrices>(engine.renderer));
-  mScenes.push_back(std::make_unique<d3d9::Lights>(engine.renderer));
-  mScenes.push_back(std::make_unique<d3d9::Textures>(engine.renderer));
+  mScenes.push_back(std::make_unique<d3d9::Vertices>(&engine.renderer));
+  mScenes.push_back(std::make_unique<d3d9::Matrices>(&engine.renderer));
+  mScenes.push_back(std::make_unique<d3d9::Lights>(&engine.renderer));
+  mScenes.push_back(std::make_unique<d3d9::Textures>(&engine.renderer));
   mScenes.push_back(
-    std::make_unique<d3d9::TexturesTci>(engine.renderer, windowSize));
-  mScenes.push_back(std::make_unique<d3d9::Meshes>(engine.renderer));
+    std::make_unique<d3d9::TexturesTci>(&engine.renderer, windowSize));
+  mScenes.push_back(std::make_unique<d3d9::Meshes>(&engine.renderer));
 
   engine.currentView = mScenes[mCurrentSceneIndex]->view(windowSize);
 }

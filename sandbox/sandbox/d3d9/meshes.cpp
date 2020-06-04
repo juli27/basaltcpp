@@ -11,7 +11,7 @@ using namespace std::literals;
 
 using basalt::Transform;
 using basalt::gfx::RenderComponent;
-using basalt::gfx::View;
+using basalt::gfx::SceneView;
 using basalt::gfx::backend::IRenderer;
 
 namespace d3d9 {
@@ -28,8 +28,8 @@ Meshes::Meshes(IRenderer* const renderer) {
   rc.model = renderer->load_model("data/Tiger.x");
 }
 
-auto Meshes::view(const basalt::Size2Du16 windowSize) -> View {
-  return View {mScene, create_default_camera(windowSize)};
+auto Meshes::view(const basalt::Size2Du16 windowSize) -> SceneView {
+  return SceneView {mScene, create_default_camera(windowSize)};
 }
 
 void Meshes::on_update(const f64 deltaTime) {

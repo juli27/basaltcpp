@@ -5,7 +5,7 @@
 #include "Input.h"
 #include "types.h"
 
-#include "gfx/types.h"
+#include "gfx/scene_view.h"
 
 #include "shared/Config.h"
 #include "shared/Size2D.h"
@@ -19,8 +19,8 @@ struct IRenderer;
 } // namespace gfx::backend
 
 struct Engine {
-  gfx::backend::IRenderer* const renderer {};
-  gfx::View currentView {};
+  gfx::backend::IRenderer& renderer;
+  gfx::SceneView currentView;
 
   Engine() = delete;
 
@@ -42,7 +42,7 @@ protected:
   MouseCursor mMouseCursor {};
   bool mIsDirty {false};
 
-  Engine(Config&, gfx::backend::IRenderer*);
+  Engine(Config&, gfx::backend::IRenderer*, gfx::SceneView sceneView);
 };
 
 struct UpdateContext final {

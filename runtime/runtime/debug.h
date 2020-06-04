@@ -8,7 +8,7 @@ struct Scene;
 
 namespace gfx {
 
-struct View;
+struct SceneView;
 
 } // namespace gfx
 
@@ -23,7 +23,7 @@ struct Debug final {
   auto operator=(const Debug&) -> Debug& = delete;
   auto operator=(Debug&&) -> Debug& = delete;
 
-  static void update(const gfx::View&);
+  static void update(const gfx::SceneView&);
 
 private:
   static bool sShowSceneDebugUi;

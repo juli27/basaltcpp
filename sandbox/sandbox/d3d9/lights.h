@@ -23,7 +23,7 @@ struct Lights final : TestCase {
   auto operator=(const Lights&) -> Lights& = delete;
   auto operator=(Lights&&) -> Lights& = delete;
 
-  auto view(basalt::Size2Du16 windowSize) -> basalt::gfx::View override;
+  auto view(basalt::Size2Du16 windowSize) -> basalt::gfx::SceneView override;
   void on_update(basalt::f64 deltaTime) override;
   auto name() -> std::string_view override;
 

@@ -23,7 +23,7 @@ using entt::entity;
 
 namespace basalt {
 
-using gfx::View;
+using gfx::SceneView;
 using math::PI;
 using math::Vec3f32;
 
@@ -41,7 +41,7 @@ bool Debug::sShowDemo {false};
 bool Debug::sShowMetrics {false};
 bool Debug::sShowAbout {false};
 
-void Debug::update(const View& view) {
+void Debug::update(const SceneView& view) {
   show_overlay();
 
   if (ImGui::BeginMainMenuBar()) {
@@ -71,7 +71,7 @@ void Debug::update(const View& view) {
   }
 
   if (sShowSceneDebugUi) {
-    draw_scene_debug_ui(view.scene.get());
+    draw_scene_debug_ui(view.mScene.get());
   }
 
   if (sShowDemo) {

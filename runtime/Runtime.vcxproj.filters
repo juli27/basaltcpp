@@ -35,6 +35,9 @@
       <Filter>scene</Filter>
     </ClCompile>
     <ClCompile Include="runtime\engine.cpp" />
+    <ClCompile Include="runtime\gfx\scene_view.cpp">
+      <Filter>gfx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="runtime\shared\Asserts.h">
@@ -116,6 +119,9 @@
     </ClInclude>
     <ClInclude Include="runtime\prelude.h" />
     <ClInclude Include="runtime\types.h" />
+    <ClInclude Include="runtime\gfx\scene_view.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="platform">

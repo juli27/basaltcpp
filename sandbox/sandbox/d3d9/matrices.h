@@ -23,7 +23,7 @@ struct Matrices final : TestCase {
   auto operator=(const Matrices&) -> Matrices& = delete;
   auto operator=(Matrices&&) -> Matrices& = delete;
 
-  auto view(basalt::Size2Du16 windowSize) -> basalt::gfx::View override;
+  auto view(basalt::Size2Du16 windowSize) -> basalt::gfx::SceneView override;
   void on_update(basalt::f64 deltaTime) override;
   auto name() -> std::string_view override;
 

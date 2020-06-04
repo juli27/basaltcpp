@@ -19,6 +19,7 @@
 #include "runtime/Input.h"
 
 #include "runtime/gfx/Gfx.h"
+#include "runtime/gfx/scene_view.h"
 #include "runtime/gfx/types.h"
 
 #include "runtime/shared/Asserts.h"
@@ -37,6 +38,7 @@ using std::string;
 
 namespace basalt::win32 {
 
+using gfx::SceneView;
 using gfx::backend::AdapterInfo;
 using gfx::backend::D3D9FactoryPtr;
 
@@ -65,11 +67,13 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   const DearImGui dearImGui {window->renderer()};
   init_dear_imgui_additional(window.get());
 
-  App app {config, window->renderer()};
+  App app {
+    config, window->renderer()
+  , SceneView {std::make_shared<Scene>(), gfx::Camera {}}
+  };
 
   const auto clientApp {ClientApp::create(app, window->size())};
   BASALT_ASSERT(clientApp);
-  BASALT_ASSERT_MSG(app.currentView.scene, "no scene set");
 
   using Clock = std::chrono::high_resolution_clock;
   static_assert(Clock::is_steady);
@@ -97,7 +101,7 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
     draw_debug_ui_additional(window->context_factory());
 
     // also calls ImGui::Render()
-    gfx::render(app.renderer, app.currentView);
+    gfx::render(&app.renderer, app.currentView);
 
     window->present();
 

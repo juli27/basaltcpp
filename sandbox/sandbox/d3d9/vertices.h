@@ -23,7 +23,7 @@ struct Vertices final : TestCase {
   auto operator=(const Vertices&) -> Vertices& = delete;
   auto operator=(Vertices&&) -> Vertices& = delete;
 
-  auto view(basalt::Size2Du16 windowSize) -> basalt::gfx::View override;
+  auto view(basalt::Size2Du16 windowSize) -> basalt::gfx::SceneView override;
   void on_update(basalt::f64 deltaTime) override;
   auto name() -> std::string_view override;
 

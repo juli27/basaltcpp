@@ -1,6 +1,6 @@
 #include "sandbox/d3d9/vertices.h"
 
-#include "sandbox/d3d9/utils.h"
+#include "utils.h"
 
 #include <runtime/prelude.h>
 
@@ -11,7 +11,7 @@ using std::string_view;
 using namespace std::literals;
 
 using basalt::gfx::RenderComponent;
-using basalt::gfx::View;
+using basalt::gfx::SceneView;
 using basalt::gfx::backend::IRenderer;
 using basalt::gfx::backend::VertexElement;
 using basalt::gfx::backend::VertexLayout;
@@ -54,8 +54,8 @@ Vertices::Vertices(IRenderer* const renderer) {
   rc.mMesh = add_triangle_list_mesh(renderer, vertices, vertexLayout);
 }
 
-auto Vertices::view(const basalt::Size2Du16) -> View {
-  return View {mScene};
+auto Vertices::view(const basalt::Size2Du16 windowSize) -> SceneView {
+  return SceneView {mScene, create_default_camera(windowSize)};
 }
 
 void Vertices::on_update(const f64) {

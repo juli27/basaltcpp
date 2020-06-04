@@ -21,7 +21,7 @@ using namespace std::literals;
 using basalt::Transform;
 using basalt::gfx::Camera;
 using basalt::gfx::RenderComponent;
-using basalt::gfx::View;
+using basalt::gfx::SceneView;
 using basalt::gfx::backend::IRenderer;
 using basalt::gfx::backend::RenderFlagCullNone;
 using basalt::gfx::backend::RenderFlagDisableLighting;
@@ -77,8 +77,8 @@ TexturesTci::TexturesTci(
   rc.tcs = TexCoordinateSrc::PositionCameraSpace;
 }
 
-auto TexturesTci::view(const basalt::Size2Du16 windowSize) -> View {
-  return View {mScene, create_default_camera(windowSize)};
+auto TexturesTci::view(const basalt::Size2Du16 windowSize) -> SceneView {
+  return SceneView {mScene, create_default_camera(windowSize)};
 }
 
 void TexturesTci::on_update(const f64 deltaTime) {

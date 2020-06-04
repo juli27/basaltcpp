@@ -17,7 +17,7 @@ using namespace std::literals;
 
 using basalt::Transform;
 using basalt::gfx::RenderComponent;
-using basalt::gfx::View;
+using basalt::gfx::SceneView;
 using basalt::gfx::backend::IRenderer;
 using basalt::gfx::backend::RenderFlagCullNone;
 using basalt::gfx::backend::RenderFlagDisableLighting;
@@ -62,8 +62,8 @@ Matrices::Matrices(IRenderer* const renderer) {
   rc.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 }
 
-auto Matrices::view(const basalt::Size2Du16 windowSize) -> View {
-  return View {mScene, create_default_camera(windowSize)};
+auto Matrices::view(const basalt::Size2Du16 windowSize) -> SceneView {
+  return SceneView {mScene, create_default_camera(windowSize)};
 }
 
 void Matrices::on_update(const f64 deltaTime) {

@@ -2,12 +2,9 @@
 #ifndef BASALT_RUNTIME_GFX_TYPES_H
 #define BASALT_RUNTIME_GFX_TYPES_H
 
-#include "runtime/gfx/Camera.h"
-
 #include "runtime/gfx/backend/render_command.h"
 #include "runtime/gfx/backend/Types.h"
 
-#include "runtime/scene/scene.h"
 #include "runtime/math/Mat4.h"
 
 #include "runtime/shared/Color.h"
@@ -26,11 +23,6 @@ struct RenderComponent final {
   math::Mat4f32 texTransform {math::Mat4f32::identity()};
   backend::TexCoordinateSrc tcs {backend::TexCoordinateSrc::Vertex};
   u8 mRenderFlags = backend::RenderFlagNone;
-};
-
-struct View final {
-  std::shared_ptr<Scene> scene {};
-  Camera camera {};
 };
 
 // GfxComponent

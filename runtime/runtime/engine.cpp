@@ -1,5 +1,7 @@
 #include "Engine.h"
 
+#include <utility>
+
 namespace basalt {
 
 using gfx::backend::IRenderer;
@@ -17,8 +19,8 @@ void Engine::set_mouse_cursor(const MouseCursor mouseCursor) {
   mIsDirty = true;
 }
 
-Engine::Engine(Config& config, IRenderer* renderer)
-  : renderer {renderer}, mConfig {config} {
+Engine::Engine(Config& config, IRenderer* renderer, gfx::SceneView sceneView)
+  : renderer {*renderer}, currentView {std::move(sceneView)}, mConfig {config} {
 }
 
 } // namespace basalt
