@@ -27,6 +27,7 @@
 using namespace std::literals;
 
 using std::runtime_error;
+using std::shared_ptr;
 using std::string;
 using std::system_error;
 using std::unique_ptr;
@@ -107,8 +108,8 @@ auto Window::create(
     };
   }
 
-  const auto windowWidth {static_cast<int>(rect.right - rect.left)};
-  const auto windowHeight {static_cast<int>(rect.bottom - rect.top)};
+  const int windowWidth {static_cast<int>(rect.right - rect.left)};
+  const int windowHeight {static_cast<int>(rect.bottom - rect.top)};
 
   if (config.windowMode != WindowMode::Windowed) {
     BASALT_LOG_ERROR("fullscreen not implemented");
@@ -129,7 +130,7 @@ auto Window::create(
 
   // TODO: error handling
   auto factory = D3D9Factory::create().value();
-  auto gfxContext = factory->create_context(handle);
+  shared_ptr<D3D9Context> gfxContext = factory->create_context(handle);
 
   // can't use make_unique because of the private constructor
   auto* const window = new Window {
@@ -149,16 +150,16 @@ auto Window::create(
 
 Window::Window(
   const HMODULE moduleHandle, const HWND handle, D3D9FactoryPtr factory
-, unique_ptr<D3D9Context> context, const Size2Du16 clientAreaSize)
+, shared_ptr<D3D9Context> context, const Size2Du16 clientAreaSize)
   : mModuleHandle {moduleHandle}
   , mHandle {handle}
   , mFactory {std::move(factory)}
-  , mContext {std::move(context)}
+  , mGfxContext {std::move(context)}
   , mClientAreaSize {clientAreaSize} {
   BASALT_ASSERT(mModuleHandle);
   BASALT_ASSERT(mHandle);
   BASALT_ASSERT(mFactory);
-  BASALT_ASSERT(mContext);
+  BASALT_ASSERT(mGfxContext);
 
   auto loadCursor = [](const LPCWSTR name, const UINT flags) -> HCURSOR {
     return static_cast<HCURSOR>(::LoadImageW(
@@ -367,7 +368,7 @@ auto Window::dispatch_message(
 }
 
 void Window::do_resize(const Size2Du16 clientArea) const {
-  mContext->resize(clientArea);
+  mGfxContext->resize(clientArea);
 }
 
 void Window::process_mouse_message_states(const WPARAM wParam) {

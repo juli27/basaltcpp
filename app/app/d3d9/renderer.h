@@ -43,7 +43,6 @@ struct D3D9Renderer final : IRenderer {
   void remove_texture(TextureHandle textureHandle) override;
   auto load_model(std::string_view filePath) -> ModelHandle override;
   void remove_model(ModelHandle) override;
-  void set_clear_color(const Color& color) override;
   void render(const RenderCommandList&) override;
 
   void init_dear_imgui() override;
@@ -64,7 +63,6 @@ private:
   HandlePool<D3D9Mesh, MeshHandle> mMeshes {};
   HandlePool<Texture, TextureHandle> mTextures {};
   HandlePool<Model, ModelHandle> mModels {};
-  D3DCOLOR mClearColor {D3DCOLOR_XRGB(0, 0, 0)};
 
   void render_command(const RenderCommand&);
 };

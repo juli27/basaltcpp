@@ -112,16 +112,17 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
     }
   }
 
+  const Size2Du16& displaySize {ctx.drawTarget.size()};
   io.DisplaySize = ImVec2(
-    static_cast<float>(ctx.windowSize.width())
-  , static_cast<float>(ctx.windowSize.height())
+    static_cast<float>(displaySize.width())
+  , static_cast<float>(displaySize.height())
   );
   io.DeltaTime = static_cast<float>(ctx.deltaTime);
   io.KeyCtrl = input.is_key_down(Key::Control);
   io.KeyShift = input.is_key_down(Key::Shift);
   io.KeyAlt = input.is_key_down(Key::Alt);
 
-  // TODO: reenable once super/meta key has been implemented on linux/osx
+  // TODO: reenable once super/meta key has been implemented on linux/macOS
   //       the super key mapping to the windows key on windows caused
   //       some interoperability problems with OS functionality e.g.
   //       a pressed down super key sticking around after Win+V

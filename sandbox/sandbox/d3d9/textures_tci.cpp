@@ -2,6 +2,7 @@
 
 #include "sandbox/d3d9/utils.h"
 
+#include <runtime/debug.h>
 #include <runtime/prelude.h>
 
 #include <runtime/gfx/Camera.h>
@@ -18,6 +19,7 @@ using std::array;
 using std::string_view;
 using namespace std::literals;
 
+using basalt::Debug;
 using basalt::Transform;
 using basalt::gfx::Camera;
 using basalt::gfx::RenderComponent;
@@ -35,7 +37,7 @@ using basalt::math::Vec3f32;
 namespace d3d9 {
 
 TexturesTci::TexturesTci(
-  IRenderer* const renderer, const basalt::Size2Du16 windowSize) {
+  IRenderer& renderer, const basalt::Size2Du16 windowSize) {
   mScene->set_background_color(Colors::BLUE);
 
   struct Vertex final {
@@ -67,23 +69,27 @@ TexturesTci::TexturesTci(
 
   auto& rc {ecs.emplace<RenderComponent>(mCylinder)};
   rc.mMesh = add_triangle_strip_mesh(renderer, vertices, vertexLayout);
-  rc.mTexture = renderer->add_texture("data/banana.bmp");
+  rc.mTexture = renderer.add_texture("data/banana.bmp");
   rc.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 
   // TODO: fix jitter
-  const Camera camera {create_default_camera(windowSize)};
-  rc.texTransform = camera.projection_matrix() * Mat4f32::scaling(
+  const Camera camera {create_default_camera()};
+  rc.texTransform = camera.projection_matrix(windowSize) * Mat4f32::scaling(
     {0.5f, -0.5f, 1.0f}) * Mat4f32::translation({0.5f, 0.5f, 0.0f});
   rc.tcs = TexCoordinateSrc::PositionCameraSpace;
+
+  mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }
 
-auto TexturesTci::view(const basalt::Size2Du16 windowSize) -> SceneView {
-  return SceneView {mScene, create_default_camera(windowSize)};
-}
-
-void TexturesTci::on_update(const f64 deltaTime) {
+void TexturesTci::on_update(const basalt::UpdateContext& ctx) {
   auto& transform {mScene->ecs().get<Transform>(mCylinder)};
-  transform.rotate(static_cast<f32>(deltaTime), 0.0f, 0.0f);
+  transform.rotate(static_cast<f32>(ctx.deltaTime), 0.0f, 0.0f);
+
+  ctx.drawTarget.draw(mSceneView);
+
+  if (ctx.engine.config().debugUiEnabled) {
+    Debug::update(*mScene);
+  }
 }
 
 auto TexturesTci::name() -> string_view {

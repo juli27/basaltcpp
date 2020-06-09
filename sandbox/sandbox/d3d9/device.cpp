@@ -2,25 +2,29 @@
 
 #include "utils.h"
 
+#include <runtime/debug.h>
 #include <runtime/prelude.h>
 
 using namespace std::literals;
 
 using std::string_view;
 
+using basalt::Debug;
 using basalt::gfx::SceneView;
 
 namespace d3d9 {
 
 Device::Device() {
   mScene->set_background_color(Colors::BLUE);
+  mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }
 
-auto Device::view(const basalt::Size2Du16 windowSize) -> SceneView {
-  return SceneView {mScene, create_default_camera(windowSize)};
-}
+void Device::on_update(const basalt::UpdateContext& ctx) {
+  ctx.drawTarget.draw(mSceneView);
 
-void Device::on_update(const f64) {
+  if (ctx.engine.config().debugUiEnabled) {
+      Debug::update(*mScene);
+  }
 }
 
 auto Device::name() -> string_view {

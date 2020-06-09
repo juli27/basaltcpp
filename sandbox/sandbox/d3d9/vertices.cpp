@@ -2,6 +2,7 @@
 
 #include "utils.h"
 
+#include <runtime/debug.h>
 #include <runtime/prelude.h>
 
 #include <array>
@@ -10,6 +11,7 @@ using std::array;
 using std::string_view;
 using namespace std::literals;
 
+using basalt::Debug;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SceneView;
 using basalt::gfx::backend::IRenderer;
@@ -18,7 +20,7 @@ using basalt::gfx::backend::VertexLayout;
 
 namespace d3d9 {
 
-Vertices::Vertices(IRenderer* const renderer) {
+Vertices::Vertices(IRenderer& renderer) {
   mScene->set_background_color(Colors::BLUE);
 
   struct Vertex final {
@@ -52,13 +54,16 @@ Vertices::Vertices(IRenderer* const renderer) {
   const entt::entity entity {ecs.create()};
   auto& rc {ecs.emplace<RenderComponent>(entity)};
   rc.mMesh = add_triangle_list_mesh(renderer, vertices, vertexLayout);
+
+  mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }
 
-auto Vertices::view(const basalt::Size2Du16 windowSize) -> SceneView {
-  return SceneView {mScene, create_default_camera(windowSize)};
-}
+void Vertices::on_update(const basalt::UpdateContext& ctx) {
+  ctx.drawTarget.draw(mSceneView);
 
-void Vertices::on_update(const f64) {
+  if (ctx.engine.config().debugUiEnabled) {
+      Debug::update(*mScene);
+  }
 }
 
 auto Vertices::name() -> string_view {

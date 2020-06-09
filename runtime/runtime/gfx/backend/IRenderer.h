@@ -1,17 +1,11 @@
 #pragma once
-#ifndef BASALT_GFX_BACKEND_IRENDERER_H
-#define BASALT_GFX_BACKEND_IRENDERER_H
 
 #include "runtime/gfx/backend/Types.h"
 #include "runtime/shared/Types.h"
 
 #include <string_view>
 
-namespace basalt {
-
-struct Color;
-
-namespace gfx::backend {
+namespace basalt::gfx::backend {
 
 struct RenderCommandList;
 
@@ -70,11 +64,6 @@ struct IRenderer {
   virtual auto load_model(std::string_view filePath) -> ModelHandle = 0;
   virtual void remove_model(ModelHandle) = 0;
 
-  /**
-   * Sets the back buffer clear color.
-   */
-  virtual void set_clear_color(const Color& color) = 0;
-
   virtual void render(const RenderCommandList&) = 0;
 
   virtual void init_dear_imgui() = 0;
@@ -85,8 +74,4 @@ protected:
     IRenderer() noexcept = default;
 };
 
-} // namespace gfx::backend
-
-} // namespace basalt
-
-#endif // !BASALT_GFX_BACKEND_IRENDERER_H
+} // namespace basalt::gfx::backend

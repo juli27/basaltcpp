@@ -1,27 +1,17 @@
 #pragma once
-#ifndef BASALT_ENGINE_H
-#define BASALT_ENGINE_H
 
 #include "Input.h"
 #include "types.h"
 
-#include "gfx/scene_view.h"
-
+#include "gfx/draw_target.h"
+#include "gfx/backend/context.h"
 #include "shared/Config.h"
-#include "shared/Size2D.h"
+
+#include <memory>
 
 namespace basalt {
 
-namespace gfx::backend {
-
-struct IRenderer;
-
-} // namespace gfx::backend
-
 struct Engine {
-  gfx::backend::IRenderer& renderer;
-  gfx::SceneView currentView;
-
   Engine() = delete;
 
   Engine(const Engine&) = delete;
@@ -32,29 +22,32 @@ struct Engine {
   auto operator=(const Engine&) -> Engine& = delete;
   auto operator=(Engine&&) -> Engine& = delete;
 
+  [[nodiscard]]
   auto config() const -> const Config&;
 
+  [[nodiscard]]
+  auto gfx_context() const -> gfx::backend::IGfxContext&;
+
+  [[nodiscard]]
   auto mouse_cursor() const -> MouseCursor;
   void set_mouse_cursor(MouseCursor);
 
 protected:
   Config& mConfig;
+  std::shared_ptr<gfx::backend::IGfxContext> mGfxContext {};
   MouseCursor mMouseCursor {};
   bool mIsDirty {false};
 
-  Engine(Config&, gfx::backend::IRenderer*, gfx::SceneView sceneView);
+  Engine(Config&, std::shared_ptr<gfx::backend::IGfxContext>);
 };
 
 struct UpdateContext final {
   Engine& engine;
-
+  gfx::DrawTarget& drawTarget;
   f64 deltaTime {};
-  Size2Du16 windowSize {Size2Du16::dont_care()};
   Input input {};
 };
 
 void quit();
 
 } // namespace basalt
-
-#endif // !BASALT_ENGINE_H

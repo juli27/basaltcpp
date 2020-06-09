@@ -30,7 +30,7 @@ struct D3D9Factory final {
   [[nodiscard]]
   auto adapter_info() const noexcept -> const AdapterInfo&;
 
-  auto create_context(HWND window) const -> std::unique_ptr<D3D9Context>;
+  auto create_context(HWND window) const -> std::shared_ptr<D3D9Context>;
 
 private:
   Microsoft::WRL::ComPtr<IDirect3D9> mFactory;

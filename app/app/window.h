@@ -1,6 +1,4 @@
 #pragma once
-#ifndef BASALT_APP_WINDOW_H
-#define BASALT_APP_WINDOW_H
 
 #include "d3d9/context.h"
 #include "d3d9/factory.h"
@@ -55,8 +53,13 @@ struct Window final {
   }
 
   [[nodiscard]]
+  auto gfx_context() const -> std::shared_ptr<gfx::backend::IGfxContext> {
+    return mGfxContext;
+  }
+
+  [[nodiscard]]
   auto renderer() const -> gfx::backend::IRenderer* {
-    return mContext->renderer().get();
+    return &mGfxContext->renderer();
   }
 
   void set_cursor(MouseCursor);
@@ -64,7 +67,7 @@ struct Window final {
   auto drain_input() -> Input;
 
   void present() const {
-    mContext->present();
+    mGfxContext->present();
   }
 
   [[nodiscard]]
@@ -78,7 +81,7 @@ private:
   HWND mHandle {nullptr};
 
   gfx::backend::D3D9FactoryPtr mFactory {};
-  std::unique_ptr<gfx::backend::D3D9Context> mContext {};
+  std::shared_ptr<gfx::backend::D3D9Context> mGfxContext {};
 
   Input mInput {};
   Size2Du16 mClientAreaSize {Size2Du16::dont_care()};
@@ -89,7 +92,7 @@ private:
 
   Window(
     HMODULE, HWND, gfx::backend::D3D9FactoryPtr
-  , std::unique_ptr<gfx::backend::D3D9Context>, Size2Du16 clientAreaSize);
+  , std::shared_ptr<gfx::backend::D3D9Context>, Size2Du16 clientAreaSize);
 
   [[nodiscard]]
   auto dispatch_message(UINT message, WPARAM, LPARAM) -> LRESULT;
@@ -106,5 +109,3 @@ private:
 
 } // namespace win32
 } // namespace basalt
-
-#endif // BASALT_APP_WINDOW_H

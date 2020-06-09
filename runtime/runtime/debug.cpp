@@ -23,7 +23,6 @@ using entt::entity;
 
 namespace basalt {
 
-using gfx::SceneView;
 using math::PI;
 using math::Vec3f32;
 
@@ -41,7 +40,7 @@ bool Debug::sShowDemo {false};
 bool Debug::sShowMetrics {false};
 bool Debug::sShowAbout {false};
 
-void Debug::update(const SceneView& view) {
+void Debug::update(Scene& scene) {
   show_overlay();
 
   if (ImGui::BeginMainMenuBar()) {
@@ -71,7 +70,7 @@ void Debug::update(const SceneView& view) {
   }
 
   if (sShowSceneDebugUi) {
-    draw_scene_debug_ui(view.mScene.get());
+    draw_scene_debug_ui(scene);
   }
 
   if (sShowDemo) {
@@ -85,37 +84,37 @@ void Debug::update(const SceneView& view) {
   }
 }
 
-void Debug::draw_scene_debug_ui(Scene* const scene) {
+void Debug::draw_scene_debug_ui(Scene& scene) {
   ImGui::SetNextWindowSize(ImVec2 {400.0f, 600.0f}, ImGuiCond_FirstUseEver);
   if (!ImGui::Begin("Scene Inspector", &sShowSceneDebugUi)) {
     ImGui::End();
     return;
   }
 
-  edit_color3("Background Color", scene->mBackgroundColor);
+  edit_color3("Background Color", scene.mBackgroundColor);
 
   ImGui::Separator();
 
-  edit_color4("Ambient Light", scene->mAmbientLightColor);
+  edit_color4("Ambient Light", scene.mAmbientLightColor);
 
-  if (!scene->mDirectionalLights.empty()) {
+  if (!scene.mDirectionalLights.empty()) {
     ImGui::PushID("Directional Lights");
-    for (uSize i = 0; i < scene->mDirectionalLights.size(); i++) {
+    for (uSize i = 0; i < scene.mDirectionalLights.size(); i++) {
       ImGui::PushID(static_cast<i32>(i));
       if (ImGui::TreeNode(
         "Directional Light", "Directional Light %zo", i + 1)) {
-        edit_color4("Diffuse", scene->mDirectionalLights[i].diffuseColor);
-        edit_color4("Ambient", scene->mDirectionalLights[i].ambientColor);
+        edit_color4("Diffuse", scene.mDirectionalLights[i].diffuseColor);
+        edit_color4("Ambient", scene.mDirectionalLights[i].ambientColor);
 
         array<f32, 3> direction = {
-          scene->mDirectionalLights[i].direction.x
-        , scene->mDirectionalLights[i].direction.y
-        , scene->mDirectionalLights[i].direction.z
+          scene.mDirectionalLights[i].direction.x
+        , scene.mDirectionalLights[i].direction.y
+        , scene.mDirectionalLights[i].direction.z
         };
         ImGui::DragFloat3("Direction", direction.data(), 0.1f);
 
         using std::get;
-        scene->mDirectionalLights[i].direction = Vec3f32::normalize(
+        scene.mDirectionalLights[i].direction = Vec3f32::normalize(
           Vec3f32 {
             get<0>(direction), get<1>(direction), get<2>(direction)
           });
@@ -131,15 +130,14 @@ void Debug::draw_scene_debug_ui(Scene* const scene) {
 
   ImGui::Separator();
 
-  scene->mEntityRegistry.each(
-    [scene](const entity entity) -> void {
+  scene.mEntityRegistry.each(
+    [&scene](const entity entity) -> void {
       ImGui::PushID(enum_cast(entity));
 
       if (ImGui::TreeNode("Entity", "Entity %d", enum_cast(entity))) {
         // show its transform component
-        if (auto* const transform = scene->
-                                    mEntityRegistry.try_get<Transform>(
-                                      entity)) {
+        if (auto* const transform =
+          scene.mEntityRegistry.try_get<Transform>(entity)) {
           if (ImGui::TreeNode("Transform")) {
             ImGui::DragFloat3("Position", &transform->mPosition.x, 0.1f);
 
@@ -153,10 +151,8 @@ void Debug::draw_scene_debug_ui(Scene* const scene) {
           }
         }
 
-        if (auto* const rc = scene->
-                             mEntityRegistry.try_get<gfx::RenderComponent
-                             >(
-                               entity)) {
+        if (auto* const rc =
+          scene.mEntityRegistry.try_get<gfx::RenderComponent>(entity)) {
           if (ImGui::TreeNode("RenderComponent")) {
             if (rc->model) {
               ImGui::Text("Model: %#x", rc->model.value());

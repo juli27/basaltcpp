@@ -14,13 +14,9 @@
 
 #include "runtime/client_app.h"
 #include "runtime/dear_imgui.h"
-#include "runtime/debug.h"
 #include "runtime/Engine.h"
-#include "runtime/Input.h"
 
-#include "runtime/gfx/Gfx.h"
-#include "runtime/gfx/scene_view.h"
-#include "runtime/gfx/types.h"
+#include "runtime/gfx/compositor.h"
 
 #include "runtime/shared/Asserts.h"
 #include "runtime/shared/Log.h"
@@ -38,9 +34,9 @@ using std::string;
 
 namespace basalt::win32 {
 
-using gfx::SceneView;
+using gfx::Compositor;
 using gfx::backend::AdapterInfo;
-using gfx::backend::D3D9FactoryPtr;
+using gfx::backend::D3D9Factory;
 
 namespace {
 
@@ -52,7 +48,7 @@ void init_dear_imgui_additional(const Window* window);
 [[nodiscard]]
 auto poll_events() -> bool;
 
-void draw_debug_ui_additional(const D3D9FactoryPtr&);
+void draw_debug_ui_additional(const D3D9Factory&);
 
 } // namespace
 
@@ -67,12 +63,10 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   const DearImGui dearImGui {window->renderer()};
   init_dear_imgui_additional(window.get());
 
-  App app {
-    config, window->renderer()
-  , SceneView {std::make_shared<Scene>(), gfx::Camera {}}
-  };
+  App app {config, window->gfx_context()};
+  Compositor compositor {window->gfx_context()};
 
-  const auto clientApp {ClientApp::create(app, window->size())};
+  const auto clientApp {ClientApp::create(app)};
   BASALT_ASSERT(clientApp);
 
   using Clock = std::chrono::high_resolution_clock;
@@ -83,7 +77,7 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   while (poll_events()) {
     config.windowedSize = window->size();
     const UpdateContext ctx {
-      app, currentDeltaTime, config.windowedSize, window->drain_input()
+      app, compositor.draw_target(), currentDeltaTime, window->drain_input()
     };
     dearImGui.new_frame(ctx);
 
@@ -94,14 +88,10 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
       window->set_cursor(app.mMouseCursor);
     }
 
-    if (config.debugUiEnabled) {
-      Debug::update(app.currentView);
-    }
-
-    draw_debug_ui_additional(window->context_factory());
+    draw_debug_ui_additional(*window->context_factory());
 
     // also calls ImGui::Render()
-    gfx::render(&app.renderer, app.currentView);
+    compositor.compose();
 
     window->present();
 
@@ -152,7 +142,7 @@ auto poll_events() -> bool {
   return true;
 }
 
-void draw_debug_ui_additional(const D3D9FactoryPtr& ctxFactory) {
+void draw_debug_ui_additional(const D3D9Factory& ctxFactory) {
   // https://github.com/ocornut/imgui/issues/331
   enum class OpenPopup : u8 {
     None, GfxInfo
@@ -179,7 +169,7 @@ void draw_debug_ui_additional(const D3D9FactoryPtr& ctxFactory) {
 
   if (ImGui::BeginPopupModal(
     "Gfx Info", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-    const AdapterInfo& adapterInfo = ctxFactory->adapter_info();
+    const AdapterInfo& adapterInfo = ctxFactory.adapter_info();
 
     ImGui::Text(
       "GFX Adapter: %s", adapterInfo.displayName.c_str());

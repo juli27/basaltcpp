@@ -189,15 +189,13 @@ void D3D9Renderer::remove_model(const ModelHandle handle) {
   mModels.deallocate(handle);
 }
 
-void D3D9Renderer::set_clear_color(const Color& color) {
-  mClearColor = to_d3d_color(color);
-}
-
 // TODO: shading mode
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
 void D3D9Renderer::render(const RenderCommandList& commandList) {
+  const D3DCOLOR clearColor = to_d3d_color(commandList.clear_color());
+
   D3D9CALL(
-    mDevice->Clear(0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, mClearColor,
+    mDevice->Clear(0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, clearColor,
       1.0f, 0u));
 
   // TODO: should we make all rendering code dependent
@@ -226,13 +224,15 @@ void D3D9Renderer::render(const RenderCommandList& commandList) {
 
   DWORD lightIndex = 0u;
   for (const auto& light : directionalLights) {
-    D3DLIGHT9 d3dLight {D3DLIGHT_DIRECTIONAL};
+    D3DLIGHT9 d3dLight {};
+    d3dLight.Type = D3DLIGHT_DIRECTIONAL;
     d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
     d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
     d3dLight.Direction = to_d3d_vector(light.direction);
 
     D3D9CALL(mDevice->SetLight(lightIndex, &d3dLight));
-    D3D9CALL(mDevice->LightEnable(lightIndex++, TRUE));
+    D3D9CALL(mDevice->LightEnable(lightIndex, TRUE));
+    lightIndex++;
   }
 
   for (const auto& command : commandList.commands()) {

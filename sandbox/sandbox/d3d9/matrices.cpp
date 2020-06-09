@@ -2,6 +2,7 @@
 
 #include "sandbox/d3d9/utils.h"
 
+#include <runtime/debug.h>
 #include <runtime/prelude.h>
 
 #include <runtime/scene/transform.h>
@@ -15,6 +16,7 @@ using std::array;
 using std::string_view;
 using namespace std::literals;
 
+using basalt::Debug;
 using basalt::Transform;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SceneView;
@@ -27,7 +29,7 @@ using basalt::math::PI;
 
 namespace d3d9 {
 
-Matrices::Matrices(IRenderer* const renderer) {
+Matrices::Matrices(IRenderer& renderer) {
   mScene->set_background_color(Colors::BLACK);
 
   struct Vertex final {
@@ -60,17 +62,21 @@ Matrices::Matrices(IRenderer* const renderer) {
   auto& rc {ecs.emplace<RenderComponent>(mTriangle)};
   rc.mMesh = add_triangle_list_mesh(renderer, vertices, vertexLayout);
   rc.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
+
+  mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }
 
-auto Matrices::view(const basalt::Size2Du16 windowSize) -> SceneView {
-  return SceneView {mScene, create_default_camera(windowSize)};
-}
-
-void Matrices::on_update(const f64 deltaTime) {
+void Matrices::on_update(const basalt::UpdateContext& ctx) {
   // 1 full rotation per second
-  const f32 radOffsetY {2.0f * PI * static_cast<f32>(deltaTime)};
+  const f32 radOffsetY {2.0f * PI * static_cast<f32>(ctx.deltaTime)};
   auto& transform {mScene->ecs().get<Transform>(mTriangle)};
   transform.rotate(0.0f, radOffsetY, 0.0f);
+
+  ctx.drawTarget.draw(mSceneView);
+
+  if (ctx.engine.config().debugUiEnabled) {
+      Debug::update(*mScene);
+  }
 }
 
 auto Matrices::name() -> string_view {

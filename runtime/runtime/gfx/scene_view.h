@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Camera.h"
+#include "drawable.h"
 #include "backend/render_command.h"
 
 #include <runtime/scene/scene.h>
@@ -9,24 +10,25 @@
 
 namespace basalt::gfx {
 
-struct SceneView final {
+struct SceneView final : Drawable {
   SceneView(std::shared_ptr<Scene> scene, const Camera& camera);
 
   SceneView(const SceneView&) = delete;
   SceneView(SceneView&&) = default;
 
-  ~SceneView() = default;
+  ~SceneView() override = default;
 
   auto operator=(const SceneView&) -> SceneView& = delete;
   auto operator=(SceneView&&) -> SceneView& = default;
 
-  auto draw() const -> backend::RenderCommandList;
+  auto draw(Size2Du16 viewport) -> backend::RenderCommandList override;
 
   // TODO: remove
-  auto clear_color() const -> const Color&;
+  [[nodiscard]]
+  auto clear_color() const -> Color override;
 
 private:
-  friend struct Debug;
+  friend struct ::basalt::Debug;
 
   std::shared_ptr<Scene> mScene {};
   Camera mCamera {};

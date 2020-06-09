@@ -7,9 +7,9 @@ namespace basalt::gfx::backend {
 using math::Mat4f32;
 
 RenderCommandList::RenderCommandList(
-  const Mat4f32& view, const Mat4f32& projection
+  const Mat4f32& view, const Mat4f32& projection, const Color& clearColor
 )
-  : mView(view), mProjection(projection) {
+  : mView(view), mProjection(projection), mClearColor {clearColor} {
 }
 
 auto RenderCommandList::commands() const -> const vector<RenderCommand>& {
@@ -41,6 +41,10 @@ void RenderCommandList::set_directional_lights(
   const std::vector<DirectionalLight>& lights
 ) {
   mDirectionalLights = lights;
+}
+
+auto RenderCommandList::clear_color() const -> const Color& {
+  return mClearColor;
 }
 
 void RenderCommandList::add(const RenderCommand& command) {

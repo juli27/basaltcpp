@@ -2,6 +2,7 @@
 
 #include "sandbox/d3d9/utils.h"
 
+#include <runtime/debug.h>
 #include <runtime/prelude.h>
 
 #include <runtime/scene/transform.h>
@@ -17,6 +18,7 @@ using std::array;
 using std::string_view;
 using namespace std::literals;
 
+using basalt::Debug;
 using basalt::Transform;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SceneView;
@@ -31,7 +33,7 @@ using basalt::math::Vec3f32;
 
 namespace d3d9 {
 
-Textures::Textures(IRenderer* const renderer) {
+Textures::Textures(IRenderer& renderer) {
   mScene->set_background_color(Colors::BLUE);
 
   struct Vertex final {
@@ -68,17 +70,21 @@ Textures::Textures(IRenderer* const renderer) {
 
   auto& rc {ecs.emplace<RenderComponent>(mCylinder)};
   rc.mMesh = add_triangle_strip_mesh(renderer, vertices, vertexLayout);
-  rc.mTexture = renderer->add_texture("data/banana.bmp");
+  rc.mTexture = renderer.add_texture("data/banana.bmp");
   rc.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
+
+  mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }
 
-auto Textures::view(const basalt::Size2Du16 windowSize) -> SceneView {
-  return SceneView {mScene, create_default_camera(windowSize)};
-}
-
-void Textures::on_update(const f64 deltaTime) {
+void Textures::on_update(const basalt::UpdateContext& ctx) {
   auto& transform {mScene->ecs().get<Transform>(mCylinder)};
-  transform.rotate(static_cast<f32>(deltaTime), 0.0f, 0.0f);
+  transform.rotate(static_cast<f32>(ctx.deltaTime), 0.0f, 0.0f);
+
+  ctx.drawTarget.draw(mSceneView);
+
+  if (ctx.engine.config().debugUiEnabled) {
+      Debug::update(*mScene);
+  }
 }
 
 auto Textures::name() -> string_view {

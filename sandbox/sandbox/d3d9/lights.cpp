@@ -2,6 +2,7 @@
 
 #include "sandbox/d3d9/utils.h"
 
+#include <runtime/debug.h>
 #include <runtime/prelude.h>
 
 #include <runtime/scene/transform.h>
@@ -16,6 +17,7 @@ using std::array;
 using std::string_view;
 using namespace std::literals;
 
+using basalt::Debug;
 using basalt::Transform;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SceneView;
@@ -28,7 +30,7 @@ using basalt::math::Vec3f32;
 
 namespace d3d9 {
 
-Lights::Lights(IRenderer* const renderer) {
+Lights::Lights(IRenderer& renderer) {
   mScene->set_background_color(Colors::BLUE);
   mScene->set_ambient_light(Color::from_rgba(32, 32, 32));
 
@@ -61,14 +63,12 @@ Lights::Lights(IRenderer* const renderer) {
   rc.mDiffuseColor = Color {1.0f, 1.0f, 0.0f};
   rc.mAmbientColor = Color {1.0f, 1.0f, 0.0f};
   rc.mRenderFlags = RenderFlagCullNone;
+
+  mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }
 
-auto Lights::view(const basalt::Size2Du16 windowSize) -> SceneView {
-  return SceneView {mScene, create_default_camera(windowSize)};
-}
-
-void Lights::on_update(const f64 deltaTime) {
-  const auto dt {static_cast<f32>(deltaTime)};
+void Lights::on_update(const basalt::UpdateContext& ctx) {
+  const auto dt {static_cast<f32>(ctx.deltaTime)};
   auto& transform {mScene->ecs().get<Transform>(mCylinder)};
   transform.rotate(2.0f * dt, 0.0f, 0.0f);
 
@@ -82,6 +82,12 @@ void Lights::on_update(const f64 deltaTime) {
 
   const Vec3f32 lightDir {std::cos(mLightAngle), 1.0f, std::sin(mLightAngle)};
   mScene->add_directional_light(Vec3f32::normalize(lightDir), Colors::WHITE);
+
+  ctx.drawTarget.draw(mSceneView);
+
+  if (ctx.engine.config().debugUiEnabled) {
+      Debug::update(*mScene);
+  }
 }
 
 auto Lights::name() -> string_view {

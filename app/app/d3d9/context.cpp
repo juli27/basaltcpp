@@ -4,8 +4,6 @@
 
 #include "runtime/shared/Log.h"
 
-using std::unique_ptr;
-
 using Microsoft::WRL::ComPtr;
 
 namespace basalt::gfx::backend {
@@ -18,8 +16,15 @@ D3D9Context::D3D9Context(
   BASALT_ASSERT(mDevice);
 }
 
-auto D3D9Context::renderer() const noexcept -> const unique_ptr<D3D9Renderer>& {
-  return mRenderer;
+auto D3D9Context::surface_size() const noexcept -> Size2Du16 {
+  return Size2Du16 {
+    static_cast<u16>(mPresentParams.BackBufferWidth)
+  , static_cast<u16>(mPresentParams.BackBufferHeight)
+  };
+}
+
+auto D3D9Context::renderer() const noexcept -> D3D9Renderer& {
+  return *mRenderer;
 }
 
 void D3D9Context::resize(const Size2Du16 size) {

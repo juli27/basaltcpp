@@ -1,6 +1,4 @@
 #pragma once
-#ifndef BASALT_RUNTIME_GFX_BACKEND_RENDER_COMMAND_H
-#define BASALT_RUNTIME_GFX_BACKEND_RENDER_COMMAND_H
 
 #include "runtime/gfx/backend/Types.h"
 #include "runtime/scene/types.h"
@@ -47,7 +45,9 @@ struct RenderCommand final {
 //        or only some, or none)
 struct RenderCommandList final {
   RenderCommandList() = default;
-  RenderCommandList(const math::Mat4f32& view, const math::Mat4f32& projection);
+  RenderCommandList(
+    const math::Mat4f32& view, const math::Mat4f32& projection
+  , const Color& clearColor);
 
   RenderCommandList(const RenderCommandList&) = delete;
   RenderCommandList(RenderCommandList&&) = default;
@@ -74,6 +74,9 @@ struct RenderCommandList final {
   auto directional_lights() const -> const std::vector<DirectionalLight>&;
   void set_directional_lights(const std::vector<DirectionalLight>&);
 
+  [[nodiscard]]
+  auto clear_color() const -> const Color&;
+
   void add(const RenderCommand&);
 
 private:
@@ -81,9 +84,9 @@ private:
   std::vector<DirectionalLight> mDirectionalLights {};
   math::Mat4f32 mView {math::Mat4f32::identity()};
   math::Mat4f32 mProjection {math::Mat4f32::identity()};
+  // TODO: drawable need to be able to clear their area of the draw target
+  Color mClearColor {};
   Color mAmbientLightColor {};
 };
 
 } // namespace basalt::gfx::backend
-
-#endif // !BASALT_RUNTIME_GFX_BACKEND_RENDER_COMMAND_H

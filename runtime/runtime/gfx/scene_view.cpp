@@ -13,9 +13,10 @@ SceneView::SceneView(std::shared_ptr<Scene> scene, const Camera& camera)
   : mScene {std::move(scene)}, mCamera {camera} {
 }
 
-auto SceneView::draw() const -> RenderCommandList {
+auto SceneView::draw(const Size2Du16 viewport) -> RenderCommandList {
   RenderCommandList commandList {
-    mCamera.view_matrix(), mCamera.projection_matrix()
+    mCamera.view_matrix(), mCamera.projection_matrix(viewport)
+  , mScene->background_color()
   };
 
   commandList.set_ambient_light(mScene->ambient_light());
@@ -53,9 +54,8 @@ auto SceneView::draw() const -> RenderCommandList {
   return commandList;
 }
 
-auto SceneView::clear_color() const -> const Color& {
+auto SceneView::clear_color() const -> Color {
   return mScene->background_color();
 }
-
 
 } // namespace basalt::gfx

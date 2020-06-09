@@ -5,8 +5,6 @@
 #include "d3d9_custom.h"
 #include "renderer.h"
 
-#include <runtime/shared/Size2D.h>
-
 #include <wrl/client.h>
 
 #include <memory>
@@ -26,7 +24,10 @@ struct D3D9Context final : IGfxContext {
   auto operator=(D3D9Context&&) -> D3D9Context& = delete;
 
   [[nodiscard]]
-  auto renderer() const noexcept -> const std::unique_ptr<D3D9Renderer>&;
+  auto surface_size() const noexcept -> Size2Du16 override;
+
+  [[nodiscard]]
+  auto renderer() const noexcept -> D3D9Renderer& override;
 
   void resize(Size2Du16);
   void present() override;

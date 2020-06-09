@@ -1,11 +1,8 @@
 #pragma once
-#ifndef BASALT_CLIENT_APP_H
-#define BASALT_CLIENT_APP_H
 
 #include "Engine.h"
 
 #include "runtime/shared/Config.h"
-#include "runtime/shared/Size2D.h"
 
 #include <memory>
 
@@ -25,10 +22,7 @@ struct ClientApp {
   virtual void on_update(const UpdateContext&) = 0;
 
   static auto configure() -> Config;
-  static auto create(
-    Engine&, Size2Du16 windowSize) -> std::unique_ptr<ClientApp>;
+  static auto create(Engine&) -> std::unique_ptr<ClientApp>;
 };
 
 } // namespace basalt
-
-#endif // !BASALT_CLIENT_APP_H

@@ -11,8 +11,8 @@
 #include <runtime/Input.h>
 #include <runtime/prelude.h>
 
+#include <runtime/gfx/backend/context.h>
 #include <runtime/platform/Platform.h>
-
 #include <runtime/shared/Config.h>
 
 #include <imgui/imgui.h>
@@ -28,6 +28,7 @@ using basalt::Engine;
 using basalt::UpdateContext;
 using basalt::WindowMode;
 using basalt::Key;
+using basalt::gfx::backend::IRenderer;
 
 auto ClientApp::configure() -> Config {
   Config config {Config::defaults()};
@@ -37,25 +38,24 @@ auto ClientApp::configure() -> Config {
   return config;
 }
 
-auto ClientApp::create(
-  Engine& engine, const Size2Du16 windowSize) -> unique_ptr<ClientApp> {
-  return std::make_unique<SandboxApp>(engine, windowSize);
+auto ClientApp::create(Engine& engine) -> unique_ptr<ClientApp> {
+  return std::make_unique<SandboxApp>(engine);
 }
 
 
-SandboxApp::SandboxApp(
-  Engine& engine, const basalt::Size2Du16 windowSize) {
+SandboxApp::SandboxApp(Engine& engine) {
+  IRenderer& renderer = engine.gfx_context().renderer();
+
   mScenes.reserve(7u);
   mScenes.push_back(std::make_unique<d3d9::Device>());
-  mScenes.push_back(std::make_unique<d3d9::Vertices>(&engine.renderer));
-  mScenes.push_back(std::make_unique<d3d9::Matrices>(&engine.renderer));
-  mScenes.push_back(std::make_unique<d3d9::Lights>(&engine.renderer));
-  mScenes.push_back(std::make_unique<d3d9::Textures>(&engine.renderer));
+  mScenes.push_back(std::make_unique<d3d9::Vertices>(renderer));
+  mScenes.push_back(std::make_unique<d3d9::Matrices>(renderer));
+  mScenes.push_back(std::make_unique<d3d9::Lights>(renderer));
+  mScenes.push_back(std::make_unique<d3d9::Textures>(renderer));
   mScenes.push_back(
-    std::make_unique<d3d9::TexturesTci>(&engine.renderer, windowSize));
-  mScenes.push_back(std::make_unique<d3d9::Meshes>(&engine.renderer));
-
-  engine.currentView = mScenes[mCurrentSceneIndex]->view(windowSize);
+    std::make_unique<d3d9::TexturesTci>(
+      renderer, engine.gfx_context().surface_size()));
+  mScenes.push_back(std::make_unique<d3d9::Meshes>(renderer));
 }
 
 void SandboxApp::on_update(const UpdateContext& ctx) {
@@ -65,7 +65,7 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
     if (!pageUpPressed) {
       pageUpPressed = true;
 
-      prev_scene(ctx);
+      prev_scene();
     }
   } else {
     pageUpPressed = false;
@@ -75,13 +75,11 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
     if (!pageDownPressed) {
       pageDownPressed = true;
 
-      next_scene(ctx);
+      next_scene();
     }
   } else {
     pageDownPressed = false;
   }
-
-  mScenes[mCurrentSceneIndex]->on_update(ctx.deltaTime);
 
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("File")) {
@@ -89,17 +87,17 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
         const bool isCurrent = mCurrentSceneIndex == i;
         if (ImGui::MenuItem(
           mScenes[i]->name().data(), nullptr, isCurrent, !isCurrent)) {
-          set_scene(ctx, i);
+          set_scene(i);
         }
       }
 
       ImGui::Separator();
 
       if (ImGui::MenuItem("Next Scene", "PgDn")) {
-        next_scene(ctx);
+        next_scene();
       }
       if (ImGui::MenuItem("Prev Scene", "PgUp")) {
-        prev_scene(ctx);
+        prev_scene();
       }
 
       ImGui::Separator();
@@ -133,28 +131,25 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
 
     ImGui::EndMainMenuBar();
   }
+
+  mScenes[mCurrentSceneIndex]->on_update(ctx);
 }
 
-void SandboxApp::next_scene(const UpdateContext& ctx) {
+void SandboxApp::next_scene() {
   mCurrentSceneIndex++;
   if (mCurrentSceneIndex >= mScenes.size()) {
     mCurrentSceneIndex = 0;
   }
-
-  ctx.engine.currentView = mScenes[mCurrentSceneIndex]->view(ctx.windowSize);
 }
 
-void SandboxApp::prev_scene(const UpdateContext& ctx) {
+void SandboxApp::prev_scene() {
   if (mCurrentSceneIndex == 0) {
     mCurrentSceneIndex = mScenes.size() - 1;
   } else {
     mCurrentSceneIndex--;
   }
-
-  ctx.engine.currentView = mScenes[mCurrentSceneIndex]->view(ctx.windowSize);
 }
 
-void SandboxApp::set_scene(const UpdateContext& ctx, const uSize index) {
+void SandboxApp::set_scene(const uSize index) {
   mCurrentSceneIndex = index;
-  ctx.engine.currentView = mScenes[mCurrentSceneIndex]->view(ctx.windowSize);
 }

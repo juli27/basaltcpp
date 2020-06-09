@@ -19,8 +19,8 @@ using Microsoft::WRL::ComPtr;
 
 using std::array;
 using std::runtime_error;
+using std::shared_ptr;
 using std::string;
-using std::unique_ptr;
 
 namespace {
 
@@ -90,7 +90,7 @@ auto D3D9Factory::adapter_info() const noexcept -> const AdapterInfo& {
 }
 
 auto D3D9Factory::create_context(
-  const HWND window) const -> unique_ptr<D3D9Context> {
+  const HWND window) const -> shared_ptr<D3D9Context> {
   D3DPRESENT_PARAMETERS pp {};
   pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
   pp.hDeviceWindow = window;
@@ -121,7 +121,7 @@ auto D3D9Factory::create_context(
     "Direct3D9 context created: adapter={}, driver={}({})"
   , mAdapterInfo.displayName, mAdapterInfo.driver, mAdapterInfo.driverVersion);
 
-  return std::make_unique<D3D9Context>(std::move(device), pp);
+  return std::make_shared<D3D9Context>(std::move(device), pp);
 }
 
 auto D3D9Factory::create() -> std::optional<D3D9FactoryPtr> {

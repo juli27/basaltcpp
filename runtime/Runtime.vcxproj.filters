@@ -14,9 +14,6 @@
     <ClCompile Include="runtime\gfx\Camera.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
-    <ClCompile Include="runtime\gfx\Gfx.cpp">
-      <Filter>gfx</Filter>
-    </ClCompile>
     <ClCompile Include="runtime\math\Vec2.cpp">
       <Filter>math</Filter>
     </ClCompile>
@@ -36,6 +33,15 @@
     </ClCompile>
     <ClCompile Include="runtime\engine.cpp" />
     <ClCompile Include="runtime\gfx\scene_view.cpp">
+      <Filter>gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="runtime\gfx\visual.cpp">
+      <Filter>gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="runtime\gfx\compositor.cpp">
+      <Filter>gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="runtime\gfx\draw_target.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
   </ItemGroup>
@@ -87,9 +93,6 @@
     <ClInclude Include="runtime\gfx\Camera.h">
       <Filter>gfx</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\gfx\Gfx.h">
-      <Filter>gfx</Filter>
-    </ClInclude>
     <ClInclude Include="runtime\shared\Size2D.h">
       <Filter>shared</Filter>
     </ClInclude>
@@ -120,6 +123,18 @@
     <ClInclude Include="runtime\prelude.h" />
     <ClInclude Include="runtime\types.h" />
     <ClInclude Include="runtime\gfx\scene_view.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\gfx\visual.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\gfx\drawable.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\gfx\compositor.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\gfx\draw_target.h">
       <Filter>gfx</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,10 +1,9 @@
 #pragma once
-#ifndef SANDBOX_D3D9_MESHES_H
-#define SANDBOX_D3D9_MESHES_H
 
 #include "sandbox/test_case.h"
 
 #include <runtime/gfx/backend/IRenderer.h>
+#include <runtime/gfx/scene_view.h>
 #include <runtime/scene/scene.h>
 
 #include <memory>
@@ -13,7 +12,7 @@ namespace d3d9 {
 
 struct Meshes final : TestCase {
   Meshes() = delete;
-  explicit Meshes(basalt::gfx::backend::IRenderer*);
+  explicit Meshes(basalt::gfx::backend::IRenderer&);
 
   Meshes(const Meshes&) = delete;
   Meshes(Meshes&&) = delete;
@@ -23,15 +22,13 @@ struct Meshes final : TestCase {
   auto operator=(const Meshes&) -> Meshes& = delete;
   auto operator=(Meshes&&) -> Meshes& = delete;
 
-  auto view(basalt::Size2Du16 windowSize) -> basalt::gfx::SceneView override;
-  void on_update(basalt::f64 deltaTime) override;
+  void on_update(const basalt::UpdateContext&) override;
   auto name() -> std::string_view override;
 
 private:
   std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();
+  std::shared_ptr<basalt::gfx::SceneView> mSceneView {};
   entt::entity mTiger {entt::null};
 };
 
 } // namespace d3d9
-
-#endif // SANDBOX_D3D9_MESHES_H
