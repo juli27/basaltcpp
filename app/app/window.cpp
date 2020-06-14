@@ -335,7 +335,9 @@ auto Window::dispatch_message(
   }
 
   case WM_MOUSEWHEEL: {
-    mInput.mouse_moved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+    POINT cursorPos { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+    ::ScreenToClient(mHandle, &cursorPos);
+    mInput.mouse_moved(cursorPos.x, cursorPos.y);
     process_mouse_message_states(LOWORD(wParam));
     const f32 offset {
       static_cast<f32>(GET_WHEEL_DELTA_WPARAM(wParam)) / static_cast<f32>(
