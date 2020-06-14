@@ -1,8 +1,8 @@
-#include "runtime/math/Vec3.h"
+#include "vec3.h"
 
 #include <cmath>
 
-namespace basalt::math {
+namespace basalt {
 
 template struct Vec3<f32>;
 
@@ -159,4 +159,4 @@ auto operator/(const Vec3<T>& v, const T s) -> Vec3<T> {
 
 template auto operator/(const Vec3<f32>&, f32) -> Vec3<f32>;
 
-} // namespace basalt::math
+} // namespace basalt

@@ -1,10 +1,8 @@
 #pragma once
-#ifndef BASALT_INPUT_H
-#define BASALT_INPUT_H
 
-#include "math/Vec2.h"
-#include "shared/Asserts.h"
-#include "shared/Types.h"
+#include "math/vec2.h"
+#include "shared/asserts.h"
+#include "shared/types.h"
 
 #include <bitset>
 #include <memory>
@@ -57,13 +55,13 @@ struct Input final {
   ~Input() = default;
 
   auto operator=(const Input&) -> Input& = delete;
-  auto operator=(Input&&) -> Input& = default;
+  auto operator=(Input&&) -> Input& = delete;
 
   [[nodiscard]]
   auto events() const -> const std::vector<InputEventPtr>&;
 
   [[nodiscard]]
-  auto mouse_position() const -> math::Vec2i32;
+  auto mouse_position() const -> Vec2i32;
   void mouse_moved(i32 x, i32 y);
 
   void mouse_wheel(f32 offset);
@@ -83,7 +81,7 @@ struct Input final {
 private:
   std::vector<InputEventPtr> mEvents {};
   std::bitset<MOUSE_BUTTON_COUNT> mMouseButtonsDown {};
-  math::Vec2i32 mMousePosition {};
+  Vec2i32 mMousePosition {};
   std::bitset<KEY_COUNT> mKeysDown {};
 };
 
@@ -111,12 +109,11 @@ struct InputEvent {
   auto operator=(const InputEvent&) noexcept -> InputEvent& = default;
   auto operator=(InputEvent&&) noexcept -> InputEvent& = default;
 
-  // TODO: this is terrible.
-  // This returns a raw ptr from the InputEventPtr which MUST NOT be stored
+  // TODO: is there a better solution?
   template <typename T>
-  auto as() -> T* {
+  auto as() -> T& {
     BASALT_ASSERT_MSG(type == T::TYPE, "invalid input event cast");
-    return static_cast<T*>(this);
+    return static_cast<T&>(*this);
   }
 };
 
@@ -138,9 +135,9 @@ struct InputEventT : InputEvent {
 };
 
 struct MouseMoved final : InputEventT<InputEventType::MouseMoved> {
-  math::Vec2i32 position;
+  Vec2i32 position;
 
-  constexpr explicit MouseMoved(const math::Vec2i32& pos) noexcept
+  constexpr explicit MouseMoved(const Vec2i32& pos) noexcept
     : position {pos} {
   }
 
@@ -251,5 +248,3 @@ struct CharactersTyped final : InputEventT<InputEventType::CharactersTyped> {
 };
 
 } // namespace basalt
-
-#endif // !BASALT_INPUT_H

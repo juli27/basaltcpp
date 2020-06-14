@@ -3,7 +3,7 @@
 #include "d3d9_custom.h"
 #include "types.h"
 
-#include "runtime/shared/Asserts.h"
+#include <runtime/shared/asserts.h>
 
 #include <string_view>
 

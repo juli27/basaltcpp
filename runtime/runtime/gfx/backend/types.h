@@ -1,13 +1,11 @@
 #pragma once
-#ifndef BASALT_GFX_BACKEND_TYPES_H
-#define BASALT_GFX_BACKEND_TYPES_H
 
-#include "runtime/shared/Handle.h"
-#include "runtime/shared/Types.h"
+#include <runtime/shared/handle.h>
+#include <runtime/shared/types.h>
 
 #include <vector>
 
-namespace basalt::gfx::backend {
+namespace basalt::gfx {
 
 enum class VertexElement : u8 {
   Position3F32,
@@ -49,6 +47,4 @@ using MeshHandle = Handle<detail::MeshTypeTag>;
 using TextureHandle = Handle<detail::TextureTypeTag>;
 using ModelHandle = Handle<detail::ModelTypeTag>;
 
-} // namespace basalt::gfx::backend
-
-#endif // !BASALT_GFX_BACKEND_TYPES_H
+} // namespace basalt::gfx

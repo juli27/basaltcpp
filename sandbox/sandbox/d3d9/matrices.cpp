@@ -1,12 +1,14 @@
-#include "sandbox/d3d9/matrices.h"
+#include "matrices.h"
 
-#include "sandbox/d3d9/utils.h"
+#include "utils.h"
 
 #include <runtime/debug.h>
 #include <runtime/prelude.h>
 
+#include <runtime/gfx/draw_target.h>
 #include <runtime/scene/transform.h>
-#include <runtime/math/Constants.h>
+#include <runtime/math/constants.h>
+#include <runtime/shared/config.h>
 
 #include <entt/entity/registry.hpp>
 
@@ -17,19 +19,19 @@ using std::string_view;
 using namespace std::literals;
 
 using basalt::Debug;
+using basalt::PI;
 using basalt::Transform;
+using basalt::gfx::Device;
 using basalt::gfx::RenderComponent;
+using basalt::gfx::RenderFlagCullNone;
+using basalt::gfx::RenderFlagDisableLighting;
 using basalt::gfx::SceneView;
-using basalt::gfx::backend::IRenderer;
-using basalt::gfx::backend::RenderFlagCullNone;
-using basalt::gfx::backend::RenderFlagDisableLighting;
-using basalt::gfx::backend::VertexElement;
-using basalt::gfx::backend::VertexLayout;
-using basalt::math::PI;
+using basalt::gfx::VertexElement;
+using basalt::gfx::VertexLayout;
 
 namespace d3d9 {
 
-Matrices::Matrices(IRenderer& renderer) {
+Matrices::Matrices(Device& device) {
   mScene->set_background_color(Colors::BLACK);
 
   struct Vertex final {
@@ -60,8 +62,8 @@ Matrices::Matrices(IRenderer& renderer) {
   ecs.emplace<Transform>(mTriangle);
 
   auto& rc {ecs.emplace<RenderComponent>(mTriangle)};
-  rc.mMesh = add_triangle_list_mesh(renderer, vertices, vertexLayout);
-  rc.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
+  rc.mesh = add_triangle_list_mesh(device, vertices, vertexLayout);
+  rc.renderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 
   mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }

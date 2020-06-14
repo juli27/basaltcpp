@@ -1,8 +1,6 @@
 #pragma once
-#ifndef BASALT_RUNTIME_TYPES_H
-#define BASALT_RUNTIME_TYPES_H
 
-#include "shared/Types.h"
+#include "shared/types.h"
 
 namespace basalt {
 
@@ -14,5 +12,3 @@ enum class MouseCursor : u8 {
 constexpr uSize MOUSE_CURSOR_COUNT = 9u;
 
 } // namespace basalt
-
-#endif // BASALT_RUNTIME_TYPES_H

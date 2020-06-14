@@ -1,11 +1,10 @@
 #pragma once
-#ifndef BASALT_MATH_MAT4_H
-#define BASALT_MATH_MAT4_H
 
-#include "runtime/math/Vec3.h"
-#include "runtime/shared/Types.h"
+#include "vec3.h"
 
-namespace basalt::math {
+#include <runtime/shared/types.h>
+
+namespace basalt {
 
 struct Mat4 final {
   constexpr Mat4() noexcept = default;
@@ -147,7 +146,7 @@ constexpr auto Mat4::identity() noexcept -> Mat4 {
   );
 }
 
-constexpr auto Mat4::translation(const math::Vec3f32& v) -> Mat4 {
+constexpr auto Mat4::translation(const Vec3f32& v) -> Mat4 {
   return Mat4(
     1.0f, 0.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
@@ -289,6 +288,4 @@ constexpr auto operator!=(const Mat4& a, const Mat4& b) -> bool {
 
 using Mat4f32 = Mat4;
 
-} // namespace basalt::math
-
-#endif // !BASALT_MATH_MAT4_H
+} // namespace basalt

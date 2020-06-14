@@ -1,28 +1,24 @@
 #pragma once
-#ifndef BASALT_RUNTIME_GFX_TYPES_H
-#define BASALT_RUNTIME_GFX_TYPES_H
 
-#include "runtime/gfx/backend/render_command.h"
-#include "runtime/gfx/backend/Types.h"
+#include "backend/render_command.h"
+#include "backend/types.h"
 
-#include "runtime/math/Mat4.h"
+#include <runtime/math/mat4.h>
 
-#include "runtime/shared/Color.h"
-#include "runtime/shared/Types.h"
-
-#include <memory>
+#include <runtime/shared/color.h>
+#include <runtime/shared/types.h>
 
 namespace basalt::gfx {
 
 struct RenderComponent final {
-  backend::MeshHandle mMesh;
-  backend::TextureHandle mTexture;
-  backend::ModelHandle model;
-  Color mDiffuseColor;
-  Color mAmbientColor;
-  math::Mat4f32 texTransform {math::Mat4f32::identity()};
-  backend::TexCoordinateSrc tcs {backend::TexCoordinateSrc::Vertex};
-  u8 mRenderFlags = backend::RenderFlagNone;
+  MeshHandle mesh;
+  TextureHandle texture;
+  ModelHandle model;
+  Color diffuseColor;
+  Color ambientColor;
+  Mat4f32 texTransform {Mat4f32::identity()};
+  TexCoordinateSrc tcs {TexCoordinateSrc::Vertex};
+  u8 renderFlags = RenderFlagNone;
 };
 
 // GfxComponent
@@ -35,5 +31,3 @@ struct RenderComponent final {
 //   material
 
 } // namespace basalt::gfx
-
-#endif // BASALT_RUNTIME_GFX_TYPES_H

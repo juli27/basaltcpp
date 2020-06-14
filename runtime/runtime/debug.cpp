@@ -1,16 +1,17 @@
-#include "runtime/debug.h"
+#include "debug.h"
 
-#include "runtime/Engine.h"
-#include "runtime/gfx/types.h"
+#include "engine.h"
+#include "gfx/types.h"
 
-#include "runtime/scene/scene.h"
-#include "runtime/scene/transform.h"
+#include "scene/scene.h"
+#include "scene/transform.h"
+#include "scene/types.h"
 
-#include "runtime/math/Constants.h"
-#include "runtime/math/Vec3.h"
+#include "math/constants.h"
+#include "math/vec3.h"
 
-#include "runtime/shared/Color.h"
-#include "runtime/shared/Types.h"
+#include "shared/color.h"
+#include "shared/types.h"
 
 #include <entt/entity/registry.hpp>
 #include <imgui/imgui.h>
@@ -22,10 +23,6 @@ using std::array;
 using entt::entity;
 
 namespace basalt {
-
-using math::PI;
-using math::Vec3f32;
-
 namespace {
 
 void show_overlay();
@@ -139,13 +136,13 @@ void Debug::draw_scene_debug_ui(Scene& scene) {
         if (auto* const transform =
           scene.mEntityRegistry.try_get<Transform>(entity)) {
           if (ImGui::TreeNode("Transform")) {
-            ImGui::DragFloat3("Position", &transform->mPosition.x, 0.1f);
+            ImGui::DragFloat3("Position", &transform->position.x, 0.1f);
 
             ImGui::DragFloat3(
-              "Rotation", &transform->mRotation.x, 0.01f, 0.0f
+              "Rotation", &transform->rotation.x, 0.01f, 0.0f
             , 2.0f * PI);
 
-            ImGui::DragFloat3("Scale", &transform->mScale.x, 0.1f, 0.0f);
+            ImGui::DragFloat3("Scale", &transform->scale.x, 0.1f, 0.0f);
 
             ImGui::TreePop();
           }
@@ -157,28 +154,22 @@ void Debug::draw_scene_debug_ui(Scene& scene) {
             if (rc->model) {
               ImGui::Text("Model: %#x", rc->model.value());
             } else {
-              ImGui::Text(
-                "Mesh: %#x", rc->mMesh.value());
-              ImGui::Text(
-                "Texture: %#x", rc->mTexture.value());
+              ImGui::Text("Mesh: %#x", rc->mesh.value());
+              ImGui::Text("Texture: %#x", rc->texture.value());
 
-              edit_color4("Diffuse", rc->mDiffuseColor);
-              edit_color4("Ambient", rc->mAmbientColor);
+              edit_color4("Diffuse", rc->diffuseColor);
+              edit_color4("Ambient", rc->ambientColor);
             }
 
-            if (rc->mRenderFlags ==
-              gfx::backend::RenderFlagNone) {
+            if (rc->renderFlags == gfx::RenderFlagNone) {
               ImGui::TextUnformatted("Flag: RenderFlagNone");
             } else {
-              if (rc->mRenderFlags &
-                gfx::backend::RenderFlagCullNone) {
+              if (rc->renderFlags & gfx::RenderFlagCullNone) {
                 ImGui::TextUnformatted("Flag: RenderFlagCullNone");
               }
 
-              if (rc->mRenderFlags &
-                gfx::backend::RenderFlagDisableLighting) {
-                ImGui::TextUnformatted(
-                  "Flag: RenderFlagDisableLighting");
+              if (rc->renderFlags & gfx::RenderFlagDisableLighting) {
+                ImGui::TextUnformatted("Flag: RenderFlagDisableLighting");
               }
             }
 

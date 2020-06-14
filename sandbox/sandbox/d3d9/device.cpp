@@ -1,9 +1,12 @@
-#include "sandbox/d3d9/device.h"
+#include "device.h"
 
 #include "utils.h"
 
 #include <runtime/debug.h>
 #include <runtime/prelude.h>
+
+#include <runtime/gfx/draw_target.h>
+#include <runtime/shared/config.h>
 
 using namespace std::literals;
 

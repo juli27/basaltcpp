@@ -1,10 +1,14 @@
 #include "compositor.h"
 
+#include "drawable.h"
 #include "visual.h"
-#include "backend/IRenderer.h"
+#include "backend/context.h"
+#include "backend/device.h"
+#include "backend/render_command.h"
 
-#include <runtime/shared/Asserts.h>
+#include <runtime/shared/asserts.h>
 
+#include <vector>
 #include <utility>
 
 using std::shared_ptr;
@@ -12,10 +16,9 @@ using std::vector;
 
 namespace basalt::gfx {
 
-using backend::IGfxContext;
-
-Compositor::Compositor(shared_ptr<IGfxContext> context)
+Compositor::Compositor(shared_ptr<Context> context)
   : mContext {std::move(context)}, mDrawTarget {mContext->surface_size()} {
+  BASALT_ASSERT(mContext);
 }
 
 auto Compositor::draw_target() -> DrawTarget& {
@@ -27,10 +30,10 @@ void Compositor::compose() {
   BASALT_ASSERT_MSG(
     visuals.size() <= 1, "only one visual supported at this time");
 
-  auto& renderer = mContext->renderer();
+  auto& device = mContext->device();
 
   if (!visuals.empty()) {
-    renderer.render(visuals[0].drawable().draw(mContext->surface_size()));
+    device.render(visuals.front().drawable().draw(mContext->surface_size()));
 
     mDrawTarget.clear();
   }

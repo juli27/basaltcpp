@@ -1,54 +1,51 @@
-#include "runtime/gfx/backend/render_command.h"
+#include "render_command.h"
 
 using std::vector;
 
-namespace basalt::gfx::backend {
+namespace basalt::gfx {
 
-using math::Mat4f32;
-
-RenderCommandList::RenderCommandList(
-  const Mat4f32& view, const Mat4f32& projection, const Color& clearColor
-)
+CommandList::CommandList(
+  const Mat4f32& view, const Mat4f32& projection, const Color& clearColor)
   : mView(view), mProjection(projection), mClearColor {clearColor} {
 }
 
-auto RenderCommandList::commands() const -> const vector<RenderCommand>& {
+auto CommandList::commands() const -> const vector<RenderCommand>& {
   return mCommands;
 }
 
-auto RenderCommandList::view() const -> const Mat4f32& {
+auto CommandList::view() const -> const Mat4f32& {
   return mView;
 }
 
-auto RenderCommandList::projection() const -> const Mat4f32& {
+auto CommandList::projection() const -> const Mat4f32& {
   return mProjection;
 }
 
-auto RenderCommandList::ambient_light() const -> const Color& {
+auto CommandList::ambient_light() const -> const Color& {
   return mAmbientLightColor;
 }
 
-void RenderCommandList::set_ambient_light(const Color& color) {
+void CommandList::set_ambient_light(const Color& color) {
   mAmbientLightColor = color;
 }
 
-auto RenderCommandList::directional_lights() const -> const std::vector<
+auto CommandList::directional_lights() const -> const std::vector<
   DirectionalLight>& {
   return mDirectionalLights;
 }
 
-void RenderCommandList::set_directional_lights(
+void CommandList::set_directional_lights(
   const std::vector<DirectionalLight>& lights
 ) {
   mDirectionalLights = lights;
 }
 
-auto RenderCommandList::clear_color() const -> const Color& {
+auto CommandList::clear_color() const -> const Color& {
   return mClearColor;
 }
 
-void RenderCommandList::add(const RenderCommand& command) {
+void CommandList::add(const RenderCommand& command) {
   mCommands.push_back(command);
 }
 
-} // namespace basalt::gfx::backend
+} // namespace basalt::gfx

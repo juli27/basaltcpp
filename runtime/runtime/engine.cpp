@@ -1,4 +1,4 @@
-#include "Engine.h"
+#include "engine.h"
 
 #include <utility>
 
@@ -6,13 +6,13 @@ using std::shared_ptr;
 
 namespace basalt {
 
-using gfx::backend::IGfxContext;
+using gfx::Context;
 
 auto Engine::config() const -> const Config& {
   return mConfig;
 }
 
-auto Engine::gfx_context() const -> IGfxContext& {
+auto Engine::gfx_context() const -> Context& {
   return *mGfxContext;
 }
 
@@ -25,7 +25,7 @@ void Engine::set_mouse_cursor(const MouseCursor mouseCursor) {
   mIsDirty = true;
 }
 
-Engine::Engine(Config& config, shared_ptr<IGfxContext> context)
+Engine::Engine(Config& config, shared_ptr<Context> context)
   : mConfig {config}, mGfxContext {std::move(context)} {
 }
 

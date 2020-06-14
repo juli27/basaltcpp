@@ -1,13 +1,15 @@
 target_sources(Runtime
   PRIVATE
-    "Asserts.cpp"
-    "Log.cpp"
+    "asserts.cpp"
+    "log.cpp"
   PUBLIC
-    "Asserts.h"
-    "Color.h"
-    "Config.h"
-    "Handle.h"
-    "HandlePool.h"
-    "Log.h"
-    "Size2D.h"
-    "Types.h")
+    "asserts.h"
+    "color.h"
+    "config.h"
+    "data.h"
+    "handle.h"
+    "handle_pool.h"
+    "log.h"
+    "size2d.h"
+    "types.h"
+)

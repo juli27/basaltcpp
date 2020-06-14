@@ -1,15 +1,18 @@
-#include "sandbox/d3d9/textures.h"
+#include "textures.h"
 
-#include "sandbox/d3d9/utils.h"
+#include "utils.h"
 
 #include <runtime/debug.h>
 #include <runtime/prelude.h>
 
+#include <runtime/gfx/draw_target.h>
 #include <runtime/scene/transform.h>
 
-#include <runtime/math/Constants.h>
-#include <runtime/math/Vec2.h>
-#include <runtime/math/Vec3.h>
+#include <runtime/math/constants.h>
+#include <runtime/math/vec2.h>
+#include <runtime/math/vec3.h>
+
+#include <runtime/shared/config.h>
 
 #include <array>
 #include <cmath>
@@ -19,21 +22,21 @@ using std::string_view;
 using namespace std::literals;
 
 using basalt::Debug;
+using basalt::PI;
 using basalt::Transform;
+using basalt::Vec2f32;
+using basalt::Vec3f32;
+using basalt::gfx::Device;
 using basalt::gfx::RenderComponent;
+using basalt::gfx::RenderFlagCullNone;
+using basalt::gfx::RenderFlagDisableLighting;
 using basalt::gfx::SceneView;
-using basalt::gfx::backend::IRenderer;
-using basalt::gfx::backend::RenderFlagCullNone;
-using basalt::gfx::backend::RenderFlagDisableLighting;
-using basalt::gfx::backend::VertexElement;
-using basalt::gfx::backend::VertexLayout;
-using basalt::math::PI;
-using basalt::math::Vec2f32;
-using basalt::math::Vec3f32;
+using basalt::gfx::VertexElement;
+using basalt::gfx::VertexLayout;
 
 namespace d3d9 {
 
-Textures::Textures(IRenderer& renderer) {
+Textures::Textures(Device& device) {
   mScene->set_background_color(Colors::BLUE);
 
   struct Vertex final {
@@ -69,9 +72,9 @@ Textures::Textures(IRenderer& renderer) {
   ecs.emplace<Transform>(mCylinder);
 
   auto& rc {ecs.emplace<RenderComponent>(mCylinder)};
-  rc.mMesh = add_triangle_strip_mesh(renderer, vertices, vertexLayout);
-  rc.mTexture = renderer.add_texture("data/banana.bmp");
-  rc.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
+  rc.mesh = add_triangle_strip_mesh(device, vertices, vertexLayout);
+  rc.texture = device.add_texture("data/banana.bmp");
+  rc.renderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 
   mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }

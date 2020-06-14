@@ -3,6 +3,7 @@ target_sources(Runtime
     "render_command.cpp"
   PUBLIC
     "context.h"
-    "IRenderer.h"
+    "device.h"
     "render_command.h"
-    "Types.h")
+    "types.h"
+)

@@ -1,11 +1,11 @@
-#include "Log.h"
+#include "log.h"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
 
 #if BASALT_DEV_BUILD
 
-#include <runtime/platform/Platform.h>
+#include <runtime/platform/platform.h>
 #include <spdlog/sinks/msvc_sink.h>
 
 #endif // BASALT_DEV_BUILD
@@ -36,7 +36,7 @@ constexpr auto LOGGER_PATTERN = "[%n][%l] %v";
 } // namespace
 
 void Log::init() {
-  vector<sink_ptr> sinks;
+  vector<sink_ptr> sinks {};
   sinks.reserve(2u);
   sinks.push_back(std::make_shared<basic_file_sink_st>(LOG_FILE_NAME));
 
@@ -58,7 +58,6 @@ void Log::init() {
   sCoreLogger->set_level(spdlog::level::trace);
 #else // !BASALT_DEBUG_BUILD
   sCoreLogger->flush_on(spdlog::level::err);
-  sCoreLogger->set_level(spdlog::level::info);
 #endif // BASALT_DEBUG_BUILD
 
   sClientLogger = sCoreLogger->clone("Client");
@@ -70,13 +69,12 @@ void Log::shutdown() {
   spdlog::shutdown();
 }
 
-
 auto Log::core_logger() noexcept -> logger& {
-  return *sCoreLogger.get();
+  return *sCoreLogger;
 }
 
 auto Log::client_logger() noexcept -> logger& {
-  return *sClientLogger.get();
+  return *sClientLogger;
 }
 
 } // namespace basalt

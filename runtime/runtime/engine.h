@@ -1,15 +1,22 @@
 #pragma once
 
-#include "Input.h"
+#include "input.h"
 #include "types.h"
 
-#include "gfx/draw_target.h"
-#include "gfx/backend/context.h"
-#include "shared/Config.h"
+#include "shared/types.h"
 
 #include <memory>
 
 namespace basalt {
+
+struct Config;
+
+namespace gfx {
+
+struct Context;
+struct DrawTarget;
+
+} // namespace gfx
 
 struct Engine {
   Engine() = delete;
@@ -26,7 +33,7 @@ struct Engine {
   auto config() const -> const Config&;
 
   [[nodiscard]]
-  auto gfx_context() const -> gfx::backend::IGfxContext&;
+  auto gfx_context() const -> gfx::Context&;
 
   [[nodiscard]]
   auto mouse_cursor() const -> MouseCursor;
@@ -34,11 +41,11 @@ struct Engine {
 
 protected:
   Config& mConfig;
-  std::shared_ptr<gfx::backend::IGfxContext> mGfxContext {};
+  std::shared_ptr<gfx::Context> mGfxContext {};
   MouseCursor mMouseCursor {};
   bool mIsDirty {false};
 
-  Engine(Config&, std::shared_ptr<gfx::backend::IGfxContext>);
+  Engine(Config&, std::shared_ptr<gfx::Context>);
 };
 
 struct UpdateContext final {

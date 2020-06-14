@@ -1,10 +1,8 @@
 #pragma once
-#ifndef BASALT_APP_APP_H
-#define BASALT_APP_APP_H
 
 #include "shared/Windows_custom.h"
 
-#include <runtime/Engine.h>
+#include <runtime/engine.h>
 
 namespace basalt::win32 {
 
@@ -15,5 +13,3 @@ struct App final : Engine {
 };
 
 } // namespace basalt::win32
-
-#endif // BASALT_APP_APP_H

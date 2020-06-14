@@ -12,7 +12,7 @@ struct Log final {
   static auto client_logger() noexcept -> spdlog::logger&;
 };
 
-} // namespace basalt::log
+} // namespace basalt
 
 #if BASALT_BUILD
 

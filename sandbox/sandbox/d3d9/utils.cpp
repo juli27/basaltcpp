@@ -1,15 +1,15 @@
-#include "sandbox/d3d9/utils.h"
+#include "utils.h"
 
-#include <runtime/math/Constants.h>
-#include <runtime/math/Mat4.h>
-#include <runtime/math/Vec3.h>
+#include <runtime/math/constants.h>
+#include <runtime/math/mat4.h>
+#include <runtime/math/vec3.h>
 
 using basalt::f32;
+using basalt::Mat4f32;
+using basalt::PI;
 using basalt::Size2Du16;
+using basalt::Vec3f32;
 using basalt::gfx::Camera;
-using basalt::math::Mat4f32;
-using basalt::math::PI;
-using basalt::math::Vec3f32;
 
 namespace d3d9 {
 

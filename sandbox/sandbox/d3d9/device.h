@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sandbox/test_case.h"
+#include <sandbox/test_case.h>
 
 #include <runtime/gfx/scene_view.h>
 #include <runtime/scene/scene.h>

@@ -1,11 +1,18 @@
 #pragma once
 
-#include "backend/render_command.h"
+#include <runtime/shared/types.h>
 
-#include <runtime/shared/Color.h>
-#include <runtime/shared/Size2D.h>
+namespace basalt {
 
-namespace basalt::gfx {
+struct Color;
+
+template <typename T>
+struct Size2D;
+using Size2Du16 = Size2D<u16>;
+
+namespace gfx {
+
+struct CommandList;
 
 struct Drawable {
   Drawable() = default;
@@ -18,11 +25,12 @@ struct Drawable {
   auto operator=(const Drawable& other) -> Drawable& = default;
   auto operator=(Drawable&& other) -> Drawable& = default;
 
-  virtual auto draw(Size2Du16 viewport) -> backend::RenderCommandList = 0;
+  virtual auto draw(Size2Du16 viewport) -> CommandList = 0;
 
   // TODO: remove
   [[nodiscard]]
   virtual auto clear_color() const -> Color = 0;
 };
 
-} // namespace basalt::gfx
+} // namespace gfx
+} // namespace basalt

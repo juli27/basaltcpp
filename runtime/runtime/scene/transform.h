@@ -1,9 +1,7 @@
 #pragma once
-#ifndef BASALT_RUNTIME_SCENE_TRANSFORM_H
-#define BASALT_RUNTIME_SCENE_TRANSFORM_H
 
-#include "runtime/math/Vec3.h"
-#include "runtime/shared/Types.h"
+#include "runtime/math/vec3.h"
+#include "runtime/shared/types.h"
 
 namespace basalt {
 
@@ -22,11 +20,9 @@ struct Transform {
   void move(f32 offsetX, f32 offsetY, f32 offsetZ) noexcept;
   void rotate(f32 radOffsetX, f32 radOffsetY, f32 radOffsetZ) noexcept;
 
-  math::Vec3f32 mPosition;
-  math::Vec3f32 mRotation;
-  math::Vec3f32 mScale = {1.0f, 1.0f, 1.0f};
+  Vec3f32 position {};
+  Vec3f32 rotation {};
+  Vec3f32 scale {1.0f, 1.0f, 1.0f};
 };
 
 } // namespace basalt
-
-#endif // BASALT_RUNTIME_SCENE_TRANSFORM_H

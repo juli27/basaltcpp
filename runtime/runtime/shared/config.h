@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Size2D.h"
-#include "Types.h"
+#include "size2d.h"
+#include "types.h"
 
 #include <string>
 

@@ -1,12 +1,10 @@
-#include "runtime/scene/scene.h"
+#include "scene.h"
 
 using std::vector;
 
 using entt::registry;
 
 namespace basalt {
-
-using math::Vec3f32;
 
 auto Scene::ecs() -> registry& {
   return mEntityRegistry;

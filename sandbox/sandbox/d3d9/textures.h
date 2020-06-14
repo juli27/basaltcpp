@@ -1,8 +1,8 @@
 #pragma once
 
-#include "sandbox/test_case.h"
+#include <sandbox/test_case.h>
 
-#include <runtime/gfx/backend/IRenderer.h>
+#include <runtime/gfx/backend/device.h>
 #include <runtime/gfx/scene_view.h>
 #include <runtime/scene/scene.h>
 
@@ -12,7 +12,7 @@ namespace d3d9 {
 
 struct Textures final : TestCase {
   Textures() = delete;
-  explicit Textures(basalt::gfx::backend::IRenderer&);
+  explicit Textures(basalt::gfx::Device&);
 
   Textures(const Textures&) = delete;
   Textures(Textures&&) = delete;

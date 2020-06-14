@@ -3,8 +3,9 @@
 #include "context.h"
 #include "util.h"
 
-#include <runtime/platform/Platform.h>
-#include <runtime/shared/Log.h>
+#include <runtime/platform/platform.h>
+#include <runtime/shared/config.h>
+#include <runtime/shared/log.h>
 
 #include <fmt/format.h>
 

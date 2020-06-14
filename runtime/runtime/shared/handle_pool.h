@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Asserts.h"
-#include "Types.h"
+#include "asserts.h"
+#include "types.h"
 
 #include <limits>
 #include <stdexcept>
@@ -15,15 +15,37 @@ struct HandlePool final {
   HandlePool() noexcept = default;
 
   HandlePool(const HandlePool&) = delete;
-  HandlePool(HandlePool&&) noexcept = default;
+  HandlePool(HandlePool&&) = delete;
 
   ~HandlePool() noexcept = default;
 
   auto operator=(const HandlePool&) -> HandlePool& = delete;
-  auto operator=(HandlePool&&) -> HandlePool& = default;
+  auto operator=(HandlePool&&) -> HandlePool& = delete;
 
   [[nodiscard]]
-  auto allocate() -> std::tuple<HandleT, T&>;
+  auto allocate() -> std::tuple<HandleT, T&> {
+    if (mFirstFreeSlot) {
+      Slot& slot = mSlots[mFirstFreeSlot.value()];
+      slot.handle = mFirstFreeSlot;
+      mFirstFreeSlot = slot.nextFreeSlot;
+
+      return {slot.handle, slot.data};
+    }
+
+    const auto nextIndex = mSlots.size();
+    constexpr auto maxSlots = static_cast<u32>(
+      std::numeric_limits<typename HandleT::ValueT>::max());
+
+    if (nextIndex >= maxSlots) {
+      throw std::out_of_range {"out of slots"};
+    }
+
+    const auto index = static_cast<typename HandleT::ValueT>(nextIndex);
+    Slot& slot = mSlots.emplace_back();
+    slot.handle = HandleT(index);
+
+    return {slot.handle, slot.data};
+  }
 
   void deallocate(HandleT handle) {
     Slot& slot = mSlots.at(handle.value());
@@ -43,7 +65,7 @@ struct HandlePool final {
   }
 
 private:
-  struct Slot {
+  struct Slot final {
     T data {};
     HandleT handle {};
     HandleT nextFreeSlot {};
@@ -52,31 +74,5 @@ private:
   std::vector<Slot> mSlots {};
   HandleT mFirstFreeSlot {};
 };
-
-
-template <typename T, typename HandleT>
-auto HandlePool<T, HandleT>::allocate() -> std::tuple<HandleT, T&> {
-  if (mFirstFreeSlot) {
-    Slot& slot = mSlots[mFirstFreeSlot.value()];
-    slot.handle = mFirstFreeSlot;
-    mFirstFreeSlot = slot.nextFreeSlot;
-
-    return {slot.handle, slot.data};
-  }
-
-  const auto nextIndex = mSlots.size();
-  constexpr auto maxSlots = static_cast<u32>(
-    std::numeric_limits<typename HandleT::ValueT>::max());
-
-  if (nextIndex >= maxSlots) {
-    throw std::out_of_range("out of slots");
-  }
-
-  const auto index = static_cast<typename HandleT::ValueT>(nextIndex);
-  Slot& slot = mSlots.emplace_back();
-  slot.handle = HandleT(index);
-
-  return {slot.handle, slot.data};
-}
 
 } // namespace basalt

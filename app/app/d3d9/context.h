@@ -11,7 +11,7 @@
 
 namespace basalt::gfx::backend {
 
-struct D3D9Context final : IGfxContext {
+struct D3D9Context final : Context {
   D3D9Context(
     Microsoft::WRL::ComPtr<IDirect3DDevice9>, const D3DPRESENT_PARAMETERS&);
 
@@ -27,7 +27,7 @@ struct D3D9Context final : IGfxContext {
   auto surface_size() const noexcept -> Size2Du16 override;
 
   [[nodiscard]]
-  auto renderer() const noexcept -> D3D9Renderer& override;
+  auto device() const noexcept -> D3D9Renderer& override;
 
   void resize(Size2Du16);
   void present() override;

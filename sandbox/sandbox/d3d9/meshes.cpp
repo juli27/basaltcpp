@@ -1,24 +1,26 @@
-#include "sandbox/d3d9/meshes.h"
+#include "meshes.h"
 
-#include "sandbox/d3d9/utils.h"
+#include "utils.h"
 
 #include <runtime/debug.h>
 #include <runtime/prelude.h>
 
+#include <runtime/gfx/draw_target.h>
 #include <runtime/scene/transform.h>
+#include <runtime/shared/config.h>
 
 using std::string_view;
 using namespace std::literals;
 
 using basalt::Debug;
 using basalt::Transform;
+using basalt::gfx::Device;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SceneView;
-using basalt::gfx::backend::IRenderer;
 
 namespace d3d9 {
 
-Meshes::Meshes(IRenderer& renderer) {
+Meshes::Meshes(Device& renderer) {
   mScene->set_background_color(Colors::BLUE);
   mScene->set_ambient_light(Colors::WHITE);
 

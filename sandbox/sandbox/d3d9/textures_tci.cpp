@@ -1,16 +1,20 @@
-#include "sandbox/d3d9/textures_tci.h"
+#include "textures_tci.h"
 
-#include "sandbox/d3d9/utils.h"
+#include "utils.h"
 
 #include <runtime/debug.h>
 #include <runtime/prelude.h>
 
-#include <runtime/gfx/Camera.h>
+#include <runtime/gfx/camera.h>
+#include <runtime/gfx/draw_target.h>
+
 #include <runtime/scene/transform.h>
 
-#include <runtime/math/Constants.h>
-#include <runtime/math/Mat4.h>
-#include <runtime/math/Vec3.h>
+#include <runtime/math/constants.h>
+#include <runtime/math/mat4.h>
+#include <runtime/math/vec3.h>
+
+#include <runtime/shared/config.h>
 
 #include <array>
 #include <cmath>
@@ -20,24 +24,23 @@ using std::string_view;
 using namespace std::literals;
 
 using basalt::Debug;
+using basalt::Mat4f32;
+using basalt::PI;
 using basalt::Transform;
+using basalt::Vec3f32;
 using basalt::gfx::Camera;
+using basalt::gfx::Device;
 using basalt::gfx::RenderComponent;
+using basalt::gfx::RenderFlagCullNone;
+using basalt::gfx::RenderFlagDisableLighting;
 using basalt::gfx::SceneView;
-using basalt::gfx::backend::IRenderer;
-using basalt::gfx::backend::RenderFlagCullNone;
-using basalt::gfx::backend::RenderFlagDisableLighting;
-using basalt::gfx::backend::TexCoordinateSrc;
-using basalt::gfx::backend::VertexElement;
-using basalt::gfx::backend::VertexLayout;
-using basalt::math::Mat4f32;
-using basalt::math::PI;
-using basalt::math::Vec3f32;
+using basalt::gfx::TexCoordinateSrc;
+using basalt::gfx::VertexElement;
+using basalt::gfx::VertexLayout;
 
 namespace d3d9 {
 
-TexturesTci::TexturesTci(
-  IRenderer& renderer, const basalt::Size2Du16 windowSize) {
+TexturesTci::TexturesTci(Device& device, const basalt::Size2Du16 windowSize) {
   mScene->set_background_color(Colors::BLUE);
 
   struct Vertex final {
@@ -68,9 +71,9 @@ TexturesTci::TexturesTci(
   ecs.emplace<Transform>(mCylinder);
 
   auto& rc {ecs.emplace<RenderComponent>(mCylinder)};
-  rc.mMesh = add_triangle_strip_mesh(renderer, vertices, vertexLayout);
-  rc.mTexture = renderer.add_texture("data/banana.bmp");
-  rc.mRenderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
+  rc.mesh = add_triangle_strip_mesh(device, vertices, vertexLayout);
+  rc.texture = device.add_texture("data/banana.bmp");
+  rc.renderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 
   // TODO: fix jitter
   const Camera camera {create_default_camera()};

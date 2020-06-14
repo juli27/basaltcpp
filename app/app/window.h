@@ -4,9 +4,9 @@
 #include "d3d9/factory.h"
 #include "shared/Windows_custom.h"
 
-#include <runtime/Input.h>
+#include <runtime/input.h>
 #include <runtime/types.h>
-#include <runtime/shared/Size2D.h>
+#include <runtime/shared/size2d.h>
 
 #include <array>
 #include <memory>
@@ -15,11 +15,11 @@ namespace basalt {
 
 struct Config;
 
-namespace gfx::backend {
+namespace gfx {
 
-struct IRenderer;
+struct Device;
 
-} // namespace gfx::backend
+} // namespace gfx
 
 namespace win32 {
 
@@ -53,13 +53,13 @@ struct Window final {
   }
 
   [[nodiscard]]
-  auto gfx_context() const -> std::shared_ptr<gfx::backend::IGfxContext> {
+  auto gfx_context() const -> std::shared_ptr<gfx::Context> {
     return mGfxContext;
   }
 
   [[nodiscard]]
-  auto renderer() const -> gfx::backend::IRenderer* {
-    return &mGfxContext->renderer();
+  auto gfx_device() const -> gfx::Device* {
+    return &mGfxContext->device();
   }
 
   void set_cursor(MouseCursor);

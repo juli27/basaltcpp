@@ -1,8 +1,8 @@
-#include "Asserts.h"
+#include "asserts.h"
 
 #if BASALT_DEV_BUILD
 
-#include "Log.h"
+#include "log.h"
 
 #include <cstdlib>
 

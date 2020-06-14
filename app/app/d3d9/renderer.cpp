@@ -4,11 +4,13 @@
 
 #include <app/shared/util.h>
 
-#include <runtime/math/Mat4.h>
+#include <runtime/scene/types.h>
 
-#include <runtime/shared/Asserts.h>
-#include <runtime/shared/Color.h>
-#include <runtime/shared/Log.h>
+#include <runtime/math/mat4.h>
+
+#include <runtime/shared/asserts.h>
+#include <runtime/shared/color.h>
+#include <runtime/shared/log.h>
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_dx9.h>
@@ -24,9 +26,6 @@ using std::array;
 using Microsoft::WRL::ComPtr;
 
 namespace basalt::gfx::backend {
-
-using math::Mat4f32;
-
 namespace {
 
 constexpr auto to_d3d_color(const Color& color) noexcept -> D3DCOLOR {
@@ -49,7 +48,7 @@ constexpr auto to_d3d_matrix(const Mat4f32& mat) noexcept -> D3DMATRIX {
   };
 }
 
-constexpr auto to_d3d_vector(const math::Vec3f32& vec) noexcept -> D3DVECTOR {
+constexpr auto to_d3d_vector(const Vec3f32& vec) noexcept -> D3DVECTOR {
   return D3DVECTOR {vec.x, vec.y, vec.z};
 }
 
@@ -191,7 +190,7 @@ void D3D9Renderer::remove_model(const ModelHandle handle) {
 
 // TODO: shading mode
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
-void D3D9Renderer::render(const RenderCommandList& commandList) {
+void D3D9Renderer::render(const CommandList& commandList) {
   const D3DCOLOR clearColor = to_d3d_color(commandList.clear_color());
 
   D3D9CALL(
@@ -273,20 +272,20 @@ void D3D9Renderer::new_gui_frame() {
 }
 
 void D3D9Renderer::render_command(const RenderCommand& command) {
-  const bool disableLighting = command.mFlags & RenderFlagDisableLighting;
+  const bool disableLighting = command.flags & RenderFlagDisableLighting;
 
   // apply custom render flags
-  if (command.mFlags) {
+  if (command.flags) {
     if (disableLighting) {
       D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
     }
-    if (command.mFlags & RenderFlagCullNone) {
+    if (command.flags & RenderFlagCullNone) {
       D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
     }
   }
 
   if (command.model) {
-    const auto transform {to_d3d_matrix(command.mWorld)};
+    const auto transform {to_d3d_matrix(command.worldTransform)};
     D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &transform));
 
     const auto& model = mModels.get(command.model);
@@ -300,18 +299,18 @@ void D3D9Renderer::render_command(const RenderCommand& command) {
     D3D9CALL(mDevice->SetTexture(0, nullptr));
 
   } else {
-    const auto& mesh = mMeshes.get(command.mMesh);
+    const auto& mesh = mMeshes.get(command.mesh);
     const bool noLightingAndTransform = mesh.fvf & D3DFVF_XYZRHW;
     if (!disableLighting && !noLightingAndTransform) {
       D3DMATERIAL9 material {};
-      material.Diffuse = to_d3d_color_value(command.mDiffuseColor);
-      material.Ambient = to_d3d_color_value(command.mAmbientColor);
-      material.Emissive = to_d3d_color_value(command.mEmissiveColor);
+      material.Diffuse = to_d3d_color_value(command.diffuseColor);
+      material.Ambient = to_d3d_color_value(command.ambientColor);
+      material.Emissive = to_d3d_color_value(command.emissiveColor);
       D3D9CALL(mDevice->SetMaterial(&material));
     }
 
-    if (command.mTexture) {
-      const auto& texture = mTextures.get(command.mTexture);
+    if (command.texture) {
+      const auto& texture = mTextures.get(command.texture);
       D3D9CALL(mDevice->SetTexture(0, texture.Get()));
       D3D9CALL(
         mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
@@ -343,7 +342,7 @@ void D3D9Renderer::render_command(const RenderCommand& command) {
     }
 
     if (!noLightingAndTransform) {
-      const auto transform {to_d3d_matrix(command.mWorld)};
+      const auto transform {to_d3d_matrix(command.worldTransform)};
       D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &transform));
     }
 
@@ -354,7 +353,7 @@ void D3D9Renderer::render_command(const RenderCommand& command) {
     D3D9CALL(mDevice->SetFVF(mesh.fvf));
     D3D9CALL(mDevice->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
 
-    if (command.mTexture) {
+    if (command.texture) {
       // revert TCI usage
       if (command.texCoordinateSrc != TexCoordinateSrc::Vertex) {
         D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
@@ -377,11 +376,11 @@ void D3D9Renderer::render_command(const RenderCommand& command) {
   }
 
   // revert custom render flags
-  if (command.mFlags) {
+  if (command.flags) {
     if (disableLighting) {
       D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
     }
-    if (command.mFlags & RenderFlagCullNone) {
+    if (command.flags & RenderFlagCullNone) {
       D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
     }
   }

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "drawable.h"
-
-#include <runtime/shared/Types.h>
+#include <runtime/shared/types.h>
 
 #include <memory>
 
 namespace basalt::gfx {
+
+struct Drawable;
 
 struct Rectangle final {
   u16 x {};

@@ -1,10 +1,8 @@
 #pragma once
-#ifndef BASALT_MATH_VEC3_H
-#define BASALT_MATH_VEC3_H
 
-#include "runtime/shared/Types.h"
+#include <runtime/shared/types.h>
 
-namespace basalt::math {
+namespace basalt {
 
 template <typename T>
 struct Vec3 final {
@@ -100,6 +98,4 @@ auto operator/(const Vec3<T>&, T) -> Vec3<T>;
 
 extern template auto operator/(const Vec3<f32>&, f32) -> Vec3<f32>;
 
-} // namespace basalt::math
-
-#endif // BASALT_MATH_VEC3_H
+} // namespace basalt

@@ -1,15 +1,20 @@
 #pragma once
 
-#include "runtime/gfx/backend/Types.h"
-#include "runtime/scene/types.h"
-#include "runtime/math/Mat4.h"
+#include "types.h"
 
-#include "runtime/shared/Color.h"
-#include "runtime/shared/Types.h"
+#include <runtime/scene/types.h>
+#include <runtime/math/mat4.h>
+
+#include <runtime/shared/color.h>
+#include <runtime/shared/types.h>
 
 #include <vector>
 
-namespace basalt::gfx::backend {
+namespace basalt {
+
+struct DirectionalLight;
+
+namespace gfx {
 
 enum RenderFlags : u8 {
   RenderFlagNone = 0x0,
@@ -23,48 +28,50 @@ enum class TexCoordinateSrc : u8 {
 
 
 struct RenderCommand final {
-  MeshHandle mMesh;
-  ModelHandle model;
+  MeshHandle mesh {};
+  ModelHandle model {};
 
   // TODO: Material
-  Color mDiffuseColor;
-  Color mAmbientColor;
-  Color mEmissiveColor;
-  TextureHandle mTexture;
+  Color diffuseColor {};
+  Color ambientColor {};
+  Color emissiveColor {};
+  TextureHandle texture {};
 
-  math::Mat4f32 mWorld;
-  math::Mat4f32 texTransform {math::Mat4f32::identity()};
+  Mat4f32 worldTransform {Mat4f32::identity()};
+  Mat4f32 texTransform {Mat4f32::identity()};
   TexCoordinateSrc texCoordinateSrc {TexCoordinateSrc::Vertex};
-  u8 mFlags = RenderFlagNone;
+  u8 flags {RenderFlagNone};
 };
+
+static_assert(sizeof(RenderCommand) == 192);
 
 
 // associates commands with their common transform (camera) and
 // defines defaults for render state flags (lighting on/off, ...)
 // (TODO: can every state flag be overridden by each command
 //        or only some, or none)
-struct RenderCommandList final {
-  RenderCommandList() = default;
-  RenderCommandList(
-    const math::Mat4f32& view, const math::Mat4f32& projection
+struct CommandList final {
+  CommandList() = default;
+  CommandList(
+    const Mat4f32& view, const Mat4f32& projection
   , const Color& clearColor);
 
-  RenderCommandList(const RenderCommandList&) = delete;
-  RenderCommandList(RenderCommandList&&) = default;
+  CommandList(const CommandList&) = delete;
+  CommandList(CommandList&&) = default;
 
-  ~RenderCommandList() = default;
+  ~CommandList() = default;
 
-  auto operator=(const RenderCommandList&) -> RenderCommandList& = delete;
-  auto operator=(RenderCommandList&&) -> RenderCommandList& = default;
+  auto operator=(const CommandList&) -> CommandList& = delete;
+  auto operator=(CommandList&&) -> CommandList& = default;
 
   [[nodiscard]]
   auto commands() const -> const std::vector<RenderCommand>&;
 
   [[nodiscard]]
-  auto view() const -> const math::Mat4f32&;
+  auto view() const -> const Mat4f32&;
 
   [[nodiscard]]
-  auto projection() const -> const math::Mat4f32&;
+  auto projection() const -> const Mat4f32&;
 
   [[nodiscard]]
   auto ambient_light() const -> const Color&;
@@ -82,11 +89,12 @@ struct RenderCommandList final {
 private:
   std::vector<RenderCommand> mCommands {};
   std::vector<DirectionalLight> mDirectionalLights {};
-  math::Mat4f32 mView {math::Mat4f32::identity()};
-  math::Mat4f32 mProjection {math::Mat4f32::identity()};
+  Mat4f32 mView {Mat4f32::identity()};
+  Mat4f32 mProjection {Mat4f32::identity()};
   // TODO: drawable need to be able to clear their area of the draw target
   Color mClearColor {};
   Color mAmbientLightColor {};
 };
 
-} // namespace basalt::gfx::backend
+} // namespace gfx
+} // namespace basalt

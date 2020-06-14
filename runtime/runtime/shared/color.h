@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Data.h"
-#include "Types.h"
+#include "data.h"
+#include "types.h"
 
 namespace basalt {
 
@@ -17,6 +17,7 @@ struct Color final {
 
   constexpr Color(const Color&) noexcept = default;
   constexpr Color(Color&&) noexcept = default;
+
   ~Color() noexcept = default;
 
   auto operator=(const Color&) noexcept -> Color& = default;

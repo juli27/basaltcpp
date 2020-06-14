@@ -1,10 +1,8 @@
-#include "runtime/Input.h"
+#include "input.h"
 
 using std::vector;
 
 namespace basalt {
-
-using math::Vec2i32;
 
 auto Input::events() const -> const vector<InputEventPtr>& {
   return mEvents;

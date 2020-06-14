@@ -12,15 +12,14 @@
 #include "d3d9/types.h"
 #include "d3d9/util.h"
 
-#include "runtime/client_app.h"
-#include "runtime/dear_imgui.h"
-#include "runtime/Engine.h"
+#include <runtime/client_app.h>
+#include <runtime/dear_imgui.h>
 
-#include "runtime/gfx/compositor.h"
+#include <runtime/gfx/compositor.h>
 
-#include "runtime/shared/Asserts.h"
-#include "runtime/shared/Log.h"
-#include "runtime/shared/Size2D.h"
+#include <runtime/shared/asserts.h>
+#include <runtime/shared/log.h>
+#include <runtime/shared/size2d.h>
 
 #include <imgui/imgui.h>
 
@@ -57,10 +56,10 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   Config config {ClientApp::configure()};
   dump_config(config);
 
-  // creates the window, the associated gfx context and the renderer
+  // creates the window, the associated gfx context and the device
   const WindowPtr window = Window::create(moduleHandle, showCommand, config);
 
-  const DearImGui dearImGui {window->renderer()};
+  const DearImGui dearImGui {window->gfx_device()};
   init_dear_imgui_additional(window.get());
 
   App app {config, window->gfx_context()};

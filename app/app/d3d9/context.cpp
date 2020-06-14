@@ -2,7 +2,7 @@
 
 #include "util.h"
 
-#include "runtime/shared/Log.h"
+#include <runtime/shared/log.h>
 
 using Microsoft::WRL::ComPtr;
 
@@ -23,7 +23,7 @@ auto D3D9Context::surface_size() const noexcept -> Size2Du16 {
   };
 }
 
-auto D3D9Context::renderer() const noexcept -> D3D9Renderer& {
+auto D3D9Context::device() const noexcept -> D3D9Renderer& {
   return *mRenderer;
 }
 

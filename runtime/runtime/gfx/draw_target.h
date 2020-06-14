@@ -2,12 +2,14 @@
 
 #include "visual.h"
 
-#include <runtime/shared/Size2D.h>
+#include <runtime/shared/size2d.h>
 
 #include <memory>
 #include <vector>
 
 namespace basalt::gfx {
+
+struct Drawable;
 
 struct DrawTarget final {
   DrawTarget() = delete;

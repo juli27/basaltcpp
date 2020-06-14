@@ -1,31 +1,31 @@
 #pragma once
 
-#include <runtime/shared/Size2D.h>
+#include <runtime/shared/size2d.h>
 
-namespace basalt::gfx::backend {
+namespace basalt::gfx {
 
-struct IRenderer;
+struct Device;
 
 // A gfx context is directly tied to a window. If another gfx context is
 // required (e.g. change of rendering API), the window must be recreated.
-struct IGfxContext {
-  IGfxContext() noexcept = default;
+struct Context {
+  Context() noexcept = default;
 
-  IGfxContext(const IGfxContext&) = delete;
-  IGfxContext(IGfxContext&&) = delete;
+  Context(const Context&) = delete;
+  Context(Context&&) = delete;
 
-  virtual ~IGfxContext() noexcept = default;
+  virtual ~Context() noexcept = default;
 
-  auto operator=(const IGfxContext&) -> IGfxContext& = delete;
-  auto operator=(IGfxContext&&) -> IGfxContext& = delete;
+  auto operator=(const Context&) -> Context& = delete;
+  auto operator=(Context&&) -> Context& = delete;
 
   [[nodiscard]]
   virtual auto surface_size() const noexcept -> Size2Du16 = 0;
 
   [[nodiscard]]
-  virtual auto renderer() const noexcept -> IRenderer& = 0;
+  virtual auto device() const noexcept -> Device& = 0;
 
   virtual void present() = 0;
 };
 
-} // basalt::gfx::backend
+} // namespace basalt::gfx

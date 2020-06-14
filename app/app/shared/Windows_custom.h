@@ -1,6 +1,4 @@
 #pragma once
-#ifndef BASALT_APP_SHARED_WINDOWS_CUSTOM_H
-#define BASALT_APP_SHARED_WINDOWS_CUSTOM_H
 
 // 0x0600 == _WIN32_WINNT_VISTA
 #define WINVER 0x0600
@@ -49,5 +47,3 @@
 #define NOMCX
 
 #include <Windows.h>
-
-#endif // BASALT_APP_SHARED_WINDOWS_CUSTOM_H

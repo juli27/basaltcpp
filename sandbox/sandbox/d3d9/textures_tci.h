@@ -1,11 +1,11 @@
 #pragma once
 
-#include "sandbox/test_case.h"
+#include <sandbox/test_case.h>
 
-#include <runtime/gfx/backend/IRenderer.h>
+#include <runtime/gfx/backend/device.h>
 #include <runtime/gfx/scene_view.h>
 #include <runtime/scene/scene.h>
-#include <runtime/shared/Size2D.h>
+#include <runtime/shared/size2d.h>
 
 #include <memory>
 
@@ -13,7 +13,7 @@ namespace d3d9 {
 
 struct TexturesTci final : TestCase {
   TexturesTci() = delete;
-  TexturesTci(basalt::gfx::backend::IRenderer&, basalt::Size2Du16 windowSize);
+  TexturesTci(basalt::gfx::Device&, basalt::Size2Du16 windowSize);
 
   TexturesTci(const TexturesTci&) = delete;
   TexturesTci(TexturesTci&&) = delete;

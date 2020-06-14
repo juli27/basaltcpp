@@ -1,2 +1,3 @@
 target_sources(Runtime PUBLIC
-  "Platform.h")
+  "platform.h"
+)

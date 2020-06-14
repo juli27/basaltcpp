@@ -11,10 +11,10 @@
 
 #include "shared/util.h"
 
-#include <runtime/Engine.h>
+#include <runtime/engine.h>
 
-#include <runtime/shared/Config.h>
-#include <runtime/shared/Log.h>
+#include <runtime/shared/config.h>
+#include <runtime/shared/log.h>
 
 #include <windowsx.h>
 

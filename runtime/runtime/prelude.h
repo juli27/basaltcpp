@@ -1,14 +1,12 @@
 #pragma once
-#ifndef BASALT_RUNTIME_PRELUDE_H
-#define BASALT_RUNTIME_PRELUDE_H
 
 #include "types.h"
 #include "gfx/types.h"
-#include "gfx/backend/Types.h"
+#include "gfx/backend/types.h"
 
-#include "shared/Color.h"
-#include "shared/Data.h"
-#include "shared/Types.h"
+#include "shared/color.h"
+#include "shared/data.h"
+#include "shared/types.h"
 
 using basalt::i8;
 using basalt::i16;
@@ -25,5 +23,3 @@ using basalt::f64;
 using basalt::Color;
 using basalt::Colors;
 using basalt::ColorEncoding;
-
-#endif // BASALT_RUNTIME_PRELUDE_H

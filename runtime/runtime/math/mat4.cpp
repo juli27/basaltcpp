@@ -1,8 +1,8 @@
-#include "Mat4.h"
+#include "mat4.h"
 
 #include <cmath>
 
-namespace basalt::math {
+namespace basalt {
 
 auto Mat4::invert(const Mat4& m) -> Mat4 {
   auto invDet = m.det();
@@ -36,8 +36,8 @@ auto Mat4::invert(const Mat4& m) -> Mat4 {
 auto Mat4::rotation_x(const f32 rad) -> Mat4 {
   auto result = identity();
 
-  result.m22 = result.m33 = std::cosf(rad);
-  result.m23 = std::sinf(rad);
+  result.m22 = result.m33 = std::cos(rad);
+  result.m23 = std::sin(rad);
   result.m32 = -result.m23;
 
   return result;
@@ -46,8 +46,8 @@ auto Mat4::rotation_x(const f32 rad) -> Mat4 {
 auto Mat4::rotation_y(const f32 rad) -> Mat4 {
   auto result = identity();
 
-  result.m11 = result.m33 = std::cosf(rad);
-  result.m31 = std::sinf(rad);
+  result.m11 = result.m33 = std::cos(rad);
+  result.m31 = std::sin(rad);
   result.m13 = -result.m31;
 
   return result;
@@ -56,8 +56,8 @@ auto Mat4::rotation_y(const f32 rad) -> Mat4 {
 auto Mat4::rotation_z(const f32 rad) -> Mat4 {
   auto result = identity();
 
-  result.m11 = result.m22 = std::cosf(rad);
-  result.m12 = std::sinf(rad);
+  result.m11 = result.m22 = std::cos(rad);
+  result.m12 = std::sin(rad);
   result.m21 = -result.m12;
 
   return result;
@@ -73,7 +73,7 @@ auto Mat4::rotation(const Vec3f32& xyzRad) -> Mat4 {
 auto Mat4::perspective_projection(
   const f32 fovRad, const f32 aspectRatio, const f32 nearPlane, const f32 farPlane
 ) -> Mat4 {
-  const auto yScale = 1.0f / std::tanf(fovRad * 0.5f);
+  const auto yScale = 1.0f / std::tan(fovRad * 0.5f);
   const auto xScale = yScale / aspectRatio;
   const auto q = farPlane / (farPlane - nearPlane);
 
@@ -85,4 +85,4 @@ auto Mat4::perspective_projection(
   );
 }
 
-} // namespace basalt::math
+} // namespace basalt

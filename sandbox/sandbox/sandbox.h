@@ -2,7 +2,7 @@
 
 #include <runtime/client_app.h>
 
-#include <runtime/shared/Types.h>
+#include <runtime/shared/types.h>
 
 #include <memory>
 #include <vector>

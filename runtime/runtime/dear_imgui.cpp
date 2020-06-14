@@ -1,20 +1,20 @@
-#include "runtime/dear_imgui.h"
+#include "dear_imgui.h"
 
-#include "runtime/Input.h"
+#include "engine.h"
+#include "input.h"
 
-#include "runtime/gfx/backend/IRenderer.h"
-
-#include "runtime/math/Vec2.h"
-#include "runtime/shared/Size2D.h"
+#include "gfx/draw_target.h"
+#include "gfx/backend/device.h"
+#include "math/vec2.h"
+#include "shared/size2d.h"
 
 #include <imgui/imgui.h>
 
 namespace basalt {
 
-using gfx::backend::IRenderer;
-using math::Vec2i32;
+using gfx::Device;
 
-DearImGui::DearImGui(IRenderer* const renderer)
+DearImGui::DearImGui(Device* const renderer)
   : mRenderer {renderer} {
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
@@ -72,38 +72,38 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
   for (const InputEventPtr& event : input.events()) {
     switch (event->type) {
     case InputEventType::MouseButtonDown: {
-      const auto* mbPressed {event->as<MouseButtonDown>()};
-      io.MouseDown[enum_cast(mbPressed->button)] = true;
+      const auto& mbPressed {event->as<MouseButtonDown>()};
+      io.MouseDown[enum_cast(mbPressed.button)] = true;
       break;
     }
 
     case InputEventType::MouseButtonUp: {
-      const auto* mbReleased {event->as<MouseButtonUp>()};
-      io.MouseDown[enum_cast(mbReleased->button)] = false;
+      const auto& mbReleased {event->as<MouseButtonUp>()};
+      io.MouseDown[enum_cast(mbReleased.button)] = false;
       break;
     }
 
     case InputEventType::MouseWheel: {
-      const auto* mouseWheel {event->as<MouseWheel>()};
-      io.MouseWheel += mouseWheel->offset;
+      const auto& mouseWheel {event->as<MouseWheel>()};
+      io.MouseWheel += mouseWheel.offset;
       break;
     }
 
     case InputEventType::KeyDown: {
-      const auto* keyDown {event->as<KeyDown>()};
-      io.KeysDown[enum_cast(keyDown->key)] = true;
+      const auto& keyDown {event->as<KeyDown>()};
+      io.KeysDown[enum_cast(keyDown.key)] = true;
       break;
     }
 
     case InputEventType::KeyUp: {
-      const auto* keyUp {event->as<KeyUp>()};
-      io.KeysDown[enum_cast(keyUp->key)] = false;
+      const auto& keyUp {event->as<KeyUp>()};
+      io.KeysDown[enum_cast(keyUp.key)] = false;
       break;
     }
 
     case InputEventType::CharactersTyped: {
-      const auto* charactersTyped {event->as<CharactersTyped>()};
-      io.AddInputCharactersUTF8(charactersTyped->chars.c_str());
+      const auto& charactersTyped {event->as<CharactersTyped>()};
+      io.AddInputCharactersUTF8(charactersTyped.chars.c_str());
       break;
     }
 

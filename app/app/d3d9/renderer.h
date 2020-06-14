@@ -1,11 +1,11 @@
 #pragma once
 
-#include <runtime/gfx/backend/IRenderer.h>
+#include <runtime/gfx/backend/device.h>
 
 #include "d3d9_custom.h"
 
 #include <runtime/gfx/backend/render_command.h>
-#include <runtime/shared/HandlePool.h>
+#include <runtime/shared/handle_pool.h>
 
 #include <wrl/client.h>
 
@@ -21,7 +21,7 @@ struct D3D9Mesh {
   UINT primCount {0u};
 };
 
-struct D3D9Renderer final : IRenderer {
+struct D3D9Renderer final : Device {
   D3D9Renderer() = delete;
   explicit D3D9Renderer(Microsoft::WRL::ComPtr<IDirect3DDevice9> device);
   D3D9Renderer(const D3D9Renderer&) = delete;
@@ -43,7 +43,7 @@ struct D3D9Renderer final : IRenderer {
   void remove_texture(TextureHandle textureHandle) override;
   auto load_model(std::string_view filePath) -> ModelHandle override;
   void remove_model(ModelHandle) override;
-  void render(const RenderCommandList&) override;
+  void render(const CommandList&) override;
 
   void init_dear_imgui() override;
   void shutdown_dear_imgui() override;

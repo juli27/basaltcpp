@@ -1,25 +1,26 @@
 #pragma once
 
-#include "runtime/gfx/backend/Types.h"
-#include "runtime/shared/Types.h"
+#include "types.h"
+
+#include <runtime/shared/types.h>
 
 #include <string_view>
 
-namespace basalt::gfx::backend {
+namespace basalt::gfx {
 
-struct RenderCommandList;
+struct CommandList;
 
-struct IRenderer {
-  IRenderer(const IRenderer&) = delete;
-  IRenderer(IRenderer&&) = delete;
+struct Device {
+  Device(const Device&) = delete;
+  Device(Device&&) = delete;
 
-  virtual ~IRenderer() noexcept = default;
+  virtual ~Device() noexcept = default;
 
-  auto operator=(const IRenderer&) -> IRenderer& = delete;
-  auto operator=(IRenderer&&) -> IRenderer& = delete;
+  auto operator=(const Device&) -> Device& = delete;
+  auto operator=(Device&&) -> Device& = delete;
 
-  // TODO: noexcept method to validate the layout for the renderers requirements
-  //       bool IRenderer::ValidateVertexLayout(const VertexLayout&)
+  // TODO: noexcept method to validate the layout for the device requirements
+  //       bool Device::ValidateVertexLayout(const VertexLayout&)
   //       Writes problematic vertex elements to log. Should it also change the
   //       layout (non const ref) to the closest valid layout?
   //       (what does "closest" mean?)
@@ -29,7 +30,7 @@ struct IRenderer {
   // TODO: method to retrieve a preferred vertex layout ?
 
   /**
-   * \brief Adds a static mesh to the renderer to prepare it for rendering.
+   * \brief Adds a static mesh to the device to prepare it for rendering.
    *
    * \param data vertex data
    * \param numVertices number of vertices
@@ -42,7 +43,7 @@ struct IRenderer {
   , PrimitiveType primitiveType) -> MeshHandle = 0;
 
   /**
-   * \brief Removes a static mesh from the renderer which makes it unavailable
+   * \brief Removes a static mesh from the device which makes it unavailable
    *        for rendering.
    *
    * \param meshHandle handle to mesh to be removed
@@ -54,7 +55,7 @@ struct IRenderer {
   virtual auto add_texture(std::string_view filePath) -> TextureHandle = 0;
 
   /**
-   * \brief Removes a static texture from the renderer which makes it
+   * \brief Removes a static texture from the device which makes it
    *        unavailable for rendering.
    *
    * \param textureHandle handle to texture to be removed
@@ -64,14 +65,14 @@ struct IRenderer {
   virtual auto load_model(std::string_view filePath) -> ModelHandle = 0;
   virtual void remove_model(ModelHandle) = 0;
 
-  virtual void render(const RenderCommandList&) = 0;
+  virtual void render(const CommandList&) = 0;
 
   virtual void init_dear_imgui() = 0;
   virtual void shutdown_dear_imgui() = 0;
   virtual void new_gui_frame() = 0;
 
 protected:
-    IRenderer() noexcept = default;
+    Device() noexcept = default;
 };
 
-} // namespace basalt::gfx::backend
+} // namespace basalt::gfx

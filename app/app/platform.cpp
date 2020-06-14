@@ -1,12 +1,9 @@
-#include "runtime/platform/Platform.h"
+#include <runtime/platform/platform.h>
 
 #include "globals.h"
-
-#if BASALT_DEV_BUILD
 #include "shared/Windows_custom.h"
-#endif // BASALT_DEV_BUILD
 
-#include "runtime/shared/Log.h"
+#include <runtime/shared/log.h>
 
 namespace basalt::platform {
 
@@ -33,12 +30,8 @@ void set_window_mode(const WindowMode windowMode) {
   }
 }
 
-#if BASALT_DEV_BUILD
-
 auto is_debugger_attached() -> bool {
   return ::IsDebuggerPresent();
 }
-
-#endif // BASALT_DEV_BUILD
 
 } // namespace basalt::platform

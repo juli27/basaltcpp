@@ -1,14 +1,17 @@
-#include "sandbox/d3d9/lights.h"
+#include "lights.h"
 
-#include "sandbox/d3d9/utils.h"
+#include "utils.h"
 
 #include <runtime/debug.h>
 #include <runtime/prelude.h>
 
+#include <runtime/gfx/draw_target.h>
 #include <runtime/scene/transform.h>
 
-#include <runtime/math/Constants.h>
-#include <runtime/math/Vec3.h>
+#include <runtime/math/constants.h>
+#include <runtime/math/vec3.h>
+
+#include <runtime/shared/config.h>
 
 #include <array>
 #include <cmath>
@@ -18,19 +21,19 @@ using std::string_view;
 using namespace std::literals;
 
 using basalt::Debug;
+using basalt::PI;
 using basalt::Transform;
+using basalt::Vec3f32;
+using basalt::gfx::Device;
 using basalt::gfx::RenderComponent;
+using basalt::gfx::RenderFlagCullNone;
 using basalt::gfx::SceneView;
-using basalt::gfx::backend::IRenderer;
-using basalt::gfx::backend::RenderFlagCullNone;
-using basalt::gfx::backend::VertexElement;
-using basalt::gfx::backend::VertexLayout;
-using basalt::math::PI;
-using basalt::math::Vec3f32;
+using basalt::gfx::VertexElement;
+using basalt::gfx::VertexLayout;
 
 namespace d3d9 {
 
-Lights::Lights(IRenderer& renderer) {
+Lights::Lights(Device& device) {
   mScene->set_background_color(Colors::BLUE);
   mScene->set_ambient_light(Color::from_rgba(32, 32, 32));
 
@@ -59,10 +62,10 @@ Lights::Lights(IRenderer& renderer) {
   ecs.emplace<Transform>(mCylinder);
 
   auto& rc {ecs.emplace<RenderComponent>(mCylinder)};
-  rc.mMesh = add_triangle_strip_mesh(renderer, vertices, vertexLayout);
-  rc.mDiffuseColor = Color {1.0f, 1.0f, 0.0f};
-  rc.mAmbientColor = Color {1.0f, 1.0f, 0.0f};
-  rc.mRenderFlags = RenderFlagCullNone;
+  rc.mesh = add_triangle_strip_mesh(device, vertices, vertexLayout);
+  rc.diffuseColor = Color {1.0f, 1.0f, 0.0f};
+  rc.ambientColor = Color {1.0f, 1.0f, 0.0f};
+  rc.renderFlags = RenderFlagCullNone;
 
   mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }

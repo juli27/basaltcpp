@@ -1,10 +1,8 @@
 #pragma once
-#ifndef BASALT_MATH_VEC2_H
-#define BASALT_MATH_VEC2_H
 
-#include "runtime/shared/Types.h"
+#include <runtime/shared/types.h>
 
-namespace basalt::math {
+namespace basalt {
 
 template <typename T>
 struct Vec2 final {
@@ -46,6 +44,4 @@ extern template struct Vec2<f32>;
 extern template void Vec2<i32>::set(i32 ax, i32 ay) noexcept;
 extern template void Vec2<f32>::set(f32 ax, f32 ay) noexcept;
 
-} // namespace basalt::math
-
-#endif // BASALT_MATH_VEC2_H
+} // namespace basalt

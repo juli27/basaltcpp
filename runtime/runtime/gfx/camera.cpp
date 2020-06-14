@@ -1,9 +1,8 @@
-#include "runtime/gfx/Camera.h"
+#include "camera.h"
+
+#include <runtime/shared/size2d.h>
 
 namespace basalt::gfx {
-
-using math::Mat4f32;
-using math::Vec3f32;
 
 Camera::Camera(
   const Vec3f32& position, const Vec3f32& lookAt, const Vec3f32& up

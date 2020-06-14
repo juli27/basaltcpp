@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Engine.h"
-
-#include "runtime/shared/Config.h"
-
 #include <memory>
 
 namespace basalt {
+
+struct Config;
+struct Engine;
+struct UpdateContext;
 
 struct ClientApp {
   ClientApp() = default;

@@ -1,17 +1,17 @@
 #pragma once
-#ifndef BASALT_RUNTIME_DEAR_IMGUI_H
-#define BASALT_RUNTIME_DEAR_IMGUI_H
-
-#include "Engine.h"
 
 namespace basalt {
 
-namespace gfx::backend {
-struct IRenderer;
-} // gfx::backend
+struct UpdateContext;
+
+namespace gfx {
+
+struct Device;
+
+} // namespace gfx
 
 struct DearImGui final {
-  explicit DearImGui(gfx::backend::IRenderer*);
+  explicit DearImGui(gfx::Device*);
 
   DearImGui(const DearImGui&) = delete;
   DearImGui(DearImGui&&) = delete;
@@ -24,9 +24,7 @@ struct DearImGui final {
   void new_frame(const UpdateContext&) const;
 
 private:
-  gfx::backend::IRenderer* mRenderer {};
+  gfx::Device* mRenderer {};
 };
 
-} //namespace basalt
-
-#endif // BASALT_RUNTIME_DEAR_IMGUI_H
+} // namespace basalt

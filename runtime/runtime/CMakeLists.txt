@@ -3,13 +3,13 @@ target_sources(Runtime
     "dear_imgui.cpp"
     "debug.cpp"
     "engine.cpp"
-    "Input.cpp"
+    "input.cpp"
   PUBLIC
     "client_app.h"
     "dear_imgui.h"
     "debug.h"
-    "Engine.h"
-    "Input.h"
+    "engine.h"
+    "input.h"
     "prelude.h"
     "types.h"
 )

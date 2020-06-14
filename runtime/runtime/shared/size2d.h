@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Types.h"
+#include "types.h"
 
 namespace basalt {
 
@@ -16,8 +16,8 @@ struct Size2D final {
 
   ~Size2D() = default;
 
-  auto operator=(const Size2D& other) -> Size2D& = default;
-  auto operator=(Size2D&& other) -> Size2D& = default;
+  auto operator=(const Size2D&) -> Size2D& = default;
+  auto operator=(Size2D&&) -> Size2D& = default;
 
   [[nodiscard]]
   constexpr auto width() const noexcept -> T {

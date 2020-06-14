@@ -1,11 +1,11 @@
 #pragma once
 
-#include <runtime/gfx/Camera.h>
+#include <runtime/gfx/camera.h>
 
-#include <runtime/gfx/backend/IRenderer.h>
-#include <runtime/gfx/backend/Types.h>
+#include <runtime/gfx/backend/device.h>
+#include <runtime/gfx/backend/types.h>
 
-#include <runtime/shared/Types.h>
+#include <runtime/shared/types.h>
 
 #include <array>
 
@@ -15,22 +15,22 @@ auto create_default_camera() -> basalt::gfx::Camera;
 
 template <typename T, std::size_t Size>
 auto add_triangle_list_mesh(
-  basalt::gfx::backend::IRenderer& renderer, std::array<T, Size>& data
-, const basalt::gfx::backend::VertexLayout& layout
-) -> basalt::gfx::backend::MeshHandle {
-  return renderer.add_mesh(
+  basalt::gfx::Device& device, std::array<T, Size>& data
+, const basalt::gfx::VertexLayout& layout
+) -> basalt::gfx::MeshHandle {
+  return device.add_mesh(
     data.data(), static_cast<basalt::i32>(data.size()), layout
-  , basalt::gfx::backend::PrimitiveType::TriangleList);
+  , basalt::gfx::PrimitiveType::TriangleList);
 }
 
 template <typename T, std::size_t Size>
 auto add_triangle_strip_mesh(
-  basalt::gfx::backend::IRenderer& renderer, std::array<T, Size>& data
-, const basalt::gfx::backend::VertexLayout& layout
-) -> basalt::gfx::backend::MeshHandle {
-  return renderer.add_mesh(
+  basalt::gfx::Device& device, std::array<T, Size>& data
+, const basalt::gfx::VertexLayout& layout
+) -> basalt::gfx::MeshHandle {
+  return device.add_mesh(
     data.data(), static_cast<basalt::i32>(data.size()), layout
-  , basalt::gfx::backend::PrimitiveType::TriangleStrip);
+  , basalt::gfx::PrimitiveType::TriangleStrip);
 }
 
 } // namespace d3d9

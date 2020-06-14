@@ -1,20 +1,24 @@
 #include "scene_view.h"
 
 #include "types.h"
+
 #include <runtime/scene/transform.h>
+#include <runtime/scene/scene.h>
+
+#include <runtime/shared/size2d.h>
+
+#include <entt/entity/registry.hpp>
 
 #include <utility>
 
 namespace basalt::gfx {
 
-using backend::RenderCommandList;
-
 SceneView::SceneView(std::shared_ptr<Scene> scene, const Camera& camera)
   : mScene {std::move(scene)}, mCamera {camera} {
 }
 
-auto SceneView::draw(const Size2Du16 viewport) -> RenderCommandList {
-  RenderCommandList commandList {
+auto SceneView::draw(const Size2Du16 viewport) -> CommandList {
+  CommandList commandList {
     mCamera.view_matrix(), mCamera.projection_matrix(viewport)
   , mScene->background_color()
   };
@@ -28,26 +32,24 @@ auto SceneView::draw(const Size2Du16 viewport) -> RenderCommandList {
     [&commandList, &ecs](
     const entt::entity entity, const RenderComponent& renderComponent
   ) {
-      backend::RenderCommand command;
+      RenderCommand command;
 
       if (ecs.has<Transform>(entity)) {
         const auto& transform = ecs.get<Transform>(
           entity);
-        command.mWorld = math::Mat4f32::scaling(transform.mScale) *
-          math::Mat4f32::rotation(transform.mRotation) *
-          math::Mat4f32::translation(transform.mPosition);
-      } else {
-        command.mWorld = math::Mat4f32::identity();
+        command.worldTransform = Mat4f32::scaling(transform.scale) *
+          Mat4f32::rotation(transform.rotation) *
+          Mat4f32::translation(transform.position);
       }
 
-      command.mMesh = renderComponent.mMesh;
+      command.mesh = renderComponent.mesh;
       command.model = renderComponent.model;
-      command.mTexture = renderComponent.mTexture;
-      command.mDiffuseColor = renderComponent.mDiffuseColor;
-      command.mAmbientColor = renderComponent.mAmbientColor;
+      command.texture = renderComponent.texture;
+      command.diffuseColor = renderComponent.diffuseColor;
+      command.ambientColor = renderComponent.ambientColor;
       command.texTransform = renderComponent.texTransform;
       command.texCoordinateSrc = renderComponent.tcs;
-      command.mFlags = renderComponent.mRenderFlags;
+      command.flags = renderComponent.renderFlags;
       commandList.add(command);
     });
 

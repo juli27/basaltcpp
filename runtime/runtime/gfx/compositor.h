@@ -1,17 +1,17 @@
 #pragma once
 
 #include "draw_target.h"
-#include "backend/context.h"
 
 #include <memory>
 
 namespace basalt::gfx {
 
+struct Context;
 struct Drawable;
 
 struct Compositor final {
   Compositor() = delete;
-  explicit Compositor(std::shared_ptr<backend::IGfxContext>);
+  explicit Compositor(std::shared_ptr<Context>);
 
   Compositor(const Compositor&) = delete;
   Compositor(Compositor&&) = default;
@@ -27,7 +27,7 @@ struct Compositor final {
   void compose();
 
 private:
-  std::shared_ptr<backend::IGfxContext> mContext {};
+  std::shared_ptr<Context> mContext {};
   DrawTarget mDrawTarget;
 };
 

@@ -1,16 +1,19 @@
 #pragma once
-#ifndef BASALT_SCENE_H
-#define BASALT_SCENE_H
 
-#include "runtime/scene/types.h"
-#include "runtime/math/Vec3.h"
-#include "runtime/shared/Color.h"
+#include "types.h"
+
+#include <runtime/shared/color.h>
+#include <runtime/shared/types.h>
 
 #include <entt/entity/registry.hpp>
 
 #include <vector>
 
 namespace basalt {
+
+template <typename T>
+struct Vec3;
+using Vec3f32 = Vec3<f32>;
 
 struct Scene final {
   Scene() = default;
@@ -35,7 +38,7 @@ struct Scene final {
 
   [[nodiscard]]
   auto directional_lights() const -> const std::vector<DirectionalLight>&;
-  void add_directional_light(const math::Vec3f32& dir, const Color&);
+  void add_directional_light(const Vec3f32& dir, const Color&);
   void clear_directional_lights();
 
 private:
@@ -48,5 +51,3 @@ private:
 };
 
 } // namespace basalt
-
-#endif // !BASALT_SCENE_H

@@ -1,9 +1,12 @@
-#include "sandbox/d3d9/vertices.h"
+#include "vertices.h"
 
 #include "utils.h"
 
 #include <runtime/debug.h>
 #include <runtime/prelude.h>
+
+#include <runtime/gfx/draw_target.h>
+#include <runtime/shared/config.h>
 
 #include <array>
 
@@ -12,15 +15,15 @@ using std::string_view;
 using namespace std::literals;
 
 using basalt::Debug;
+using basalt::gfx::Device;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SceneView;
-using basalt::gfx::backend::IRenderer;
-using basalt::gfx::backend::VertexElement;
-using basalt::gfx::backend::VertexLayout;
+using basalt::gfx::VertexElement;
+using basalt::gfx::VertexLayout;
 
 namespace d3d9 {
 
-Vertices::Vertices(IRenderer& renderer) {
+Vertices::Vertices(Device& device) {
   mScene->set_background_color(Colors::BLUE);
 
   struct Vertex final {
@@ -53,7 +56,7 @@ Vertices::Vertices(IRenderer& renderer) {
   entt::registry& ecs {mScene->ecs()};
   const entt::entity entity {ecs.create()};
   auto& rc {ecs.emplace<RenderComponent>(entity)};
-  rc.mMesh = add_triangle_list_mesh(renderer, vertices, vertexLayout);
+  rc.mesh = add_triangle_list_mesh(device, vertices, vertexLayout);
 
   mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }

@@ -1,8 +1,6 @@
 #pragma once
-#ifndef BASALT_APP_KEY_MAP_H
-#define BASALT_APP_KEY_MAP_H
 
-#include "runtime/Input.h"
+#include <runtime/input.h>
 
 #include <array>
 
@@ -269,6 +267,4 @@ constexpr std::array<Key, 256> VK_TO_KEY_MAP = {
   /* reserved               */ Key::Unknown
 };
 
-} // namespace basalt::platform
-
-#endif // BASALT_APP_KEY_MAP_H
+} // namespace basalt::win32

@@ -8,7 +8,7 @@ struct Debug final {
   Debug() = delete;
 
   Debug(const Debug&) = delete;
-  Debug(const Debug&&) = delete;
+  Debug(Debug&&) = delete;
 
   ~Debug() = delete;
 
