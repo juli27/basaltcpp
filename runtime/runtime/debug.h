@@ -18,11 +18,6 @@ struct Debug final {
   static void update(Scene&);
 
 private:
-  static bool sShowSceneDebugUi;
-  static bool sShowDemo;
-  static bool sShowMetrics;
-  static bool sShowAbout;
-
   static void draw_scene_debug_ui(Scene&);
 };
 

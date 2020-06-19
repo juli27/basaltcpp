@@ -8,6 +8,7 @@
 #include "d3d9/textures_tci.h"
 #include "d3d9/vertices.h"
 
+#include <runtime/engine.h>
 #include <runtime/input.h>
 #include <runtime/prelude.h>
 
@@ -101,6 +102,10 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
       }
 
       ImGui::Separator();
+
+      if (ImGui::MenuItem("Exit", "Alt+F4")) {
+        basalt::quit();
+      }
 
       ImGui::EndMenu();
     }

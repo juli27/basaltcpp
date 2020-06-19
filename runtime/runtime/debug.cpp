@@ -1,6 +1,5 @@
 #include "debug.h"
 
-#include "engine.h"
 #include "gfx/types.h"
 
 #include "scene/scene.h"
@@ -25,6 +24,11 @@ using entt::entity;
 namespace basalt {
 namespace {
 
+bool sShowSceneDebugUi {false};
+bool sShowDemo {false};
+bool sShowMetrics {false};
+bool sShowAbout {false};
+
 void show_overlay();
 
 void edit_color3(const char* label, Color& color);
@@ -32,26 +36,12 @@ void edit_color4(const char* label, Color& color);
 
 } // namespace
 
-bool Debug::sShowSceneDebugUi {false};
-bool Debug::sShowDemo {false};
-bool Debug::sShowMetrics {false};
-bool Debug::sShowAbout {false};
-
 void Debug::update(Scene& scene) {
   show_overlay();
 
   if (ImGui::BeginMainMenuBar()) {
-    if (ImGui::BeginMenu("File")) {
-      if (ImGui::MenuItem("Exit", "Alt+F4")) {
-        quit();
-      }
-
-      ImGui::EndMenu();
-    }
-
     if (ImGui::BeginMenu("View")) {
       ImGui::MenuItem("Scene Debug UI", nullptr, &sShowSceneDebugUi);
-
       ImGui::EndMenu();
     }
 
