@@ -8,14 +8,14 @@ auto Input::events() const -> const vector<InputEventPtr>& {
   return mEvents;
 }
 
-auto Input::mouse_position() const -> Vec2i32 {
+auto Input::cursor_position() const -> CursorPosition {
   return mMousePosition;
 }
 
-void Input::mouse_moved(const i32 x, const i32 y) {
-  if (const Vec2i32 input {x, y}; input != mMousePosition) {
-    mEvents.push_back(std::make_unique<MouseMoved>(input));
-    mMousePosition = input;
+void Input::mouse_moved(const CursorPosition mousePos) {
+  if (mousePos != mMousePosition) {
+    mEvents.push_back(std::make_unique<MouseMoved>(mousePos));
+    mMousePosition = mousePos;
   }
 }
 

@@ -9,8 +9,6 @@
 #include <runtime/scene/transform.h>
 
 #include <runtime/math/constants.h>
-#include <runtime/math/vec2.h>
-#include <runtime/math/vec3.h>
 
 #include <runtime/shared/config.h>
 
@@ -24,8 +22,6 @@ using namespace std::literals;
 using basalt::Debug;
 using basalt::PI;
 using basalt::Transform;
-using basalt::Vec2f32;
-using basalt::Vec3f32;
 using basalt::gfx::Device;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::RenderFlagCullNone;
@@ -40,9 +36,12 @@ Textures::Textures(Device& device) {
   mScene->set_background_color(Colors::BLUE);
 
   struct Vertex final {
-    Vec3f32 pos {};
+    f32 x {};
+    f32 y {};
+    f32 z {};
     ColorEncoding::A8R8G8B8 color {};
-    Vec2f32 texCoords {};
+    f32 u {};
+    f32 v {};
   };
 
   array<Vertex, 50u * 2> vertices {};
@@ -52,14 +51,22 @@ Textures::Textures(Device& device) {
     const f32 sinTheta {std::sin(theta)};
     const f32 cosTheta {std::cos(theta)};
 
-    vertices[2 * i].pos.set(sinTheta, -1.0f, cosTheta);
-    vertices[2 * i].color = ColorEncoding::pack_logical_a8r8g8b8(255, 255, 255);
-    vertices[2 * i].texCoords.set(i / (50.0f - 1), 1.0f);
+    auto& vertex1 = vertices[2 * i];
+    vertex1.x = sinTheta;
+    vertex1.y = -1.0f;
+    vertex1.z = cosTheta;
+    vertex1.color = ColorEncoding::pack_logical_a8r8g8b8(255, 255, 255);
+    vertex1.u = i / (50.0f - 1);
+    vertex1.v = 1.0f;
 
-    vertices[2 * i + 1].pos.set(sinTheta, 1.0f, cosTheta);
-    vertices[2 * i + 1].color = ColorEncoding::pack_logical_a8r8g8b8(
+    auto& vertex2 = vertices[2 * i + 1];
+    vertex2.x = sinTheta;
+    vertex2.y = 1.0f;
+    vertex2.z = cosTheta;
+    vertex2.color = ColorEncoding::pack_logical_a8r8g8b8(
       128, 128, 128);
-    vertices[2 * i + 1].texCoords.set(i / (50.0f - 1), 0.0f);
+    vertex2.u = i / (50.0f - 1);
+    vertex2.v = 0.0f;
   }
 
   const VertexLayout vertexLayout {

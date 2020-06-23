@@ -306,7 +306,8 @@ auto Window::dispatch_message(
   case WM_MOUSEMOVE:
     // insert the mouse moved last, because this is the most recent message
     process_mouse_message_states(wParam);
-    mInput.mouse_moved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+    mInput.mouse_moved(
+      CursorPosition {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)});
     return 0;
 
   case WM_LBUTTONDOWN:
@@ -317,7 +318,8 @@ auto Window::dispatch_message(
   case WM_MBUTTONUP:
   case WM_XBUTTONDOWN:
   case WM_XBUTTONUP: {
-    mInput.mouse_moved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+    mInput.mouse_moved(
+      CursorPosition {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)});
     process_mouse_message_states(wParam);
 
     constexpr u16 anyButton = MK_LBUTTON | MK_RBUTTON | MK_MBUTTON | MK_XBUTTON1
@@ -335,9 +337,9 @@ auto Window::dispatch_message(
   }
 
   case WM_MOUSEWHEEL: {
-    POINT cursorPos { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+    POINT cursorPos {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
     ::ScreenToClient(mHandle, &cursorPos);
-    mInput.mouse_moved(cursorPos.x, cursorPos.y);
+    mInput.mouse_moved(CursorPosition {cursorPos.x, cursorPos.y});
     process_mouse_message_states(LOWORD(wParam));
     const f32 offset {
       static_cast<f32>(GET_WHEEL_DELTA_WPARAM(wParam)) / static_cast<f32>(

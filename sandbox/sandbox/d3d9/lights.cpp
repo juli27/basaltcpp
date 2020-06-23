@@ -38,8 +38,12 @@ Lights::Lights(Device& device) {
   mScene->set_ambient_light(Color::from_rgba(32, 32, 32));
 
   struct Vertex final {
-    Vec3f32 pos {};
-    Vec3f32 normal {};
+    f32 x {};
+    f32 y {};
+    f32 z {};
+    f32 nx {};
+    f32 ny {};
+    f32 nz {};
   };
 
   array<Vertex, 50u * 2u> vertices {};
@@ -47,10 +51,20 @@ Lights::Lights(Device& device) {
     const f32 theta {2.0f * PI * i / (50 - 1)};
     const f32 sinTheta {std::sin(theta)};
     const f32 cosTheta {std::cos(theta)};
-    vertices[2 * i].pos.set(sinTheta, -1.0f, cosTheta);
-    vertices[2 * i].normal.set(sinTheta, 0.0f, cosTheta);
-    vertices[2 * i + 1].pos.set(sinTheta, 1.0f, cosTheta);
-    vertices[2 * i + 1].normal.set(sinTheta, 0.0f, cosTheta);
+
+    auto& vertex1 = vertices[2 * i];
+    vertex1.x = sinTheta;
+    vertex1.y = -1.0f;
+    vertex1.z = cosTheta;
+    vertex1.nx = sinTheta;
+    vertex1.nz = cosTheta;
+
+    auto& vertex2 = vertices[2 * i + 1];
+    vertex2.x = sinTheta;
+    vertex2.y = 1.0f;
+    vertex2.z = cosTheta;
+    vertex2.nx = sinTheta;
+    vertex2.nz = cosTheta;
   }
 
   const VertexLayout vertexLayout {

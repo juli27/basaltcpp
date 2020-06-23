@@ -29,13 +29,19 @@ struct Vec3 final {
   auto operator*=(T) noexcept -> Vec3&;
   auto operator/=(T) noexcept -> Vec3&;
 
-  auto operator-() const noexcept -> Vec3;
-
-  auto operator==(const Vec3&) const -> bool;
-  auto operator!=(const Vec3&) const -> bool;
+  constexpr auto operator-() const noexcept -> Vec3 {
+    return Vec3 {-x, -y, -z};
+  }
 
   [[nodiscard]]
-  auto length_squared() const -> T;
+  auto operator==(const Vec3&) const noexcept -> bool;
+
+  [[nodiscard]]
+  auto operator!=(const Vec3&) const noexcept -> bool;
+
+  [[nodiscard]]
+  auto length_squared() const noexcept -> T;
+
   [[nodiscard]]
   auto length() const -> T;
 
@@ -45,7 +51,7 @@ struct Vec3 final {
   static auto normalize(const Vec3&) -> Vec3;
 
   [[nodiscard]]
-  static constexpr auto cross(const Vec3& l, const Vec3& r) -> Vec3 {
+  static constexpr auto cross(const Vec3& l, const Vec3& r) noexcept -> Vec3 {
     return Vec3 {
       l.y * r.z - l.z * r.y
     , l.z * r.x - l.x * r.z
@@ -54,48 +60,26 @@ struct Vec3 final {
   }
 
   [[nodiscard]]
-  static auto dot(const Vec3&, const Vec3&) -> T;
+  static auto dot(const Vec3&, const Vec3&) noexcept -> T;
 };
+
+extern template struct Vec3<f32>;
 
 using Vec3f32 = Vec3<f32>;
 
-extern template struct Vec3<f32>;
-extern template auto Vec3<f32>::operator+=(const Vec3&) noexcept -> Vec3&;
-extern template auto Vec3<f32>::operator-=(const Vec3&) noexcept -> Vec3&;
-extern template auto Vec3<f32>::operator*=(f32) noexcept -> Vec3&;
-extern template auto Vec3<f32>::operator/=(f32) noexcept -> Vec3&;
-extern template auto Vec3<f32>::operator-() const noexcept -> Vec3;
-extern template auto Vec3<f32>::operator==(const Vec3&) const -> bool;
-extern template auto Vec3<f32>::operator!=(const Vec3&) const -> bool;
-extern template auto Vec3<f32>::length_squared() const -> f32;
-extern template auto Vec3<f32>::length() const -> f32;
-extern template void Vec3<f32>::set(f32 ax, f32 ay, f32 az) noexcept;
-extern template auto Vec3<f32>::normalize(const Vec3&) -> Vec3;
-extern template auto Vec3<f32>::dot(const Vec3&, const Vec3&) -> f32;
+template <typename T>
+auto operator+(const Vec3<T>&, const Vec3<T>&) noexcept -> Vec3<T>;
 
 template <typename T>
-auto operator+(const Vec3<T>&, const Vec3<T>&) -> Vec3<T>;
-
-extern template auto operator+(const Vec3<f32>&, const Vec3<f32>&) -> Vec3<f32>;
-
-template <typename T>
-auto operator-(const Vec3<T>&, const Vec3<T>&) -> Vec3<T>;
-
-extern template auto operator-(const Vec3<f32>&, const Vec3<f32>&) -> Vec3<f32>;
+auto operator-(const Vec3<T>&, const Vec3<T>&) noexcept -> Vec3<T>;
 
 template <typename T>
 auto operator*(const Vec3<T>&, T) noexcept -> Vec3<T>;
 
-extern template auto operator*(const Vec3<f32>&, f32) noexcept -> Vec3<f32>;
-
 template <typename T>
 auto operator*(T, const Vec3<T>&) noexcept -> Vec3<T>;
 
-extern template auto operator*(f32, const Vec3<f32>&) noexcept -> Vec3<f32>;
-
 template <typename T>
-auto operator/(const Vec3<T>&, T) -> Vec3<T>;
-
-extern template auto operator/(const Vec3<f32>&, f32) -> Vec3<f32>;
+auto operator/(const Vec3<T>&, T) noexcept -> Vec3<T>;
 
 } // namespace basalt

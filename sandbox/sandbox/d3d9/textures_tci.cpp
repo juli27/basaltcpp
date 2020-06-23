@@ -12,7 +12,6 @@
 
 #include <runtime/math/constants.h>
 #include <runtime/math/mat4.h>
-#include <runtime/math/vec3.h>
 
 #include <runtime/shared/config.h>
 
@@ -27,7 +26,6 @@ using basalt::Debug;
 using basalt::Mat4f32;
 using basalt::PI;
 using basalt::Transform;
-using basalt::Vec3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::Device;
 using basalt::gfx::RenderComponent;
@@ -44,7 +42,9 @@ TexturesTci::TexturesTci(Device& device, const basalt::Size2Du16 windowSize) {
   mScene->set_background_color(Colors::BLUE);
 
   struct Vertex final {
-    Vec3f32 pos {};
+    f32 x {};
+    f32 y {};
+    f32 z {};
     ColorEncoding::A8R8G8B8 color {};
   };
 
@@ -54,12 +54,17 @@ TexturesTci::TexturesTci(Device& device, const basalt::Size2Du16 windowSize) {
     const f32 sinTheta {std::sin(theta)};
     const f32 cosTheta {std::cos(theta)};
 
-    vertices[2 * i].pos = Vec3f32 {sinTheta, -1.0f, cosTheta};
-    vertices[2 * i].color = ColorEncoding::pack_logical_a8r8g8b8(255, 255, 255);
+    auto& vertex1 = vertices[2 * i];
+    vertex1.x = sinTheta;
+    vertex1.y = -1.0f;
+    vertex1.z = cosTheta;
+    vertex1.color = ColorEncoding::pack_logical_a8r8g8b8(255, 255, 255);
 
-    vertices[2 * i + 1].pos = Vec3f32 {sinTheta, 1.0f, cosTheta};
-    vertices[2 * i + 1].color = ColorEncoding::pack_logical_a8r8g8b8(
-      128, 128, 128);
+    auto& vertex2 = vertices[2 * i + 1];
+    vertex2.x = sinTheta;
+    vertex2.y = 1.0f;
+    vertex2.z = cosTheta;
+    vertex2.color = ColorEncoding::pack_logical_a8r8g8b8(128, 128, 128);
   }
 
   const VertexLayout vertexLayout {

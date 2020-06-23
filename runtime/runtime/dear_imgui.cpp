@@ -61,7 +61,7 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
   auto& io = ImGui::GetIO();
   const Input& input {ctx.input};
 
-  const Vec2i32 mousePos {input.mouse_position()};
+  const CursorPosition mousePos {input.cursor_position()};
   io.MousePos = ImVec2 {
     static_cast<float>(mousePos.x), static_cast<float>(mousePos.y)
   };

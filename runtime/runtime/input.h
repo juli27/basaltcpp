@@ -46,6 +46,10 @@ constexpr uSize KEY_COUNT = 103u;
 struct InputEvent;
 using InputEventPtr = std::unique_ptr<InputEvent>;
 
+struct CursorPosition : Vec2i32 {
+  using Vec2i32::Vec2i32;
+};
+
 struct Input final {
   Input() = default;
 
@@ -61,8 +65,8 @@ struct Input final {
   auto events() const -> const std::vector<InputEventPtr>&;
 
   [[nodiscard]]
-  auto mouse_position() const -> Vec2i32;
-  void mouse_moved(i32 x, i32 y);
+  auto cursor_position() const -> CursorPosition;
+  void mouse_moved(CursorPosition);
 
   void mouse_wheel(f32 offset);
 
@@ -81,7 +85,7 @@ struct Input final {
 private:
   std::vector<InputEventPtr> mEvents {};
   std::bitset<MOUSE_BUTTON_COUNT> mMouseButtonsDown {};
-  Vec2i32 mMousePosition {};
+  CursorPosition mMousePosition {};
   std::bitset<KEY_COUNT> mKeysDown {};
 };
 
@@ -113,7 +117,7 @@ struct InputEvent {
   template <typename T>
   auto as() -> T& {
     BASALT_ASSERT_MSG(type == T::TYPE, "invalid input event cast");
-    return static_cast<T&>(*this);
+    return *static_cast<T*>(this);
   }
 };
 
@@ -135,9 +139,9 @@ struct InputEventT : InputEvent {
 };
 
 struct MouseMoved final : InputEventT<InputEventType::MouseMoved> {
-  Vec2i32 position;
+  CursorPosition position;
 
-  constexpr explicit MouseMoved(const Vec2i32& pos) noexcept
+  constexpr explicit MouseMoved(const CursorPosition& pos) noexcept
     : position {pos} {
   }
 
@@ -231,7 +235,6 @@ struct KeyUp : InputEventT<InputEventType::KeyUp> {
 };
 
 struct CharactersTyped final : InputEventT<InputEventType::CharactersTyped> {
-  // TODO: optimization: use static char array instead of string?
   std::string chars;
 
   explicit CharactersTyped(std::string chars)
