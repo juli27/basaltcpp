@@ -11,7 +11,7 @@
 
 #include <vector>
 
-namespace basalt::gfx::backend {
+namespace basalt::gfx {
 
 struct D3D9Mesh {
   Microsoft::WRL::ComPtr<IDirect3DVertexBuffer9> vertexBuffer {};
@@ -67,4 +67,4 @@ private:
   void render_command(const RenderCommand&);
 };
 
-} // namespace basalt::gfx::backend
+} // namespace basalt::gfx

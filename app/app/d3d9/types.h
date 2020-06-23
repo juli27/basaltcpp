@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace basalt::gfx::backend {
+namespace basalt::gfx {
 
 // listed from left to right, in c-array order if power of 2 aligned,
 // lsb to msb otherwise
@@ -36,4 +36,4 @@ struct AdapterInfo final {
   AdapterMode defaultAdapterMode {};
 };
 
-} // namespace basalt::gfx::backend
+} // namespace basalt::gfx

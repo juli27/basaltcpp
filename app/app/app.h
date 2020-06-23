@@ -1,15 +1,28 @@
 #pragma once
 
-#include "shared/Windows_custom.h"
-
 #include <runtime/engine.h>
 
-namespace basalt::win32 {
+#include "shared/Windows_custom.h"
+
+namespace basalt {
+
+struct Window;
 
 struct App final : Engine {
-  using Engine::Engine;
+  App() = delete;
+
+  App(const App&) = delete;
+  App(App&&) = delete;
+
+  auto operator=(const App&) -> App& = delete;
+  auto operator=(App&&) -> App& = delete;
 
   static void run(HMODULE, int showCommand);
+
+private:
+  App(Config&, const Window&);
+
+  ~App() = default;
 };
 
-} // namespace basalt::win32
+} // namespace basalt

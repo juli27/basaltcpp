@@ -14,7 +14,7 @@
 #include <string>
 #include <utility>
 
-namespace basalt::gfx::backend {
+namespace basalt::gfx {
 
 using Microsoft::WRL::ComPtr;
 
@@ -129,7 +129,7 @@ auto D3D9Factory::create() -> std::optional<D3D9FactoryPtr> {
   ComPtr<IDirect3D9> factory {};
   factory.Attach(Direct3DCreate9(D3D_SDK_VERSION));
   if (!factory) {
-    BASALT_LOG_INFO("failed to create IDirect3D9 object");
+    BASALT_LOG_WARN("Direct3D 9 not available");
 
     return std::nullopt;
   }
@@ -174,4 +174,4 @@ auto to_surface_format(const D3DFORMAT format) -> SurfaceFormat {
 
 } // namespace
 
-} // namespace basalt::gfx::backend
+} // namespace basalt::gfx

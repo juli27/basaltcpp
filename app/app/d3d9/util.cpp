@@ -3,7 +3,7 @@
 using std::string_view;
 using namespace std::literals;
 
-namespace basalt::gfx::backend {
+namespace basalt::gfx {
 
 auto to_string(const SurfaceFormat format) noexcept -> std::string_view {
   switch (format) {
@@ -29,4 +29,4 @@ auto to_string(const SurfaceFormat format) noexcept -> std::string_view {
   return "(unknown format)"sv;
 }
 
-} // namespace basalt::gfx::backend
+} // namespace basalt::gfx

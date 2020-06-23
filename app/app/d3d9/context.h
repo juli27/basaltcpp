@@ -9,7 +9,7 @@
 
 #include <memory>
 
-namespace basalt::gfx::backend {
+namespace basalt::gfx {
 
 struct D3D9Context final : Context {
   D3D9Context(
@@ -38,4 +38,4 @@ private:
   D3DPRESENT_PARAMETERS mPresentParams {};
 };
 
-} // basalt::gfx::backend
+} // namespace basalt::gfx

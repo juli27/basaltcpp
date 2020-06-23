@@ -13,6 +13,7 @@ struct Scene;
 
 namespace gfx {
 
+// A view into a scene
 struct SceneView final : Drawable {
   SceneView(std::shared_ptr<Scene> scene, const Camera& camera);
 

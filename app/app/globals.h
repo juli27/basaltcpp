@@ -2,8 +2,8 @@
 
 #include <runtime/shared/config.h>
 
-namespace basalt::win32 {
+namespace basalt {
 
 extern WindowMode sWindowMode;
 
-} // namespace basalt::win32
+} // namespace basalt

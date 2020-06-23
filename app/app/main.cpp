@@ -19,7 +19,7 @@ auto WINAPI wWinMain(
   Log::init();
 
   try {
-    basalt::win32::App::run(hInstance, nShowCmd);
+    basalt::App::run(hInstance, nShowCmd);
   } catch (const exception& ex) {
     BASALT_LOG_FATAL("unhandled exception: {}", ex.what());
     Log::shutdown();
@@ -33,7 +33,7 @@ auto WINAPI wWinMain(
   return 0;
 } catch (const exception& ex) {
   wstring mbText = L"Unhandled exception: \r\n";
-  mbText.append(basalt::win32::create_wide_from_utf8(ex.what()));
+  mbText.append(basalt::create_wide_from_utf8(ex.what()));
   ::MessageBoxW(
     nullptr, mbText.c_str(), L"Basalt Fatal Error"
   , MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);

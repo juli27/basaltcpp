@@ -7,8 +7,6 @@
 
 namespace basalt::platform {
 
-using namespace win32;
-
 auto get_window_mode() -> WindowMode {
   return sWindowMode;
 }

@@ -4,7 +4,7 @@
 
 #include <array>
 
-namespace basalt::win32 {
+namespace basalt {
 
 // TODO: syskeys
 // TODO: left and right variants
@@ -267,4 +267,4 @@ constexpr std::array<Key, 256> VK_TO_KEY_MAP = {
   /* reserved               */ Key::Unknown
 };
 
-} // namespace basalt::win32
+} // namespace basalt

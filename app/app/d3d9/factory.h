@@ -8,7 +8,7 @@
 #include <memory>
 #include <optional>
 
-namespace basalt::gfx::backend {
+namespace basalt::gfx {
 
 struct D3D9Factory;
 using D3D9FactoryPtr = std::unique_ptr<D3D9Factory>;
@@ -40,4 +40,4 @@ public:
   static auto create() -> std::optional<D3D9FactoryPtr>;
 };
 
-} // namespace basalt::gfx::backend
+} // namespace basalt::gfx

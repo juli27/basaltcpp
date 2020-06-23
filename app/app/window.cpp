@@ -34,11 +34,11 @@ using std::unique_ptr;
 using std::wstring;
 using std::wstring_view;
 
-namespace basalt::win32 {
+namespace basalt {
 
-using gfx::backend::D3D9Factory;
-using gfx::backend::D3D9FactoryPtr;
-using gfx::backend::D3D9Context;
+using gfx::D3D9Factory;
+using gfx::D3D9FactoryPtr;
+using gfx::D3D9Context;
 
 WindowMode sWindowMode;
 
@@ -129,7 +129,7 @@ auto Window::create(
   }
 
   // TODO: error handling
-  auto factory = D3D9Factory::create().value();
+  D3D9FactoryPtr factory {D3D9Factory::create().value()};
   shared_ptr<D3D9Context> gfxContext = factory->create_context(handle);
 
   // can't use make_unique because of the private constructor
@@ -463,4 +463,4 @@ auto CALLBACK Window::window_proc(
   return ::DefWindowProcW(handle, message, wParam, lParam);
 }
 
-} // namespace basalt::win32
+} // namespace basalt

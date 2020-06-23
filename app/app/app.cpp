@@ -31,18 +31,15 @@
 
 using std::string;
 
-namespace basalt::win32 {
+namespace basalt {
 
 using gfx::Compositor;
-using gfx::backend::AdapterInfo;
-using gfx::backend::D3D9Factory;
+using gfx::AdapterInfo;
+using gfx::D3D9Factory;
 
 namespace {
 
 void dump_config(const Config& config);
-
-// setup additional imgui platform functionality
-void init_dear_imgui_additional(const Window* window);
 
 [[nodiscard]]
 auto poll_events() -> bool;
@@ -57,12 +54,13 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   dump_config(config);
 
   // creates the window, the associated gfx context and the device
-  const WindowPtr window = Window::create(moduleHandle, showCommand, config);
+  const WindowPtr window {Window::create(moduleHandle, showCommand, config)};
 
   const DearImGui dearImGui {window->gfx_device()};
-  init_dear_imgui_additional(window.get());
+  ImGuiIO& io {ImGui::GetIO()};
+  io.ImeWindowHandle = window->handle();
 
-  App app {config, window->gfx_context()};
+  App app {config, *window};
   Compositor compositor {window->gfx_context()};
 
   const auto clientApp {ClientApp::create(app)};
@@ -74,7 +72,6 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   f64 currentDeltaTime {0.0};
 
   while (poll_events()) {
-    config.windowedSize = window->size();
     const UpdateContext ctx {
       app, compositor.draw_target(), currentDeltaTime, window->drain_input()
     };
@@ -101,6 +98,10 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   }
 }
 
+App::App(Config& config, const Window& window)
+  : Engine {config, window.gfx_context()} {
+}
+
 namespace {
 
 void dump_config(const Config& config) {
@@ -112,11 +113,6 @@ void dump_config(const Config& config) {
   , config.windowMode == WindowMode::FullscreenExclusive ? " exclusive" : ""
   , config.windowMode != WindowMode::Windowed ? "fullscreen" : "windowed"
   , config.isWindowResizeable ? " resizeable" : "");
-}
-
-void init_dear_imgui_additional(const Window* const window) {
-  ImGuiIO& io = ImGui::GetIO();
-  io.ImeWindowHandle = window->handle();
 }
 
 auto poll_events() -> bool {
@@ -266,4 +262,4 @@ void draw_debug_ui_additional(const D3D9Factory& ctxFactory) {
 
 } // namespace
 
-} // namespace basalt::win32
+} // namespace basalt

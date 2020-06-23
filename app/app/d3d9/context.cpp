@@ -6,7 +6,7 @@
 
 using Microsoft::WRL::ComPtr;
 
-namespace basalt::gfx::backend {
+namespace basalt::gfx {
 
 D3D9Context::D3D9Context(
   ComPtr<IDirect3DDevice9> device, const D3DPRESENT_PARAMETERS& pp)
@@ -63,4 +63,4 @@ void D3D9Context::present() {
   }
 }
 
-} // basalt::gfx::backend
+} // basalt::gfx

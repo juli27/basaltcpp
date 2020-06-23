@@ -18,8 +18,8 @@
 
 #endif // BASALT_DEBUG_BUILD
 
-namespace basalt::gfx::backend {
+namespace basalt::gfx {
 
 auto to_string(SurfaceFormat) noexcept -> std::string_view;
 
-} // namespace basalt::gfx::backend
+} // namespace basalt::gfx

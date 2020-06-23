@@ -25,7 +25,7 @@ using std::array;
 
 using Microsoft::WRL::ComPtr;
 
-namespace basalt::gfx::backend {
+namespace basalt::gfx {
 namespace {
 
 constexpr auto to_d3d_color(const Color& color) noexcept -> D3DCOLOR {
@@ -124,7 +124,7 @@ auto D3D9Renderer::add_texture(
   const std::string_view filePath) -> TextureHandle {
   const auto [handle, texture] = mTextures.allocate();
 
-  const auto wideFilePath = win32::create_wide_from_utf8(filePath);
+  const auto wideFilePath = create_wide_from_utf8(filePath);
   if (FAILED(
     ::D3DXCreateTextureFromFileW(
       mDevice.Get(), wideFilePath.c_str(), texture.GetAddressOf()
@@ -143,7 +143,7 @@ void D3D9Renderer::remove_texture(const TextureHandle textureHandle) {
 auto D3D9Renderer::load_model(const std::string_view filePath) -> ModelHandle {
   const auto [handle, model] = mModels.allocate();
 
-  const auto wideFilePath {win32::create_wide_from_utf8(filePath)};
+  const auto wideFilePath {create_wide_from_utf8(filePath)};
 
   ComPtr<ID3DXBuffer> materialBuffer {};
   DWORD numMaterials {};
@@ -476,4 +476,4 @@ void fill_primitive_info(
 
 } // namespace
 
-} // namespace basalt::gfx::backend
+} // namespace basalt::gfx

@@ -12,7 +12,7 @@ using std::numeric_limits;
 using std::string_view;
 using std::wstring;
 
-namespace basalt::win32 {
+namespace basalt {
 
 auto create_wide_from_utf8(const string_view src) -> wstring {
   // Don't use asserts/log because this function can be used without the log
@@ -47,4 +47,4 @@ auto create_wide_from_utf8(const string_view src) -> wstring {
   return dst;
 }
 
-} // namespace basalt::win32
+} // namespace basalt

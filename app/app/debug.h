@@ -4,8 +4,8 @@
 
 #include <string>
 
-namespace basalt::win32 {
+namespace basalt {
 
 std::string message_to_string(UINT message, WPARAM wParam, LPARAM lParam);
 
-} // namespace basalt::win32
+} // namespace basalt

@@ -21,8 +21,6 @@ struct Device;
 
 } // namespace gfx
 
-namespace win32 {
-
 struct Window;
 using WindowPtr = std::unique_ptr<Window>;
 
@@ -48,7 +46,7 @@ struct Window final {
   }
 
   [[nodiscard]]
-  auto context_factory() const -> const gfx::backend::D3D9FactoryPtr& {
+  auto context_factory() const -> const gfx::D3D9FactoryPtr& {
     return mFactory;
   }
 
@@ -80,8 +78,8 @@ private:
   HMODULE mModuleHandle {nullptr};
   HWND mHandle {nullptr};
 
-  gfx::backend::D3D9FactoryPtr mFactory {};
-  std::shared_ptr<gfx::backend::D3D9Context> mGfxContext {};
+  gfx::D3D9FactoryPtr mFactory {};
+  std::shared_ptr<gfx::D3D9Context> mGfxContext {};
 
   Input mInput {};
   Size2Du16 mClientAreaSize {Size2Du16::dont_care()};
@@ -91,8 +89,8 @@ private:
   MouseCursor mCurrentCursor {};
 
   Window(
-    HMODULE, HWND, gfx::backend::D3D9FactoryPtr
-  , std::shared_ptr<gfx::backend::D3D9Context>, Size2Du16 clientAreaSize);
+    HMODULE, HWND, gfx::D3D9FactoryPtr
+  , std::shared_ptr<gfx::D3D9Context>, Size2Du16 clientAreaSize);
 
   [[nodiscard]]
   auto dispatch_message(UINT message, WPARAM, LPARAM) -> LRESULT;
@@ -107,5 +105,4 @@ private:
     HWND, UINT message, WPARAM, LPARAM) -> LRESULT;
 };
 
-} // namespace win32
 } // namespace basalt
