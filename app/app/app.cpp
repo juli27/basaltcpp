@@ -8,6 +8,7 @@
 #include "debug.h"
 #endif // BASALT_TRACE_WINDOWS_MESSAGES
 
+#include "d3d9/context.h"
 #include "d3d9/factory.h"
 #include "d3d9/types.h"
 #include "d3d9/util.h"
@@ -25,10 +26,10 @@
 
 #include <chrono>
 #include <string>
-#include <memory>
 #include <utility>
 #include <vector>
 
+using std::shared_ptr;
 using std::string;
 
 namespace basalt {
@@ -36,6 +37,7 @@ namespace basalt {
 using gfx::Compositor;
 using gfx::AdapterInfo;
 using gfx::D3D9Factory;
+using gfx::D3D9FactoryPtr;
 
 namespace {
 
@@ -53,15 +55,18 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   Config config {ClientApp::configure()};
   dump_config(config);
 
-  // creates the window, the associated gfx context and the device
   const WindowPtr window {Window::create(moduleHandle, showCommand, config)};
+  // TODO: error handling
+  const D3D9FactoryPtr gfxFactory {D3D9Factory::create().value()};
+  const auto [gfxDevice, gfxContext] = gfxFactory->create_device_and_context(
+    window->handle());
 
-  const DearImGui dearImGui {window->gfx_device()};
+  const DearImGui dearImGui {*gfxDevice};
   ImGuiIO& io {ImGui::GetIO()};
   io.ImeWindowHandle = window->handle();
 
-  App app {config, *window};
-  Compositor compositor {window->gfx_context()};
+  App app {config, gfxContext};
+  Compositor compositor {gfxContext};
 
   const auto clientApp {ClientApp::create(app)};
   BASALT_ASSERT(clientApp);
@@ -72,6 +77,10 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   f64 currentDeltaTime {0.0};
 
   while (poll_events()) {
+    if (window->client_area_size() != gfxContext->surface_size()) {
+      gfxContext->resize(window->client_area_size());
+    }
+
     const UpdateContext ctx {
       app, compositor.draw_target(), currentDeltaTime, window->drain_input()
     };
@@ -84,12 +93,12 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
       window->set_cursor(app.mMouseCursor);
     }
 
-    draw_debug_ui_additional(*window->context_factory());
+    draw_debug_ui_additional(*gfxFactory);
 
     // also calls ImGui::Render()
     compositor.compose();
 
-    window->present();
+    gfxContext->present();
 
     const auto endTime = Clock::now();
     currentDeltaTime = static_cast<f64>((endTime - startTime).count()) / (
@@ -98,8 +107,8 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   }
 }
 
-App::App(Config& config, const Window& window)
-  : Engine {config, window.gfx_context()} {
+App::App(Config& config, shared_ptr<gfx::Context> gfxContext)
+  : Engine {config, std::move(gfxContext)} {
 }
 
 namespace {

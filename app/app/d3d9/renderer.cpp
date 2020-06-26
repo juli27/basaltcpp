@@ -67,6 +67,10 @@ D3D9Renderer::D3D9Renderer(ComPtr<IDirect3DDevice9> device)
   D3D9CALL(mDevice->GetDeviceCaps(&mDeviceCaps));
 }
 
+auto D3D9Renderer::device() const -> ComPtr<IDirect3DDevice9> {
+  return mDevice;
+}
+
 void D3D9Renderer::before_reset() {
   ImGui_ImplDX9_InvalidateDeviceObjects();
 }

@@ -1,6 +1,7 @@
 #include "factory.h"
 
 #include "context.h"
+#include "renderer.h"
 #include "util.h"
 
 #include <runtime/platform/platform.h>
@@ -22,6 +23,7 @@ using std::array;
 using std::runtime_error;
 using std::shared_ptr;
 using std::string;
+using std::tuple;
 
 namespace {
 
@@ -90,8 +92,8 @@ auto D3D9Factory::adapter_info() const noexcept -> const AdapterInfo& {
   return mAdapterInfo;
 }
 
-auto D3D9Factory::create_context(
-  const HWND window) const -> shared_ptr<D3D9Context> {
+auto D3D9Factory::create_device_and_context(
+  const HWND window) const -> tuple<DevicePtr, D3D9ContextPtr> {
   D3DPRESENT_PARAMETERS pp {};
   pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
   pp.hDeviceWindow = window;
@@ -113,16 +115,18 @@ auto D3D9Factory::create_context(
     pp.FullScreen_RefreshRateInHz = displayMode.RefreshRate;
   }
 
-  ComPtr<IDirect3DDevice9> device {};
+  ComPtr<IDirect3DDevice9> d3d9Device {};
   D3D9CALL(
     mFactory->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, window,
-      D3DCREATE_HARDWARE_VERTEXPROCESSING, &pp, device.GetAddressOf()));
+      D3DCREATE_HARDWARE_VERTEXPROCESSING, &pp, d3d9Device.GetAddressOf()));
 
   BASALT_LOG_INFO(
     "Direct3D9 context created: adapter={}, driver={}({})"
   , mAdapterInfo.displayName, mAdapterInfo.driver, mAdapterInfo.driverVersion);
 
-  return std::make_shared<D3D9Context>(std::move(device), pp);
+  auto device = std::make_shared<D3D9Renderer>(std::move(d3d9Device));
+
+  return std::make_tuple(device, std::make_shared<D3D9Context>(device, pp));
 }
 
 auto D3D9Factory::create() -> std::optional<D3D9FactoryPtr> {

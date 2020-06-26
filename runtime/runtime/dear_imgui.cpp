@@ -14,7 +14,7 @@ namespace basalt {
 
 using gfx::Device;
 
-DearImGui::DearImGui(Device* const renderer)
+DearImGui::DearImGui(Device& renderer)
   : mRenderer {renderer} {
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
@@ -46,17 +46,17 @@ DearImGui::DearImGui(Device* const renderer)
   io.KeyMap[ImGuiKey_Y] = enum_cast(Key::Y);
   io.KeyMap[ImGuiKey_Z] = enum_cast(Key::Z);
 
-  mRenderer->init_dear_imgui();
+  mRenderer.init_dear_imgui();
 }
 
 DearImGui::~DearImGui() {
-  mRenderer->shutdown_dear_imgui();
+  mRenderer.shutdown_dear_imgui();
 
   ImGui::DestroyContext();
 }
 
 void DearImGui::new_frame(const UpdateContext& ctx) const {
-  mRenderer->new_gui_frame();
+  mRenderer.new_gui_frame();
 
   auto& io = ImGui::GetIO();
   const Input& input {ctx.input};

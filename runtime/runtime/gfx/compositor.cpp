@@ -22,6 +22,7 @@ Compositor::Compositor(shared_ptr<Context> context)
 }
 
 auto Compositor::draw_target() -> DrawTarget& {
+  mDrawTarget = DrawTarget {mContext->surface_size()};
   return mDrawTarget;
 }
 

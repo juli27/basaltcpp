@@ -4,11 +4,15 @@
 
 #include <runtime/shared/types.h>
 
+#include <memory>
 #include <string_view>
 
 namespace basalt::gfx {
 
 struct CommandList;
+
+struct Device;
+using DevicePtr = std::shared_ptr<Device>;
 
 struct Device {
   Device(const Device&) = delete;

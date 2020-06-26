@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <optional>
+#include <tuple>
 
 namespace basalt::gfx {
 
@@ -14,6 +15,10 @@ struct D3D9Factory;
 using D3D9FactoryPtr = std::unique_ptr<D3D9Factory>;
 
 struct D3D9Context;
+using D3D9ContextPtr = std::shared_ptr<D3D9Context>;
+
+struct Device;
+using DevicePtr = std::shared_ptr<Device>;
 
 struct D3D9Factory final {
   D3D9Factory() = delete;
@@ -30,7 +35,8 @@ struct D3D9Factory final {
   [[nodiscard]]
   auto adapter_info() const noexcept -> const AdapterInfo&;
 
-  auto create_context(HWND window) const -> std::shared_ptr<D3D9Context>;
+  auto create_device_and_context(
+    HWND window) const -> std::tuple<DevicePtr, D3D9ContextPtr>;
 
 private:
   Microsoft::WRL::ComPtr<IDirect3D9> mFactory;

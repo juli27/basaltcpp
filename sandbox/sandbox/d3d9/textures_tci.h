@@ -5,7 +5,6 @@
 #include <runtime/gfx/backend/device.h>
 #include <runtime/gfx/scene_view.h>
 #include <runtime/scene/scene.h>
-#include <runtime/shared/size2d.h>
 
 #include <memory>
 
@@ -13,7 +12,7 @@ namespace d3d9 {
 
 struct TexturesTci final : TestCase {
   TexturesTci() = delete;
-  TexturesTci(basalt::gfx::Device&, basalt::Size2Du16 windowSize);
+  explicit TexturesTci(basalt::Engine&);
 
   TexturesTci(const TexturesTci&) = delete;
   TexturesTci(TexturesTci&&) = delete;

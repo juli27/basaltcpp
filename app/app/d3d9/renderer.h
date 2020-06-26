@@ -31,6 +31,9 @@ struct D3D9Renderer final : Device {
   auto operator=(const D3D9Renderer&) -> D3D9Renderer& = delete;
   auto operator=(D3D9Renderer&&) -> D3D9Renderer& = delete;
 
+  [[nodiscard]]
+  auto device() const -> Microsoft::WRL::ComPtr<IDirect3DDevice9>;
+
   void before_reset();
   void after_reset();
 

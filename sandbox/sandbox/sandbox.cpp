@@ -53,9 +53,7 @@ SandboxApp::SandboxApp(Engine& engine) {
   mScenes.push_back(std::make_unique<d3d9::Matrices>(device));
   mScenes.push_back(std::make_unique<d3d9::Lights>(device));
   mScenes.push_back(std::make_unique<d3d9::Textures>(device));
-  mScenes.push_back(
-    std::make_unique<d3d9::TexturesTci>(
-      device, engine.gfx_context().surface_size()));
+  mScenes.push_back(std::make_unique<d3d9::TexturesTci>(engine));
   mScenes.push_back(std::make_unique<d3d9::Meshes>(device));
 }
 

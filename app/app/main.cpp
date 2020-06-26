@@ -11,6 +11,7 @@
 using std::exception;
 using std::wstring;
 
+using basalt::App;
 using basalt::Log;
 
 _Use_decl_annotations_
@@ -19,7 +20,7 @@ auto WINAPI wWinMain(
   Log::init();
 
   try {
-    basalt::App::run(hInstance, nShowCmd);
+    App::run(hInstance, nShowCmd);
   } catch (const exception& ex) {
     BASALT_LOG_FATAL("unhandled exception: {}", ex.what());
     Log::shutdown();

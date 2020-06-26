@@ -22,6 +22,8 @@ struct Context {
   [[nodiscard]]
   virtual auto surface_size() const noexcept -> Size2Du16 = 0;
 
+  virtual void resize(Size2Du16) = 0;
+
   [[nodiscard]]
   virtual auto device() const noexcept -> Device& = 0;
 

@@ -11,7 +11,7 @@ struct Device;
 } // namespace gfx
 
 struct DearImGui final {
-  explicit DearImGui(gfx::Device*);
+  explicit DearImGui(gfx::Device&);
 
   DearImGui(const DearImGui&) = delete;
   DearImGui(DearImGui&&) = delete;
@@ -24,7 +24,7 @@ struct DearImGui final {
   void new_frame(const UpdateContext&) const;
 
 private:
-  gfx::Device* mRenderer {};
+  gfx::Device& mRenderer;
 };
 
 } // namespace basalt

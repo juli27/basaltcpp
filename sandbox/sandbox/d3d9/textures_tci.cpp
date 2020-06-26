@@ -8,6 +8,8 @@
 #include <runtime/gfx/camera.h>
 #include <runtime/gfx/draw_target.h>
 
+#include <runtime/gfx/backend/context.h>
+
 #include <runtime/scene/transform.h>
 
 #include <runtime/math/constants.h>
@@ -23,11 +25,11 @@ using std::string_view;
 using namespace std::literals;
 
 using basalt::Debug;
+using basalt::Engine;
 using basalt::Mat4f32;
 using basalt::PI;
 using basalt::Transform;
 using basalt::gfx::Camera;
-using basalt::gfx::Device;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::RenderFlagCullNone;
 using basalt::gfx::RenderFlagDisableLighting;
@@ -38,7 +40,7 @@ using basalt::gfx::VertexLayout;
 
 namespace d3d9 {
 
-TexturesTci::TexturesTci(Device& device, const basalt::Size2Du16 windowSize) {
+TexturesTci::TexturesTci(Engine& engine) {
   mScene->set_background_color(Colors::BLUE);
 
   struct Vertex final {
@@ -76,13 +78,15 @@ TexturesTci::TexturesTci(Device& device, const basalt::Size2Du16 windowSize) {
   ecs.emplace<Transform>(mCylinder);
 
   auto& rc {ecs.emplace<RenderComponent>(mCylinder)};
+  auto& device = engine.gfx_context().device();
   rc.mesh = add_triangle_strip_mesh(device, vertices, vertexLayout);
   rc.texture = device.add_texture("data/banana.bmp");
   rc.renderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 
   // TODO: fix jitter
   const Camera camera {create_default_camera()};
-  rc.texTransform = camera.projection_matrix(windowSize) * Mat4f32::scaling(
+  rc.texTransform = camera.projection_matrix(
+    engine.gfx_context().surface_size()) * Mat4f32::scaling(
     {0.5f, -0.5f, 1.0f}) * Mat4f32::translation({0.5f, 0.5f, 0.0f});
   rc.tcs = TexCoordinateSrc::PositionCameraSpace;
 

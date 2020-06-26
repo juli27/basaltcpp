@@ -27,7 +27,6 @@
 using namespace std::literals;
 
 using std::runtime_error;
-using std::shared_ptr;
 using std::string;
 using std::system_error;
 using std::unique_ptr;
@@ -35,10 +34,6 @@ using std::wstring;
 using std::wstring_view;
 
 namespace basalt {
-
-using gfx::D3D9Factory;
-using gfx::D3D9FactoryPtr;
-using gfx::D3D9Context;
 
 WindowMode sWindowMode;
 
@@ -128,14 +123,9 @@ auto Window::create(
     throw runtime_error("failed to create window");
   }
 
-  // TODO: error handling
-  D3D9FactoryPtr factory {D3D9Factory::create().value()};
-  shared_ptr<D3D9Context> gfxContext = factory->create_context(handle);
-
   // can't use make_unique because of the private constructor
   auto* const window = new Window {
-    moduleHandle, handle, std::move(factory), std::move(gfxContext)
-  , config.windowedSize
+    moduleHandle, handle, config.windowedSize
   };
 
   // unique_ptr is actually a lie
@@ -149,17 +139,12 @@ auto Window::create(
 }
 
 Window::Window(
-  const HMODULE moduleHandle, const HWND handle, D3D9FactoryPtr factory
-, shared_ptr<D3D9Context> context, const Size2Du16 clientAreaSize)
+  const HMODULE moduleHandle, const HWND handle, const Size2Du16 clientAreaSize)
   : mModuleHandle {moduleHandle}
   , mHandle {handle}
-  , mFactory {std::move(factory)}
-  , mGfxContext {std::move(context)}
   , mClientAreaSize {clientAreaSize} {
   BASALT_ASSERT(mModuleHandle);
   BASALT_ASSERT(mHandle);
-  BASALT_ASSERT(mFactory);
-  BASALT_ASSERT(mGfxContext);
 
   auto loadCursor = [](const LPCWSTR name, const UINT flags) -> HCURSOR {
     return static_cast<HCURSOR>(::LoadImageW(
@@ -197,8 +182,6 @@ auto Window::dispatch_message(
         if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam));
           mClientAreaSize != newSize) {
           mClientAreaSize = newSize;
-
-          do_resize(mClientAreaSize);
         }
       }
       break;
@@ -207,7 +190,6 @@ auto Window::dispatch_message(
       if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam));
         mClientAreaSize != newSize) {
         mClientAreaSize = {LOWORD(lParam), HIWORD(lParam)};
-        do_resize(mClientAreaSize);
       }
       break;
 
@@ -360,7 +342,6 @@ auto Window::dispatch_message(
     mClientAreaSize.set(
       static_cast<u16>(clientRect.right)
     , static_cast<u16>(clientRect.bottom));
-    do_resize(mClientAreaSize);
     return 0;
   }
 
@@ -369,10 +350,6 @@ auto Window::dispatch_message(
   }
 
   return ::DefWindowProcW(mHandle, message, wParam, lParam);
-}
-
-void Window::do_resize(const Size2Du16 clientArea) const {
-  mGfxContext->resize(clientArea);
 }
 
 void Window::process_mouse_message_states(const WPARAM wParam) {
