@@ -1,5 +1,7 @@
 #include "engine.h"
 
+#include "gfx/backend/context.h"
+
 #include <utility>
 
 using std::shared_ptr;
@@ -10,6 +12,10 @@ using gfx::Context;
 
 auto Engine::config() const -> const Config& {
   return mConfig;
+}
+
+auto Engine::gfx_device() const -> gfx::Device& {
+  return mGfxContext->device();
 }
 
 auto Engine::gfx_context() const -> Context& {

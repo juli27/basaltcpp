@@ -17,6 +17,7 @@
 #include <runtime/dear_imgui.h>
 
 #include <runtime/gfx/compositor.h>
+#include <runtime/gfx/draw_target.h>
 
 #include <runtime/shared/asserts.h>
 #include <runtime/shared/log.h>
@@ -41,7 +42,7 @@ using gfx::D3D9FactoryPtr;
 
 namespace {
 
-void dump_config(const Config& config);
+void dump_config(const Config&);
 
 [[nodiscard]]
 auto poll_events() -> bool;
@@ -66,7 +67,6 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   io.ImeWindowHandle = window->handle();
 
   App app {config, gfxContext};
-  Compositor compositor {gfxContext};
 
   const auto clientApp {ClientApp::create(app)};
   BASALT_ASSERT(clientApp);
@@ -81,8 +81,10 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
       gfxContext->resize(window->client_area_size());
     }
 
+    gfx::DrawTarget drawTarget {gfxContext->surface_size()};
+
     const UpdateContext ctx {
-      app, compositor.draw_target(), currentDeltaTime, window->drain_input()
+      app, drawTarget, currentDeltaTime, window->drain_input()
     };
     dearImGui.new_frame(ctx);
 
@@ -96,7 +98,7 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
     draw_debug_ui_additional(*gfxFactory);
 
     // also calls ImGui::Render()
-    compositor.compose();
+    Compositor::compose(*gfxContext, drawTarget);
 
     gfxContext->present();
 
@@ -146,7 +148,7 @@ auto poll_events() -> bool {
   return true;
 }
 
-void draw_debug_ui_additional(const D3D9Factory& ctxFactory) {
+void draw_debug_ui_additional(const D3D9Factory& gfxFactory) {
   // https://github.com/ocornut/imgui/issues/331
   enum class OpenPopup : u8 {
     None, GfxInfo
@@ -173,7 +175,7 @@ void draw_debug_ui_additional(const D3D9Factory& ctxFactory) {
 
   if (ImGui::BeginPopupModal(
     "Gfx Info", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-    const AdapterInfo& adapterInfo = ctxFactory.adapter_info();
+    const AdapterInfo& adapterInfo = gfxFactory.adapter_info();
 
     ImGui::Text(
       "GFX Adapter: %s", adapterInfo.displayName.c_str());

@@ -78,7 +78,7 @@ TexturesTci::TexturesTci(Engine& engine) {
   ecs.emplace<Transform>(mCylinder);
 
   auto& rc {ecs.emplace<RenderComponent>(mCylinder)};
-  auto& device = engine.gfx_context().device();
+  auto& device = engine.gfx_device();
   rc.mesh = add_triangle_strip_mesh(device, vertices, vertexLayout);
   rc.texture = device.add_texture("data/banana.bmp");
   rc.renderFlags = RenderFlagCullNone | RenderFlagDisableLighting;

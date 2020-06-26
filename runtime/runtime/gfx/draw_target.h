@@ -29,8 +29,6 @@ struct DrawTarget final {
   [[nodiscard]]
   auto size() const -> Size2Du16;
 
-  void clear();
-
   auto draw(std::shared_ptr<Drawable>) -> const Visual&;
 
 private:

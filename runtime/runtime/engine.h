@@ -14,6 +14,7 @@ struct Config;
 namespace gfx {
 
 struct Context;
+struct Device;
 struct DrawTarget;
 
 } // namespace gfx
@@ -31,6 +32,9 @@ struct Engine {
 
   [[nodiscard]]
   auto config() const -> const Config&;
+
+  [[nodiscard]]
+  auto gfx_device() const -> gfx::Device&;
 
   [[nodiscard]]
   auto gfx_context() const -> gfx::Context&;

@@ -19,10 +19,6 @@ auto DrawTarget::size() const -> Size2Du16 {
   return mSize;
 }
 
-void DrawTarget::clear() {
-  mVisuals.clear();
-}
-
 auto DrawTarget::draw(shared_ptr<Drawable> drawable) -> const Visual& {
   return mVisuals.emplace_back(
     std::move(drawable), Rectangle {0, 0, mSize.width(), mSize.height()});
