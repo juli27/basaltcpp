@@ -1,14 +1,14 @@
 target_sources(App
   PRIVATE
     "context.cpp"
+    "device.cpp"
     "factory.cpp"
-    "renderer.cpp"
     "util.cpp"
   PUBLIC
     "context.h"
     "d3d9_custom.h"
+    "device.h"
     "factory.h"
-    "renderer.h"
     "types.h"
     "util.h"
 )

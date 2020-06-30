@@ -21,15 +21,15 @@ struct D3D9Mesh {
   UINT primCount {0u};
 };
 
-struct D3D9Renderer final : Device {
-  D3D9Renderer() = delete;
-  explicit D3D9Renderer(Microsoft::WRL::ComPtr<IDirect3DDevice9> device);
-  D3D9Renderer(const D3D9Renderer&) = delete;
-  D3D9Renderer(D3D9Renderer&&) = delete;
-  ~D3D9Renderer() override = default;
+struct D3D9Device final : Device {
+  D3D9Device() = delete;
+  explicit D3D9Device(Microsoft::WRL::ComPtr<IDirect3DDevice9> device);
+  D3D9Device(const D3D9Device&) = delete;
+  D3D9Device(D3D9Device&&) = delete;
+  ~D3D9Device() override = default;
 
-  auto operator=(const D3D9Renderer&) -> D3D9Renderer& = delete;
-  auto operator=(D3D9Renderer&&) -> D3D9Renderer& = delete;
+  auto operator=(const D3D9Device&) -> D3D9Device& = delete;
+  auto operator=(D3D9Device&&) -> D3D9Device& = delete;
 
   [[nodiscard]]
   auto device() const -> Microsoft::WRL::ComPtr<IDirect3DDevice9>;

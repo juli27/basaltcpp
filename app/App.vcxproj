@@ -156,7 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="app\d3d9\renderer.cpp" />
+    <ClCompile Include="app\d3d9\device.cpp" />
     <ClCompile Include="app\d3d9\factory.cpp" />
     <ClCompile Include="app\d3d9\context.cpp" />
     <ClCompile Include="app\d3d9\util.cpp" />
@@ -170,7 +170,7 @@
     <ClCompile Include="app\window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="app\d3d9\renderer.h" />
+    <ClInclude Include="app\d3d9\device.h" />
     <ClInclude Include="app\d3d9\util.h" />
     <ClInclude Include="app\d3d9\factory.h" />
     <ClInclude Include="app\d3d9\context.h" />

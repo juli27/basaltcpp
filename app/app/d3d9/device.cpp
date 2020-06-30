@@ -1,4 +1,4 @@
-#include "renderer.h"
+#include "device.h"
 
 #include "util.h"
 
@@ -60,29 +60,29 @@ void fill_primitive_info(
 
 } // namespace
 
-D3D9Renderer::D3D9Renderer(ComPtr<IDirect3DDevice9> device)
+D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
   : mDevice {std::move(device)} {
   BASALT_ASSERT(mDevice);
 
   D3D9CALL(mDevice->GetDeviceCaps(&mDeviceCaps));
 }
 
-auto D3D9Renderer::device() const -> ComPtr<IDirect3DDevice9> {
+auto D3D9Device::device() const -> ComPtr<IDirect3DDevice9> {
   return mDevice;
 }
 
-void D3D9Renderer::before_reset() {
+void D3D9Device::before_reset() {
   ImGui_ImplDX9_InvalidateDeviceObjects();
 }
 
-void D3D9Renderer::after_reset() {
+void D3D9Device::after_reset() {
   ImGui_ImplDX9_CreateDeviceObjects();
 }
 
 /*
  * Stores the vertex data into a new static vertex buffer in the managed pool.
  */
-auto D3D9Renderer::add_mesh(
+auto D3D9Device::add_mesh(
   void* data, const i32 numVertices, const VertexLayout& layout
 , const PrimitiveType primitiveType
 ) -> MeshHandle {
@@ -116,7 +116,7 @@ auto D3D9Renderer::add_mesh(
   return meshHandle;
 }
 
-void D3D9Renderer::remove_mesh(const MeshHandle meshHandle) {
+void D3D9Device::remove_mesh(const MeshHandle meshHandle) {
   auto& mesh = mMeshes.get(meshHandle);
 
   mesh.vertexBuffer.Reset();
@@ -124,7 +124,7 @@ void D3D9Renderer::remove_mesh(const MeshHandle meshHandle) {
   mMeshes.deallocate(meshHandle);
 }
 
-auto D3D9Renderer::add_texture(
+auto D3D9Device::add_texture(
   const std::string_view filePath) -> TextureHandle {
   const auto [handle, texture] = mTextures.allocate();
 
@@ -139,12 +139,12 @@ auto D3D9Renderer::add_texture(
   return handle;
 }
 
-void D3D9Renderer::remove_texture(const TextureHandle textureHandle) {
+void D3D9Device::remove_texture(const TextureHandle textureHandle) {
   mTextures.get(textureHandle).Reset();
   mTextures.deallocate(textureHandle);
 }
 
-auto D3D9Renderer::load_model(const std::string_view filePath) -> ModelHandle {
+auto D3D9Device::load_model(const std::string_view filePath) -> ModelHandle {
   const auto [handle, model] = mModels.allocate();
 
   const auto wideFilePath {create_wide_from_utf8(filePath)};
@@ -183,7 +183,7 @@ auto D3D9Renderer::load_model(const std::string_view filePath) -> ModelHandle {
   return handle;
 }
 
-void D3D9Renderer::remove_model(const ModelHandle handle) {
+void D3D9Device::remove_model(const ModelHandle handle) {
   auto& model = mModels.get(handle);
   model.mesh.Reset();
   model.textures.clear();
@@ -194,7 +194,7 @@ void D3D9Renderer::remove_model(const ModelHandle handle) {
 
 // TODO: shading mode
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
-void D3D9Renderer::render(const CommandList& commandList) {
+void D3D9Device::render(const CommandList& commandList) {
   const D3DCOLOR clearColor = to_d3d_color(commandList.clear_color());
 
   D3D9CALL(
@@ -263,19 +263,19 @@ void D3D9Renderer::render(const CommandList& commandList) {
   D3D9CALL(mDevice->EndScene());
 }
 
-void D3D9Renderer::init_dear_imgui() {
+void D3D9Device::init_dear_imgui() {
   ImGui_ImplDX9_Init(mDevice.Get());
 }
 
-void D3D9Renderer::shutdown_dear_imgui() {
+void D3D9Device::shutdown_dear_imgui() {
   ImGui_ImplDX9_Shutdown();
 }
 
-void D3D9Renderer::new_gui_frame() {
+void D3D9Device::new_gui_frame() {
   ImGui_ImplDX9_NewFrame();
 }
 
-void D3D9Renderer::render_command(const RenderCommand& command) {
+void D3D9Device::render_command(const RenderCommand& command) {
   const bool disableLighting = command.flags & RenderFlagDisableLighting;
 
   // apply custom render flags

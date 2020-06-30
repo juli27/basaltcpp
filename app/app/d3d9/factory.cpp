@@ -1,7 +1,7 @@
 #include "factory.h"
 
 #include "context.h"
-#include "renderer.h"
+#include "device.h"
 #include "util.h"
 
 #include <runtime/platform/platform.h>
@@ -124,7 +124,7 @@ auto D3D9Factory::create_device_and_context(
     "Direct3D9 context created: adapter={}, driver={}({})"
   , mAdapterInfo.displayName, mAdapterInfo.driver, mAdapterInfo.driverVersion);
 
-  auto device = std::make_shared<D3D9Renderer>(std::move(d3d9Device));
+  auto device = std::make_shared<D3D9Device>(std::move(d3d9Device));
 
   return std::make_tuple(device, std::make_shared<D3D9Context>(device, pp));
 }

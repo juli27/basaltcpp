@@ -9,7 +9,7 @@ using std::shared_ptr;
 namespace basalt::gfx {
 
 D3D9Context::D3D9Context(
-  shared_ptr<D3D9Renderer> device, const D3DPRESENT_PARAMETERS& pp)
+  shared_ptr<D3D9Device> device, const D3DPRESENT_PARAMETERS& pp)
   : mDevice {std::move(device)}
   , mD3D9Device {mDevice->device()}
   , mPresentParams {pp} {
@@ -24,7 +24,7 @@ auto D3D9Context::surface_size() const noexcept -> Size2Du16 {
   };
 }
 
-auto D3D9Context::device() const noexcept -> D3D9Renderer& {
+auto D3D9Context::device() const noexcept -> D3D9Device& {
   return *mDevice;
 }
 
