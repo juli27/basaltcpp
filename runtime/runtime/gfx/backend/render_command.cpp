@@ -29,15 +29,11 @@ void CommandList::set_ambient_light(const Color& color) {
   mAmbientLightColor = color;
 }
 
-auto CommandList::directional_lights() const -> const std::vector<
-  DirectionalLight>& {
-  return mDirectionalLights;
-}
-
 void CommandList::set_directional_lights(
   const std::vector<DirectionalLight>& lights
 ) {
-  mDirectionalLights = lights;
+  mCommands.push_back(
+    std::make_unique<RenderCommandSetDirectionalLights>(lights));
 }
 
 auto CommandList::clear_color() const -> const Color& {

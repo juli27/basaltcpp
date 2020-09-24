@@ -25,7 +25,11 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
   };
 
   commandList.set_ambient_light(mScene->ambient_light());
-  commandList.set_directional_lights(mScene->directional_lights());
+
+  const auto& directionalLights = mScene->directional_lights();
+  if (!directionalLights.empty()) {
+    commandList.set_directional_lights(directionalLights);
+  }
 
   const auto& ecs = mScene->ecs();
 

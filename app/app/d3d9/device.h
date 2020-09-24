@@ -66,8 +66,10 @@ private:
   HandlePool<D3D9Mesh, MeshHandle> mMeshes {};
   HandlePool<Texture, TextureHandle> mTextures {};
   HandlePool<Model, ModelHandle> mModels {};
+  u8 mMaxLightsUsed {0};
 
   void execute(const RenderCommandLegacy&);
+  void execute(const RenderCommandSetDirectionalLights&);
 };
 
 } // namespace basalt::gfx

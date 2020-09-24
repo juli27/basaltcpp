@@ -10,6 +10,7 @@
 #include <runtime/shared/types.h>
 
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace basalt {
@@ -21,6 +22,7 @@ namespace gfx {
 enum class RenderCommandType : u8 {
   Unknown
 , RenderCommandLegacy
+, SetDirectionalLights
 };
 
 struct RenderCommand {
@@ -61,6 +63,32 @@ struct RenderCommandT : RenderCommand {
   auto operator=(RenderCommandT&&) noexcept -> RenderCommandT& = default;
 };
 
+struct RenderCommandSetDirectionalLights final : RenderCommandT<
+    RenderCommandType::SetDirectionalLights> {
+  std::vector<DirectionalLight> directionalLights {};
+
+  explicit RenderCommandSetDirectionalLights(
+    std::vector<DirectionalLight> dl) noexcept
+    : directionalLights {std::move(dl)} {
+  }
+
+  RenderCommandSetDirectionalLights(const RenderCommandSetDirectionalLights&)
+  = default;
+  RenderCommandSetDirectionalLights(RenderCommandSetDirectionalLights&&)
+  = default;
+
+  ~RenderCommandSetDirectionalLights() noexcept = default;
+
+  auto operator=(
+    const RenderCommandSetDirectionalLights&) ->
+  RenderCommandSetDirectionalLights& = default;
+  auto operator=(
+    RenderCommandSetDirectionalLights&&) -> RenderCommandSetDirectionalLights&
+  = default;
+};
+
+static_assert(sizeof(RenderCommandSetDirectionalLights) == 40);
+
 enum RenderFlags : u8 {
   RenderFlagNone = 0x0,
   RenderFlagCullNone = 0x1,
@@ -72,7 +100,8 @@ enum class TexCoordinateSrc : u8 {
 };
 
 
-struct RenderCommandLegacy final : RenderCommandT<RenderCommandType::RenderCommandLegacy> {
+struct RenderCommandLegacy final : RenderCommandT<
+    RenderCommandType::RenderCommandLegacy> {
   u8 flags {RenderFlagNone};
   TexCoordinateSrc texCoordinateSrc {TexCoordinateSrc::Vertex};
 
@@ -125,17 +154,14 @@ struct CommandList final {
   void set_ambient_light(const Color&);
 
   [[nodiscard]]
-  auto directional_lights() const -> const std::vector<DirectionalLight>&;
-  void set_directional_lights(const std::vector<DirectionalLight>&);
-
-  [[nodiscard]]
   auto clear_color() const -> const Color&;
 
   void add(const RenderCommandLegacy&);
 
+  void set_directional_lights(const std::vector<DirectionalLight>&);
+
 private:
   std::vector<RenderCommandPtr> mCommands {};
-  std::vector<DirectionalLight> mDirectionalLights {};
   Mat4f32 mView {Mat4f32::identity()};
   Mat4f32 mProjection {Mat4f32::identity()};
   // TODO: drawable need to be able to clear their area of the draw target

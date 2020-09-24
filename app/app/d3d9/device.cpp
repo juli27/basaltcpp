@@ -15,6 +15,7 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_dx9.h>
 
+#include <algorithm>
 #include <array>
 #include <cstring>
 #include <stdexcept>
@@ -220,30 +221,15 @@ void D3D9Device::render(const CommandList& commandList) {
     D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, ambientLightColor));
   }
 
-  const auto& directionalLights = commandList.directional_lights();
-  BASALT_ASSERT_MSG(
-    directionalLights.size() <= mDeviceCaps.MaxActiveLights
-  , "the renderer doesn't support that many lights");
-
-  DWORD lightIndex = 0u;
-  for (const auto& light : directionalLights) {
-    D3DLIGHT9 d3dLight {};
-    d3dLight.Type = D3DLIGHT_DIRECTIONAL;
-    d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
-    d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
-    d3dLight.Direction = to_d3d_vector(light.direction);
-
-    D3D9CALL(mDevice->SetLight(lightIndex, &d3dLight));
-    D3D9CALL(mDevice->LightEnable(lightIndex, TRUE));
-    lightIndex++;
-  }
-
   for (const auto& commandPtr : commandList.commands()) {
     switch (commandPtr->type) {
-    case RenderCommandType::RenderCommandLegacy: {
+    case RenderCommandType::SetDirectionalLights:
+      execute(commandPtr->as<RenderCommandSetDirectionalLights>());
+      break;
+
+    case RenderCommandType::RenderCommandLegacy:
       execute(commandPtr->as<RenderCommandLegacy>());
       break;
-    }
 
     case RenderCommandType::Unknown:
       BASALT_ASSERT(false);
@@ -258,8 +244,8 @@ void D3D9Device::render(const CommandList& commandList) {
   }
 
   // disable used lights
-  for (lightIndex = 0; lightIndex < directionalLights.size(); lightIndex++) {
-    D3D9CALL(mDevice->LightEnable(lightIndex, FALSE));
+  for (u8 i = 0; i < mMaxLightsUsed; i++) {
+    D3D9CALL(mDevice->LightEnable(i, FALSE));
   }
 
   if (ambientLightColor) {
@@ -395,6 +381,28 @@ void D3D9Device::execute(const RenderCommandLegacy& command) {
     if (command.flags & RenderFlagCullNone) {
       D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
     }
+  }
+}
+
+void D3D9Device::execute(const RenderCommandSetDirectionalLights& command) {
+  const auto& directionalLights = command.directionalLights;
+  BASALT_ASSERT_MSG(
+    directionalLights.size() <= mDeviceCaps.MaxActiveLights
+  , "the renderer doesn't support that many lights");
+
+  mMaxLightsUsed = std::max(mMaxLightsUsed, static_cast<u8>(directionalLights.size()));
+
+  DWORD lightIndex = 0u;
+  for (const auto& light : directionalLights) {
+    D3DLIGHT9 d3dLight {};
+    d3dLight.Type = D3DLIGHT_DIRECTIONAL;
+    d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
+    d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
+    d3dLight.Direction = to_d3d_vector(light.direction);
+
+    D3D9CALL(mDevice->SetLight(lightIndex, &d3dLight));
+    D3D9CALL(mDevice->LightEnable(lightIndex, TRUE));
+    lightIndex++;
   }
 }
 
