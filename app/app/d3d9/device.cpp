@@ -76,6 +76,58 @@ void D3D9Device::after_reset() {
   ImGui_ImplDX9_CreateDeviceObjects();
 }
 
+// TODO: shading mode
+// TODO: lost device (resource location: Default, Managed, kept in RAM by us)
+void D3D9Device::execute(const CommandList& commandList) {
+  // TODO: should we make all rendering code dependent
+  // on the success of BeginScene? -> Log error and/or throw exception
+  D3D9CALL(mDevice->BeginScene());
+
+  for (const auto& commandPtr : commandList.commands()) {
+    switch (commandPtr->type) {
+    case CommandType::SetAmbientLight:
+      execute(commandPtr->as<CommandSetAmbientLight>());
+      break;
+
+    case CommandType::SetDirectionalLights:
+      execute(commandPtr->as<CommandSetDirectionalLights>());
+      break;
+
+    case CommandType::SetTransform:
+      execute(commandPtr->as<CommandSetTransform>());
+      break;
+
+    case CommandType::Legacy:
+      execute(commandPtr->as<CommandLegacy>());
+      break;
+    }
+  }
+
+  // render imgui
+  ImGui::Render();
+  auto* drawData = ImGui::GetDrawData();
+  if (drawData) {
+    ImGui_ImplDX9_RenderDrawData(drawData);
+  }
+
+  // disable used lights
+  for (u8 i = 0; i < mMaxLightsUsed; i++) {
+    D3D9CALL(mDevice->LightEnable(i, FALSE));
+  }
+
+  // reset render states
+  // TODO: use command block
+  D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
+
+  const auto identity = to_d3d_matrix(Mat4f32::identity());
+  D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &identity));
+  D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
+
+  D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
+
+  D3D9CALL(mDevice->EndScene());
+}
+
 /*
  * Stores the vertex data into a new static vertex buffer in the managed pool.
  */
@@ -187,58 +239,6 @@ void D3D9Device::remove_model(const ModelHandle handle) {
   model.materials.clear();
 
   mModels.deallocate(handle);
-}
-
-// TODO: shading mode
-// TODO: lost device (resource location: Default, Managed, kept in RAM by us)
-void D3D9Device::render(const CommandList& commandList) {
-  // TODO: should we make all rendering code dependent
-  // on the success of BeginScene? -> Log error and/or throw exception
-  D3D9CALL(mDevice->BeginScene());
-
-  for (const auto& commandPtr : commandList.commands()) {
-    switch (commandPtr->type) {
-    case CommandType::SetAmbientLight:
-      execute(commandPtr->as<CommandSetAmbientLight>());
-      break;
-
-    case CommandType::SetDirectionalLights:
-      execute(commandPtr->as<CommandSetDirectionalLights>());
-      break;
-
-    case CommandType::SetTransform:
-      execute(commandPtr->as<CommandSetTransform>());
-      break;
-
-    case CommandType::Legacy:
-      execute(commandPtr->as<CommandLegacy>());
-      break;
-    }
-  }
-
-  // render imgui
-  ImGui::Render();
-  auto* drawData = ImGui::GetDrawData();
-  if (drawData) {
-    ImGui_ImplDX9_RenderDrawData(drawData);
-  }
-
-  // disable used lights
-  for (u8 i = 0; i < mMaxLightsUsed; i++) {
-    D3D9CALL(mDevice->LightEnable(i, FALSE));
-  }
-
-  // reset render states
-  // TODO: use command block
-  D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
-
-  const auto identity = to_d3d_matrix(Mat4f32::identity());
-  D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &identity));
-  D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
-
-  D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
-
-  D3D9CALL(mDevice->EndScene());
 }
 
 void D3D9Device::init_dear_imgui() {

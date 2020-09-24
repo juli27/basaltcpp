@@ -9,8 +9,6 @@
 
 namespace basalt::gfx {
 
-struct CommandList;
-
 struct Device;
 using DevicePtr = std::shared_ptr<Device>;
 
@@ -68,8 +66,6 @@ struct Device {
 
   virtual auto load_model(std::string_view filePath) -> ModelHandle = 0;
   virtual void remove_model(ModelHandle) = 0;
-
-  virtual void render(const CommandList&) = 0;
 
   virtual void init_dear_imgui() = 0;
   virtual void shutdown_dear_imgui() = 0;

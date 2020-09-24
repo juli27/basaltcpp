@@ -93,7 +93,7 @@ auto D3D9Factory::adapter_info() const noexcept -> const AdapterInfo& {
 }
 
 auto D3D9Factory::create_device_and_context(
-  const HWND window) const -> tuple<DevicePtr, D3D9ContextPtr> {
+  const HWND window) const -> tuple<DevicePtr, ContextPtr> {
   D3DPRESENT_PARAMETERS pp {};
   pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
   pp.hDeviceWindow = window;

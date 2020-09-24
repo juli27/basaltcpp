@@ -33,6 +33,7 @@ struct D3D9Context final : Context {
   auto device() const noexcept -> D3D9Device& override;
 
   void clear(const Color&) override;
+  void submit(const CommandList&) override;
   void present() override;
 
 private:

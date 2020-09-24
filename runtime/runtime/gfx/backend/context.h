@@ -8,6 +8,7 @@ struct Color;
 
 namespace gfx {
 
+struct CommandList;
 struct Device;
 
 // A gfx context is directly tied to a window. If another gfx context is
@@ -32,6 +33,9 @@ struct Context {
   virtual auto device() const noexcept -> Device& = 0;
 
   virtual void clear(const Color&) = 0;
+  // TODO: turn this into a frame submit?
+  // in the mean time only call this once per frame
+  virtual void submit(const CommandList&) = 0;
   virtual void present() = 0;
 };
 

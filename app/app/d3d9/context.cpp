@@ -36,6 +36,10 @@ void D3D9Context::clear(const Color& color) {
       1.0f, 0u));
 }
 
+void D3D9Context::submit(const CommandList& commandList) {
+  mDevice->execute(commandList);
+}
+
 void D3D9Context::resize(const Size2Du16 size) {
   mDevice->before_reset();
 

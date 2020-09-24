@@ -27,7 +27,7 @@ void Compositor::compose(Context& context, const DrawTarget& drawTarget) {
     auto& drawable = visuals.front().drawable();
     context.clear(drawable.clear_color());
 
-    device.render(drawable.draw(device, drawTarget.size()));
+    context.submit(drawable.draw(device, drawTarget.size()));
   }
 }
 

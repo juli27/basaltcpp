@@ -37,6 +37,7 @@ struct D3D9Device final : Device {
 
   void before_reset();
   void after_reset();
+  void execute(const CommandList&);
 
   auto add_mesh(
     void* data, i32 numVertices, const VertexLayout& layout,
@@ -47,7 +48,6 @@ struct D3D9Device final : Device {
   void remove_texture(TextureHandle textureHandle) override;
   auto load_model(std::string_view filePath) -> ModelHandle override;
   void remove_model(ModelHandle) override;
-  void render(const CommandList&) override;
 
   void init_dear_imgui() override;
   void shutdown_dear_imgui() override;
