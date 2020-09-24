@@ -1,9 +1,10 @@
 target_sources(Runtime
   PRIVATE
-    "render_command.cpp"
+    "command_list.cpp"
   PUBLIC
+    "command_list.h"
     "context.h"
     "device.h"
-    "render_command.h"
+    "render_commands.h"
     "types.h"
 )

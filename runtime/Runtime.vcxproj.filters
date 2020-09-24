@@ -2,9 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="runtime\dear_imgui.cpp" />
-    <ClCompile Include="runtime\gfx\backend\render_command.cpp">
-      <Filter>gfx\backend</Filter>
-    </ClCompile>
     <ClCompile Include="runtime\scene\transform.cpp">
       <Filter>scene</Filter>
     </ClCompile>
@@ -44,15 +41,15 @@
     <ClCompile Include="runtime\shared\log.cpp">
       <Filter>shared</Filter>
     </ClCompile>
+    <ClCompile Include="runtime\gfx\backend\command_list.cpp">
+      <Filter>gfx\backend</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="runtime\gfx\backend\context.h">
       <Filter>gfx\backend</Filter>
     </ClInclude>
     <ClInclude Include="runtime\dear_imgui.h" />
-    <ClInclude Include="runtime\gfx\backend\render_command.h">
-      <Filter>gfx\backend</Filter>
-    </ClInclude>
     <ClInclude Include="runtime\gfx\types.h">
       <Filter>gfx</Filter>
     </ClInclude>
@@ -135,6 +132,12 @@
       <Filter>shared</Filter>
     </ClInclude>
     <ClInclude Include="runtime\gfx\backend\device.h">
+      <Filter>gfx\backend</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\gfx\backend\command_list.h">
+      <Filter>gfx\backend</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\gfx\backend\render_commands.h">
       <Filter>gfx\backend</Filter>
     </ClInclude>
   </ItemGroup>

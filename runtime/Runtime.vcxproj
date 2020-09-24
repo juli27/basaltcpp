@@ -155,7 +155,7 @@
   <ItemGroup>
     <ClCompile Include="runtime\debug.cpp" />
     <ClCompile Include="runtime\engine.cpp" />
-    <ClCompile Include="runtime\gfx\backend\render_command.cpp" />
+    <ClCompile Include="runtime\gfx\backend\command_list.cpp" />
     <ClCompile Include="runtime\dear_imgui.cpp" />
     <ClCompile Include="runtime\gfx\camera.cpp" />
     <ClCompile Include="runtime\gfx\compositor.cpp" />
@@ -175,8 +175,9 @@
     <ClInclude Include="runtime\dear_imgui.h" />
     <ClInclude Include="runtime\debug.h" />
     <ClInclude Include="runtime\engine.h" />
+    <ClInclude Include="runtime\gfx\backend\command_list.h" />
     <ClInclude Include="runtime\gfx\backend\device.h" />
-    <ClInclude Include="runtime\gfx\backend\render_command.h" />
+    <ClInclude Include="runtime\gfx\backend\render_commands.h" />
     <ClInclude Include="runtime\gfx\backend\types.h" />
     <ClInclude Include="runtime\gfx\camera.h" />
     <ClInclude Include="runtime\gfx\compositor.h" />

@@ -1,5 +1,13 @@
-#include "render_command.h"
+#include "command_list.h"
 
+#include "render_commands.h"
+
+#include "runtime/shared/asserts.h"
+
+#include <algorithm>
+#include <array>
+
+using std::array;
 using std::vector;
 
 namespace basalt::gfx {
@@ -8,6 +16,8 @@ CommandList::CommandList(
   const Mat4f32& view, const Mat4f32& projection, const Color& clearColor)
   : mView(view), mProjection(projection), mClearColor {clearColor} {
 }
+
+CommandList::~CommandList() = default;
 
 auto CommandList::commands() const -> const vector<RenderCommandPtr>& {
   return mCommands;
@@ -32,8 +42,13 @@ void CommandList::set_ambient_light(const Color& color) {
 void CommandList::set_directional_lights(
   const std::vector<DirectionalLight>& lights
 ) {
+  BASALT_ASSERT(lights.size() <= 4);
+
+  array<DirectionalLight, 4> directionalLights {};
+  std::copy(lights.begin(), lights.end(), directionalLights.begin());
+
   mCommands.push_back(
-    std::make_unique<RenderCommandSetDirectionalLights>(lights));
+    std::make_unique<RenderCommandSetDirectionalLights>(directionalLights));
 }
 
 auto CommandList::clear_color() const -> const Color& {

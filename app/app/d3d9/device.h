@@ -4,7 +4,8 @@
 
 #include "d3d9_custom.h"
 
-#include <runtime/gfx/backend/render_command.h>
+#include <runtime/gfx/backend/command_list.h>
+#include <runtime/gfx/backend/render_commands.h>
 #include <runtime/shared/handle_pool.h>
 
 #include <wrl/client.h>

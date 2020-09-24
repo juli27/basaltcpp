@@ -1,6 +1,7 @@
 #include "scene_view.h"
 
 #include "types.h"
+#include "backend/command_list.h"
 #include "backend/device.h"
 
 #include <runtime/scene/transform.h>

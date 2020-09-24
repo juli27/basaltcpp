@@ -9,9 +9,7 @@
 #include <runtime/shared/color.h>
 #include <runtime/shared/types.h>
 
-#include <memory>
-#include <utility>
-#include <vector>
+#include <array>
 
 namespace basalt {
 
@@ -65,11 +63,13 @@ struct RenderCommandT : RenderCommand {
 
 struct RenderCommandSetDirectionalLights final : RenderCommandT<
     RenderCommandType::SetDirectionalLights> {
-  std::vector<DirectionalLight> directionalLights {};
+  // TODO: tweak maximum
+  // can't be a vector. Otherwise it leaks. (no virtual destructor)
+  std::array<DirectionalLight, 4> directionalLights {};
 
   explicit RenderCommandSetDirectionalLights(
-    std::vector<DirectionalLight> dl) noexcept
-    : directionalLights {std::move(dl)} {
+    std::array<DirectionalLight, 4> dl) noexcept
+    : directionalLights {dl} {
   }
 
   RenderCommandSetDirectionalLights(const RenderCommandSetDirectionalLights&)
@@ -87,7 +87,8 @@ struct RenderCommandSetDirectionalLights final : RenderCommandT<
   = default;
 };
 
-static_assert(sizeof(RenderCommandSetDirectionalLights) == 40);
+static_assert(sizeof(RenderCommandSetDirectionalLights) == 180);
+static_assert(std::is_trivially_destructible_v<RenderCommandSetDirectionalLights>);
 
 enum RenderFlags : u8 {
   RenderFlagNone = 0x0,
@@ -119,55 +120,7 @@ struct RenderCommandLegacy final : RenderCommandT<
 };
 
 static_assert(sizeof(RenderCommandLegacy) == 192);
-
-using RenderCommandPtr = std::unique_ptr<RenderCommand>;
-
-// associates commands with their common transform (camera) and
-// defines defaults for render state flags (lighting on/off, ...)
-// (TODO: can every state flag be overridden by each command
-//        or only some, or none)
-struct CommandList final {
-  CommandList() = default;
-  CommandList(
-    const Mat4f32& view, const Mat4f32& projection
-  , const Color& clearColor);
-
-  CommandList(const CommandList&) = delete;
-  CommandList(CommandList&&) = default;
-
-  ~CommandList() = default;
-
-  auto operator=(const CommandList&) -> CommandList& = delete;
-  auto operator=(CommandList&&) -> CommandList& = default;
-
-  [[nodiscard]]
-  auto commands() const -> const std::vector<RenderCommandPtr>&;
-
-  [[nodiscard]]
-  auto view() const -> const Mat4f32&;
-
-  [[nodiscard]]
-  auto projection() const -> const Mat4f32&;
-
-  [[nodiscard]]
-  auto ambient_light() const -> const Color&;
-  void set_ambient_light(const Color&);
-
-  [[nodiscard]]
-  auto clear_color() const -> const Color&;
-
-  void add(const RenderCommandLegacy&);
-
-  void set_directional_lights(const std::vector<DirectionalLight>&);
-
-private:
-  std::vector<RenderCommandPtr> mCommands {};
-  Mat4f32 mView {Mat4f32::identity()};
-  Mat4f32 mProjection {Mat4f32::identity()};
-  // TODO: drawable need to be able to clear their area of the draw target
-  Color mClearColor {};
-  Color mAmbientLightColor {};
-};
+static_assert(std::is_trivially_destructible_v<RenderCommandLegacy>);
 
 } // namespace gfx
 } // namespace basalt
