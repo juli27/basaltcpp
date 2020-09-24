@@ -32,7 +32,7 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
   ecs.view<const Model>().each(
     [this, &device, &commandList, &ecs](
     const entt::entity entity, const Model& model) -> void {
-      RenderCommand command {};
+      RenderCommandLegacy command {};
       if (ecs.has<Transform>(entity)) {
         const auto& transform = ecs.get<Transform>(entity);
         command.worldTransform = Mat4f32::scaling(transform.scale) *
@@ -53,7 +53,7 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
     [&commandList, &ecs](
     const entt::entity entity, const RenderComponent& renderComponent
   ) {
-      RenderCommand command;
+      RenderCommandLegacy command;
 
       if (ecs.has<Transform>(entity)) {
         const auto& transform = ecs.get<Transform>(

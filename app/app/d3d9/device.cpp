@@ -238,8 +238,16 @@ void D3D9Device::render(const CommandList& commandList) {
     lightIndex++;
   }
 
-  for (const auto& command : commandList.commands()) {
-    render_command(command);
+  for (const auto& commandPtr : commandList.commands()) {
+    switch (commandPtr->type) {
+    case RenderCommandType::RenderCommandLegacy: {
+      execute(commandPtr->as<RenderCommandLegacy>());
+      break;
+    }
+
+    case RenderCommandType::Unknown:
+      BASALT_ASSERT(false);
+    }
   }
 
   // render imgui
@@ -275,7 +283,7 @@ void D3D9Device::new_gui_frame() {
   ImGui_ImplDX9_NewFrame();
 }
 
-void D3D9Device::render_command(const RenderCommand& command) {
+void D3D9Device::execute(const RenderCommandLegacy& command) {
   const bool disableLighting = command.flags & RenderFlagDisableLighting;
 
   // apply custom render flags

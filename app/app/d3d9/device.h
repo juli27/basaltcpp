@@ -67,7 +67,7 @@ private:
   HandlePool<Texture, TextureHandle> mTextures {};
   HandlePool<Model, ModelHandle> mModels {};
 
-  void render_command(const RenderCommand&);
+  void execute(const RenderCommandLegacy&);
 };
 
 } // namespace basalt::gfx

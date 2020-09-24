@@ -9,7 +9,7 @@ CommandList::CommandList(
   : mView(view), mProjection(projection), mClearColor {clearColor} {
 }
 
-auto CommandList::commands() const -> const vector<RenderCommand>& {
+auto CommandList::commands() const -> const vector<RenderCommandPtr>& {
   return mCommands;
 }
 
@@ -44,8 +44,8 @@ auto CommandList::clear_color() const -> const Color& {
   return mClearColor;
 }
 
-void CommandList::add(const RenderCommand& command) {
-  mCommands.push_back(command);
+void CommandList::add(const RenderCommandLegacy& command) {
+  mCommands.push_back(std::make_unique<RenderCommandLegacy>(command));
 }
 
 } // namespace basalt::gfx
