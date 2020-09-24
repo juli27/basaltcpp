@@ -17,24 +17,25 @@ struct DirectionalLight;
 
 namespace gfx {
 
-enum class RenderCommandType : u8 {
+enum class CommandType : u8 {
   Unknown
-, RenderCommandLegacy
+, Legacy
 , SetDirectionalLights
+, SetAmbientLight
 };
 
-struct RenderCommand {
-  RenderCommandType type {RenderCommandType::Unknown};
+struct Command {
+  CommandType type {CommandType::Unknown};
 
-  constexpr RenderCommand() noexcept = default;
+  constexpr Command() noexcept = default;
 
-  constexpr RenderCommand(const RenderCommand&) noexcept = default;
-  constexpr RenderCommand(RenderCommand&&) noexcept = default;
+  constexpr Command(const Command&) noexcept = default;
+  constexpr Command(Command&&) noexcept = default;
 
-  ~RenderCommand() noexcept = default;
+  ~Command() noexcept = default;
 
-  auto operator=(const RenderCommand&) noexcept -> RenderCommand& = default;
-  auto operator=(RenderCommand&&) noexcept -> RenderCommand& = default;
+  auto operator=(const Command&) noexcept -> Command& = default;
+  auto operator=(Command&&) noexcept -> Command& = default;
 
   // TODO: is there a better solution?
   template <typename T>
@@ -44,51 +45,68 @@ struct RenderCommand {
   }
 };
 
-template <RenderCommandType Type>
-struct RenderCommandT : RenderCommand {
-  static constexpr RenderCommandType TYPE = Type;
+template <CommandType Type>
+struct CommandT : Command {
+  static constexpr CommandType TYPE = Type;
 
-  constexpr RenderCommandT() noexcept
-    : RenderCommand {TYPE} {
+  constexpr CommandT() noexcept
+    : Command {TYPE} {
   }
 
-  constexpr RenderCommandT(const RenderCommandT&) noexcept = default;
-  constexpr RenderCommandT(RenderCommandT&&) noexcept = default;
+  constexpr CommandT(const CommandT&) noexcept = default;
+  constexpr CommandT(CommandT&&) noexcept = default;
 
-  ~RenderCommandT() noexcept = default;
+  ~CommandT() noexcept = default;
 
-  auto operator=(const RenderCommandT&) noexcept -> RenderCommandT& = default;
-  auto operator=(RenderCommandT&&) noexcept -> RenderCommandT& = default;
+  auto operator=(const CommandT&) noexcept -> CommandT& = default;
+  auto operator=(CommandT&&) noexcept -> CommandT& = default;
 };
 
-struct RenderCommandSetDirectionalLights final : RenderCommandT<
-    RenderCommandType::SetDirectionalLights> {
+struct CommandSetDirectionalLights final : CommandT<
+    CommandType::SetDirectionalLights> {
   // TODO: tweak maximum
   // can't be a vector. Otherwise it leaks. (no virtual destructor)
   std::array<DirectionalLight, 4> directionalLights {};
 
-  explicit RenderCommandSetDirectionalLights(
+  explicit CommandSetDirectionalLights(
     std::array<DirectionalLight, 4> dl) noexcept
     : directionalLights {dl} {
   }
 
-  RenderCommandSetDirectionalLights(const RenderCommandSetDirectionalLights&)
-  = default;
-  RenderCommandSetDirectionalLights(RenderCommandSetDirectionalLights&&)
-  = default;
+  CommandSetDirectionalLights(const CommandSetDirectionalLights&) = default;
+  CommandSetDirectionalLights(CommandSetDirectionalLights&&) = default;
 
-  ~RenderCommandSetDirectionalLights() noexcept = default;
+  ~CommandSetDirectionalLights() noexcept = default;
 
   auto operator=(
-    const RenderCommandSetDirectionalLights&) ->
-  RenderCommandSetDirectionalLights& = default;
-  auto operator=(
-    RenderCommandSetDirectionalLights&&) -> RenderCommandSetDirectionalLights&
+    const CommandSetDirectionalLights&) -> CommandSetDirectionalLights&
   = default;
+  auto operator=(
+    CommandSetDirectionalLights&&) -> CommandSetDirectionalLights& = default;
 };
 
-static_assert(sizeof(RenderCommandSetDirectionalLights) == 180);
-static_assert(std::is_trivially_destructible_v<RenderCommandSetDirectionalLights>);
+static_assert(sizeof(CommandSetDirectionalLights) == 180);
+static_assert(std::is_trivially_destructible_v<CommandSetDirectionalLights>);
+
+struct CommandSetAmbientLight final : CommandT<CommandType::SetAmbientLight> {
+  Color ambientColor {};
+
+  explicit CommandSetAmbientLight(const Color& color) noexcept
+    : ambientColor {color} {
+  }
+
+  CommandSetAmbientLight(const CommandSetAmbientLight&) = default;
+  CommandSetAmbientLight(CommandSetAmbientLight&&) = default;
+
+  ~CommandSetAmbientLight() noexcept = default;
+
+  auto operator=(
+    const CommandSetAmbientLight&) -> CommandSetAmbientLight& = default;
+  auto operator=(CommandSetAmbientLight&&) -> CommandSetAmbientLight& = default;
+};
+
+static_assert(sizeof(CommandSetAmbientLight) == 20);
+static_assert(std::is_trivially_destructible_v<CommandSetAmbientLight>);
 
 enum RenderFlags : u8 {
   RenderFlagNone = 0x0,
@@ -101,8 +119,8 @@ enum class TexCoordinateSrc : u8 {
 };
 
 
-struct RenderCommandLegacy final : RenderCommandT<
-    RenderCommandType::RenderCommandLegacy> {
+struct CommandLegacy final : CommandT<
+    CommandType::Legacy> {
   u8 flags {RenderFlagNone};
   TexCoordinateSrc texCoordinateSrc {TexCoordinateSrc::Vertex};
 
@@ -119,8 +137,8 @@ struct RenderCommandLegacy final : RenderCommandT<
   Mat4f32 texTransform {Mat4f32::identity()};
 };
 
-static_assert(sizeof(RenderCommandLegacy) == 192);
-static_assert(std::is_trivially_destructible_v<RenderCommandLegacy>);
+static_assert(sizeof(CommandLegacy) == 192);
+static_assert(std::is_trivially_destructible_v<CommandLegacy>);
 
 } // namespace gfx
 } // namespace basalt

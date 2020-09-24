@@ -216,22 +216,21 @@ void D3D9Device::render(const CommandList& commandList) {
 
   D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &transform));
 
-  const auto ambientLightColor = to_d3d_color(commandList.ambient_light());
-  if (ambientLightColor) {
-    D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, ambientLightColor));
-  }
-
   for (const auto& commandPtr : commandList.commands()) {
     switch (commandPtr->type) {
-    case RenderCommandType::SetDirectionalLights:
-      execute(commandPtr->as<RenderCommandSetDirectionalLights>());
+    case CommandType::SetAmbientLight:
+      execute(commandPtr->as<CommandSetAmbientLight>());
       break;
 
-    case RenderCommandType::RenderCommandLegacy:
-      execute(commandPtr->as<RenderCommandLegacy>());
+    case CommandType::SetDirectionalLights:
+      execute(commandPtr->as<CommandSetDirectionalLights>());
       break;
 
-    case RenderCommandType::Unknown:
+    case CommandType::Legacy:
+      execute(commandPtr->as<CommandLegacy>());
+      break;
+
+    case CommandType::Unknown:
       BASALT_ASSERT(false);
     }
   }
@@ -248,9 +247,9 @@ void D3D9Device::render(const CommandList& commandList) {
     D3D9CALL(mDevice->LightEnable(i, FALSE));
   }
 
-  if (ambientLightColor) {
-    D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
-  }
+  // reset render states
+  // TODO: use command block
+  D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
 
   D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
 
@@ -269,7 +268,7 @@ void D3D9Device::new_gui_frame() {
   ImGui_ImplDX9_NewFrame();
 }
 
-void D3D9Device::execute(const RenderCommandLegacy& command) {
+void D3D9Device::execute(const CommandLegacy& command) {
   const bool disableLighting = command.flags & RenderFlagDisableLighting;
 
   // apply custom render flags
@@ -384,7 +383,12 @@ void D3D9Device::execute(const RenderCommandLegacy& command) {
   }
 }
 
-void D3D9Device::execute(const RenderCommandSetDirectionalLights& command) {
+void D3D9Device::execute(const CommandSetAmbientLight& command) const {
+  const auto ambientLightColor = to_d3d_color(command.ambientColor);
+  D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, ambientLightColor));
+}
+
+void D3D9Device::execute(const CommandSetDirectionalLights& command) {
   const auto& directionalLights = command.directionalLights;
   BASALT_ASSERT_MSG(
     directionalLights.size() <= mDeviceCaps.MaxActiveLights

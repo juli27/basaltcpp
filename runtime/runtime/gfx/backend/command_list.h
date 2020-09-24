@@ -12,10 +12,10 @@ struct DirectionalLight;
 
 namespace gfx {
 
-struct RenderCommand;
-struct RenderCommandLegacy;
+struct Command;
+struct CommandLegacy;
 
-using RenderCommandPtr = std::unique_ptr<RenderCommand>;
+using CommandPtr = std::unique_ptr<Command>;
 
 // associates commands with their common transform (camera) and
 // defines defaults for render state flags (lighting on/off, ...)
@@ -36,7 +36,7 @@ struct CommandList final {
   auto operator=(CommandList&&) -> CommandList& = default;
 
   [[nodiscard]]
-  auto commands() const -> const std::vector<RenderCommandPtr>&;
+  auto commands() const -> const std::vector<CommandPtr>&;
 
   [[nodiscard]]
   auto view() const -> const Mat4f32&;
@@ -45,23 +45,19 @@ struct CommandList final {
   auto projection() const -> const Mat4f32&;
 
   [[nodiscard]]
-  auto ambient_light() const -> const Color&;
-  void set_ambient_light(const Color&);
-
-  [[nodiscard]]
   auto clear_color() const -> const Color&;
 
-  void add(const RenderCommandLegacy&);
+  void add(const CommandLegacy&);
 
+  void set_ambient_light(const Color&);
   void set_directional_lights(const std::vector<DirectionalLight>&);
 
 private:
-  std::vector<RenderCommandPtr> mCommands {};
+  std::vector<CommandPtr> mCommands {};
   Mat4f32 mView {Mat4f32::identity()};
   Mat4f32 mProjection {Mat4f32::identity()};
   // TODO: drawable need to be able to clear their area of the draw target
   Color mClearColor {};
-  Color mAmbientLightColor {};
 };
 
 } // namespace gfx

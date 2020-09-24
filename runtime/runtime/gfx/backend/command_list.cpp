@@ -19,7 +19,7 @@ CommandList::CommandList(
 
 CommandList::~CommandList() = default;
 
-auto CommandList::commands() const -> const vector<RenderCommandPtr>& {
+auto CommandList::commands() const -> const vector<CommandPtr>& {
   return mCommands;
 }
 
@@ -31,12 +31,16 @@ auto CommandList::projection() const -> const Mat4f32& {
   return mProjection;
 }
 
-auto CommandList::ambient_light() const -> const Color& {
-  return mAmbientLightColor;
+auto CommandList::clear_color() const -> const Color& {
+  return mClearColor;
+}
+
+void CommandList::add(const CommandLegacy& command) {
+  mCommands.push_back(std::make_unique<CommandLegacy>(command));
 }
 
 void CommandList::set_ambient_light(const Color& color) {
-  mAmbientLightColor = color;
+  mCommands.push_back(std::make_unique<CommandSetAmbientLight>(color));
 }
 
 void CommandList::set_directional_lights(
@@ -48,15 +52,7 @@ void CommandList::set_directional_lights(
   std::copy(lights.begin(), lights.end(), directionalLights.begin());
 
   mCommands.push_back(
-    std::make_unique<RenderCommandSetDirectionalLights>(directionalLights));
-}
-
-auto CommandList::clear_color() const -> const Color& {
-  return mClearColor;
-}
-
-void CommandList::add(const RenderCommandLegacy& command) {
-  mCommands.push_back(std::make_unique<RenderCommandLegacy>(command));
+    std::make_unique<CommandSetDirectionalLights>(directionalLights));
 }
 
 } // namespace basalt::gfx

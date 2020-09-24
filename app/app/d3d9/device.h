@@ -69,8 +69,9 @@ private:
   HandlePool<Model, ModelHandle> mModels {};
   u8 mMaxLightsUsed {0};
 
-  void execute(const RenderCommandLegacy&);
-  void execute(const RenderCommandSetDirectionalLights&);
+  void execute(const CommandLegacy&);
+  void execute(const CommandSetAmbientLight&) const;
+  void execute(const CommandSetDirectionalLights&);
 };
 
 } // namespace basalt::gfx
