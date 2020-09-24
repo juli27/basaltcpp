@@ -29,10 +29,6 @@ using Microsoft::WRL::ComPtr;
 namespace basalt::gfx {
 namespace {
 
-constexpr auto to_d3d_color(const Color& color) noexcept -> D3DCOLOR {
-  return enum_cast(color.to_argb());
-}
-
 constexpr auto to_d3d_color_value(
   const Color& color) noexcept -> D3DCOLORVALUE {
   return D3DCOLORVALUE {
@@ -196,12 +192,6 @@ void D3D9Device::remove_model(const ModelHandle handle) {
 // TODO: shading mode
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
 void D3D9Device::render(const CommandList& commandList) {
-  const D3DCOLOR clearColor = to_d3d_color(commandList.clear_color());
-
-  D3D9CALL(
-    mDevice->Clear(0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, clearColor,
-      1.0f, 0u));
-
   // TODO: should we make all rendering code dependent
   // on the success of BeginScene? -> Log error and/or throw exception
   D3D9CALL(mDevice->BeginScene());

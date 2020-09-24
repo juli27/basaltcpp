@@ -2,13 +2,12 @@
 
 #include "types.h"
 
-#include <runtime/shared/color.h>
-
 #include <memory>
 #include <vector>
 
 namespace basalt {
 
+struct Color;
 struct DirectionalLight;
 struct Mat4;
 using Mat4f32 = Mat4;
@@ -28,7 +27,6 @@ using CommandPtr = std::unique_ptr<Command>;
 //        or only some, or none)
 struct CommandList final {
   CommandList() = default;
-  explicit CommandList(const Color& clearColor);
 
   CommandList(const CommandList&) = delete;
   CommandList(CommandList&&) = default;
@@ -41,9 +39,6 @@ struct CommandList final {
   [[nodiscard]]
   auto commands() const -> const std::vector<CommandPtr>&;
 
-  [[nodiscard]]
-  auto clear_color() const -> const Color&;
-
   void add(const CommandLegacy&);
 
   void set_ambient_light(const Color&);
@@ -52,8 +47,6 @@ struct CommandList final {
 
 private:
   std::vector<CommandPtr> mCommands {};
-  // TODO: drawable need to be able to clear their area of the draw target
-  Color mClearColor {};
 };
 
 } // namespace gfx

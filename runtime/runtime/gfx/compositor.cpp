@@ -7,7 +7,8 @@
 #include "backend/device.h"
 #include "backend/command_list.h"
 
-#include <runtime/shared/asserts.h>
+#include "runtime/shared/asserts.h"
+#include "runtime/shared/color.h"
 
 #include <vector>
 
@@ -23,7 +24,10 @@ void Compositor::compose(Context& context, const DrawTarget& drawTarget) {
   auto& device = context.device();
 
   if (!visuals.empty()) {
-    device.render(visuals.front().drawable().draw(device, drawTarget.size()));
+    auto& drawable = visuals.front().drawable();
+    context.clear(drawable.clear_color());
+
+    device.render(drawable.draw(device, drawTarget.size()));
   }
 }
 

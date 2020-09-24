@@ -28,6 +28,14 @@ auto D3D9Context::device() const noexcept -> D3D9Device& {
   return *mDevice;
 }
 
+void D3D9Context::clear(const Color& color) {
+  const D3DCOLOR clearColor = to_d3d_color(color);
+
+  D3D9CALL(
+    mD3D9Device->Clear(0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, clearColor,
+      1.0f, 0u));
+}
+
 void D3D9Context::resize(const Size2Du16 size) {
   mDevice->before_reset();
 

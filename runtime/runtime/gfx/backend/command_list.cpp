@@ -3,7 +3,9 @@
 #include "commands.h"
 
 #include "runtime/math/mat4.h"
+
 #include "runtime/shared/asserts.h"
+#include <runtime/shared/color.h>
 
 #include <algorithm>
 #include <array>
@@ -13,18 +15,10 @@ using std::vector;
 
 namespace basalt::gfx {
 
-CommandList::CommandList(const Color& clearColor)
-  : mClearColor {clearColor} {
-}
-
 CommandList::~CommandList() = default;
 
 auto CommandList::commands() const -> const vector<CommandPtr>& {
   return mCommands;
-}
-
-auto CommandList::clear_color() const -> const Color& {
-  return mClearColor;
 }
 
 void CommandList::add(const CommandLegacy& command) {

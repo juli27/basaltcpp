@@ -28,7 +28,6 @@ struct Drawable {
 
   virtual auto draw(Device&, Size2Du16 viewport) -> CommandList = 0;
 
-  // TODO: remove
   [[nodiscard]]
   virtual auto clear_color() const -> Color = 0;
 };

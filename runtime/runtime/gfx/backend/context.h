@@ -2,7 +2,11 @@
 
 #include <runtime/shared/size2d.h>
 
-namespace basalt::gfx {
+namespace basalt {
+
+struct Color;
+
+namespace gfx {
 
 struct Device;
 
@@ -27,7 +31,9 @@ struct Context {
   [[nodiscard]]
   virtual auto device() const noexcept -> Device& = 0;
 
+  virtual void clear(const Color&) = 0;
   virtual void present() = 0;
 };
 
-} // namespace basalt::gfx
+} // namespace gfx
+} // namespace basalt

@@ -77,8 +77,9 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   f64 currentDeltaTime {0.0};
 
   while (poll_events()) {
-    if (window->client_area_size() != gfxContext->surface_size()) {
-      gfxContext->resize(window->client_area_size());
+    if (const Size2Du16 size = window->client_area_size(); size !=
+      gfxContext->surface_size()) {
+      gfxContext->resize(size);
     }
 
     gfx::DrawTarget drawTarget {gfxContext->surface_size()};
