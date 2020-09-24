@@ -8,12 +8,13 @@
 #include <runtime/shared/color.h>
 #include <runtime/shared/types.h>
 
+#include <string>
+
 namespace basalt::gfx {
 
 struct RenderComponent final {
   MeshHandle mesh;
   TextureHandle texture;
-  ModelHandle model;
   Color diffuseColor;
   Color ambientColor;
   Mat4f32 texTransform {Mat4f32::identity()};
@@ -21,13 +22,8 @@ struct RenderComponent final {
   u8 renderFlags = RenderFlagNone;
 };
 
-// GfxComponent
-// Geometry
-// Materials
-//
-// RenderComponent
-// list of parts/nodes
-//   geometry
-//   material
+struct Model final {
+  std::string model;
+};
 
 } // namespace basalt::gfx

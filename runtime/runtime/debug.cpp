@@ -141,15 +141,11 @@ void Debug::draw_scene_debug_ui(Scene& scene) {
         if (auto* const rc =
           scene.mEntityRegistry.try_get<gfx::RenderComponent>(entity)) {
           if (ImGui::TreeNode("RenderComponent")) {
-            if (rc->model) {
-              ImGui::Text("Model: %#x", rc->model.value());
-            } else {
-              ImGui::Text("Mesh: %#x", rc->mesh.value());
-              ImGui::Text("Texture: %#x", rc->texture.value());
+            ImGui::Text("Mesh: %#x", rc->mesh.value());
+            ImGui::Text("Texture: %#x", rc->texture.value());
 
-              edit_color4("Diffuse", rc->diffuseColor);
-              edit_color4("Ambient", rc->ambientColor);
-            }
+            edit_color4("Diffuse", rc->diffuseColor);
+            edit_color4("Ambient", rc->ambientColor);
 
             if (rc->renderFlags == gfx::RenderFlagNone) {
               ImGui::TextUnformatted("Flag: RenderFlagNone");
@@ -162,6 +158,15 @@ void Debug::draw_scene_debug_ui(Scene& scene) {
                 ImGui::TextUnformatted("Flag: RenderFlagDisableLighting");
               }
             }
+
+            ImGui::TreePop();
+          }
+        }
+
+        if (auto* const gfxModel = scene.mEntityRegistry.try_get<gfx::Model>(
+          entity)) {
+          if (ImGui::TreeNode("Gfx Model")) {
+            ImGui::TextUnformatted(gfxModel->model.c_str());
 
             ImGui::TreePop();
           }

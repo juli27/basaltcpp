@@ -31,8 +31,9 @@ auto Scene::directional_lights() const -> const vector<DirectionalLight>& {
 }
 
 // TODO: ambient color support
-void Scene::add_directional_light(const Vec3f32& dir, const Color& color) {
-  mDirectionalLights.push_back(DirectionalLight {dir, color, Color {}});
+void Scene::add_directional_light(
+  const Vec3f32& direction, const Color& color) {
+  mDirectionalLights.push_back(DirectionalLight {direction, color, Color {}});
 }
 
 void Scene::clear_directional_lights() {

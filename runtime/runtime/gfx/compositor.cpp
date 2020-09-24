@@ -23,7 +23,7 @@ void Compositor::compose(Context& context, const DrawTarget& drawTarget) {
   auto& device = context.device();
 
   if (!visuals.empty()) {
-    device.render(visuals.front().drawable().draw(drawTarget.size()));
+    device.render(visuals.front().drawable().draw(device, drawTarget.size()));
   }
 }
 

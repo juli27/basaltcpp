@@ -32,14 +32,9 @@ enum class PrimitiveType : u8 {
 
 namespace detail {
 
-struct MeshTypeTag {
-};
-
-struct TextureTypeTag {
-};
-
-struct ModelTypeTag {
-};
+struct MeshTypeTag;
+struct TextureTypeTag;
+struct ModelTypeTag;
 
 } // namespace detail
 
