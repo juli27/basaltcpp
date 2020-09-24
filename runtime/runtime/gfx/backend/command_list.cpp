@@ -1,7 +1,8 @@
 #include "command_list.h"
 
-#include "render_commands.h"
+#include "commands.h"
 
+#include "runtime/math/mat4.h"
 #include "runtime/shared/asserts.h"
 
 #include <algorithm>
@@ -12,23 +13,14 @@ using std::vector;
 
 namespace basalt::gfx {
 
-CommandList::CommandList(
-  const Mat4f32& view, const Mat4f32& projection, const Color& clearColor)
-  : mView(view), mProjection(projection), mClearColor {clearColor} {
+CommandList::CommandList(const Color& clearColor)
+  : mClearColor {clearColor} {
 }
 
 CommandList::~CommandList() = default;
 
 auto CommandList::commands() const -> const vector<CommandPtr>& {
   return mCommands;
-}
-
-auto CommandList::view() const -> const Mat4f32& {
-  return mView;
-}
-
-auto CommandList::projection() const -> const Mat4f32& {
-  return mProjection;
 }
 
 auto CommandList::clear_color() const -> const Color& {
@@ -53,6 +45,11 @@ void CommandList::set_directional_lights(
 
   mCommands.push_back(
     std::make_unique<CommandSetDirectionalLights>(directionalLights));
+}
+
+void CommandList::set_transform(
+  const TransformType type, const Mat4f32& transform) {
+  mCommands.push_back(std::make_unique<CommandSetTransform>(type, transform));
 }
 
 } // namespace basalt::gfx

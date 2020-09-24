@@ -206,16 +206,6 @@ void D3D9Device::render(const CommandList& commandList) {
   // on the success of BeginScene? -> Log error and/or throw exception
   D3D9CALL(mDevice->BeginScene());
 
-  auto transform {to_d3d_matrix(commandList.view())};
-  D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &transform));
-
-  transform = to_d3d_matrix(commandList.projection());
-
-  BASALT_ASSERT_MSG(
-    transform._34 >= 0, "(3,4) can't be negative in a projection matrix");
-
-  D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &transform));
-
   for (const auto& commandPtr : commandList.commands()) {
     switch (commandPtr->type) {
     case CommandType::SetAmbientLight:
@@ -226,12 +216,13 @@ void D3D9Device::render(const CommandList& commandList) {
       execute(commandPtr->as<CommandSetDirectionalLights>());
       break;
 
+    case CommandType::SetTransform:
+      execute(commandPtr->as<CommandSetTransform>());
+      break;
+
     case CommandType::Legacy:
       execute(commandPtr->as<CommandLegacy>());
       break;
-
-    case CommandType::Unknown:
-      BASALT_ASSERT(false);
     }
   }
 
@@ -250,6 +241,10 @@ void D3D9Device::render(const CommandList& commandList) {
   // reset render states
   // TODO: use command block
   D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
+
+  const auto identity = to_d3d_matrix(Mat4f32::identity());
+  D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &identity));
+  D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
 
   D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
 
@@ -394,7 +389,8 @@ void D3D9Device::execute(const CommandSetDirectionalLights& command) {
     directionalLights.size() <= mDeviceCaps.MaxActiveLights
   , "the renderer doesn't support that many lights");
 
-  mMaxLightsUsed = std::max(mMaxLightsUsed, static_cast<u8>(directionalLights.size()));
+  mMaxLightsUsed = std::max(
+    mMaxLightsUsed, static_cast<u8>(directionalLights.size()));
 
   DWORD lightIndex = 0u;
   for (const auto& light : directionalLights) {
@@ -407,6 +403,23 @@ void D3D9Device::execute(const CommandSetDirectionalLights& command) {
     D3D9CALL(mDevice->SetLight(lightIndex, &d3dLight));
     D3D9CALL(mDevice->LightEnable(lightIndex, TRUE));
     lightIndex++;
+  }
+}
+
+void D3D9Device::execute(const CommandSetTransform& command) const {
+  const auto transform = to_d3d_matrix(command.transform);
+
+  switch (command.transformType) {
+  case TransformType::Projection:
+    BASALT_ASSERT_MSG(
+      transform._34 >= 0, "(3,4) can't be negative in a projection matrix");
+
+    D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &transform));
+    break;
+
+  case TransformType::View:
+    D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &transform));
+    break;
   }
 }
 

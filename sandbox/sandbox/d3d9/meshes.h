@@ -2,7 +2,6 @@
 
 #include <sandbox/test_case.h>
 
-#include <runtime/gfx/backend/device.h>
 #include <runtime/gfx/scene_view.h>
 #include <runtime/scene/scene.h>
 
@@ -11,8 +10,7 @@
 namespace d3d9 {
 
 struct Meshes final : TestCase {
-  Meshes() = delete;
-  explicit Meshes(basalt::gfx::Device&);
+  Meshes();
 
   Meshes(const Meshes&) = delete;
   Meshes(Meshes&&) = delete;

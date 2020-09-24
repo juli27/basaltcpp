@@ -177,7 +177,7 @@
     <ClInclude Include="runtime\engine.h" />
     <ClInclude Include="runtime\gfx\backend\command_list.h" />
     <ClInclude Include="runtime\gfx\backend\device.h" />
-    <ClInclude Include="runtime\gfx\backend\render_commands.h" />
+    <ClInclude Include="runtime\gfx\backend\commands.h" />
     <ClInclude Include="runtime\gfx\backend\types.h" />
     <ClInclude Include="runtime\gfx\camera.h" />
     <ClInclude Include="runtime\gfx\compositor.h" />

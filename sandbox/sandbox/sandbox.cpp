@@ -53,7 +53,7 @@ SandboxApp::SandboxApp(Engine& engine) {
   mScenes.push_back(std::make_unique<d3d9::Lights>(device));
   mScenes.push_back(std::make_unique<d3d9::Textures>(device));
   mScenes.push_back(std::make_unique<d3d9::TexturesTci>(engine));
-  mScenes.push_back(std::make_unique<d3d9::Meshes>(device));
+  mScenes.push_back(std::make_unique<d3d9::Meshes>());
 }
 
 void SandboxApp::on_update(const UpdateContext& ctx) {

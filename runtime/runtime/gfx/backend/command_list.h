@@ -1,6 +1,7 @@
 #pragma once
 
-#include <runtime/math/mat4.h>
+#include "types.h"
+
 #include <runtime/shared/color.h>
 
 #include <memory>
@@ -9,8 +10,12 @@
 namespace basalt {
 
 struct DirectionalLight;
+struct Mat4;
+using Mat4f32 = Mat4;
 
 namespace gfx {
+
+enum class TransformType : u8;
 
 struct Command;
 struct CommandLegacy;
@@ -23,9 +28,7 @@ using CommandPtr = std::unique_ptr<Command>;
 //        or only some, or none)
 struct CommandList final {
   CommandList() = default;
-  CommandList(
-    const Mat4f32& view, const Mat4f32& projection
-  , const Color& clearColor);
+  explicit CommandList(const Color& clearColor);
 
   CommandList(const CommandList&) = delete;
   CommandList(CommandList&&) = default;
@@ -39,23 +42,16 @@ struct CommandList final {
   auto commands() const -> const std::vector<CommandPtr>&;
 
   [[nodiscard]]
-  auto view() const -> const Mat4f32&;
-
-  [[nodiscard]]
-  auto projection() const -> const Mat4f32&;
-
-  [[nodiscard]]
   auto clear_color() const -> const Color&;
 
   void add(const CommandLegacy&);
 
   void set_ambient_light(const Color&);
   void set_directional_lights(const std::vector<DirectionalLight>&);
+  void set_transform(TransformType, const Mat4f32&);
 
 private:
   std::vector<CommandPtr> mCommands {};
-  Mat4f32 mView {Mat4f32::identity()};
-  Mat4f32 mProjection {Mat4f32::identity()};
   // TODO: drawable need to be able to clear their area of the draw target
   Color mClearColor {};
 };

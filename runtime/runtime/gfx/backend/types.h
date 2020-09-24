@@ -7,6 +7,11 @@
 
 namespace basalt::gfx {
 
+enum class TransformType : u8 {
+  Projection
+, View
+};
+
 enum class VertexElement : u8 {
   Position3F32,
   PositionTransformed4F32,

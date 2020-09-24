@@ -18,16 +18,16 @@ struct DirectionalLight;
 namespace gfx {
 
 enum class CommandType : u8 {
-  Unknown
-, Legacy
+  Legacy
 , SetDirectionalLights
 , SetAmbientLight
+, SetTransform
 };
 
 struct Command {
-  CommandType type {CommandType::Unknown};
+  CommandType type;
 
-  constexpr Command() noexcept = default;
+  constexpr Command() noexcept = delete;
 
   constexpr Command(const Command&) noexcept = default;
   constexpr Command(Command&&) noexcept = default;
@@ -40,7 +40,7 @@ struct Command {
   // TODO: is there a better solution?
   template <typename T>
   auto as() -> T& {
-    BASALT_ASSERT_MSG(type == T::TYPE, "invalid input event cast");
+    BASALT_ASSERT_MSG(type == T::TYPE, "invalid command cast");
     return *static_cast<T*>(this);
   }
 };
@@ -107,6 +107,26 @@ struct CommandSetAmbientLight final : CommandT<CommandType::SetAmbientLight> {
 
 static_assert(sizeof(CommandSetAmbientLight) == 20);
 static_assert(std::is_trivially_destructible_v<CommandSetAmbientLight>);
+
+struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
+  TransformType transformType;
+  Mat4f32 transform {};
+
+  CommandSetTransform(const TransformType tType, const Mat4f32& t) noexcept
+    : transformType {tType}, transform {t} {
+  }
+
+  CommandSetTransform(const CommandSetTransform&) = default;
+  CommandSetTransform(CommandSetTransform&&) = default;
+
+  ~CommandSetTransform() noexcept = default;
+
+  auto operator=(const CommandSetTransform&) -> CommandSetTransform& = default;
+  auto operator=(CommandSetTransform&&) -> CommandSetTransform& = default;
+};
+
+static_assert(sizeof(CommandSetTransform) == 68);
+static_assert(std::is_trivially_destructible_v<CommandSetTransform>);
 
 enum RenderFlags : u8 {
   RenderFlagNone = 0x0,

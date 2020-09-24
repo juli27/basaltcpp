@@ -14,13 +14,12 @@ using namespace std::literals;
 
 using basalt::Debug;
 using basalt::Transform;
-using basalt::gfx::Device;
 using basalt::gfx::Model;
 using basalt::gfx::SceneView;
 
 namespace d3d9 {
 
-Meshes::Meshes(Device&) {
+Meshes::Meshes() {
   mScene->set_background_color(Colors::BLUE);
   mScene->set_ambient_light(Colors::WHITE);
 

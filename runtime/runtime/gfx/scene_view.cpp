@@ -20,10 +20,11 @@ SceneView::SceneView(std::shared_ptr<Scene> scene, const Camera& camera)
 }
 
 auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
-  CommandList commandList {
-    mCamera.view_matrix(), mCamera.projection_matrix(viewport)
-  , mScene->background_color()
-  };
+  CommandList commandList {mScene->background_color()};
+
+  commandList.set_transform(TransformType::View, mCamera.view_matrix());
+  commandList.set_transform(
+    TransformType::Projection, mCamera.projection_matrix(viewport));
 
   commandList.set_ambient_light(mScene->ambient_light());
 

@@ -5,7 +5,7 @@
 #include "d3d9_custom.h"
 
 #include <runtime/gfx/backend/command_list.h>
-#include <runtime/gfx/backend/render_commands.h>
+#include <runtime/gfx/backend/commands.h>
 #include <runtime/shared/handle_pool.h>
 
 #include <wrl/client.h>
@@ -72,6 +72,7 @@ private:
   void execute(const CommandLegacy&);
   void execute(const CommandSetAmbientLight&) const;
   void execute(const CommandSetDirectionalLights&);
+  void execute(const CommandSetTransform&) const;
 };
 
 } // namespace basalt::gfx

@@ -137,7 +137,7 @@
     <ClInclude Include="runtime\gfx\backend\command_list.h">
       <Filter>gfx\backend</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\gfx\backend\render_commands.h">
+    <ClInclude Include="runtime\gfx\backend\commands.h">
       <Filter>gfx\backend</Filter>
     </ClInclude>
   </ItemGroup>
