@@ -31,7 +31,7 @@ struct CommandList final {
   CommandList(const CommandList&) = delete;
   CommandList(CommandList&&) = default;
 
-  ~CommandList();
+  ~CommandList() = default;
 
   auto operator=(const CommandList&) -> CommandList& = delete;
   auto operator=(CommandList&&) -> CommandList& = default;
@@ -44,6 +44,7 @@ struct CommandList final {
   void set_ambient_light(const Color&);
   void set_directional_lights(const std::vector<DirectionalLight>&);
   void set_transform(TransformType, const Mat4f32&);
+  void render_imgui();
 
 private:
   std::vector<CommandPtr> mCommands {};

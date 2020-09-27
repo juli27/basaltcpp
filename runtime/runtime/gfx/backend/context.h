@@ -2,13 +2,9 @@
 
 #include <runtime/shared/size2d.h>
 
-namespace basalt {
+namespace basalt::gfx {
 
-struct Color;
-
-namespace gfx {
-
-struct CommandList;
+struct Composite;
 struct Device;
 
 // A gfx context is directly tied to a window. If another gfx context is
@@ -32,12 +28,8 @@ struct Context {
   [[nodiscard]]
   virtual auto device() const noexcept -> Device& = 0;
 
-  virtual void clear(const Color&) = 0;
-  // TODO: turn this into a frame submit?
-  // in the mean time only call this once per frame
-  virtual void submit(const CommandList&) = 0;
+  virtual void submit(const Composite&) = 0;
   virtual void present() = 0;
 };
 
-} // namespace gfx
-} // namespace basalt
+} // namespace basalt::gfx

@@ -4,7 +4,6 @@ target_sources(Runtime
     "compositor.cpp"
     "draw_target.cpp"
     "scene_view.cpp"
-    "visual.cpp"
   PUBLIC
     "camera.h"
     "compositor.h"
@@ -12,7 +11,6 @@ target_sources(Runtime
     "drawable.h"
     "scene_view.h"
     "types.h"
-    "visual.h"
 )
 
 add_subdirectory("backend")

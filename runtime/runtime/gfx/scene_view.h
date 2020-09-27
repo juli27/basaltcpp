@@ -31,7 +31,7 @@ struct SceneView final : Drawable {
 
   // TODO: remove
   [[nodiscard]]
-  auto clear_color() const -> Color override;
+  auto clear_color() const -> const Color& override;
 
 private:
   friend Debug;

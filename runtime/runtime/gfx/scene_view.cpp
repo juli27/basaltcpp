@@ -2,6 +2,7 @@
 
 #include "types.h"
 #include "backend/command_list.h"
+#include "backend/commands.h"
 #include "backend/device.h"
 
 #include <runtime/scene/transform.h>
@@ -82,7 +83,7 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
   return commandList;
 }
 
-auto SceneView::clear_color() const -> Color {
+auto SceneView::clear_color() const -> const Color& {
   return mScene->background_color();
 }
 

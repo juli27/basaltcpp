@@ -4,8 +4,8 @@
 
 #include "d3d9_custom.h"
 
-#include <runtime/gfx/backend/command_list.h>
 #include <runtime/gfx/backend/commands.h>
+#include <runtime/gfx/backend/command_list.h>
 #include <runtime/shared/handle_pool.h>
 
 #include <wrl/client.h>
@@ -37,7 +37,10 @@ struct D3D9Device final : Device {
 
   void before_reset();
   void after_reset();
+
+  void begin_execution() const;
   void execute(const CommandList&);
+  void end_execution() const;
 
   auto add_mesh(
     void* data, i32 numVertices, const VertexLayout& layout,
@@ -73,6 +76,7 @@ private:
   void execute(const CommandSetAmbientLight&) const;
   void execute(const CommandSetDirectionalLights&);
   void execute(const CommandSetTransform&) const;
+  static void execute(const CommandRenderImGui&);
 };
 
 } // namespace basalt::gfx

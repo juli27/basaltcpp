@@ -1,7 +1,5 @@
 #pragma once
 
-#include "visual.h"
-
 #include <runtime/shared/size2d.h>
 
 #include <memory>
@@ -10,6 +8,8 @@
 namespace basalt::gfx {
 
 struct Drawable;
+
+using DrawablePtr = std::shared_ptr<Drawable>;
 
 struct DrawTarget final {
   DrawTarget() = delete;
@@ -24,15 +24,15 @@ struct DrawTarget final {
   auto operator=(DrawTarget&&) -> DrawTarget& = default;
 
   [[nodiscard]]
-  auto visuals() const -> const std::vector<Visual>&;
+  auto drawables() const -> const std::vector<DrawablePtr>&;
 
   [[nodiscard]]
   auto size() const -> Size2Du16;
 
-  auto draw(std::shared_ptr<Drawable>) -> const Visual&;
+  void draw(std::shared_ptr<Drawable>);
 
 private:
-  std::vector<Visual> mVisuals {};
+  std::vector<DrawablePtr> mDrawables {};
   Size2Du16 mSize;
 };
 

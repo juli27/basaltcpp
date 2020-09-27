@@ -13,9 +13,6 @@
     <ClCompile Include="runtime\gfx\scene_view.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
-    <ClCompile Include="runtime\gfx\visual.cpp">
-      <Filter>gfx</Filter>
-    </ClCompile>
     <ClCompile Include="runtime\gfx\compositor.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
@@ -44,6 +41,9 @@
     <ClCompile Include="runtime\gfx\backend\command_list.cpp">
       <Filter>gfx\backend</Filter>
     </ClCompile>
+    <ClCompile Include="runtime\gfx\backend\composite.cpp">
+      <Filter>gfx\backend</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="runtime\gfx\backend\context.h">
@@ -67,9 +67,6 @@
     <ClInclude Include="runtime\prelude.h" />
     <ClInclude Include="runtime\types.h" />
     <ClInclude Include="runtime\gfx\scene_view.h">
-      <Filter>gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="runtime\gfx\visual.h">
       <Filter>gfx</Filter>
     </ClInclude>
     <ClInclude Include="runtime\gfx\drawable.h">
@@ -138,6 +135,9 @@
       <Filter>gfx\backend</Filter>
     </ClInclude>
     <ClInclude Include="runtime\gfx\backend\commands.h">
+      <Filter>gfx\backend</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\gfx\backend\composite.h">
       <Filter>gfx\backend</Filter>
     </ClInclude>
   </ItemGroup>

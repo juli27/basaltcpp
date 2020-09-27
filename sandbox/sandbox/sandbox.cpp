@@ -126,7 +126,9 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
         basalt::platform::set_window_mode(WindowMode::FullscreenExclusive);
       }
 
-      ImGui::Separator();
+      if (ctx.engine.config().debugUiEnabled) {
+        ImGui::Separator();
+      }
 
       ImGui::EndMenu();
     }

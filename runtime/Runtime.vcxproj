@@ -157,11 +157,11 @@
     <ClCompile Include="runtime\engine.cpp" />
     <ClCompile Include="runtime\gfx\backend\command_list.cpp" />
     <ClCompile Include="runtime\dear_imgui.cpp" />
+    <ClCompile Include="runtime\gfx\backend\composite.cpp" />
     <ClCompile Include="runtime\gfx\camera.cpp" />
     <ClCompile Include="runtime\gfx\compositor.cpp" />
     <ClCompile Include="runtime\gfx\draw_target.cpp" />
     <ClCompile Include="runtime\gfx\scene_view.cpp" />
-    <ClCompile Include="runtime\gfx\visual.cpp" />
     <ClCompile Include="runtime\input.cpp" />
     <ClCompile Include="runtime\math\mat4.cpp" />
     <ClCompile Include="runtime\math\vec2.cpp" />
@@ -176,6 +176,7 @@
     <ClInclude Include="runtime\debug.h" />
     <ClInclude Include="runtime\engine.h" />
     <ClInclude Include="runtime\gfx\backend\command_list.h" />
+    <ClInclude Include="runtime\gfx\backend\composite.h" />
     <ClInclude Include="runtime\gfx\backend\device.h" />
     <ClInclude Include="runtime\gfx\backend\commands.h" />
     <ClInclude Include="runtime\gfx\backend\types.h" />
@@ -183,7 +184,6 @@
     <ClInclude Include="runtime\gfx\compositor.h" />
     <ClInclude Include="runtime\gfx\drawable.h" />
     <ClInclude Include="runtime\gfx\draw_target.h" />
-    <ClInclude Include="runtime\gfx\visual.h" />
     <ClInclude Include="runtime\gfx\scene_view.h" />
     <ClInclude Include="runtime\gfx\types.h" />
     <ClInclude Include="runtime\client_app.h" />

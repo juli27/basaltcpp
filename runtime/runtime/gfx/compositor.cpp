@@ -2,13 +2,9 @@
 
 #include "draw_target.h"
 #include "drawable.h"
-#include "visual.h"
-#include "backend/context.h"
-#include "backend/device.h"
-#include "backend/command_list.h"
 
-#include "runtime/shared/asserts.h"
-#include "runtime/shared/color.h"
+#include "backend/composite.h"
+#include "backend/command_list.h"
 
 #include <vector>
 
@@ -16,19 +12,20 @@ using std::vector;
 
 namespace basalt::gfx {
 
-void Compositor::compose(Context& context, const DrawTarget& drawTarget) {
-  const vector<Visual>& visuals = drawTarget.visuals();
-  BASALT_ASSERT_MSG(
-    visuals.size() <= 1, "only one visual supported at this time");
-
-  auto& device = context.device();
-
-  if (!visuals.empty()) {
-    auto& drawable = visuals.front().drawable();
-    context.clear(drawable.clear_color());
-
-    context.submit(drawable.draw(device, drawTarget.size()));
+auto Compositor::compose(
+  Device& device, const DrawTarget& drawTarget) -> Composite {
+  const vector<DrawablePtr>& drawables = drawTarget.drawables();
+  if (drawables.empty()) {
+    return Composite {};
   }
+
+  Composite composite {drawables.front()->clear_color()};
+
+  for (const auto& drawable : drawables) {
+    composite.add_part(drawable->draw(device, drawTarget.size()));
+  }
+
+  return composite;
 }
 
 } // namespace basalt::gfx

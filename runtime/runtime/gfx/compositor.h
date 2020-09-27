@@ -2,7 +2,8 @@
 
 namespace basalt::gfx {
 
-struct Context;
+struct Composite;
+struct Device;
 struct DrawTarget;
 
 struct Compositor final {
@@ -16,7 +17,7 @@ struct Compositor final {
   auto operator=(const Compositor&) -> Compositor& = delete;
   auto operator=(Compositor&&) -> Compositor& = delete;
 
-  static void compose(Context&, const DrawTarget&);
+  static auto compose(Device&, const DrawTarget&) -> Composite;
 };
 
 } // namespace basalt::gfx

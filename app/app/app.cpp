@@ -16,6 +16,8 @@
 #include <runtime/client_app.h>
 #include <runtime/dear_imgui.h>
 
+#include <runtime/gfx/backend/composite.h>
+
 #include <runtime/gfx/compositor.h>
 #include <runtime/gfx/draw_target.h>
 
@@ -35,6 +37,7 @@ using std::string;
 
 namespace basalt {
 
+using gfx::Composite;
 using gfx::Compositor;
 using gfx::AdapterInfo;
 using gfx::D3D9Factory;
@@ -62,7 +65,7 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   const auto [gfxDevice, gfxContext] = gfxFactory->create_device_and_context(
     window->handle());
 
-  const DearImGui dearImGui {*gfxDevice};
+  const auto dearImGui = std::make_shared<DearImGui>(*gfxDevice);
   ImGuiIO& io {ImGui::GetIO()};
   io.ImeWindowHandle = window->handle();
 
@@ -87,7 +90,7 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
     const UpdateContext ctx {
       app, drawTarget, currentDeltaTime, window->drain_input()
     };
-    dearImGui.new_frame(ctx);
+    dearImGui->new_frame(ctx);
 
     clientApp->on_update(ctx);
 
@@ -96,10 +99,15 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
       window->set_cursor(app.mMouseCursor);
     }
 
-    draw_debug_ui_additional(*gfxFactory);
+    if (config.debugUiEnabled) {
+      draw_debug_ui_additional(*gfxFactory);
+    }
 
-    // also calls ImGui::Render()
-    Compositor::compose(*gfxContext, drawTarget);
+    drawTarget.draw(dearImGui);
+
+    // device needed for our current model support
+    const Composite composite = Compositor::compose(*gfxDevice, drawTarget);
+    gfxContext->submit(composite);
 
     gfxContext->present();
 

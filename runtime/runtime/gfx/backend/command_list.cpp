@@ -15,8 +15,6 @@ using std::vector;
 
 namespace basalt::gfx {
 
-CommandList::~CommandList() = default;
-
 auto CommandList::commands() const -> const vector<CommandPtr>& {
   return mCommands;
 }
@@ -44,6 +42,10 @@ void CommandList::set_directional_lights(
 void CommandList::set_transform(
   const TransformType type, const Mat4f32& transform) {
   mCommands.push_back(std::make_unique<CommandSetTransform>(type, transform));
+}
+
+void CommandList::render_imgui() {
+  mCommands.push_back(std::make_unique<CommandRenderImGui>());
 }
 
 } // namespace basalt::gfx

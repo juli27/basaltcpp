@@ -1,11 +1,68 @@
 #pragma once
 
+#include <runtime/shared/asserts.h>
 #include <runtime/shared/handle.h>
 #include <runtime/shared/types.h>
 
 #include <vector>
 
 namespace basalt::gfx {
+
+enum class CommandType : u8 {
+  Legacy
+, SetDirectionalLights
+, SetAmbientLight
+, SetTransform
+, RenderImGui
+};
+
+struct Command {
+  CommandType type;
+
+  constexpr Command() noexcept = delete;
+
+  constexpr Command(const Command&) noexcept = default;
+  constexpr Command(Command&&) noexcept = default;
+
+  ~Command() noexcept = default;
+
+  auto operator=(const Command&) noexcept -> Command& = default;
+  auto operator=(Command&&) noexcept -> Command& = default;
+
+  // TODO: is there a better solution?
+  template <typename T>
+  auto as() -> T& {
+    BASALT_ASSERT_MSG(type == T::TYPE, "invalid command cast");
+    return *static_cast<T*>(this);
+  }
+};
+
+template <CommandType Type>
+struct CommandT : Command {
+  static constexpr CommandType TYPE = Type;
+
+  constexpr CommandT() noexcept
+    : Command {TYPE} {
+  }
+
+  constexpr CommandT(const CommandT&) noexcept = default;
+  constexpr CommandT(CommandT&&) noexcept = default;
+
+  ~CommandT() noexcept = default;
+
+  auto operator=(const CommandT&) noexcept -> CommandT& = default;
+  auto operator=(CommandT&&) noexcept -> CommandT& = default;
+};
+
+enum RenderFlags : u8 {
+  RenderFlagNone = 0x0,
+  RenderFlagCullNone = 0x1,
+  RenderFlagDisableLighting = 0x2
+};
+
+enum class TexCoordinateSrc : u8 {
+  Vertex, PositionCameraSpace
+};
 
 enum class TransformType : u8 {
   Projection

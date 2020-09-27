@@ -4,14 +4,17 @@
 #include "input.h"
 
 #include "gfx/draw_target.h"
+#include "gfx/backend/command_list.h"
 #include "gfx/backend/device.h"
 #include "math/vec2.h"
+#include "shared/color.h"
 #include "shared/size2d.h"
 
 #include <imgui/imgui.h>
 
 namespace basalt {
 
+using gfx::CommandList;
 using gfx::Device;
 
 DearImGui::DearImGui(Device& renderer)
@@ -141,6 +144,18 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
   }
 
   ImGui::NewFrame();
+}
+
+auto DearImGui::draw(Device&, Size2Du16) -> CommandList {
+  CommandList commandList {};
+  commandList.render_imgui();
+
+  return commandList;
+}
+
+auto DearImGui::clear_color() const -> const Color& {
+  static constexpr Color COLOR {};
+  return COLOR;
 }
 
 } // namespace basalt

@@ -29,7 +29,7 @@ struct Drawable {
   virtual auto draw(Device&, Size2Du16 viewport) -> CommandList = 0;
 
   [[nodiscard]]
-  virtual auto clear_color() const -> Color = 0;
+  virtual auto clear_color() const -> const Color& = 0;
 };
 
 } // namespace gfx

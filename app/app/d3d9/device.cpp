@@ -76,38 +76,35 @@ void D3D9Device::after_reset() {
   ImGui_ImplDX9_CreateDeviceObjects();
 }
 
+void D3D9Device::begin_execution() const {
+  D3D9CALL(mDevice->BeginScene());
+}
+
 // TODO: shading mode
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
 void D3D9Device::execute(const CommandList& commandList) {
-  // TODO: should we make all rendering code dependent
-  // on the success of BeginScene? -> Log error and/or throw exception
-  D3D9CALL(mDevice->BeginScene());
-
-  for (const auto& commandPtr : commandList.commands()) {
-    switch (commandPtr->type) {
+  for (const auto& command : commandList.commands()) {
+    switch (command->type) {
     case CommandType::SetAmbientLight:
-      execute(commandPtr->as<CommandSetAmbientLight>());
+      execute(command->as<CommandSetAmbientLight>());
       break;
 
     case CommandType::SetDirectionalLights:
-      execute(commandPtr->as<CommandSetDirectionalLights>());
+      execute(command->as<CommandSetDirectionalLights>());
       break;
 
     case CommandType::SetTransform:
-      execute(commandPtr->as<CommandSetTransform>());
+      execute(command->as<CommandSetTransform>());
+      break;
+
+    case CommandType::RenderImGui:
+      execute(command->as<CommandRenderImGui>());
       break;
 
     case CommandType::Legacy:
-      execute(commandPtr->as<CommandLegacy>());
+      execute(command->as<CommandLegacy>());
       break;
     }
-  }
-
-  // render imgui
-  ImGui::Render();
-  auto* drawData = ImGui::GetDrawData();
-  if (drawData) {
-    ImGui_ImplDX9_RenderDrawData(drawData);
   }
 
   // disable used lights
@@ -124,7 +121,9 @@ void D3D9Device::execute(const CommandList& commandList) {
   D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
 
   D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
+}
 
+void D3D9Device::end_execution() const {
   D3D9CALL(mDevice->EndScene());
 }
 
@@ -410,6 +409,14 @@ void D3D9Device::execute(const CommandSetTransform& command) const {
   case TransformType::View:
     D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &transform));
     break;
+  }
+}
+
+void D3D9Device::execute(const CommandRenderImGui&) {
+  ImGui::Render();
+  auto* drawData = ImGui::GetDrawData();
+  if (drawData) {
+    ImGui_ImplDX9_RenderDrawData(drawData);
   }
 }
 

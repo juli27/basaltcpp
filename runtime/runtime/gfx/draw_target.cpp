@@ -11,17 +11,16 @@ DrawTarget::DrawTarget(const Size2Du16 size)
   : mSize {size} {
 }
 
-auto DrawTarget::visuals() const -> const vector<Visual>& {
-  return mVisuals;
+auto DrawTarget::drawables() const -> const vector<DrawablePtr>& {
+  return mDrawables;
 }
 
 auto DrawTarget::size() const -> Size2Du16 {
   return mSize;
 }
 
-auto DrawTarget::draw(shared_ptr<Drawable> drawable) -> const Visual& {
-  return mVisuals.emplace_back(
-    std::move(drawable), Rectangle {0, 0, mSize.width(), mSize.height()});
+void DrawTarget::draw(shared_ptr<Drawable> drawable) {
+  mDrawables.push_back(std::move(drawable));
 }
 
 } // namespace basalt::gfx
