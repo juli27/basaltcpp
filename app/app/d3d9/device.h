@@ -10,6 +10,8 @@
 
 #include <wrl/client.h>
 
+#include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace basalt::gfx {
@@ -52,11 +54,11 @@ struct D3D9Device final : Device {
   auto load_model(std::string_view filePath) -> ModelHandle override;
   void remove_model(ModelHandle) override;
 
-  void init_dear_imgui() override;
-  void shutdown_dear_imgui() override;
-  void new_gui_frame() override;
+  auto query_extension(
+    std::string_view name) -> std::optional<ExtensionPtr> override;
 
 private:
+  using ExtensionMap = std::unordered_map<std::string, ExtensionPtr>;
   using Texture = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
 
   struct Model {
@@ -66,17 +68,21 @@ private:
   };
 
   Microsoft::WRL::ComPtr<IDirect3DDevice9> mDevice {};
+
+  ExtensionMap mExtensions {};
+
   D3DCAPS9 mDeviceCaps {};
+
   HandlePool<D3D9Mesh, MeshHandle> mMeshes {};
   HandlePool<Texture, TextureHandle> mTextures {};
   HandlePool<Model, ModelHandle> mModels {};
+
   u8 mMaxLightsUsed {0};
 
   void execute(const CommandLegacy&);
   void execute(const CommandSetAmbientLight&) const;
   void execute(const CommandSetDirectionalLights&);
   void execute(const CommandSetTransform&) const;
-  static void execute(const CommandRenderImGui&);
 };
 
 } // namespace basalt::gfx

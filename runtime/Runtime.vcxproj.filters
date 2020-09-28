@@ -140,6 +140,12 @@
     <ClInclude Include="runtime\gfx\backend\composite.h">
       <Filter>gfx\backend</Filter>
     </ClInclude>
+    <ClInclude Include="runtime\gfx\backend\ext\dear_imgui_renderer.h">
+      <Filter>gfx\backend\ext</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\gfx\backend\ext\extension.h">
+      <Filter>gfx\backend\ext</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="platform">
@@ -159,6 +165,9 @@
     </Filter>
     <Filter Include="scene">
       <UniqueIdentifier>{7a0f3822-a52e-4443-8845-ec0e7fb828d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gfx\backend\ext">
+      <UniqueIdentifier>{3ab4b26b-9966-4030-834a-beb12cfa9763}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

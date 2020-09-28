@@ -179,6 +179,8 @@
     <ClInclude Include="runtime\gfx\backend\composite.h" />
     <ClInclude Include="runtime\gfx\backend\device.h" />
     <ClInclude Include="runtime\gfx\backend\commands.h" />
+    <ClInclude Include="runtime\gfx\backend\ext\dear_imgui_renderer.h" />
+    <ClInclude Include="runtime\gfx\backend\ext\extension.h" />
     <ClInclude Include="runtime\gfx\backend\types.h" />
     <ClInclude Include="runtime\gfx\camera.h" />
     <ClInclude Include="runtime\gfx\compositor.h" />

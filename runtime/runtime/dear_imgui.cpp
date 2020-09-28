@@ -6,19 +6,23 @@
 #include "gfx/draw_target.h"
 #include "gfx/backend/command_list.h"
 #include "gfx/backend/device.h"
+#include "gfx/backend/ext/dear_imgui_renderer.h"
 #include "math/vec2.h"
 #include "shared/color.h"
 #include "shared/size2d.h"
 
 #include <imgui/imgui.h>
 
+using namespace std::literals;
+
 namespace basalt {
 
 using gfx::CommandList;
 using gfx::Device;
+using gfx::ext::CommandRenderImGui;
+using gfx::ext::DearImGuiRenderer;
 
-DearImGui::DearImGui(Device& renderer)
-  : mRenderer {renderer} {
+DearImGui::DearImGui(Device& gfxDevice) {
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
 
@@ -49,17 +53,19 @@ DearImGui::DearImGui(Device& renderer)
   io.KeyMap[ImGuiKey_Y] = enum_cast(Key::Y);
   io.KeyMap[ImGuiKey_Z] = enum_cast(Key::Z);
 
-  mRenderer.init_dear_imgui();
+  mRenderer = std::static_pointer_cast<DearImGuiRenderer>(
+    gfxDevice.query_extension("ext_dear_imgui_renderer"sv).value());
+  mRenderer->init();
 }
 
 DearImGui::~DearImGui() {
-  mRenderer.shutdown_dear_imgui();
+  mRenderer->shutdown();
 
   ImGui::DestroyContext();
 }
 
 void DearImGui::new_frame(const UpdateContext& ctx) const {
-  mRenderer.new_gui_frame();
+  mRenderer->new_frame();
 
   auto& io = ImGui::GetIO();
   const Input& input {ctx.input};
@@ -115,7 +121,7 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
     }
   }
 
-  const Size2Du16& displaySize {ctx.drawTarget.size()};
+  const Size2Du16 displaySize {ctx.drawTarget.size()};
   io.DisplaySize = ImVec2(
     static_cast<float>(displaySize.width())
   , static_cast<float>(displaySize.height())
@@ -129,7 +135,7 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
   //       the super key mapping to the windows key on windows caused
   //       some interoperability problems with OS functionality e.g.
   //       a pressed down super key sticking around after Win+V
-  io.KeySuper = false;
+  //io.KeySuper = false;
 
   static_assert(ImGuiMouseCursor_COUNT == 9);
   if (!(io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)) {
@@ -148,7 +154,7 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
 
 auto DearImGui::draw(Device&, Size2Du16) -> CommandList {
   CommandList commandList {};
-  commandList.render_imgui();
+  commandList.add<CommandRenderImGui>();
 
   return commandList;
 }

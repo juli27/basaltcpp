@@ -1,16 +1,20 @@
 #pragma once
 
 #include "types.h"
+#include "ext/extension.h"
 
 #include <runtime/shared/types.h>
 
 #include <memory>
+#include <optional>
 #include <string_view>
 
 namespace basalt::gfx {
 
 struct Device;
 using DevicePtr = std::shared_ptr<Device>;
+
+using ExtensionPtr = std::shared_ptr<ext::Extension>;
 
 struct Device {
   Device(const Device&) = delete;
@@ -67,12 +71,11 @@ struct Device {
   virtual auto load_model(std::string_view filePath) -> ModelHandle = 0;
   virtual void remove_model(ModelHandle) = 0;
 
-  virtual void init_dear_imgui() = 0;
-  virtual void shutdown_dear_imgui() = 0;
-  virtual void new_gui_frame() = 0;
+  virtual auto query_extension(
+    std::string_view name) -> std::optional<ExtensionPtr> = 0;
 
 protected:
-    Device() noexcept = default;
+  Device() noexcept = default;
 };
 
 } // namespace basalt::gfx

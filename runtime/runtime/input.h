@@ -90,8 +90,7 @@ private:
 };
 
 enum class InputEventType : u8 {
-  Unknown
-, MouseMoved
+  MouseMoved
 , MouseWheel
 , MouseButtonDown
 , MouseButtonUp
@@ -101,9 +100,9 @@ enum class InputEventType : u8 {
 };
 
 struct InputEvent {
-  InputEventType type {InputEventType::Unknown};
+  InputEventType type;
 
-  constexpr InputEvent() noexcept = default;
+  constexpr InputEvent() noexcept = delete;
 
   constexpr InputEvent(const InputEvent&) noexcept = default;
   constexpr InputEvent(InputEvent&&) noexcept = default;

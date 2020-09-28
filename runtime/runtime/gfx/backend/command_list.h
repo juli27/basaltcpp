@@ -3,6 +3,7 @@
 #include "types.h"
 
 #include <memory>
+#include <type_traits>
 #include <vector>
 
 namespace basalt {
@@ -44,7 +45,15 @@ struct CommandList final {
   void set_ambient_light(const Color&);
   void set_directional_lights(const std::vector<DirectionalLight>&);
   void set_transform(TransformType, const Mat4f32&);
-  void render_imgui();
+
+  template <typename T, typename... Args>
+  void add(Args&&... args) {
+    static_assert(std::is_base_of_v<Command, T>,
+      "CommandLists only accept commands derived from Command");
+    static_assert(std::is_trivially_destructible_v<T>);
+
+    mCommands.push_back(std::make_unique<T>(std::forward<Args>(args)...));
+  }
 
 private:
   std::vector<CommandPtr> mCommands {};

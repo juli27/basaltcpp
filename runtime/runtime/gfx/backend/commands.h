@@ -82,21 +82,6 @@ struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
 static_assert(sizeof(CommandSetTransform) == 68);
 static_assert(std::is_trivially_destructible_v<CommandSetTransform>);
 
-struct CommandRenderImGui final : CommandT<CommandType::RenderImGui> {
-  CommandRenderImGui() noexcept = default;
-
-  CommandRenderImGui(const CommandRenderImGui&) = default;
-  CommandRenderImGui(CommandRenderImGui&&) = default;
-
-  ~CommandRenderImGui() noexcept = default;
-
-  auto operator=(const CommandRenderImGui&) -> CommandRenderImGui& = default;
-  auto operator=(CommandRenderImGui&&) -> CommandRenderImGui& = default;
-};
-
-static_assert(sizeof(CommandRenderImGui) == 1);
-static_assert(std::is_trivially_destructible_v<CommandRenderImGui>);
-
 struct CommandLegacy final : CommandT<
     CommandType::Legacy> {
   u8 flags {RenderFlagNone};

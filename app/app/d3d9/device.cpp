@@ -6,6 +6,7 @@
 
 #include <runtime/scene/types.h>
 
+#include <runtime/gfx/backend/ext/dear_imgui_renderer.h>
 #include <runtime/math/mat4.h>
 
 #include <runtime/shared/asserts.h>
@@ -19,10 +20,13 @@
 #include <array>
 #include <cstring>
 #include <stdexcept>
-#include <string_view>
 #include <utility>
 
 using std::array;
+using std::optional;
+using std::string;
+using std::string_view;
+using namespace std::literals;
 
 using Microsoft::WRL::ComPtr;
 
@@ -55,11 +59,36 @@ auto verify_fvf(DWORD fvf) -> bool;
 void fill_primitive_info(
   D3D9Mesh& mesh, PrimitiveType primitiveType, i32 numVtx);
 
+struct D3D9ImGuiRenderer final : ext::DearImGuiRenderer {
+  D3D9ImGuiRenderer() = delete;
+  explicit D3D9ImGuiRenderer(ComPtr<IDirect3DDevice9>);
+
+  D3D9ImGuiRenderer(const D3D9ImGuiRenderer&) = delete;
+  D3D9ImGuiRenderer(D3D9ImGuiRenderer&&) = delete;
+
+  ~D3D9ImGuiRenderer() override = default;
+
+  auto operator=(const D3D9ImGuiRenderer&) -> D3D9ImGuiRenderer& = delete;
+  auto operator=(D3D9ImGuiRenderer&&) -> D3D9ImGuiRenderer& = delete;
+
+  static void execute(const ext::CommandRenderImGui&);
+
+  void init() override;
+  void shutdown() override;
+  void new_frame() override;
+
+private:
+  ComPtr<IDirect3DDevice9> mDevice {};
+};
+
 } // namespace
 
 D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
   : mDevice {std::move(device)} {
   BASALT_ASSERT(mDevice);
+
+  mExtensions["ext_dear_imgui_renderer"s] = std::make_shared<D3D9ImGuiRenderer>(
+    mDevice);
 
   D3D9CALL(mDevice->GetDeviceCaps(&mDeviceCaps));
 }
@@ -84,6 +113,16 @@ void D3D9Device::begin_execution() const {
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
 void D3D9Device::execute(const CommandList& commandList) {
   for (const auto& command : commandList.commands()) {
+    // check if the command is an extension command
+    if (const u8 cmdId = enum_cast(command->type); cmdId >= enum_cast(
+      CommandType::FirstReservedForExt)) {
+      if (cmdId == 128) {
+        D3D9ImGuiRenderer::execute(command->as<ext::CommandRenderImGui>());
+      }
+
+      continue;
+    }
+
     switch (command->type) {
     case CommandType::SetAmbientLight:
       execute(command->as<CommandSetAmbientLight>());
@@ -97,12 +136,12 @@ void D3D9Device::execute(const CommandList& commandList) {
       execute(command->as<CommandSetTransform>());
       break;
 
-    case CommandType::RenderImGui:
-      execute(command->as<CommandRenderImGui>());
-      break;
-
     case CommandType::Legacy:
       execute(command->as<CommandLegacy>());
+      break;
+
+    case CommandType::FirstReservedForExt:
+    case CommandType::LastReservedForExt:
       break;
     }
   }
@@ -172,8 +211,7 @@ void D3D9Device::remove_mesh(const MeshHandle meshHandle) {
   mMeshes.deallocate(meshHandle);
 }
 
-auto D3D9Device::add_texture(
-  const std::string_view filePath) -> TextureHandle {
+auto D3D9Device::add_texture(const string_view filePath) -> TextureHandle {
   const auto [handle, texture] = mTextures.allocate();
 
   const auto wideFilePath = create_wide_from_utf8(filePath);
@@ -192,7 +230,7 @@ void D3D9Device::remove_texture(const TextureHandle textureHandle) {
   mTextures.deallocate(textureHandle);
 }
 
-auto D3D9Device::load_model(const std::string_view filePath) -> ModelHandle {
+auto D3D9Device::load_model(const string_view filePath) -> ModelHandle {
   const auto [handle, model] = mModels.allocate();
 
   const auto wideFilePath {create_wide_from_utf8(filePath)};
@@ -240,16 +278,14 @@ void D3D9Device::remove_model(const ModelHandle handle) {
   mModels.deallocate(handle);
 }
 
-void D3D9Device::init_dear_imgui() {
-  ImGui_ImplDX9_Init(mDevice.Get());
-}
+auto D3D9Device::query_extension(
+  const string_view name) -> optional<ExtensionPtr> {
+  if (const auto entry = mExtensions.find(string {name});
+    entry != mExtensions.end()) {
+    return entry->second;
+  }
 
-void D3D9Device::shutdown_dear_imgui() {
-  ImGui_ImplDX9_Shutdown();
-}
-
-void D3D9Device::new_gui_frame() {
-  ImGui_ImplDX9_NewFrame();
+  return std::nullopt;
 }
 
 void D3D9Device::execute(const CommandLegacy& command) {
@@ -412,14 +448,6 @@ void D3D9Device::execute(const CommandSetTransform& command) const {
   }
 }
 
-void D3D9Device::execute(const CommandRenderImGui&) {
-  ImGui::Render();
-  auto* drawData = ImGui::GetDrawData();
-  if (drawData) {
-    ImGui_ImplDX9_RenderDrawData(drawData);
-  }
-}
-
 namespace {
 
 auto to_fvf(const VertexLayout& layout) -> DWORD {
@@ -506,6 +534,30 @@ void fill_primitive_info(
     mesh.primCount = numVtx - 2;
     break;
   }
+}
+
+D3D9ImGuiRenderer::D3D9ImGuiRenderer(ComPtr<IDirect3DDevice9> device)
+  : mDevice {std::move(device)} {
+}
+
+void D3D9ImGuiRenderer::execute(const ext::CommandRenderImGui&) {
+  ImGui::Render();
+  auto* drawData = ImGui::GetDrawData();
+  if (drawData) {
+    ImGui_ImplDX9_RenderDrawData(drawData);
+  }
+}
+
+void D3D9ImGuiRenderer::init() {
+  ImGui_ImplDX9_Init(mDevice.Get());
+}
+
+void D3D9ImGuiRenderer::shutdown() {
+  ImGui_ImplDX9_Shutdown();
+}
+
+void D3D9ImGuiRenderer::new_frame() {
+  ImGui_ImplDX9_NewFrame();
 }
 
 } // namespace

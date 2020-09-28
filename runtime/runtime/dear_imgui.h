@@ -2,6 +2,8 @@
 
 #include "gfx/drawable.h"
 
+#include <memory>
+
 namespace basalt {
 
 struct UpdateContext;
@@ -9,6 +11,12 @@ struct UpdateContext;
 namespace gfx {
 
 struct Device;
+
+namespace ext {
+
+struct DearImGuiRenderer;
+
+}
 
 } // namespace gfx
 
@@ -31,7 +39,7 @@ struct DearImGui final : gfx::Drawable {
   auto clear_color() const -> const Color& override;
 
 private:
-  gfx::Device& mRenderer;
+  std::shared_ptr<gfx::ext::DearImGuiRenderer> mRenderer {};
 };
 
 } // namespace basalt

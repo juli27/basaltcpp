@@ -13,13 +13,19 @@ enum class CommandType : u8 {
 , SetDirectionalLights
 , SetAmbientLight
 , SetTransform
-, RenderImGui
+
+, FirstReservedForExt = 128
+, LastReservedForExt = 255
 };
 
 struct Command {
   CommandType type;
 
-  constexpr Command() noexcept = delete;
+  Command() = delete;
+
+  constexpr explicit Command(const CommandType t) noexcept
+    : type {t} {
+  }
 
   constexpr Command(const Command&) noexcept = default;
   constexpr Command(Command&&) noexcept = default;
@@ -29,7 +35,6 @@ struct Command {
   auto operator=(const Command&) noexcept -> Command& = default;
   auto operator=(Command&&) noexcept -> Command& = default;
 
-  // TODO: is there a better solution?
   template <typename T>
   auto as() -> T& {
     BASALT_ASSERT_MSG(type == T::TYPE, "invalid command cast");

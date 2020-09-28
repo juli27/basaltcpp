@@ -44,8 +44,4 @@ void CommandList::set_transform(
   mCommands.push_back(std::make_unique<CommandSetTransform>(type, transform));
 }
 
-void CommandList::render_imgui() {
-  mCommands.push_back(std::make_unique<CommandRenderImGui>());
-}
-
 } // namespace basalt::gfx
