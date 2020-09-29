@@ -20,12 +20,8 @@ struct DrawTarget;
 } // namespace gfx
 
 struct Engine {
-  Engine() = delete;
-
   Engine(const Engine&) = delete;
   Engine(Engine&&) = delete;
-
-  ~Engine() = default;
 
   auto operator=(const Engine&) -> Engine& = delete;
   auto operator=(Engine&&) -> Engine& = delete;
@@ -50,6 +46,8 @@ protected:
   bool mIsDirty {false};
 
   Engine(Config&, std::shared_ptr<gfx::Context>);
+
+  ~Engine() = default;
 };
 
 struct UpdateContext final {

@@ -20,11 +20,11 @@ auto CommandList::commands() const -> const vector<CommandPtr>& {
 }
 
 void CommandList::add(const CommandLegacy& command) {
-  mCommands.push_back(std::make_unique<CommandLegacy>(command));
+  add<CommandLegacy>(command);
 }
 
 void CommandList::set_ambient_light(const Color& color) {
-  mCommands.push_back(std::make_unique<CommandSetAmbientLight>(color));
+  add<CommandSetAmbientLight>(color);
 }
 
 void CommandList::set_directional_lights(
@@ -35,13 +35,12 @@ void CommandList::set_directional_lights(
   array<DirectionalLight, 4> directionalLights {};
   std::copy(lights.begin(), lights.end(), directionalLights.begin());
 
-  mCommands.push_back(
-    std::make_unique<CommandSetDirectionalLights>(directionalLights));
+  add<CommandSetDirectionalLights>(directionalLights);
 }
 
 void CommandList::set_transform(
   const TransformType type, const Mat4f32& transform) {
-  mCommands.push_back(std::make_unique<CommandSetTransform>(type, transform));
+  add<CommandSetTransform>(type, transform);
 }
 
 } // namespace basalt::gfx

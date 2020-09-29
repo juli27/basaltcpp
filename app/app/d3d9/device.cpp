@@ -60,18 +60,9 @@ void fill_primitive_info(
   D3D9Mesh& mesh, PrimitiveType primitiveType, i32 numVtx);
 
 struct D3D9ImGuiRenderer final : ext::DearImGuiRenderer {
-  D3D9ImGuiRenderer() = delete;
   explicit D3D9ImGuiRenderer(ComPtr<IDirect3DDevice9>);
 
-  D3D9ImGuiRenderer(const D3D9ImGuiRenderer&) = delete;
-  D3D9ImGuiRenderer(D3D9ImGuiRenderer&&) = delete;
-
-  ~D3D9ImGuiRenderer() override = default;
-
-  auto operator=(const D3D9ImGuiRenderer&) -> D3D9ImGuiRenderer& = delete;
-  auto operator=(D3D9ImGuiRenderer&&) -> D3D9ImGuiRenderer& = delete;
-
-  static void execute(const ext::CommandRenderImGui&);
+  static void execute(const ext::CommandRenderDearImGui&);
 
   void init() override;
   void shutdown() override;
@@ -113,16 +104,6 @@ void D3D9Device::begin_execution() const {
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
 void D3D9Device::execute(const CommandList& commandList) {
   for (const auto& command : commandList.commands()) {
-    // check if the command is an extension command
-    if (const u8 cmdId = enum_cast(command->type); cmdId >= enum_cast(
-      CommandType::FirstReservedForExt)) {
-      if (cmdId == 128) {
-        D3D9ImGuiRenderer::execute(command->as<ext::CommandRenderImGui>());
-      }
-
-      continue;
-    }
-
     switch (command->type) {
     case CommandType::SetAmbientLight:
       execute(command->as<CommandSetAmbientLight>());
@@ -140,8 +121,12 @@ void D3D9Device::execute(const CommandList& commandList) {
       execute(command->as<CommandLegacy>());
       break;
 
-    case CommandType::FirstReservedForExt:
-    case CommandType::LastReservedForExt:
+    case CommandType::ExtRenderDearImGui:
+      D3D9ImGuiRenderer::execute(command->as<ext::CommandRenderDearImGui>());
+      break;
+
+    case CommandType::FirstReservedForUserExt:
+    case CommandType::LastReservedForUserExt:
       break;
     }
   }
@@ -540,10 +525,9 @@ D3D9ImGuiRenderer::D3D9ImGuiRenderer(ComPtr<IDirect3DDevice9> device)
   : mDevice {std::move(device)} {
 }
 
-void D3D9ImGuiRenderer::execute(const ext::CommandRenderImGui&) {
+void D3D9ImGuiRenderer::execute(const ext::CommandRenderDearImGui&) {
   ImGui::Render();
-  auto* drawData = ImGui::GetDrawData();
-  if (drawData) {
+  if (auto* drawData = ImGui::GetDrawData()) {
     ImGui_ImplDX9_RenderDrawData(drawData);
   }
 }

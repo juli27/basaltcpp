@@ -16,14 +16,6 @@ struct D3D9Context final : Context {
   D3D9Context(
     std::shared_ptr<D3D9Device>, const D3DPRESENT_PARAMETERS&);
 
-  D3D9Context(const D3D9Context&) = delete;
-  D3D9Context(D3D9Context&&) = delete;
-
-  ~D3D9Context() noexcept override = default;
-
-  auto operator=(const D3D9Context&) -> D3D9Context& = delete;
-  auto operator=(D3D9Context&&) -> D3D9Context& = delete;
-
   [[nodiscard]]
   auto surface_size() const noexcept -> Size2Du16 override;
 

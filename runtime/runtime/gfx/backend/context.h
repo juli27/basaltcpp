@@ -10,8 +10,6 @@ struct Device;
 // A gfx context is directly tied to a window. If another gfx context is
 // required (e.g. change of rendering API), the window must be recreated.
 struct Context {
-  Context() noexcept = default;
-
   Context(const Context&) = delete;
   Context(Context&&) = delete;
 
@@ -30,6 +28,9 @@ struct Context {
 
   virtual void submit(const Composite&) = 0;
   virtual void present() = 0;
+
+protected:
+  Context() noexcept = default;
 };
 
 } // namespace basalt::gfx

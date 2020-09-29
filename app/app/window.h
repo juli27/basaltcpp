@@ -23,8 +23,6 @@ struct Window;
 using WindowPtr = std::unique_ptr<Window>;
 
 struct Window final {
-  Window() = delete;
-
   Window(const Window&) = delete;
   Window(Window&&) = delete;
 

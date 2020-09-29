@@ -21,7 +21,6 @@ struct Device;
 using DevicePtr = std::shared_ptr<Device>;
 
 struct D3D9Factory final {
-  D3D9Factory() = delete;
   explicit D3D9Factory(Microsoft::WRL::ComPtr<IDirect3D9> factory);
 
   D3D9Factory(const D3D9Factory& other) = delete;

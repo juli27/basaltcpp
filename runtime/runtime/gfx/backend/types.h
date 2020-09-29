@@ -14,49 +14,34 @@ enum class CommandType : u8 {
 , SetAmbientLight
 , SetTransform
 
-, FirstReservedForExt = 128
-, LastReservedForExt = 255
+, ExtRenderDearImGui
+
+, FirstReservedForUserExt = 128
+, LastReservedForUserExt = 255
 };
 
 struct Command {
   CommandType type;
-
-  Command() = delete;
-
-  constexpr explicit Command(const CommandType t) noexcept
-    : type {t} {
-  }
-
-  constexpr Command(const Command&) noexcept = default;
-  constexpr Command(Command&&) noexcept = default;
-
-  ~Command() noexcept = default;
-
-  auto operator=(const Command&) noexcept -> Command& = default;
-  auto operator=(Command&&) noexcept -> Command& = default;
 
   template <typename T>
   auto as() -> T& {
     BASALT_ASSERT_MSG(type == T::TYPE, "invalid command cast");
     return *static_cast<T*>(this);
   }
+
+protected:
+  constexpr explicit Command(const CommandType t) noexcept
+    : type {t} {
+  }
 };
 
 template <CommandType Type>
 struct CommandT : Command {
-  static constexpr CommandType TYPE = Type;
+  static constexpr CommandType TYPE {Type};
 
   constexpr CommandT() noexcept
     : Command {TYPE} {
   }
-
-  constexpr CommandT(const CommandT&) noexcept = default;
-  constexpr CommandT(CommandT&&) noexcept = default;
-
-  ~CommandT() noexcept = default;
-
-  auto operator=(const CommandT&) noexcept -> CommandT& = default;
-  auto operator=(CommandT&&) noexcept -> CommandT& = default;
 };
 
 enum RenderFlags : u8 {

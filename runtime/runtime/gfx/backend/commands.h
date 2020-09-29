@@ -2,19 +2,15 @@
 
 #include "types.h"
 
-#include <runtime/scene/types.h>
-#include <runtime/math/mat4.h>
+#include "runtime/scene/types.h"
+#include "runtime/math/mat4.h"
 
-#include <runtime/shared/color.h>
-#include <runtime/shared/types.h>
+#include "runtime/shared/color.h"
+#include "runtime/shared/types.h"
 
 #include <array>
 
-namespace basalt {
-
-struct DirectionalLight;
-
-namespace gfx {
+namespace basalt::gfx {
 
 struct CommandSetDirectionalLights final : CommandT<
     CommandType::SetDirectionalLights> {
@@ -22,45 +18,23 @@ struct CommandSetDirectionalLights final : CommandT<
   // can't be a vector. Otherwise it leaks. (no virtual destructor)
   std::array<DirectionalLight, 4> directionalLights {};
 
-  explicit CommandSetDirectionalLights(
+  constexpr explicit CommandSetDirectionalLights(
     std::array<DirectionalLight, 4> dl) noexcept
     : directionalLights {dl} {
   }
-
-  CommandSetDirectionalLights(const CommandSetDirectionalLights&) = default;
-  CommandSetDirectionalLights(CommandSetDirectionalLights&&) = default;
-
-  ~CommandSetDirectionalLights() noexcept = default;
-
-  auto operator=(
-    const CommandSetDirectionalLights&) -> CommandSetDirectionalLights&
-  = default;
-  auto operator=(
-    CommandSetDirectionalLights&&) -> CommandSetDirectionalLights& = default;
 };
 
 static_assert(sizeof(CommandSetDirectionalLights) == 180);
-static_assert(std::is_trivially_destructible_v<CommandSetDirectionalLights>);
 
 struct CommandSetAmbientLight final : CommandT<CommandType::SetAmbientLight> {
   Color ambientColor {};
 
-  explicit CommandSetAmbientLight(const Color& color) noexcept
+  constexpr explicit CommandSetAmbientLight(const Color& color) noexcept
     : ambientColor {color} {
   }
-
-  CommandSetAmbientLight(const CommandSetAmbientLight&) = default;
-  CommandSetAmbientLight(CommandSetAmbientLight&&) = default;
-
-  ~CommandSetAmbientLight() noexcept = default;
-
-  auto operator=(
-    const CommandSetAmbientLight&) -> CommandSetAmbientLight& = default;
-  auto operator=(CommandSetAmbientLight&&) -> CommandSetAmbientLight& = default;
 };
 
 static_assert(sizeof(CommandSetAmbientLight) == 20);
-static_assert(std::is_trivially_destructible_v<CommandSetAmbientLight>);
 
 struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
   TransformType transformType;
@@ -69,21 +43,11 @@ struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
   CommandSetTransform(const TransformType tType, const Mat4f32& t) noexcept
     : transformType {tType}, transform {t} {
   }
-
-  CommandSetTransform(const CommandSetTransform&) = default;
-  CommandSetTransform(CommandSetTransform&&) = default;
-
-  ~CommandSetTransform() noexcept = default;
-
-  auto operator=(const CommandSetTransform&) -> CommandSetTransform& = default;
-  auto operator=(CommandSetTransform&&) -> CommandSetTransform& = default;
 };
 
 static_assert(sizeof(CommandSetTransform) == 68);
-static_assert(std::is_trivially_destructible_v<CommandSetTransform>);
 
-struct CommandLegacy final : CommandT<
-    CommandType::Legacy> {
+struct CommandLegacy final : CommandT<CommandType::Legacy> {
   u8 flags {RenderFlagNone};
   TexCoordinateSrc texCoordinateSrc {TexCoordinateSrc::Vertex};
 
@@ -101,7 +65,5 @@ struct CommandLegacy final : CommandT<
 };
 
 static_assert(sizeof(CommandLegacy) == 192);
-static_assert(std::is_trivially_destructible_v<CommandLegacy>);
 
-} // namespace gfx
-} // namespace basalt
+} // namespace basalt::gfx
