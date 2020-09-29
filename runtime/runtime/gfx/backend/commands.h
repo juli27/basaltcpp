@@ -47,8 +47,18 @@ struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
 
 static_assert(sizeof(CommandSetTransform) == 68);
 
+struct CommandSetRenderState final : CommandT<CommandType::SetRenderState> {
+  RenderState renderState;
+  u32 value;
+
+  constexpr CommandSetRenderState(const RenderState state, const u32 val)
+    : renderState {state}, value {val} {
+  }
+};
+
+static_assert(sizeof(CommandSetRenderState) == 8);
+
 struct CommandLegacy final : CommandT<CommandType::Legacy> {
-  u8 flags {RenderFlagNone};
   TexCoordinateSrc texCoordinateSrc {TexCoordinateSrc::Vertex};
 
   MeshHandle mesh {};

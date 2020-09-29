@@ -76,6 +76,7 @@ private:
   void execute(const CommandSetAmbientLight&) const;
   void execute(const CommandSetDirectionalLights&);
   void execute(const CommandSetTransform&) const;
+  void execute(const CommandSetRenderState&) const;
 };
 
 } // namespace basalt::gfx

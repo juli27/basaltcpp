@@ -70,14 +70,27 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
           Mat4f32::translation(transform.position);
       }
 
+      if (renderComponent.renderFlags & RenderFlagDisableLighting) {
+        commandList.set_render_state(RenderState::Lighting, false);
+      }
+      if (renderComponent.renderFlags & RenderFlagCullNone) {
+        commandList.set_render_state(RenderState::CullMode, CullModeNone);
+      }
+
       command.mesh = renderComponent.mesh;
       command.texture = renderComponent.texture;
       command.diffuseColor = renderComponent.diffuseColor;
       command.ambientColor = renderComponent.ambientColor;
       command.texTransform = renderComponent.texTransform;
       command.texCoordinateSrc = renderComponent.tcs;
-      command.flags = renderComponent.renderFlags;
       commandList.add(command);
+
+      if (renderComponent.renderFlags & RenderFlagCullNone) {
+        commandList.set_render_state(RenderState::CullMode, CullModeCcw);
+      }
+      if (renderComponent.renderFlags & RenderFlagDisableLighting) {
+        commandList.set_render_state(RenderState::Lighting, true);
+      }
     });
 
   return commandList;

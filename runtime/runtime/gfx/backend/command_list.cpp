@@ -33,7 +33,9 @@ void CommandList::set_directional_lights(
   BASALT_ASSERT(lights.size() <= 4);
 
   array<DirectionalLight, 4> directionalLights {};
-  std::copy(lights.begin(), lights.end(), directionalLights.begin());
+  std::copy_n(
+    lights.begin(), std::min(lights.size(), directionalLights.size())
+  , directionalLights.begin());
 
   add<CommandSetDirectionalLights>(directionalLights);
 }
@@ -41,6 +43,10 @@ void CommandList::set_directional_lights(
 void CommandList::set_transform(
   const TransformType type, const Mat4f32& transform) {
   add<CommandSetTransform>(type, transform);
+}
+
+void CommandList::set_render_state(const RenderState rs, const u32 value) {
+  add<CommandSetRenderState>(rs, value);
 }
 
 } // namespace basalt::gfx

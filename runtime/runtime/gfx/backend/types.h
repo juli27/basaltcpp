@@ -13,6 +13,7 @@ enum class CommandType : u8 {
 , SetDirectionalLights
 , SetAmbientLight
 , SetTransform
+, SetRenderState
 
 , ExtRenderDearImGui
 
@@ -42,6 +43,19 @@ struct CommandT : Command {
   constexpr CommandT() noexcept
     : Command {TYPE} {
   }
+};
+
+enum class RenderState : u8 {
+  Lighting
+, CullMode
+};
+
+constexpr uSize RENDER_STATE_COUNT = 2u;
+
+enum CullMode : u8 {
+  CullModeNone
+, CullModeCw
+, CullModeCcw
 };
 
 enum RenderFlags : u8 {

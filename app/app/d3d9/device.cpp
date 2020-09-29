@@ -20,6 +20,7 @@
 #include <array>
 #include <cstring>
 #include <stdexcept>
+#include <tuple>
 #include <utility>
 
 using std::array;
@@ -55,6 +56,9 @@ constexpr auto to_d3d_vector(const Vec3f32& vec) noexcept -> D3DVECTOR {
 
 auto to_fvf(const VertexLayout& layout) -> DWORD;
 auto verify_fvf(DWORD fvf) -> bool;
+
+auto to_d3d_render_state(
+  RenderState, u32 value) -> std::tuple<D3DRENDERSTATETYPE, DWORD>;
 
 void fill_primitive_info(
   D3D9Mesh& mesh, PrimitiveType primitiveType, i32 numVtx);
@@ -117,6 +121,10 @@ void D3D9Device::execute(const CommandList& commandList) {
       execute(command->as<CommandSetTransform>());
       break;
 
+    case CommandType::SetRenderState:
+      execute(command->as<CommandSetRenderState>());
+      break;
+
     case CommandType::Legacy:
       execute(command->as<CommandLegacy>());
       break;
@@ -139,6 +147,8 @@ void D3D9Device::execute(const CommandList& commandList) {
   // reset render states
   // TODO: use command block
   D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
+  D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
+  D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
 
   const auto identity = to_d3d_matrix(Mat4f32::identity());
   D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &identity));
@@ -274,18 +284,6 @@ auto D3D9Device::query_extension(
 }
 
 void D3D9Device::execute(const CommandLegacy& command) {
-  const bool disableLighting = command.flags & RenderFlagDisableLighting;
-
-  // apply custom render flags
-  if (command.flags) {
-    if (disableLighting) {
-      D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
-    }
-    if (command.flags & RenderFlagCullNone) {
-      D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-    }
-  }
-
   if (command.model) {
     const auto transform {to_d3d_matrix(command.worldTransform)};
     D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &transform));
@@ -303,7 +301,13 @@ void D3D9Device::execute(const CommandLegacy& command) {
   } else {
     const auto& mesh = mMeshes.get(command.mesh);
     const bool noLightingAndTransform = mesh.fvf & D3DFVF_XYZRHW;
-    if (!disableLighting && !noLightingAndTransform) {
+
+    u32 lightingEnabled;
+    D3D9CALL(
+      mDevice->GetRenderState(D3DRS_LIGHTING, reinterpret_cast<DWORD*>(&
+        lightingEnabled)));
+
+    if (lightingEnabled && !noLightingAndTransform) {
       D3DMATERIAL9 material {};
       material.Diffuse = to_d3d_color_value(command.diffuseColor);
       material.Ambient = to_d3d_color_value(command.ambientColor);
@@ -376,16 +380,6 @@ void D3D9Device::execute(const CommandLegacy& command) {
       D3D9CALL(mDevice->SetTexture(0, nullptr));
     }
   }
-
-  // revert custom render flags
-  if (command.flags) {
-    if (disableLighting) {
-      D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
-    }
-    if (command.flags & RenderFlagCullNone) {
-      D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
-    }
-  }
 }
 
 void D3D9Device::execute(const CommandSetAmbientLight& command) const {
@@ -433,6 +427,13 @@ void D3D9Device::execute(const CommandSetTransform& command) const {
   }
 }
 
+void D3D9Device::execute(const CommandSetRenderState& command) const {
+  const auto [renderState, value] = to_d3d_render_state(
+    command.renderState, command.value);
+
+  D3D9CALL(mDevice->SetRenderState(renderState, value));
+}
+
 namespace {
 
 auto to_fvf(const VertexLayout& layout) -> DWORD {
@@ -478,6 +479,32 @@ auto verify_fvf(const DWORD fvf) -> bool {
   }
 
   return true;
+}
+
+auto to_d3d_render_state(
+  const RenderState rs
+, const u32 value) -> std::tuple<D3DRENDERSTATETYPE, DWORD> {
+  static_assert(RENDER_STATE_COUNT == 2);
+
+  static constexpr std::array<D3DRENDERSTATETYPE, 2> RENDER_STATE_TO_D3D = {
+    /* RenderState::Lighting */ D3DRS_LIGHTING,
+    /* RenderState::CullMode */ D3DRS_CULLMODE
+  };
+
+  const D3DRENDERSTATETYPE renderState = RENDER_STATE_TO_D3D[enum_cast(rs)];
+  DWORD d3dValue = 0;
+
+  switch (rs) {
+  case RenderState::CullMode:
+    d3dValue = value + 1;
+    break;
+
+  case RenderState::Lighting:
+    d3dValue = value;
+    break;
+  }
+
+  return {renderState, d3dValue};
 }
 
 void fill_primitive_info(
