@@ -21,7 +21,6 @@ using Microsoft::WRL::ComPtr;
 
 using std::array;
 using std::runtime_error;
-using std::shared_ptr;
 using std::string;
 using std::tuple;
 

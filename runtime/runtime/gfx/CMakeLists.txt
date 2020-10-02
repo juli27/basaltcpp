@@ -1,12 +1,16 @@
 target_sources(Runtime
   PRIVATE
     "camera.cpp"
+    "command_list_recorder.cpp"
     "compositor.cpp"
+    "device_state_cache.cpp"
     "draw_target.cpp"
     "scene_view.cpp"
   PUBLIC
     "camera.h"
+    "command_list_recorder.h"
     "compositor.h"
+    "device_state_cache.h"
     "draw_target.h"
     "drawable.h"
     "scene_view.h"

@@ -1,6 +1,8 @@
 #include "scene_view.h"
 
+#include "command_list_recorder.h"
 #include "types.h"
+
 #include "backend/command_list.h"
 #include "backend/commands.h"
 #include "backend/device.h"
@@ -9,6 +11,7 @@
 #include "runtime/scene/scene.h"
 
 #include "runtime/shared/size2d.h"
+#include "runtime/shared/utils.h"
 
 #include <entt/entity/registry.hpp>
 
@@ -23,17 +26,17 @@ SceneView::SceneView(std::shared_ptr<Scene> scene, const Camera& camera)
 }
 
 auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
-  CommandList commandList {};
+  CommandListRecorder cmdListRecorder {};
 
-  commandList.set_transform(TransformType::View, mCamera.view_matrix());
-  commandList.set_transform(TransformType::Projection,
-                            mCamera.projection_matrix(viewport));
+  cmdListRecorder.set_transform(TransformType::View, mCamera.view_matrix());
+  cmdListRecorder.set_transform(TransformType::Projection,
+                                mCamera.projection_matrix(viewport));
 
-  commandList.set_ambient_light(mScene->ambient_light());
+  cmdListRecorder.set_ambient_light(mScene->ambient_light());
 
   const auto& directionalLights = mScene->directional_lights();
   if (!directionalLights.empty()) {
-    commandList.set_directional_lights(directionalLights);
+    cmdListRecorder.set_directional_lights(directionalLights);
   }
 
   const auto& ecs = mScene->ecs();
@@ -44,7 +47,7 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
         const auto worldTransform = Mat4f32::scaling(transform->scale) *
                                     Mat4f32::rotation(transform->rotation) *
                                     Mat4f32::translation(transform->position);
-        commandList.set_transform(TransformType::World, worldTransform);
+        cmdListRecorder.set_transform(TransformType::World, worldTransform);
       }
 
       if (mModelCache.find(model.model) == mModelCache.end()) {
@@ -54,7 +57,7 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
       CommandLegacy command {};
       command.model = mModelCache[model.model];
 
-      commandList.add(command);
+      cmdListRecorder.add(command);
     });
 
   ecs.view<const RenderComponent>().each(
@@ -63,15 +66,18 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
         const auto worldTransform = Mat4f32::scaling(transform->scale) *
                                     Mat4f32::rotation(transform->rotation) *
                                     Mat4f32::translation(transform->position);
-        commandList.set_transform(TransformType::World, worldTransform);
+        cmdListRecorder.set_transform(TransformType::World, worldTransform);
       }
 
-      if (renderComponent.renderFlags & RenderFlagDisableLighting) {
-        commandList.set_render_state(RenderState::Lighting, false);
-      }
-      if (renderComponent.renderFlags & RenderFlagCullNone) {
-        commandList.set_render_state(RenderState::CullMode, CullModeNone);
-      }
+      const auto lightingEnabled =
+        !(renderComponent.renderFlags & RenderFlagDisableLighting);
+      cmdListRecorder.set_render_state(RenderState::Lighting, lightingEnabled);
+
+      auto getCullMode = [](const u8 renderFlags) {
+        return renderFlags & RenderFlagCullNone ? CullModeNone : CullModeCcw;
+      };
+      cmdListRecorder.set_render_state(
+        RenderState::CullMode, getCullMode(renderComponent.renderFlags));
 
       CommandLegacy command {};
       command.mesh = renderComponent.mesh;
@@ -80,17 +86,10 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
       command.ambientColor = renderComponent.ambientColor;
       command.texTransform = renderComponent.texTransform;
       command.texCoordinateSrc = renderComponent.tcs;
-      commandList.add(command);
-
-      if (renderComponent.renderFlags & RenderFlagCullNone) {
-        commandList.set_render_state(RenderState::CullMode, CullModeCcw);
-      }
-      if (renderComponent.renderFlags & RenderFlagDisableLighting) {
-        commandList.set_render_state(RenderState::Lighting, true);
-      }
+      cmdListRecorder.add(command);
     });
 
-  return commandList;
+  return cmdListRecorder.complete_command_list();
 }
 
 auto SceneView::clear_color() const -> optional<Color> {

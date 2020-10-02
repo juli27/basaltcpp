@@ -159,7 +159,9 @@
     <ClCompile Include="runtime\dear_imgui.cpp" />
     <ClCompile Include="runtime\gfx\backend\composite.cpp" />
     <ClCompile Include="runtime\gfx\camera.cpp" />
+    <ClCompile Include="runtime\gfx\command_list_recorder.cpp" />
     <ClCompile Include="runtime\gfx\compositor.cpp" />
+    <ClCompile Include="runtime\gfx\device_state_cache.cpp" />
     <ClCompile Include="runtime\gfx\draw_target.cpp" />
     <ClCompile Include="runtime\gfx\scene_view.cpp" />
     <ClCompile Include="runtime\input.cpp" />
@@ -183,8 +185,9 @@
     <ClInclude Include="runtime\gfx\backend\ext\extension.h" />
     <ClInclude Include="runtime\gfx\backend\types.h" />
     <ClInclude Include="runtime\gfx\camera.h" />
+    <ClInclude Include="runtime\gfx\command_list_recorder.h" />
     <ClInclude Include="runtime\gfx\compositor.h" />
-    <ClInclude Include="runtime\gfx\device_state_tracker.h" />
+    <ClInclude Include="runtime\gfx\device_state_cache.h" />
     <ClInclude Include="runtime\gfx\drawable.h" />
     <ClInclude Include="runtime\gfx\draw_target.h" />
     <ClInclude Include="runtime\gfx\scene_view.h" />

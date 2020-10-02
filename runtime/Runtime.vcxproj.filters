@@ -44,6 +44,12 @@
     <ClCompile Include="runtime\gfx\backend\composite.cpp">
       <Filter>gfx\backend</Filter>
     </ClCompile>
+    <ClCompile Include="runtime\gfx\device_state_cache.cpp">
+      <Filter>gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="runtime\gfx\command_list_recorder.cpp">
+      <Filter>gfx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="runtime\gfx\backend\context.h">
@@ -149,7 +155,10 @@
     <ClInclude Include="runtime\shared\utils.h">
       <Filter>shared</Filter>
     </ClInclude>
-    <ClInclude Include="runtime\gfx\device_state_tracker.h">
+    <ClInclude Include="runtime\gfx\device_state_cache.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime\gfx\command_list_recorder.h">
       <Filter>gfx</Filter>
     </ClInclude>
   </ItemGroup>
