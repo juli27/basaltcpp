@@ -35,10 +35,10 @@ struct CommandList final {
   ~CommandList() = default;
 
   auto operator=(const CommandList&) -> CommandList& = delete;
-  auto operator=(CommandList&&) -> CommandList& = default;
+  auto operator=(CommandList &&) -> CommandList& = default;
 
-  [[nodiscard]]
-  auto commands() const -> const std::vector<CommandPtr>&;
+  [[nodiscard]] auto commands() const noexcept
+    -> const std::vector<CommandPtr>&;
 
   void add(const CommandLegacy&);
 
@@ -50,10 +50,10 @@ struct CommandList final {
   template <typename T, typename... Args>
   void add(Args&&... args) {
     static_assert(std::is_base_of_v<Command, T>,
-      "CommandLists only accept commands derived from Command");
+                  "CommandLists only accept commands derived from Command");
     static_assert(std::is_trivially_destructible_v<T>);
 
-    mCommands.push_back(std::make_unique<T>(std::forward<Args>(args)...));
+    mCommands.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
   }
 
 private:

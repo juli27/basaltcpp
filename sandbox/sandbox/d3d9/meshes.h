@@ -18,7 +18,7 @@ struct Meshes final : TestCase {
   ~Meshes() override = default;
 
   auto operator=(const Meshes&) -> Meshes& = delete;
-  auto operator=(Meshes&&) -> Meshes& = delete;
+  auto operator=(Meshes &&) -> Meshes& = delete;
 
   void on_update(const basalt::UpdateContext&) override;
   auto name() -> std::string_view override;

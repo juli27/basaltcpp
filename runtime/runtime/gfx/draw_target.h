@@ -1,6 +1,6 @@
 #pragma once
 
-#include <runtime/shared/size2d.h>
+#include "runtime/shared/size2d.h"
 
 #include <memory>
 #include <vector>
@@ -12,24 +12,22 @@ struct Drawable;
 using DrawablePtr = std::shared_ptr<Drawable>;
 
 struct DrawTarget final {
-  DrawTarget() = delete;
-  explicit DrawTarget(Size2Du16);
+  explicit DrawTarget(Size2Du16) noexcept;
 
-  DrawTarget(const DrawTarget&) = default;
+  DrawTarget(const DrawTarget&) = delete;
   DrawTarget(DrawTarget&&) = default;
 
-  ~DrawTarget() = default;
+  ~DrawTarget() noexcept = default;
 
-  auto operator=(const DrawTarget&) -> DrawTarget& = default;
-  auto operator=(DrawTarget&&) -> DrawTarget& = default;
+  auto operator=(const DrawTarget&) -> DrawTarget& = delete;
+  auto operator=(DrawTarget &&) -> DrawTarget& = default;
 
-  [[nodiscard]]
-  auto drawables() const -> const std::vector<DrawablePtr>&;
+  [[nodiscard]] auto drawables() const noexcept
+    -> const std::vector<DrawablePtr>&;
 
-  [[nodiscard]]
-  auto size() const -> Size2Du16;
+  [[nodiscard]] auto size() const noexcept -> Size2Du16;
 
-  void draw(std::shared_ptr<Drawable>);
+  void draw(DrawablePtr);
 
 private:
   std::vector<DrawablePtr> mDrawables {};

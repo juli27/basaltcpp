@@ -28,13 +28,11 @@ using std::tuple;
 namespace {
 
 constexpr array<D3DFORMAT, 4> ALLOWED_DISPLAY_FORMATS {
-  D3DFMT_R5G6B5, D3DFMT_X1R5G5B5, D3DFMT_X8R8G8B8, D3DFMT_A2R10G10B10
-};
+  D3DFMT_R5G6B5, D3DFMT_X1R5G5B5, D3DFMT_X8R8G8B8, D3DFMT_A2R10G10B10};
 
 constexpr array<D3DFORMAT, 6> ALLOWED_BACK_BUFFER_FORMATS {
-  D3DFMT_R5G6B5, D3DFMT_X1R5G5B5, D3DFMT_A1R5G5B5, D3DFMT_X8R8G8B8
-, D3DFMT_A8R8G8B8, D3DFMT_A2R10G10B10
-};
+  D3DFMT_R5G6B5,   D3DFMT_X1R5G5B5, D3DFMT_A1R5G5B5,
+  D3DFMT_X8R8G8B8, D3DFMT_A8R8G8B8, D3DFMT_A2R10G10B10};
 
 auto to_surface_format(D3DFORMAT) -> SurfaceFormat;
 
@@ -52,38 +50,34 @@ D3D9Factory::D3D9Factory(ComPtr<IDirect3D9> factory)
   u16 build = LOWORD(adapterIdentifier.DriverVersion.LowPart);
 
   mAdapterInfo = AdapterInfo {
-    string {adapterIdentifier.Description}, string {adapterIdentifier.Driver}
-  , fmt::format("{}.{}.{}.{}", product, version, subVersion, build)
-  };
+    string {adapterIdentifier.Description}, string {adapterIdentifier.Driver},
+    fmt::format("{}.{}.{}.{}", product, version, subVersion, build)};
 
   // query the current (default) adapter mode
   D3DDISPLAYMODE currentAdapterMode {};
   mFactory->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &currentAdapterMode);
-  mAdapterInfo.defaultAdapterMode = AdapterMode {
-    currentAdapterMode.Width, currentAdapterMode.Height
-  , currentAdapterMode.RefreshRate, to_surface_format(currentAdapterMode.Format)
-  };
+  mAdapterInfo.defaultAdapterMode =
+    AdapterMode {currentAdapterMode.Width, currentAdapterMode.Height,
+                 currentAdapterMode.RefreshRate,
+                 to_surface_format(currentAdapterMode.Format)};
 
   // query adapter modes
   for (const D3DFORMAT format : ALLOWED_DISPLAY_FORMATS) {
-    const u32 adapterModeCount = mFactory->GetAdapterModeCount(
-      D3DADAPTER_DEFAULT, format);
+    const u32 adapterModeCount =
+      mFactory->GetAdapterModeCount(D3DADAPTER_DEFAULT, format);
 
-    mAdapterInfo.adapterModes.reserve(
-      mAdapterInfo.adapterModes.size() + adapterModeCount);
+    mAdapterInfo.adapterModes.reserve(mAdapterInfo.adapterModes.size() +
+                                      adapterModeCount);
 
     for (u32 i = 0; i < adapterModeCount; i++) {
       D3DDISPLAYMODE adapterMode {};
-      [[maybe_unused]] const HRESULT hr = mFactory->EnumAdapterModes(
-        D3DADAPTER_DEFAULT, format, i, &adapterMode);
+      [[maybe_unused]] const HRESULT hr =
+        mFactory->EnumAdapterModes(D3DADAPTER_DEFAULT, format, i, &adapterMode);
       BASALT_ASSERT(SUCCEEDED(hr));
 
-      mAdapterInfo.adapterModes.push_back(
-        AdapterMode {
-          adapterMode.Width, adapterMode.Height
-        , adapterMode.RefreshRate
-        , to_surface_format(adapterMode.Format)
-        });
+      mAdapterInfo.adapterModes.emplace_back(AdapterMode {
+        adapterMode.Width, adapterMode.Height, adapterMode.RefreshRate,
+        to_surface_format(adapterMode.Format)});
     }
   }
 }
@@ -92,8 +86,8 @@ auto D3D9Factory::adapter_info() const noexcept -> const AdapterInfo& {
   return mAdapterInfo;
 }
 
-auto D3D9Factory::create_device_and_context(
-  const HWND window) const -> tuple<DevicePtr, ContextPtr> {
+auto D3D9Factory::create_device_and_context(const HWND window) const
+  -> tuple<DevicePtr, ContextPtr> {
   D3DPRESENT_PARAMETERS pp {};
   pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
   pp.hDeviceWindow = window;
@@ -116,13 +110,13 @@ auto D3D9Factory::create_device_and_context(
   }
 
   ComPtr<IDirect3DDevice9> d3d9Device {};
-  D3D9CALL(
-    mFactory->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, window,
-      D3DCREATE_HARDWARE_VERTEXPROCESSING, &pp, d3d9Device.GetAddressOf()));
+  D3D9CALL(mFactory->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, window,
+                                  D3DCREATE_HARDWARE_VERTEXPROCESSING, &pp,
+                                  d3d9Device.GetAddressOf()));
 
-  BASALT_LOG_INFO(
-    "Direct3D9 context created: adapter={}, driver={}({})"
-  , mAdapterInfo.displayName, mAdapterInfo.driver, mAdapterInfo.driverVersion);
+  BASALT_LOG_INFO("Direct3D9 context created: adapter={}, driver={}({})",
+                  mAdapterInfo.displayName, mAdapterInfo.driver,
+                  mAdapterInfo.driverVersion);
 
   auto device = std::make_shared<D3D9Device>(std::move(d3d9Device));
 

@@ -42,20 +42,14 @@ Matrices::Matrices(Device& device) {
   };
 
   array<Vertex, 3u> vertices {
-    Vertex {
-      -1.0f, -1.0f, 0.0f, ColorEncoding::pack_logical_a8r8g8b8(255, 0, 0)
-    }
-  , Vertex {
-      1.0f, -1.0f, 0.0f, ColorEncoding::pack_logical_a8r8g8b8(0, 0, 255)
-    }
-  , Vertex {
-      0.0f, 1.0f, 0.0f, ColorEncoding::pack_logical_a8r8g8b8(255, 255, 255)
-    }
-  };
+    Vertex {-1.0f, -1.0f, 0.0f,
+            ColorEncoding::pack_logical_a8r8g8b8(255, 0, 0)},
+    Vertex {1.0f, -1.0f, 0.0f, ColorEncoding::pack_logical_a8r8g8b8(0, 0, 255)},
+    Vertex {0.0f, 1.0f, 0.0f,
+            ColorEncoding::pack_logical_a8r8g8b8(255, 255, 255)}};
 
-  const VertexLayout vertexLayout {
-    VertexElement::Position3F32, VertexElement::ColorDiffuse1U32
-  };
+  const VertexLayout vertexLayout {VertexElement::Position3F32,
+                                   VertexElement::ColorDiffuse1U32};
 
   entt::registry& ecs {mScene->ecs()};
   mTriangle = ecs.create();
@@ -77,7 +71,7 @@ void Matrices::on_update(const basalt::UpdateContext& ctx) {
   ctx.drawTarget.draw(mSceneView);
 
   if (ctx.engine.config().debugUiEnabled) {
-      Debug::update(*mScene);
+    Debug::update(*mScene);
   }
 }
 

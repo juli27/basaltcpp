@@ -63,16 +63,14 @@ Textures::Textures(Device& device) {
     vertex2.x = sinTheta;
     vertex2.y = 1.0f;
     vertex2.z = cosTheta;
-    vertex2.color = ColorEncoding::pack_logical_a8r8g8b8(
-      128, 128, 128);
+    vertex2.color = ColorEncoding::pack_logical_a8r8g8b8(128, 128, 128);
     vertex2.u = i / (50.0f - 1);
     vertex2.v = 0.0f;
   }
 
-  const VertexLayout vertexLayout {
-    VertexElement::Position3F32, VertexElement::ColorDiffuse1U32
-  , VertexElement::TextureCoords2F32
-  };
+  const VertexLayout vertexLayout {VertexElement::Position3F32,
+                                   VertexElement::ColorDiffuse1U32,
+                                   VertexElement::TextureCoords2F32};
 
   entt::registry& ecs {mScene->ecs()};
   mCylinder = ecs.create();
@@ -93,7 +91,7 @@ void Textures::on_update(const basalt::UpdateContext& ctx) {
   ctx.drawTarget.draw(mSceneView);
 
   if (ctx.engine.config().debugUiEnabled) {
-      Debug::update(*mScene);
+    Debug::update(*mScene);
   }
 }
 

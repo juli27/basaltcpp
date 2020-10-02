@@ -14,8 +14,7 @@ auto get_window_mode() -> WindowMode {
 void set_window_mode(const WindowMode windowMode) {
   switch (windowMode) {
   case WindowMode::Windowed:
-    BASALT_LOG_ERROR(
-      "platform::set_window_mode for Windowed not implemented");
+    BASALT_LOG_ERROR("platform::set_window_mode for Windowed not implemented");
     break;
   case WindowMode::Fullscreen:
     BASALT_LOG_ERROR(

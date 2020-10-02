@@ -12,6 +12,7 @@
 #include <runtime/shared/asserts.h>
 #include <runtime/shared/color.h>
 #include <runtime/shared/log.h>
+#include <runtime/shared/utils.h>
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_dx9.h>
@@ -244,7 +245,7 @@ auto D3D9Device::load_model(const string_view filePath) -> ModelHandle {
   model.textures.resize(numMaterials);
 
   for (DWORD i = 0; i < numMaterials; i++) {
-    model.materials.push_back(materials->MatD3D);
+    model.materials.emplace_back(materials->MatD3D);
 
     // d3dx doesn't set the ambient color
     model.materials[i].Ambient = model.materials[i].Diffuse;

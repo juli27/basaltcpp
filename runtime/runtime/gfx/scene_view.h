@@ -25,13 +25,11 @@ struct SceneView final : Drawable {
   ~SceneView() override = default;
 
   auto operator=(const SceneView&) -> SceneView& = delete;
-  auto operator=(SceneView&&) -> SceneView& = default;
+  auto operator=(SceneView &&) -> SceneView& = default;
 
   auto draw(Device&, Size2Du16 viewport) -> CommandList override;
 
-  // TODO: remove
-  [[nodiscard]]
-  auto clear_color() const -> const Color& override;
+  [[nodiscard]] auto clear_color() const -> std::optional<Color> override;
 
 private:
   friend Debug;

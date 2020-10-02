@@ -2,25 +2,23 @@
 
 #include <utility>
 
-using std::shared_ptr;
 using std::vector;
 
 namespace basalt::gfx {
 
-DrawTarget::DrawTarget(const Size2Du16 size)
-  : mSize {size} {
+DrawTarget::DrawTarget(const Size2Du16 size) noexcept : mSize {size} {
 }
 
-auto DrawTarget::drawables() const -> const vector<DrawablePtr>& {
+auto DrawTarget::drawables() const noexcept -> const vector<DrawablePtr>& {
   return mDrawables;
 }
 
-auto DrawTarget::size() const -> Size2Du16 {
+auto DrawTarget::size() const noexcept -> Size2Du16 {
   return mSize;
 }
 
-void DrawTarget::draw(shared_ptr<Drawable> drawable) {
-  mDrawables.push_back(std::move(drawable));
+void DrawTarget::draw(DrawablePtr drawable) {
+  mDrawables.emplace_back(std::move(drawable));
 }
 
 } // namespace basalt::gfx

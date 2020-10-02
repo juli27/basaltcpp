@@ -12,7 +12,7 @@ namespace basalt {
 
 template <typename T, typename HandleT>
 struct HandlePool final {
-  HandlePool() noexcept = default;
+  HandlePool() = default;
 
   HandlePool(const HandlePool&) = delete;
   HandlePool(HandlePool&&) = delete;
@@ -20,10 +20,9 @@ struct HandlePool final {
   ~HandlePool() noexcept = default;
 
   auto operator=(const HandlePool&) -> HandlePool& = delete;
-  auto operator=(HandlePool&&) -> HandlePool& = delete;
+  auto operator=(HandlePool &&) -> HandlePool& = delete;
 
-  [[nodiscard]]
-  auto allocate() -> std::tuple<HandleT, T&> {
+  [[nodiscard]] auto allocate() -> std::tuple<HandleT, T&> {
     if (mFirstFreeSlot) {
       Slot& slot = mSlots[mFirstFreeSlot.value()];
       slot.handle = mFirstFreeSlot;
@@ -33,8 +32,8 @@ struct HandlePool final {
     }
 
     const auto nextIndex = mSlots.size();
-    constexpr auto maxSlots = static_cast<u32>(
-      std::numeric_limits<typename HandleT::ValueT>::max());
+    constexpr auto maxSlots =
+      static_cast<u32>(std::numeric_limits<typename HandleT::ValueT>::max());
 
     if (nextIndex >= maxSlots) {
       throw std::out_of_range {"out of slots"};
@@ -55,8 +54,7 @@ struct HandlePool final {
     mFirstFreeSlot = handle;
   }
 
-  [[nodiscard]]
-  auto get(HandleT handle) -> T& {
+  [[nodiscard]] auto get(HandleT handle) -> T& {
     BASALT_ASSERT(handle);
 
     // throws exception with invalid index

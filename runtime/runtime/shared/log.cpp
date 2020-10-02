@@ -38,11 +38,11 @@ constexpr auto LOGGER_PATTERN = "[%n][%l] %v";
 void Log::init() {
   vector<sink_ptr> sinks {};
   sinks.reserve(2u);
-  sinks.push_back(std::make_shared<basic_file_sink_st>(LOG_FILE_NAME));
+  sinks.emplace_back(std::make_shared<basic_file_sink_st>(LOG_FILE_NAME));
 
 #if BASALT_DEV_BUILD
   if (platform::is_debugger_attached()) {
-    sinks.push_back(std::make_shared<msvc_sink_st>());
+    sinks.emplace_back(std::make_shared<msvc_sink_st>());
   }
 #endif // BASALT_DEV_BUILD
 
@@ -50,8 +50,8 @@ void Log::init() {
     sink->set_pattern(LOGGER_PATTERN);
   }
 
-  sCoreLogger = std::make_shared<logger>(
-    "Engine", sinks.cbegin(), sinks.cend());
+  sCoreLogger =
+    std::make_shared<logger>("Engine", sinks.cbegin(), sinks.cend());
 
 #if BASALT_DEBUG_BUILD
   sCoreLogger->flush_on(spdlog::level::trace);

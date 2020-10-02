@@ -13,7 +13,7 @@ struct Debug final {
   ~Debug() = delete;
 
   auto operator=(const Debug&) -> Debug& = delete;
-  auto operator=(Debug&&) -> Debug& = delete;
+  auto operator=(Debug &&) -> Debug& = delete;
 
   static void update(Scene&);
 

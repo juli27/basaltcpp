@@ -27,8 +27,7 @@ struct D3D9Mesh {
 struct D3D9Device final : Device {
   explicit D3D9Device(Microsoft::WRL::ComPtr<IDirect3DDevice9> device);
 
-  [[nodiscard]]
-  auto device() const -> Microsoft::WRL::ComPtr<IDirect3DDevice9>;
+  [[nodiscard]] auto device() const -> Microsoft::WRL::ComPtr<IDirect3DDevice9>;
 
   void before_reset();
   void after_reset();
@@ -37,18 +36,16 @@ struct D3D9Device final : Device {
   void execute(const CommandList&);
   void end_execution() const;
 
-  auto add_mesh(
-    void* data, i32 numVertices, const VertexLayout& layout,
-    PrimitiveType primitiveType
-  ) -> MeshHandle override;
+  auto add_mesh(void* data, i32 numVertices, const VertexLayout& layout,
+                PrimitiveType primitiveType) -> MeshHandle override;
   void remove_mesh(MeshHandle meshHandle) override;
   auto add_texture(std::string_view filePath) -> TextureHandle override;
   void remove_texture(TextureHandle textureHandle) override;
   auto load_model(std::string_view filePath) -> ModelHandle override;
   void remove_model(ModelHandle) override;
 
-  auto query_extension(
-    std::string_view name) -> std::optional<ExtensionPtr> override;
+  auto query_extension(std::string_view name)
+    -> std::optional<ExtensionPtr> override;
 
 private:
   using ExtensionMap = std::unordered_map<std::string, ExtensionPtr>;

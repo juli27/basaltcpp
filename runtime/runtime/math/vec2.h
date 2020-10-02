@@ -1,6 +1,6 @@
 #pragma once
 
-#include <runtime/shared/types.h>
+#include "runtime/shared/types.h"
 
 namespace basalt {
 
@@ -11,25 +11,16 @@ struct Vec2 {
 
   constexpr Vec2() noexcept = default;
 
-  constexpr Vec2(const T x, const T y) noexcept
-    : x {x}, y {y} {
+  constexpr Vec2(const T xVal, const T yVal) noexcept : x {xVal}, y {yVal} {
   }
 
-  constexpr Vec2(const Vec2&) noexcept = default;
-  constexpr Vec2(Vec2&&) noexcept = default;
-
-  ~Vec2() noexcept = default;
-
-  auto operator=(const Vec2&) noexcept -> Vec2& = default;
-  auto operator=(Vec2&&) noexcept -> Vec2& = default;
-
-  [[nodiscard]]
-  constexpr auto operator==(const Vec2& other) const noexcept -> bool {
+  [[nodiscard]] constexpr auto operator==(const Vec2& other) const noexcept
+    -> bool {
     return this->x == other.x && this->y == other.y;
   }
 
-  [[nodiscard]]
-  constexpr auto operator!=(const Vec2& other) const noexcept -> bool {
+  [[nodiscard]] constexpr auto operator!=(const Vec2& other) const noexcept
+    -> bool {
     return !(*this == other);
   }
 

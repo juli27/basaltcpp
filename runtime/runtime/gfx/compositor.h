@@ -15,7 +15,7 @@ struct Compositor final {
   ~Compositor() = delete;
 
   auto operator=(const Compositor&) -> Compositor& = delete;
-  auto operator=(Compositor&&) -> Compositor& = delete;
+  auto operator=(Compositor &&) -> Compositor& = delete;
 
   static auto compose(Device&, const DrawTarget&) -> Composite;
 };

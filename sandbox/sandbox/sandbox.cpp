@@ -22,16 +22,16 @@
 using std::unique_ptr;
 using namespace std::literals;
 
-using basalt::Config;
 using basalt::ClientApp;
+using basalt::Config;
 using basalt::Engine;
+using basalt::Key;
 using basalt::UpdateContext;
 using basalt::WindowMode;
-using basalt::Key;
 using basalt::gfx::Device;
 
 auto ClientApp::configure() -> Config {
-  Config config {Config::defaults()};
+  auto config {Config::defaults()};
   config.appName = "Sandbox"s;
   config.debugUiEnabled = true;
 
@@ -42,18 +42,17 @@ auto ClientApp::create(Engine& engine) -> unique_ptr<ClientApp> {
   return std::make_unique<SandboxApp>(engine);
 }
 
-
 SandboxApp::SandboxApp(Engine& engine) {
   Device& device = engine.gfx_device();
 
   mScenes.reserve(7u);
-  mScenes.push_back(std::make_unique<d3d9::Device>());
-  mScenes.push_back(std::make_unique<d3d9::Vertices>(device));
-  mScenes.push_back(std::make_unique<d3d9::Matrices>(device));
-  mScenes.push_back(std::make_unique<d3d9::Lights>(device));
-  mScenes.push_back(std::make_unique<d3d9::Textures>(device));
-  mScenes.push_back(std::make_unique<d3d9::TexturesTci>(engine));
-  mScenes.push_back(std::make_unique<d3d9::Meshes>());
+  mScenes.emplace_back(std::make_unique<d3d9::Device>());
+  mScenes.emplace_back(std::make_unique<d3d9::Vertices>(device));
+  mScenes.emplace_back(std::make_unique<d3d9::Matrices>(device));
+  mScenes.emplace_back(std::make_unique<d3d9::Lights>(device));
+  mScenes.emplace_back(std::make_unique<d3d9::Textures>(device));
+  mScenes.emplace_back(std::make_unique<d3d9::TexturesTci>(engine));
+  mScenes.emplace_back(std::make_unique<d3d9::Meshes>());
 }
 
 void SandboxApp::on_update(const UpdateContext& ctx) {
@@ -83,8 +82,8 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
     if (ImGui::BeginMenu("File")) {
       for (uSize i = 0; i < mScenes.size(); i++) {
         const bool isCurrent = mCurrentSceneIndex == i;
-        if (ImGui::MenuItem(
-          mScenes[i]->name().data(), nullptr, isCurrent, !isCurrent)) {
+        if (ImGui::MenuItem(mScenes[i]->name().data(), nullptr, isCurrent,
+                            !isCurrent)) {
           set_scene(i);
         }
       }
@@ -109,20 +108,17 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
 
     if (ImGui::BeginMenu("View")) {
       const auto currentMode = basalt::platform::get_window_mode();
-      if (ImGui::MenuItem(
-        "Windowed", nullptr, currentMode == WindowMode::Windowed, false
-      )) {
+      if (ImGui::MenuItem("Windowed", nullptr,
+                          currentMode == WindowMode::Windowed, false)) {
         basalt::platform::set_window_mode(WindowMode::Windowed);
       }
-      if (ImGui::MenuItem(
-        "Fullscreen", nullptr, currentMode == WindowMode::Fullscreen, false
-      )) {
+      if (ImGui::MenuItem("Fullscreen", nullptr,
+                          currentMode == WindowMode::Fullscreen, false)) {
         basalt::platform::set_window_mode(WindowMode::Fullscreen);
       }
-      if (ImGui::MenuItem(
-        "Fullscreen (Exclusive)", nullptr,
-        currentMode == WindowMode::FullscreenExclusive, false
-      )) {
+      if (ImGui::MenuItem("Fullscreen (Exclusive)", nullptr,
+                          currentMode == WindowMode::FullscreenExclusive,
+                          false)) {
         basalt::platform::set_window_mode(WindowMode::FullscreenExclusive);
       }
 
@@ -139,14 +135,14 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
   mScenes[mCurrentSceneIndex]->on_update(ctx);
 }
 
-void SandboxApp::next_scene() {
+void SandboxApp::next_scene() noexcept {
   mCurrentSceneIndex++;
   if (mCurrentSceneIndex >= mScenes.size()) {
     mCurrentSceneIndex = 0;
   }
 }
 
-void SandboxApp::prev_scene() {
+void SandboxApp::prev_scene() noexcept {
   if (mCurrentSceneIndex == 0) {
     mCurrentSceneIndex = mScenes.size() - 1;
   } else {
@@ -154,6 +150,6 @@ void SandboxApp::prev_scene() {
   }
 }
 
-void SandboxApp::set_scene(const uSize index) {
+void SandboxApp::set_scene(const uSize index) noexcept {
   mCurrentSceneIndex = index;
 }

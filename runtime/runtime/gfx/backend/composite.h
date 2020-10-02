@@ -9,23 +9,19 @@
 namespace basalt::gfx {
 
 struct Composite final {
-  Composite() = default;
-
-  explicit Composite(const Color& background);
+  explicit Composite(const Color& background) noexcept;
 
   Composite(const Composite&) = delete;
   Composite(Composite&&) = default;
 
-  ~Composite() = default;
+  ~Composite() noexcept = default;
 
   auto operator=(const Composite&) -> Composite& = delete;
-  auto operator=(Composite&&) -> Composite& = default;
+  auto operator=(Composite &&) -> Composite& = default;
 
-  [[nodiscard]]
-  auto background() const -> const Color&;
+  [[nodiscard]] auto background() const noexcept -> const Color&;
 
-  [[nodiscard]]
-  auto parts() const -> const std::vector<CommandList>&;
+  [[nodiscard]] auto parts() const noexcept -> const std::vector<CommandList>&;
 
   void add_part(CommandList);
 

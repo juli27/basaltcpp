@@ -18,13 +18,13 @@ struct Device final : TestCase {
   ~Device() override = default;
 
   auto operator=(const Device&) -> Device& = delete;
-  auto operator=(Device&&) -> Device& = delete;
+  auto operator=(Device &&) -> Device& = delete;
 
   void on_update(const basalt::UpdateContext&) override;
   auto name() -> std::string_view override;
 
 private:
-  std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();
+  std::shared_ptr<basalt::Scene> mScene {std::make_shared<basalt::Scene>()};
   std::shared_ptr<basalt::gfx::SceneView> mSceneView {};
 };
 

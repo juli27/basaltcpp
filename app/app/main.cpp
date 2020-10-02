@@ -14,9 +14,9 @@ using std::wstring;
 using basalt::App;
 using basalt::Log;
 
-_Use_decl_annotations_
-auto WINAPI wWinMain(
-  const HINSTANCE hInstance, HINSTANCE, LPWSTR, const int nShowCmd) -> int try {
+_Use_decl_annotations_ auto WINAPI wWinMain(const HINSTANCE hInstance,
+                                            HINSTANCE, LPWSTR,
+                                            const int nShowCmd) -> int try {
   Log::init();
 
   try {
@@ -35,15 +35,13 @@ auto WINAPI wWinMain(
 } catch (const exception& ex) {
   wstring mbText = L"Unhandled exception: \r\n";
   mbText.append(basalt::create_wide_from_utf8(ex.what()));
-  ::MessageBoxW(
-    nullptr, mbText.c_str(), L"Basalt Fatal Error"
-  , MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
+  ::MessageBoxW(nullptr, mbText.c_str(), L"Basalt Fatal Error",
+                MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
 
   return 0;
 } catch (...) {
-  ::MessageBoxW(
-    nullptr, L"An unknown fatal error occurred!", L"Basalt Fatal Error"
-  , MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
+  ::MessageBoxW(nullptr, L"An unknown fatal error occurred!",
+                L"Basalt Fatal Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
 
   return 0;
 }

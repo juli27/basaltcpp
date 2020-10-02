@@ -29,14 +29,13 @@ struct DearImGui final : gfx::Drawable {
   ~DearImGui() override;
 
   auto operator=(const DearImGui&) -> DearImGui& = delete;
-  auto operator=(DearImGui&&) -> DearImGui& = delete;
+  auto operator=(DearImGui &&) -> DearImGui& = delete;
 
   void new_frame(const UpdateContext&) const;
 
   auto draw(gfx::Device&, Size2Du16 viewport) -> gfx::CommandList override;
 
-  [[nodiscard]]
-  auto clear_color() const -> const Color& override;
+  [[nodiscard]] auto clear_color() const -> std::optional<Color> override;
 
 private:
   std::shared_ptr<gfx::ext::DearImGuiRenderer> mRenderer {};

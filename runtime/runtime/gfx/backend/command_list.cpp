@@ -5,7 +5,7 @@
 #include "runtime/math/mat4.h"
 
 #include "runtime/shared/asserts.h"
-#include <runtime/shared/color.h>
+#include "runtime/shared/color.h"
 
 #include <algorithm>
 #include <array>
@@ -15,7 +15,7 @@ using std::vector;
 
 namespace basalt::gfx {
 
-auto CommandList::commands() const -> const vector<CommandPtr>& {
+auto CommandList::commands() const noexcept -> const vector<CommandPtr>& {
   return mCommands;
 }
 
@@ -28,20 +28,18 @@ void CommandList::set_ambient_light(const Color& color) {
 }
 
 void CommandList::set_directional_lights(
-  const std::vector<DirectionalLight>& lights
-) {
+  const std::vector<DirectionalLight>& lights) {
   BASALT_ASSERT(lights.size() <= 4);
 
   array<DirectionalLight, 4> directionalLights {};
-  std::copy_n(
-    lights.begin(), std::min(lights.size(), directionalLights.size())
-  , directionalLights.begin());
+  std::copy_n(lights.begin(), std::min(lights.size(), directionalLights.size()),
+              directionalLights.begin());
 
   add<CommandSetDirectionalLights>(directionalLights);
 }
 
-void CommandList::set_transform(
-  const TransformType type, const Mat4f32& transform) {
+void CommandList::set_transform(const TransformType type,
+                                const Mat4f32& transform) {
   add<CommandSetTransform>(type, transform);
 }
 

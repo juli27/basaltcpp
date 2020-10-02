@@ -9,8 +9,8 @@ using std::shared_ptr;
 
 namespace basalt::gfx {
 
-D3D9Context::D3D9Context(
-  shared_ptr<D3D9Device> device, const D3DPRESENT_PARAMETERS& pp)
+D3D9Context::D3D9Context(shared_ptr<D3D9Device> device,
+                         const D3DPRESENT_PARAMETERS& pp)
   : mDevice {std::move(device)}
   , mD3D9Device {mDevice->device()}
   , mPresentParams {pp} {
@@ -19,10 +19,8 @@ D3D9Context::D3D9Context(
 }
 
 auto D3D9Context::surface_size() const noexcept -> Size2Du16 {
-  return Size2Du16 {
-    static_cast<u16>(mPresentParams.BackBufferWidth)
-  , static_cast<u16>(mPresentParams.BackBufferHeight)
-  };
+  return Size2Du16 {static_cast<u16>(mPresentParams.BackBufferWidth),
+                    static_cast<u16>(mPresentParams.BackBufferHeight)};
 }
 
 auto D3D9Context::device() const noexcept -> D3D9Device& {
@@ -32,9 +30,8 @@ auto D3D9Context::device() const noexcept -> D3D9Device& {
 void D3D9Context::submit(const Composite& composite) {
   const D3DCOLOR clearColor = to_d3d_color(composite.background());
 
-  D3D9CALL(
-    mD3D9Device->Clear(0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-      clearColor, 1.0f, 0u));
+  D3D9CALL(mD3D9Device->Clear(0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+                              clearColor, 1.0f, 0u));
 
   // TODO: should we make all rendering code dependent
   // on the success of BeginScene? -> Log error and/or throw exception
@@ -61,7 +58,7 @@ void D3D9Context::resize(const Size2Du16 size) {
 
 void D3D9Context::present() {
   if (auto hr = mD3D9Device->Present(nullptr, nullptr, nullptr, nullptr);
-    FAILED(hr)) {
+      FAILED(hr)) {
     if (hr == D3DERR_DEVICELOST) {
       mDevice->before_reset();
 
@@ -83,4 +80,4 @@ void D3D9Context::present() {
   }
 }
 
-} // basalt::gfx
+} // namespace basalt::gfx

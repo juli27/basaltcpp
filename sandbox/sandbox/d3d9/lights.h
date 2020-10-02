@@ -11,7 +11,6 @@
 namespace d3d9 {
 
 struct Lights final : TestCase {
-  Lights() = delete;
   explicit Lights(basalt::gfx::Device&);
 
   Lights(const Lights&) = delete;
@@ -20,7 +19,7 @@ struct Lights final : TestCase {
   ~Lights() override = default;
 
   auto operator=(const Lights&) -> Lights& = delete;
-  auto operator=(Lights&&) -> Lights& = delete;
+  auto operator=(Lights &&) -> Lights& = delete;
 
   void on_update(const basalt::UpdateContext&) override;
   auto name() -> std::string_view override;

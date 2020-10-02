@@ -6,20 +6,20 @@ using std::vector;
 
 namespace basalt::gfx {
 
-Composite::Composite(const Color& background)
+Composite::Composite(const Color& background) noexcept
   : mBackground {background} {
 }
 
-auto Composite::background() const -> const Color& {
+auto Composite::background() const noexcept -> const Color& {
   return mBackground;
 }
 
-auto Composite::parts() const -> const vector<CommandList>& {
+auto Composite::parts() const noexcept -> const vector<CommandList>& {
   return mParts;
 }
 
 void Composite::add_part(CommandList commandList) {
-  mParts.push_back(std::move(commandList));
+  mParts.emplace_back(std::move(commandList));
 }
 
 } // namespace basalt::gfx

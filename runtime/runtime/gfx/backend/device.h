@@ -3,7 +3,7 @@
 #include "types.h"
 #include "ext/extension.h"
 
-#include <runtime/shared/types.h>
+#include "runtime/shared/types.h"
 
 #include <memory>
 #include <optional>
@@ -23,7 +23,7 @@ struct Device {
   virtual ~Device() noexcept = default;
 
   auto operator=(const Device&) -> Device& = delete;
-  auto operator=(Device&&) -> Device& = delete;
+  auto operator=(Device &&) -> Device& = delete;
 
   // TODO: noexcept method to validate the layout for the device requirements
   //       bool Device::ValidateVertexLayout(const VertexLayout&)
@@ -44,9 +44,8 @@ struct Device {
    * \param primitiveType the primitive type of the mesh
    * \return handle of the added mesh
    */
-  virtual auto add_mesh(
-    void* data, i32 numVertices, const VertexLayout& layout
-  , PrimitiveType primitiveType) -> MeshHandle = 0;
+  virtual auto add_mesh(void* data, i32 numVertices, const VertexLayout& layout,
+                        PrimitiveType primitiveType) -> MeshHandle = 0;
 
   /**
    * \brief Removes a static mesh from the device which makes it unavailable
@@ -71,8 +70,8 @@ struct Device {
   virtual auto load_model(std::string_view filePath) -> ModelHandle = 0;
   virtual void remove_model(ModelHandle) = 0;
 
-  virtual auto query_extension(
-    std::string_view name) -> std::optional<ExtensionPtr> = 0;
+  virtual auto query_extension(std::string_view name)
+    -> std::optional<ExtensionPtr> = 0;
 
 protected:
   Device() noexcept = default;

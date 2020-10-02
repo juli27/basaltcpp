@@ -10,4 +10,4 @@ void Vec2<T>::set(const T ax, const T ay) noexcept {
 
 template struct Vec2<i32>;
 
-} // basalt
+} // namespace basalt

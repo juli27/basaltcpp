@@ -2,6 +2,8 @@
 
 #include "runtime/shared/types.h"
 
+#include <optional>
+
 namespace basalt {
 
 struct Color;
@@ -16,20 +18,20 @@ struct CommandList;
 struct Device;
 
 struct Drawable {
-  Drawable() = default;
-
-  Drawable(const Drawable& other) = default;
-  Drawable(Drawable&& other) = default;
+  Drawable(const Drawable&) = default;
+  Drawable(Drawable&&) = default;
 
   virtual ~Drawable() noexcept = default;
 
-  auto operator=(const Drawable& other) -> Drawable& = default;
-  auto operator=(Drawable&& other) -> Drawable& = default;
+  auto operator=(const Drawable&) -> Drawable& = default;
+  auto operator=(Drawable &&) -> Drawable& = default;
 
   virtual auto draw(Device&, Size2Du16 viewport) -> CommandList = 0;
 
-  [[nodiscard]]
-  virtual auto clear_color() const -> const Color& = 0;
+  [[nodiscard]] virtual auto clear_color() const -> std::optional<Color> = 0;
+
+protected:
+  Drawable() = default;
 };
 
 } // namespace gfx

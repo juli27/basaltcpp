@@ -16,9 +16,8 @@ protected:
 };
 
 struct CommandRenderDearImGui final
-  : CommandT<CommandType::ExtRenderDearImGui> {
-};
+  : CommandT<CommandType::ExtRenderDearImGui> {};
 
 static_assert(sizeof(CommandRenderDearImGui) == 1);
 
-} // basalt::gfx::ext
+} // namespace basalt::gfx::ext

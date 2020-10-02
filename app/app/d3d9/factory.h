@@ -31,11 +31,10 @@ struct D3D9Factory final {
   auto operator=(const D3D9Factory& other) -> D3D9Factory& = delete;
   auto operator=(D3D9Factory&& other) -> D3D9Factory& = delete;
 
-  [[nodiscard]]
-  auto adapter_info() const noexcept -> const AdapterInfo&;
+  [[nodiscard]] auto adapter_info() const noexcept -> const AdapterInfo&;
 
-  auto create_device_and_context(
-    HWND window) const -> std::tuple<DevicePtr, ContextPtr>;
+  auto create_device_and_context(HWND window) const
+    -> std::tuple<DevicePtr, ContextPtr>;
 
 private:
   Microsoft::WRL::ComPtr<IDirect3D9> mFactory;

@@ -13,22 +13,13 @@ struct HandleBase {
 
   constexpr HandleBase() noexcept = default;
 
-  constexpr explicit HandleBase(const ValueT value) noexcept
-    : mValue {value} {
+  constexpr explicit HandleBase(const ValueT value) noexcept : mValue {value} {
     BASALT_ASSERT_MSG(mValue != INVALID_VALUE, "invalid handle value");
   }
-
-  constexpr HandleBase(const HandleBase&) noexcept = default;
-  constexpr HandleBase(HandleBase&&) noexcept = default;
-
-  ~HandleBase() noexcept = default;
 
   constexpr explicit operator bool() const noexcept {
     return mValue != INVALID_VALUE;
   }
-
-  auto operator=(const HandleBase&) noexcept -> HandleBase& = default;
-  auto operator=(HandleBase&&) noexcept -> HandleBase& = default;
 
   constexpr auto operator==(const HandleBase& rhs) const noexcept -> bool {
     return mValue == rhs.mValue;
@@ -42,8 +33,7 @@ struct HandleBase {
     mValue = INVALID_VALUE;
   }
 
-  [[nodiscard]]
-  constexpr auto value() const noexcept -> ValueT {
+  [[nodiscard]] constexpr auto value() const noexcept -> ValueT {
     return mValue;
   }
 

@@ -24,20 +24,16 @@ struct Engine {
   Engine(Engine&&) = delete;
 
   auto operator=(const Engine&) -> Engine& = delete;
-  auto operator=(Engine&&) -> Engine& = delete;
+  auto operator=(Engine &&) -> Engine& = delete;
 
-  [[nodiscard]]
-  auto config() const -> const Config&;
+  [[nodiscard]] auto config() const noexcept -> const Config&;
 
-  [[nodiscard]]
-  auto gfx_device() const -> gfx::Device&;
+  [[nodiscard]] auto gfx_device() const -> gfx::Device&;
 
-  [[nodiscard]]
-  auto gfx_context() const -> gfx::Context&;
+  [[nodiscard]] auto gfx_context() const noexcept -> gfx::Context&;
 
-  [[nodiscard]]
-  auto mouse_cursor() const -> MouseCursor;
-  void set_mouse_cursor(MouseCursor);
+  [[nodiscard]] auto mouse_cursor() const noexcept -> MouseCursor;
+  void set_mouse_cursor(MouseCursor) noexcept;
 
 protected:
   Config& mConfig;
@@ -45,9 +41,9 @@ protected:
   MouseCursor mMouseCursor {};
   bool mIsDirty {false};
 
-  Engine(Config&, std::shared_ptr<gfx::Context>);
+  Engine(Config&, std::shared_ptr<gfx::Context>) noexcept;
 
-  ~Engine() = default;
+  ~Engine() noexcept = default;
 };
 
 struct UpdateContext final {

@@ -209,6 +209,7 @@
     <ClInclude Include="runtime\shared\log.h" />
     <ClInclude Include="runtime\shared\types.h" />
     <ClInclude Include="runtime\shared\size2d.h" />
+    <ClInclude Include="runtime\shared\utils.h" />
     <ClInclude Include="runtime\types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

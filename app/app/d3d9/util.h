@@ -5,14 +5,15 @@
 
 #include <runtime/shared/asserts.h>
 #include <runtime/shared/color.h>
-#include <runtime/shared/types.h>
+#include <runtime/shared/utils.h>
 
 #include <string_view>
 
 #ifdef BASALT_DEBUG_BUILD
 
 // TODO: add detailed logging
-#define D3D9CALL(x) BASALT_ASSERT_MSG(SUCCEEDED((x)), "Direct3D 9 call failed: " #x)
+#define D3D9CALL(x)                                                            \
+  BASALT_ASSERT_MSG(SUCCEEDED((x)), "Direct3D 9 call failed: " #x)
 
 #else // BASALT_DEBUG_BUILD
 

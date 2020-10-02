@@ -2,8 +2,8 @@
 
 #include "types.h"
 
-#include <runtime/shared/color.h>
-#include <runtime/shared/types.h>
+#include "runtime/shared/color.h"
+#include "runtime/shared/types.h"
 
 #include <entt/entity/registry.hpp>
 
@@ -24,20 +24,18 @@ struct Scene final {
   ~Scene() = default;
 
   auto operator=(const Scene&) -> Scene& = delete;
-  auto operator=(Scene&&) -> Scene& = delete;
+  auto operator=(Scene &&) -> Scene& = delete;
 
   auto ecs() -> entt::registry&;
 
-  [[nodiscard]]
-  auto background_color() const -> const Color&;
+  [[nodiscard]] auto background_color() const -> const Color&;
   void set_background_color(const Color&);
 
-  [[nodiscard]]
-  auto ambient_light() const -> const Color&;
+  [[nodiscard]] auto ambient_light() const -> const Color&;
   void set_ambient_light(const Color&);
 
-  [[nodiscard]]
-  auto directional_lights() const -> const std::vector<DirectionalLight>&;
+  [[nodiscard]] auto directional_lights() const
+    -> const std::vector<DirectionalLight>&;
   void add_directional_light(const Vec3f32& direction, const Color&);
   void clear_directional_lights();
 

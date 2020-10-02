@@ -29,15 +29,13 @@ struct Window final {
   ~Window();
 
   auto operator=(const Window&) -> Window& = delete;
-  auto operator=(Window&&) -> Window& = delete;
+  auto operator=(Window &&) -> Window& = delete;
 
-  [[nodiscard]]
-  auto handle() const -> HWND {
+  [[nodiscard]] auto handle() const -> HWND {
     return mHandle;
   }
 
-  [[nodiscard]]
-  auto client_area_size() const -> Size2Du16 {
+  [[nodiscard]] auto client_area_size() const -> Size2Du16 {
     return mClientAreaSize;
   }
 
@@ -45,9 +43,8 @@ struct Window final {
 
   auto drain_input() -> Input;
 
-  [[nodiscard]]
-  static auto create(
-    HMODULE, int showCommand, const Config& config) -> WindowPtr;
+  [[nodiscard]] static auto create(HMODULE, int showCommand,
+                                   const Config& config) -> WindowPtr;
 
 private:
   static constexpr auto CLASS_NAME = L"BS_WINDOW_CLASS";
@@ -64,15 +61,14 @@ private:
 
   Window(HMODULE, HWND, Size2Du16 clientAreaSize);
 
-  [[nodiscard]]
-  auto dispatch_message(UINT message, WPARAM, LPARAM) -> LRESULT;
+  [[nodiscard]] auto dispatch_message(UINT message, WPARAM, LPARAM) -> LRESULT;
 
   void process_mouse_message_states(WPARAM);
 
   static ATOM register_class(HMODULE);
 
-  static auto CALLBACK window_proc(
-    HWND, UINT message, WPARAM, LPARAM) -> LRESULT;
+  static auto CALLBACK window_proc(HWND, UINT message, WPARAM, LPARAM)
+    -> LRESULT;
 };
 
 } // namespace basalt

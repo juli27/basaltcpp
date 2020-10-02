@@ -8,6 +8,7 @@
 #include <runtime/gfx/camera.h>
 #include <runtime/gfx/draw_target.h>
 
+#include <runtime/gfx/backend/device.h>
 #include <runtime/gfx/backend/context.h>
 
 #include <runtime/scene/transform.h>

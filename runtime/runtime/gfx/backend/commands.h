@@ -12,8 +12,8 @@
 
 namespace basalt::gfx {
 
-struct CommandSetDirectionalLights final : CommandT<
-    CommandType::SetDirectionalLights> {
+struct CommandSetDirectionalLights final
+  : CommandT<CommandType::SetDirectionalLights> {
   // TODO: tweak maximum
   // can't be a vector. Otherwise it leaks. (no virtual destructor)
   std::array<DirectionalLight, 4> directionalLights {};
@@ -51,7 +51,7 @@ struct CommandSetRenderState final : CommandT<CommandType::SetRenderState> {
   RenderState renderState;
   u32 value;
 
-  constexpr CommandSetRenderState(const RenderState state, const u32 val)
+  constexpr CommandSetRenderState(const RenderState state, const u32 val) noexcept
     : renderState {state}, value {val} {
   }
 };

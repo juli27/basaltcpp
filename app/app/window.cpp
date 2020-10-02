@@ -15,6 +15,7 @@
 
 #include <runtime/shared/config.h>
 #include <runtime/shared/log.h>
+#include <runtime/shared/utils.h>
 
 #include <windowsx.h>
 
@@ -39,15 +40,13 @@ WindowMode sWindowMode;
 
 Window::~Window() {
   if (!::DestroyWindow(mHandle)) {
-    BASALT_LOG_ERROR(
-      "::DestroyWindow failed: {}"
-    , create_winapi_error_message(::GetLastError()));
+    BASALT_LOG_ERROR("::DestroyWindow failed: {}",
+                     create_winapi_error_message(::GetLastError()));
   }
 
   if (!::UnregisterClassW(CLASS_NAME, mModuleHandle)) {
-    BASALT_LOG_ERROR(
-      "::UnregisterClassW failed: {}"
-    , create_winapi_error_message(::GetLastError()));
+    BASALT_LOG_ERROR("::UnregisterClassW failed: {}",
+                     create_winapi_error_message(::GetLastError()));
   }
 }
 
@@ -65,15 +64,13 @@ auto Window::drain_input() -> Input {
   return std::move(mInput);
 }
 
-auto Window::create(
-  const HMODULE moduleHandle, const int showCommand
-, const Config& config) -> WindowPtr {
+auto Window::create(const HMODULE moduleHandle, const int showCommand,
+                    const Config& config) -> WindowPtr {
   const ATOM windowClass {register_class(moduleHandle)};
   if (!windowClass) {
-    throw system_error {
-      static_cast<int>(::GetLastError()), std::system_category()
-    , "Failed to register window class"s
-    };
+    throw system_error {static_cast<int>(::GetLastError()),
+                        std::system_category(),
+                        "Failed to register window class"s};
   }
 
   // TODO: support other modes
@@ -98,9 +95,8 @@ auto Window::create(
 
   // calculate the window size for the given client area size
   if (!::AdjustWindowRectEx(&rect, style, FALSE, styleEx)) {
-    throw system_error {
-      static_cast<int>(::GetLastError()), std::system_category()
-    };
+    throw system_error {static_cast<int>(::GetLastError()),
+                        std::system_category()};
   }
 
   const int windowWidth {static_cast<int>(rect.right - rect.left)};
@@ -113,33 +109,29 @@ auto Window::create(
   }
 
   const wstring windowTitle {create_wide_from_utf8(config.appName)};
-  const HWND handle {
-    ::CreateWindowExW(
-      styleEx, reinterpret_cast<LPCWSTR>(windowClass), windowTitle.c_str()
-    , style, CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, nullptr
-    , nullptr, moduleHandle, nullptr)
-  };
+  const HWND handle {::CreateWindowExW(
+    styleEx, reinterpret_cast<LPCWSTR>(windowClass), windowTitle.c_str(), style,
+    CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, nullptr, nullptr,
+    moduleHandle, nullptr)};
   if (!handle) {
     throw runtime_error("failed to create window");
   }
 
   // can't use make_unique because of the private constructor
-  auto* const window = new Window {
-    moduleHandle, handle, config.windowedSize
-  };
+  auto* const window = new Window {moduleHandle, handle, config.windowedSize};
 
   // unique_ptr is actually a lie
   // see the comment at the WM_CLOSE message for details
-  ::SetWindowLongPtrW(
-    handle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
+  ::SetWindowLongPtrW(handle, GWLP_USERDATA,
+                      reinterpret_cast<LONG_PTR>(window));
 
   ::ShowWindow(handle, showCommand);
 
   return unique_ptr<Window> {window};
 }
 
-Window::Window(
-  const HMODULE moduleHandle, const HWND handle, const Size2Du16 clientAreaSize)
+Window::Window(const HMODULE moduleHandle, const HWND handle,
+               const Size2Du16 clientAreaSize)
   : mModuleHandle {moduleHandle}
   , mHandle {handle}
   , mClientAreaSize {clientAreaSize} {
@@ -147,40 +139,39 @@ Window::Window(
   BASALT_ASSERT(mHandle);
 
   auto loadCursor = [](const LPCWSTR name, const UINT flags) -> HCURSOR {
-    return static_cast<HCURSOR>(::LoadImageW(
-      nullptr, name, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | flags));
+    return static_cast<HCURSOR>(
+      ::LoadImageW(nullptr, name, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | flags));
   };
 
-  std::get<enum_cast(MouseCursor::Arrow)>(mLoadedCursors) = loadCursor(
-    MAKEINTRESOURCEW(OCR_NORMAL), LR_SHARED);
-  std::get<enum_cast(MouseCursor::TextInput)>(mLoadedCursors) = loadCursor(
-    MAKEINTRESOURCEW(OCR_IBEAM), LR_SHARED);
-  std::get<enum_cast(MouseCursor::ResizeAll)>(mLoadedCursors) = loadCursor(
-    MAKEINTRESOURCEW(OCR_SIZEALL), LR_SHARED);
-  std::get<enum_cast(MouseCursor::ResizeNS)>(mLoadedCursors) = loadCursor(
-    MAKEINTRESOURCEW(OCR_SIZENS), LR_SHARED);
-  std::get<enum_cast(MouseCursor::ResizeEW)>(mLoadedCursors) = loadCursor(
-    MAKEINTRESOURCEW(OCR_SIZEWE), LR_SHARED);
-  std::get<enum_cast(MouseCursor::ResizeNESW)>(mLoadedCursors) = loadCursor(
-    MAKEINTRESOURCEW(OCR_SIZENESW), LR_SHARED);
-  std::get<enum_cast(MouseCursor::ResizeNWSE)>(mLoadedCursors) = loadCursor(
-    MAKEINTRESOURCEW(OCR_SIZENWSE), LR_SHARED);
-  std::get<enum_cast(MouseCursor::Hand)>(mLoadedCursors) = loadCursor(
-    MAKEINTRESOURCEW(OCR_HAND), LR_SHARED);
-  std::get<enum_cast(MouseCursor::NotAllowed)>(mLoadedCursors) = loadCursor(
-    MAKEINTRESOURCEW(OCR_NO), LR_SHARED);
+  std::get<enum_cast(MouseCursor::Arrow)>(mLoadedCursors) =
+    loadCursor(MAKEINTRESOURCEW(OCR_NORMAL), LR_SHARED);
+  std::get<enum_cast(MouseCursor::TextInput)>(mLoadedCursors) =
+    loadCursor(MAKEINTRESOURCEW(OCR_IBEAM), LR_SHARED);
+  std::get<enum_cast(MouseCursor::ResizeAll)>(mLoadedCursors) =
+    loadCursor(MAKEINTRESOURCEW(OCR_SIZEALL), LR_SHARED);
+  std::get<enum_cast(MouseCursor::ResizeNS)>(mLoadedCursors) =
+    loadCursor(MAKEINTRESOURCEW(OCR_SIZENS), LR_SHARED);
+  std::get<enum_cast(MouseCursor::ResizeEW)>(mLoadedCursors) =
+    loadCursor(MAKEINTRESOURCEW(OCR_SIZEWE), LR_SHARED);
+  std::get<enum_cast(MouseCursor::ResizeNESW)>(mLoadedCursors) =
+    loadCursor(MAKEINTRESOURCEW(OCR_SIZENESW), LR_SHARED);
+  std::get<enum_cast(MouseCursor::ResizeNWSE)>(mLoadedCursors) =
+    loadCursor(MAKEINTRESOURCEW(OCR_SIZENWSE), LR_SHARED);
+  std::get<enum_cast(MouseCursor::Hand)>(mLoadedCursors) =
+    loadCursor(MAKEINTRESOURCEW(OCR_HAND), LR_SHARED);
+  std::get<enum_cast(MouseCursor::NotAllowed)>(mLoadedCursors) =
+    loadCursor(MAKEINTRESOURCEW(OCR_NO), LR_SHARED);
 }
 
-auto Window::dispatch_message(
-  const UINT message, const WPARAM wParam, const LPARAM lParam
-) -> LRESULT {
+auto Window::dispatch_message(const UINT message, const WPARAM wParam,
+                              const LPARAM lParam) -> LRESULT {
   switch (message) {
   case WM_SIZE:
     switch (wParam) {
     case SIZE_RESTORED:
       if (!mInSizingMode) {
         if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam));
-          mClientAreaSize != newSize) {
+            mClientAreaSize != newSize) {
           mClientAreaSize = newSize;
         }
       }
@@ -188,7 +179,7 @@ auto Window::dispatch_message(
 
     case SIZE_MAXIMIZED:
       if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam));
-        mClientAreaSize != newSize) {
+          mClientAreaSize != newSize) {
         mClientAreaSize = {LOWORD(lParam), HIWORD(lParam)};
       }
       break;
@@ -248,9 +239,8 @@ auto Window::dispatch_message(
         MSG next {};
         if (::PeekMessageW(&next, nullptr, 0u, 0u, PM_NOREMOVE)) {
           if (next.message == WM_KEYDOWN) {
-            if (next.wParam == VK_MENU
-              && (HIWORD(next.lParam) & KF_EXTENDED)
-              && next.time == ctrlMessageTime) {
+            if (next.wParam == VK_MENU && (HIWORD(next.lParam) & KF_EXTENDED) &&
+                next.time == ctrlMessageTime) {
               // skip ctrl message
               return 0;
             }
@@ -304,8 +294,8 @@ auto Window::dispatch_message(
       CursorPosition {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)});
     process_mouse_message_states(wParam);
 
-    constexpr u16 anyButton = MK_LBUTTON | MK_RBUTTON | MK_MBUTTON | MK_XBUTTON1
-      | MK_XBUTTON2;
+    constexpr u16 anyButton =
+      MK_LBUTTON | MK_RBUTTON | MK_MBUTTON | MK_XBUTTON1 | MK_XBUTTON2;
     if (wParam & anyButton) {
       ::SetCapture(mHandle);
     } else {
@@ -323,10 +313,8 @@ auto Window::dispatch_message(
     ::ScreenToClient(mHandle, &cursorPos);
     mInput.mouse_moved(CursorPosition {cursorPos.x, cursorPos.y});
     process_mouse_message_states(LOWORD(wParam));
-    const f32 offset {
-      static_cast<f32>(GET_WHEEL_DELTA_WPARAM(wParam)) / static_cast<f32>(
-        WHEEL_DELTA)
-    };
+    const f32 offset {static_cast<f32>(GET_WHEEL_DELTA_WPARAM(wParam)) /
+                      static_cast<f32>(WHEEL_DELTA)};
     mInput.mouse_wheel(offset);
     return 0;
   }
@@ -339,9 +327,8 @@ auto Window::dispatch_message(
     mInSizingMode = false;
     RECT clientRect {};
     ::GetClientRect(mHandle, &clientRect);
-    mClientAreaSize.set(
-      static_cast<u16>(clientRect.right)
-    , static_cast<u16>(clientRect.bottom));
+    mClientAreaSize.set(static_cast<u16>(clientRect.right),
+                        static_cast<u16>(clientRect.bottom));
     return 0;
   }
 
@@ -391,52 +378,49 @@ void Window::process_mouse_message_states(const WPARAM wParam) {
 }
 
 auto Window::register_class(const HMODULE moduleHandle) -> ATOM {
-  auto* const icon = static_cast<HICON>(::LoadImageW(
-    nullptr, MAKEINTRESOURCEW(OIC_SAMPLE), IMAGE_ICON, 0, 0
-  , LR_DEFAULTSIZE | LR_SHARED));
+  auto* const icon = static_cast<HICON>(
+    ::LoadImageW(nullptr, MAKEINTRESOURCEW(OIC_SAMPLE), IMAGE_ICON, 0, 0,
+                 LR_DEFAULTSIZE | LR_SHARED));
   if (!icon) {
     BASALT_LOG_ERROR("failed to load icon");
   }
 
   const int smallIconSizeX = ::GetSystemMetrics(SM_CXSMICON);
   const int smallIconSizeY = ::GetSystemMetrics(SM_CYSMICON);
-  auto* const smallIcon = static_cast<HICON>(::LoadImageW(
-    nullptr, MAKEINTRESOURCEW(OIC_SAMPLE), IMAGE_ICON, smallIconSizeX
-  , smallIconSizeY, LR_SHARED));
+  auto* const smallIcon = static_cast<HICON>(
+    ::LoadImageW(nullptr, MAKEINTRESOURCEW(OIC_SAMPLE), IMAGE_ICON,
+                 smallIconSizeX, smallIconSizeY, LR_SHARED));
   if (!smallIcon) {
     BASALT_LOG_ERROR("failed to load small icon");
   }
 
-  WNDCLASSEXW windowClass {
-    sizeof(WNDCLASSEXW)
-  , CS_OWNDC
-  , &Window::window_proc
-  , 0 // cbClsExtra
-  , 0 // cbWndExtra
-  , moduleHandle
-  , icon
-  , nullptr
-  , reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1)
-  , nullptr // lpszMenuName
-  , CLASS_NAME
-  , smallIcon
-  };
+  WNDCLASSEXW windowClass {sizeof(WNDCLASSEXW),
+                           CS_OWNDC,
+                           &Window::window_proc,
+                           0, // cbClsExtra
+                           0, // cbWndExtra
+                           moduleHandle,
+                           icon,
+                           nullptr,
+                           reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1),
+                           nullptr, // lpszMenuName
+                           CLASS_NAME,
+                           smallIcon};
 
   return ::RegisterClassExW(&windowClass);
 }
 
-auto CALLBACK Window::window_proc(
-  const HWND handle, const UINT message, const WPARAM wParam
-, const LPARAM lParam
-) -> LRESULT {
+auto CALLBACK Window::window_proc(const HWND handle, const UINT message,
+                                  const WPARAM wParam, const LPARAM lParam)
+  -> LRESULT {
 #if BASALT_TRACE_WINDOWS_MESSAGES
-  BASALT_LOG_TRACE(
-    "received message: {}", message_to_string(message, wParam, lParam));
+  BASALT_LOG_TRACE("received message: {}",
+                   message_to_string(message, wParam, lParam));
 #endif // BASALT_TRACE_WINDOWS_MESSAGES
 
   if (const auto window = ::GetWindowLongPtrW(handle, GWLP_USERDATA)) {
-    return reinterpret_cast<Window*>(window)->dispatch_message(
-      message, wParam, lParam);
+    return reinterpret_cast<Window*>(window)->dispatch_message(message, wParam,
+                                                               lParam);
   }
 
   return ::DefWindowProcW(handle, message, wParam, lParam);

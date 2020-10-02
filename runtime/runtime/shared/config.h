@@ -13,12 +13,10 @@ enum class WindowMode : u8 {
   FullscreenExclusive,
 };
 
-
 enum class GfxBackendApi : u8 {
   Default,
   Direct3D9,
 };
-
 
 struct Config final {
   std::string appName {"Basalt App"};
@@ -30,16 +28,6 @@ struct Config final {
   bool isWindowResizeable {true};
   GfxBackendApi gfxBackendApi {GfxBackendApi::Default};
   bool debugUiEnabled {false};
-
-  Config() = default;
-
-  Config(const Config&) = default;
-  Config(Config&&) = default;
-
-  ~Config() = default;
-
-  auto operator=(const Config&) -> Config& = default;
-  auto operator=(Config&&) -> Config& = default;
 
   static auto defaults() -> Config {
     return Config {};

@@ -5,14 +5,16 @@
 #include "backend/commands.h"
 #include "backend/device.h"
 
-#include <runtime/scene/transform.h>
-#include <runtime/scene/scene.h>
+#include "runtime/scene/transform.h"
+#include "runtime/scene/scene.h"
 
-#include <runtime/shared/size2d.h>
+#include "runtime/shared/size2d.h"
 
 #include <entt/entity/registry.hpp>
 
 #include <utility>
+
+using std::optional;
 
 namespace basalt::gfx {
 
@@ -24,8 +26,8 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
   CommandList commandList {};
 
   commandList.set_transform(TransformType::View, mCamera.view_matrix());
-  commandList.set_transform(
-    TransformType::Projection, mCamera.projection_matrix(viewport));
+  commandList.set_transform(TransformType::Projection,
+                            mCamera.projection_matrix(viewport));
 
   commandList.set_ambient_light(mScene->ambient_light());
 
@@ -37,14 +39,13 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
   const auto& ecs = mScene->ecs();
 
   ecs.view<const Model>().each(
-    [this, &device, &commandList, &ecs](
-    const entt::entity entity, const Model& model) -> void {
+    [&, this](const entt::entity entity, const Model& model) {
       CommandLegacy command {};
       if (ecs.has<Transform>(entity)) {
         const auto& transform = ecs.get<Transform>(entity);
         command.worldTransform = Mat4f32::scaling(transform.scale) *
-          Mat4f32::rotation(transform.rotation) *
-          Mat4f32::translation(transform.position);
+                                 Mat4f32::rotation(transform.rotation) *
+                                 Mat4f32::translation(transform.position);
       }
 
       if (mModelCache.find(model.model) == mModelCache.end()) {
@@ -57,17 +58,13 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
     });
 
   ecs.view<const RenderComponent>().each(
-    [&commandList, &ecs](
-    const entt::entity entity, const RenderComponent& renderComponent
-  ) {
+    [&](const entt::entity entity, const RenderComponent& renderComponent) {
       CommandLegacy command;
 
-      if (ecs.has<Transform>(entity)) {
-        const auto& transform = ecs.get<Transform>(
-          entity);
-        command.worldTransform = Mat4f32::scaling(transform.scale) *
-          Mat4f32::rotation(transform.rotation) *
-          Mat4f32::translation(transform.position);
+      if (const auto* transform = ecs.try_get<Transform>(entity)) {
+        command.worldTransform = Mat4f32::scaling(transform->scale) *
+                                 Mat4f32::rotation(transform->rotation) *
+                                 Mat4f32::translation(transform->position);
       }
 
       if (renderComponent.renderFlags & RenderFlagDisableLighting) {
@@ -96,7 +93,7 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
   return commandList;
 }
 
-auto SceneView::clear_color() const -> const Color& {
+auto SceneView::clear_color() const -> optional<Color> {
   return mScene->background_color();
 }
 

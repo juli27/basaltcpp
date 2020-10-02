@@ -9,7 +9,7 @@ struct Extension {
   virtual ~Extension() = default;
 
   auto operator=(const Extension&) -> Extension& = delete;
-  auto operator=(Extension&&) -> Extension& = delete;
+  auto operator=(Extension &&) -> Extension& = delete;
 
 protected:
   Extension() = default;

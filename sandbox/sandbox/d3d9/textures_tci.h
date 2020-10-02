@@ -2,7 +2,6 @@
 
 #include <sandbox/test_case.h>
 
-#include <runtime/gfx/backend/device.h>
 #include <runtime/gfx/scene_view.h>
 #include <runtime/scene/scene.h>
 
@@ -11,7 +10,6 @@
 namespace d3d9 {
 
 struct TexturesTci final : TestCase {
-  TexturesTci() = delete;
   explicit TexturesTci(basalt::Engine&);
 
   TexturesTci(const TexturesTci&) = delete;
@@ -20,7 +18,7 @@ struct TexturesTci final : TestCase {
   ~TexturesTci() override = default;
 
   auto operator=(const TexturesTci&) -> TexturesTci& = delete;
-  auto operator=(TexturesTci&&) -> TexturesTci& = delete;
+  auto operator=(TexturesTci &&) -> TexturesTci& = delete;
 
   void on_update(const basalt::UpdateContext&) override;
   auto name() -> std::string_view override;

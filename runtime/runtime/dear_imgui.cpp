@@ -10,9 +10,12 @@
 #include "math/vec2.h"
 #include "shared/color.h"
 #include "shared/size2d.h"
+#include "shared/utils.h"
 
 #include <imgui/imgui.h>
 
+using std::nullopt;
+using std::optional;
 using namespace std::literals;
 
 namespace basalt {
@@ -71,9 +74,8 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
   const Input& input {ctx.input};
 
   const CursorPosition mousePos {input.cursor_position()};
-  io.MousePos = ImVec2 {
-    static_cast<float>(mousePos.x), static_cast<float>(mousePos.y)
-  };
+  io.MousePos =
+    ImVec2 {static_cast<float>(mousePos.x), static_cast<float>(mousePos.y)};
 
   static_assert(ImGuiMouseButton_COUNT == MOUSE_BUTTON_COUNT);
   static_assert(KEY_COUNT <= 512);
@@ -122,10 +124,8 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
   }
 
   const Size2Du16 displaySize {ctx.drawTarget.size()};
-  io.DisplaySize = ImVec2(
-    static_cast<float>(displaySize.width())
-  , static_cast<float>(displaySize.height())
-  );
+  io.DisplaySize = ImVec2(static_cast<float>(displaySize.width()),
+                          static_cast<float>(displaySize.height()));
   io.DeltaTime = static_cast<float>(ctx.deltaTime);
   io.KeyCtrl = input.is_key_down(Key::Control);
   io.KeyShift = input.is_key_down(Key::Shift);
@@ -135,7 +135,7 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
   //       the super key mapping to the windows key on windows caused
   //       some interoperability problems with OS functionality e.g.
   //       a pressed down super key sticking around after Win+V
-  //io.KeySuper = false;
+  // io.KeySuper = false;
 
   static_assert(ImGuiMouseCursor_COUNT == 9);
   if (!(io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)) {
@@ -159,9 +159,8 @@ auto DearImGui::draw(Device&, Size2Du16) -> CommandList {
   return commandList;
 }
 
-auto DearImGui::clear_color() const -> const Color& {
-  static constexpr Color COLOR {};
-  return COLOR;
+auto DearImGui::clear_color() const -> optional<Color> {
+  return nullopt;
 }
 
 } // namespace basalt

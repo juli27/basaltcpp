@@ -45,19 +45,17 @@ auto create_utf8_from_wide(const wstring_view src) noexcept -> string {
   }
 
   const auto srcSize = static_cast<int>(src.size());
-  auto dstSize = ::WideCharToMultiByte(
-    CP_UTF8, 0u, src.data(), srcSize, nullptr, 0, nullptr, nullptr
-  );
+  auto dstSize = ::WideCharToMultiByte(CP_UTF8, 0u, src.data(), srcSize,
+                                       nullptr, 0, nullptr, nullptr);
 
   if (dstSize == 0) {
     return "WideCharToMultiByte returned 0";
   }
 
   string dst(dstSize, '\0');
-  dstSize = ::WideCharToMultiByte(
-    CP_UTF8, 0u, src.data(), srcSize, dst.data(), static_cast<int>(dst.size()),
-    nullptr, nullptr
-  );
+  dstSize =
+    ::WideCharToMultiByte(CP_UTF8, 0u, src.data(), srcSize, dst.data(),
+                          static_cast<int>(dst.size()), nullptr, nullptr);
   if (dstSize == 0) {
     return "WideCharToMultiByte returned 0";
   }
@@ -74,10 +72,9 @@ auto create_utf8_from_wide(const wstring_view src) noexcept -> string {
 auto create_winapi_error_message(const DWORD errorCode) noexcept -> string {
   WCHAR* buffer = nullptr;
   const auto numChars = ::FormatMessageW(
-    FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM
-    | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, errorCode, 0u,
-    reinterpret_cast<WCHAR*>(&buffer), 0u, nullptr
-  );
+    FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+      FORMAT_MESSAGE_IGNORE_INSERTS,
+    nullptr, errorCode, 0u, reinterpret_cast<WCHAR*>(&buffer), 0u, nullptr);
 
   if (numChars == 0u) {
     return "FormatMessageW failed";

@@ -12,4 +12,5 @@ target_sources(Runtime
     "log.h"
     "size2d.h"
     "types.h"
+    "utils.h"
 )

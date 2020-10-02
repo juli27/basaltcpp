@@ -11,7 +11,6 @@
 namespace d3d9 {
 
 struct Matrices final : TestCase {
-  Matrices() = delete;
   explicit Matrices(basalt::gfx::Device&);
 
   Matrices(const Matrices&) = delete;
@@ -20,7 +19,7 @@ struct Matrices final : TestCase {
   ~Matrices() override = default;
 
   auto operator=(const Matrices&) -> Matrices& = delete;
-  auto operator=(Matrices&&) -> Matrices& = delete;
+  auto operator=(Matrices &&) -> Matrices& = delete;
 
   void on_update(const basalt::UpdateContext&) override;
   auto name() -> std::string_view override;

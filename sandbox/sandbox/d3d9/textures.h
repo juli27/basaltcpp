@@ -11,7 +11,6 @@
 namespace d3d9 {
 
 struct Textures final : TestCase {
-  Textures() = delete;
   explicit Textures(basalt::gfx::Device&);
 
   Textures(const Textures&) = delete;
@@ -20,7 +19,7 @@ struct Textures final : TestCase {
   ~Textures() override = default;
 
   auto operator=(const Textures&) -> Textures& = delete;
-  auto operator=(Textures&&) -> Textures& = delete;
+  auto operator=(Textures &&) -> Textures& = delete;
 
   void on_update(const basalt::UpdateContext&) override;
   auto name() -> std::string_view override;

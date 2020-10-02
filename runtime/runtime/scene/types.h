@@ -1,7 +1,7 @@
 #pragma once
 
-#include <runtime/math/vec3.h>
-#include <runtime/shared/color.h>
+#include "runtime/math/vec3.h"
+#include "runtime/shared/color.h"
 
 namespace basalt {
 

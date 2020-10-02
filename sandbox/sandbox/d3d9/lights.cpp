@@ -67,9 +67,8 @@ Lights::Lights(Device& device) {
     vertex2.nz = cosTheta;
   }
 
-  const VertexLayout vertexLayout {
-    VertexElement::Position3F32, VertexElement::Normal3F32
-  };
+  const VertexLayout vertexLayout {VertexElement::Position3F32,
+                                   VertexElement::Normal3F32};
 
   entt::registry& ecs {mScene->ecs()};
   mCylinder = ecs.create();
@@ -103,7 +102,7 @@ void Lights::on_update(const basalt::UpdateContext& ctx) {
   ctx.drawTarget.draw(mSceneView);
 
   if (ctx.engine.config().debugUiEnabled) {
-      Debug::update(*mScene);
+    Debug::update(*mScene);
   }
 }
 

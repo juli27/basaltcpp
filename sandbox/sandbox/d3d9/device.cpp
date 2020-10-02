@@ -26,7 +26,7 @@ void Device::on_update(const basalt::UpdateContext& ctx) {
   ctx.drawTarget.draw(mSceneView);
 
   if (ctx.engine.config().debugUiEnabled) {
-      Debug::update(*mScene);
+    Debug::update(*mScene);
   }
 }
 
