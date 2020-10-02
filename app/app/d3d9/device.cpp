@@ -152,6 +152,7 @@ void D3D9Device::execute(const CommandList& commandList) {
   D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
 
   const auto identity = to_d3d_matrix(Mat4f32::identity());
+  D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &identity));
   D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &identity));
   D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
 
@@ -286,9 +287,6 @@ auto D3D9Device::query_extension(
 
 void D3D9Device::execute(const CommandLegacy& command) {
   if (command.model) {
-    const auto transform {to_d3d_matrix(command.worldTransform)};
-    D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &transform));
-
     const auto& model = mModels.get(command.model);
     for (DWORD i = 0; i < model.materials.size(); i++) {
       D3D9CALL(mDevice->SetMaterial(&model.materials[i]));
@@ -346,11 +344,6 @@ void D3D9Device::execute(const CommandLegacy& command) {
       if (!(mesh.fvf & D3DFVF_TEX1)) {
         D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, tci));
       }
-    }
-
-    if (!noLightingAndTransform) {
-      const auto transform {to_d3d_matrix(command.worldTransform)};
-      D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &transform));
     }
 
     D3D9CALL(
@@ -424,6 +417,10 @@ void D3D9Device::execute(const CommandSetTransform& command) const {
 
   case TransformType::View:
     D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &transform));
+    break;
+
+  case TransformType::World:
+    D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &transform));
     break;
   }
 }

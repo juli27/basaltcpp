@@ -149,6 +149,9 @@
     <ClInclude Include="runtime\shared\utils.h">
       <Filter>shared</Filter>
     </ClInclude>
+    <ClInclude Include="runtime\gfx\device_state_tracker.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="platform">

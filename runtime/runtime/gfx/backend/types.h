@@ -57,7 +57,7 @@ enum RenderFlags : u8 {
 
 enum class TexCoordinateSrc : u8 { Vertex, PositionCameraSpace };
 
-enum class TransformType : u8 { Projection, View };
+enum class TransformType : u8 { Projection, View, World };
 
 enum class VertexElement : u8 {
   Position3F32,

@@ -184,6 +184,7 @@
     <ClInclude Include="runtime\gfx\backend\types.h" />
     <ClInclude Include="runtime\gfx\camera.h" />
     <ClInclude Include="runtime\gfx\compositor.h" />
+    <ClInclude Include="runtime\gfx\device_state_tracker.h" />
     <ClInclude Include="runtime\gfx\drawable.h" />
     <ClInclude Include="runtime\gfx\draw_target.h" />
     <ClInclude Include="runtime\gfx\scene_view.h" />

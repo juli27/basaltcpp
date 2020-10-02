@@ -40,18 +40,18 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
 
   ecs.view<const Model>().each(
     [&, this](const entt::entity entity, const Model& model) {
-      CommandLegacy command {};
-      if (ecs.has<Transform>(entity)) {
-        const auto& transform = ecs.get<Transform>(entity);
-        command.worldTransform = Mat4f32::scaling(transform.scale) *
-                                 Mat4f32::rotation(transform.rotation) *
-                                 Mat4f32::translation(transform.position);
+      if (const auto* transform = ecs.try_get<Transform>(entity)) {
+        const auto worldTransform = Mat4f32::scaling(transform->scale) *
+                                    Mat4f32::rotation(transform->rotation) *
+                                    Mat4f32::translation(transform->position);
+        commandList.set_transform(TransformType::World, worldTransform);
       }
 
       if (mModelCache.find(model.model) == mModelCache.end()) {
         mModelCache[model.model] = device.load_model(model.model);
       }
 
+      CommandLegacy command {};
       command.model = mModelCache[model.model];
 
       commandList.add(command);
@@ -59,12 +59,11 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
 
   ecs.view<const RenderComponent>().each(
     [&](const entt::entity entity, const RenderComponent& renderComponent) {
-      CommandLegacy command;
-
       if (const auto* transform = ecs.try_get<Transform>(entity)) {
-        command.worldTransform = Mat4f32::scaling(transform->scale) *
-                                 Mat4f32::rotation(transform->rotation) *
-                                 Mat4f32::translation(transform->position);
+        const auto worldTransform = Mat4f32::scaling(transform->scale) *
+                                    Mat4f32::rotation(transform->rotation) *
+                                    Mat4f32::translation(transform->position);
+        commandList.set_transform(TransformType::World, worldTransform);
       }
 
       if (renderComponent.renderFlags & RenderFlagDisableLighting) {
@@ -74,6 +73,7 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
         commandList.set_render_state(RenderState::CullMode, CullModeNone);
       }
 
+      CommandLegacy command {};
       command.mesh = renderComponent.mesh;
       command.texture = renderComponent.texture;
       command.diffuseColor = renderComponent.diffuseColor;
