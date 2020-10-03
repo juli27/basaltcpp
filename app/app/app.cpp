@@ -15,6 +15,7 @@
 
 #include <runtime/client_app.h>
 #include <runtime/dear_imgui.h>
+#include <runtime/debug.h>
 
 #include <runtime/gfx/backend/composite.h>
 
@@ -105,6 +106,7 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
 
     // device needed for our current model support
     const Composite composite = Compositor::compose(*gfxDevice, drawTarget);
+    //Debug::update(composite);
     gfxContext->submit(composite);
 
     gfxContext->present();
