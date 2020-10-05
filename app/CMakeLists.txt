@@ -4,7 +4,6 @@ target_sources(App PRIVATE "App.manifest")
 
 add_subdirectory("app")
 
-target_include_directories(App SYSTEM PRIVATE "$ENV{DXSDK_DIR}Include")
 target_include_directories(App PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_compile_definitions(App
@@ -19,14 +18,6 @@ target_compile_options(App PRIVATE
   /diagnostics:column /FC /fp:fast /GF /guard:cf /Gy /sdl /W4 /WX /Zc:inline
   /Zc:rvalueCast)
 
-target_link_libraries(App PRIVATE
-  Runtime
-  Sandbox
-  "d3d9"
-  "d3dx9$<$<CONFIG:Debug>:d>")
-
-target_link_directories(App PRIVATE $ENV{DXSDK_DIR}Lib/x64)
-
 target_link_options(App PRIVATE /guard:cf /WX
   "$<$<NOT:$<CONFIG:Debug>>:/OPT:REF;/OPT:ICF>")
 
@@ -39,3 +30,14 @@ set_target_properties(App PROPERTIES
   INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF
   INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL OFF
   VS_JUST_MY_CODE_DEBUGGING $<CONFIG:Debug>)
+
+
+# Dependencies
+find_package(DirectXSDK MODULE REQUIRED d3dx9)
+
+target_link_libraries(App PRIVATE
+  Runtime
+  Sandbox
+  "d3d9"
+  DirectXSDK::d3dx9
+)
