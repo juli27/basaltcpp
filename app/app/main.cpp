@@ -3,7 +3,7 @@
 #include "shared/util.h"
 #include "shared/Windows_custom.h"
 
-#include <runtime/shared/log.h>
+#include <api/shared/log.h>
 
 #include <exception>
 #include <string>

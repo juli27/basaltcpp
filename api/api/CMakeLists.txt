@@ -1,0 +1,21 @@
+target_sources(${CURRENT_TARGET}
+  PRIVATE
+    "dear_imgui.cpp"
+    "debug.cpp"
+    "engine.cpp"
+    "input.cpp"
+  PUBLIC
+    "client_app.h"
+    "dear_imgui.h"
+    "debug.h"
+    "engine.h"
+    "input.h"
+    "prelude.h"
+    "types.h"
+)
+
+add_subdirectory("gfx")
+add_subdirectory("math")
+add_subdirectory("platform")
+add_subdirectory("scene")
+add_subdirectory("shared")

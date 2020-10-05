@@ -13,18 +13,18 @@
 #include "d3d9/types.h"
 #include "d3d9/util.h"
 
-#include <runtime/client_app.h>
-#include <runtime/dear_imgui.h>
-#include <runtime/debug.h>
+#include <api/client_app.h>
+#include <api/dear_imgui.h>
+#include <api/debug.h>
 
-#include <runtime/gfx/backend/composite.h>
+#include <api/gfx/backend/composite.h>
 
-#include <runtime/gfx/compositor.h>
-#include <runtime/gfx/draw_target.h>
+#include <api/gfx/compositor.h>
+#include <api/gfx/draw_target.h>
 
-#include <runtime/shared/asserts.h>
-#include <runtime/shared/log.h>
-#include <runtime/shared/size2d.h>
+#include <api/shared/asserts.h>
+#include <api/shared/log.h>
+#include <api/shared/size2d.h>
 
 #include <imgui/imgui.h>
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <runtime/gfx/camera.h>
+#include <api/gfx/camera.h>
 
-#include <runtime/gfx/backend/device.h>
-#include <runtime/gfx/backend/types.h>
+#include <api/gfx/backend/device.h>
+#include <api/gfx/backend/types.h>
 
-#include <runtime/shared/types.h>
+#include <api/shared/types.h>
 
 #include <array>
 

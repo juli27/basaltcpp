@@ -1,0 +1,16 @@
+target_sources(${CURRENT_TARGET}
+  PRIVATE
+    "asserts.cpp"
+    "log.cpp"
+  PUBLIC
+    "asserts.h"
+    "color.h"
+    "config.h"
+    "data.h"
+    "handle.h"
+    "handle_pool.h"
+    "log.h"
+    "size2d.h"
+    "types.h"
+    "utils.h"
+)

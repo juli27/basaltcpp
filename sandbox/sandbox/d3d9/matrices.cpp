@@ -2,13 +2,13 @@
 
 #include "utils.h"
 
-#include <runtime/debug.h>
-#include <runtime/prelude.h>
+#include <api/debug.h>
+#include <api/prelude.h>
 
-#include <runtime/gfx/draw_target.h>
-#include <runtime/scene/transform.h>
-#include <runtime/math/constants.h>
-#include <runtime/shared/config.h>
+#include <api/gfx/draw_target.h>
+#include <api/scene/transform.h>
+#include <api/math/constants.h>
+#include <api/shared/config.h>
 
 #include <entt/entity/registry.hpp>
 

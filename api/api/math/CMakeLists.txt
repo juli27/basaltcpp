@@ -1,0 +1,11 @@
+target_sources(${CURRENT_TARGET}
+  PRIVATE
+    "mat4.cpp"
+    "vec2.cpp"
+    "vec3.cpp"
+  PUBLIC
+    "constants.h"
+    "mat4.h"
+    "vec2.h"
+    "vec3.h"
+)

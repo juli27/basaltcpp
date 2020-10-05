@@ -36,7 +36,7 @@ set_target_properties(App PROPERTIES
 find_package(DirectXSDK MODULE REQUIRED d3dx9)
 
 target_link_libraries(App PRIVATE
-  Runtime
+  api
   Sandbox
   "d3d9"
   DirectXSDK::d3dx9

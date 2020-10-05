@@ -1,6 +1,6 @@
 #pragma once
 
-#include <runtime/shared/config.h>
+#include <api/shared/config.h>
 
 namespace basalt {
 

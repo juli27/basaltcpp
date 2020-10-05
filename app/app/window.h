@@ -2,9 +2,9 @@
 
 #include "shared/Windows_custom.h"
 
-#include <runtime/input.h>
-#include <runtime/types.h>
-#include <runtime/shared/size2d.h>
+#include <api/input.h>
+#include <api/types.h>
+#include <api/shared/size2d.h>
 
 #include <array>
 #include <memory>

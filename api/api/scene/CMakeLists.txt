@@ -1,0 +1,9 @@
+target_sources(${CURRENT_TARGET}
+  PRIVATE
+    "scene.cpp"
+    "transform.cpp"
+  PUBLIC
+    "scene.h"
+    "transform.h"
+    "types.h"
+)

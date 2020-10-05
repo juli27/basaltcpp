@@ -4,15 +4,15 @@
 
 #include <app/shared/util.h>
 
-#include <runtime/scene/types.h>
+#include <api/scene/types.h>
 
-#include <runtime/gfx/backend/ext/dear_imgui_renderer.h>
-#include <runtime/math/mat4.h>
+#include <api/gfx/backend/ext/dear_imgui_renderer.h>
+#include <api/math/mat4.h>
 
-#include <runtime/shared/asserts.h>
-#include <runtime/shared/color.h>
-#include <runtime/shared/log.h>
-#include <runtime/shared/utils.h>
+#include <api/shared/asserts.h>
+#include <api/shared/color.h>
+#include <api/shared/log.h>
+#include <api/shared/utils.h>
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_dx9.h>

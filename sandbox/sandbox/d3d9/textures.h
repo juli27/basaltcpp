@@ -2,9 +2,9 @@
 
 #include <sandbox/test_case.h>
 
-#include <runtime/gfx/backend/device.h>
-#include <runtime/gfx/scene_view.h>
-#include <runtime/scene/scene.h>
+#include <api/gfx/backend/device.h>
+#include <api/gfx/scene_view.h>
+#include <api/scene/scene.h>
 
 #include <memory>
 

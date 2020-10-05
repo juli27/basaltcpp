@@ -22,7 +22,7 @@ target_compile_options(CommonOptions INTERFACE
 )
 
 add_subdirectory("external")
-add_subdirectory("runtime")
+add_subdirectory("api")
 
 add_subdirectory("sandbox")
 

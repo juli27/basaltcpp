@@ -8,12 +8,12 @@
 #include "d3d9/textures_tci.h"
 #include "d3d9/vertices.h"
 
-#include <runtime/engine.h>
-#include <runtime/input.h>
-#include <runtime/prelude.h>
+#include <api/engine.h>
+#include <api/input.h>
+#include <api/prelude.h>
 
-#include <runtime/platform/platform.h>
-#include <runtime/shared/config.h>
+#include <api/platform/platform.h>
+#include <api/shared/config.h>
 
 #include <imgui/imgui.h>
 

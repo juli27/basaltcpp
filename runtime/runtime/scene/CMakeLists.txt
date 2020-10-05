@@ -1,9 +1,0 @@
-target_sources(Runtime
-  PRIVATE
-    "scene.cpp"
-    "transform.cpp"
-  PUBLIC
-    "scene.h"
-    "transform.h"
-    "types.h"
-)

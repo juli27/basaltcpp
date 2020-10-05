@@ -1,7 +1,7 @@
 #include "utils.h"
 
-#include <runtime/math/constants.h>
-#include <runtime/math/vec3.h>
+#include <api/math/constants.h>
+#include <api/math/vec3.h>
 
 using basalt::PI;
 using basalt::Vec3f32;

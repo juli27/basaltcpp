@@ -1,8 +1,8 @@
 #pragma once
 
-#include <runtime/client_app.h>
+#include <api/client_app.h>
 
-#include <runtime/shared/types.h>
+#include <api/shared/types.h>
 
 #include <memory>
 #include <vector>

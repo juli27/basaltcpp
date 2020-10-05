@@ -2,21 +2,21 @@
 
 #include "utils.h"
 
-#include <runtime/debug.h>
-#include <runtime/prelude.h>
+#include <api/debug.h>
+#include <api/prelude.h>
 
-#include <runtime/gfx/camera.h>
-#include <runtime/gfx/draw_target.h>
+#include <api/gfx/camera.h>
+#include <api/gfx/draw_target.h>
 
-#include <runtime/gfx/backend/device.h>
-#include <runtime/gfx/backend/context.h>
+#include <api/gfx/backend/device.h>
+#include <api/gfx/backend/context.h>
 
-#include <runtime/scene/transform.h>
+#include <api/scene/transform.h>
 
-#include <runtime/math/constants.h>
-#include <runtime/math/mat4.h>
+#include <api/math/constants.h>
+#include <api/math/mat4.h>
 
-#include <runtime/shared/config.h>
+#include <api/shared/config.h>
 
 #include <array>
 #include <cmath>

@@ -3,9 +3,9 @@
 #include "d3d9_custom.h"
 #include "types.h"
 
-#include <runtime/shared/asserts.h>
-#include <runtime/shared/color.h>
-#include <runtime/shared/utils.h>
+#include <api/shared/asserts.h>
+#include <api/shared/color.h>
+#include <api/shared/utils.h>
 
 #include <string_view>
 

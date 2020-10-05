@@ -4,9 +4,9 @@
 #include "device.h"
 #include "util.h"
 
-#include <runtime/platform/platform.h>
-#include <runtime/shared/config.h>
-#include <runtime/shared/log.h>
+#include <api/platform/platform.h>
+#include <api/shared/config.h>
+#include <api/shared/log.h>
 
 #include <fmt/format.h>
 

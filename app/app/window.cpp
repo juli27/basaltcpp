@@ -11,11 +11,11 @@
 
 #include "shared/util.h"
 
-#include <runtime/engine.h>
+#include <api/engine.h>
 
-#include <runtime/shared/config.h>
-#include <runtime/shared/log.h>
-#include <runtime/shared/utils.h>
+#include <api/shared/config.h>
+#include <api/shared/log.h>
+#include <api/shared/utils.h>
 
 #include <windowsx.h>
 

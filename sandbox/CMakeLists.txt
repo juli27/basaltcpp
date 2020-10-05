@@ -15,7 +15,7 @@ target_compile_options(Sandbox
 
 target_include_directories(Sandbox PRIVATE
   "../sandbox"
-  "../runtime"
+  "../api"
   "../external/include"
   "../external/DearImGui/"
   "../external/Fmt/")

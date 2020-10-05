@@ -2,8 +2,8 @@
 
 #include "util.h"
 
-#include <runtime/gfx/backend/composite.h>
-#include <runtime/shared/log.h>
+#include <api/gfx/backend/composite.h>
+#include <api/shared/log.h>
 
 using std::shared_ptr;
 

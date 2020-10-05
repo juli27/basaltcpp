@@ -1,9 +1,9 @@
-#include <runtime/platform/platform.h>
+#include <api/platform/platform.h>
 
 #include "globals.h"
 #include "shared/Windows_custom.h"
 
-#include <runtime/shared/log.h>
+#include <api/shared/log.h>
 
 namespace basalt::platform {
 
