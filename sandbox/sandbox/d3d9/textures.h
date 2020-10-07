@@ -2,7 +2,6 @@
 
 #include <sandbox/test_case.h>
 
-#include <api/gfx/backend/device.h>
 #include <api/gfx/scene_view.h>
 #include <api/scene/scene.h>
 
@@ -11,7 +10,7 @@
 namespace d3d9 {
 
 struct Textures final : TestCase {
-  explicit Textures(basalt::gfx::Device&);
+  explicit Textures(basalt::Engine&);
 
   Textures(const Textures&) = delete;
   Textures(Textures&&) = delete;

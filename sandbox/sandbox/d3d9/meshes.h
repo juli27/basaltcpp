@@ -10,7 +10,7 @@
 namespace d3d9 {
 
 struct Meshes final : TestCase {
-  Meshes();
+  explicit Meshes(basalt::Engine&);
 
   Meshes(const Meshes&) = delete;
   Meshes(Meshes&&) = delete;

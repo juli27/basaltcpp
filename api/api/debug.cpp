@@ -15,7 +15,6 @@
 
 #include "shared/color.h"
 #include "shared/types.h"
-#include "shared/utils.h"
 
 #include <entt/entity/registry.hpp>
 #include <imgui/imgui.h>
@@ -379,9 +378,9 @@ void Debug::draw_scene_debug_ui(Scene& scene) {
   ImGui::Separator();
 
   scene.mEntityRegistry.each([&scene](const entity entity) -> void {
-    ImGui::PushID(enum_cast(entity));
+    ImGui::PushID(to_integral(entity));
 
-    if (ImGui::TreeNode("Entity", "Entity %d", enum_cast(entity))) {
+    if (ImGui::TreeNode("Entity", "Entity %d", to_integral(entity))) {
       // show its transform component
       if (auto* const transform =
             scene.mEntityRegistry.try_get<Transform>(entity)) {
@@ -401,7 +400,7 @@ void Debug::draw_scene_debug_ui(Scene& scene) {
             scene.mEntityRegistry.try_get<gfx::RenderComponent>(entity)) {
         if (ImGui::TreeNode("RenderComponent")) {
           ImGui::Text("Mesh: %#x", rc->mesh.value());
-          ImGui::Text("Texture: %#x", rc->texture.value());
+          ImGui::Text("Texture: %#x", to_integral(rc->texture));
 
           edit_color4("Diffuse", rc->diffuseColor);
           edit_color4("Ambient", rc->ambientColor);
@@ -425,7 +424,7 @@ void Debug::draw_scene_debug_ui(Scene& scene) {
       if (auto* const gfxModel =
             scene.mEntityRegistry.try_get<gfx::Model>(entity)) {
         if (ImGui::TreeNode("Gfx Model")) {
-          ImGui::TextUnformatted(gfxModel->model.c_str());
+          ImGui::Text("handle = %d", to_integral(gfxModel->handle));
 
           ImGui::TreePop();
         }

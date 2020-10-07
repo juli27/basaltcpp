@@ -4,9 +4,13 @@
 #include "api/shared/handle.h"
 #include "api/shared/types.h"
 
+#include <memory>
 #include <vector>
 
 namespace basalt::gfx {
+
+struct Device;
+using DevicePtr = std::shared_ptr<Device>;
 
 enum class CommandType : u8 {
   Legacy,
@@ -79,8 +83,16 @@ enum class PrimitiveType : u8 {
   TriangleFan
 };
 
-using MeshHandle = Handle<struct MeshTag>;
-using TextureHandle = Handle<struct TextureTag>;
-using ModelHandle = Handle<struct ModelTag>;
+namespace detail {
+
+struct MeshTag;
+struct TextureTag;
+struct ModelTag;
+
+} // namespace detail
+
+using MeshHandle = Handle<detail::MeshTag>;
+using TextureHandle = Handle<detail::TextureTag>;
+using ModelHandle = Handle<detail::ModelTag>;
 
 } // namespace basalt::gfx

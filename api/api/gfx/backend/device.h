@@ -11,9 +11,6 @@
 
 namespace basalt::gfx {
 
-struct Device;
-using DevicePtr = std::shared_ptr<Device>;
-
 using ExtensionPtr = std::shared_ptr<ext::Extension>;
 
 struct Device {

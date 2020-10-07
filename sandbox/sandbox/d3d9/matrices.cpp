@@ -32,7 +32,7 @@ using basalt::gfx::VertexLayout;
 namespace d3d9 {
 
 Matrices::Matrices(Device& device) {
-  mScene->set_background_color(Colors::BLACK);
+  mScene->set_background(Colors::BLACK);
 
   struct Vertex final {
     f32 x {};

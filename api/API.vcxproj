@@ -163,6 +163,7 @@
     <ClCompile Include="api\gfx\compositor.cpp" />
     <ClCompile Include="api\gfx\device_state_cache.cpp" />
     <ClCompile Include="api\gfx\draw_target.cpp" />
+    <ClCompile Include="api\gfx\resource_cache.cpp" />
     <ClCompile Include="api\gfx\scene_view.cpp" />
     <ClCompile Include="api\input.cpp" />
     <ClCompile Include="api\math\mat4.cpp" />
@@ -190,6 +191,7 @@
     <ClInclude Include="api\gfx\device_state_cache.h" />
     <ClInclude Include="api\gfx\drawable.h" />
     <ClInclude Include="api\gfx\draw_target.h" />
+    <ClInclude Include="api\gfx\resource_cache.h" />
     <ClInclude Include="api\gfx\scene_view.h" />
     <ClInclude Include="api\gfx\types.h" />
     <ClInclude Include="api\client_app.h" />
@@ -201,6 +203,8 @@
     <ClInclude Include="api\gfx\backend\context.h" />
     <ClInclude Include="api\platform\platform.h" />
     <ClInclude Include="api\prelude.h" />
+    <ClInclude Include="api\resources\types.h" />
+    <ClInclude Include="api\resources\resource_registry.h" />
     <ClInclude Include="api\scene\scene.h" />
     <ClInclude Include="api\scene\transform.h" />
     <ClInclude Include="api\scene\types.h" />

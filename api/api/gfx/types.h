@@ -2,18 +2,19 @@
 
 #include "backend/types.h"
 
+#include "api/resources/types.h"
 #include "api/math/mat4.h"
 
 #include "api/shared/color.h"
 #include "api/shared/types.h"
 
-#include <string>
-
 namespace basalt::gfx {
+
+struct ResourceCache;
 
 struct RenderComponent final {
   MeshHandle mesh;
-  TextureHandle texture;
+  Texture texture {entt::null};
   Color diffuseColor;
   Color ambientColor;
   Mat4f32 texTransform {Mat4f32::identity()};
@@ -22,7 +23,7 @@ struct RenderComponent final {
 };
 
 struct Model final {
-  std::string model;
+  GfxModel handle {entt::null};
 };
 
 } // namespace basalt::gfx

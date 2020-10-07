@@ -7,26 +7,31 @@
 
 #include <api/gfx/draw_target.h>
 #include <api/scene/transform.h>
+
+#include <api/resources/types.h>
+
 #include <api/shared/config.h>
 
 using std::string_view;
 using namespace std::literals;
 
 using basalt::Debug;
+using basalt::Engine;
+using basalt::GfxModel;
 using basalt::Transform;
 using basalt::gfx::Model;
 using basalt::gfx::SceneView;
 
 namespace d3d9 {
 
-Meshes::Meshes() {
-  mScene->set_background_color(Colors::BLUE);
+Meshes::Meshes(Engine& engine) {
+  mScene->set_background(Colors::BLUE);
   mScene->set_ambient_light(Colors::WHITE);
 
   entt::registry& ecs {mScene->ecs()};
   mTiger = ecs.create();
   ecs.emplace<Transform>(mTiger);
-  ecs.emplace<Model>(mTiger, "data/Tiger.x"s);
+  ecs.emplace<Model>(mTiger, engine.load<GfxModel>("data/Tiger.x"sv));
 
   mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }

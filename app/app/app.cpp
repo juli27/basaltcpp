@@ -105,8 +105,9 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
     drawTarget.draw(dearImGui);
 
     // device needed for our current model support
-    const Composite composite = Compositor::compose(*gfxDevice, drawTarget);
-    //Debug::update(composite);
+    const Composite composite =
+      Compositor::compose(app.mGfxResourceCache, drawTarget);
+    // Debug::update(composite);
     gfxContext->submit(composite);
 
     gfxContext->present();

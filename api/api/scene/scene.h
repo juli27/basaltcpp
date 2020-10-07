@@ -21,15 +21,15 @@ struct Scene final {
   Scene(const Scene&) = delete;
   Scene(Scene&&) = delete;
 
-  ~Scene() = default;
+  ~Scene() noexcept = default;
 
   auto operator=(const Scene&) -> Scene& = delete;
   auto operator=(Scene &&) -> Scene& = delete;
 
   auto ecs() -> entt::registry&;
 
-  [[nodiscard]] auto background_color() const -> const Color&;
-  void set_background_color(const Color&);
+  [[nodiscard]] auto background() const -> const Color&;
+  void set_background(const Color&);
 
   [[nodiscard]] auto ambient_light() const -> const Color&;
   void set_ambient_light(const Color&);

@@ -1,3 +1,10 @@
+add_subdirectory("shared")
+add_subdirectory("platform")
+add_subdirectory("math")
+add_subdirectory("resources")
+add_subdirectory("scene")
+add_subdirectory("gfx")
+
 target_sources(${CURRENT_TARGET}
   PRIVATE
     "dear_imgui.cpp"
@@ -13,9 +20,3 @@ target_sources(${CURRENT_TARGET}
     "prelude.h"
     "types.h"
 )
-
-add_subdirectory("gfx")
-add_subdirectory("math")
-add_subdirectory("platform")
-add_subdirectory("scene")
-add_subdirectory("shared")

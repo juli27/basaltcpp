@@ -24,7 +24,7 @@ using basalt::gfx::VertexLayout;
 namespace d3d9 {
 
 Vertices::Vertices(Device& device) {
-  mScene->set_background_color(Colors::BLUE);
+  mScene->set_background(Colors::BLUE);
 
   struct Vertex final {
     f32 x;

@@ -6,6 +6,9 @@
 #include <api/prelude.h>
 
 #include <api/gfx/draw_target.h>
+
+#include <api/gfx/backend/device.h>
+
 #include <api/scene/transform.h>
 
 #include <api/math/constants.h>
@@ -20,7 +23,9 @@ using std::string_view;
 using namespace std::literals;
 
 using basalt::Debug;
+using basalt::Engine;
 using basalt::PI;
+using basalt::Texture;
 using basalt::Transform;
 using basalt::gfx::Device;
 using basalt::gfx::RenderComponent;
@@ -32,8 +37,8 @@ using basalt::gfx::VertexLayout;
 
 namespace d3d9 {
 
-Textures::Textures(Device& device) {
-  mScene->set_background_color(Colors::BLUE);
+Textures::Textures(Engine& engine) {
+  mScene->set_background(Colors::BLUE);
 
   struct Vertex final {
     f32 x {};
@@ -77,8 +82,9 @@ Textures::Textures(Device& device) {
   ecs.emplace<Transform>(mCylinder);
 
   auto& rc {ecs.emplace<RenderComponent>(mCylinder)};
-  rc.mesh = add_triangle_strip_mesh(device, vertices, vertexLayout);
-  rc.texture = device.add_texture("data/banana.bmp");
+  const auto device = engine.gfx_device();
+  rc.mesh = add_triangle_strip_mesh(*device, vertices, vertexLayout);
+  rc.texture = engine.load<Texture>("data/banana.bmp"sv);
   rc.renderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 
   mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());

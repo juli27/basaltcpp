@@ -19,7 +19,7 @@ struct D3D9Context final : Context {
 
   void resize(Size2Du16) override;
 
-  [[nodiscard]] auto device() const noexcept -> D3D9Device& override;
+  [[nodiscard]] auto device() const noexcept -> DevicePtr override;
 
   void submit(const Composite&) override;
   void present() override;

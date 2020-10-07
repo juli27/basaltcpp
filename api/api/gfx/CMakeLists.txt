@@ -5,6 +5,7 @@ target_sources(${CURRENT_TARGET}
     "compositor.cpp"
     "device_state_cache.cpp"
     "draw_target.cpp"
+    "resource_cache.cpp"
     "scene_view.cpp"
   PUBLIC
     "camera.h"
@@ -13,6 +14,7 @@ target_sources(${CURRENT_TARGET}
     "device_state_cache.h"
     "draw_target.h"
     "drawable.h"
+    "resource_cache.h"
     "scene_view.h"
     "types.h"
 )

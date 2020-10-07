@@ -49,6 +49,10 @@ template <typename Tag>
 struct Handle final : detail::HandleBase {
   // inherit base class constructors
   using HandleBase::HandleBase;
+
+  static constexpr auto invalid() -> Handle {
+    return Handle {};
+  }
 };
 
 } // namespace basalt

@@ -22,6 +22,7 @@ namespace basalt {
 
 using gfx::CommandList;
 using gfx::Device;
+using gfx::ResourceCache;
 using gfx::ext::CommandRenderDearImGui;
 using gfx::ext::DearImGuiRenderer;
 
@@ -152,7 +153,7 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
   ImGui::NewFrame();
 }
 
-auto DearImGui::draw(Device&, Size2Du16) -> CommandList {
+auto DearImGui::draw(ResourceCache&, Size2Du16) -> CommandList {
   CommandList commandList {};
   commandList.add<CommandRenderDearImGui>();
 

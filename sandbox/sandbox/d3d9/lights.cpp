@@ -34,7 +34,7 @@ using basalt::gfx::VertexLayout;
 namespace d3d9 {
 
 Lights::Lights(Device& device) {
-  mScene->set_background_color(Colors::BLUE);
+  mScene->set_background(Colors::BLUE);
   mScene->set_ambient_light(Color::from_rgba(32, 32, 32));
 
   struct Vertex final {

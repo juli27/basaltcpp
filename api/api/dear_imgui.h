@@ -33,7 +33,8 @@ struct DearImGui final : gfx::Drawable {
 
   void new_frame(const UpdateContext&) const;
 
-  auto draw(gfx::Device&, Size2Du16 viewport) -> gfx::CommandList override;
+  auto draw(gfx::ResourceCache&, Size2Du16 viewport)
+    -> gfx::CommandList override;
 
   [[nodiscard]] auto clear_color() const -> std::optional<Color> override;
 

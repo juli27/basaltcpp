@@ -8,7 +8,7 @@
 
 namespace basalt::gfx {
 
-auto Compositor::compose(Device& device, const DrawTarget& drawTarget)
+auto Compositor::compose(ResourceCache& resourceCache, const DrawTarget& drawTarget)
   -> Composite {
   const auto& drawables = drawTarget.drawables();
 
@@ -20,7 +20,7 @@ auto Compositor::compose(Device& device, const DrawTarget& drawTarget)
     drawables.front()->clear_color().value_or(Colors::BLACK)};
 
   for (const auto& drawable : drawables) {
-    composite.add_part(drawable->draw(device, drawTarget.size()));
+    composite.add_part(drawable->draw(resourceCache, drawTarget.size()));
   }
 
   return composite;

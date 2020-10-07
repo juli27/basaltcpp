@@ -43,16 +43,16 @@ auto ClientApp::create(Engine& engine) -> unique_ptr<ClientApp> {
 }
 
 SandboxApp::SandboxApp(Engine& engine) {
-  Device& device = engine.gfx_device();
+  const auto device = engine.gfx_device();
 
   mScenes.reserve(7u);
   mScenes.emplace_back(std::make_unique<d3d9::Device>());
-  mScenes.emplace_back(std::make_unique<d3d9::Vertices>(device));
-  mScenes.emplace_back(std::make_unique<d3d9::Matrices>(device));
-  mScenes.emplace_back(std::make_unique<d3d9::Lights>(device));
-  mScenes.emplace_back(std::make_unique<d3d9::Textures>(device));
+  mScenes.emplace_back(std::make_unique<d3d9::Vertices>(*device));
+  mScenes.emplace_back(std::make_unique<d3d9::Matrices>(*device));
+  mScenes.emplace_back(std::make_unique<d3d9::Lights>(*device));
+  mScenes.emplace_back(std::make_unique<d3d9::Textures>(engine));
   mScenes.emplace_back(std::make_unique<d3d9::TexturesTci>(engine));
-  mScenes.emplace_back(std::make_unique<d3d9::Meshes>());
+  mScenes.emplace_back(std::make_unique<d3d9::Meshes>(engine));
 }
 
 void SandboxApp::on_update(const UpdateContext& ctx) {

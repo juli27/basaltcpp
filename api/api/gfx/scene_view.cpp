@@ -1,11 +1,11 @@
 #include "scene_view.h"
 
 #include "command_list_recorder.h"
+#include "resource_cache.h"
 #include "types.h"
 
-#include "backend/command_list.h"
 #include "backend/commands.h"
-#include "backend/device.h"
+#include "backend/types.h"
 
 #include "api/scene/transform.h"
 #include "api/scene/scene.h"
@@ -25,7 +25,8 @@ SceneView::SceneView(std::shared_ptr<Scene> scene, const Camera& camera)
   : mScene {std::move(scene)}, mCamera {camera} {
 }
 
-auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
+auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
+  -> CommandList {
   CommandListRecorder cmdListRecorder {};
 
   cmdListRecorder.set_transform(TransformType::View, mCamera.view_matrix());
@@ -50,12 +51,8 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
         cmdListRecorder.set_transform(TransformType::World, worldTransform);
       }
 
-      if (mModelCache.find(model.model) == mModelCache.end()) {
-        mModelCache[model.model] = device.load_model(model.model);
-      }
-
       CommandLegacy command {};
-      command.model = mModelCache[model.model];
+      command.model = cache.get(model.handle);
 
       cmdListRecorder.add(command);
     });
@@ -81,7 +78,7 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
 
       CommandLegacy command {};
       command.mesh = renderComponent.mesh;
-      command.texture = renderComponent.texture;
+      command.texture = cache.get(renderComponent.texture);
       command.diffuseColor = renderComponent.diffuseColor;
       command.ambientColor = renderComponent.ambientColor;
       command.texTransform = renderComponent.texTransform;
@@ -93,7 +90,7 @@ auto SceneView::draw(Device& device, const Size2Du16 viewport) -> CommandList {
 }
 
 auto SceneView::clear_color() const -> optional<Color> {
-  return mScene->background_color();
+  return mScene->background();
 }
 
 } // namespace basalt::gfx

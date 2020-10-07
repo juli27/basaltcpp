@@ -1,9 +1,10 @@
 #pragma once
 
+#include "types.h"
+
 namespace basalt::gfx {
 
 struct Composite;
-struct Device;
 struct DrawTarget;
 
 struct Compositor final {
@@ -17,7 +18,7 @@ struct Compositor final {
   auto operator=(const Compositor&) -> Compositor& = delete;
   auto operator=(Compositor &&) -> Compositor& = delete;
 
-  static auto compose(Device&, const DrawTarget&) -> Composite;
+  static auto compose(ResourceCache&, const DrawTarget&) -> Composite;
 };
 
 } // namespace basalt::gfx

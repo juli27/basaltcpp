@@ -23,8 +23,8 @@ auto D3D9Context::surface_size() const noexcept -> Size2Du16 {
                     static_cast<u16>(mPresentParams.BackBufferHeight)};
 }
 
-auto D3D9Context::device() const noexcept -> D3D9Device& {
-  return *mDevice;
+auto D3D9Context::device() const noexcept -> DevicePtr {
+  return mDevice;
 }
 
 void D3D9Context::submit(const Composite& composite) {

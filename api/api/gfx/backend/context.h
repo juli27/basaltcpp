@@ -1,11 +1,12 @@
 #pragma once
 
+#include "types.h"
+
 #include "api/shared/size2d.h"
 
 namespace basalt::gfx {
 
 struct Composite;
-struct Device;
 
 // A gfx context is directly tied to a window. If another gfx context is
 // required (e.g. change of rendering API), the window must be recreated.
@@ -22,7 +23,7 @@ struct Context {
 
   virtual void resize(Size2Du16) = 0;
 
-  [[nodiscard]] virtual auto device() const noexcept -> Device& = 0;
+  [[nodiscard]] virtual auto device() const noexcept -> DevicePtr = 0;
 
   virtual void submit(const Composite&) = 0;
   virtual void present() = 0;

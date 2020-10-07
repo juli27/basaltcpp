@@ -10,11 +10,11 @@ auto Scene::ecs() -> registry& {
   return mEntityRegistry;
 }
 
-auto Scene::background_color() const -> const Color& {
+auto Scene::background() const -> const Color& {
   return mBackgroundColor;
 }
 
-void Scene::set_background_color(const Color& background) {
+void Scene::set_background(const Color& background) {
   mBackgroundColor = background;
 }
 

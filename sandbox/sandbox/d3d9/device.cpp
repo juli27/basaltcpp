@@ -18,7 +18,7 @@ using basalt::gfx::SceneView;
 namespace d3d9 {
 
 Device::Device() {
-  mScene->set_background_color(Colors::BLUE);
+  mScene->set_background(Colors::BLUE);
   mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }
 

@@ -3,11 +3,8 @@
 #include "drawable.h"
 
 #include "camera.h"
-#include "backend/types.h"
 
 #include <memory>
-#include <string>
-#include <unordered_map>
 
 namespace basalt {
 
@@ -27,14 +24,13 @@ struct SceneView final : Drawable {
   auto operator=(const SceneView&) -> SceneView& = delete;
   auto operator=(SceneView &&) -> SceneView& = default;
 
-  auto draw(Device&, Size2Du16 viewport) -> CommandList override;
+  auto draw(ResourceCache&, Size2Du16 viewport) -> CommandList override;
 
   [[nodiscard]] auto clear_color() const -> std::optional<Color> override;
 
 private:
   friend Debug;
 
-  std::unordered_map<std::string, ModelHandle> mModelCache {};
   std::shared_ptr<Scene> mScene {};
   Camera mCamera {};
 };
