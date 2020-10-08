@@ -51,10 +51,7 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
         cmdListRecorder.set_transform(TransformType::World, worldTransform);
       }
 
-      CommandLegacy command {};
-      command.model = cache.get(model.handle);
-
-      cmdListRecorder.add(command);
+      cmdListRecorder.ext_draw_x_model(cache.get(model.handle));
     });
 
   ecs.view<const RenderComponent>().each(

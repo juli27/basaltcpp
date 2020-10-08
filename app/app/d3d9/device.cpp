@@ -7,6 +7,8 @@
 #include <api/scene/types.h>
 
 #include <api/gfx/backend/ext/dear_imgui_renderer.h>
+#include <api/gfx/backend/ext/x_model_support.h>
+
 #include <api/math/mat4.h>
 
 #include <api/shared/asserts.h>
@@ -78,7 +80,27 @@ struct D3D9ImGuiRenderer final : ext::DearImGuiRenderer {
   void new_frame() override;
 
 private:
-  ComPtr<IDirect3DDevice9> mDevice {};
+  ComPtr<IDirect3DDevice9> mDevice;
+};
+
+struct D3D9XModelSupport final : ext::XModelSupport {
+  explicit D3D9XModelSupport(ComPtr<IDirect3DDevice9>);
+
+  void execute(const ext::CommandDrawXModel&);
+
+  auto load(std::string_view filePath) -> ext::ModelHandle override;
+
+private:
+  using Texture = ComPtr<IDirect3DTexture9>;
+
+  struct Model {
+    std::vector<D3DMATERIAL9> materials;
+    std::vector<Texture> textures;
+    ComPtr<ID3DXMesh> mesh;
+  };
+
+  ComPtr<IDirect3DDevice9> mDevice;
+  HandlePool<Model, ext::ModelHandle> mModels {};
 };
 
 } // namespace
@@ -89,6 +111,9 @@ D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
 
   mExtensions["ext_dear_imgui_renderer"s] =
     std::make_shared<D3D9ImGuiRenderer>(mDevice);
+
+  mExtensions["ext_x_model_support"s] =
+    std::make_shared<D3D9XModelSupport>(mDevice);
 
   D3D9CALL(mDevice->GetDeviceCaps(&mDeviceCaps));
 }
@@ -111,22 +136,28 @@ void D3D9Device::begin_execution() const {
 
 #define EXECUTE(commandType)                                                   \
   case commandType::TYPE:                                                      \
-    execute(command->as<commandType>());                                       \
+    execute(cmd->as<commandType>());                                           \
     break
 
 // TODO: shading mode
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
-void D3D9Device::execute(const CommandList& commandList) {
-  for (const auto& command : commandList.commands()) {
-    switch (command->type) {
+void D3D9Device::execute(const CommandList& cmdList) {
+  for (const auto& cmd : cmdList.commands()) {
+    switch (cmd->type) {
       EXECUTE(CommandSetAmbientLight);
       EXECUTE(CommandSetDirectionalLights);
       EXECUTE(CommandSetTransform);
       EXECUTE(CommandSetRenderState);
       EXECUTE(CommandLegacy);
 
+    case CommandType::ExtDrawXModel:
+      std::static_pointer_cast<D3D9XModelSupport>(
+        mExtensions["ext_x_model_support"s])
+        ->execute(cmd->as<ext::CommandDrawXModel>());
+      break;
+
     case CommandType::ExtRenderDearImGui:
-      D3D9ImGuiRenderer::execute(command->as<ext::CommandRenderDearImGui>());
+      D3D9ImGuiRenderer::execute(cmd->as<ext::CommandRenderDearImGui>());
       break;
 
     case CommandType::FirstReservedForUserExt:
@@ -221,54 +252,6 @@ void D3D9Device::remove_texture(const TextureHandle textureHandle) {
   mTextures.deallocate(textureHandle);
 }
 
-auto D3D9Device::load_model(const string_view filePath) -> ModelHandle {
-  const auto [handle, model] = mModels.allocate();
-
-  const auto wideFilePath {create_wide_from_utf8(filePath)};
-
-  ComPtr<ID3DXBuffer> materialBuffer {};
-  DWORD numMaterials {};
-  auto hr =
-    ::D3DXLoadMeshFromXW(wideFilePath.c_str(), D3DXMESH_MANAGED, mDevice.Get(),
-                         nullptr, materialBuffer.GetAddressOf(), nullptr,
-                         &numMaterials, model.mesh.GetAddressOf());
-  BASALT_ASSERT(SUCCEEDED(hr));
-
-  auto const* materials =
-    static_cast<D3DXMATERIAL*>(materialBuffer->GetBufferPointer());
-  model.materials.reserve(numMaterials);
-  model.textures.resize(numMaterials);
-
-  for (DWORD i = 0; i < numMaterials; i++) {
-    model.materials.emplace_back(materials->MatD3D);
-
-    // d3dx doesn't set the ambient color
-    model.materials[i].Ambient = model.materials[i].Diffuse;
-
-    if (materials[i].pTextureFilename != nullptr &&
-        lstrlenA(materials[i].pTextureFilename) > 0) {
-      array<char, MAX_PATH> texPath {};
-      strcpy_s(texPath.data(), texPath.size(), "data/");
-      strcat_s(texPath.data(), texPath.size(), materials[i].pTextureFilename);
-
-      hr = ::D3DXCreateTextureFromFileA(mDevice.Get(), texPath.data(),
-                                        model.textures[i].GetAddressOf());
-      BASALT_ASSERT(SUCCEEDED(hr));
-    }
-  }
-
-  return handle;
-}
-
-void D3D9Device::remove_model(const ModelHandle handle) {
-  auto& model = mModels.get(handle);
-  model.mesh.Reset();
-  model.textures.clear();
-  model.materials.clear();
-
-  mModels.deallocate(handle);
-}
-
 auto D3D9Device::query_extension(const string_view name)
   -> optional<ExtensionPtr> {
   if (const auto entry = mExtensions.find(string {name});
@@ -279,100 +262,86 @@ auto D3D9Device::query_extension(const string_view name)
   return std::nullopt;
 }
 
-void D3D9Device::execute(const CommandLegacy& command) {
-  if (command.model) {
-    const auto& model = mModels.get(command.model);
-    for (DWORD i = 0; i < model.materials.size(); i++) {
-      D3D9CALL(mDevice->SetMaterial(&model.materials[i]));
-      D3D9CALL(mDevice->SetTexture(0, model.textures[i].Get()));
+void D3D9Device::execute(const CommandLegacy& cmd) {
+  const auto& mesh = mMeshes.get(cmd.mesh);
+  const bool noLightingAndTransform = mesh.fvf & D3DFVF_XYZRHW;
 
-      model.mesh->DrawSubset(i);
+  u32 lightingEnabled;
+  D3D9CALL(mDevice->GetRenderState(D3DRS_LIGHTING,
+                                   reinterpret_cast<DWORD*>(&lightingEnabled)));
+
+  if (lightingEnabled && !noLightingAndTransform) {
+    D3DMATERIAL9 material {};
+    material.Diffuse = to_d3d_color_value(cmd.diffuseColor);
+    material.Ambient = to_d3d_color_value(cmd.ambientColor);
+    material.Emissive = to_d3d_color_value(cmd.emissiveColor);
+    D3D9CALL(mDevice->SetMaterial(&material));
+  }
+
+  if (cmd.texture) {
+    const auto& texture = mTextures.get(cmd.texture);
+    D3D9CALL(mDevice->SetTexture(0, texture.Get()));
+    D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
+
+    // transform tex coords
+    if (cmd.texTransform != Mat4f32::identity()) {
+      const D3DMATRIX texTransform {to_d3d_matrix(cmd.texTransform)};
+      D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &texTransform));
+
+      D3D9CALL(mDevice->SetTextureStageState(
+        0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT4 | D3DTTFF_PROJECTED));
     }
 
+    // set texture coordinate index
+    DWORD tci {0};
+    switch (cmd.texCoordinateSrc) {
+    case TexCoordinateSrc::PositionCameraSpace:
+      tci = D3DTSS_TCI_CAMERASPACEPOSITION;
+      break;
+
+    case TexCoordinateSrc::Vertex:
+      break;
+    }
+
+    if (!(mesh.fvf & D3DFVF_TEX1)) {
+      D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, tci));
+    }
+  }
+
+  D3D9CALL(
+    mDevice->SetStreamSource(0u, mesh.vertexBuffer.Get(), 0u, mesh.vertexSize));
+
+  D3D9CALL(mDevice->SetFVF(mesh.fvf));
+  D3D9CALL(mDevice->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
+
+  if (cmd.texture) {
+    // revert TCI usage
+    if (cmd.texCoordinateSrc != TexCoordinateSrc::Vertex) {
+      D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
+    }
+
+    // revert tex coords transform
+    if (cmd.texTransform != Mat4f32::identity()) {
+      D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
+                                             D3DTTFF_DISABLE));
+
+      const D3DMATRIX identity {to_d3d_matrix(Mat4f32::identity())};
+      D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &identity));
+    }
+
+    D3D9CALL(
+      mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1));
     D3D9CALL(mDevice->SetTexture(0, nullptr));
-
-  } else {
-    const auto& mesh = mMeshes.get(command.mesh);
-    const bool noLightingAndTransform = mesh.fvf & D3DFVF_XYZRHW;
-
-    u32 lightingEnabled;
-    D3D9CALL(mDevice->GetRenderState(
-      D3DRS_LIGHTING, reinterpret_cast<DWORD*>(&lightingEnabled)));
-
-    if (lightingEnabled && !noLightingAndTransform) {
-      D3DMATERIAL9 material {};
-      material.Diffuse = to_d3d_color_value(command.diffuseColor);
-      material.Ambient = to_d3d_color_value(command.ambientColor);
-      material.Emissive = to_d3d_color_value(command.emissiveColor);
-      D3D9CALL(mDevice->SetMaterial(&material));
-    }
-
-    if (command.texture) {
-      const auto& texture = mTextures.get(command.texture);
-      D3D9CALL(mDevice->SetTexture(0, texture.Get()));
-      D3D9CALL(
-        mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
-
-      // transform tex coords
-      if (command.texTransform != Mat4f32::identity()) {
-        const D3DMATRIX texTransform {to_d3d_matrix(command.texTransform)};
-        D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &texTransform));
-
-        D3D9CALL(mDevice->SetTextureStageState(
-          0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT4 | D3DTTFF_PROJECTED));
-      }
-
-      // set texture coordinate index
-      DWORD tci {0};
-      switch (command.texCoordinateSrc) {
-      case TexCoordinateSrc::PositionCameraSpace:
-        tci = D3DTSS_TCI_CAMERASPACEPOSITION;
-        break;
-
-      case TexCoordinateSrc::Vertex:
-        break;
-      }
-
-      if (!(mesh.fvf & D3DFVF_TEX1)) {
-        D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, tci));
-      }
-    }
-
-    D3D9CALL(mDevice->SetStreamSource(0u, mesh.vertexBuffer.Get(), 0u,
-                                      mesh.vertexSize));
-
-    D3D9CALL(mDevice->SetFVF(mesh.fvf));
-    D3D9CALL(mDevice->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
-
-    if (command.texture) {
-      // revert TCI usage
-      if (command.texCoordinateSrc != TexCoordinateSrc::Vertex) {
-        D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
-      }
-
-      // revert tex coords transform
-      if (command.texTransform != Mat4f32::identity()) {
-        D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
-                                               D3DTTFF_DISABLE));
-
-        const D3DMATRIX identity {to_d3d_matrix(Mat4f32::identity())};
-        D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &identity));
-      }
-
-      D3D9CALL(
-        mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1));
-      D3D9CALL(mDevice->SetTexture(0, nullptr));
-    }
   }
 }
 
-void D3D9Device::execute(const CommandSetAmbientLight& command) const {
-  const auto ambientLightColor = to_d3d_color(command.ambientColor);
+void D3D9Device::execute(const CommandSetAmbientLight& cmd) const {
+  const auto ambientLightColor = to_d3d_color(cmd.ambientColor);
   D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, ambientLightColor));
 }
 
-void D3D9Device::execute(const CommandSetDirectionalLights& command) {
-  const auto& directionalLights = command.directionalLights;
+void D3D9Device::execute(const CommandSetDirectionalLights& cmd) {
+  const auto& directionalLights = cmd.directionalLights;
   BASALT_ASSERT_MSG(directionalLights.size() <= mDeviceCaps.MaxActiveLights,
                     "the renderer doesn't support that many lights");
 
@@ -393,10 +362,10 @@ void D3D9Device::execute(const CommandSetDirectionalLights& command) {
   }
 }
 
-void D3D9Device::execute(const CommandSetTransform& command) const {
-  const auto transform = to_d3d_matrix(command.transform);
+void D3D9Device::execute(const CommandSetTransform& cmd) const {
+  const auto transform = to_d3d_matrix(cmd.transform);
 
-  switch (command.transformType) {
+  switch (cmd.transformType) {
   case TransformType::Projection:
     BASALT_ASSERT_MSG(transform._34 >= 0,
                       "(3,4) can't be negative in a projection matrix");
@@ -414,9 +383,9 @@ void D3D9Device::execute(const CommandSetTransform& command) const {
   }
 }
 
-void D3D9Device::execute(const CommandSetRenderState& command) const {
+void D3D9Device::execute(const CommandSetRenderState& cmd) const {
   const auto [renderState, value] =
-    to_d3d_render_state(command.renderState, command.value);
+    to_d3d_render_state(cmd.renderState, cmd.value);
 
   D3D9CALL(mDevice->SetRenderState(renderState, value));
 }
@@ -556,6 +525,62 @@ void D3D9ImGuiRenderer::shutdown() {
 
 void D3D9ImGuiRenderer::new_frame() {
   ImGui_ImplDX9_NewFrame();
+}
+
+D3D9XModelSupport::D3D9XModelSupport(ComPtr<IDirect3DDevice9> device)
+  : mDevice {std::move(device)} {
+}
+
+void D3D9XModelSupport::execute(const ext::CommandDrawXModel& cmd) {
+  const auto& model = mModels.get(cmd.handle);
+  for (DWORD i = 0; i < model.materials.size(); i++) {
+    D3D9CALL(mDevice->SetMaterial(&model.materials[i]));
+    D3D9CALL(mDevice->SetTexture(0, model.textures[i].Get()));
+
+    model.mesh->DrawSubset(i);
+  }
+
+  D3D9CALL(mDevice->SetTexture(0, nullptr));
+}
+
+auto D3D9XModelSupport::load(const std::string_view filePath)
+  -> ext::ModelHandle {
+  const auto [handle, model] = mModels.allocate();
+
+  const auto wideFilePath = create_wide_from_utf8(filePath);
+
+  ComPtr<ID3DXBuffer> materialBuffer;
+  DWORD numMaterials {};
+  auto hr =
+    ::D3DXLoadMeshFromXW(wideFilePath.c_str(), D3DXMESH_MANAGED, mDevice.Get(),
+                         nullptr, materialBuffer.GetAddressOf(), nullptr,
+                         &numMaterials, model.mesh.GetAddressOf());
+  BASALT_ASSERT(SUCCEEDED(hr));
+
+  auto const* materials =
+    static_cast<D3DXMATERIAL*>(materialBuffer->GetBufferPointer());
+  model.materials.reserve(numMaterials);
+  model.textures.resize(numMaterials);
+
+  for (DWORD i = 0; i < numMaterials; i++) {
+    model.materials.emplace_back(materials->MatD3D);
+
+    // d3dx doesn't set the ambient color
+    model.materials[i].Ambient = model.materials[i].Diffuse;
+
+    if (materials[i].pTextureFilename != nullptr &&
+        lstrlenA(materials[i].pTextureFilename) > 0) {
+      array<char, MAX_PATH> texPath {};
+      strcpy_s(texPath.data(), texPath.size(), "data/");
+      strcat_s(texPath.data(), texPath.size(), materials[i].pTextureFilename);
+
+      hr = ::D3DXCreateTextureFromFileA(mDevice.Get(), texPath.data(),
+                                        model.textures[i].GetAddressOf());
+      BASALT_ASSERT(SUCCEEDED(hr));
+    }
+  }
+
+  return handle;
 }
 
 } // namespace

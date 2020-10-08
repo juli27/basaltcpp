@@ -6,6 +6,8 @@
 #include "gfx/backend/composite.h"
 #include "gfx/backend/types.h"
 
+#include "gfx/backend/ext/x_model_support.h"
+
 #include "scene/scene.h"
 #include "scene/transform.h"
 #include "scene/types.h"
@@ -38,6 +40,8 @@ using gfx::CommandSetDirectionalLights;
 using gfx::CommandSetRenderState;
 using gfx::CommandSetTransform;
 using gfx::RenderState;
+
+using gfx::ext::CommandDrawXModel;
 
 namespace {
 
@@ -192,8 +196,7 @@ void display(const CommandLegacy& command) {
   if (ImGui::IsItemHovered()) {
     ImGui::BeginTooltip();
 
-    ImGui::Text("mesh = %#x\nmodel = %#x", command.mesh.value(),
-                command.model.value());
+    ImGui::Text("mesh = %#x", command.mesh.value());
     display_color4("diffuseColor", command.diffuseColor);
     display_color4("ambientColor", command.ambientColor);
     display_color4("emissiveColor", command.emissiveColor);
@@ -256,6 +259,13 @@ void display(const CommandSetRenderState& command) {
   if (ImGui::IsItemHovered()) {
     ImGui::SetTooltip("renderState = %s\nvalue = %d",
                       to_string(command.renderState), command.value);
+  }
+}
+
+void display(const CommandDrawXModel& cmd) {
+  ImGui::TextUnformatted("ext::DrawXModel");
+  if (ImGui::IsItemHovered()) {
+    ImGui::SetTooltip("model = %#x", cmd.handle.value());
   }
 }
 
@@ -322,6 +332,9 @@ void Debug::update(const gfx::Composite& composite) {
           DISPLAY(CommandSetTransform);
           DISPLAY(CommandSetRenderState);
           DISPLAY(CommandLegacy);
+
+          DISPLAY(CommandDrawXModel);
+
         default:
           break;
         }

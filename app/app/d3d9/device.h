@@ -41,8 +41,6 @@ struct D3D9Device final : Device {
   void remove_mesh(MeshHandle meshHandle) override;
   auto add_texture(std::string_view filePath) -> TextureHandle override;
   void remove_texture(TextureHandle textureHandle) override;
-  auto load_model(std::string_view filePath) -> ModelHandle override;
-  void remove_model(ModelHandle) override;
 
   auto query_extension(std::string_view name)
     -> std::optional<ExtensionPtr> override;
@@ -50,12 +48,6 @@ struct D3D9Device final : Device {
 private:
   using ExtensionMap = std::unordered_map<std::string, ExtensionPtr>;
   using Texture = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
-
-  struct Model {
-    std::vector<D3DMATERIAL9> materials {};
-    std::vector<Texture> textures {};
-    Microsoft::WRL::ComPtr<ID3DXMesh> mesh {};
-  };
 
   Microsoft::WRL::ComPtr<IDirect3DDevice9> mDevice {};
 
@@ -65,7 +57,6 @@ private:
 
   HandlePool<D3D9Mesh, MeshHandle> mMeshes {};
   HandlePool<Texture, TextureHandle> mTextures {};
-  HandlePool<Model, ModelHandle> mModels {};
 
   u8 mMaxLightsUsed {0};
 

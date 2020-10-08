@@ -42,6 +42,10 @@ void CommandListRecorder::set_render_state(const RenderState state,
   }
 }
 
+void CommandListRecorder::ext_draw_x_model(const ext::ModelHandle handle) {
+  mCommandList.add<ext::CommandDrawXModel>(handle);
+}
+
 auto CommandListRecorder::complete_command_list() -> CommandList {
   return std::move(mCommandList);
 }

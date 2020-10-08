@@ -10,10 +10,6 @@ namespace basalt::gfx {
 
 using CommandPtr = std::unique_ptr<Command>;
 
-// associates commands with their common transform (camera) and
-// defines defaults for render state flags (lighting on/off, ...)
-// (TODO: can every state flag be overridden by each command
-//        or only some, or none)
 struct CommandList final {
   CommandList() noexcept = default;
 

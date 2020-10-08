@@ -19,6 +19,7 @@ enum class CommandType : u8 {
   SetTransform,
   SetRenderState,
 
+  ExtDrawXModel,
   ExtRenderDearImGui,
 
   FirstReservedForUserExt = 128,
@@ -87,12 +88,10 @@ namespace detail {
 
 struct MeshTag;
 struct TextureTag;
-struct ModelTag;
 
 } // namespace detail
 
 using MeshHandle = Handle<detail::MeshTag>;
 using TextureHandle = Handle<detail::TextureTag>;
-using ModelHandle = Handle<detail::ModelTag>;
 
 } // namespace basalt::gfx

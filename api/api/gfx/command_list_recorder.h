@@ -5,6 +5,8 @@
 #include "backend/command_list.h"
 #include "backend/types.h"
 
+#include "backend/ext/x_model_support.h"
+
 #include "api/shared/types.h"
 
 #include <vector>
@@ -27,6 +29,8 @@ struct CommandListRecorder final {
   void set_directional_lights(const std::vector<DirectionalLight>&);
   void set_transform(TransformType, const Mat4f32&);
   void set_render_state(RenderState, u32 value);
+
+  void ext_draw_x_model(ext::ModelHandle);
 
   [[nodiscard]] auto complete_command_list() -> CommandList;
 

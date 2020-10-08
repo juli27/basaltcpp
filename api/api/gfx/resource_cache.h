@@ -2,6 +2,8 @@
 
 #include "backend/types.h"
 
+#include "backend/ext/x_model_support.h"
+
 #include "api/resources/types.h"
 
 namespace basalt::gfx {
@@ -12,7 +14,7 @@ struct ResourceCache {
   void load(GfxModel) const;
   void load(Texture) const;
 
-  [[nodiscard]] auto get(GfxModel) const -> ModelHandle;
+  [[nodiscard]] auto get(GfxModel) const -> ext::ModelHandle;
   [[nodiscard]] auto get(Texture) const -> TextureHandle;
 
 private:

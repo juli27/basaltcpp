@@ -64,9 +64,6 @@ struct Device {
    */
   virtual void remove_texture(TextureHandle textureHandle) = 0;
 
-  virtual auto load_model(std::string_view filePath) -> ModelHandle = 0;
-  virtual void remove_model(ModelHandle) = 0;
-
   virtual auto query_extension(std::string_view name)
     -> std::optional<ExtensionPtr> = 0;
 

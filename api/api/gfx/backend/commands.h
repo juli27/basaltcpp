@@ -51,7 +51,8 @@ struct CommandSetRenderState final : CommandT<CommandType::SetRenderState> {
   RenderState renderState;
   u32 value;
 
-  constexpr CommandSetRenderState(const RenderState state, const u32 val) noexcept
+  constexpr CommandSetRenderState(const RenderState state,
+                                  const u32 val) noexcept
     : renderState {state}, value {val} {
   }
 };
@@ -62,7 +63,6 @@ struct CommandLegacy final : CommandT<CommandType::Legacy> {
   TexCoordinateSrc texCoordinateSrc {TexCoordinateSrc::Vertex};
 
   MeshHandle mesh {};
-  ModelHandle model {};
 
   // TODO: Material
   Color diffuseColor {};
@@ -73,6 +73,6 @@ struct CommandLegacy final : CommandT<CommandType::Legacy> {
   Mat4f32 texTransform {Mat4f32::identity()};
 };
 
-static_assert(sizeof(CommandLegacy) == 128);
+static_assert(sizeof(CommandLegacy) == 124);
 
 } // namespace basalt::gfx

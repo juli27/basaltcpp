@@ -173,6 +173,9 @@
     <ClInclude Include="api\resources\types.h">
       <Filter>resources</Filter>
     </ClInclude>
+    <ClInclude Include="api\gfx\backend\ext\x_model_support.h">
+      <Filter>gfx\backend\ext</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="platform">
