@@ -1,24 +1,15 @@
 #pragma once
 
 #include "extension.h"
+#include "types.h"
 
 #include "api/gfx/backend/types.h"
-
-#include "api/shared/handle.h"
 
 #include <string_view>
 
 namespace basalt::gfx::ext {
 
-namespace detail {
-
-struct ModelTag;
-
-} // namespace detail
-
-using ModelHandle = Handle<detail::ModelTag>;
-
-struct XModelSupport : Extension {
+struct XModelSupport : ExtensionT<ExtensionId::XModelSupport> {
   virtual auto load(std::string_view filePath) -> ModelHandle = 0;
 
 protected:

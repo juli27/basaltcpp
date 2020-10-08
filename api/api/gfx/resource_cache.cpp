@@ -1,7 +1,7 @@
 #include "resource_cache.h"
 
 #include "backend/device.h"
-
+#include "backend/utils.h"
 #include "backend/ext/x_model_support.h"
 
 #include "api/resources/resource_registry.h"
@@ -20,8 +20,8 @@ ResourceCache::ResourceCache(ResourceRegistryPtr resourceRegistry,
 void ResourceCache::load(const GfxModel model) const {
   auto& registry = mResourceRegistry->get<GfxModel>();
 
-  const auto modelExt = std::static_pointer_cast<ext::XModelSupport>(
-    mDevice->query_extension("ext_x_model_support"sv).value());
+  const auto modelExt =
+    gfx::query_device_extension<ext::XModelSupport>(*mDevice).value();
 
   auto& location = registry.get<FileLocation>(model);
   registry.emplace<ext::ModelHandle>(model, modelExt->load(location.path));

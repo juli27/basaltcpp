@@ -5,7 +5,7 @@
 #include "backend/command_list.h"
 #include "backend/types.h"
 
-#include "backend/ext/x_model_support.h"
+#include "backend/ext/types.h"
 
 #include "api/shared/types.h"
 

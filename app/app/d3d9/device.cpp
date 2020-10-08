@@ -109,10 +109,10 @@ D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
   : mDevice {std::move(device)} {
   BASALT_ASSERT(mDevice);
 
-  mExtensions["ext_dear_imgui_renderer"s] =
+  mExtensions[ext::ExtensionId::DearImGuiRenderer] =
     std::make_shared<D3D9ImGuiRenderer>(mDevice);
 
-  mExtensions["ext_x_model_support"s] =
+  mExtensions[ext::ExtensionId::XModelSupport] =
     std::make_shared<D3D9XModelSupport>(mDevice);
 
   D3D9CALL(mDevice->GetDeviceCaps(&mDeviceCaps));
@@ -152,7 +152,7 @@ void D3D9Device::execute(const CommandList& cmdList) {
 
     case CommandType::ExtDrawXModel:
       std::static_pointer_cast<D3D9XModelSupport>(
-        mExtensions["ext_x_model_support"s])
+        mExtensions[ext::ExtensionId::XModelSupport])
         ->execute(cmd->as<ext::CommandDrawXModel>());
       break;
 
@@ -252,10 +252,9 @@ void D3D9Device::remove_texture(const TextureHandle textureHandle) {
   mTextures.deallocate(textureHandle);
 }
 
-auto D3D9Device::query_extension(const string_view name)
-  -> optional<ExtensionPtr> {
-  if (const auto entry = mExtensions.find(string {name});
-      entry != mExtensions.end()) {
+auto D3D9Device::query_extension(const ext::ExtensionId id)
+  -> optional<ext::ExtensionPtr> {
+  if (const auto entry = mExtensions.find(id); entry != mExtensions.end()) {
     return entry->second;
   }
 

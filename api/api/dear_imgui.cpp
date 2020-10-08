@@ -4,10 +4,13 @@
 #include "input.h"
 
 #include "gfx/draw_target.h"
+
 #include "gfx/backend/command_list.h"
-#include "gfx/backend/device.h"
+#include "gfx/backend/utils.h"
 #include "gfx/backend/ext/dear_imgui_renderer.h"
+
 #include "math/vec2.h"
+
 #include "shared/color.h"
 #include "shared/size2d.h"
 #include "shared/utils.h"
@@ -57,8 +60,7 @@ DearImGui::DearImGui(Device& gfxDevice) {
   io.KeyMap[ImGuiKey_Y] = enum_cast(Key::Y);
   io.KeyMap[ImGuiKey_Z] = enum_cast(Key::Z);
 
-  mRenderer = std::static_pointer_cast<DearImGuiRenderer>(
-    gfxDevice.query_extension("ext_dear_imgui_renderer"sv).value());
+  mRenderer = gfx::query_device_extension<DearImGuiRenderer>(gfxDevice).value();
   mRenderer->init();
 }
 

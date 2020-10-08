@@ -1,17 +1,14 @@
 #pragma once
 
 #include "types.h"
-#include "ext/extension.h"
+#include "ext/types.h"
 
 #include "api/shared/types.h"
 
-#include <memory>
 #include <optional>
 #include <string_view>
 
 namespace basalt::gfx {
-
-using ExtensionPtr = std::shared_ptr<ext::Extension>;
 
 struct Device {
   Device(const Device&) = delete;
@@ -64,8 +61,8 @@ struct Device {
    */
   virtual void remove_texture(TextureHandle textureHandle) = 0;
 
-  virtual auto query_extension(std::string_view name)
-    -> std::optional<ExtensionPtr> = 0;
+  virtual auto query_extension(ext::ExtensionId)
+    -> std::optional<ext::ExtensionPtr> = 0;
 
 protected:
   Device() noexcept = default;

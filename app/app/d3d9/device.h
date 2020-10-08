@@ -42,23 +42,23 @@ struct D3D9Device final : Device {
   auto add_texture(std::string_view filePath) -> TextureHandle override;
   void remove_texture(TextureHandle textureHandle) override;
 
-  auto query_extension(std::string_view name)
-    -> std::optional<ExtensionPtr> override;
+  auto query_extension(ext::ExtensionId)
+    -> std::optional<ext::ExtensionPtr> override;
 
 private:
-  using ExtensionMap = std::unordered_map<std::string, ExtensionPtr>;
+  using ExtensionMap = std::unordered_map<ext::ExtensionId, ext::ExtensionPtr>;
   using Texture = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
 
-  Microsoft::WRL::ComPtr<IDirect3DDevice9> mDevice {};
+  Microsoft::WRL::ComPtr<IDirect3DDevice9> mDevice;
 
-  ExtensionMap mExtensions {};
+  ExtensionMap mExtensions;
 
   D3DCAPS9 mDeviceCaps {};
 
-  HandlePool<D3D9Mesh, MeshHandle> mMeshes {};
-  HandlePool<Texture, TextureHandle> mTextures {};
+  HandlePool<D3D9Mesh, MeshHandle> mMeshes;
+  HandlePool<Texture, TextureHandle> mTextures;
 
-  u8 mMaxLightsUsed {0};
+  u8 mMaxLightsUsed {};
 
   void execute(const CommandLegacy&);
   void execute(const CommandSetAmbientLight&) const;

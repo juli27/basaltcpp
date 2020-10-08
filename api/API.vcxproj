@@ -184,6 +184,8 @@
     <ClInclude Include="api\gfx\backend\commands.h" />
     <ClInclude Include="api\gfx\backend\ext\dear_imgui_renderer.h" />
     <ClInclude Include="api\gfx\backend\ext\extension.h" />
+    <ClInclude Include="api\gfx\backend\ext\types.h" />
+    <ClInclude Include="api\gfx\backend\utils.h" />
     <ClInclude Include="api\gfx\backend\ext\x_model_support.h" />
     <ClInclude Include="api\gfx\backend\types.h" />
     <ClInclude Include="api\gfx\camera.h" />

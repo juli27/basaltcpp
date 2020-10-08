@@ -1,6 +1,7 @@
 #include "command_list_recorder.h"
 
 #include "backend/commands.h"
+#include "backend/ext/x_model_support.h"
 
 #include <algorithm>
 #include <array>

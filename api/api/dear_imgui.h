@@ -2,23 +2,14 @@
 
 #include "gfx/drawable.h"
 
+#include "gfx/backend/types.h"
+#include "gfx/backend/ext/types.h"
+
 #include <memory>
 
 namespace basalt {
 
 struct UpdateContext;
-
-namespace gfx {
-
-struct Device;
-
-namespace ext {
-
-struct DearImGuiRenderer;
-
-}
-
-} // namespace gfx
 
 struct DearImGui final : gfx::Drawable {
   explicit DearImGui(gfx::Device&);
