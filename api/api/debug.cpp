@@ -35,7 +35,6 @@ using entt::entity;
 namespace basalt {
 
 using gfx::CommandLegacy;
-using gfx::CommandSetAmbientLight;
 using gfx::CommandSetDirectionalLights;
 using gfx::CommandSetRenderState;
 using gfx::CommandSetTransform;
@@ -157,6 +156,9 @@ auto to_string(const RenderState state) -> const char* {
   case RenderState::Lighting:
     return "RenderState::Lighting";
 
+  case RenderState::Ambient:
+    return "RenderState::Ambient";
+
   case RenderState::CullMode:
     return "RenderState::CullMode";
   }
@@ -210,17 +212,6 @@ void display(const CommandLegacy& command) {
   }
 }
 
-void display(const CommandSetAmbientLight& command) {
-  ImGui::TextUnformatted("SetAmbientLight");
-  if (ImGui::IsItemHovered()) {
-    ImGui::BeginTooltip();
-
-    display_color4("ambientColor", command.ambientColor);
-
-    ImGui::EndTooltip();
-  }
-}
-
 void display(const CommandSetDirectionalLights& command) {
   ImGui::TextUnformatted("SetDirectionalLights");
   if (ImGui::IsItemHovered()) {
@@ -257,7 +248,7 @@ void display(const CommandSetTransform& command) {
 void display(const CommandSetRenderState& command) {
   ImGui::TextUnformatted("SetRenderState");
   if (ImGui::IsItemHovered()) {
-    ImGui::SetTooltip("renderState = %s\nvalue = %d",
+    ImGui::SetTooltip("renderState = %s\nvalue = %#x",
                       to_string(command.renderState), command.value);
   }
 }
@@ -327,7 +318,6 @@ void Debug::update(const gfx::Composite& composite) {
     break
 
         switch (command->type) {
-          DISPLAY(CommandSetAmbientLight);
           DISPLAY(CommandSetDirectionalLights);
           DISPLAY(CommandSetTransform);
           DISPLAY(CommandSetRenderState);

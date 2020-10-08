@@ -26,16 +26,6 @@ struct CommandSetDirectionalLights final
 
 static_assert(sizeof(CommandSetDirectionalLights) == 180);
 
-struct CommandSetAmbientLight final : CommandT<CommandType::SetAmbientLight> {
-  Color ambientColor {};
-
-  constexpr explicit CommandSetAmbientLight(const Color& color) noexcept
-    : ambientColor {color} {
-  }
-};
-
-static_assert(sizeof(CommandSetAmbientLight) == 20);
-
 struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
   TransformType transformType;
   Mat4f32 transform {};

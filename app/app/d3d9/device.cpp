@@ -144,7 +144,6 @@ void D3D9Device::begin_execution() const {
 void D3D9Device::execute(const CommandList& cmdList) {
   for (const auto& cmd : cmdList.commands()) {
     switch (cmd->type) {
-      EXECUTE(CommandSetAmbientLight);
       EXECUTE(CommandSetDirectionalLights);
       EXECUTE(CommandSetTransform);
       EXECUTE(CommandSetRenderState);
@@ -334,11 +333,6 @@ void D3D9Device::execute(const CommandLegacy& cmd) {
   }
 }
 
-void D3D9Device::execute(const CommandSetAmbientLight& cmd) const {
-  const auto ambientLightColor = to_d3d_color(cmd.ambientColor);
-  D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, ambientLightColor));
-}
-
 void D3D9Device::execute(const CommandSetDirectionalLights& cmd) {
   const auto& directionalLights = cmd.directionalLights;
   BASALT_ASSERT_MSG(directionalLights.size() <= mDeviceCaps.MaxActiveLights,
@@ -441,11 +435,11 @@ auto verify_fvf(const DWORD fvf) -> bool {
 
 auto to_d3d_render_state(const RenderState rs, const u32 value)
   -> std::tuple<D3DRENDERSTATETYPE, DWORD> {
-  static_assert(RENDER_STATE_COUNT == 2);
-
-  static constexpr std::array<D3DRENDERSTATETYPE, 2> RENDER_STATE_TO_D3D = {
+  static constexpr std::array<D3DRENDERSTATETYPE, 3> RENDER_STATE_TO_D3D = {
     /* RenderState::Lighting */ D3DRS_LIGHTING,
+    /* RenderState::Ambient  */ D3DRS_AMBIENT,
     /* RenderState::CullMode */ D3DRS_CULLMODE};
+  static_assert(RENDER_STATE_COUNT == RENDER_STATE_TO_D3D.size());
 
   const D3DRENDERSTATETYPE renderState = RENDER_STATE_TO_D3D[enum_cast(rs)];
   DWORD d3dValue = 0;
@@ -456,6 +450,7 @@ auto to_d3d_render_state(const RenderState rs, const u32 value)
     break;
 
   case RenderState::Lighting:
+  case RenderState::Ambient:
     d3dValue = value;
     break;
   }

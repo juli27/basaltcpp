@@ -13,6 +13,7 @@ struct DeviceStateCache final {
 private:
   std::array<u32, RENDER_STATE_COUNT> mRenderStates {
     /* RenderState::Lighting */ true,
+    /* RenderState::Ambient  */ 0,
     /* RenderState::CullMode */ CullModeCcw};
 };
 

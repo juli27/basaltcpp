@@ -16,10 +16,6 @@ void CommandListRecorder::add(const CommandLegacy& command) {
   mCommandList.add<CommandLegacy>(command);
 }
 
-void CommandListRecorder::set_ambient_light(const Color& color) {
-  mCommandList.add<CommandSetAmbientLight>(color);
-}
-
 void CommandListRecorder::set_directional_lights(
   const vector<DirectionalLight>& lights) {
   BASALT_ASSERT(lights.size() <= 4);

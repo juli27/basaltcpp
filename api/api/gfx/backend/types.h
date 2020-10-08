@@ -15,7 +15,6 @@ using DevicePtr = std::shared_ptr<Device>;
 enum class CommandType : u8 {
   Legacy,
   SetDirectionalLights,
-  SetAmbientLight,
   SetTransform,
   SetRenderState,
 
@@ -48,9 +47,8 @@ struct CommandT : Command {
   }
 };
 
-enum class RenderState : u8 { Lighting, CullMode };
-
-constexpr uSize RENDER_STATE_COUNT = 2u;
+enum class RenderState : u8 { Lighting, Ambient, CullMode };
+constexpr uSize RENDER_STATE_COUNT = 3u;
 
 enum CullMode : u8 { CullModeNone, CullModeCw, CullModeCcw };
 

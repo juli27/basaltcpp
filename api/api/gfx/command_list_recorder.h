@@ -25,7 +25,6 @@ struct CommandLegacy;
 struct CommandListRecorder final {
   void add(const CommandLegacy&);
 
-  void set_ambient_light(const Color&);
   void set_directional_lights(const std::vector<DirectionalLight>&);
   void set_transform(TransformType, const Mat4f32&);
   void set_render_state(RenderState, u32 value);

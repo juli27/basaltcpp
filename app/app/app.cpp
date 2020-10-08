@@ -76,8 +76,9 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
 
   using Clock = std::chrono::high_resolution_clock;
   static_assert(Clock::is_steady);
+
   auto startTime {Clock::now()};
-  f64 currentDeltaTime {0.0};
+  f64 currentDeltaTime {};
 
   while (poll_events()) {
     if (const Size2Du16 size = window->client_area_size();

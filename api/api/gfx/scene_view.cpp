@@ -29,11 +29,12 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
   -> CommandList {
   CommandListRecorder cmdListRecorder {};
 
-  cmdListRecorder.set_transform(TransformType::View, mCamera.view_matrix());
   cmdListRecorder.set_transform(TransformType::Projection,
                                 mCamera.projection_matrix(viewport));
+  cmdListRecorder.set_transform(TransformType::View, mCamera.view_matrix());
 
-  cmdListRecorder.set_ambient_light(mScene->ambient_light());
+  cmdListRecorder.set_render_state(
+    RenderState::Ambient, enum_cast(mScene->ambient_light().to_argb()));
 
   const auto& directionalLights = mScene->directional_lights();
   if (!directionalLights.empty()) {
