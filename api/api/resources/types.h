@@ -2,15 +2,13 @@
 
 #include "api/shared/types.h"
 
-#include <entt/entity/entity.hpp>
-
 #include <memory>
 #include <string>
 
 namespace basalt {
 
-ENTT_OPAQUE_TYPE(GfxModel, u32);
-ENTT_OPAQUE_TYPE(Texture, u32);
+enum class GfxModel : u32 {};
+enum class Texture : u32 {};
 
 struct ResourceRegistry;
 using ResourceRegistryPtr = std::shared_ptr<ResourceRegistry>;

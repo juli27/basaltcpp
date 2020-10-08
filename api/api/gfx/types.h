@@ -8,6 +8,8 @@
 #include "api/shared/color.h"
 #include "api/shared/types.h"
 
+#include <entt/entity/entity.hpp>
+
 namespace basalt::gfx {
 
 struct ResourceCache;
