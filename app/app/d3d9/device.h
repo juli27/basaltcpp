@@ -10,7 +10,6 @@
 
 #include <wrl/client.h>
 
-#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -38,9 +37,7 @@ struct D3D9Device final : Device {
 
   auto add_mesh(void* data, i32 numVertices, const VertexLayout& layout,
                 PrimitiveType primitiveType) -> MeshHandle override;
-  void remove_mesh(MeshHandle meshHandle) override;
   auto add_texture(std::string_view filePath) -> TextureHandle override;
-  void remove_texture(TextureHandle textureHandle) override;
 
   auto query_extension(ext::ExtensionId)
     -> std::optional<ext::ExtensionPtr> override;
@@ -60,6 +57,7 @@ private:
 
   u8 mMaxLightsUsed {};
 
+  // TODO: make these return bool / an error ?
   void execute(const CommandLegacy&);
   void execute(const CommandSetDirectionalLights&);
   void execute(const CommandSetTransform&) const;

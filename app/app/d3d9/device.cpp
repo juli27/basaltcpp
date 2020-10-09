@@ -28,9 +28,7 @@
 
 using std::array;
 using std::optional;
-using std::string;
 using std::string_view;
-using namespace std::literals;
 
 using Microsoft::WRL::ComPtr;
 
@@ -86,9 +84,9 @@ private:
 struct D3D9XModelSupport final : ext::XModelSupport {
   explicit D3D9XModelSupport(ComPtr<IDirect3DDevice9>);
 
-  void execute(const ext::CommandDrawXModel&);
+  void execute(const ext::CommandDrawXModel&) const;
 
-  auto load(std::string_view filePath) -> ext::ModelHandle override;
+  auto load(string_view filePath) -> ext::ModelHandle override;
 
 private:
   using Texture = ComPtr<IDirect3DTexture9>;
@@ -226,14 +224,6 @@ auto D3D9Device::add_mesh(void* data, const i32 numVertices,
   return meshHandle;
 }
 
-void D3D9Device::remove_mesh(const MeshHandle meshHandle) {
-  auto& mesh = mMeshes.get(meshHandle);
-
-  mesh.vertexBuffer.Reset();
-
-  mMeshes.deallocate(meshHandle);
-}
-
 auto D3D9Device::add_texture(const string_view filePath) -> TextureHandle {
   const auto [handle, texture] = mTextures.allocate();
 
@@ -246,11 +236,6 @@ auto D3D9Device::add_texture(const string_view filePath) -> TextureHandle {
   return handle;
 }
 
-void D3D9Device::remove_texture(const TextureHandle textureHandle) {
-  mTextures.get(textureHandle).Reset();
-  mTextures.deallocate(textureHandle);
-}
-
 auto D3D9Device::query_extension(const ext::ExtensionId id)
   -> optional<ext::ExtensionPtr> {
   if (const auto entry = mExtensions.find(id); entry != mExtensions.end()) {
@@ -261,7 +246,11 @@ auto D3D9Device::query_extension(const ext::ExtensionId id)
 }
 
 void D3D9Device::execute(const CommandLegacy& cmd) {
-  const auto& mesh = mMeshes.get(cmd.mesh);
+  if (!mMeshes.is_handle_valid(cmd.mesh)) {
+    return;
+  }
+
+  const auto& mesh = mMeshes[cmd.mesh];
   const bool noLightingAndTransform = mesh.fvf & D3DFVF_XYZRHW;
 
   u32 lightingEnabled;
@@ -276,8 +265,8 @@ void D3D9Device::execute(const CommandLegacy& cmd) {
     D3D9CALL(mDevice->SetMaterial(&material));
   }
 
-  if (cmd.texture) {
-    const auto& texture = mTextures.get(cmd.texture);
+  if (mTextures.is_handle_valid(cmd.texture)) {
+    const auto& texture = mTextures[cmd.texture];
     D3D9CALL(mDevice->SetTexture(0, texture.Get()));
     D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
 
@@ -525,8 +514,12 @@ D3D9XModelSupport::D3D9XModelSupport(ComPtr<IDirect3DDevice9> device)
   : mDevice {std::move(device)} {
 }
 
-void D3D9XModelSupport::execute(const ext::CommandDrawXModel& cmd) {
-  const auto& model = mModels.get(cmd.handle);
+void D3D9XModelSupport::execute(const ext::CommandDrawXModel& cmd) const {
+  if (!mModels.is_handle_valid(cmd.handle)) {
+    return;
+  }
+
+  const auto& model = mModels[cmd.handle];
   for (DWORD i = 0; i < model.materials.size(); i++) {
     D3D9CALL(mDevice->SetMaterial(&model.materials[i]));
     D3D9CALL(mDevice->SetTexture(0, model.textures[i].Get()));
@@ -537,8 +530,7 @@ void D3D9XModelSupport::execute(const ext::CommandDrawXModel& cmd) {
   D3D9CALL(mDevice->SetTexture(0, nullptr));
 }
 
-auto D3D9XModelSupport::load(const std::string_view filePath)
-  -> ext::ModelHandle {
+auto D3D9XModelSupport::load(const string_view filePath) -> ext::ModelHandle {
   const auto [handle, model] = mModels.allocate();
 
   const auto wideFilePath = create_wide_from_utf8(filePath);

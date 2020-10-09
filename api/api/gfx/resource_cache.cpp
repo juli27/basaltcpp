@@ -43,7 +43,7 @@ auto ResourceCache::get(const Texture texture) const -> TextureHandle {
   auto& registry = mResourceRegistry->get<Texture>();
 
   if (!registry.valid(texture)) {
-    return TextureHandle::invalid();
+    return TextureHandle::null();
   }
 
   return registry.get<TextureHandle>(texture);

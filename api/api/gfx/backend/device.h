@@ -41,25 +41,9 @@ struct Device {
   virtual auto add_mesh(void* data, i32 numVertices, const VertexLayout& layout,
                         PrimitiveType primitiveType) -> MeshHandle = 0;
 
-  /**
-   * \brief Removes a static mesh from the device which makes it unavailable
-   *        for rendering.
-   *
-   * \param meshHandle handle to mesh to be removed
-   */
-  virtual void remove_mesh(MeshHandle meshHandle) = 0;
-
   // takes in a file path for now
   // TODO: move file loading into the resources namespace
   virtual auto add_texture(std::string_view filePath) -> TextureHandle = 0;
-
-  /**
-   * \brief Removes a static texture from the device which makes it
-   *        unavailable for rendering.
-   *
-   * \param textureHandle handle to texture to be removed
-   */
-  virtual void remove_texture(TextureHandle textureHandle) = 0;
 
   virtual auto query_extension(ext::ExtensionId)
     -> std::optional<ext::ExtensionPtr> = 0;

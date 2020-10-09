@@ -9,16 +9,17 @@ namespace basalt {
 namespace detail {
 
 struct HandleBase {
-  using ValueT = u32;
+  using ValueType = u32;
 
   constexpr HandleBase() noexcept = default;
 
-  constexpr explicit HandleBase(const ValueT value) noexcept : mValue {value} {
-    BASALT_ASSERT_MSG(mValue != INVALID_VALUE, "invalid handle value");
+  constexpr explicit HandleBase(const ValueType value) noexcept
+    : mValue {value} {
+    BASALT_ASSERT_MSG(mValue != NULL_VALUE, "null handle value");
   }
 
   constexpr explicit operator bool() const noexcept {
-    return mValue != INVALID_VALUE;
+    return !is_null();
   }
 
   constexpr auto operator==(const HandleBase& rhs) const noexcept -> bool {
@@ -29,18 +30,18 @@ struct HandleBase {
     return !(*this == rhs);
   }
 
-  constexpr void invalidate() noexcept {
-    mValue = INVALID_VALUE;
+  [[nodiscard]] constexpr auto is_null() const noexcept -> bool {
+    return mValue == NULL_VALUE;
   }
 
-  [[nodiscard]] constexpr auto value() const noexcept -> ValueT {
+  [[nodiscard]] constexpr auto value() const noexcept -> ValueType {
     return mValue;
   }
 
 private:
-  static constexpr ValueT INVALID_VALUE {std::numeric_limits<ValueT>::max()};
+  static constexpr ValueType NULL_VALUE {std::numeric_limits<ValueType>::max()};
 
-  ValueT mValue {INVALID_VALUE};
+  ValueType mValue {NULL_VALUE};
 };
 
 } // namespace detail
@@ -50,7 +51,7 @@ struct Handle final : detail::HandleBase {
   // inherit base class constructors
   using HandleBase::HandleBase;
 
-  static constexpr auto invalid() -> Handle {
+  static constexpr auto null() noexcept -> Handle {
     return Handle {};
   }
 };

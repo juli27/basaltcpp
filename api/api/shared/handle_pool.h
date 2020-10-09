@@ -4,73 +4,92 @@
 #include "types.h"
 
 #include <limits>
-#include <stdexcept>
 #include <tuple>
+#include <type_traits>
 #include <vector>
 
 namespace basalt {
 
-template <typename T, typename HandleT>
+template <typename T, typename Handle>
 struct HandlePool final {
-  HandlePool() = default;
+  static_assert(std::is_base_of_v<detail::HandleBase, Handle>);
+
+private:
+  using IndexType = typename Handle::ValueType;
+
+public:
+  HandlePool() noexcept = default;
 
   HandlePool(const HandlePool&) = delete;
-  HandlePool(HandlePool&&) = delete;
+  HandlePool(HandlePool&&) noexcept = default;
 
   ~HandlePool() noexcept = default;
 
   auto operator=(const HandlePool&) -> HandlePool& = delete;
-  auto operator=(HandlePool &&) -> HandlePool& = delete;
+  auto operator=(HandlePool &&) -> HandlePool& = default;
 
-  [[nodiscard]] auto allocate() -> std::tuple<HandleT, T&> {
-    if (mFirstFreeSlot) {
-      Slot& slot = mSlots[mFirstFreeSlot.value()];
-      slot.handle = mFirstFreeSlot;
-      mFirstFreeSlot = slot.nextFreeSlot;
+private:
+  // handle must be < size
+  [[nodiscard]] auto is_slot_allocated(const Handle handle) const noexcept
+    -> bool {
+    return mStorage[handle.value()].handle == handle;
+  }
+
+public:
+  [[nodiscard]] auto is_handle_valid(const Handle handle) const noexcept
+    -> bool {
+    return handle.value() < mStorage.size() && is_slot_allocated(handle);
+  }
+
+  // handle must be valid
+  [[nodiscard]] auto operator[](const Handle handle) const noexcept
+    -> const T& {
+    BASALT_ASSERT(is_handle_valid(handle));
+
+    return mStorage[handle.value()].data;
+  }
+
+  [[nodiscard]] auto allocate() -> std::tuple<Handle, T&> {
+    if (mFreeSlot) {
+      SlotData& slot = mStorage[mFreeSlot.value()];
+      slot.handle = mFreeSlot;
+      mFreeSlot = slot.nextFreeSlot;
 
       return {slot.handle, slot.data};
     }
 
-    const auto nextIndex = mSlots.size();
-    constexpr auto maxSlots =
-      static_cast<u32>(std::numeric_limits<typename HandleT::ValueT>::max());
+    const uSize nextIndex = mStorage.size();
+    BASALT_ASSERT(nextIndex < std::numeric_limits<IndexType>::max());
 
-    if (nextIndex >= maxSlots) {
-      throw std::out_of_range {"out of slots"};
-    }
-
-    const auto index = static_cast<typename HandleT::ValueT>(nextIndex);
-    Slot& slot = mSlots.emplace_back();
-    slot.handle = HandleT(index);
+    const auto index = static_cast<IndexType>(nextIndex);
+    SlotData& slot = mStorage.emplace_back();
+    slot.handle = Handle {index};
 
     return {slot.handle, slot.data};
   }
 
-  void deallocate(HandleT handle) {
-    Slot& slot = mSlots.at(handle.value());
+  // ignores invalid handles
+  void deallocate(const Handle handle) noexcept {
+    if (!is_handle_valid(handle)) {
+      return;
+    }
+
+    SlotData& slot = mStorage[handle.value()];
     slot.data.~T();
-    slot.handle = HandleT {};
-    slot.nextFreeSlot = mFirstFreeSlot;
-    mFirstFreeSlot = handle;
-  }
-
-  [[nodiscard]] auto get(HandleT handle) -> T& {
-    BASALT_ASSERT(handle);
-
-    // throws exception with invalid index
-    Slot& slot = mSlots.at(handle.value());
-    return slot.data;
+    slot.handle = Handle {};
+    slot.nextFreeSlot = mFreeSlot;
+    mFreeSlot = handle;
   }
 
 private:
-  struct Slot final {
+  struct SlotData final {
     T data {};
-    HandleT handle {};
-    HandleT nextFreeSlot {};
+    Handle handle;
+    Handle nextFreeSlot;
   };
 
-  std::vector<Slot> mSlots {};
-  HandleT mFirstFreeSlot {};
+  std::vector<SlotData> mStorage;
+  Handle mFreeSlot;
 };
 
 } // namespace basalt

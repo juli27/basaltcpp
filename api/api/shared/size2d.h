@@ -6,6 +6,8 @@ namespace basalt {
 
 template <typename T>
 struct Size2D final {
+  constexpr Size2D() noexcept = default;
+
   constexpr Size2D(const T width, const T height) noexcept
     : mWidth {width}, mHeight {height} {
   }
@@ -44,8 +46,6 @@ struct Size2D final {
 private:
   T mWidth {};
   T mHeight {};
-
-  constexpr Size2D() noexcept = default;
 
 public:
   [[nodiscard]] static constexpr auto dont_care() noexcept -> Size2D {
