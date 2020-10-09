@@ -13,6 +13,8 @@
 #include "d3d9/types.h"
 #include "d3d9/util.h"
 
+#include "gfx/debug.h"
+
 #include <api/client_app.h>
 #include <api/dear_imgui.h>
 #include <api/debug.h>
@@ -31,7 +33,6 @@
 #include <chrono>
 #include <string>
 #include <utility>
-#include <vector>
 
 using std::shared_ptr;
 using std::string;
@@ -50,8 +51,6 @@ void dump_config(const Config&);
 
 [[nodiscard]] auto poll_events() -> bool;
 
-void draw_debug_ui_additional(const D3D9Factory&);
-
 } // namespace
 
 void App::run(const HMODULE moduleHandle, const int showCommand) {
@@ -59,11 +58,29 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   Config config {ClientApp::configure()};
   dump_config(config);
 
-  const WindowPtr window {Window::create(moduleHandle, showCommand, config)};
-  // TODO: error handling
-  const D3D9FactoryPtr gfxFactory {D3D9Factory::create().value()};
+  const auto gfxFactory {D3D9Factory::create()};
+  if (!gfxFactory) {
+    BASALT_LOG_FATAL("couln't create any gfx factory");
+
+    return;
+  }
+
+  const WindowPtr window = Window::create(
+    moduleHandle, showCommand, config, gfxFactory->get_current_adapter_mode());
+  if (!window) {
+    BASALT_LOG_FATAL("failed to create window");
+
+    return;
+  }
+
   const auto [gfxDevice, gfxContext] =
     gfxFactory->create_device_and_context(window->handle());
+
+  const AdapterInfo adapterInfo = gfxFactory->query_adapter_info();
+
+  BASALT_LOG_INFO("Direct3D9 context created: adapter={}, driver={}({})",
+                  adapterInfo.displayName, adapterInfo.driver,
+                  adapterInfo.driverVersion);
 
   const auto dearImGui = std::make_shared<DearImGui>(*gfxDevice);
   ImGuiIO& io {ImGui::GetIO()};
@@ -100,7 +117,7 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
     }
 
     if (config.debugUiEnabled) {
-      draw_debug_ui_additional(*gfxFactory);
+      gfx::Debug::update(adapterInfo);
     }
 
     drawTarget.draw(dearImGui);
@@ -108,9 +125,9 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
     // device needed for our current model support
     const Composite composite =
       Compositor::compose(app.mGfxResourceCache, drawTarget);
-    Debug::update(composite);
-    gfxContext->submit(composite);
+    // Debug::update(composite);
 
+    gfxContext->submit(composite);
     gfxContext->present();
 
     const auto endTime = Clock::now();
@@ -156,71 +173,6 @@ auto poll_events() -> bool {
   }
 
   return true;
-}
-
-void draw_debug_ui_additional(const D3D9Factory& gfxFactory) {
-  // https://github.com/ocornut/imgui/issues/331
-  enum class OpenPopup : u8 { None, GfxInfo };
-  OpenPopup shouldOpenPopup {OpenPopup::None};
-
-  if (ImGui::BeginMainMenuBar()) {
-    if (ImGui::BeginMenu("View")) {
-      ImGui::Separator();
-
-      if (ImGui::MenuItem("GFX Info...")) {
-        shouldOpenPopup = OpenPopup::GfxInfo;
-      }
-
-      ImGui::EndMenu();
-    }
-
-    ImGui::EndMainMenuBar();
-  }
-
-  if (shouldOpenPopup == OpenPopup::GfxInfo) {
-    ImGui::OpenPopup("Gfx Info");
-  }
-
-  if (ImGui::BeginPopupModal("Gfx Info", nullptr,
-                             ImGuiWindowFlags_AlwaysAutoResize)) {
-    const AdapterInfo& adapterInfo = gfxFactory.adapter_info();
-
-    ImGui::Text("GFX Adapter: %s", adapterInfo.displayName.c_str());
-    ImGui::Text("Driver: %s (%s)", adapterInfo.driver.c_str(),
-                adapterInfo.driverVersion.c_str());
-
-    static string current =
-      fmt::format("{}x{} {}Hz {}", adapterInfo.defaultAdapterMode.width,
-                  adapterInfo.defaultAdapterMode.height,
-                  adapterInfo.defaultAdapterMode.refreshRate,
-                  to_string(adapterInfo.defaultAdapterMode.displayFormat));
-
-    if (ImGui::BeginCombo("Adapter Modes", current.c_str())) {
-      for (const auto& adapterMode : adapterInfo.adapterModes) {
-        string rep {fmt::format("{}x{} {}Hz {}", adapterMode.width,
-                                adapterMode.height, adapterMode.refreshRate,
-                                to_string(adapterMode.displayFormat))};
-
-        const bool isSelected = current == rep;
-
-        if (ImGui::Selectable(rep.c_str(), isSelected)) {
-          current = std::move(rep);
-        }
-
-        if (isSelected) {
-          ImGui::SetItemDefaultFocus();
-        }
-      }
-
-      ImGui::EndCombo();
-    }
-
-    if (ImGui::Button("OK", ImVec2 {120.0f, 0.0f})) {
-      ImGui::CloseCurrentPopup();
-    }
-
-    ImGui::EndPopup();
-  }
 }
 
 // auto wait_for_events() -> vector<shared_ptr<Event>> {

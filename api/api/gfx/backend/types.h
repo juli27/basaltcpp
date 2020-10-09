@@ -9,6 +9,9 @@
 
 namespace basalt::gfx {
 
+struct Context;
+using ContextPtr = std::shared_ptr<Context>;
+
 struct Device;
 using DevicePtr = std::shared_ptr<Device>;
 

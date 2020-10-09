@@ -38,7 +38,11 @@ void D3D9Context::submit(const Composite& composite) {
   mDevice->begin_execution();
 
   for (const auto& commandList : composite.parts()) {
+    PIX_BEGIN_EVENT(0, L"command list");
+
     mDevice->execute(commandList);
+
+    PIX_END_EVENT();
   }
 
   mDevice->end_execution();

@@ -159,9 +159,10 @@
     <ClCompile Include="app\d3d9\device.cpp" />
     <ClCompile Include="app\d3d9\factory.cpp" />
     <ClCompile Include="app\d3d9\context.cpp" />
-    <ClCompile Include="app\d3d9\util.cpp" />
+    <ClCompile Include="app\gfx\utils.cpp" />
     <ClCompile Include="app\app.cpp" />
     <ClCompile Include="app\engine.cpp" />
+    <ClCompile Include="app\gfx\debug.cpp" />
     <ClCompile Include="app\main.cpp" />
     <ClCompile Include="app\debug.cpp" />
     <ClCompile Include="app\platform.cpp" />
@@ -176,6 +177,9 @@
     <ClInclude Include="app\d3d9\context.h" />
     <ClInclude Include="app\app.h" />
     <ClInclude Include="app\build_config.h" />
+    <ClInclude Include="app\gfx\debug.h" />
+    <ClInclude Include="app\gfx\types.h" />
+    <ClInclude Include="app\gfx\utils.h" />
     <ClInclude Include="app\globals.h" />
     <ClInclude Include="app\debug.h" />
     <ClInclude Include="app\key_map.h" />

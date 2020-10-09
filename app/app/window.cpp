@@ -19,7 +19,6 @@
 
 #include <windowsx.h>
 
-#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -27,7 +26,6 @@
 
 using namespace std::literals;
 
-using std::runtime_error;
 using std::string;
 using std::system_error;
 using std::unique_ptr;
@@ -65,7 +63,8 @@ auto Window::drain_input() -> Input {
 }
 
 auto Window::create(const HMODULE moduleHandle, const int showCommand,
-                    const Config& config) -> WindowPtr {
+                    const Config& config, const gfx::AdapterMode& currentMode)
+  -> WindowPtr {
   const ATOM windowClass {register_class(moduleHandle)};
   if (!windowClass) {
     throw system_error {static_cast<int>(::GetLastError()),
@@ -77,12 +76,14 @@ auto Window::create(const HMODULE moduleHandle, const int showCommand,
   sWindowMode = WindowMode::Windowed;
 
   RECT rect {0l, 0l, config.windowedSize.width(), config.windowedSize.height()};
-  // handle don't care cases
+
+  // handle don't care cases. The default size is two thirds of the current
+  // display mode
   if (rect.right == 0l) {
-    rect.right = 1280l;
+    rect.right = currentMode.width * 2 / 3;
   }
   if (rect.bottom == 0l) {
-    rect.bottom = 720l;
+    rect.bottom = currentMode.height * 2 / 3;
   }
 
   DWORD style {WS_OVERLAPPEDWINDOW};
@@ -102,11 +103,13 @@ auto Window::create(const HMODULE moduleHandle, const int showCommand,
   const int windowWidth {static_cast<int>(rect.right - rect.left)};
   const int windowHeight {static_cast<int>(rect.bottom - rect.top)};
 
-  if (config.windowMode != WindowMode::Windowed) {
-    BASALT_LOG_ERROR("fullscreen not implemented");
-    /*style = WS_POPUP;
-    styleEx |= WS_EX_TOPMOST;*/
-  }
+  BASALT_ASSERT_MSG(config.windowMode == WindowMode::Windowed,
+                    "fullscreen not implemented");
+
+  // if (config.windowMode != WindowMode::Windowed) {
+  //  style = WS_POPUP;
+  //  styleEx |= WS_EX_TOPMOST;
+  //}
 
   const wstring windowTitle {create_wide_from_utf8(config.appName)};
   const HWND handle {::CreateWindowExW(
@@ -114,7 +117,9 @@ auto Window::create(const HMODULE moduleHandle, const int showCommand,
     CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, nullptr, nullptr,
     moduleHandle, nullptr)};
   if (!handle) {
-    throw runtime_error("failed to create window");
+    BASALT_LOG_ERROR("failed to create window");
+
+    return nullptr;
   }
 
   // can't use make_unique because of the private constructor

@@ -12,9 +12,6 @@
     <ClCompile Include="app\platform.cpp" />
     <ClCompile Include="app\app.cpp" />
     <ClCompile Include="app\engine.cpp" />
-    <ClCompile Include="app\d3d9\util.cpp">
-      <Filter>d3d9</Filter>
-    </ClCompile>
     <ClCompile Include="app\debug.cpp" />
     <ClCompile Include="app\window.cpp" />
     <ClCompile Include="app\d3d9\factory.cpp">
@@ -22,6 +19,12 @@
     </ClCompile>
     <ClCompile Include="app\d3d9\device.cpp">
       <Filter>d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="app\gfx\debug.cpp">
+      <Filter>gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="app\gfx\utils.cpp">
+      <Filter>gfx</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -56,6 +59,15 @@
     <ClInclude Include="app\d3d9\device.h">
       <Filter>d3d9</Filter>
     </ClInclude>
+    <ClInclude Include="app\gfx\debug.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="app\gfx\types.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="app\gfx\utils.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="d3d9">
@@ -63,6 +75,9 @@
     </Filter>
     <Filter Include="shared">
       <UniqueIdentifier>{7c76cdc2-0e39-4628-8c2f-402e1f43aaa0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gfx">
+      <UniqueIdentifier>{e2c268bd-bc89-4669-8465-2547ba4b5da0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

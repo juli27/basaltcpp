@@ -39,6 +39,18 @@ auto to_surface_format(D3DFORMAT) -> SurfaceFormat;
 
 D3D9Factory::D3D9Factory(ComPtr<IDirect3D9> factory)
   : mFactory {std::move(factory)} {
+}
+
+auto D3D9Factory::get_current_adapter_mode() const -> AdapterMode {
+  D3DDISPLAYMODE currentAdapterMode;
+  mFactory->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &currentAdapterMode);
+
+  return AdapterMode {currentAdapterMode.Width, currentAdapterMode.Height,
+                      currentAdapterMode.RefreshRate,
+                      to_surface_format(currentAdapterMode.Format)};
+}
+
+auto D3D9Factory::query_adapter_info() const -> AdapterInfo {
   D3DADAPTER_IDENTIFIER9 adapterIdentifier;
   D3D9CALL(
     mFactory->GetAdapterIdentifier(D3DADAPTER_DEFAULT, 0, &adapterIdentifier));
@@ -48,25 +60,17 @@ D3D9Factory::D3D9Factory(ComPtr<IDirect3D9> factory)
   u16 subVersion = HIWORD(adapterIdentifier.DriverVersion.LowPart);
   u16 build = LOWORD(adapterIdentifier.DriverVersion.LowPart);
 
-  mAdapterInfo = AdapterInfo {
+  AdapterInfo adapterInfo {
     string {adapterIdentifier.Description}, string {adapterIdentifier.Driver},
     fmt::format("{}.{}.{}.{}", product, version, subVersion, build)};
-
-  // query the current (default) adapter mode
-  D3DDISPLAYMODE currentAdapterMode {};
-  mFactory->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &currentAdapterMode);
-  mAdapterInfo.defaultAdapterMode =
-    AdapterMode {currentAdapterMode.Width, currentAdapterMode.Height,
-                 currentAdapterMode.RefreshRate,
-                 to_surface_format(currentAdapterMode.Format)};
 
   // query adapter modes
   for (const D3DFORMAT format : ALLOWED_DISPLAY_FORMATS) {
     const u32 adapterModeCount =
       mFactory->GetAdapterModeCount(D3DADAPTER_DEFAULT, format);
 
-    mAdapterInfo.adapterModes.reserve(mAdapterInfo.adapterModes.size() +
-                                      adapterModeCount);
+    adapterInfo.adapterModes.reserve(adapterInfo.adapterModes.size() +
+                                     adapterModeCount);
 
     for (u32 i = 0; i < adapterModeCount; i++) {
       D3DDISPLAYMODE adapterMode {};
@@ -74,15 +78,13 @@ D3D9Factory::D3D9Factory(ComPtr<IDirect3D9> factory)
         mFactory->EnumAdapterModes(D3DADAPTER_DEFAULT, format, i, &adapterMode);
       BASALT_ASSERT(SUCCEEDED(hr));
 
-      mAdapterInfo.adapterModes.emplace_back(AdapterMode {
+      adapterInfo.adapterModes.emplace_back(AdapterMode {
         adapterMode.Width, adapterMode.Height, adapterMode.RefreshRate,
         to_surface_format(adapterMode.Format)});
     }
   }
-}
 
-auto D3D9Factory::adapter_info() const noexcept -> const AdapterInfo& {
-  return mAdapterInfo;
+  return adapterInfo;
 }
 
 auto D3D9Factory::create_device_and_context(const HWND window) const
@@ -113,28 +115,24 @@ auto D3D9Factory::create_device_and_context(const HWND window) const
                                   D3DCREATE_HARDWARE_VERTEXPROCESSING, &pp,
                                   d3d9Device.GetAddressOf()));
 
-  BASALT_LOG_INFO("Direct3D9 context created: adapter={}, driver={}({})",
-                  mAdapterInfo.displayName, mAdapterInfo.driver,
-                  mAdapterInfo.driverVersion);
-
   auto device = std::make_shared<D3D9Device>(std::move(d3d9Device));
 
   return std::make_tuple(device, std::make_shared<D3D9Context>(device, pp));
 }
 
-auto D3D9Factory::create() -> std::optional<D3D9FactoryPtr> {
-  ComPtr<IDirect3D9> factory {};
+auto D3D9Factory::create() -> D3D9FactoryPtr {
+  ComPtr<IDirect3D9> factory;
   factory.Attach(Direct3DCreate9(D3D_SDK_VERSION));
   if (!factory) {
     BASALT_LOG_WARN("Direct3D 9 not available");
 
-    return std::nullopt;
+    return nullptr;
   }
 
   if (!D3DXCheckVersion(D3D_SDK_VERSION, D3DX_SDK_VERSION)) {
-    BASALT_LOG_INFO("D3DX version missmatch");
+    BASALT_LOG_WARN("D3DX version missmatch");
 
-    return std::nullopt;
+    return nullptr;
   }
 
   return std::make_unique<D3D9Factory>(std::move(factory));
@@ -163,7 +161,6 @@ auto to_surface_format(const D3DFORMAT format) -> SurfaceFormat {
     return SurfaceFormat::B10G10R10A2;
 
   default:
-    // TODO: assert or throw (or unreachable)
     BASALT_ASSERT_MSG(false, "unsupported format");
     throw runtime_error {"unsupported format"};
   }

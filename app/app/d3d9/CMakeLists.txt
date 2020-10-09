@@ -3,7 +3,6 @@ target_sources(App
     "context.cpp"
     "device.cpp"
     "factory.cpp"
-    "util.cpp"
   PUBLIC
     "context.h"
     "d3d9_custom.h"

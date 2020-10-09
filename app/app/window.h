@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gfx/types.h"
+
 #include "shared/Windows_custom.h"
 
 #include <api/input.h>
@@ -43,8 +45,11 @@ struct Window final {
 
   auto drain_input() -> Input;
 
+  // return null on failure
   [[nodiscard]] static auto create(HMODULE, int showCommand,
-                                   const Config& config) -> WindowPtr;
+                                   const Config& config,
+                                   const gfx::AdapterMode& currentMode)
+    -> WindowPtr;
 
 private:
   static constexpr auto CLASS_NAME = L"BS_WINDOW_CLASS";
