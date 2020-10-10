@@ -1,7 +1,8 @@
 #pragma once
 
 #include "data.h"
-#include "types.h"
+
+#include "api/base/types.h"
 
 namespace basalt {
 
@@ -62,10 +63,10 @@ struct Color final {
   }
 
 private:
-  f32 mRed {0.0f};
-  f32 mGreen {0.0f};
-  f32 mBlue {0.0f};
-  f32 mAlpha {0.0f};
+  f32 mRed {};
+  f32 mGreen {};
+  f32 mBlue {};
+  f32 mAlpha {};
 };
 
 struct Colors final {

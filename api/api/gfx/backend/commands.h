@@ -6,7 +6,8 @@
 #include "api/math/mat4.h"
 
 #include "api/shared/color.h"
-#include "api/shared/types.h"
+
+#include "api/base/types.h"
 
 #include <array>
 

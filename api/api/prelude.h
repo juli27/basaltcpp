@@ -6,7 +6,8 @@
 
 #include "shared/color.h"
 #include "shared/data.h"
-#include "shared/types.h"
+
+#include "base/types.h"
 
 using basalt::f32;
 using basalt::f64;

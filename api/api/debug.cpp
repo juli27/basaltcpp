@@ -13,10 +13,11 @@
 #include "scene/types.h"
 
 #include "math/constants.h"
-#include "math/vec3.h"
+#include "math/vector3.h"
 
 #include "shared/color.h"
-#include "shared/types.h"
+
+#include "base/types.h"
 
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
@@ -125,10 +126,11 @@ void display_color4(const char* label, const Color& color) {
                       ImGuiColorEditFlags_NoDragDrop);
 }
 
-void display_vec3(const char* label, const Vec3f32& vec) {
-  array<f32, 3> vecArr {vec.x, vec.y, vec.z};
+void display_vec3(const char* label, const Vector3f32& vec) {
+  array<f32, 3> vecArr {vec.x(), vec.y(), vec.z()};
 
-  ImGui::InputFloat3(label, vecArr.data(), "%.3f", ImGuiColorEditFlags_Float);
+  ImGui::InputFloat3(label, vecArr.data(), "%.3f",
+                     ImGuiInputTextFlags_ReadOnly);
 }
 
 void display_mat4(const char* label, const Mat4f32& mat) {
@@ -362,14 +364,11 @@ void Debug::draw_scene_debug_ui(Scene& scene) {
         edit_color4("Diffuse", scene.mDirectionalLights[i].diffuseColor);
         edit_color4("Ambient", scene.mDirectionalLights[i].ambientColor);
 
-        array<f32, 3> direction = {scene.mDirectionalLights[i].direction.x,
-                                   scene.mDirectionalLights[i].direction.y,
-                                   scene.mDirectionalLights[i].direction.z};
-        ImGui::DragFloat3("Direction", direction.data(), 0.1f);
-
-        using std::get;
-        scene.mDirectionalLights[i].direction = Vec3f32::normalize(
-          Vec3f32 {get<0>(direction), get<1>(direction), get<2>(direction)});
+        ImGui::DragFloat3("Direction",
+                          scene.mDirectionalLights[i].direction.elements.data(),
+                          0.1f);
+        scene.mDirectionalLights[i].direction =
+          Vector3f32::normalize(scene.mDirectionalLights[i].direction);
 
         ImGui::TreePop();
       }
@@ -390,12 +389,14 @@ void Debug::draw_scene_debug_ui(Scene& scene) {
       if (auto* const transform =
             scene.mEntityRegistry.try_get<Transform>(entity)) {
         if (ImGui::TreeNode("Transform")) {
-          ImGui::DragFloat3("Position", &transform->position.x, 0.1f);
+          ImGui::DragFloat3("Position", transform->position.elements.data(),
+                            0.1f);
 
-          ImGui::DragFloat3("Rotation", &transform->rotation.x, 0.01f, 0.0f,
-                            2.0f * PI);
+          ImGui::DragFloat3("Rotation", transform->rotation.elements.data(),
+                            0.01f, 0.0f, 2.0f * PI);
 
-          ImGui::DragFloat3("Scale", &transform->scale.x, 0.1f, 0.0f);
+          ImGui::DragFloat3("Scale", transform->scale.elements.data(), 0.1f,
+                            0.0f);
 
           ImGui::TreePop();
         }

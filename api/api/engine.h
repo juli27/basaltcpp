@@ -9,7 +9,7 @@
 
 #include "resources/resource_registry.h"
 
-#include "shared/types.h"
+#include "base/types.h"
 
 #include <memory>
 #include <string_view>

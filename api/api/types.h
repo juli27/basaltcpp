@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shared/types.h"
+#include "base/types.h"
 
 namespace basalt {
 

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "api/math/mat4.h"
-#include "api/math/vec3.h"
+#include "api/math/vector3.h"
 
-#include "api/shared/types.h"
+#include "api/base/types.h"
 
 namespace basalt {
 
@@ -17,8 +17,8 @@ namespace gfx {
 struct Camera final {
   constexpr Camera() noexcept = default;
 
-  Camera(const Vec3f32& position, const Vec3f32& lookAt, const Vec3f32& up,
-         f32 fov, f32 nearPlane, f32 farPlane) noexcept;
+  Camera(const Vector3f32& position, const Vector3f32& lookAt,
+         const Vector3f32& up, f32 fov, f32 nearPlane, f32 farPlane) noexcept;
 
   [[nodiscard]] auto view_matrix() const noexcept -> Mat4f32;
 
@@ -26,9 +26,9 @@ struct Camera final {
     -> Mat4f32;
 
 private:
-  Vec3f32 mPosition {};
-  Vec3f32 mLookAt {};
-  Vec3f32 mUp {};
+  Vector3f32 mPosition {};
+  Vector3f32 mLookAt {};
+  Vector3f32 mUp {};
   f32 mFov {};
   f32 mNearPlane {};
   f32 mFarPlane {};

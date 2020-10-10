@@ -1,11 +1,14 @@
 #pragma once
 
 #include "size2d.h"
-#include "types.h"
+
+#include "api/base/types.h"
 
 #include <string>
 
 namespace basalt {
+
+using namespace std::string_literals;
 
 enum class WindowMode : u8 {
   Windowed,
@@ -19,7 +22,7 @@ enum class GfxBackendApi : u8 {
 };
 
 struct Config final {
-  std::string appName {"Basalt App"};
+  std::string appName {"Basalt App"s};
 
   // the window size is only used for the windowed window mode
   Size2Du16 windowedSize {Size2Du16::dont_care()};

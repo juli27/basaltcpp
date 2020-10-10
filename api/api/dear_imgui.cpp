@@ -9,8 +9,6 @@
 #include "gfx/backend/utils.h"
 #include "gfx/backend/ext/dear_imgui_renderer.h"
 
-#include "math/vec2.h"
-
 #include "shared/color.h"
 #include "shared/size2d.h"
 #include "shared/utils.h"
@@ -78,7 +76,7 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
 
   const CursorPosition mousePos {input.cursor_position()};
   io.MousePos =
-    ImVec2 {static_cast<float>(mousePos.x), static_cast<float>(mousePos.y)};
+    ImVec2 {static_cast<float>(mousePos.x()), static_cast<float>(mousePos.y())};
 
   static_assert(ImGuiMouseButton_COUNT == MOUSE_BUTTON_COUNT);
   static_assert(KEY_COUNT <= 512);

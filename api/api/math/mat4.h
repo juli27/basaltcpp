@@ -1,8 +1,8 @@
 #pragma once
 
-#include "vec3.h"
+#include "vector3.h"
 
-#include "api/shared/types.h"
+#include "api/base/types.h"
 
 namespace basalt {
 
@@ -53,13 +53,13 @@ struct Mat4 final {
 
   [[nodiscard]] static auto invert(const Mat4&) noexcept -> Mat4;
 
-  [[nodiscard]] static constexpr auto translation(const Vec3f32& t) noexcept
+  [[nodiscard]] static constexpr auto translation(const Vector3f32& t) noexcept
     -> Mat4 {
     // clang-format off
-    return Mat4 {1.0f, 0.0f, 0.0f, 0.0f,
-                 0.0f, 1.0f, 0.0f, 0.0f,
-                 0.0f, 0.0f, 1.0f, 0.0f,
-                 t.x,  t.y,  t.z,  1.0f};
+    return Mat4 { 1.0f,  0.0f,  0.0f, 0.0f,
+                  0.0f,  1.0f,  0.0f, 0.0f,
+                  0.0f,  0.0f,  1.0f, 0.0f,
+                 t.x(), t.y(), t.z(), 1.0f};
     // clang-format on
   }
 
@@ -69,15 +69,16 @@ struct Mat4 final {
 
   [[nodiscard]] static auto rotation_z(f32 radians) noexcept -> Mat4;
 
-  [[nodiscard]] static auto rotation(const Vec3f32& radians) noexcept -> Mat4;
+  [[nodiscard]] static auto rotation(const Vector3f32& radians) noexcept
+    -> Mat4;
 
-  [[nodiscard]] static constexpr auto scaling(const Vec3f32& s) noexcept
+  [[nodiscard]] static constexpr auto scaling(const Vector3f32& s) noexcept
     -> Mat4 {
     // clang-format off
-    return Mat4 {s.x,  0.0f, 0.0f, 0.0f,
-                 0.0f, s.y,  0.0f, 0.0f,
-                 0.0f, 0.0f, s.z,  0.0f,
-                 0.0f, 0.0f, 0.0f, 1.0f};
+    return Mat4 {s.x(),  0.0f,  0.0f, 0.0f,
+                  0.0f, s.y(),  0.0f, 0.0f,
+                  0.0f,  0.0f, s.z(), 0.0f,
+                  0.0f,  0.0f,  0.0f, 1.0f};
     // clang-format on
   }
 

@@ -26,12 +26,6 @@
     <ClCompile Include="api\math\mat4.cpp">
       <Filter>math</Filter>
     </ClCompile>
-    <ClCompile Include="api\math\vec2.cpp">
-      <Filter>math</Filter>
-    </ClCompile>
-    <ClCompile Include="api\math\vec3.cpp">
-      <Filter>math</Filter>
-    </ClCompile>
     <ClCompile Include="api\shared\asserts.cpp">
       <Filter>shared</Filter>
     </ClCompile>
@@ -52,6 +46,9 @@
     </ClCompile>
     <ClCompile Include="api\gfx\resource_cache.cpp">
       <Filter>gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="api\math\vector3.cpp">
+      <Filter>math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -103,15 +100,6 @@
     </ClInclude>
     <ClInclude Include="api\math\mat4.h">
       <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="api\math\vec2.h">
-      <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="api\math\vec3.h">
-      <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="api\shared\types.h">
-      <Filter>shared</Filter>
     </ClInclude>
     <ClInclude Include="api\shared\size2d.h">
       <Filter>shared</Filter>
@@ -182,6 +170,15 @@
     <ClInclude Include="api\gfx\backend\utils.h">
       <Filter>gfx\backend</Filter>
     </ClInclude>
+    <ClInclude Include="api\base\types.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="api\math\vector3.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="api\base\vec.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="platform">
@@ -207,6 +204,9 @@
     </Filter>
     <Filter Include="resources">
       <UniqueIdentifier>{d835ef80-31e6-409f-b2b5-8e0fc217c0a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base">
+      <UniqueIdentifier>{00b29e6f-b537-479c-9478-d93a9f3b12aa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

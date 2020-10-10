@@ -2,7 +2,7 @@
 
 #include <api/client_app.h>
 
-#include <api/shared/types.h>
+#include <api/base/types.h>
 
 #include <memory>
 #include <vector>

@@ -136,10 +136,10 @@ auto Mat4::rotation_z(const f32 radians) noexcept -> Mat4 {
   return result;
 }
 
-auto Mat4::rotation(const Vec3f32& radians) noexcept -> Mat4 {
-  const auto x = rotation_x(radians.x);
-  const auto y = rotation_y(radians.y);
-  const auto z = rotation_z(radians.z);
+auto Mat4::rotation(const Vector3f32& radians) noexcept -> Mat4 {
+  const auto x = rotation_x(radians.x());
+  const auto y = rotation_y(radians.y());
+  const auto z = rotation_z(radians.z());
   return z * x * y;
 }
 

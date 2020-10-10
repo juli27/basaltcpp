@@ -1,8 +1,9 @@
 #pragma once
 
-#include "math/vec2.h"
 #include "shared/asserts.h"
-#include "shared/types.h"
+
+#include "base/types.h"
+#include "base/vec.h"
 
 #include <bitset>
 #include <memory>
@@ -13,7 +14,6 @@
 namespace basalt {
 
 enum class MouseButton : u8 { Left, Right, Middle, Button4, Button5 };
-
 constexpr uSize MOUSE_BUTTON_COUNT = 5u;
 
 // TODO: add super/meta key for linux/osx
@@ -42,13 +42,19 @@ enum class Key : u8 {
 
 // clang-format on
 
-constexpr uSize KEY_COUNT = 103u;
+constexpr uSize KEY_COUNT = 102u;
 
 struct InputEvent;
 using InputEventPtr = std::unique_ptr<InputEvent>;
 
-struct CursorPosition : Vec2i32 {
-  using Vec2i32::Vec2i32;
+struct CursorPosition : vec<CursorPosition, i32, 2> {
+  [[nodiscard]] constexpr auto x() const noexcept -> i32 {
+    return std::get<0>(elements);
+  }
+
+  [[nodiscard]] constexpr auto y() const noexcept -> i32 {
+    return std::get<1>(elements);
+  }
 };
 
 struct Input final {

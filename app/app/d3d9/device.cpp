@@ -50,8 +50,8 @@ constexpr auto to_d3d_matrix(const Mat4f32& mat) noexcept -> D3DMATRIX {
   // clang-format on
 }
 
-constexpr auto to_d3d_vector(const Vec3f32& vec) noexcept -> D3DVECTOR {
-  return D3DVECTOR {vec.x, vec.y, vec.z};
+constexpr auto to_d3d_vector(const Vector3f32& vec) noexcept -> D3DVECTOR {
+  return D3DVECTOR {vec.x(), vec.y(), vec.z()};
 }
 
 auto to_fvf(const VertexLayout& layout) -> DWORD;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <api/shared/types.h>
+#include <api/base/types.h>
 
 #include <string>
 #include <vector>

@@ -1,6 +1,6 @@
 #include "util.h"
 
-#include <api/shared/types.h>
+#include <api/base/types.h>
 
 #include <limits>
 #include <string>
@@ -10,8 +10,6 @@ using std::string;
 using std::string_view;
 using std::wstring;
 using std::wstring_view;
-
-using basalt::uSize;
 
 namespace basalt {
 

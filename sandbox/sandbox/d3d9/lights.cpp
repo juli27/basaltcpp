@@ -9,7 +9,7 @@
 #include <api/scene/transform.h>
 
 #include <api/math/constants.h>
-#include <api/math/vec3.h>
+#include <api/math/vector3.h>
 
 #include <api/shared/config.h>
 
@@ -23,7 +23,7 @@ using namespace std::literals;
 using basalt::Debug;
 using basalt::PI;
 using basalt::Transform;
-using basalt::Vec3f32;
+using basalt::Vector3f32;
 using basalt::gfx::Device;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::RenderFlagCullNone;
@@ -96,8 +96,9 @@ void Lights::on_update(const basalt::UpdateContext& ctx) {
 
   mScene->clear_directional_lights();
 
-  const Vec3f32 lightDir {std::cos(mLightAngle), 1.0f, std::sin(mLightAngle)};
-  mScene->add_directional_light(Vec3f32::normalize(lightDir), Colors::WHITE);
+  const Vector3f32 lightDir {std::cos(mLightAngle), 1.0f,
+                             std::sin(mLightAngle)};
+  mScene->add_directional_light(Vector3f32::normalize(lightDir), Colors::WHITE);
 
   ctx.drawTarget.draw(mSceneView);
 

@@ -3,7 +3,6 @@
 #include "types.h"
 
 #include "api/shared/color.h"
-#include "api/shared/types.h"
 
 #include <entt/entity/registry.hpp>
 
@@ -11,9 +10,7 @@
 
 namespace basalt {
 
-template <typename T>
-struct Vec3;
-using Vec3f32 = Vec3<f32>;
+struct Vector3f32;
 
 struct Scene final {
   Scene() = default;
@@ -36,7 +33,7 @@ struct Scene final {
 
   [[nodiscard]] auto directional_lights() const
     -> const std::vector<DirectionalLight>&;
-  void add_directional_light(const Vec3f32& direction, const Color&);
+  void add_directional_light(const Vector3f32& direction, const Color&);
   void clear_directional_lights();
 
 private:

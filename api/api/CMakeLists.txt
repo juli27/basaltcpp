@@ -1,5 +1,6 @@
-add_subdirectory("shared")
+add_subdirectory("base")
 add_subdirectory("platform")
+add_subdirectory("shared")
 add_subdirectory("math")
 add_subdirectory("resources")
 add_subdirectory("scene")

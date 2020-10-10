@@ -167,14 +167,14 @@
     <ClCompile Include="api\gfx\scene_view.cpp" />
     <ClCompile Include="api\input.cpp" />
     <ClCompile Include="api\math\mat4.cpp" />
-    <ClCompile Include="api\math\vec2.cpp" />
-    <ClCompile Include="api\math\vec3.cpp" />
+    <ClCompile Include="api\math\vector3.cpp" />
     <ClCompile Include="api\scene\scene.cpp" />
     <ClCompile Include="api\scene\transform.cpp" />
     <ClCompile Include="api\shared\asserts.cpp" />
     <ClCompile Include="api\shared\log.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="api\base\vec.h" />
     <ClInclude Include="api\dear_imgui.h" />
     <ClInclude Include="api\debug.h" />
     <ClInclude Include="api\engine.h" />
@@ -201,8 +201,7 @@
     <ClInclude Include="api\input.h" />
     <ClInclude Include="api\math\constants.h" />
     <ClInclude Include="api\math\mat4.h" />
-    <ClInclude Include="api\math\vec2.h" />
-    <ClInclude Include="api\math\vec3.h" />
+    <ClInclude Include="api\math\vector3.h" />
     <ClInclude Include="api\gfx\backend\context.h" />
     <ClInclude Include="api\platform\platform.h" />
     <ClInclude Include="api\prelude.h" />
@@ -218,7 +217,7 @@
     <ClInclude Include="api\shared\handle.h" />
     <ClInclude Include="api\shared\handle_pool.h" />
     <ClInclude Include="api\shared\log.h" />
-    <ClInclude Include="api\shared\types.h" />
+    <ClInclude Include="api\base\types.h" />
     <ClInclude Include="api\shared\size2d.h" />
     <ClInclude Include="api\shared\utils.h" />
     <ClInclude Include="api\types.h" />
