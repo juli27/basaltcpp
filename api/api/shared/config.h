@@ -1,6 +1,7 @@
 #pragma once
 
 #include "size2d.h"
+#include "types.h"
 
 #include "api/base/types.h"
 
@@ -9,12 +10,6 @@
 namespace basalt {
 
 using namespace std::string_literals;
-
-enum class WindowMode : u8 {
-  Windowed,
-  Fullscreen,
-  FullscreenExclusive,
-};
 
 enum class GfxBackendApi : u8 {
   Default,

@@ -8,8 +8,6 @@
 
 namespace basalt::gfx {
 
-using CommandPtr = std::unique_ptr<Command>;
-
 struct CommandList final {
   CommandList() noexcept = default;
 
@@ -27,14 +25,14 @@ struct CommandList final {
   template <typename T, typename... Args>
   void add(Args&&... args) {
     static_assert(std::is_base_of_v<Command, T>,
-                  "CommandLists only accept commands derived from Command");
+                  "CommandList only accepts commands derived from Command");
     static_assert(std::is_trivially_destructible_v<T>);
 
     mCommands.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
   }
 
 private:
-  std::vector<CommandPtr> mCommands {};
+  std::vector<CommandPtr> mCommands;
 };
 
 } // namespace basalt::gfx

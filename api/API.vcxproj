@@ -201,6 +201,7 @@
     <ClInclude Include="api\input.h" />
     <ClInclude Include="api\math\constants.h" />
     <ClInclude Include="api\math\mat4.h" />
+    <ClInclude Include="api\math\types.h" />
     <ClInclude Include="api\math\vector3.h" />
     <ClInclude Include="api\gfx\backend\context.h" />
     <ClInclude Include="api\platform\platform.h" />
@@ -219,6 +220,7 @@
     <ClInclude Include="api\shared\log.h" />
     <ClInclude Include="api\base\types.h" />
     <ClInclude Include="api\shared\size2d.h" />
+    <ClInclude Include="api\shared\types.h" />
     <ClInclude Include="api\shared\utils.h" />
     <ClInclude Include="api\types.h" />
   </ItemGroup>

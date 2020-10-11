@@ -1,15 +1,12 @@
 #pragma once
 
+#include "types.h"
+
 #include "api/shared/size2d.h"
 
-#include <memory>
 #include <vector>
 
 namespace basalt::gfx {
-
-struct Drawable;
-
-using DrawablePtr = std::shared_ptr<Drawable>;
 
 struct DrawTarget final {
   explicit DrawTarget(Size2Du16) noexcept;
@@ -30,7 +27,7 @@ struct DrawTarget final {
   void draw(DrawablePtr);
 
 private:
-  std::vector<DrawablePtr> mDrawables {};
+  std::vector<DrawablePtr> mDrawables;
   Size2Du16 mSize;
 };
 

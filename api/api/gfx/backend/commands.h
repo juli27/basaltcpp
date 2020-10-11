@@ -3,6 +3,7 @@
 #include "types.h"
 
 #include "api/scene/types.h"
+
 #include "api/math/mat4.h"
 
 #include "api/shared/color.h"
@@ -29,7 +30,7 @@ static_assert(sizeof(CommandSetDirectionalLights) == 180);
 
 struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
   TransformType transformType;
-  Mat4f32 transform {};
+  Mat4f32 transform;
 
   CommandSetTransform(const TransformType tType, const Mat4f32& t) noexcept
     : transformType {tType}, transform {t} {
@@ -53,13 +54,13 @@ static_assert(sizeof(CommandSetRenderState) == 8);
 struct CommandLegacy final : CommandT<CommandType::Legacy> {
   TexCoordinateSrc texCoordinateSrc {TexCoordinateSrc::Vertex};
 
-  MeshHandle mesh {};
+  MeshHandle mesh {MeshHandle::null()};
 
   // TODO: Material
-  Color diffuseColor {};
-  Color ambientColor {};
-  Color emissiveColor {};
-  TextureHandle texture {};
+  Color diffuseColor;
+  Color ambientColor;
+  Color emissiveColor;
+  TextureHandle texture;
 
   Mat4f32 texTransform {Mat4f32::identity()};
 };

@@ -179,6 +179,12 @@
     <ClInclude Include="api\base\vec.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="api\shared\types.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="api\math\types.h">
+      <Filter>math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="platform">

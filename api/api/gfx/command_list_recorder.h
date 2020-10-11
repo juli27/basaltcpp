@@ -7,18 +7,13 @@
 
 #include "backend/ext/types.h"
 
+#include "api/scene/types.h"
+#include "api/math/types.h"
 #include "api/base/types.h"
 
 #include <vector>
 
-namespace basalt {
-
-struct Color;
-struct DirectionalLight;
-struct Mat4;
-using Mat4f32 = Mat4;
-
-namespace gfx {
+namespace basalt::gfx {
 
 struct CommandLegacy;
 
@@ -34,9 +29,8 @@ struct CommandListRecorder final {
   [[nodiscard]] auto complete_command_list() -> CommandList;
 
 private:
-  CommandList mCommandList {};
-  DeviceStateCache mDeviceState {};
+  CommandList mCommandList;
+  DeviceStateCache mDeviceState;
 };
 
-} // namespace gfx
-} // namespace basalt
+} // namespace basalt::gfx

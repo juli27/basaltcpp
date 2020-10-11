@@ -23,7 +23,7 @@ struct SandboxApp final : basalt::ClientApp {
   void on_update(const basalt::UpdateContext&) override;
 
 private:
-  std::vector<std::unique_ptr<TestCase>> mScenes {};
+  std::vector<std::unique_ptr<TestCase>> mScenes;
   basalt::uSize mCurrentSceneIndex {6};
 
   void next_scene() noexcept;

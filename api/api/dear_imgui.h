@@ -2,14 +2,12 @@
 
 #include "gfx/drawable.h"
 
-#include "gfx/backend/types.h"
+#include "types.h"
 #include "gfx/backend/ext/types.h"
 
 #include <memory>
 
 namespace basalt {
-
-struct UpdateContext;
 
 struct DearImGui final : gfx::Drawable {
   explicit DearImGui(gfx::Device&);
@@ -30,7 +28,7 @@ struct DearImGui final : gfx::Drawable {
   [[nodiscard]] auto clear_color() const -> std::optional<Color> override;
 
 private:
-  std::shared_ptr<gfx::ext::DearImGuiRenderer> mRenderer {};
+  std::shared_ptr<gfx::ext::DearImGuiRenderer> mRenderer;
 };
 
 } // namespace basalt

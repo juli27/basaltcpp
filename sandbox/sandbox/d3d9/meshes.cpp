@@ -3,6 +3,7 @@
 #include "utils.h"
 
 #include <api/debug.h>
+#include <api/engine.h>
 #include <api/prelude.h>
 
 #include <api/gfx/draw_target.h>

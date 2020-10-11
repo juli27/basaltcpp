@@ -10,6 +10,8 @@
 #include "api/scene/transform.h"
 #include "api/scene/scene.h"
 
+#include "api/math/mat4.h"
+
 #include "api/shared/size2d.h"
 #include "api/shared/utils.h"
 
@@ -21,13 +23,13 @@ using std::optional;
 
 namespace basalt::gfx {
 
-SceneView::SceneView(std::shared_ptr<Scene> scene, const Camera& camera)
+SceneView::SceneView(ScenePtr scene, const Camera& camera)
   : mScene {std::move(scene)}, mCamera {camera} {
 }
 
 auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
   -> CommandList {
-  CommandListRecorder cmdListRecorder {};
+  CommandListRecorder cmdListRecorder;
 
   cmdListRecorder.set_transform(TransformType::Projection,
                                 mCamera.projection_matrix(viewport));

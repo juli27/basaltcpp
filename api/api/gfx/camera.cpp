@@ -1,5 +1,7 @@
 #include "camera.h"
 
+#include "api/math/mat4.h"
+
 #include "api/shared/size2d.h"
 
 namespace basalt::gfx {
@@ -7,9 +9,9 @@ namespace basalt::gfx {
 Camera::Camera(const Vector3f32& position, const Vector3f32& lookAt,
                const Vector3f32& up, const f32 fov, const f32 nearPlane,
                const f32 farPlane) noexcept
-  : mPosition(position)
-  , mLookAt(lookAt)
-  , mUp(up)
+  : mPosition {position}
+  , mLookAt {lookAt}
+  , mUp {up}
   , mFov {fov}
   , mNearPlane {nearPlane}
   , mFarPlane {farPlane} {

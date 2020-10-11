@@ -4,26 +4,19 @@
 #include "types.h"
 
 #include "gfx/resource_cache.h"
+#include "gfx/types.h"
 
 #include "gfx/backend/types.h"
 
 #include "resources/resource_registry.h"
 
+#include "shared/types.h"
 #include "base/types.h"
 
 #include <memory>
 #include <string_view>
 
 namespace basalt {
-
-struct Config;
-
-namespace gfx {
-
-struct Context;
-struct DrawTarget;
-
-} // namespace gfx
 
 struct Engine {
   Engine(const Engine&) = delete;
@@ -68,7 +61,7 @@ struct UpdateContext final {
   Engine& engine;
   gfx::DrawTarget& drawTarget;
   f64 deltaTime {};
-  Input input {};
+  Input input;
 };
 
 void quit();

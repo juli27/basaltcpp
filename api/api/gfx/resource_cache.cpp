@@ -14,14 +14,15 @@ namespace basalt::gfx {
 
 ResourceCache::ResourceCache(ResourceRegistryPtr resourceRegistry,
                              DevicePtr device)
-  : mResourceRegistry(std::move(resourceRegistry)), mDevice(std::move(device)) {
+  : mResourceRegistry {std::move(resourceRegistry)}
+  , mDevice {std::move(device)} {
 }
 
 void ResourceCache::load(const GfxModel model) const {
   auto& registry = mResourceRegistry->get<GfxModel>();
 
   const auto modelExt =
-    gfx::query_device_extension<ext::XModelSupport>(*mDevice).value();
+    *gfx::query_device_extension<ext::XModelSupport>(*mDevice);
 
   auto& location = registry.get<FileLocation>(model);
   registry.emplace<ext::ModelHandle>(model, modelExt->load(location.path));

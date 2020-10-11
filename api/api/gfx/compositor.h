@@ -1,11 +1,9 @@
 #pragma once
 
 #include "types.h"
+#include "backend/types.h"
 
 namespace basalt::gfx {
-
-struct Composite;
-struct DrawTarget;
 
 struct Compositor final {
   Compositor() = delete;

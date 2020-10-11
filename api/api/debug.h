@@ -1,14 +1,9 @@
 #pragma once
 
+#include "gfx/backend/types.h"
+#include "scene/types.h"
+
 namespace basalt {
-
-struct Scene;
-
-namespace gfx {
-
-struct Composite;
-
-} // namespace gfx
 
 // TODO: split up into one Debug class for each subsystem (Scene, Gfx,...)
 struct Debug final {

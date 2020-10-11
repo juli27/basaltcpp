@@ -26,8 +26,8 @@ struct Composite final {
   void add_part(CommandList);
 
 private:
-  Color mBackground {};
-  std::vector<CommandList> mParts {};
+  Color mBackground;
+  std::vector<CommandList> mParts;
 };
 
 } // namespace basalt::gfx

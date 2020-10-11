@@ -10,6 +10,9 @@
 
 namespace basalt::gfx {
 
+struct CommandList;
+struct Composite;
+
 struct Context;
 using ContextPtr = std::shared_ptr<Context>;
 
@@ -42,6 +45,8 @@ protected:
   constexpr explicit Command(const CommandType t) noexcept : type {t} {
   }
 };
+
+using CommandPtr = std::unique_ptr<Command>;
 
 template <CommandType Type>
 struct CommandT : Command {

@@ -2,43 +2,43 @@
 
 #include "data.h"
 
-#include "api/base/types.h"
+#include "api/base/vec.h"
 
 namespace basalt {
 
-struct Color final {
+struct Color final : vec<Color, f32, 4> {
   constexpr Color() noexcept = default;
 
   constexpr Color(const f32 red, const f32 green, const f32 blue,
                   const f32 alpha = 1.0f) noexcept
-    : mRed {red}, mGreen {green}, mBlue {blue}, mAlpha {alpha} {
+    : vec {red, green, blue, alpha} {
   }
 
   // ARGB word-order
   [[nodiscard]] constexpr auto to_argb() const noexcept
     -> ColorEncoding::A8R8G8B8 {
-    const auto red = static_cast<u8>(mRed * 255.0f);
-    const auto green = static_cast<u8>(mGreen * 255.0f);
-    const auto blue = static_cast<u8>(mBlue * 255.0f);
-    const auto alpha = static_cast<u8>(mAlpha * 255.0f);
+    const auto r = static_cast<u8>(red() * 255.0f);
+    const auto g = static_cast<u8>(green() * 255.0f);
+    const auto b = static_cast<u8>(blue() * 255.0f);
+    const auto a = static_cast<u8>(alpha() * 255.0f);
 
-    return ColorEncoding::pack_logical_a8r8g8b8(red, green, blue, alpha);
+    return ColorEncoding::pack_logical_a8r8g8b8(r, g, b, a);
   }
 
   [[nodiscard]] constexpr auto red() const noexcept -> f32 {
-    return mRed;
+    return std::get<0>(elements);
   }
 
   [[nodiscard]] constexpr auto green() const noexcept -> f32 {
-    return mGreen;
+    return std::get<1>(elements);
   }
 
   [[nodiscard]] constexpr auto blue() const noexcept -> f32 {
-    return mBlue;
+    return std::get<2>(elements);
   }
 
   [[nodiscard]] constexpr auto alpha() const noexcept -> f32 {
-    return mAlpha;
+    return std::get<3>(elements);
   }
 
   [[nodiscard]] static constexpr auto from_rgba(const u8 red, const u8 green,
@@ -61,12 +61,6 @@ struct Color final {
 
     return from_rgba(r, g, b, a);
   }
-
-private:
-  f32 mRed {};
-  f32 mGreen {};
-  f32 mBlue {};
-  f32 mAlpha {};
 };
 
 struct Colors final {

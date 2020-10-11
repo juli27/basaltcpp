@@ -17,7 +17,6 @@
 
 using std::nullopt;
 using std::optional;
-using namespace std::literals;
 
 namespace basalt {
 
@@ -124,9 +123,9 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
     }
   }
 
-  const Size2Du16 displaySize {ctx.drawTarget.size()};
-  io.DisplaySize = ImVec2(static_cast<float>(displaySize.width()),
-                          static_cast<float>(displaySize.height()));
+  const Size2Du16 displaySize = ctx.drawTarget.size();
+  io.DisplaySize = ImVec2 {static_cast<float>(displaySize.width()),
+                           static_cast<float>(displaySize.height())};
   io.DeltaTime = static_cast<float>(ctx.deltaTime);
   io.KeyCtrl = input.is_key_down(Key::Control);
   io.KeyShift = input.is_key_down(Key::Shift);
@@ -154,7 +153,7 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
 }
 
 auto DearImGui::draw(ResourceCache&, Size2Du16) -> CommandList {
-  CommandList commandList {};
+  CommandList commandList;
   commandList.add<CommandRenderDearImGui>();
 
   return commandList;

@@ -11,7 +11,14 @@
 
 #include <entt/entity/entity.hpp>
 
+#include <memory>
+
 namespace basalt::gfx {
+
+struct DrawTarget;
+
+struct Drawable;
+using DrawablePtr = std::shared_ptr<Drawable>;
 
 struct ResourceCache;
 

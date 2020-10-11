@@ -1,17 +1,12 @@
 #pragma once
 
-#include "api/base/types.h"
+#include "api/shared/types.h"
 
-namespace basalt {
-
-enum class WindowMode : u8;
-
-namespace platform {
+namespace basalt::platform {
 
 [[nodiscard]] auto get_window_mode() -> WindowMode;
 void set_window_mode(WindowMode windowMode);
 
 auto is_debugger_attached() -> bool;
 
-} // namespace platform
-} // namespace basalt
+} // namespace basalt::platform

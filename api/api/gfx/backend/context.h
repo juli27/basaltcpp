@@ -2,11 +2,9 @@
 
 #include "types.h"
 
-#include "api/shared/size2d.h"
+#include "api/shared/types.h"
 
 namespace basalt::gfx {
-
-struct Composite;
 
 // A gfx context is directly tied to a window. If another gfx context is
 // required (e.g. change of rendering API), the window must be recreated.

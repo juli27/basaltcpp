@@ -1,53 +1,38 @@
 #pragma once
 
-#include "api/base/types.h"
+#include "api/base/vec.h"
 
 namespace basalt {
 
 template <typename T>
-struct Size2D final {
+struct Size2D final : vec<Size2D<T>, T, 2> {
   constexpr Size2D() noexcept = default;
 
   constexpr Size2D(const T width, const T height) noexcept
-    : mWidth {width}, mHeight {height} {
+    : vec {width, height} {
   }
 
   [[nodiscard]] constexpr auto width() const noexcept -> T {
-    return mWidth;
+    return std::get<0>(elements);
   }
 
   [[nodiscard]] constexpr auto height() const noexcept -> T {
-    return mHeight;
+    return std::get<1>(elements);
   }
 
   constexpr void set(const T width, const T height) noexcept {
-    mWidth = width;
-    mHeight = height;
+    std::get<0>(elements) = width;
+    std::get<1>(elements) = height;
   }
 
   constexpr void set_width(const T width) noexcept {
-    mWidth = width;
+    std::get<0>(elements) = width;
   }
 
   constexpr void set_height(const T height) noexcept {
-    mHeight = height;
+    std::get<1>(elements) = height;
   }
 
-  friend auto operator==(const Size2D& lhs, const Size2D& rhs) noexcept
-    -> bool {
-    return lhs.mWidth == rhs.mWidth && lhs.mHeight == rhs.mHeight;
-  }
-
-  friend auto operator!=(const Size2D& lhs, const Size2D& rhs) noexcept
-    -> bool {
-    return !(lhs == rhs);
-  }
-
-private:
-  T mWidth {};
-  T mHeight {};
-
-public:
   [[nodiscard]] static constexpr auto dont_care() noexcept -> Size2D {
     return Size2D {};
   }

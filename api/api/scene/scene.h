@@ -39,10 +39,10 @@ struct Scene final {
 private:
   friend struct Debug;
 
-  entt::registry mEntityRegistry {};
-  std::vector<DirectionalLight> mDirectionalLights {};
+  entt::registry mEntityRegistry;
+  std::vector<DirectionalLight> mDirectionalLights;
   Color mBackgroundColor {Colors::BLACK};
-  Color mAmbientLightColor {};
+  Color mAmbientLightColor;
 };
 
 } // namespace basalt

@@ -4,17 +4,14 @@
 
 #include "camera.h"
 
+#include "api/scene/types.h"
+
 #include <memory>
 
-namespace basalt {
-
-struct Debug;
-struct Scene;
-
-namespace gfx {
+namespace basalt::gfx {
 
 struct SceneView final : Drawable {
-  SceneView(std::shared_ptr<Scene> scene, const Camera& camera);
+  SceneView(ScenePtr scene, const Camera& camera);
 
   SceneView(const SceneView&) = delete;
   SceneView(SceneView&&) = default;
@@ -29,11 +26,8 @@ struct SceneView final : Drawable {
   [[nodiscard]] auto clear_color() const -> std::optional<Color> override;
 
 private:
-  friend Debug;
-
-  std::shared_ptr<Scene> mScene {};
-  Camera mCamera {};
+  ScenePtr mScene;
+  Camera mCamera;
 };
 
-} // namespace gfx
-} // namespace basalt
+} // namespace basalt::gfx

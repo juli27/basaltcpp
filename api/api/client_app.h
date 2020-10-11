@@ -1,12 +1,11 @@
 #pragma once
 
+#include "types.h"
+#include "shared/types.h"
+
 #include <memory>
 
 namespace basalt {
-
-struct Config;
-struct Engine;
-struct UpdateContext;
 
 struct ClientApp {
   ClientApp(const ClientApp&) = delete;

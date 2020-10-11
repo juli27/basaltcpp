@@ -1,22 +1,13 @@
 #pragma once
 
 #include "types.h"
+#include "backend/types.h"
 
-#include "api/base/types.h"
+#include "api/shared/types.h"
 
 #include <optional>
 
-namespace basalt {
-
-struct Color;
-
-template <typename T>
-struct Size2D;
-using Size2Du16 = Size2D<u16>;
-
-namespace gfx {
-
-struct CommandList;
+namespace basalt::gfx {
 
 struct Drawable {
   Drawable(const Drawable&) = default;
@@ -35,5 +26,4 @@ protected:
   Drawable() = default;
 };
 
-} // namespace gfx
-} // namespace basalt
+} // namespace basalt::gfx

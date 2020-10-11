@@ -1,7 +1,6 @@
 #pragma once
 
 #include "extension.h"
-#include "types.h"
 
 #include "api/gfx/backend/types.h"
 

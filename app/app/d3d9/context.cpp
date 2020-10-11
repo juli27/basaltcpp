@@ -3,7 +3,9 @@
 #include "util.h"
 
 #include <api/gfx/backend/composite.h>
+
 #include <api/shared/log.h>
+#include <api/shared/size2d.h>
 
 using std::shared_ptr;
 
