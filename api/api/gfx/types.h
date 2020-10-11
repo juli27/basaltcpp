@@ -28,7 +28,7 @@ struct RenderComponent final {
   Color diffuseColor;
   Color ambientColor;
   Mat4f32 texTransform {Mat4f32::identity()};
-  TexCoordinateSrc tcs {TexCoordinateSrc::Vertex};
+  TexCoordinateSrc tcs {TcsVertex};
   u8 renderFlags = RenderFlagNone;
 };
 

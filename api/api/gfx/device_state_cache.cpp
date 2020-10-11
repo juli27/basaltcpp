@@ -15,4 +15,15 @@ auto DeviceStateCache::update(const RenderState state, const u32 value) noexcept
   return false;
 }
 
+auto DeviceStateCache::update(const TextureStageState state,
+                              const u32 value) noexcept -> bool {
+  auto& currentValue = mTextureStates[enum_cast(state)];
+  if (currentValue != value) {
+    currentValue = value;
+    return true;
+  }
+
+  return false;
+}
+
 } // namespace basalt::gfx

@@ -21,15 +21,16 @@ using DevicePtr = std::shared_ptr<Device>;
 
 enum class CommandType : u8 {
   Legacy,
+  SetRenderState,
+  SetTextureStageState,
+
+  // fixed function only
   SetDirectionalLights,
   SetTransform,
-  SetRenderState,
 
+  // built-in extensions
   ExtDrawXModel,
   ExtRenderDearImGui,
-
-  FirstReservedForUserExt = 128,
-  LastReservedForUserExt = 255,
 };
 
 struct Command {
@@ -56,7 +57,13 @@ struct CommandT : Command {
   }
 };
 
-enum class RenderState : u8 { Lighting, Ambient, CullMode };
+enum class RenderState : u8 {
+  // vertex state
+  CullMode = 0,
+  // - fixed function only
+  Ambient = 1,
+  Lighting = 2,
+};
 constexpr uSize RENDER_STATE_COUNT = 3u;
 
 enum CullMode : u8 { CullModeNone, CullModeCw, CullModeCcw };
@@ -67,9 +74,12 @@ enum RenderFlags : u8 {
   RenderFlagDisableLighting = 0x2
 };
 
-enum class TexCoordinateSrc : u8 { Vertex, PositionCameraSpace };
+enum class TextureStageState : u8 { CoordinateSource };
+constexpr uSize TEXTURE_STAGE_STATE_COUNT = 1u;
 
-enum class TransformType : u8 { Projection, View, World, Texture };
+enum TexCoordinateSrc : u8 { TcsVertex, TcsVertexPositionCameraSpace };
+
+enum class TransformState : u8 { Projection, View, World, Texture };
 
 enum class VertexElement : u8 {
   Position3F32,

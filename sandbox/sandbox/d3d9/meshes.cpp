@@ -1,7 +1,5 @@
 #include "meshes.h"
 
-#include "utils.h"
-
 #include <api/debug.h>
 #include <api/engine.h>
 #include <api/prelude.h>
@@ -31,13 +29,10 @@ Meshes::Meshes(Engine& engine) {
 
   (void)mTiger.emplace<Transform>();
   mTiger.emplace<Model>(engine.load<GfxModel>("data/Tiger.x"sv));
-
-  mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }
 
 void Meshes::on_update(const basalt::UpdateContext& ctx) {
-  auto& transform = mTiger.get<Transform>();
-  transform.rotate(0.0f, static_cast<f32>(ctx.deltaTime), 0.0f);
+  mTiger.get<Transform>().rotate(0.0f, static_cast<f32>(ctx.deltaTime), 0.0f);
 
   ctx.drawTarget.draw(mSceneView);
 

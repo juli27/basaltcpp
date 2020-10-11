@@ -21,8 +21,11 @@ struct CommandListRecorder final {
   void add(const CommandLegacy&);
 
   void set_directional_lights(const std::vector<DirectionalLight>&);
-  void set_transform(TransformType, const Mat4f32&);
+  void set_transform(TransformState, const Mat4f32&);
   void set_render_state(RenderState, u32 value);
+
+  // TODO: stage currently not supported
+  void set_texture_stage_state(u8 stage, TextureStageState, u32 value);
 
   void ext_draw_x_model(ext::ModelHandle);
 

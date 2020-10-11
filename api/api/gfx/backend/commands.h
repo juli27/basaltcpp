@@ -29,11 +29,11 @@ struct CommandSetDirectionalLights final
 static_assert(sizeof(CommandSetDirectionalLights) == 180);
 
 struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
-  TransformType transformType;
+  TransformState state;
   Mat4f32 transform;
 
-  CommandSetTransform(const TransformType tType, const Mat4f32& t) noexcept
-    : transformType {tType}, transform {t} {
+  CommandSetTransform(const TransformState s, const Mat4f32& t) noexcept
+    : state {s}, transform {t} {
   }
 };
 
@@ -51,8 +51,23 @@ struct CommandSetRenderState final : CommandT<CommandType::SetRenderState> {
 
 static_assert(sizeof(CommandSetRenderState) == 8);
 
+struct CommandSetTextureStageState final
+  : CommandT<CommandType::SetTextureStageState> {
+  u8 stage;
+  TextureStageState state;
+  u32 value;
+
+  constexpr CommandSetTextureStageState(
+    const u8 textureStage, const TextureStageState textureStageState,
+    const u32 stateValue) noexcept
+    : stage {textureStage}, state {textureStageState}, value {stateValue} {
+  }
+};
+
+static_assert(sizeof(CommandSetTextureStageState) == 8);
+
 struct CommandLegacy final : CommandT<CommandType::Legacy> {
-  TexCoordinateSrc texCoordinateSrc {TexCoordinateSrc::Vertex};
+  TexCoordinateSrc texCoordinateSrc {TcsVertex};
 
   MeshHandle mesh {MeshHandle::null()};
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "utils.h"
+
 #include <sandbox/test_case.h>
 
 #include <api/gfx/scene_view.h>
@@ -27,7 +29,8 @@ struct Meshes final : TestCase {
 
 private:
   std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();
-  std::shared_ptr<basalt::gfx::SceneView> mSceneView;
+  std::shared_ptr<basalt::gfx::SceneView> mSceneView =
+    std::make_shared<basalt::gfx::SceneView>(mScene, create_default_camera());
   entt::handle mTiger = mScene->create_entity();
 };
 

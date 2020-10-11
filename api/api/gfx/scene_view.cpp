@@ -35,9 +35,9 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
   -> CommandList {
   CommandListRecorder cmdListRecorder;
 
-  cmdListRecorder.set_transform(TransformType::Projection,
+  cmdListRecorder.set_transform(TransformState::Projection,
                                 mCamera.projection_matrix(viewport));
-  cmdListRecorder.set_transform(TransformType::View, mCamera.view_matrix());
+  cmdListRecorder.set_transform(TransformState::View, mCamera.view_matrix());
 
   cmdListRecorder.set_render_state(
     RenderState::Ambient, enum_cast(mScene->ambient_light().to_argb()));
@@ -55,7 +55,7 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
         const auto worldTransform = Mat4f32::scaling(transform->scale) *
                                     Mat4f32::rotation(transform->rotation) *
                                     Mat4f32::translation(transform->position);
-        cmdListRecorder.set_transform(TransformType::World, worldTransform);
+        cmdListRecorder.set_transform(TransformState::World, worldTransform);
       }
 
       cmdListRecorder.ext_draw_x_model(cache.get(model.handle));
@@ -67,7 +67,7 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
         const auto worldTransform = Mat4f32::scaling(transform->scale) *
                                     Mat4f32::rotation(transform->rotation) *
                                     Mat4f32::translation(transform->position);
-        cmdListRecorder.set_transform(TransformType::World, worldTransform);
+        cmdListRecorder.set_transform(TransformState::World, worldTransform);
       }
 
       const auto lightingEnabled =
@@ -81,9 +81,12 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
         RenderState::CullMode, getCullMode(renderComponent.renderFlags));
 
       if (renderComponent.texTransform != Mat4f32::identity()) {
-        cmdListRecorder.set_transform(TransformType::Texture,
+        cmdListRecorder.set_transform(TransformState::Texture,
                                       renderComponent.texTransform);
       }
+
+      cmdListRecorder.set_texture_stage_state(
+        0, TextureStageState::CoordinateSource, enum_cast(renderComponent.tcs));
 
       CommandLegacy command {};
       command.mesh = renderComponent.mesh;

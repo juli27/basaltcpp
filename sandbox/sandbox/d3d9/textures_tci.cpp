@@ -1,7 +1,5 @@
 #include "textures_tci.h"
 
-#include "utils.h"
-
 #include <api/debug.h>
 #include <api/engine.h>
 #include <api/prelude.h>
@@ -84,19 +82,17 @@ TexturesTci::TexturesTci(Engine& engine) {
   rc.texture = engine.load<Texture>("data/banana.bmp"sv);
   rc.renderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 
-  const Camera camera = create_default_camera();
+  const auto& camera = mSceneView->camera();
   rc.texTransform =
     camera.projection_matrix(engine.gfx_context().surface_size()) *
     Mat4f32::scaling(Vector3f32 {0.5f, -0.5f, 1.0f}) *
     Mat4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f});
-  rc.tcs = TexCoordinateSrc::PositionCameraSpace;
-
-  mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
+  rc.tcs = TexCoordinateSrc::TcsVertexPositionCameraSpace;
 }
 
 void TexturesTci::on_update(const basalt::UpdateContext& ctx) {
-  auto& transform = mCylinder.get<Transform>();
-  transform.rotate(static_cast<f32>(ctx.deltaTime), 0.0f, 0.0f);
+  mCylinder.get<Transform>().rotate(static_cast<f32>(ctx.deltaTime), 0.0f,
+                                    0.0f);
 
   // update the texture transform, since it depends on the draw target size
   auto& rc = mCylinder.get<RenderComponent>();

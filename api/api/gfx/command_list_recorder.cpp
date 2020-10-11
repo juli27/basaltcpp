@@ -27,15 +27,23 @@ void CommandListRecorder::set_directional_lights(
   mCommandList.add<CommandSetDirectionalLights>(directionalLights);
 }
 
-void CommandListRecorder::set_transform(const TransformType type,
+void CommandListRecorder::set_transform(const TransformState state,
                                         const Mat4f32& transform) {
-  mCommandList.add<CommandSetTransform>(type, transform);
+  mCommandList.add<CommandSetTransform>(state, transform);
 }
 
 void CommandListRecorder::set_render_state(const RenderState state,
                                            const u32 value) {
   if (mDeviceState.update(state, value)) {
     mCommandList.add<CommandSetRenderState>(state, value);
+  }
+}
+
+void CommandListRecorder::set_texture_stage_state(const u8 stage,
+                                                  const TextureStageState state,
+                                                  const u32 value) {
+  if (mDeviceState.update(state, value)) {
+    mCommandList.add<CommandSetTextureStageState>(stage, state, value);
   }
 }
 

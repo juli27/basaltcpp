@@ -6,6 +6,7 @@
 #include "gfx/backend/composite.h"
 #include "gfx/backend/types.h"
 
+#include "gfx/backend/ext/dear_imgui_renderer.h"
 #include "gfx/backend/ext/x_model_support.h"
 
 #include "scene/scene.h"
@@ -16,6 +17,7 @@
 #include "math/vector3.h"
 
 #include "shared/color.h"
+#include "shared/utils.h"
 
 #include "base/types.h"
 
@@ -38,10 +40,13 @@ namespace basalt {
 using gfx::CommandLegacy;
 using gfx::CommandSetDirectionalLights;
 using gfx::CommandSetRenderState;
+using gfx::CommandSetTextureStageState;
 using gfx::CommandSetTransform;
 using gfx::RenderState;
+using gfx::TextureStageState;
 
 using gfx::ext::CommandDrawXModel;
+using gfx::ext::CommandRenderDearImGui;
 
 namespace {
 
@@ -168,31 +173,39 @@ auto to_string(const RenderState state) -> const char* {
   return "(unknown)";
 }
 
+auto to_string(const TextureStageState state) -> const char* {
+  constexpr array<const char*, 1> strings {
+    "TextureStageState::CoordinateSource"};
+  static_assert(gfx::TEXTURE_STAGE_STATE_COUNT == strings.size());
+
+  return strings[enum_cast(state)];
+}
+
 auto to_string(const gfx::TexCoordinateSrc texCoordinateSrc) -> const char* {
   switch (texCoordinateSrc) {
-  case gfx::TexCoordinateSrc::Vertex:
-    return "TexCoordinateSrc::Vertex";
+  case gfx::TcsVertex:
+    return "TcsVertex";
 
-  case gfx::TexCoordinateSrc::PositionCameraSpace:
-    return "TexCoordinateSrc::PositionCameraSpace";
+  case gfx::TcsVertexPositionCameraSpace:
+    return "TcsVertexPositionCameraSpace";
   }
 
   return "(unknown)";
 }
 
-auto to_string(const gfx::TransformType transformType) -> const char* {
+auto to_string(const gfx::TransformState transformType) -> const char* {
   switch (transformType) {
-  case gfx::TransformType::Projection:
-    return "TransformType::Projection";
+  case gfx::TransformState::Projection:
+    return "TransformState::Projection";
 
-  case gfx::TransformType::View:
-    return "TransformType::View";
+  case gfx::TransformState::View:
+    return "TransformState::View";
 
-  case gfx::TransformType::World:
-    return "TransformType::World";
+  case gfx::TransformState::World:
+    return "TransformState::World";
 
-  case gfx::TransformType::Texture:
-    return "TransformType::Texture";
+  case gfx::TransformState::Texture:
+    return "TransformState::Texture";
   }
 
   return "(unknown)";
@@ -240,9 +253,9 @@ void display(const CommandSetTransform& command) {
   if (ImGui::IsItemHovered()) {
     ImGui::BeginTooltip();
 
-    ImGui::Text("transformType = %s", to_string(command.transformType));
+    ImGui::Text("state = %s", to_string(command.state));
 
-    display_mat4("transform", command.transform);
+    display_mat4("##transform", command.transform);
 
     ImGui::EndTooltip();
   }
@@ -256,11 +269,23 @@ void display(const CommandSetRenderState& command) {
   }
 }
 
+void display(const CommandSetTextureStageState& command) {
+  ImGui::TextUnformatted("SetTextureStageState");
+  if (ImGui::IsItemHovered()) {
+    ImGui::SetTooltip("state = %s\nvalue = %#x", to_string(command.state),
+                      command.value);
+  }
+}
+
 void display(const CommandDrawXModel& cmd) {
-  ImGui::TextUnformatted("ext::DrawXModel");
+  ImGui::TextUnformatted("ExtDrawXModel");
   if (ImGui::IsItemHovered()) {
     ImGui::SetTooltip("model = %#x", cmd.handle.value());
   }
+}
+
+void display(const CommandRenderDearImGui&) {
+  ImGui::TextUnformatted("ExtRenderDearImGui");
 }
 
 } // namespace
@@ -324,9 +349,11 @@ void Debug::update(const gfx::Composite& composite) {
           DISPLAY(CommandSetDirectionalLights);
           DISPLAY(CommandSetTransform);
           DISPLAY(CommandSetRenderState);
+          DISPLAY(CommandSetTextureStageState);
           DISPLAY(CommandLegacy);
 
           DISPLAY(CommandDrawXModel);
+          DISPLAY(CommandRenderDearImGui);
 
         default:
           break;

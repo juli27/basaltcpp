@@ -49,11 +49,10 @@ private:
 
   ExtensionMap mExtensions;
 
-  D3DCAPS9 mDeviceCaps {};
-
   HandlePool<D3D9Mesh, MeshHandle> mMeshes;
   HandlePool<Texture, TextureHandle> mTextures;
 
+  D3DCAPS9 mDeviceCaps {};
   u8 mMaxLightsUsed {};
 
   // TODO: make these return bool / an error ?
@@ -61,6 +60,7 @@ private:
   void execute(const CommandSetDirectionalLights&);
   void execute(const CommandSetTransform&) const;
   void execute(const CommandSetRenderState&) const;
+  void execute(const CommandSetTextureStageState&) const;
 };
 
 } // namespace basalt::gfx

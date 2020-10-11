@@ -66,6 +66,9 @@ auto verify_fvf(DWORD fvf) -> bool;
 auto to_d3d_render_state(RenderState, u32 value)
   -> std::tuple<D3DRENDERSTATETYPE, DWORD>;
 
+auto to_d3d_texture_stage_state(TextureStageState state, u32 value)
+  -> std::tuple<D3DTEXTURESTAGESTATETYPE, DWORD>;
+
 void fill_primitive_info(D3D9Mesh& mesh, PrimitiveType primitiveType,
                          i32 numVtx);
 
@@ -146,6 +149,7 @@ void D3D9Device::execute(const CommandList& cmdList) {
       EXECUTE(CommandSetDirectionalLights);
       EXECUTE(CommandSetTransform);
       EXECUTE(CommandSetRenderState);
+      EXECUTE(CommandSetTextureStageState);
       EXECUTE(CommandLegacy);
 
     case CommandType::ExtDrawXModel:
@@ -157,10 +161,6 @@ void D3D9Device::execute(const CommandList& cmdList) {
     case CommandType::ExtRenderDearImGui:
       D3D9ImGuiRenderer::execute(cmd->as<ext::CommandRenderDearImGui>());
       break;
-
-    case CommandType::FirstReservedForUserExt:
-    case CommandType::LastReservedForUserExt:
-      break;
     }
   }
 
@@ -171,6 +171,8 @@ void D3D9Device::execute(const CommandList& cmdList) {
 
   // reset render states
   // TODO: use command block
+  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
+
   D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
   D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
   D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
@@ -271,21 +273,14 @@ void D3D9Device::execute(const CommandLegacy& cmd) {
     const auto& texture = mTextures[cmd.texture];
     D3D9CALL(mDevice->SetTexture(0, texture.Get()));
 
-    // set texture coordinate index
-    DWORD tci {0};
     switch (cmd.texCoordinateSrc) {
-    case TexCoordinateSrc::PositionCameraSpace:
+    case TcsVertexPositionCameraSpace:
       D3D9CALL(mDevice->SetTextureStageState(
         0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT4 | D3DTTFF_PROJECTED));
-      tci = D3DTSS_TCI_CAMERASPACEPOSITION;
       break;
 
-    case TexCoordinateSrc::Vertex:
+    case TcsVertex:
       break;
-    }
-
-    if (!(mesh.fvf & D3DFVF_TEX1)) {
-      D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, tci));
     }
   }
 
@@ -296,9 +291,7 @@ void D3D9Device::execute(const CommandLegacy& cmd) {
   D3D9CALL(mDevice->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
 
   if (cmd.texture) {
-    // revert TCI usage
-    if (cmd.texCoordinateSrc != TexCoordinateSrc::Vertex) {
-      D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
+    if (cmd.texCoordinateSrc != TcsVertex) {
       D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
                                              D3DTTFF_DISABLE));
     }
@@ -332,23 +325,23 @@ void D3D9Device::execute(const CommandSetDirectionalLights& cmd) {
 void D3D9Device::execute(const CommandSetTransform& cmd) const {
   const auto transform = to_d3d_matrix(cmd.transform);
 
-  switch (cmd.transformType) {
-  case TransformType::Projection:
+  switch (cmd.state) {
+  case TransformState::Projection:
     BASALT_ASSERT_MSG(transform._34 >= 0,
                       "(3,4) can't be negative in a projection matrix");
 
     D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &transform));
     break;
 
-  case TransformType::View:
+  case TransformState::View:
     D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &transform));
     break;
 
-  case TransformType::World:
+  case TransformState::World:
     D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &transform));
     break;
 
-  case TransformType::Texture:
+  case TransformState::Texture:
     D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &transform));
     break;
   }
@@ -359,6 +352,13 @@ void D3D9Device::execute(const CommandSetRenderState& cmd) const {
     to_d3d_render_state(cmd.renderState, cmd.value);
 
   D3D9CALL(mDevice->SetRenderState(renderState, value));
+}
+
+void D3D9Device::execute(const CommandSetTextureStageState& cmd) const {
+  const auto [textureStageState, value] =
+    to_d3d_texture_stage_state(cmd.state, cmd.value);
+
+  D3D9CALL(mDevice->SetTextureStageState(0, textureStageState, value));
 }
 
 namespace {
@@ -414,9 +414,10 @@ auto verify_fvf(const DWORD fvf) -> bool {
 auto to_d3d_render_state(const RenderState rs, const u32 value)
   -> std::tuple<D3DRENDERSTATETYPE, DWORD> {
   static constexpr std::array<D3DRENDERSTATETYPE, 3> RENDER_STATE_TO_D3D = {
-    /* RenderState::Lighting */ D3DRS_LIGHTING,
+    /* RenderState::CullMode */ D3DRS_CULLMODE,
     /* RenderState::Ambient  */ D3DRS_AMBIENT,
-    /* RenderState::CullMode */ D3DRS_CULLMODE};
+    /* RenderState::Lighting */ D3DRS_LIGHTING,
+  };
   static_assert(RENDER_STATE_COUNT == RENDER_STATE_TO_D3D.size());
 
   const D3DRENDERSTATETYPE renderState = RENDER_STATE_TO_D3D[enum_cast(rs)];
@@ -434,6 +435,28 @@ auto to_d3d_render_state(const RenderState rs, const u32 value)
   }
 
   return {renderState, d3dValue};
+}
+
+auto to_d3d_texture_stage_state(const TextureStageState state, const u32 value)
+  -> std::tuple<D3DTEXTURESTAGESTATETYPE, DWORD> {
+  static constexpr std::array<D3DTEXTURESTAGESTATETYPE, 1>
+    TEXTURE_STAGE_STATE_TO_D3D = {
+      /* TextureStageState::CoordinateSource */ D3DTSS_TEXCOORDINDEX};
+  static_assert(TEXTURE_STAGE_STATE_COUNT == TEXTURE_STAGE_STATE_TO_D3D.size());
+
+  const D3DTEXTURESTAGESTATETYPE textureStageState =
+    TEXTURE_STAGE_STATE_TO_D3D[enum_cast(state)];
+  DWORD d3dValue = 0;
+
+  switch (state) {
+  case TextureStageState::CoordinateSource:
+    d3dValue = value == TcsVertexPositionCameraSpace
+                 ? D3DTSS_TCI_CAMERASPACEPOSITION
+                 : D3DTSS_TCI_PASSTHRU;
+    break;
+  }
+
+  return {textureStageState, d3dValue};
 }
 
 void fill_primitive_info(D3D9Mesh& mesh, const PrimitiveType primitiveType,
