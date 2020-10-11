@@ -190,6 +190,9 @@ auto to_string(const gfx::TransformType transformType) -> const char* {
 
   case gfx::TransformType::World:
     return "TransformType::World";
+
+  case gfx::TransformType::Texture:
+    return "TransformType::Texture";
   }
 
   return "(unknown)";
@@ -207,8 +210,6 @@ void display(const CommandLegacy& command) {
 
     ImGui::Text("texture = %#x\ntexCoordinateSrc = %s", command.texture.value(),
                 to_string(command.texCoordinateSrc));
-
-    display_mat4("texTransform", command.texTransform);
 
     ImGui::EndTooltip();
   }

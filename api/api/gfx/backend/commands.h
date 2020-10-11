@@ -61,10 +61,8 @@ struct CommandLegacy final : CommandT<CommandType::Legacy> {
   Color ambientColor;
   Color emissiveColor;
   TextureHandle texture;
-
-  Mat4f32 texTransform {Mat4f32::identity()};
 };
 
-static_assert(sizeof(CommandLegacy) == 124);
+static_assert(sizeof(CommandLegacy) == 60);
 
 } // namespace basalt::gfx

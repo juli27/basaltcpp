@@ -9,13 +9,13 @@
 #include <api/gfx/camera.h>
 #include <api/gfx/draw_target.h>
 
-#include <api/gfx/backend/device.h>
 #include <api/gfx/backend/context.h>
 
 #include <api/scene/transform.h>
 
 #include <api/math/constants.h>
 #include <api/math/mat4.h>
+#include <api/math/vector3.h>
 
 #include <api/shared/config.h>
 
@@ -32,6 +32,7 @@ using basalt::Mat4f32;
 using basalt::PI;
 using basalt::Texture;
 using basalt::Transform;
+using basalt::Vector3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::RenderFlagCullNone;
@@ -72,33 +73,37 @@ TexturesTci::TexturesTci(Engine& engine) {
     vertex2.color = ColorEncoding::pack_logical_a8r8g8b8(128, 128, 128);
   }
 
-  const VertexLayout vertexLayout {
-    VertexElement::Position3F32, VertexElement::ColorDiffuse1U32
-  };
+  const VertexLayout vertexLayout {VertexElement::Position3F32,
+                                   VertexElement::ColorDiffuse1U32};
 
-  entt::registry& ecs {mScene->ecs()};
-  mCylinder = ecs.create();
-  ecs.emplace<Transform>(mCylinder);
+  (void)mCylinder.emplace<Transform>();
 
-  auto& rc {ecs.emplace<RenderComponent>(mCylinder)};
+  auto& rc = mCylinder.emplace<RenderComponent>();
   const auto device = engine.gfx_device();
   rc.mesh = add_triangle_strip_mesh(*device, vertices, vertexLayout);
   rc.texture = engine.load<Texture>("data/banana.bmp"sv);
   rc.renderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 
-  // TODO: fix jitter
-  const Camera camera {create_default_camera()};
-  rc.texTransform = camera.projection_matrix(
-    engine.gfx_context().surface_size()) * Mat4f32::scaling(
-    {0.5f, -0.5f, 1.0f}) * Mat4f32::translation({0.5f, 0.5f, 0.0f});
+  const Camera camera = create_default_camera();
+  rc.texTransform =
+    camera.projection_matrix(engine.gfx_context().surface_size()) *
+    Mat4f32::scaling(Vector3f32 {0.5f, -0.5f, 1.0f}) *
+    Mat4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f});
   rc.tcs = TexCoordinateSrc::PositionCameraSpace;
 
   mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }
 
 void TexturesTci::on_update(const basalt::UpdateContext& ctx) {
-  auto& transform {mScene->ecs().get<Transform>(mCylinder)};
+  auto& transform = mCylinder.get<Transform>();
   transform.rotate(static_cast<f32>(ctx.deltaTime), 0.0f, 0.0f);
+
+  // update the texture transform, since it depends on the draw target size
+  auto& rc = mCylinder.get<RenderComponent>();
+  rc.texTransform =
+    mSceneView->camera().projection_matrix(ctx.drawTarget.size()) *
+    Mat4f32::scaling(Vector3f32 {0.5f, -0.5f, 1.0f}) *
+    Mat4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f});
 
   ctx.drawTarget.draw(mSceneView);
 

@@ -29,16 +29,14 @@ Meshes::Meshes(Engine& engine) {
   mScene->set_background(Colors::BLUE);
   mScene->set_ambient_light(Colors::WHITE);
 
-  entt::registry& ecs {mScene->ecs()};
-  mTiger = ecs.create();
-  ecs.emplace<Transform>(mTiger);
-  ecs.emplace<Model>(mTiger, engine.load<GfxModel>("data/Tiger.x"sv));
+  (void)mTiger.emplace<Transform>();
+  mTiger.emplace<Model>(engine.load<GfxModel>("data/Tiger.x"sv));
 
   mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }
 
 void Meshes::on_update(const basalt::UpdateContext& ctx) {
-  auto& transform {mScene->ecs().get<Transform>(mTiger)};
+  auto& transform = mTiger.get<Transform>();
   transform.rotate(0.0f, static_cast<f32>(ctx.deltaTime), 0.0f);
 
   ctx.drawTarget.draw(mSceneView);

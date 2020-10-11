@@ -1,5 +1,7 @@
 #include "scene.h"
 
+#include <entt/entity/handle.hpp>
+
 using std::vector;
 
 using entt::registry;
@@ -8,6 +10,14 @@ namespace basalt {
 
 auto Scene::ecs() -> registry& {
   return mEntityRegistry;
+}
+
+auto Scene::create_entity() -> entt::handle {
+  return entt::handle {mEntityRegistry, mEntityRegistry.create()};
+}
+
+auto Scene::get_handle(const entt::entity entity) -> entt::handle {
+  return entt::handle {mEntityRegistry, entity};
 }
 
 auto Scene::background() const -> const Color& {

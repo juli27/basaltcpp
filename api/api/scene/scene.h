@@ -4,6 +4,7 @@
 
 #include "api/shared/color.h"
 
+#include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
 
 #include <vector>
@@ -24,6 +25,9 @@ struct Scene final {
   auto operator=(Scene &&) -> Scene& = delete;
 
   auto ecs() -> entt::registry&;
+
+  [[nodiscard]] auto create_entity() -> entt::handle;
+  [[nodiscard]] auto get_handle(entt::entity) -> entt::handle;
 
   [[nodiscard]] auto background() const -> const Color&;
   void set_background(const Color&);

@@ -5,7 +5,6 @@
 #include "d3d9_custom.h"
 
 #include <api/gfx/backend/commands.h>
-#include <api/gfx/backend/command_list.h>
 #include <api/shared/handle_pool.h>
 
 #include <wrl/client.h>

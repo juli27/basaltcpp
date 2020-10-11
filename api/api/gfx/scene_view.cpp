@@ -27,6 +27,10 @@ SceneView::SceneView(ScenePtr scene, const Camera& camera)
   : mScene {std::move(scene)}, mCamera {camera} {
 }
 
+auto SceneView::camera() const noexcept -> const Camera& {
+  return mCamera;
+}
+
 auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
   -> CommandList {
   CommandListRecorder cmdListRecorder;
@@ -76,12 +80,16 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
       cmdListRecorder.set_render_state(
         RenderState::CullMode, getCullMode(renderComponent.renderFlags));
 
+      if (renderComponent.texTransform != Mat4f32::identity()) {
+        cmdListRecorder.set_transform(TransformType::Texture,
+                                      renderComponent.texTransform);
+      }
+
       CommandLegacy command {};
       command.mesh = renderComponent.mesh;
       command.texture = cache.get(renderComponent.texture);
       command.diffuseColor = renderComponent.diffuseColor;
       command.ambientColor = renderComponent.ambientColor;
-      command.texTransform = renderComponent.texTransform;
       command.texCoordinateSrc = renderComponent.tcs;
       cmdListRecorder.add(command);
     });

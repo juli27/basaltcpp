@@ -21,6 +21,8 @@ struct SceneView final : Drawable {
   auto operator=(const SceneView&) -> SceneView& = delete;
   auto operator=(SceneView &&) -> SceneView& = default;
 
+  [[nodiscard]] auto camera() const noexcept -> const Camera&;
+
   auto draw(ResourceCache&, Size2Du16 viewport) -> CommandList override;
 
   [[nodiscard]] auto clear_color() const -> std::optional<Color> override;

@@ -6,6 +6,7 @@
 
 #include <api/scene/types.h>
 
+#include <api/gfx/backend/command_list.h>
 #include <api/gfx/backend/ext/dear_imgui_renderer.h>
 #include <api/gfx/backend/ext/x_model_support.h>
 
@@ -175,6 +176,7 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
 
   const auto identity = to_d3d_matrix(Mat4f32::identity());
+  D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &identity));
   D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &identity));
   D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &identity));
   D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
@@ -268,21 +270,13 @@ void D3D9Device::execute(const CommandLegacy& cmd) {
   if (mTextures.is_handle_valid(cmd.texture)) {
     const auto& texture = mTextures[cmd.texture];
     D3D9CALL(mDevice->SetTexture(0, texture.Get()));
-    D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
-
-    // transform tex coords
-    if (cmd.texTransform != Mat4f32::identity()) {
-      const D3DMATRIX texTransform {to_d3d_matrix(cmd.texTransform)};
-      D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &texTransform));
-
-      D3D9CALL(mDevice->SetTextureStageState(
-        0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT4 | D3DTTFF_PROJECTED));
-    }
 
     // set texture coordinate index
     DWORD tci {0};
     switch (cmd.texCoordinateSrc) {
     case TexCoordinateSrc::PositionCameraSpace:
+      D3D9CALL(mDevice->SetTextureStageState(
+        0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT4 | D3DTTFF_PROJECTED));
       tci = D3DTSS_TCI_CAMERASPACEPOSITION;
       break;
 
@@ -305,19 +299,10 @@ void D3D9Device::execute(const CommandLegacy& cmd) {
     // revert TCI usage
     if (cmd.texCoordinateSrc != TexCoordinateSrc::Vertex) {
       D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
-    }
-
-    // revert tex coords transform
-    if (cmd.texTransform != Mat4f32::identity()) {
       D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
                                              D3DTTFF_DISABLE));
-
-      const D3DMATRIX identity {to_d3d_matrix(Mat4f32::identity())};
-      D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &identity));
     }
 
-    D3D9CALL(
-      mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1));
     D3D9CALL(mDevice->SetTexture(0, nullptr));
   }
 }
@@ -361,6 +346,10 @@ void D3D9Device::execute(const CommandSetTransform& cmd) const {
 
   case TransformType::World:
     D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &transform));
+    break;
+
+  case TransformType::Texture:
+    D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &transform));
     break;
   }
 }
