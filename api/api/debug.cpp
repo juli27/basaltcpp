@@ -174,24 +174,26 @@ auto to_string(const RenderState state) -> const char* {
 }
 
 auto to_string(const TextureStageState state) -> const char* {
-  constexpr array<const char*, 1> strings {
-    "TextureStageState::CoordinateSource"};
+  constexpr array<const char*, 2> strings {
+    "TextureStageState::CoordinateSource",
+    "TextureStageState::TextureTransformFlags",
+  };
   static_assert(gfx::TEXTURE_STAGE_STATE_COUNT == strings.size());
 
   return strings[enum_cast(state)];
 }
 
-auto to_string(const gfx::TexCoordinateSrc texCoordinateSrc) -> const char* {
-  switch (texCoordinateSrc) {
-  case gfx::TcsVertex:
-    return "TcsVertex";
-
-  case gfx::TcsVertexPositionCameraSpace:
-    return "TcsVertexPositionCameraSpace";
-  }
-
-  return "(unknown)";
-}
+// auto to_string(const gfx::TexCoordinateSrc texCoordinateSrc) -> const char* {
+//  switch (texCoordinateSrc) {
+//  case gfx::TcsVertex:
+//    return "TcsVertex";
+//
+//  case gfx::TcsVertexPositionCameraSpace:
+//    return "TcsVertexPositionCameraSpace";
+//  }
+//
+//  return "(unknown)";
+//}
 
 auto to_string(const gfx::TransformState transformType) -> const char* {
   switch (transformType) {
@@ -221,8 +223,7 @@ void display(const CommandLegacy& command) {
     display_color4("ambientColor", command.ambientColor);
     display_color4("emissiveColor", command.emissiveColor);
 
-    ImGui::Text("texture = %#x\ntexCoordinateSrc = %s", command.texture.value(),
-                to_string(command.texCoordinateSrc));
+    ImGui::Text("texture = %#x", command.texture.value());
 
     ImGui::EndTooltip();
   }

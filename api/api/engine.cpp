@@ -31,6 +31,16 @@ void Engine::set_mouse_cursor(const MouseCursor mouseCursor) noexcept {
   mIsDirty = true;
 }
 
+auto Engine::load(MaterialDescriptor descriptor) const -> Material {
+  auto& materialRegistry = mResourceRegistry->get<Material>();
+  const Material material = materialRegistry.create();
+
+  materialRegistry.emplace<MaterialDescriptor>(material, descriptor);
+  mGfxResourceCache.load(material);
+
+  return material;
+}
+
 Engine::Engine(Config& config, shared_ptr<Context> context) noexcept
   : mConfig {config}
   , mGfxContext {std::move(context)}

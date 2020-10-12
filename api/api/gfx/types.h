@@ -11,6 +11,7 @@
 
 #include <entt/entity/entity.hpp>
 
+#include <array>
 #include <memory>
 
 namespace basalt::gfx {
@@ -25,6 +26,7 @@ struct ResourceCache;
 struct RenderComponent final {
   MeshHandle mesh;
   Texture texture {entt::null};
+  Material material {entt::null};
   Color diffuseColor;
   Color ambientColor;
   Mat4f32 texTransform {Mat4f32::identity()};
@@ -32,8 +34,16 @@ struct RenderComponent final {
   u8 renderFlags = RenderFlagNone;
 };
 
+static_assert(sizeof(RenderComponent) == 112);
+
 struct Model final {
   GfxModel handle {entt::null};
+};
+
+static_assert(sizeof(Model) == 4);
+
+struct MaterialData final {
+  std::array<u32, TEXTURE_STAGE_STATE_COUNT> textureStageStates {};
 };
 
 } // namespace basalt::gfx

@@ -172,7 +172,8 @@ void D3D9Device::execute(const CommandList& cmdList) {
   // reset render states
   // TODO: use command block
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
-
+  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
+                                         D3DTTFF_DISABLE));
   D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
   D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
   D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
@@ -272,16 +273,6 @@ void D3D9Device::execute(const CommandLegacy& cmd) {
   if (mTextures.is_handle_valid(cmd.texture)) {
     const auto& texture = mTextures[cmd.texture];
     D3D9CALL(mDevice->SetTexture(0, texture.Get()));
-
-    switch (cmd.texCoordinateSrc) {
-    case TcsVertexPositionCameraSpace:
-      D3D9CALL(mDevice->SetTextureStageState(
-        0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT4 | D3DTTFF_PROJECTED));
-      break;
-
-    case TcsVertex:
-      break;
-    }
   }
 
   D3D9CALL(
@@ -291,11 +282,6 @@ void D3D9Device::execute(const CommandLegacy& cmd) {
   D3D9CALL(mDevice->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
 
   if (cmd.texture) {
-    if (cmd.texCoordinateSrc != TcsVertex) {
-      D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
-                                             D3DTTFF_DISABLE));
-    }
-
     D3D9CALL(mDevice->SetTexture(0, nullptr));
   }
 }
@@ -439,13 +425,15 @@ auto to_d3d_render_state(const RenderState rs, const u32 value)
 
 auto to_d3d_texture_stage_state(const TextureStageState state, const u32 value)
   -> std::tuple<D3DTEXTURESTAGESTATETYPE, DWORD> {
-  static constexpr std::array<D3DTEXTURESTAGESTATETYPE, 1>
-    TEXTURE_STAGE_STATE_TO_D3D = {
-      /* TextureStageState::CoordinateSource */ D3DTSS_TEXCOORDINDEX};
-  static_assert(TEXTURE_STAGE_STATE_COUNT == TEXTURE_STAGE_STATE_TO_D3D.size());
+  static constexpr std::array<D3DTEXTURESTAGESTATETYPE, 2>
+    TEXTURE_STAGE_STATE_CONV = {
+      /* CoordinateSource      */ D3DTSS_TEXCOORDINDEX,
+      /* TextureTransformFlags */ D3DTSS_TEXTURETRANSFORMFLAGS,
+    };
+  static_assert(TEXTURE_STAGE_STATE_COUNT == TEXTURE_STAGE_STATE_CONV.size());
 
   const D3DTEXTURESTAGESTATETYPE textureStageState =
-    TEXTURE_STAGE_STATE_TO_D3D[enum_cast(state)];
+    TEXTURE_STAGE_STATE_CONV[enum_cast(state)];
   DWORD d3dValue = 0;
 
   switch (state) {
@@ -453,6 +441,16 @@ auto to_d3d_texture_stage_state(const TextureStageState state, const u32 value)
     d3dValue = value == TcsVertexPositionCameraSpace
                  ? D3DTSS_TCI_CAMERASPACEPOSITION
                  : D3DTSS_TCI_PASSTHRU;
+    break;
+
+  case TextureStageState::TextureTransformFlags:
+    if ((value & ~TtfProjected) == TtfCount4) {
+      d3dValue = D3DTTFF_COUNT4;
+    }
+
+    if (value & TtfProjected) {
+      d3dValue |= D3DTTFF_PROJECTED;
+    }
     break;
   }
 

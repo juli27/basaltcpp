@@ -63,6 +63,15 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
 
   ecs.view<const RenderComponent>().each(
     [&](const entt::entity entity, const RenderComponent& renderComponent) {
+      if (cache.has(renderComponent.material)) {
+        const auto& materialData = cache.get(renderComponent.material);
+
+        cmdListRecorder.set_texture_stage_state(
+          0, TextureStageState::TextureTransformFlags,
+          materialData.textureStageStates[enum_cast(
+            TextureStageState::TextureTransformFlags)]);
+      }
+
       if (const auto* transform = ecs.try_get<Transform>(entity)) {
         const auto worldTransform = Mat4f32::scaling(transform->scale) *
                                     Mat4f32::rotation(transform->rotation) *
@@ -93,7 +102,6 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
       command.texture = cache.get(renderComponent.texture);
       command.diffuseColor = renderComponent.diffuseColor;
       command.ambientColor = renderComponent.ambientColor;
-      command.texCoordinateSrc = renderComponent.tcs;
       cmdListRecorder.add(command);
     });
 

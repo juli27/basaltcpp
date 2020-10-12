@@ -1,5 +1,6 @@
 #pragma once
 
+#include "types.h"
 #include "backend/types.h"
 #include "backend/ext/types.h"
 
@@ -12,9 +13,13 @@ struct ResourceCache {
 
   void load(GfxModel) const;
   void load(Texture) const;
+  void load(Material) const;
+
+  [[nodiscard]] auto has(Material) const -> bool;
 
   [[nodiscard]] auto get(GfxModel) const -> ext::ModelHandle;
   [[nodiscard]] auto get(Texture) const -> TextureHandle;
+  [[nodiscard]] auto get(Material) const -> const MaterialData&;
 
 private:
   ResourceRegistryPtr mResourceRegistry;

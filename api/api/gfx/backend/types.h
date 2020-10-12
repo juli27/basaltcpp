@@ -74,10 +74,19 @@ enum RenderFlags : u8 {
   RenderFlagDisableLighting = 0x2
 };
 
-enum class TextureStageState : u8 { CoordinateSource };
-constexpr uSize TEXTURE_STAGE_STATE_COUNT = 1u;
+enum class TextureStageState : u8 {
+  CoordinateSource = 0,
+  TextureTransformFlags = 1,
+};
+constexpr uSize TEXTURE_STAGE_STATE_COUNT = 2u;
 
-enum TexCoordinateSrc : u8 { TcsVertex, TcsVertexPositionCameraSpace };
+enum TexCoordinateSrc : u8 { TcsVertex = 0, TcsVertexPositionCameraSpace = 1 };
+enum TextureTransformFlags : u8 {
+  TtfDisabled = 0,
+  TtfCount4 = 1,
+
+  TtfProjected = 0x2,
+};
 
 enum class TransformState : u8 { Projection, View, World, Texture };
 

@@ -11,6 +11,8 @@
 
 #include <api/scene/transform.h>
 
+#include <api/resources/types.h>
+
 #include <api/math/constants.h>
 #include <api/math/mat4.h>
 #include <api/math/vector3.h>
@@ -27,8 +29,10 @@ using namespace std::literals;
 using basalt::Debug;
 using basalt::Engine;
 using basalt::Mat4f32;
+using basalt::MaterialDescriptor;
 using basalt::PI;
 using basalt::Texture;
+using basalt::TextureTransformMode;
 using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
@@ -80,6 +84,13 @@ TexturesTci::TexturesTci(Engine& engine) {
   const auto device = engine.gfx_device();
   rc.mesh = add_triangle_strip_mesh(*device, vertices, vertexLayout);
   rc.texture = engine.load<Texture>("data/banana.bmp"sv);
+
+  MaterialDescriptor material;
+  material.textureTransformMode = TextureTransformMode::Count4;
+  material.textureTransformProjected = true;
+
+  rc.material = engine.load(material);
+
   rc.renderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 
   const auto& camera = mSceneView->camera();

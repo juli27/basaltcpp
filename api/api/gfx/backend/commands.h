@@ -67,8 +67,6 @@ struct CommandSetTextureStageState final
 static_assert(sizeof(CommandSetTextureStageState) == 8);
 
 struct CommandLegacy final : CommandT<CommandType::Legacy> {
-  TexCoordinateSrc texCoordinateSrc {TcsVertex};
-
   MeshHandle mesh {MeshHandle::null()};
 
   // TODO: Material

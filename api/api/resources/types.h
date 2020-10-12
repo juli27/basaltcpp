@@ -17,6 +17,17 @@ struct FileLocation final {
   std::string path;
 };
 
+// MATERIAL
+
+enum class Material : u32 {};
+
+enum class TextureTransformMode { Disabled, Count4 };
+
+struct MaterialDescriptor final {
+  TextureTransformMode textureTransformMode {TextureTransformMode::Disabled};
+  bool textureTransformProjected {false};
+};
+
 // enum class Location {
 //  GFX
 //};

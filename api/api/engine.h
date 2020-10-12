@@ -9,6 +9,7 @@
 #include "gfx/backend/types.h"
 
 #include "resources/resource_registry.h"
+#include "resources/types.h"
 
 #include "shared/types.h"
 #include "base/types.h"
@@ -34,6 +35,8 @@ struct Engine {
 
   template <typename Resource>
   [[nodiscard]] auto load(std::string_view) const -> Resource;
+
+  [[nodiscard]] auto load(MaterialDescriptor) const -> Material;
 
 protected:
   Config& mConfig;
