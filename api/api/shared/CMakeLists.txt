@@ -12,5 +12,4 @@ target_sources(${CURRENT_TARGET}
     "log.h"
     "size2d.h"
     "types.h"
-    "utils.h"
 )

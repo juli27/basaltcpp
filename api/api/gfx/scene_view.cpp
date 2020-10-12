@@ -13,7 +13,8 @@
 #include "api/math/mat4.h"
 
 #include "api/shared/size2d.h"
-#include "api/shared/utils.h"
+
+#include "api/base/utils.h"
 
 #include <entt/entity/registry.hpp>
 
@@ -68,8 +69,8 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
 
         cmdListRecorder.set_texture_stage_state(
           0, TextureStageState::TextureTransformFlags,
-          materialData.textureStageStates[enum_cast(
-            TextureStageState::TextureTransformFlags)]);
+          materialData
+            .textureStageStates[TextureStageState::TextureTransformFlags]);
       }
 
       if (const auto* transform = ecs.try_get<Transform>(entity)) {

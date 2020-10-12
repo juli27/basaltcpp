@@ -7,7 +7,6 @@
 #include "api/resources/resource_registry.h"
 
 #include "api/shared/asserts.h"
-#include "api/shared/utils.h"
 
 #include <utility>
 
@@ -42,7 +41,7 @@ void ResourceCache::load(const Material material) const {
 
   const auto& descriptor = registry.get<MaterialDescriptor>(material);
   auto& data = registry.emplace<MaterialData>(material);
-  data.textureStageStates[enum_cast(TextureStageState::CoordinateSource)] = 0;
+  data.textureStageStates[TextureStageState::CoordinateSource] = 0;
 
   u32 value = 0;
   switch (descriptor.textureTransformMode) {
@@ -58,8 +57,7 @@ void ResourceCache::load(const Material material) const {
     value |= TtfProjected;
   }
 
-  data.textureStageStates[enum_cast(TextureStageState::TextureTransformFlags)] =
-    value;
+  data.textureStageStates[TextureStageState::TextureTransformFlags] = value;
 }
 
 auto ResourceCache::has(const Material material) const -> bool {

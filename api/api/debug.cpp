@@ -17,9 +17,9 @@
 #include "math/vector3.h"
 
 #include "shared/color.h"
-#include "shared/utils.h"
 
 #include "base/types.h"
+#include "base/utils.h"
 
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>

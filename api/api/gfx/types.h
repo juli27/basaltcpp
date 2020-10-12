@@ -7,11 +7,11 @@
 
 #include "api/shared/color.h"
 
+#include "api/base/enum_array.h"
 #include "api/base/types.h"
 
 #include <entt/entity/entity.hpp>
 
-#include <array>
 #include <memory>
 
 namespace basalt::gfx {
@@ -43,7 +43,8 @@ struct Model final {
 static_assert(sizeof(Model) == 4);
 
 struct MaterialData final {
-  std::array<u32, TEXTURE_STAGE_STATE_COUNT> textureStageStates {};
+  EnumArray<TextureStageState, u32, TEXTURE_STAGE_STATE_COUNT>
+    textureStageStates {};
 };
 
 } // namespace basalt::gfx

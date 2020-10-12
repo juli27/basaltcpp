@@ -15,7 +15,8 @@
 
 #include <api/shared/config.h>
 #include <api/shared/log.h>
-#include <api/shared/utils.h>
+
+#include <api/base/utils.h>
 
 #include <windowsx.h>
 

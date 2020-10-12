@@ -5,7 +5,8 @@
 
 #include <api/shared/asserts.h>
 #include <api/shared/color.h>
-#include <api/shared/utils.h>
+
+#include <api/base/utils.h>
 
 #if BASALT_DEBUG_BUILD
 

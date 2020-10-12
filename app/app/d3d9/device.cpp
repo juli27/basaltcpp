@@ -15,7 +15,8 @@
 #include <api/shared/asserts.h>
 #include <api/shared/color.h>
 #include <api/shared/log.h>
-#include <api/shared/utils.h>
+
+#include <api/base/utils.h>
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_dx9.h>
