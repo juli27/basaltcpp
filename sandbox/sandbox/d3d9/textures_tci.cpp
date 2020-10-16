@@ -32,13 +32,12 @@ using basalt::Mat4f32;
 using basalt::MaterialDescriptor;
 using basalt::PI;
 using basalt::Texture;
+using basalt::TextureCoordinateSource;
 using basalt::TextureTransformMode;
 using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::RenderComponent;
-using basalt::gfx::RenderFlagCullNone;
-using basalt::gfx::RenderFlagDisableLighting;
 using basalt::gfx::SceneView;
 using basalt::gfx::TexCoordinateSrc;
 using basalt::gfx::VertexElement;
@@ -86,19 +85,20 @@ TexturesTci::TexturesTci(Engine& engine) {
   rc.texture = engine.load<Texture>("data/banana.bmp"sv);
 
   MaterialDescriptor material;
+  material.cullBackFace = false;
+  material.lit = false;
+  material.textureCoordinateSource =
+    TextureCoordinateSource::VertexPositionCameraSpace;
   material.textureTransformMode = TextureTransformMode::Count4;
   material.textureTransformProjected = true;
 
   rc.material = engine.load(material);
-
-  rc.renderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
 
   const auto& camera = mSceneView->camera();
   rc.texTransform =
     camera.projection_matrix(engine.gfx_context().surface_size()) *
     Mat4f32::scaling(Vector3f32 {0.5f, -0.5f, 1.0f}) *
     Mat4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f});
-  rc.tcs = TexCoordinateSrc::TcsVertexPositionCameraSpace;
 }
 
 void TexturesTci::on_update(const basalt::UpdateContext& ctx) {

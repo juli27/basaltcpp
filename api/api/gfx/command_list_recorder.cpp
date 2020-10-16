@@ -12,8 +12,8 @@ using std::vector;
 
 namespace basalt::gfx {
 
-void CommandListRecorder::add(const CommandLegacy& command) {
-  mCommandList.add<CommandLegacy>(command);
+void CommandListRecorder::draw(const MeshHandle mesh) {
+  mCommandList.add<CommandDraw>(mesh);
 }
 
 void CommandListRecorder::set_directional_lights(
@@ -29,13 +29,27 @@ void CommandListRecorder::set_directional_lights(
 
 void CommandListRecorder::set_transform(const TransformState state,
                                         const Mat4f32& transform) {
-  mCommandList.add<CommandSetTransform>(state, transform);
+  if (mDeviceState.update(state, transform)) {
+    mCommandList.add<CommandSetTransform>(state, transform);
+  }
+}
+
+void CommandListRecorder::set_material(const Color& diffuse,
+                                       const Color& ambient,
+                                       const Color& emissive) {
+  mCommandList.add<CommandSetMaterial>(diffuse, ambient, emissive);
 }
 
 void CommandListRecorder::set_render_state(const RenderState state,
                                            const u32 value) {
   if (mDeviceState.update(state, value)) {
     mCommandList.add<CommandSetRenderState>(state, value);
+  }
+}
+
+void CommandListRecorder::set_texture(const TextureHandle texture) {
+  if (mDeviceState.update(texture)) {
+    mCommandList.add<CommandSetTexture>(texture);
   }
 }
 

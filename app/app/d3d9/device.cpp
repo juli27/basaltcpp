@@ -147,11 +147,13 @@ void D3D9Device::begin_execution() const {
 void D3D9Device::execute(const CommandList& cmdList) {
   for (const auto& cmd : cmdList.commands()) {
     switch (cmd->type) {
+      EXECUTE(CommandDraw);
       EXECUTE(CommandSetDirectionalLights);
       EXECUTE(CommandSetTransform);
+      EXECUTE(CommandSetMaterial);
       EXECUTE(CommandSetRenderState);
+      EXECUTE(CommandSetTexture);
       EXECUTE(CommandSetTextureStageState);
-      EXECUTE(CommandLegacy);
 
     case CommandType::ExtDrawXModel:
       std::static_pointer_cast<D3D9XModelSupport>(
@@ -185,6 +187,7 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &identity));
   D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
 
+  D3D9CALL(mDevice->SetTexture(0, nullptr));
   D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
 }
 
@@ -251,40 +254,14 @@ auto D3D9Device::query_extension(const ext::ExtensionId id)
   return std::nullopt;
 }
 
-void D3D9Device::execute(const CommandLegacy& cmd) {
-  if (!mMeshes.is_handle_valid(cmd.mesh)) {
-    return;
-  }
-
+void D3D9Device::execute(const CommandDraw& cmd) const {
   const auto& mesh = mMeshes[cmd.mesh];
-  const bool noLightingAndTransform = mesh.fvf & D3DFVF_XYZRHW;
-
-  u32 lightingEnabled;
-  D3D9CALL(mDevice->GetRenderState(D3DRS_LIGHTING,
-                                   reinterpret_cast<DWORD*>(&lightingEnabled)));
-
-  if (lightingEnabled && !noLightingAndTransform) {
-    D3DMATERIAL9 material {};
-    material.Diffuse = to_d3d_color_value(cmd.diffuseColor);
-    material.Ambient = to_d3d_color_value(cmd.ambientColor);
-    material.Emissive = to_d3d_color_value(cmd.emissiveColor);
-    D3D9CALL(mDevice->SetMaterial(&material));
-  }
-
-  if (mTextures.is_handle_valid(cmd.texture)) {
-    const auto& texture = mTextures[cmd.texture];
-    D3D9CALL(mDevice->SetTexture(0, texture.Get()));
-  }
 
   D3D9CALL(
     mDevice->SetStreamSource(0u, mesh.vertexBuffer.Get(), 0u, mesh.vertexSize));
 
   D3D9CALL(mDevice->SetFVF(mesh.fvf));
   D3D9CALL(mDevice->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
-
-  if (cmd.texture) {
-    D3D9CALL(mDevice->SetTexture(0, nullptr));
-  }
 }
 
 void D3D9Device::execute(const CommandSetDirectionalLights& cmd) {
@@ -334,11 +311,24 @@ void D3D9Device::execute(const CommandSetTransform& cmd) const {
   }
 }
 
+void D3D9Device::execute(const CommandSetMaterial& cmd) const {
+  D3DMATERIAL9 material {};
+  material.Diffuse = to_d3d_color_value(cmd.diffuse);
+  material.Ambient = to_d3d_color_value(cmd.ambient);
+  material.Emissive = to_d3d_color_value(cmd.emissive);
+  D3D9CALL(mDevice->SetMaterial(&material));
+}
+
 void D3D9Device::execute(const CommandSetRenderState& cmd) const {
   const auto [renderState, value] =
     to_d3d_render_state(cmd.renderState, cmd.value);
 
   D3D9CALL(mDevice->SetRenderState(renderState, value));
+}
+
+void D3D9Device::execute(const CommandSetTexture& cmd) const {
+  const auto& texture = mTextures[cmd.texture];
+  D3D9CALL(mDevice->SetTexture(0, texture.Get()));
 }
 
 void D3D9Device::execute(const CommandSetTextureStageState& cmd) const {
@@ -526,10 +516,6 @@ D3D9XModelSupport::D3D9XModelSupport(ComPtr<IDirect3DDevice9> device)
 }
 
 void D3D9XModelSupport::execute(const ext::CommandDrawXModel& cmd) const {
-  if (!mModels.is_handle_valid(cmd.handle)) {
-    return;
-  }
-
   const auto& model = mModels[cmd.handle];
   for (DWORD i = 0; i < model.materials.size(); i++) {
     D3D9CALL(mDevice->SetMaterial(&model.materials[i]));

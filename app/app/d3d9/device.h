@@ -56,10 +56,12 @@ private:
   u8 mMaxLightsUsed {};
 
   // TODO: make these return bool / an error ?
-  void execute(const CommandLegacy&);
+  void execute(const CommandDraw&) const;
   void execute(const CommandSetDirectionalLights&);
   void execute(const CommandSetTransform&) const;
+  void execute(const CommandSetMaterial&) const;
   void execute(const CommandSetRenderState&) const;
+  void execute(const CommandSetTexture&) const;
   void execute(const CommandSetTextureStageState&) const;
 };
 

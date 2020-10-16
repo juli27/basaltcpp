@@ -14,6 +14,22 @@ using namespace std::literals;
 
 namespace basalt::gfx {
 
+namespace {
+
+auto convert(const TextureCoordinateSource s) -> TexCoordinateSrc {
+  switch (s) {
+  case TextureCoordinateSource::Vertex:
+    return TcsVertex;
+
+  case TextureCoordinateSource::VertexPositionCameraSpace:
+    return TcsVertexPositionCameraSpace;
+  }
+
+  return TcsVertex;
+}
+
+} // namespace
+
 ResourceCache::ResourceCache(ResourceRegistryPtr resourceRegistry,
                              DevicePtr device)
   : mResourceRegistry {std::move(resourceRegistry)}
@@ -41,7 +57,14 @@ void ResourceCache::load(const Material material) const {
 
   const auto& descriptor = registry.get<MaterialDescriptor>(material);
   auto& data = registry.emplace<MaterialData>(material);
-  data.textureStageStates[TextureStageState::CoordinateSource] = 0;
+
+  // TODO: Cw winding order? Or only support CCw
+  data.renderStates[RenderState::CullMode] =
+    descriptor.cullBackFace ? CullModeCcw : CullModeNone;
+  data.renderStates[RenderState::Lighting] = descriptor.lit;
+
+  data.textureStageStates[TextureStageState::CoordinateSource] =
+    convert(descriptor.textureCoordinateSource);
 
   u32 value = 0;
   switch (descriptor.textureTransformMode) {
@@ -58,6 +81,15 @@ void ResourceCache::load(const Material material) const {
   }
 
   data.textureStageStates[TextureStageState::TextureTransformFlags] = value;
+
+  data.diffuse = descriptor.diffuse;
+  data.ambient = descriptor.ambient;
+}
+
+auto ResourceCache::has(const Texture texture) const -> bool {
+  auto& registry = mResourceRegistry->get<Texture>();
+
+  return registry.valid(texture) && registry.has<TextureHandle>(texture);
 }
 
 auto ResourceCache::has(const Material material) const -> bool {

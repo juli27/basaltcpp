@@ -14,6 +14,15 @@
 
 namespace basalt::gfx {
 
+struct CommandDraw final : CommandT<CommandType::Draw> {
+  MeshHandle mesh {MeshHandle::null()};
+
+  constexpr explicit CommandDraw(const MeshHandle m) noexcept : mesh {m} {
+  }
+};
+
+static_assert(sizeof(CommandDraw) == 8);
+
 struct CommandSetDirectionalLights final
   : CommandT<CommandType::SetDirectionalLights> {
   // TODO: tweak maximum
@@ -38,6 +47,18 @@ struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
 };
 
 static_assert(sizeof(CommandSetTransform) == 68);
+
+struct CommandSetMaterial final : CommandT<CommandType::SetMaterial> {
+  Color diffuse;
+  Color ambient;
+  Color emissive;
+
+  CommandSetMaterial(const Color& d, const Color& a, const Color& e) noexcept
+    : diffuse {d}, ambient {a}, emissive {e} {
+  }
+};
+
+static_assert(sizeof(CommandSetMaterial) == 52);
 
 struct CommandSetRenderState final : CommandT<CommandType::SetRenderState> {
   RenderState renderState;
@@ -66,16 +87,14 @@ struct CommandSetTextureStageState final
 
 static_assert(sizeof(CommandSetTextureStageState) == 8);
 
-struct CommandLegacy final : CommandT<CommandType::Legacy> {
-  MeshHandle mesh {MeshHandle::null()};
+struct CommandSetTexture final : CommandT<CommandType::SetTexture> {
+  TextureHandle texture {TextureHandle::null()};
 
-  // TODO: Material
-  Color diffuseColor;
-  Color ambientColor;
-  Color emissiveColor;
-  TextureHandle texture;
+  constexpr explicit CommandSetTexture(const TextureHandle t) noexcept
+    : texture {t} {
+  }
 };
 
-static_assert(sizeof(CommandLegacy) == 60);
+static_assert(sizeof(CommandSetTexture) == 8);
 
 } // namespace basalt::gfx

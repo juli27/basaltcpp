@@ -15,6 +15,7 @@ struct ResourceCache {
   void load(Texture) const;
   void load(Material) const;
 
+  [[nodiscard]] auto has(Texture) const -> bool;
   [[nodiscard]] auto has(Material) const -> bool;
 
   [[nodiscard]] auto get(GfxModel) const -> ext::ModelHandle;

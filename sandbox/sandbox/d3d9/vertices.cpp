@@ -16,6 +16,7 @@ using std::string_view;
 using namespace std::literals;
 
 using basalt::Debug;
+using basalt::Engine;
 using basalt::gfx::Device;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SceneView;
@@ -24,7 +25,7 @@ using basalt::gfx::VertexLayout;
 
 namespace d3d9 {
 
-Vertices::Vertices(Device& device) {
+Vertices::Vertices(Engine& engine) {
   mScene->set_background(Colors::BLUE);
 
   struct Vertex final {
@@ -49,7 +50,8 @@ Vertices::Vertices(Device& device) {
   entt::registry& ecs {mScene->ecs()};
   const entt::entity entity {ecs.create()};
   auto& rc {ecs.emplace<RenderComponent>(entity)};
-  rc.mesh = add_triangle_list_mesh(device, vertices, vertexLayout);
+  rc.mesh =
+    add_triangle_list_mesh(*engine.gfx_device(), vertices, vertexLayout);
 
   mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }

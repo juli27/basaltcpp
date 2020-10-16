@@ -20,13 +20,15 @@ struct Device;
 using DevicePtr = std::shared_ptr<Device>;
 
 enum class CommandType : u8 {
-  Legacy,
+  Draw,
   SetRenderState,
+  SetTexture,
   SetTextureStageState,
 
   // fixed function only
   SetDirectionalLights,
   SetTransform,
+  SetMaterial,
 
   // built-in extensions
   ExtDrawXModel,
@@ -68,12 +70,6 @@ constexpr uSize RENDER_STATE_COUNT = 3u;
 
 enum CullMode : u8 { CullModeNone, CullModeCw, CullModeCcw };
 
-enum RenderFlags : u8 {
-  RenderFlagNone = 0x0,
-  RenderFlagCullNone = 0x1,
-  RenderFlagDisableLighting = 0x2
-};
-
 enum class TextureStageState : u8 {
   CoordinateSource = 0,
   TextureTransformFlags = 1,
@@ -89,6 +85,7 @@ enum TextureTransformFlags : u8 {
 };
 
 enum class TransformState : u8 { Projection, View, World, Texture };
+constexpr uSize TRANSFORM_STATE_COUNT = 4u;
 
 enum class VertexElement : u8 {
   Position3F32,

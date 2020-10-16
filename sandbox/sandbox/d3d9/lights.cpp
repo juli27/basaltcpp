@@ -9,6 +9,8 @@
 #include <api/gfx/draw_target.h>
 #include <api/scene/transform.h>
 
+#include <api/resources/types.h>
+
 #include <api/math/constants.h>
 #include <api/math/vector3.h>
 
@@ -22,19 +24,20 @@ using std::string_view;
 using namespace std::literals;
 
 using basalt::Debug;
+using basalt::Engine;
+using basalt::MaterialDescriptor;
 using basalt::PI;
 using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Device;
 using basalt::gfx::RenderComponent;
-using basalt::gfx::RenderFlagCullNone;
 using basalt::gfx::SceneView;
 using basalt::gfx::VertexElement;
 using basalt::gfx::VertexLayout;
 
 namespace d3d9 {
 
-Lights::Lights(Device& device) {
+Lights::Lights(Engine& engine) {
   mScene->set_background(Colors::BLUE);
   mScene->set_ambient_light(Color::from_rgba(32, 32, 32));
 
@@ -76,10 +79,14 @@ Lights::Lights(Device& device) {
   ecs.emplace<Transform>(mCylinder);
 
   auto& rc {ecs.emplace<RenderComponent>(mCylinder)};
-  rc.mesh = add_triangle_strip_mesh(device, vertices, vertexLayout);
-  rc.diffuseColor = Color {1.0f, 1.0f, 0.0f};
-  rc.ambientColor = Color {1.0f, 1.0f, 0.0f};
-  rc.renderFlags = RenderFlagCullNone;
+  rc.mesh =
+    add_triangle_strip_mesh(*engine.gfx_device(), vertices, vertexLayout);
+
+  MaterialDescriptor material;
+  material.diffuse = Color {1.0f, 1.0f, 0.0f};
+  material.ambient = Color {1.0f, 1.0f, 0.0f};
+  material.cullBackFace = false;
+  rc.material = engine.load(material);
 
   mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }

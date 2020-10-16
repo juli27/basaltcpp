@@ -1,5 +1,7 @@
 #pragma once
 
+#include "api/shared/color.h"
+
 #include "api/base/types.h"
 
 #include <memory>
@@ -21,12 +23,23 @@ struct FileLocation final {
 
 enum class Material : u32 {};
 
-enum class TextureTransformMode { Disabled, Count4 };
+enum class TextureCoordinateSource : u8 { Vertex, VertexPositionCameraSpace };
+enum class TextureTransformMode : u8 { Disabled, Count4 };
 
 struct MaterialDescriptor final {
+  Color diffuse;
+  Color ambient;
+
+  bool cullBackFace {true};
+  bool lit {true};
+
+  TextureCoordinateSource textureCoordinateSource {
+    TextureCoordinateSource::Vertex};
   TextureTransformMode textureTransformMode {TextureTransformMode::Disabled};
   bool textureTransformProjected {false};
 };
+
+static_assert(sizeof(MaterialDescriptor) == 40);
 
 // enum class Location {
 //  GFX

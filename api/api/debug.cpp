@@ -37,9 +37,11 @@ using entt::entity;
 
 namespace basalt {
 
-using gfx::CommandLegacy;
+using gfx::CommandDraw;
 using gfx::CommandSetDirectionalLights;
+using gfx::CommandSetMaterial;
 using gfx::CommandSetRenderState;
+using gfx::CommandSetTexture;
 using gfx::CommandSetTextureStageState;
 using gfx::CommandSetTransform;
 using gfx::RenderState;
@@ -213,17 +215,12 @@ auto to_string(const gfx::TransformState transformType) -> const char* {
   return "(unknown)";
 }
 
-void display(const CommandLegacy& command) {
-  ImGui::TextUnformatted("Legacy");
+void display(const CommandDraw& command) {
+  ImGui::TextUnformatted("Draw");
   if (ImGui::IsItemHovered()) {
     ImGui::BeginTooltip();
 
     ImGui::Text("mesh = %#x", command.mesh.value());
-    display_color4("diffuseColor", command.diffuseColor);
-    display_color4("ambientColor", command.ambientColor);
-    display_color4("emissiveColor", command.emissiveColor);
-
-    ImGui::Text("texture = %#x", command.texture.value());
 
     ImGui::EndTooltip();
   }
@@ -262,11 +259,31 @@ void display(const CommandSetTransform& command) {
   }
 }
 
+void display(const CommandSetMaterial& command) {
+  ImGui::TextUnformatted("SetMaterial");
+  if (ImGui::IsItemHovered()) {
+    ImGui::BeginTooltip();
+
+    display_color4("diffuseColor", command.diffuse);
+    display_color4("ambientColor", command.ambient);
+    display_color4("emissiveColor", command.emissive);
+
+    ImGui::EndTooltip();
+  }
+}
+
 void display(const CommandSetRenderState& command) {
   ImGui::TextUnformatted("SetRenderState");
   if (ImGui::IsItemHovered()) {
     ImGui::SetTooltip("renderState = %s\nvalue = %#x",
                       to_string(command.renderState), command.value);
+  }
+}
+
+void display(const CommandSetTexture& command) {
+  ImGui::TextUnformatted("SetTexture");
+  if (ImGui::IsItemHovered()) {
+    ImGui::SetTooltip("handle = %#x", command.texture);
   }
 }
 
@@ -326,6 +343,11 @@ void Debug::update(Scene& scene) {
   }
 }
 
+#define DISPLAY(commandStruct)                                                 \
+  case commandStruct::TYPE:                                                    \
+    display(command->as<commandStruct>());                                     \
+    break
+
 void Debug::update(const gfx::Composite& composite) {
   if (!ImGui::Begin("Composite Inspector")) {
     ImGui::End();
@@ -341,27 +363,20 @@ void Debug::update(const gfx::Composite& composite) {
     if (ImGui::TreeNode("Part", "Command List (%llu commands)",
                         part.commands().size())) {
       for (const auto& command : part.commands()) {
-#define DISPLAY(commandStruct)                                                 \
-  case commandStruct::TYPE:                                                    \
-    display(command->as<commandStruct>());                                     \
-    break
-
         switch (command->type) {
+          DISPLAY(CommandDraw);
           DISPLAY(CommandSetDirectionalLights);
           DISPLAY(CommandSetTransform);
+          DISPLAY(CommandSetMaterial);
           DISPLAY(CommandSetRenderState);
+          DISPLAY(CommandSetTexture);
           DISPLAY(CommandSetTextureStageState);
-          DISPLAY(CommandLegacy);
 
           DISPLAY(CommandDrawXModel);
           DISPLAY(CommandRenderDearImGui);
-
-        default:
-          break;
         }
-
-#undef DISPLAY
       }
+
       ImGui::TreePop();
     }
 
@@ -371,6 +386,8 @@ void Debug::update(const gfx::Composite& composite) {
 
   ImGui::End();
 }
+
+#undef DISPLAY
 
 void Debug::draw_scene_debug_ui(Scene& scene) {
   ImGui::SetNextWindowSize(ImVec2 {400.0f, 600.0f}, ImGuiCond_FirstUseEver);
@@ -436,21 +453,7 @@ void Debug::draw_scene_debug_ui(Scene& scene) {
         if (ImGui::TreeNode("RenderComponent")) {
           ImGui::Text("Mesh: %#x", rc->mesh.value());
           ImGui::Text("Texture: %#x", entt::to_integral(rc->texture));
-
-          edit_color4("Diffuse", rc->diffuseColor);
-          edit_color4("Ambient", rc->ambientColor);
-
-          if (rc->renderFlags == gfx::RenderFlagNone) {
-            ImGui::TextUnformatted("Flag: RenderFlagNone");
-          } else {
-            if (rc->renderFlags & gfx::RenderFlagCullNone) {
-              ImGui::TextUnformatted("Flag: RenderFlagCullNone");
-            }
-
-            if (rc->renderFlags & gfx::RenderFlagDisableLighting) {
-              ImGui::TextUnformatted("Flag: RenderFlagDisableLighting");
-            }
-          }
+          ImGui::Text("Material: %#x", entt::to_integral(rc->material));
 
           ImGui::TreePop();
         }

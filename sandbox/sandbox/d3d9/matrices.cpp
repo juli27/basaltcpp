@@ -20,19 +20,19 @@ using std::string_view;
 using namespace std::literals;
 
 using basalt::Debug;
+using basalt::Engine;
+using basalt::MaterialDescriptor;
 using basalt::PI;
 using basalt::Transform;
 using basalt::gfx::Device;
 using basalt::gfx::RenderComponent;
-using basalt::gfx::RenderFlagCullNone;
-using basalt::gfx::RenderFlagDisableLighting;
 using basalt::gfx::SceneView;
 using basalt::gfx::VertexElement;
 using basalt::gfx::VertexLayout;
 
 namespace d3d9 {
 
-Matrices::Matrices(Device& device) {
+Matrices::Matrices(Engine& engine) {
   mScene->set_background(Colors::BLACK);
 
   struct Vertex final {
@@ -57,8 +57,14 @@ Matrices::Matrices(Device& device) {
   ecs.emplace<Transform>(mTriangle);
 
   auto& rc {ecs.emplace<RenderComponent>(mTriangle)};
-  rc.mesh = add_triangle_list_mesh(device, vertices, vertexLayout);
-  rc.renderFlags = RenderFlagCullNone | RenderFlagDisableLighting;
+  rc.mesh =
+    add_triangle_list_mesh(*engine.gfx_device(), vertices, vertexLayout);
+
+  MaterialDescriptor material;
+  material.cullBackFace = false;
+  material.lit = false;
+
+  rc.material = engine.load(material);
 
   mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }

@@ -45,9 +45,9 @@ SandboxApp::SandboxApp(Engine& engine) {
 
   mScenes.reserve(7u);
   mScenes.emplace_back(std::make_unique<d3d9::Device>());
-  mScenes.emplace_back(std::make_unique<d3d9::Vertices>(*device));
-  mScenes.emplace_back(std::make_unique<d3d9::Matrices>(*device));
-  mScenes.emplace_back(std::make_unique<d3d9::Lights>(*device));
+  mScenes.emplace_back(std::make_unique<d3d9::Vertices>(engine));
+  mScenes.emplace_back(std::make_unique<d3d9::Matrices>(engine));
+  mScenes.emplace_back(std::make_unique<d3d9::Lights>(engine));
   mScenes.emplace_back(std::make_unique<d3d9::Textures>(engine));
   mScenes.emplace_back(std::make_unique<d3d9::TexturesTci>(engine));
   mScenes.emplace_back(std::make_unique<d3d9::Meshes>(engine));

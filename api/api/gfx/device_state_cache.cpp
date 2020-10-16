@@ -33,4 +33,24 @@ auto DeviceStateCache::update(const TextureStageState state,
   return false;
 }
 
+auto DeviceStateCache::update(const TransformState state,
+                              const Mat4f32& transform) noexcept -> bool {
+  auto& currentValue = mTransforms[state];
+  if (currentValue != transform) {
+    currentValue = transform;
+    return true;
+  }
+
+  return false;
+}
+
+auto DeviceStateCache::update(const TextureHandle texture) noexcept -> bool {
+  if (texture != mBoundTexture) {
+    mBoundTexture = texture;
+    return true;
+  }
+
+  return false;
+}
+
 } // namespace basalt::gfx

@@ -8,6 +8,8 @@ namespace basalt {
 
 template <typename Derived, typename T, uSize Size>
 struct vec {
+  constexpr vec() noexcept = default;
+
   std::array<T, Size> elements {};
 
   auto operator+=(const vec& v) noexcept -> Derived& {

@@ -4,7 +4,6 @@
 #include "resource_cache.h"
 #include "types.h"
 
-#include "backend/commands.h"
 #include "backend/types.h"
 
 #include "api/scene/transform.h"
@@ -23,6 +22,28 @@
 using std::optional;
 
 namespace basalt::gfx {
+
+namespace {
+
+void record_material(CommandListRecorder& cmdListRecorder,
+                     const MaterialData& material) {
+  cmdListRecorder.set_render_state(
+    RenderState::CullMode, material.renderStates[RenderState::CullMode]);
+  cmdListRecorder.set_render_state(
+    RenderState::Lighting, material.renderStates[RenderState::Lighting]);
+
+  cmdListRecorder.set_texture_stage_state(
+    0, TextureStageState::CoordinateSource,
+    material.textureStageStates[TextureStageState::CoordinateSource]);
+
+  cmdListRecorder.set_texture_stage_state(
+    0, TextureStageState::TextureTransformFlags,
+    material.textureStageStates[TextureStageState::TextureTransformFlags]);
+
+  cmdListRecorder.set_material(material.diffuse, material.ambient, Color {});
+}
+
+} // namespace
 
 SceneView::SceneView(ScenePtr scene, const Camera& camera)
   : mScene {std::move(scene)}, mCamera {camera} {
@@ -67,10 +88,7 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
       if (cache.has(renderComponent.material)) {
         const auto& materialData = cache.get(renderComponent.material);
 
-        cmdListRecorder.set_texture_stage_state(
-          0, TextureStageState::TextureTransformFlags,
-          materialData
-            .textureStageStates[TextureStageState::TextureTransformFlags]);
+        record_material(cmdListRecorder, materialData);
       }
 
       if (const auto* transform = ecs.try_get<Transform>(entity)) {
@@ -80,30 +98,16 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
         cmdListRecorder.set_transform(TransformState::World, worldTransform);
       }
 
-      const auto lightingEnabled =
-        !(renderComponent.renderFlags & RenderFlagDisableLighting);
-      cmdListRecorder.set_render_state(RenderState::Lighting, lightingEnabled);
-
-      auto getCullMode = [](const u8 renderFlags) {
-        return renderFlags & RenderFlagCullNone ? CullModeNone : CullModeCcw;
-      };
-      cmdListRecorder.set_render_state(
-        RenderState::CullMode, getCullMode(renderComponent.renderFlags));
-
       if (renderComponent.texTransform != Mat4f32::identity()) {
         cmdListRecorder.set_transform(TransformState::Texture,
                                       renderComponent.texTransform);
       }
 
-      cmdListRecorder.set_texture_stage_state(
-        0, TextureStageState::CoordinateSource, enum_cast(renderComponent.tcs));
+      if (cache.has(renderComponent.texture)) {
+        cmdListRecorder.set_texture(cache.get(renderComponent.texture));
+      }
 
-      CommandLegacy command {};
-      command.mesh = renderComponent.mesh;
-      command.texture = cache.get(renderComponent.texture);
-      command.diffuseColor = renderComponent.diffuseColor;
-      command.ambientColor = renderComponent.ambientColor;
-      cmdListRecorder.add(command);
+      cmdListRecorder.draw(renderComponent.mesh);
     });
 
   return cmdListRecorder.complete_command_list();

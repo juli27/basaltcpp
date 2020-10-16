@@ -15,14 +15,14 @@
 
 namespace basalt::gfx {
 
-struct CommandLegacy;
-
 struct CommandListRecorder final {
-  void add(const CommandLegacy&);
-
+  void draw(MeshHandle);
   void set_directional_lights(const std::vector<DirectionalLight>&);
   void set_transform(TransformState, const Mat4f32&);
+  void set_material(const Color& diffuse, const Color& ambient,
+                    const Color& emissive);
   void set_render_state(RenderState, u32 value);
+  void set_texture(TextureHandle);
 
   // TODO: stage currently not supported
   void set_texture_stage_state(u8 stage, TextureStageState, u32 value);

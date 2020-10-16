@@ -27,14 +27,10 @@ struct RenderComponent final {
   MeshHandle mesh;
   Texture texture {entt::null};
   Material material {entt::null};
-  Color diffuseColor;
-  Color ambientColor;
   Mat4f32 texTransform {Mat4f32::identity()};
-  TexCoordinateSrc tcs {TcsVertex};
-  u8 renderFlags = RenderFlagNone;
 };
 
-static_assert(sizeof(RenderComponent) == 112);
+static_assert(sizeof(RenderComponent) == 76);
 
 struct Model final {
   GfxModel handle {entt::null};
@@ -43,8 +39,12 @@ struct Model final {
 static_assert(sizeof(Model) == 4);
 
 struct MaterialData final {
+  EnumArray<RenderState, u32, RENDER_STATE_COUNT> renderStates {};
   EnumArray<TextureStageState, u32, TEXTURE_STAGE_STATE_COUNT>
     textureStageStates {};
+
+  Color diffuse;
+  Color ambient;
 };
 
 } // namespace basalt::gfx

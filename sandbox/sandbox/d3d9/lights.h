@@ -2,7 +2,6 @@
 
 #include <sandbox/test_case.h>
 
-#include <api/gfx/backend/device.h>
 #include <api/gfx/scene_view.h>
 #include <api/scene/scene.h>
 
@@ -11,7 +10,7 @@
 namespace d3d9 {
 
 struct Lights final : TestCase {
-  explicit Lights(basalt::gfx::Device&);
+  explicit Lights(basalt::Engine&);
 
   Lights(const Lights&) = delete;
   Lights(Lights&&) = delete;
