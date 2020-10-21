@@ -27,7 +27,7 @@ struct CommandListRecorder final {
   // TODO: stage currently not supported
   void set_texture_stage_state(u8 stage, TextureStageState, u32 value);
 
-  void ext_draw_x_model(ext::ModelHandle);
+  void ext_draw_x_model(ext::XModelHandle);
 
   [[nodiscard]] auto complete_command_list() -> CommandList;
 

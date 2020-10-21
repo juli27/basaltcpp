@@ -1,6 +1,7 @@
 #pragma once
 
 #include "backend/types.h"
+#include "backend/ext/types.h"
 
 #include "api/resources/types.h"
 #include "api/math/mat4.h"
@@ -33,7 +34,7 @@ struct RenderComponent final {
 static_assert(sizeof(RenderComponent) == 76);
 
 struct Model final {
-  GfxModel handle {entt::null};
+  ext::XModel handle {entt::null};
 };
 
 static_assert(sizeof(Model) == 4);

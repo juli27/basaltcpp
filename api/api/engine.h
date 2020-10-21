@@ -7,6 +7,7 @@
 #include "gfx/types.h"
 
 #include "gfx/backend/types.h"
+#include "gfx/backend/ext/types.h"
 
 #include "resources/resource_registry.h"
 #include "resources/types.h"
@@ -55,7 +56,8 @@ protected:
 };
 
 template <>
-[[nodiscard]] auto Engine::load(std::string_view filePath) const -> GfxModel;
+[[nodiscard]] auto Engine::load(std::string_view filePath) const
+  -> gfx::ext::XModel;
 
 template <>
 [[nodiscard]] auto Engine::load(std::string_view filePath) const -> Texture;

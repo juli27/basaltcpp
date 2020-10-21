@@ -5,9 +5,9 @@
 #include <api/prelude.h>
 
 #include <api/gfx/draw_target.h>
-#include <api/scene/transform.h>
+#include <api/gfx/backend/ext/types.h>
 
-#include <api/resources/types.h>
+#include <api/scene/transform.h>
 
 #include <api/shared/config.h>
 
@@ -16,10 +16,10 @@ using namespace std::literals;
 
 using basalt::Debug;
 using basalt::Engine;
-using basalt::GfxModel;
 using basalt::Transform;
 using basalt::gfx::Model;
 using basalt::gfx::SceneView;
+using basalt::gfx::ext::XModel;
 
 namespace d3d9 {
 
@@ -28,7 +28,7 @@ Meshes::Meshes(Engine& engine) {
   mScene->set_ambient_light(Colors::WHITE);
 
   (void)mTiger.emplace<Transform>();
-  mTiger.emplace<Model>(engine.load<GfxModel>("data/Tiger.x"sv));
+  mTiger.emplace<Model>(engine.load<XModel>("data/Tiger.x"sv));
 }
 
 void Meshes::on_update(const basalt::UpdateContext& ctx) {

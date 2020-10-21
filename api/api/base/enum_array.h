@@ -15,6 +15,8 @@ template <typename K, typename V, u64 Size>
 struct EnumArray {
   static_assert(std::is_enum_v<K>);
 
+  constexpr EnumArray() noexcept = default;
+
   auto operator[](const K key) const -> const V& {
     return mStorage[enum_cast(key)];
   }

@@ -61,7 +61,7 @@ void CommandListRecorder::set_texture_stage_state(const u8 stage,
   }
 }
 
-void CommandListRecorder::ext_draw_x_model(const ext::ModelHandle handle) {
+void CommandListRecorder::ext_draw_x_model(const ext::XModelHandle handle) {
   mCommandList.add<ext::CommandDrawXModel>(handle);
 }
 

@@ -41,8 +41,6 @@ auto ClientApp::create(Engine& engine) -> unique_ptr<ClientApp> {
 }
 
 SandboxApp::SandboxApp(Engine& engine) {
-  const auto device = engine.gfx_device();
-
   mScenes.reserve(7u);
   mScenes.emplace_back(std::make_unique<d3d9::Device>());
   mScenes.emplace_back(std::make_unique<d3d9::Vertices>(engine));

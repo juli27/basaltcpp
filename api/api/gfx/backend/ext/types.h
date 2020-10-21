@@ -14,12 +14,7 @@ enum class ExtensionId { DearImGuiRenderer, XModelSupport };
 struct DearImGuiRenderer;
 struct XModelSupport;
 
-namespace detail {
-
-struct ModelTag;
-
-} // namespace detail
-
-using ModelHandle = Handle<detail::ModelTag>;
+enum class XModel : u32 {};
+using XModelHandle = Handle<XModel>;
 
 } // namespace basalt::gfx::ext

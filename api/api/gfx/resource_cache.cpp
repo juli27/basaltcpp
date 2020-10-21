@@ -36,14 +36,14 @@ ResourceCache::ResourceCache(ResourceRegistryPtr resourceRegistry,
   , mDevice {std::move(device)} {
 }
 
-void ResourceCache::load(const GfxModel model) const {
-  auto& registry = mResourceRegistry->get<GfxModel>();
+void ResourceCache::load(const ext::XModel model) const {
+  auto& registry = mResourceRegistry->get<ext::XModel>();
 
   const auto modelExt =
     *gfx::query_device_extension<ext::XModelSupport>(*mDevice);
 
   auto& location = registry.get<FileLocation>(model);
-  registry.emplace<ext::ModelHandle>(model, modelExt->load(location.path));
+  registry.emplace<ext::XModelHandle>(model, modelExt->load(location.path));
 }
 
 void ResourceCache::load(const Texture texture) const {
@@ -98,10 +98,10 @@ auto ResourceCache::has(const Material material) const -> bool {
   return registry.valid(material) && registry.has<MaterialData>(material);
 }
 
-auto ResourceCache::get(const GfxModel model) const -> ext::ModelHandle {
-  auto& registry = mResourceRegistry->get<GfxModel>();
+auto ResourceCache::get(const ext::XModel model) const -> ext::XModelHandle {
+  auto& registry = mResourceRegistry->get<ext::XModel>();
 
-  return registry.get<ext::ModelHandle>(model);
+  return registry.get<ext::XModelHandle>(model);
 }
 
 auto ResourceCache::get(const Texture texture) const -> TextureHandle {

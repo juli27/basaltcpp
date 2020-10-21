@@ -439,7 +439,7 @@ void Debug::draw_scene_debug_ui(Scene& scene) {
                             0.1f);
 
           ImGui::DragFloat3("Rotation", transform->rotation.elements.data(),
-                            0.01f, 0.0f, 2.0f * PI);
+                            0.01f, -PI, PI);
 
           ImGui::DragFloat3("Scale", transform->scale.elements.data(), 0.1f,
                             0.0f);

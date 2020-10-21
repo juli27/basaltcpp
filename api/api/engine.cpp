@@ -48,8 +48,8 @@ Engine::Engine(Config& config, shared_ptr<Context> context) noexcept
 }
 
 template <>
-auto Engine::load(const std::string_view filePath) const -> GfxModel {
-  const auto model = mResourceRegistry->add<GfxModel>(filePath);
+auto Engine::load(const std::string_view filePath) const -> gfx::ext::XModel {
+  const auto model = mResourceRegistry->add<gfx::ext::XModel>(filePath);
   mGfxResourceCache.load(model);
 
   return model;

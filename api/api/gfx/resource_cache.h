@@ -11,14 +11,14 @@ namespace basalt::gfx {
 struct ResourceCache {
   explicit ResourceCache(ResourceRegistryPtr, DevicePtr);
 
-  void load(GfxModel) const;
+  void load(ext::XModel) const;
   void load(Texture) const;
   void load(Material) const;
 
   [[nodiscard]] auto has(Texture) const -> bool;
   [[nodiscard]] auto has(Material) const -> bool;
 
-  [[nodiscard]] auto get(GfxModel) const -> ext::ModelHandle;
+  [[nodiscard]] auto get(ext::XModel) const -> ext::XModelHandle;
   [[nodiscard]] auto get(Texture) const -> TextureHandle;
   [[nodiscard]] auto get(Material) const -> const MaterialData&;
 

@@ -9,7 +9,6 @@
 
 namespace basalt {
 
-enum class GfxModel : u32 {};
 enum class Texture : u32 {};
 
 struct ResourceRegistry;

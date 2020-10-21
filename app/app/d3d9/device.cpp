@@ -91,7 +91,7 @@ struct D3D9XModelSupport final : ext::XModelSupport {
 
   void execute(const ext::CommandDrawXModel&) const;
 
-  auto load(string_view filePath) -> ext::ModelHandle override;
+  auto load(string_view filePath) -> ext::XModelHandle override;
 
 private:
   using Texture = ComPtr<IDirect3DTexture9>;
@@ -103,7 +103,7 @@ private:
   };
 
   ComPtr<IDirect3DDevice9> mDevice;
-  HandlePool<Model, ext::ModelHandle> mModels {};
+  HandlePool<Model, ext::XModelHandle> mModels {};
 };
 
 } // namespace
@@ -527,7 +527,7 @@ void D3D9XModelSupport::execute(const ext::CommandDrawXModel& cmd) const {
   D3D9CALL(mDevice->SetTexture(0, nullptr));
 }
 
-auto D3D9XModelSupport::load(const string_view filePath) -> ext::ModelHandle {
+auto D3D9XModelSupport::load(const string_view filePath) -> ext::XModelHandle {
   const auto [handle, model] = mModels.allocate();
 
   const auto wideFilePath = create_wide_from_utf8(filePath);
