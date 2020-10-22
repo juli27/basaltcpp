@@ -17,6 +17,7 @@ struct Debug final {
   auto operator=(const Debug&) -> Debug& = delete;
   auto operator=(Debug &&) -> Debug& = delete;
 
+  static void update();
   static void update(Scene&);
   static void update(const gfx::Composite&);
 

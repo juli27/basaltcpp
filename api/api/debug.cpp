@@ -53,6 +53,7 @@ using gfx::ext::CommandRenderDearImGui;
 namespace {
 
 bool sShowSceneDebugUi {false};
+bool sShowCompositeDebugUi {false};
 bool sShowDemo {false};
 bool sShowMetrics {false};
 bool sShowAbout {false};
@@ -308,12 +309,13 @@ void display(const CommandRenderDearImGui&) {
 
 } // namespace
 
-void Debug::update(Scene& scene) {
+void Debug::update() {
   show_overlay();
 
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("View")) {
       ImGui::MenuItem("Scene Debug UI", nullptr, &sShowSceneDebugUi);
+      ImGui::MenuItem("Composite Inspector", nullptr, &sShowCompositeDebugUi);
       ImGui::EndMenu();
     }
 
@@ -328,10 +330,6 @@ void Debug::update(Scene& scene) {
     ImGui::EndMainMenuBar();
   }
 
-  if (sShowSceneDebugUi) {
-    draw_scene_debug_ui(scene);
-  }
-
   if (sShowDemo) {
     ImGui::ShowDemoWindow(&sShowDemo);
   }
@@ -343,13 +341,23 @@ void Debug::update(Scene& scene) {
   }
 }
 
+void Debug::update(Scene& scene) {
+  if (sShowSceneDebugUi) {
+    draw_scene_debug_ui(scene);
+  }
+}
+
 #define DISPLAY(commandStruct)                                                 \
   case commandStruct::TYPE:                                                    \
     display(command->as<commandStruct>());                                     \
     break
 
 void Debug::update(const gfx::Composite& composite) {
-  if (!ImGui::Begin("Composite Inspector")) {
+  if (!sShowCompositeDebugUi) {
+    return;
+  }
+
+  if (!ImGui::Begin("Composite Inspector", &sShowCompositeDebugUi)) {
     ImGui::End();
     return;
   }
