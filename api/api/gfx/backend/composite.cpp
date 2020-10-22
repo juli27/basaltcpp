@@ -6,12 +6,12 @@ using std::vector;
 
 namespace basalt::gfx {
 
-Composite::Composite(const Color& background) noexcept
-  : mBackground {background} {
-}
-
 auto Composite::background() const noexcept -> const Color& {
   return mBackground;
+}
+
+void Composite::set_background(const Color& background) noexcept {
+  mBackground = background;
 }
 
 auto Composite::parts() const noexcept -> const vector<CommandList>& {

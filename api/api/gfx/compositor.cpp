@@ -7,19 +7,17 @@
 
 namespace basalt::gfx {
 
-auto Compositor::compose(ResourceCache& resourceCache, const DrawTarget& drawTarget)
-  -> Composite {
-  const auto& drawables = drawTarget.drawables();
+auto Compositor::compose(ResourceCache& resourceCache,
+                         const DrawTarget& drawTarget) -> Composite {
+  Composite composite;
 
-  if (drawables.empty()) {
-    return Composite {Colors::BLACK};
-  }
-
-  Composite composite {
-    drawables.front()->clear_color().value_or(Colors::BLACK)};
-
-  for (const auto& drawable : drawables) {
+  for (const auto& drawable : drawTarget.drawables()) {
     composite.add_part(drawable->draw(resourceCache, drawTarget.size()));
+
+    const auto clearColor = drawable->clear_color();
+    if (clearColor) {
+      composite.set_background(*clearColor);
+    }
   }
 
   return composite;
