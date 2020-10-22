@@ -2,10 +2,7 @@
 
 #include <sandbox/test_case.h>
 
-#include <api/gfx/scene_view.h>
-#include <api/scene/scene.h>
-
-#include <memory>
+#include <api/gfx/types.h>
 
 namespace d3d9 {
 
@@ -24,8 +21,7 @@ struct Device final : TestCase {
   auto name() -> std::string_view override;
 
 private:
-  std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();
-  std::shared_ptr<basalt::gfx::SceneView> mSceneView;
+  basalt::gfx::DrawablePtr mDrawable;
 };
 
 } // namespace d3d9

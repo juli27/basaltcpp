@@ -2,32 +2,58 @@
 
 #include "utils.h"
 
-#include <api/debug.h>
 #include <api/engine.h>
 #include <api/prelude.h>
 
+#include <api/gfx/command_list_recorder.h>
+#include <api/gfx/drawable.h>
 #include <api/gfx/draw_target.h>
-#include <api/shared/config.h>
+#include <api/gfx/backend/types.h>
 
 #include <array>
+#include <memory>
 
 using std::array;
 using std::string_view;
 using namespace std::literals;
 
-using basalt::Debug;
 using basalt::Engine;
-using basalt::gfx::Device;
-using basalt::gfx::RenderComponent;
-using basalt::gfx::SceneView;
+using basalt::Size2Du16;
+using basalt::gfx::CommandList;
+using basalt::gfx::CommandListRecorder;
+using basalt::gfx::Drawable;
+using basalt::gfx::MeshHandle;
+using basalt::gfx::ResourceCache;
 using basalt::gfx::VertexElement;
 using basalt::gfx::VertexLayout;
 
 namespace d3d9 {
 
-Vertices::Vertices(Engine& engine) {
-  mScene->set_background(Colors::BLUE);
+namespace {
 
+struct MyDrawable final : Drawable {
+  explicit MyDrawable(const MeshHandle triangle) noexcept
+    : mTriangle {triangle} {
+  }
+
+  auto draw(ResourceCache&, Size2Du16) -> CommandList override {
+    CommandListRecorder cmdListRecorder;
+    cmdListRecorder.draw(mTriangle);
+
+    return cmdListRecorder.complete_command_list();
+  }
+
+  [[nodiscard]] auto clear_color() const -> std::optional<Color> override {
+    return Colors::BLUE;
+  }
+
+private:
+  MeshHandle mTriangle {MeshHandle::null()};
+};
+
+} // namespace
+
+Vertices::Vertices(Engine& engine) {
   struct Vertex final {
     f32 x;
     f32 y;
@@ -47,21 +73,13 @@ Vertices::Vertices(Engine& engine) {
   const VertexLayout vertexLayout {VertexElement::PositionTransformed4F32,
                                    VertexElement::ColorDiffuse1U32};
 
-  entt::registry& ecs {mScene->ecs()};
-  const entt::entity entity {ecs.create()};
-  auto& rc {ecs.emplace<RenderComponent>(entity)};
-  rc.mesh =
+  const MeshHandle triangle =
     add_triangle_list_mesh(*engine.gfx_device(), vertices, vertexLayout);
-
-  mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
+  mDrawable = std::make_shared<MyDrawable>(triangle);
 }
 
 void Vertices::on_update(const basalt::UpdateContext& ctx) {
-  ctx.drawTarget.draw(mSceneView);
-
-  if (ctx.engine.config().debugUiEnabled) {
-    Debug::update(*mScene);
-  }
+  ctx.drawTarget.draw(mDrawable);
 }
 
 auto Vertices::name() -> string_view {
