@@ -1,4 +1,4 @@
-target_sources(spdlog PUBLIC
+target_sources(${CURRENT_TARGET} PUBLIC
   "android_sink.h"
   "ansicolor_sink.h"
   "ansicolor_sink-inl.h"

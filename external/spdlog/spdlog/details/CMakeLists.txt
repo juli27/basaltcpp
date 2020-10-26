@@ -1,4 +1,4 @@
-target_sources(spdlog PUBLIC
+target_sources(${CURRENT_TARGET} PUBLIC
   "backtracer.h"
   "backtracer-inl.h"
   "circular_q.h"

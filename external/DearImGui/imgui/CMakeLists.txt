@@ -1,4 +1,4 @@
-target_sources(DearImGui
+target_sources(${CURRENT_TARGET}
   PRIVATE
     "imgui.cpp"
     "imgui_demo.cpp"

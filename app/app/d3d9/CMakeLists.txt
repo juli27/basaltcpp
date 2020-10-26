@@ -1,4 +1,4 @@
-target_sources(App
+target_sources(${CURRENT_TARGET}
   PRIVATE
     "context.cpp"
     "device.cpp"

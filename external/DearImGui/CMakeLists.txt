@@ -1,4 +1,5 @@
 add_library(DearImGui STATIC)
+set(CURRENT_TARGET DearImGui)
 
 add_subdirectory("imgui")
 

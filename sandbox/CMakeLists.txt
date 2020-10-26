@@ -1,31 +1,23 @@
 add_library(Sandbox STATIC)
+set(CURRENT_TARGET Sandbox)
 
 add_subdirectory("sandbox")
 
+target_link_libraries(Sandbox PRIVATE CommonOptions api)
+
+target_include_directories(Sandbox PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
 target_compile_definitions(Sandbox PRIVATE
-  _UNICODE
-  UNICODE
   BASALT_DEBUG_BUILD
   BASALT_DEV_BUILD
 )
 
-target_compile_options(Sandbox
-  PRIVATE
-    /diagnostics:column /FC /fp:fast /GF /guard:cf /Gy /sdl /W4 /WX /w34191 /w44062 /Zc:inline /Zc:rvalueCast)
-
-target_include_directories(Sandbox PRIVATE
-  "../sandbox"
-  "../api"
-  "../external/include"
-  "../external/DearImGui/"
-  "../external/Fmt/")
+target_compile_options(Sandbox PRIVATE "/w34191" "/w44062")
 
 set_target_properties(Sandbox PROPERTIES
   STATIC_LIBRARY_OPTIONS "/WX"
-  CXX_STANDARD 17
-  CXX_STANDARD_REQUIRED ON
-  CXX_EXTENSIONS OFF
   INTERPROCEDURAL_OPTIMIZATION ON
   INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF
   INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL OFF
-  VS_JUST_MY_CODE_DEBUGGING $<CONFIG:Debug>)
+  VS_JUST_MY_CODE_DEBUGGING $<CONFIG:Debug>
+)

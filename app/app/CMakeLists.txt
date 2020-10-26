@@ -2,7 +2,7 @@ add_subdirectory("shared")
 add_subdirectory("gfx")
 add_subdirectory("d3d9")
 
-target_sources(App PRIVATE
+target_sources(${CURRENT_TARGET} PRIVATE
   "app.cpp"
   "debug.cpp"
   "engine.cpp"

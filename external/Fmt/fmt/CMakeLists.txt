@@ -1,4 +1,4 @@
-target_sources(Fmt
+target_sources(${CURRENT_TARGET}
   PRIVATE
     "format.cc"
     "format-inl.h"

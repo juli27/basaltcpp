@@ -1,4 +1,4 @@
-target_sources(spdlog
+target_sources(${CURRENT_TARGET}
   PRIVATE
     "async.cpp"
     "cfg.cpp"

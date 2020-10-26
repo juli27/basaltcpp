@@ -1,4 +1,4 @@
-target_sources(App PRIVATE
+target_sources(${CURRENT_TARGET} PRIVATE
   "debug.cpp"
   "utils.cpp"
 
