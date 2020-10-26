@@ -47,8 +47,11 @@ struct MeshDescriptor final {
   PrimitiveType primitiveType {PrimitiveType::PointList};
   u32 primitiveCount {};
 };
-
+#if _DEBUG
 static_assert(sizeof(MeshDescriptor) == 56);
+#else
+static_assert(sizeof(MeshDescriptor) == 48);
+#endif
 
 struct MaterialDescriptor final {
   Color diffuse;

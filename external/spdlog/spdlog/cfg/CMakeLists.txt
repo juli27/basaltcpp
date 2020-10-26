@@ -3,5 +3,4 @@ target_sources(spdlog PUBLIC
   "env.h"
   "helpers.h"
   "helpers-inl.h"
-  "log_levels.h"
 )

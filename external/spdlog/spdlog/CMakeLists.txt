@@ -20,6 +20,7 @@ target_sources(spdlog
     "pattern_formatter-inl.h"
     "spdlog.h"
     "spdlog-inl.h"
+    "stopwatch.h"
     "tweakme.h"
     "version.h"
 )

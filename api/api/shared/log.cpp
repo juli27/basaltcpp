@@ -36,7 +36,7 @@ constexpr auto LOGGER_PATTERN = "[%n][%l] %v";
 } // namespace
 
 void Log::init() {
-  vector<sink_ptr> sinks {};
+  vector<sink_ptr> sinks;
   sinks.reserve(2u);
   sinks.emplace_back(std::make_shared<basic_file_sink_st>(LOG_FILE_NAME));
 
