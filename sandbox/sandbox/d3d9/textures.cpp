@@ -27,6 +27,8 @@ using basalt::PI;
 using basalt::Transform;
 using basalt::gfx::Device;
 using basalt::gfx::MaterialDescriptor;
+using basalt::gfx::MeshDescriptor;
+using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SceneView;
 using basalt::gfx::Texture;
@@ -35,7 +37,8 @@ using basalt::gfx::VertexLayout;
 
 namespace d3d9 {
 
-Textures::Textures(Engine& engine) {
+Textures::Textures(Engine& engine)
+  : mSceneView {std::make_shared<SceneView>(mScene, create_default_camera())} {
   mScene->set_background(Colors::BLUE);
 
   struct Vertex final {
@@ -75,13 +78,15 @@ Textures::Textures(Engine& engine) {
                                    VertexElement::ColorDiffuse1U32,
                                    VertexElement::TextureCoords2F32};
 
-  entt::registry& ecs {mScene->ecs()};
-  mCylinder = ecs.create();
-  ecs.emplace<Transform>(mCylinder);
+  (void)mCylinder.emplace<Transform>();
 
-  auto& rc {ecs.emplace<RenderComponent>(mCylinder)};
-  const auto device = engine.gfx_device();
-  rc.mesh = add_triangle_strip_mesh(*device, vertices, vertexLayout);
+  const MeshDescriptor mesh {as_bytes(gsl::span {vertices}), vertexLayout,
+                             PrimitiveType::TriangleStrip,
+                             static_cast<u32>(vertices.size() - 2)};
+
+  auto& rc {mCylinder.emplace<RenderComponent>()};
+  rc.mesh = engine.gfx_resource_cache().create_mesh(mesh);
+
   rc.texture = engine.get_or_load<Texture>("data/banana.bmp"_hs);
 
   MaterialDescriptor material;
@@ -89,12 +94,10 @@ Textures::Textures(Engine& engine) {
   material.lit = false;
 
   rc.material = engine.gfx_resource_cache().create_material(material);
-
-  mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }
 
 void Textures::on_update(const basalt::UpdateContext& ctx) {
-  auto& transform {mScene->ecs().get<Transform>(mCylinder)};
+  auto& transform {mCylinder.get<Transform>()};
   transform.rotate(static_cast<f32>(ctx.deltaTime), 0.0f, 0.0f);
 
   ctx.drawTarget.draw(mSceneView);

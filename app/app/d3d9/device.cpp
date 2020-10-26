@@ -23,7 +23,7 @@
 
 #include <algorithm>
 #include <array>
-#include <cstring>
+#include <limits>
 #include <stdexcept>
 #include <tuple>
 #include <utility>
@@ -70,8 +70,7 @@ auto to_d3d_render_state(RenderState, u32 value)
 auto to_d3d_texture_stage_state(TextureStageState state, u32 value)
   -> std::tuple<D3DTEXTURESTAGESTATETYPE, DWORD>;
 
-void fill_primitive_info(D3D9Mesh& mesh, PrimitiveType primitiveType,
-                         i32 numVtx);
+auto to_d3d_primitive_type(PrimitiveType) -> D3DPRIMITIVETYPE;
 
 struct D3D9ImGuiRenderer final : ext::DearImGuiRenderer {
   explicit D3D9ImGuiRenderer(ComPtr<IDirect3DDevice9>);
@@ -197,40 +196,35 @@ void D3D9Device::end_execution() const {
   D3D9CALL(mDevice->EndScene());
 }
 
-/*
- * Stores the vertex data into a new static vertex buffer in the managed pool.
- */
-auto D3D9Device::add_mesh(void* data, const i32 numVertices,
-                          const VertexLayout& layout,
-                          const PrimitiveType primitiveType) -> MeshHandle {
-  BASALT_ASSERT(data);
-  BASALT_ASSERT(numVertices > 0);
-  BASALT_ASSERT(!layout.empty());
+auto D3D9Device::create_vertex_buffer(const gsl::span<const std::byte> data,
+                                      const VertexLayout& layout)
+  -> VertexBuffer {
+  BASALT_ASSERT(!data.empty());
+  BASALT_ASSERT(data.size() <= std::numeric_limits<UINT>::max());
+  const UINT size = static_cast<UINT>(data.size());
 
-  const auto [meshHandle, mesh] = mMeshes.allocate();
-  mesh.fvf = to_fvf(layout);
-  BASALT_ASSERT_MSG(verify_fvf(mesh.fvf),
+  BASALT_ASSERT(!layout.empty());
+  const DWORD fvf = to_fvf(layout);
+  BASALT_ASSERT_MSG(verify_fvf(fvf),
                     "invalid fvf. Consult the log for details");
 
-  mesh.vertexSize = ::D3DXGetFVFVertexSize(mesh.fvf);
+  const auto [handle, vertexBuffer] = mVertexBuffers.allocate();
 
-  const auto bufferSize = mesh.vertexSize * numVertices;
-  D3D9CALL(mDevice->CreateVertexBuffer(
-    bufferSize, D3DUSAGE_WRITEONLY, mesh.fvf, D3DPOOL_MANAGED,
-    mesh.vertexBuffer.GetAddressOf(), nullptr));
+  D3D9CALL(mDevice->CreateVertexBuffer(size, D3DUSAGE_WRITEONLY, fvf,
+                                       D3DPOOL_MANAGED,
+                                       vertexBuffer.GetAddressOf(), nullptr));
 
   // upload vertex data
-  void* vertexBufferData = nullptr;
-  if (SUCCEEDED(mesh.vertexBuffer->Lock(0u, 0u, &vertexBufferData, 0u))) {
-    std::memcpy(vertexBufferData, data, bufferSize);
-    D3D9CALL(mesh.vertexBuffer->Unlock());
+  void* vertexBufferData {};
+  if (SUCCEEDED(vertexBuffer->Lock(0u, 0u, &vertexBufferData, 0u))) {
+    std::copy(data.begin(), data.end(),
+              static_cast<std::byte*>(vertexBufferData));
+    D3D9CALL(vertexBuffer->Unlock());
   } else {
     BASALT_LOG_ERROR("Failed to lock vertex buffer");
   }
 
-  fill_primitive_info(mesh, primitiveType, numVertices);
-
-  return meshHandle;
+  return handle;
 }
 
 auto D3D9Device::add_texture(const string_view filePath) -> Texture {
@@ -255,13 +249,16 @@ auto D3D9Device::query_extension(const ext::ExtensionId id)
 }
 
 void D3D9Device::execute(const CommandDraw& cmd) const {
-  const auto& mesh = mMeshes[cmd.mesh];
+  auto* vertexBuffer = mVertexBuffers[cmd.vertexBuffer].Get();
 
-  D3D9CALL(
-    mDevice->SetStreamSource(0u, mesh.vertexBuffer.Get(), 0u, mesh.vertexSize));
+  D3DVERTEXBUFFER_DESC desc {};
+  D3D9CALL(vertexBuffer->GetDesc(&desc));
 
-  D3D9CALL(mDevice->SetFVF(mesh.fvf));
-  D3D9CALL(mDevice->DrawPrimitive(mesh.primType, 0u, mesh.primCount));
+  D3D9CALL(mDevice->SetStreamSource(0u, vertexBuffer, 0u,
+                                    ::D3DXGetFVFVertexSize(desc.FVF)));
+  D3D9CALL(mDevice->SetFVF(desc.FVF));
+  D3D9CALL(mDevice->DrawPrimitive(to_d3d_primitive_type(cmd.primitiveType),
+                                  cmd.startVertex, cmd.primitiveCount));
 }
 
 void D3D9Device::execute(const CommandSetDirectionalLights& cmd) {
@@ -448,44 +445,29 @@ auto to_d3d_texture_stage_state(const TextureStageState state, const u32 value)
   return {textureStageState, d3dValue};
 }
 
-void fill_primitive_info(D3D9Mesh& mesh, const PrimitiveType primitiveType,
-                         const i32 numVtx) {
+auto to_d3d_primitive_type(const PrimitiveType primitiveType)
+  -> D3DPRIMITIVETYPE {
   switch (primitiveType) {
   case PrimitiveType::PointList:
-    mesh.primType = D3DPT_POINTLIST;
-    mesh.primCount = numVtx;
-    break;
+    return D3DPT_POINTLIST;
 
   case PrimitiveType::LineList:
-    mesh.primType = D3DPT_LINELIST;
-    BASALT_ASSERT_MSG(numVtx % 2 == 0,
-                      "Wrong amount of vertices for PrimitiveType::LINE_LIST");
-    mesh.primCount = numVtx / 2;
-    break;
+    return D3DPT_LINELIST;
 
   case PrimitiveType::LineStrip:
-    mesh.primType = D3DPT_LINESTRIP;
-    mesh.primCount = numVtx - 1;
-    break;
+    return D3DPT_LINESTRIP;
 
   case PrimitiveType::TriangleList:
-    mesh.primType = D3DPT_TRIANGLELIST;
-    BASALT_ASSERT_MSG(
-      numVtx % 3 == 0,
-      "Wrong amount of vertices for PrimitiveType::TRIANGLE_LIST");
-    mesh.primCount = numVtx / 3;
-    break;
+    return D3DPT_TRIANGLELIST;
 
   case PrimitiveType::TriangleStrip:
-    mesh.primType = D3DPT_TRIANGLESTRIP;
-    mesh.primCount = numVtx - 2;
-    break;
+    return D3DPT_TRIANGLESTRIP;
 
   case PrimitiveType::TriangleFan:
-    mesh.primType = D3DPT_TRIANGLEFAN;
-    mesh.primCount = numVtx - 2;
-    break;
+    return D3DPT_TRIANGLEFAN;
   }
+
+  return D3DPT_FORCE_DWORD;
 }
 
 D3D9ImGuiRenderer::D3D9ImGuiRenderer(ComPtr<IDirect3DDevice9> device)

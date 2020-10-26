@@ -15,13 +15,18 @@
 namespace basalt::gfx {
 
 struct CommandDraw final : CommandT<CommandType::Draw> {
-  MeshHandle mesh {MeshHandle::null()};
+  PrimitiveType primitiveType {PrimitiveType::TriangleList};
+  VertexBuffer vertexBuffer {VertexBuffer::null()};
+  u32 startVertex {};
+  u32 primitiveCount {};
 
-  constexpr explicit CommandDraw(const MeshHandle m) noexcept : mesh {m} {
+  constexpr CommandDraw(const VertexBuffer v, const PrimitiveType p,
+                        const u32 s, const u32 c) noexcept
+    : primitiveType {p}, vertexBuffer {v}, startVertex {s}, primitiveCount {c} {
   }
 };
 
-static_assert(sizeof(CommandDraw) == 8);
+static_assert(sizeof(CommandDraw) == 16);
 
 struct CommandSetDirectionalLights final
   : CommandT<CommandType::SetDirectionalLights> {

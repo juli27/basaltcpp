@@ -5,6 +5,9 @@
 
 #include "api/base/types.h"
 
+#include <gsl/span>
+
+#include <cstddef>
 #include <optional>
 #include <string_view>
 
@@ -29,17 +32,8 @@ struct Device {
 
   // TODO: method to retrieve a preferred vertex layout ?
 
-  /**
-   * \brief Adds a static mesh to the device to prepare it for rendering.
-   *
-   * \param data vertex data
-   * \param numVertices number of vertices
-   * \param layout the layout of a vertex
-   * \param primitiveType the primitive type of the mesh
-   * \return handle of the added mesh
-   */
-  virtual auto add_mesh(void* data, i32 numVertices, const VertexLayout& layout,
-                        PrimitiveType primitiveType) -> MeshHandle = 0;
+  virtual auto create_vertex_buffer(gsl::span<const std::byte> data,
+                                    const VertexLayout&) -> VertexBuffer = 0;
 
   // takes in a file path for now
   // TODO: move file loading into the resources namespace

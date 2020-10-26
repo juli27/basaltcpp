@@ -11,8 +11,6 @@
 #include <api/math/constants.h>
 #include <api/shared/config.h>
 
-#include <entt/entity/registry.hpp>
-
 #include <array>
 
 using std::array;
@@ -25,6 +23,8 @@ using basalt::PI;
 using basalt::Transform;
 using basalt::gfx::Device;
 using basalt::gfx::MaterialDescriptor;
+using basalt::gfx::MeshDescriptor;
+using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SceneView;
 using basalt::gfx::VertexElement;
@@ -32,7 +32,8 @@ using basalt::gfx::VertexLayout;
 
 namespace d3d9 {
 
-Matrices::Matrices(Engine& engine) {
+Matrices::Matrices(Engine& engine)
+  : mSceneView {std::make_shared<SceneView>(mScene, create_default_camera())} {
   mScene->set_background(Colors::BLACK);
 
   struct Vertex final {
@@ -42,7 +43,7 @@ Matrices::Matrices(Engine& engine) {
     ColorEncoding::A8R8G8B8 color {};
   };
 
-  array<Vertex, 3u> vertices {
+  const array<Vertex, 3u> vertices {
     Vertex {-1.0f, -1.0f, 0.0f,
             ColorEncoding::pack_logical_a8r8g8b8(255, 0, 0)},
     Vertex {1.0f, -1.0f, 0.0f, ColorEncoding::pack_logical_a8r8g8b8(0, 0, 255)},
@@ -52,27 +53,26 @@ Matrices::Matrices(Engine& engine) {
   const VertexLayout vertexLayout {VertexElement::Position3F32,
                                    VertexElement::ColorDiffuse1U32};
 
-  entt::registry& ecs {mScene->ecs()};
-  mTriangle = ecs.create();
-  ecs.emplace<Transform>(mTriangle);
+  (void)mTriangle.emplace<Transform>();
 
-  auto& rc {ecs.emplace<RenderComponent>(mTriangle)};
-  rc.mesh =
-    add_triangle_list_mesh(*engine.gfx_device(), vertices, vertexLayout);
+  const MeshDescriptor mesh {as_bytes(gsl::span {vertices}), vertexLayout,
+                             PrimitiveType::TriangleList,
+                             static_cast<u32>(vertices.size() / 3)};
+
+  auto& rc {mTriangle.emplace<RenderComponent>()};
+  rc.mesh = engine.gfx_resource_cache().create_mesh(mesh);
 
   MaterialDescriptor material;
   material.cullBackFace = false;
   material.lit = false;
 
   rc.material = engine.gfx_resource_cache().create_material(material);
-
-  mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }
 
 void Matrices::on_update(const basalt::UpdateContext& ctx) {
   // 1 full rotation per second
   const f32 radOffsetY {2.0f * PI * static_cast<f32>(ctx.deltaTime)};
-  auto& transform {mScene->ecs().get<Transform>(mTriangle)};
+  auto& transform {mTriangle.get<Transform>()};
   transform.rotate(0.0f, radOffsetY, 0.0f);
 
   ctx.drawTarget.draw(mSceneView);

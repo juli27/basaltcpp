@@ -5,6 +5,8 @@
 #include <api/gfx/scene_view.h>
 #include <api/scene/scene.h>
 
+#include <entt/entity/handle.hpp>
+
 #include <memory>
 
 namespace d3d9 {
@@ -25,9 +27,9 @@ struct Lights final : TestCase {
 
 private:
   std::shared_ptr<basalt::Scene> mScene {std::make_shared<basalt::Scene>()};
-  std::shared_ptr<basalt::gfx::SceneView> mSceneView {};
+  std::shared_ptr<basalt::gfx::SceneView> mSceneView;
   basalt::f32 mLightAngle {0.0f};
-  entt::entity mCylinder {entt::null};
+  entt::handle mCylinder {mScene->create_entity()};
 };
 
 } // namespace d3d9

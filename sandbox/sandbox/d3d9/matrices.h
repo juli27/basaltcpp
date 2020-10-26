@@ -5,6 +5,8 @@
 #include <api/gfx/scene_view.h>
 #include <api/scene/scene.h>
 
+#include <entt/entity/handle.hpp>
+
 #include <memory>
 
 namespace d3d9 {
@@ -25,8 +27,8 @@ struct Matrices final : TestCase {
 
 private:
   std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();
-  std::shared_ptr<basalt::gfx::SceneView> mSceneView {};
-  entt::entity mTriangle {entt::null};
+  std::shared_ptr<basalt::gfx::SceneView> mSceneView;
+  entt::handle mTriangle {mScene->create_entity()};
 };
 
 } // namespace d3d9

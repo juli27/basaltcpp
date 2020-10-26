@@ -10,6 +10,8 @@
 #include <api/gfx/draw_target.h>
 #include <api/gfx/backend/types.h>
 
+#include <gsl/span>
+
 #include <array>
 #include <memory>
 
@@ -22,7 +24,9 @@ using basalt::Size2Du16;
 using basalt::gfx::CommandList;
 using basalt::gfx::CommandListRecorder;
 using basalt::gfx::Drawable;
-using basalt::gfx::MeshHandle;
+using basalt::gfx::Mesh;
+using basalt::gfx::MeshDescriptor;
+using basalt::gfx::PrimitiveType;
 using basalt::gfx::ResourceCache;
 using basalt::gfx::VertexElement;
 using basalt::gfx::VertexLayout;
@@ -32,13 +36,14 @@ namespace d3d9 {
 namespace {
 
 struct MyDrawable final : Drawable {
-  explicit MyDrawable(const MeshHandle triangle) noexcept
-    : mTriangle {triangle} {
+  explicit MyDrawable(const Mesh triangle) noexcept : mTriangle {triangle} {
   }
 
-  auto draw(ResourceCache&, Size2Du16) -> CommandList override {
+  auto draw(ResourceCache& cache, Size2Du16) -> CommandList override {
     CommandListRecorder cmdListRecorder;
-    cmdListRecorder.draw(mTriangle);
+    const auto& mesh = cache.get(mTriangle);
+    cmdListRecorder.draw(mesh.vertexBuffer, mesh.primitiveType,
+                         mesh.startVertex, mesh.primitiveCount);
 
     return cmdListRecorder.complete_command_list();
   }
@@ -48,7 +53,7 @@ struct MyDrawable final : Drawable {
   }
 
 private:
-  MeshHandle mTriangle {MeshHandle::null()};
+  Mesh mTriangle {Mesh::null()};
 };
 
 } // namespace
@@ -62,7 +67,7 @@ Vertices::Vertices(Engine& engine) {
     ColorEncoding::A8R8G8B8 color;
   };
 
-  array<Vertex, 3u> vertices {
+  const array<Vertex, 3u> vertices {
     Vertex {150.0f, 50.0f, 0.5f, 1.0f,
             ColorEncoding::pack_logical_a8r8g8b8(255, 0, 0)},
     Vertex {250.0f, 250.0f, 0.5f, 1.0f,
@@ -73,8 +78,11 @@ Vertices::Vertices(Engine& engine) {
   const VertexLayout vertexLayout {VertexElement::PositionTransformed4F32,
                                    VertexElement::ColorDiffuse1U32};
 
-  const MeshHandle triangle =
-    add_triangle_list_mesh(*engine.gfx_device(), vertices, vertexLayout);
+  const MeshDescriptor mesh {as_bytes(gsl::span {vertices}), vertexLayout,
+                             PrimitiveType::TriangleList,
+                             static_cast<u32>(vertices.size() / 3)};
+
+  const Mesh triangle = engine.gfx_resource_cache().create_mesh(mesh);
   mDrawable = std::make_shared<MyDrawable>(triangle);
 }
 

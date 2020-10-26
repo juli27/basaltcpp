@@ -32,6 +32,8 @@ using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::MaterialDescriptor;
+using basalt::gfx::MeshDescriptor;
+using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SceneView;
 using basalt::gfx::TexCoordinateSrc;
@@ -42,6 +44,8 @@ using basalt::gfx::VertexElement;
 using basalt::gfx::VertexLayout;
 
 namespace d3d9 {
+
+struct MeshBuilder final {};
 
 TexturesTci::TexturesTci(Engine& engine) {
   mScene->set_background(Colors::BLUE);
@@ -79,7 +83,14 @@ TexturesTci::TexturesTci(Engine& engine) {
 
   auto& rc = mCylinder.emplace<RenderComponent>();
   const auto device = engine.gfx_device();
-  rc.mesh = add_triangle_strip_mesh(*device, vertices, vertexLayout);
+
+  MeshDescriptor mesh;
+  mesh.data = as_bytes(gsl::span {vertices});
+  mesh.layout = vertexLayout;
+  mesh.primitiveType = PrimitiveType::TriangleStrip;
+  mesh.primitiveCount = static_cast<u32>(vertices.size() - 2);
+
+  rc.mesh = engine.gfx_resource_cache().create_mesh(mesh);
   rc.texture = engine.get_or_load<Texture>("data/banana.bmp"_hs);
 
   MaterialDescriptor material;

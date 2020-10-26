@@ -12,8 +12,12 @@ using std::vector;
 
 namespace basalt::gfx {
 
-void CommandListRecorder::draw(const MeshHandle mesh) {
-  mCommandList.add<CommandDraw>(mesh);
+void CommandListRecorder::draw(const VertexBuffer vertexBuffer,
+                               const PrimitiveType primitiveType,
+                               const u32 startVertex,
+                               const u32 primitiveCount) {
+  mCommandList.add<CommandDraw>(vertexBuffer, primitiveType, startVertex,
+                                primitiveCount);
 }
 
 void CommandListRecorder::set_directional_lights(

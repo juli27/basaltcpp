@@ -16,7 +16,7 @@
 namespace basalt::gfx {
 
 struct CommandListRecorder final {
-  void draw(MeshHandle);
+  void draw(VertexBuffer, PrimitiveType, u32 startVertex, u32 primitiveCount);
   void set_directional_lights(const std::vector<DirectionalLight>&);
   void set_transform(TransformState, const Mat4f32&);
   void set_material(const Color& diffuse, const Color& ambient,

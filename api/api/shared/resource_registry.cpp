@@ -4,8 +4,8 @@
 
 namespace basalt {
 
-void ResourceRegistry::register_resource(const entt::hashed_string file) {
-  mResources[file] = file.data();
+void ResourceRegistry::register_resource(const Resource resource) {
+  mResources[resource] = resource.data();
 }
 
 auto ResourceRegistry::has_resource(const ResourceId id) const -> bool {

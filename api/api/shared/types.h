@@ -21,6 +21,7 @@ enum class WindowMode : u8 {
   FullscreenExclusive,
 };
 
+using Resource = entt::hashed_string;
 using ResourceId = entt::hashed_string::hash_type;
 
 struct ResourceRegistry;

@@ -104,17 +104,18 @@ enum class PrimitiveType : u8 {
   LineStrip,
   TriangleList,
   TriangleStrip,
-  TriangleFan
+  TriangleFan,
 };
+constexpr uSize PRIMITIVE_TYPE_COUNT = 6u;
 
 namespace detail {
 
-struct MeshTag;
+struct VertexBufferTag;
 struct TextureTag;
 
 } // namespace detail
 
-using MeshHandle = Handle<detail::MeshTag>;
+using VertexBuffer = Handle<detail::VertexBufferTag>;
 using Texture = Handle<detail::TextureTag>;
 
 } // namespace basalt::gfx

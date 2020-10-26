@@ -60,6 +60,15 @@ auto ResourceCache::load(const ResourceId id) -> Texture {
   return mTextures[id] = mDevice->add_texture(path.u8string());
 }
 
+auto ResourceCache::create_mesh(const MeshDescriptor& desc) -> Mesh {
+  auto [mesh, data] = mMeshes.allocate();
+  data.vertexBuffer = mDevice->create_vertex_buffer(desc.data, desc.layout);
+  data.primitiveType = desc.primitiveType;
+  data.primitiveCount = desc.primitiveCount;
+
+  return mesh;
+}
+
 auto ResourceCache::create_material(const MaterialDescriptor& desc)
   -> Material {
   auto [material, data] = mMaterials.allocate();
@@ -106,6 +115,10 @@ auto ResourceCache::get(const ResourceId id) -> Texture {
   BASALT_ASSERT(mTextures.find(id) != mTextures.end());
 
   return mTextures[id];
+}
+
+auto ResourceCache::get(const Mesh mesh) const -> const MeshData& {
+  return mMeshes[mesh];
 }
 
 auto ResourceCache::get(const Material material) const -> const MaterialData& {

@@ -2,15 +2,13 @@
 
 #include "types.h"
 
-#include <entt/core/hashed_string.hpp>
-
 #include <filesystem>
 #include <unordered_map>
 
 namespace basalt {
 
 struct ResourceRegistry final {
-  void register_resource(entt::hashed_string file);
+  void register_resource(Resource);
 
   [[nodiscard]] auto has_resource(ResourceId) const -> bool;
   [[nodiscard]] auto get_path(ResourceId) const -> const std::filesystem::path&;

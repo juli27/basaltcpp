@@ -44,6 +44,7 @@ using gfx::CommandSetRenderState;
 using gfx::CommandSetTexture;
 using gfx::CommandSetTextureStageState;
 using gfx::CommandSetTransform;
+using gfx::PrimitiveType;
 using gfx::RenderState;
 using gfx::TextureStageState;
 
@@ -161,6 +162,25 @@ void display_mat4(const char* label, const Mat4f32& mat) {
                      ImGuiInputTextFlags_ReadOnly);
 }
 
+#define ENUM_TO_STRING(e)                                                      \
+  case e:                                                                      \
+    return #e
+
+auto to_string(const PrimitiveType primitiveType) -> const char* {
+  switch (primitiveType) {
+    ENUM_TO_STRING(PrimitiveType::PointList);
+    ENUM_TO_STRING(PrimitiveType::LineList);
+    ENUM_TO_STRING(PrimitiveType::LineStrip);
+    ENUM_TO_STRING(PrimitiveType::TriangleList);
+    ENUM_TO_STRING(PrimitiveType::TriangleStrip);
+    ENUM_TO_STRING(PrimitiveType::TriangleFan);
+  }
+
+  return "(unknown)";
+}
+
+#undef ENUM_TO_STRING
+
 auto to_string(const RenderState state) -> const char* {
   switch (state) {
   case RenderState::Lighting:
@@ -216,12 +236,15 @@ auto to_string(const gfx::TransformState transformType) -> const char* {
   return "(unknown)";
 }
 
-void display(const CommandDraw& command) {
+void display(const CommandDraw& cmd) {
   ImGui::TextUnformatted("Draw");
   if (ImGui::IsItemHovered()) {
     ImGui::BeginTooltip();
 
-    ImGui::Text("mesh = %#x", command.mesh.value());
+    ImGui::Text("vertexBuffer = %#x", cmd.vertexBuffer.value());
+    ImGui::Text("startVertex = %u", cmd.startVertex);
+    ImGui::Text("primitiveType = %s", to_string(cmd.primitiveType));
+    ImGui::Text("primitiveCount = %u", cmd.primitiveCount);
 
     ImGui::EndTooltip();
   }

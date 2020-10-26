@@ -14,14 +14,6 @@
 
 namespace basalt::gfx {
 
-struct D3D9Mesh {
-  Microsoft::WRL::ComPtr<IDirect3DVertexBuffer9> vertexBuffer {};
-  DWORD fvf {0u};
-  UINT vertexSize {0u};
-  D3DPRIMITIVETYPE primType {D3DPT_POINTLIST};
-  UINT primCount {0u};
-};
-
 struct D3D9Device final : Device {
   explicit D3D9Device(Microsoft::WRL::ComPtr<IDirect3DDevice9> device);
 
@@ -34,8 +26,9 @@ struct D3D9Device final : Device {
   void execute(const CommandList&);
   void end_execution() const;
 
-  auto add_mesh(void* data, i32 numVertices, const VertexLayout& layout,
-                PrimitiveType primitiveType) -> MeshHandle override;
+  auto create_vertex_buffer(gsl::span<const std::byte> data,
+                            const VertexLayout&) -> VertexBuffer override;
+
   auto add_texture(std::string_view filePath) -> Texture override;
 
   auto query_extension(ext::ExtensionId)
@@ -43,13 +36,14 @@ struct D3D9Device final : Device {
 
 private:
   using ExtensionMap = std::unordered_map<ext::ExtensionId, ext::ExtensionPtr>;
+  using D3D9VertexBuffer = Microsoft::WRL::ComPtr<IDirect3DVertexBuffer9>;
   using TexturePtr = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
 
   Microsoft::WRL::ComPtr<IDirect3DDevice9> mDevice;
 
   ExtensionMap mExtensions;
 
-  HandlePool<D3D9Mesh, MeshHandle> mMeshes;
+  HandlePool<D3D9VertexBuffer, VertexBuffer> mVertexBuffers;
   HandlePool<TexturePtr, Texture> mTextures;
 
   D3DCAPS9 mDeviceCaps {};

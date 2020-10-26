@@ -28,6 +28,8 @@ using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Device;
 using basalt::gfx::MaterialDescriptor;
+using basalt::gfx::MeshDescriptor;
+using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SceneView;
 using basalt::gfx::VertexElement;
@@ -35,7 +37,8 @@ using basalt::gfx::VertexLayout;
 
 namespace d3d9 {
 
-Lights::Lights(Engine& engine) {
+Lights::Lights(Engine& engine)
+  : mSceneView {std::make_shared<SceneView>(mScene, create_default_camera())} {
   mScene->set_background(Colors::BLUE);
   mScene->set_ambient_light(Color::from_rgba(32, 32, 32));
 
@@ -72,26 +75,25 @@ Lights::Lights(Engine& engine) {
   const VertexLayout vertexLayout {VertexElement::Position3F32,
                                    VertexElement::Normal3F32};
 
-  entt::registry& ecs {mScene->ecs()};
-  mCylinder = ecs.create();
-  ecs.emplace<Transform>(mCylinder);
+  (void)mCylinder.emplace<Transform>();
 
-  auto& rc {ecs.emplace<RenderComponent>(mCylinder)};
-  rc.mesh =
-    add_triangle_strip_mesh(*engine.gfx_device(), vertices, vertexLayout);
+  const MeshDescriptor mesh {as_bytes(gsl::span(vertices)), vertexLayout,
+                             PrimitiveType::TriangleStrip,
+                             static_cast<u32>(vertices.size() - 2)};
+
+  auto& rc {mCylinder.emplace<RenderComponent>()};
+  rc.mesh = engine.gfx_resource_cache().create_mesh(mesh);
 
   MaterialDescriptor material;
   material.diffuse = Color {1.0f, 1.0f, 0.0f};
   material.ambient = Color {1.0f, 1.0f, 0.0f};
   material.cullBackFace = false;
   rc.material = engine.gfx_resource_cache().create_material(material);
-
-  mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }
 
 void Lights::on_update(const basalt::UpdateContext& ctx) {
   const auto dt {static_cast<f32>(ctx.deltaTime)};
-  auto& transform {mScene->ecs().get<Transform>(mCylinder)};
+  auto& transform {mCylinder.get<Transform>()};
   transform.rotate(2.0f * dt, 0.0f, 0.0f);
 
   mLightAngle += 20.0f / 7.0f * dt;

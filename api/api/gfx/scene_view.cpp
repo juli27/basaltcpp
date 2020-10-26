@@ -107,7 +107,9 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
         cmdListRecorder.set_texture(renderComponent.texture);
       }
 
-      cmdListRecorder.draw(renderComponent.mesh);
+      const auto& meshData = cache.get(renderComponent.mesh);
+      cmdListRecorder.draw(meshData.vertexBuffer, meshData.primitiveType,
+                           meshData.startVertex, meshData.primitiveCount);
     });
 
   return cmdListRecorder.complete_command_list();

@@ -22,8 +22,10 @@ struct ResourceCache {
   template <typename T>
   auto get(ResourceId) -> T;
 
+  auto create_mesh(const MeshDescriptor&) -> Mesh;
   auto create_material(const MaterialDescriptor&) -> Material;
 
+  [[nodiscard]] auto get(Mesh) const -> const MeshData&;
   [[nodiscard]] auto get(Material) const -> const MaterialData&;
 
 private:
@@ -31,6 +33,7 @@ private:
   DevicePtr mDevice;
   std::unordered_map<ResourceId, ext::XModel> mModels;
   std::unordered_map<ResourceId, Texture> mTextures;
+  HandlePool<MeshData, Mesh> mMeshes;
   HandlePool<MaterialData, Material> mMaterials;
 };
 

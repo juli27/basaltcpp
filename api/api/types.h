@@ -3,16 +3,12 @@
 #include "base/types.h"
 #include "base/vec.h"
 
-#include <entt/core/hashed_string.hpp>
-
 #include <memory>
 
 namespace basalt {
 
 struct Engine;
 struct UpdateContext;
-
-using Resource = entt::hashed_string;
 
 enum class InputEventType : u8 {
   MouseMoved,
