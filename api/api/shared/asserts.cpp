@@ -10,7 +10,10 @@ namespace basalt::detail {
 
 void fail_assert(const char* message, const char* file, const int line,
                  const char* func) {
-  BASALT_LOG_FATAL("ASSERT FAILED: {} at {}:{} {}", message, file, line, func);
+  BASALT_LOG_FATAL("ASSERT FAILED: {}", message);
+  BASALT_LOG_FATAL("\tfile: {}", file);
+  BASALT_LOG_FATAL("\tline: {}", line);
+  BASALT_LOG_FATAL("\tfunction: {}", func);
 
   std::abort();
 }

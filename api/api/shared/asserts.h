@@ -4,8 +4,8 @@
 
 namespace basalt::detail {
 
-void fail_assert(const char* message, const char* file, int line,
-                 const char* func);
+[[noreturn]] void fail_assert(const char* message, const char* file, int line,
+                              const char* func);
 
 } // namespace basalt::detail
 
@@ -26,7 +26,7 @@ void fail_assert(const char* message, const char* file, int line,
 #define BASALT_ASSERT_MSG(b, msg)                                              \
   do {                                                                         \
     if (!(b)) {                                                                \
-      ::basalt::detail::fail_assert(#b " (" msg ")", __FILE__, __LINE__,       \
+      ::basalt::detail::fail_assert(msg " (" #b ")", __FILE__, __LINE__,       \
                                     BASALT_FUNCTION_SIGNATURE);                \
     }                                                                          \
   } while (false)
