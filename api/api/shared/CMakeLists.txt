@@ -2,6 +2,7 @@ target_sources(${CURRENT_TARGET}
   PRIVATE
     "asserts.cpp"
     "log.cpp"
+    "resource_registry.cpp"
   PUBLIC
     "asserts.h"
     "color.h"
@@ -10,6 +11,7 @@ target_sources(${CURRENT_TARGET}
     "handle.h"
     "handle_pool.h"
     "log.h"
+    "resource_registry.h"
     "size2d.h"
     "types.h"
 )

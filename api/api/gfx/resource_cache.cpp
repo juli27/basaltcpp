@@ -4,9 +4,8 @@
 #include "backend/utils.h"
 #include "backend/ext/x_model_support.h"
 
-#include "api/resources/resource_registry.h"
-
 #include "api/shared/asserts.h"
+#include "api/shared/resource_registry.h"
 
 #include <utility>
 
@@ -36,38 +35,45 @@ ResourceCache::ResourceCache(ResourceRegistryPtr resourceRegistry,
   , mDevice {std::move(device)} {
 }
 
-void ResourceCache::load(const ext::XModel model) const {
-  auto& registry = mResourceRegistry->get<ext::XModel>();
+auto ResourceCache::is_loaded(const ResourceId id) const -> bool {
+  return mModels.find(id) != mModels.end() ||
+         mTextures.find(id) != mTextures.end();
+}
+
+template <>
+auto ResourceCache::load(const ResourceId id) -> ext::XModel {
+  BASALT_ASSERT_MSG(!is_loaded(id), "XModel already loaded");
 
   const auto modelExt =
     *gfx::query_device_extension<ext::XModelSupport>(*mDevice);
 
-  auto& location = registry.get<FileLocation>(model);
-  registry.emplace<ext::XModelHandle>(model, modelExt->load(location.path));
+  const auto& path = mResourceRegistry->get_path(id);
+
+  return mModels[id] = modelExt->load(path.u8string());
 }
 
-void ResourceCache::load(const Texture texture) const {
-  auto& registry = mResourceRegistry->get<Texture>();
-  auto& location = registry.get<FileLocation>(texture);
-  registry.emplace<TextureHandle>(texture, mDevice->add_texture(location.path));
+template <>
+auto ResourceCache::load(const ResourceId id) -> Texture {
+  BASALT_ASSERT_MSG(!is_loaded(id), "Texture already loaded");
+
+  const auto& path = mResourceRegistry->get_path(id);
+  return mTextures[id] = mDevice->add_texture(path.u8string());
 }
 
-void ResourceCache::load(const Material material) const {
-  auto& registry = mResourceRegistry->get<Material>();
-
-  const auto& descriptor = registry.get<MaterialDescriptor>(material);
-  auto& data = registry.emplace<MaterialData>(material);
+auto ResourceCache::create_material(const MaterialDescriptor& desc)
+  -> Material {
+  auto [material, data] = mMaterials.allocate();
 
   // TODO: Cw winding order? Or only support CCw
   data.renderStates[RenderState::CullMode] =
-    descriptor.cullBackFace ? CullModeCcw : CullModeNone;
-  data.renderStates[RenderState::Lighting] = descriptor.lit;
+    desc.cullBackFace ? CullModeCcw : CullModeNone;
+  data.renderStates[RenderState::Lighting] = desc.lit;
 
   data.textureStageStates[TextureStageState::CoordinateSource] =
-    convert(descriptor.textureCoordinateSource);
+    convert(desc.textureCoordinateSource);
 
   u32 value = 0;
-  switch (descriptor.textureTransformMode) {
+  switch (desc.textureTransformMode) {
   case TextureTransformMode::Disabled:
     value = TtfDisabled;
     break;
@@ -76,56 +82,34 @@ void ResourceCache::load(const Material material) const {
     break;
   }
 
-  if (descriptor.textureTransformProjected) {
+  if (desc.textureTransformProjected) {
     value |= TtfProjected;
   }
 
   data.textureStageStates[TextureStageState::TextureTransformFlags] = value;
 
-  data.diffuse = descriptor.diffuse;
-  data.ambient = descriptor.ambient;
+  data.diffuse = desc.diffuse;
+  data.ambient = desc.ambient;
+
+  return material;
 }
 
-auto ResourceCache::has(const Texture texture) const -> bool {
-  auto& registry = mResourceRegistry->get<Texture>();
+template <>
+auto ResourceCache::get(const ResourceId id) -> ext::XModel {
+  BASALT_ASSERT(mModels.find(id) != mModels.end());
 
-  return registry.valid(texture) && registry.has<TextureHandle>(texture);
+  return mModels[id];
 }
 
-auto ResourceCache::has(const Material material) const -> bool {
-  auto& registry = mResourceRegistry->get<Material>();
+template <>
+auto ResourceCache::get(const ResourceId id) -> Texture {
+  BASALT_ASSERT(mTextures.find(id) != mTextures.end());
 
-  return registry.valid(material) && registry.has<MaterialData>(material);
-}
-
-auto ResourceCache::get(const ext::XModel model) const -> ext::XModelHandle {
-  auto& registry = mResourceRegistry->get<ext::XModel>();
-
-  return registry.get<ext::XModelHandle>(model);
-}
-
-auto ResourceCache::get(const Texture texture) const -> TextureHandle {
-  auto& registry = mResourceRegistry->get<Texture>();
-
-  if (!registry.valid(texture)) {
-    return TextureHandle::null();
-  }
-
-  return registry.get<TextureHandle>(texture);
+  return mTextures[id];
 }
 
 auto ResourceCache::get(const Material material) const -> const MaterialData& {
-  auto& registry = mResourceRegistry->get<Material>();
-
-  // TODO: return an empty default material
-  BASALT_ASSERT(registry.valid(material));
-  if (!registry.valid(material)) {
-    static constexpr MaterialData DATA;
-
-    return DATA;
-  }
-
-  return registry.get<MaterialData>(material);
+  return mMaterials[material];
 }
 
 } // namespace basalt::gfx

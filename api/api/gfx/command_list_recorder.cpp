@@ -47,7 +47,7 @@ void CommandListRecorder::set_render_state(const RenderState state,
   }
 }
 
-void CommandListRecorder::set_texture(const TextureHandle texture) {
+void CommandListRecorder::set_texture(const Texture texture) {
   if (mDeviceState.update(texture)) {
     mCommandList.add<CommandSetTexture>(texture);
   }
@@ -61,7 +61,7 @@ void CommandListRecorder::set_texture_stage_state(const u8 stage,
   }
 }
 
-void CommandListRecorder::ext_draw_x_model(const ext::XModelHandle handle) {
+void CommandListRecorder::ext_draw_x_model(const ext::XModel handle) {
   mCommandList.add<ext::CommandDrawXModel>(handle);
 }
 

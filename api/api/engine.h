@@ -9,14 +9,12 @@
 #include "gfx/backend/types.h"
 #include "gfx/backend/ext/types.h"
 
-#include "resources/resource_registry.h"
-#include "resources/types.h"
-
+#include "shared/resource_registry.h"
 #include "shared/types.h"
+
 #include "base/types.h"
 
 #include <memory>
-#include <string_view>
 
 namespace basalt {
 
@@ -28,21 +26,27 @@ struct Engine {
   auto operator=(Engine &&) -> Engine& = delete;
 
   [[nodiscard]] auto config() const noexcept -> const Config&;
+
+  [[nodiscard]] auto resource_registry() const noexcept -> ResourceRegistry&;
+  [[nodiscard]] auto gfx_resource_cache() noexcept -> gfx::ResourceCache&;
+
   [[nodiscard]] auto gfx_device() const -> gfx::DevicePtr;
   [[nodiscard]] auto gfx_context() const noexcept -> gfx::Context&;
 
   [[nodiscard]] auto mouse_cursor() const noexcept -> MouseCursor;
   void set_mouse_cursor(MouseCursor) noexcept;
 
-  template <typename Resource>
-  [[nodiscard]] auto load(std::string_view) const -> Resource;
+  void load(Resource);
 
-  [[nodiscard]] auto load(MaterialDescriptor) const -> Material;
+  template <typename T>
+  auto get_or_load(Resource) -> T;
+
+  template <typename T>
+  auto get(ResourceId) -> T;
 
 protected:
   Config& mConfig;
-  std::shared_ptr<ResourceRegistry> mResourceRegistry =
-    std::make_shared<ResourceRegistry>();
+  ResourceRegistryPtr mResourceRegistry = std::make_shared<ResourceRegistry>();
 
   std::shared_ptr<gfx::Context> mGfxContext;
   gfx::ResourceCache mGfxResourceCache;
@@ -56,11 +60,14 @@ protected:
 };
 
 template <>
-[[nodiscard]] auto Engine::load(std::string_view filePath) const
-  -> gfx::ext::XModel;
+auto Engine::get_or_load(Resource) -> gfx::ext::XModel;
+template <>
+auto Engine::get_or_load(Resource) -> gfx::Texture;
 
 template <>
-[[nodiscard]] auto Engine::load(std::string_view filePath) const -> Texture;
+[[nodiscard]] auto Engine::get(ResourceId) -> gfx::ext::XModel;
+template <>
+[[nodiscard]] auto Engine::get(ResourceId) -> gfx::Texture;
 
 struct UpdateContext final {
   Engine& engine;

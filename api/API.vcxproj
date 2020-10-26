@@ -168,6 +168,7 @@
     <ClCompile Include="api\input.cpp" />
     <ClCompile Include="api\math\mat4.cpp" />
     <ClCompile Include="api\math\vector3.cpp" />
+    <ClCompile Include="api\shared\resource_registry.cpp" />
     <ClCompile Include="api\scene\scene.cpp" />
     <ClCompile Include="api\scene\transform.cpp" />
     <ClCompile Include="api\shared\asserts.cpp" />
@@ -208,8 +209,7 @@
     <ClInclude Include="api\gfx\backend\context.h" />
     <ClInclude Include="api\platform\platform.h" />
     <ClInclude Include="api\prelude.h" />
-    <ClInclude Include="api\resources\types.h" />
-    <ClInclude Include="api\resources\resource_registry.h" />
+    <ClInclude Include="api\shared\resource_registry.h" />
     <ClInclude Include="api\scene\scene.h" />
     <ClInclude Include="api\scene\transform.h" />
     <ClInclude Include="api\scene\types.h" />

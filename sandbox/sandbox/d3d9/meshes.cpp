@@ -17,7 +17,6 @@ using namespace std::literals;
 using basalt::Debug;
 using basalt::Engine;
 using basalt::Transform;
-using basalt::gfx::Model;
 using basalt::gfx::SceneView;
 using basalt::gfx::ext::XModel;
 
@@ -28,7 +27,7 @@ Meshes::Meshes(Engine& engine) {
   mScene->set_ambient_light(Colors::WHITE);
 
   (void)mTiger.emplace<Transform>();
-  mTiger.emplace<Model>(engine.load<XModel>("data/Tiger.x"sv));
+  mTiger.emplace<XModel>(engine.get_or_load<XModel>("data/Tiger.x"_hs));
 }
 
 void Meshes::on_update(const basalt::UpdateContext& ctx) {

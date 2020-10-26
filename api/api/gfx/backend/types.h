@@ -115,6 +115,6 @@ struct TextureTag;
 } // namespace detail
 
 using MeshHandle = Handle<detail::MeshTag>;
-using TextureHandle = Handle<detail::TextureTag>;
+using Texture = Handle<detail::TextureTag>;
 
 } // namespace basalt::gfx

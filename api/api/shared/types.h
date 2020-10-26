@@ -2,6 +2,10 @@
 
 #include "api/base/types.h"
 
+#include <entt/core/hashed_string.hpp>
+
+#include <memory>
+
 namespace basalt {
 
 struct Color;
@@ -16,5 +20,10 @@ enum class WindowMode : u8 {
   Fullscreen,
   FullscreenExclusive,
 };
+
+using ResourceId = entt::hashed_string::hash_type;
+
+struct ResourceRegistry;
+using ResourceRegistryPtr = std::shared_ptr<ResourceRegistry>;
 
 } // namespace basalt

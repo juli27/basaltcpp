@@ -9,16 +9,16 @@
 namespace basalt::gfx::ext {
 
 struct XModelSupport : ExtensionT<ExtensionId::XModelSupport> {
-  virtual auto load(std::string_view filePath) -> XModelHandle = 0;
+  virtual auto load(std::string_view filePath) -> XModel = 0;
 
 protected:
   XModelSupport() = default;
 };
 
 struct CommandDrawXModel final : CommandT<CommandType::ExtDrawXModel> {
-  XModelHandle handle;
+  XModel handle;
 
-  constexpr explicit CommandDrawXModel(const XModelHandle handle_) noexcept
+  constexpr explicit CommandDrawXModel(const XModel handle_) noexcept
     : handle {handle_} {
   }
 };

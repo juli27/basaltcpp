@@ -43,7 +43,7 @@ struct Device {
 
   // takes in a file path for now
   // TODO: move file loading into the resources namespace
-  virtual auto add_texture(std::string_view filePath) -> TextureHandle = 0;
+  virtual auto add_texture(std::string_view filePath) -> Texture = 0;
 
   virtual auto query_extension(ext::ExtensionId)
     -> std::optional<ext::ExtensionPtr> = 0;

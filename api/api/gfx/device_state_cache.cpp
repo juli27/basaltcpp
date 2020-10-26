@@ -44,7 +44,7 @@ auto DeviceStateCache::update(const TransformState state,
   return false;
 }
 
-auto DeviceStateCache::update(const TextureHandle texture) noexcept -> bool {
+auto DeviceStateCache::update(const Texture texture) noexcept -> bool {
   if (texture != mBoundTexture) {
     mBoundTexture = texture;
     return true;

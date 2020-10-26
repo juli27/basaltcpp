@@ -10,8 +10,6 @@
 
 #include <api/scene/transform.h>
 
-#include <api/resources/types.h>
-
 #include <api/math/constants.h>
 
 #include <api/shared/config.h>
@@ -25,13 +23,13 @@ using namespace std::literals;
 
 using basalt::Debug;
 using basalt::Engine;
-using basalt::MaterialDescriptor;
 using basalt::PI;
-using basalt::Texture;
 using basalt::Transform;
 using basalt::gfx::Device;
+using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SceneView;
+using basalt::gfx::Texture;
 using basalt::gfx::VertexElement;
 using basalt::gfx::VertexLayout;
 
@@ -84,13 +82,13 @@ Textures::Textures(Engine& engine) {
   auto& rc {ecs.emplace<RenderComponent>(mCylinder)};
   const auto device = engine.gfx_device();
   rc.mesh = add_triangle_strip_mesh(*device, vertices, vertexLayout);
-  rc.texture = engine.load<Texture>("data/banana.bmp"sv);
+  rc.texture = engine.get_or_load<Texture>("data/banana.bmp"_hs);
 
   MaterialDescriptor material;
   material.cullBackFace = false;
   material.lit = false;
 
-  rc.material = engine.load(material);
+  rc.material = engine.gfx_resource_cache().create_material(material);
 
   mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }

@@ -9,8 +9,6 @@
 #include <api/gfx/draw_target.h>
 #include <api/scene/transform.h>
 
-#include <api/resources/types.h>
-
 #include <api/math/constants.h>
 #include <api/math/vector3.h>
 
@@ -25,11 +23,11 @@ using namespace std::literals;
 
 using basalt::Debug;
 using basalt::Engine;
-using basalt::MaterialDescriptor;
 using basalt::PI;
 using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Device;
+using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SceneView;
 using basalt::gfx::VertexElement;
@@ -86,7 +84,7 @@ Lights::Lights(Engine& engine) {
   material.diffuse = Color {1.0f, 1.0f, 0.0f};
   material.ambient = Color {1.0f, 1.0f, 0.0f};
   material.cullBackFace = false;
-  rc.material = engine.load(material);
+  rc.material = engine.gfx_resource_cache().create_material(material);
 
   mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }

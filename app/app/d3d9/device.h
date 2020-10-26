@@ -36,21 +36,21 @@ struct D3D9Device final : Device {
 
   auto add_mesh(void* data, i32 numVertices, const VertexLayout& layout,
                 PrimitiveType primitiveType) -> MeshHandle override;
-  auto add_texture(std::string_view filePath) -> TextureHandle override;
+  auto add_texture(std::string_view filePath) -> Texture override;
 
   auto query_extension(ext::ExtensionId)
     -> std::optional<ext::ExtensionPtr> override;
 
 private:
   using ExtensionMap = std::unordered_map<ext::ExtensionId, ext::ExtensionPtr>;
-  using Texture = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
+  using TexturePtr = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
 
   Microsoft::WRL::ComPtr<IDirect3DDevice9> mDevice;
 
   ExtensionMap mExtensions;
 
   HandlePool<D3D9Mesh, MeshHandle> mMeshes;
-  HandlePool<Texture, TextureHandle> mTextures;
+  HandlePool<TexturePtr, Texture> mTextures;
 
   D3DCAPS9 mDeviceCaps {};
   u8 mMaxLightsUsed {};

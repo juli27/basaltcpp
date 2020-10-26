@@ -21,10 +21,10 @@ using namespace std::literals;
 
 using basalt::Debug;
 using basalt::Engine;
-using basalt::MaterialDescriptor;
 using basalt::PI;
 using basalt::Transform;
 using basalt::gfx::Device;
+using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SceneView;
 using basalt::gfx::VertexElement;
@@ -64,7 +64,7 @@ Matrices::Matrices(Engine& engine) {
   material.cullBackFace = false;
   material.lit = false;
 
-  rc.material = engine.load(material);
+  rc.material = engine.gfx_resource_cache().create_material(material);
 
   mSceneView = std::make_shared<SceneView>(mScene, create_default_camera());
 }

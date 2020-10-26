@@ -22,12 +22,12 @@ struct CommandListRecorder final {
   void set_material(const Color& diffuse, const Color& ambient,
                     const Color& emissive);
   void set_render_state(RenderState, u32 value);
-  void set_texture(TextureHandle);
+  void set_texture(Texture);
 
   // TODO: stage currently not supported
   void set_texture_stage_state(u8 stage, TextureStageState, u32 value);
 
-  void ext_draw_x_model(ext::XModelHandle);
+  void ext_draw_x_model(ext::XModel);
 
   [[nodiscard]] auto complete_command_list() -> CommandList;
 

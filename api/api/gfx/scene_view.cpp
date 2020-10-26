@@ -71,8 +71,8 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
 
   const auto& ecs = mScene->ecs();
 
-  ecs.view<const Model>().each(
-    [&, this](const entt::entity entity, const Model& model) {
+  ecs.view<const ext::XModel>().each(
+    [&, this](const entt::entity entity, const ext::XModel& model) {
       if (const auto* transform = ecs.try_get<Transform>(entity)) {
         const auto worldTransform = Mat4f32::scaling(transform->scale) *
                                     Mat4f32::rotation(transform->rotation) *
@@ -80,12 +80,12 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
         cmdListRecorder.set_transform(TransformState::World, worldTransform);
       }
 
-      cmdListRecorder.ext_draw_x_model(cache.get(model.handle));
+      cmdListRecorder.ext_draw_x_model(model);
     });
 
   ecs.view<const RenderComponent>().each(
     [&](const entt::entity entity, const RenderComponent& renderComponent) {
-      if (cache.has(renderComponent.material)) {
+      if (renderComponent.material) {
         const auto& materialData = cache.get(renderComponent.material);
 
         record_material(cmdListRecorder, materialData);
@@ -103,8 +103,8 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport)
                                       renderComponent.texTransform);
       }
 
-      if (cache.has(renderComponent.texture)) {
-        cmdListRecorder.set_texture(cache.get(renderComponent.texture));
+      if (renderComponent.texture) {
+        cmdListRecorder.set_texture(renderComponent.texture);
       }
 
       cmdListRecorder.draw(renderComponent.mesh);

@@ -460,17 +460,17 @@ void Debug::draw_scene_debug_ui(Scene& scene) {
             scene.mEntityRegistry.try_get<gfx::RenderComponent>(entity)) {
         if (ImGui::TreeNode("RenderComponent")) {
           ImGui::Text("Mesh: %#x", rc->mesh.value());
-          ImGui::Text("Texture: %#x", entt::to_integral(rc->texture));
-          ImGui::Text("Material: %#x", entt::to_integral(rc->material));
+          ImGui::Text("Texture: %#x", rc->texture.value());
+          ImGui::Text("Material: %#x", rc->material.value());
 
           ImGui::TreePop();
         }
       }
 
-      if (auto* const gfxModel =
-            scene.mEntityRegistry.try_get<gfx::Model>(entity)) {
+      if (auto* const gfxXModel =
+            scene.mEntityRegistry.try_get<gfx::ext::XModel>(entity)) {
         if (ImGui::TreeNode("Gfx Model")) {
-          ImGui::Text("handle = %d", entt::to_integral(gfxModel->handle));
+          ImGui::Text("handle = %d", gfxXModel->value());
 
           ImGui::TreePop();
         }

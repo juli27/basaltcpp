@@ -91,19 +91,19 @@ struct D3D9XModelSupport final : ext::XModelSupport {
 
   void execute(const ext::CommandDrawXModel&) const;
 
-  auto load(string_view filePath) -> ext::XModelHandle override;
+  auto load(string_view filePath) -> ext::XModel override;
 
 private:
-  using Texture = ComPtr<IDirect3DTexture9>;
+  using TexturePtr = ComPtr<IDirect3DTexture9>;
 
   struct Model {
     std::vector<D3DMATERIAL9> materials;
-    std::vector<Texture> textures;
+    std::vector<TexturePtr> textures;
     ComPtr<ID3DXMesh> mesh;
   };
 
   ComPtr<IDirect3DDevice9> mDevice;
-  HandlePool<Model, ext::XModelHandle> mModels {};
+  HandlePool<Model, ext::XModel> mModels;
 };
 
 } // namespace
@@ -233,7 +233,7 @@ auto D3D9Device::add_mesh(void* data, const i32 numVertices,
   return meshHandle;
 }
 
-auto D3D9Device::add_texture(const string_view filePath) -> TextureHandle {
+auto D3D9Device::add_texture(const string_view filePath) -> Texture {
   const auto [handle, texture] = mTextures.allocate();
 
   const auto wideFilePath = create_wide_from_utf8(filePath);
@@ -527,7 +527,7 @@ void D3D9XModelSupport::execute(const ext::CommandDrawXModel& cmd) const {
   D3D9CALL(mDevice->SetTexture(0, nullptr));
 }
 
-auto D3D9XModelSupport::load(const string_view filePath) -> ext::XModelHandle {
+auto D3D9XModelSupport::load(const string_view filePath) -> ext::XModel {
   const auto [handle, model] = mModels.allocate();
 
   const auto wideFilePath = create_wide_from_utf8(filePath);

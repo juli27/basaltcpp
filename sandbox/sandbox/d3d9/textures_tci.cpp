@@ -11,8 +11,6 @@
 
 #include <api/scene/transform.h>
 
-#include <api/resources/types.h>
-
 #include <api/math/constants.h>
 #include <api/math/mat4.h>
 #include <api/math/vector3.h>
@@ -29,17 +27,17 @@ using namespace std::literals;
 using basalt::Debug;
 using basalt::Engine;
 using basalt::Mat4f32;
-using basalt::MaterialDescriptor;
 using basalt::PI;
-using basalt::Texture;
-using basalt::TextureCoordinateSource;
-using basalt::TextureTransformMode;
 using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
+using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SceneView;
 using basalt::gfx::TexCoordinateSrc;
+using basalt::gfx::Texture;
+using basalt::gfx::TextureCoordinateSource;
+using basalt::gfx::TextureTransformMode;
 using basalt::gfx::VertexElement;
 using basalt::gfx::VertexLayout;
 
@@ -82,7 +80,7 @@ TexturesTci::TexturesTci(Engine& engine) {
   auto& rc = mCylinder.emplace<RenderComponent>();
   const auto device = engine.gfx_device();
   rc.mesh = add_triangle_strip_mesh(*device, vertices, vertexLayout);
-  rc.texture = engine.load<Texture>("data/banana.bmp"sv);
+  rc.texture = engine.get_or_load<Texture>("data/banana.bmp"_hs);
 
   MaterialDescriptor material;
   material.cullBackFace = false;
@@ -92,7 +90,7 @@ TexturesTci::TexturesTci(Engine& engine) {
   material.textureTransformMode = TextureTransformMode::Count4;
   material.textureTransformProjected = true;
 
-  rc.material = engine.load(material);
+  rc.material = engine.gfx_resource_cache().create_material(material);
 
   const auto& camera = mSceneView->camera();
   rc.texTransform =

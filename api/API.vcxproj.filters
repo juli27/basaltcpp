@@ -50,6 +50,9 @@
     <ClCompile Include="api\math\vector3.cpp">
       <Filter>math</Filter>
     </ClCompile>
+    <ClCompile Include="api\shared\resource_registry.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="api\gfx\backend\context.h">
@@ -149,14 +152,8 @@
     <ClInclude Include="api\gfx\command_list_recorder.h">
       <Filter>gfx</Filter>
     </ClInclude>
-    <ClInclude Include="api\resources\resource_registry.h">
-      <Filter>resources</Filter>
-    </ClInclude>
     <ClInclude Include="api\gfx\resource_cache.h">
       <Filter>gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="api\resources\types.h">
-      <Filter>resources</Filter>
     </ClInclude>
     <ClInclude Include="api\gfx\backend\ext\x_model_support.h">
       <Filter>gfx\backend\ext</Filter>
@@ -188,6 +185,9 @@
     <ClInclude Include="api\base\enum_array.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="api\shared\resource_registry.h">
+      <Filter>shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="platform">
@@ -210,9 +210,6 @@
     </Filter>
     <Filter Include="gfx\backend\ext">
       <UniqueIdentifier>{3ab4b26b-9966-4030-834a-beb12cfa9763}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="resources">
-      <UniqueIdentifier>{d835ef80-31e6-409f-b2b5-8e0fc217c0a3}</UniqueIdentifier>
     </Filter>
     <Filter Include="base">
       <UniqueIdentifier>{00b29e6f-b537-479c-9478-d93a9f3b12aa}</UniqueIdentifier>

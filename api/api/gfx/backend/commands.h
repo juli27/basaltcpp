@@ -88,9 +88,9 @@ struct CommandSetTextureStageState final
 static_assert(sizeof(CommandSetTextureStageState) == 8);
 
 struct CommandSetTexture final : CommandT<CommandType::SetTexture> {
-  TextureHandle texture {TextureHandle::null()};
+  Texture texture {Texture::null()};
 
-  constexpr explicit CommandSetTexture(const TextureHandle t) noexcept
+  constexpr explicit CommandSetTexture(const Texture t) noexcept
     : texture {t} {
   }
 };

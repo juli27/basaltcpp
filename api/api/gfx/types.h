@@ -1,17 +1,14 @@
 #pragma once
 
 #include "backend/types.h"
-#include "backend/ext/types.h"
 
-#include "api/resources/types.h"
 #include "api/math/mat4.h"
 
 #include "api/shared/color.h"
+#include "api/shared/handle.h"
 
 #include "api/base/enum_array.h"
 #include "api/base/types.h"
-
-#include <entt/entity/entity.hpp>
 
 #include <memory>
 
@@ -24,20 +21,44 @@ using DrawablePtr = std::shared_ptr<Drawable>;
 
 struct ResourceCache;
 
+namespace detail {
+
+struct MaterialTag;
+
+} // namespace detail
+
+using Material = Handle<detail::MaterialTag>;
+
+// using Texture = std::string;
+// struct VertexColor final {};
+// using Diffuse = std::variant<Color, VertexColor, Texture>;
+
+enum class TextureCoordinateSource : u8 { Vertex, VertexPositionCameraSpace };
+enum class TextureTransformMode : u8 { Disabled, Count4 };
+
+struct MaterialDescriptor final {
+  Color diffuse;
+  Color ambient;
+
+  bool cullBackFace {true};
+  bool lit {true};
+
+  TextureCoordinateSource textureCoordinateSource {
+    TextureCoordinateSource::Vertex};
+  TextureTransformMode textureTransformMode {TextureTransformMode::Disabled};
+  bool textureTransformProjected {false};
+};
+
+static_assert(sizeof(MaterialDescriptor) == 40);
+
 struct RenderComponent final {
   MeshHandle mesh;
-  Texture texture {entt::null};
-  Material material {entt::null};
+  Texture texture {Texture::null()};
+  Material material {Material::null()};
   Mat4f32 texTransform {Mat4f32::identity()};
 };
 
 static_assert(sizeof(RenderComponent) == 76);
-
-struct Model final {
-  ext::XModel handle {entt::null};
-};
-
-static_assert(sizeof(Model) == 4);
 
 struct MaterialData final {
   EnumArray<RenderState, u32, RENDER_STATE_COUNT> renderStates {};
