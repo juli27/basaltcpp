@@ -41,7 +41,9 @@ void CommandListRecorder::set_transform(const TransformState state,
 void CommandListRecorder::set_material(const Color& diffuse,
                                        const Color& ambient,
                                        const Color& emissive) {
-  mCommandList.add<CommandSetMaterial>(diffuse, ambient, emissive);
+  if (mDeviceState.update(diffuse, ambient, emissive)) {
+    mCommandList.add<CommandSetMaterial>(diffuse, ambient, emissive);
+  }
 }
 
 void CommandListRecorder::set_render_state(const RenderState state,

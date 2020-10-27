@@ -44,6 +44,20 @@ auto DeviceStateCache::update(const TransformState state,
   return false;
 }
 
+auto DeviceStateCache::update(const Color& diffuse, const Color& ambient,
+                              const Color& emissive) noexcept -> bool {
+  if (diffuse != mMaterial.diffuse || ambient != mMaterial.ambient ||
+      emissive != mMaterial.emissive) {
+    mMaterial.diffuse = diffuse;
+    mMaterial.ambient = ambient;
+    mMaterial.emissive = emissive;
+
+    return true;
+  }
+
+  return false;
+}
+
 auto DeviceStateCache::update(const Texture texture) noexcept -> bool {
   if (texture != mBoundTexture) {
     mBoundTexture = texture;
