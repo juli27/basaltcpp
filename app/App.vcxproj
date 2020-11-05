@@ -156,6 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="app\base\platform.cpp" />
     <ClCompile Include="app\d3d9\device.cpp" />
     <ClCompile Include="app\d3d9\factory.cpp" />
     <ClCompile Include="app\d3d9\context.cpp" />
@@ -165,7 +166,6 @@
     <ClCompile Include="app\gfx\debug.cpp" />
     <ClCompile Include="app\main.cpp" />
     <ClCompile Include="app\debug.cpp" />
-    <ClCompile Include="app\platform.cpp" />
     <ClCompile Include="app\util.cpp" />
     <ClCompile Include="app\shared\util.cpp" />
     <ClCompile Include="app\window.cpp" />

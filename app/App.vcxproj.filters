@@ -9,7 +9,6 @@
       <Filter>shared</Filter>
     </ClCompile>
     <ClCompile Include="app\util.cpp" />
-    <ClCompile Include="app\platform.cpp" />
     <ClCompile Include="app\app.cpp" />
     <ClCompile Include="app\engine.cpp" />
     <ClCompile Include="app\debug.cpp" />
@@ -25,6 +24,9 @@
     </ClCompile>
     <ClCompile Include="app\gfx\utils.cpp">
       <Filter>gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="app\base\platform.cpp">
+      <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +80,9 @@
     </Filter>
     <Filter Include="gfx">
       <UniqueIdentifier>{e2c268bd-bc89-4669-8465-2547ba4b5da0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base">
+      <UniqueIdentifier>{ac152609-034d-4726-8054-a91d70b68ce4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,6 @@
-#include <api/platform/platform.h>
+#include <api/base/platform.h>
 
-#include "shared/Windows_custom.h"
+#include "app/shared/Windows_custom.h"
 
 namespace basalt {
 

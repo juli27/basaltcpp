@@ -1,3 +1,4 @@
+add_subdirectory("base")
 add_subdirectory("shared")
 add_subdirectory("gfx")
 add_subdirectory("d3d9")
@@ -7,7 +8,6 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "debug.cpp"
   "engine.cpp"
   "main.cpp"
-  "platform.cpp"
   "util.cpp"
   "window.cpp"
   

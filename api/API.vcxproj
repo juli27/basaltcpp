@@ -176,6 +176,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="api\base\enum_array.h" />
+    <ClInclude Include="api\base\platform.h" />
     <ClInclude Include="api\base\utils.h" />
     <ClInclude Include="api\base\vec.h" />
     <ClInclude Include="api\dear_imgui.h" />
@@ -207,7 +208,6 @@
     <ClInclude Include="api\math\types.h" />
     <ClInclude Include="api\math\vector3.h" />
     <ClInclude Include="api\gfx\backend\context.h" />
-    <ClInclude Include="api\platform\platform.h" />
     <ClInclude Include="api\prelude.h" />
     <ClInclude Include="api\shared\resource_registry.h" />
     <ClInclude Include="api\scene\scene.h" />

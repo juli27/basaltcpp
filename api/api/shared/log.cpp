@@ -5,7 +5,8 @@
 
 #if BASALT_DEV_BUILD
 
-#include <api/platform/platform.h>
+#include "api/base/platform.h"
+
 #include <spdlog/sinks/msvc_sink.h>
 
 #endif // BASALT_DEV_BUILD

@@ -95,9 +95,6 @@
     <ClInclude Include="api\gfx\backend\types.h">
       <Filter>gfx\backend</Filter>
     </ClInclude>
-    <ClInclude Include="api\platform\platform.h">
-      <Filter>platform</Filter>
-    </ClInclude>
     <ClInclude Include="api\math\constants.h">
       <Filter>math</Filter>
     </ClInclude>
@@ -188,11 +185,11 @@
     <ClInclude Include="api\shared\resource_registry.h">
       <Filter>shared</Filter>
     </ClInclude>
+    <ClInclude Include="api\base\platform.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="platform">
-      <UniqueIdentifier>{048f201e-9fdc-4f55-a823-eda82a4ca401}</UniqueIdentifier>
-    </Filter>
     <Filter Include="gfx">
       <UniqueIdentifier>{06e8f581-f901-48f2-a7fc-84668b56cb98}</UniqueIdentifier>
     </Filter>
