@@ -2,10 +2,10 @@
 
 #include "shared/Windows_custom.h"
 
-namespace basalt::platform {
+namespace basalt {
 
-auto is_debugger_attached() -> bool {
-  return ::IsDebuggerPresent();
+auto Platform::is_debugger_attached() -> bool {
+  return IsDebuggerPresent();
 }
 
-} // namespace basalt::platform
+} // namespace basalt

@@ -41,7 +41,7 @@ void Log::init() {
   sinks.emplace_back(std::make_shared<basic_file_sink_st>(LOG_FILE_NAME));
 
 #if BASALT_DEV_BUILD
-  if (platform::is_debugger_attached()) {
+  if (Platform::is_debugger_attached()) {
     sinks.emplace_back(std::make_shared<msvc_sink_st>());
   }
 #endif // BASALT_DEV_BUILD

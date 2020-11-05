@@ -1,7 +1,9 @@
 #pragma once
 
-namespace basalt::platform {
+namespace basalt {
 
-auto is_debugger_attached() -> bool;
+struct Platform final {
+  [[nodiscard]] static auto is_debugger_attached() -> bool;
+};
 
-} // namespace basalt::platform
+} // namespace basalt
