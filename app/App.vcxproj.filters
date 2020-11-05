@@ -44,7 +44,6 @@
       <Filter>shared</Filter>
     </ClInclude>
     <ClInclude Include="app\util.h" />
-    <ClInclude Include="app\globals.h" />
     <ClInclude Include="app\key_map.h" />
     <ClInclude Include="app\app.h" />
     <ClInclude Include="app\d3d9\types.h">
@@ -68,6 +67,7 @@
     <ClInclude Include="app\gfx\utils.h">
       <Filter>gfx</Filter>
     </ClInclude>
+    <ClInclude Include="app\types.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="d3d9">

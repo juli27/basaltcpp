@@ -1,7 +1,6 @@
 #include "window.h"
 
 #include "build_config.h"
-#include "globals.h"
 #include "key_map.h"
 #include "util.h"
 
@@ -35,18 +34,33 @@ using std::wstring_view;
 
 namespace basalt {
 
-WindowMode sWindowMode;
-
 Window::~Window() {
-  if (!::DestroyWindow(mHandle)) {
-    BASALT_LOG_ERROR("::DestroyWindow failed: {}",
-                     create_winapi_error_message(::GetLastError()));
+  if (!DestroyWindow(mHandle)) {
+    BASALT_LOG_ERROR("DestroyWindow failed: {}",
+                     create_win32_error_message(GetLastError()));
   }
 
-  if (!::UnregisterClassW(CLASS_NAME, mModuleHandle)) {
-    BASALT_LOG_ERROR("::UnregisterClassW failed: {}",
-                     create_winapi_error_message(::GetLastError()));
+  if (!UnregisterClassW(CLASS_NAME, mModuleHandle)) {
+    BASALT_LOG_ERROR("UnregisterClassW failed: {}",
+                     create_win32_error_message(::GetLastError()));
   }
+}
+
+auto Window::handle() const noexcept -> HWND {
+  return mHandle;
+}
+
+auto Window::client_area_size() const noexcept -> Size2Du16 {
+  return mClientAreaSize;
+}
+
+auto Window::current_mode() const noexcept -> WindowMode {
+  return mCurrentMode;
+}
+
+void Window::set_mode(WindowMode) {
+  // TODO: support window modes
+  BASALT_ASSERT(false);
 }
 
 // issue with our input handling
@@ -54,9 +68,9 @@ Window::~Window() {
 //   input queue -> the rest of the app gets the ability to set the
 //   cursor only in the next frame -> the new cursor is only set at the
 //   next WM_MOUSEMOVE/WM_SETCURSOR
-void Window::set_cursor(const MouseCursor cursor) {
+void Window::set_cursor(const MouseCursor cursor) noexcept {
   mCurrentCursor = cursor;
-  ::SetCursor(mLoadedCursors[enum_cast(mCurrentCursor)]);
+  SetCursor(mLoadedCursors[enum_cast(mCurrentCursor)]);
 }
 
 auto Window::drain_input() -> Input {
@@ -72,9 +86,6 @@ auto Window::create(const HMODULE moduleHandle, const int showCommand,
                         std::system_category(),
                         "Failed to register window class"s};
   }
-
-  // TODO: support other modes
-  sWindowMode = WindowMode::Windowed;
 
   RECT rect {0l, 0l, config.windowedSize.width(), config.windowedSize.height()};
 
@@ -124,7 +135,8 @@ auto Window::create(const HMODULE moduleHandle, const int showCommand,
   }
 
   // can't use make_unique because of the private constructor
-  auto* const window = new Window {moduleHandle, handle, config.windowedSize};
+  auto* const window =
+    new Window {moduleHandle, handle, config.windowedSize, config.windowMode};
 
   // unique_ptr is actually a lie
   // see the comment at the WM_CLOSE message for details
@@ -137,10 +149,11 @@ auto Window::create(const HMODULE moduleHandle, const int showCommand,
 }
 
 Window::Window(const HMODULE moduleHandle, const HWND handle,
-               const Size2Du16 clientAreaSize)
+               const Size2Du16 clientAreaSize, const WindowMode mode)
   : mModuleHandle {moduleHandle}
   , mHandle {handle}
-  , mClientAreaSize {clientAreaSize} {
+  , mClientAreaSize {clientAreaSize}
+  , mCurrentMode {mode} {
   BASALT_ASSERT(mModuleHandle);
   BASALT_ASSERT(mHandle);
 
@@ -169,8 +182,8 @@ Window::Window(const HMODULE moduleHandle, const HWND handle,
     loadCursor(MAKEINTRESOURCEW(OCR_NO), LR_SHARED);
 }
 
-auto Window::dispatch_message(const UINT message, const WPARAM wParam,
-                              const LPARAM lParam) -> LRESULT {
+auto Window::handle_message(const UINT message, const WPARAM wParam,
+                            const LPARAM lParam) -> LRESULT {
   switch (message) {
   case WM_SIZE:
     switch (wParam) {
@@ -425,8 +438,8 @@ auto CALLBACK Window::window_proc(const HWND handle, const UINT message,
 #endif // BASALT_TRACE_WINDOWS_MESSAGES
 
   if (const auto window = ::GetWindowLongPtrW(handle, GWLP_USERDATA)) {
-    return reinterpret_cast<Window*>(window)->dispatch_message(message, wParam,
-                                                               lParam);
+    return reinterpret_cast<Window*>(window)->handle_message(message, wParam,
+                                                             lParam);
   }
 
   return ::DefWindowProcW(handle, message, wParam, lParam);

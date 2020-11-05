@@ -67,7 +67,7 @@ auto create_utf8_from_wide(const wstring_view src) noexcept -> string {
  * \param errorCode Windows API error code.
  * \return description string of the error.
  */
-auto create_winapi_error_message(const DWORD errorCode) noexcept -> string {
+auto create_win32_error_message(const DWORD errorCode) noexcept -> string {
   WCHAR* buffer = nullptr;
   const auto numChars = ::FormatMessageW(
     FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |

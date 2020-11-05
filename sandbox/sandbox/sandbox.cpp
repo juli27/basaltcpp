@@ -12,7 +12,6 @@
 #include <api/input.h>
 #include <api/prelude.h>
 
-#include <api/platform/platform.h>
 #include <api/shared/config.h>
 
 #include <imgui/imgui.h>
@@ -103,19 +102,19 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
     }
 
     if (ImGui::BeginMenu("View")) {
-      const auto currentMode = basalt::platform::get_window_mode();
+      const auto currentMode = ctx.engine.config().windowMode;
       if (ImGui::MenuItem("Windowed", nullptr,
                           currentMode == WindowMode::Windowed, false)) {
-        basalt::platform::set_window_mode(WindowMode::Windowed);
+        ctx.engine.set_window_mode(WindowMode::Windowed);
       }
       if (ImGui::MenuItem("Fullscreen", nullptr,
                           currentMode == WindowMode::Fullscreen, false)) {
-        basalt::platform::set_window_mode(WindowMode::Fullscreen);
+        ctx.engine.set_window_mode(WindowMode::Fullscreen);
       }
       if (ImGui::MenuItem("Fullscreen (Exclusive)", nullptr,
                           currentMode == WindowMode::FullscreenExclusive,
                           false)) {
-        basalt::platform::set_window_mode(WindowMode::FullscreenExclusive);
+        ctx.engine.set_window_mode(WindowMode::FullscreenExclusive);
       }
 
       if (ctx.engine.config().debugUiEnabled) {

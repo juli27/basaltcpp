@@ -180,9 +180,9 @@
     <ClInclude Include="app\gfx\debug.h" />
     <ClInclude Include="app\gfx\types.h" />
     <ClInclude Include="app\gfx\utils.h" />
-    <ClInclude Include="app\globals.h" />
     <ClInclude Include="app\debug.h" />
     <ClInclude Include="app\key_map.h" />
+    <ClInclude Include="app\types.h" />
     <ClInclude Include="app\util.h" />
     <ClInclude Include="app\d3d9\d3d9_custom.h" />
     <ClInclude Include="app\shared\Windows_custom.h" />

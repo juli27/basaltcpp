@@ -25,7 +25,7 @@ struct AdapterMode final {
   u32 width {};
   u32 height {};
   u32 refreshRate {};
-  SurfaceFormat displayFormat {};
+  SurfaceFormat displayFormat {SurfaceFormat::B8G8R8X8};
 };
 
 struct AdapterInfo final {

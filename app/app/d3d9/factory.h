@@ -7,6 +7,8 @@
 
 #include <api/gfx/backend/types.h>
 
+#include <api/shared/types.h>
+
 #include <wrl/client.h>
 
 #include <optional>
@@ -28,7 +30,7 @@ struct D3D9Factory final {
   auto get_current_adapter_mode() const -> AdapterMode;
   [[nodiscard]] auto query_adapter_info() const -> AdapterInfo;
 
-  auto create_device_and_context(HWND window) const
+  auto create_device_and_context(HWND window, const Config&) const
     -> std::tuple<DevicePtr, ContextPtr>;
 
 private:

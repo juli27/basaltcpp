@@ -14,8 +14,8 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "app.h"
   "build_config.h"
   "debug.h"
-  "globals.h"
   "key_map.h"
+  "types.h"
   "util.h"
   "window.h"
 )

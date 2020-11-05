@@ -1,7 +1,6 @@
 #include "app.h"
 
 #include "build_config.h"
-#include "globals.h"
 #include "window.h"
 
 #if BASALT_TRACE_WINDOWS_MESSAGES
@@ -25,6 +24,7 @@
 #include <api/gfx/draw_target.h>
 
 #include <api/shared/asserts.h>
+#include <api/shared/config.h>
 #include <api/shared/log.h>
 #include <api/shared/size2d.h>
 
@@ -74,7 +74,7 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   }
 
   const auto [gfxDevice, gfxContext] =
-    gfxFactory->create_device_and_context(window->handle());
+    gfxFactory->create_device_and_context(window->handle(), config);
 
   const AdapterInfo adapterInfo = gfxFactory->query_adapter_info();
 
@@ -114,6 +114,10 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
     if (app.mIsDirty) {
       app.mIsDirty = false;
       window->set_cursor(app.mMouseCursor);
+
+      if (window->current_mode() != config.windowMode) {
+        window->set_mode(config.windowMode);
+      }
     }
 
     if (config.debugUiEnabled) {
@@ -180,7 +184,7 @@ auto poll_events() -> bool {
 //  MSG msg{};
 //  const auto ret = ::GetMessageW(&msg, nullptr, 0u, 0u);
 //  if (ret == -1) {
-//    BASALT_LOG_ERROR(create_winapi_error_message(::GetLastError()));
+//    BASALT_LOG_ERROR(create_win32_error_message(::GetLastError()));
 //    // TODO: fixme
 //    BASALT_ASSERT_MSG(false, "::GetMessageW error");
 //  }

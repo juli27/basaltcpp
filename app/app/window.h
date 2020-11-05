@@ -1,28 +1,22 @@
 #pragma once
 
+#include "types.h"
+
 #include "gfx/types.h"
 
 #include "shared/Windows_custom.h"
 
 #include <api/input.h>
 #include <api/types.h>
+
+#include <api/gfx/backend/types.h>
+
 #include <api/shared/size2d.h>
+#include <api/shared/types.h>
 
 #include <array>
-#include <memory>
 
 namespace basalt {
-
-struct Config;
-
-namespace gfx {
-
-struct Device;
-
-} // namespace gfx
-
-struct Window;
-using WindowPtr = std::unique_ptr<Window>;
 
 struct Window final {
   Window(const Window&) = delete;
@@ -33,16 +27,12 @@ struct Window final {
   auto operator=(const Window&) -> Window& = delete;
   auto operator=(Window &&) -> Window& = delete;
 
-  [[nodiscard]] auto handle() const -> HWND {
-    return mHandle;
-  }
+  [[nodiscard]] auto handle() const noexcept -> HWND;
+  [[nodiscard]] auto client_area_size() const noexcept -> Size2Du16;
+  [[nodiscard]] auto current_mode() const noexcept -> WindowMode;
 
-  [[nodiscard]] auto client_area_size() const -> Size2Du16 {
-    return mClientAreaSize;
-  }
-
-  void set_cursor(MouseCursor);
-
+  void set_mode(WindowMode);
+  void set_cursor(MouseCursor) noexcept;
   auto drain_input() -> Input;
 
   // return null on failure
@@ -54,19 +44,21 @@ struct Window final {
 private:
   static constexpr auto CLASS_NAME = L"BS_WINDOW_CLASS";
 
-  HMODULE mModuleHandle {nullptr};
-  HWND mHandle {nullptr};
+  HMODULE mModuleHandle {};
+  HWND mHandle {};
 
-  Input mInput {};
+  Input mInput;
+
   Size2Du16 mClientAreaSize {Size2Du16::dont_care()};
+  WindowMode mCurrentMode {WindowMode::Windowed};
   bool mInSizingMode {false};
 
   std::array<HCURSOR, MOUSE_CURSOR_COUNT> mLoadedCursors {};
-  MouseCursor mCurrentCursor {};
+  MouseCursor mCurrentCursor {MouseCursor::Arrow};
 
-  Window(HMODULE, HWND, Size2Du16 clientAreaSize);
+  Window(HMODULE, HWND, Size2Du16 clientAreaSize, WindowMode);
 
-  [[nodiscard]] auto dispatch_message(UINT message, WPARAM, LPARAM) -> LRESULT;
+  [[nodiscard]] auto handle_message(UINT message, WPARAM, LPARAM) -> LRESULT;
 
   void process_mouse_message_states(WPARAM);
 

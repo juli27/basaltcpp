@@ -2,6 +2,8 @@
 
 #include "gfx/backend/context.h"
 
+#include "shared/config.h"
+
 #include <utility>
 
 using std::shared_ptr;
@@ -36,6 +38,11 @@ auto Engine::mouse_cursor() const noexcept -> MouseCursor {
 
 void Engine::set_mouse_cursor(const MouseCursor mouseCursor) noexcept {
   mMouseCursor = mouseCursor;
+  mIsDirty = true;
+}
+
+void Engine::set_window_mode(const WindowMode windowMode) noexcept {
+  mConfig.windowMode = windowMode;
   mIsDirty = true;
 }
 

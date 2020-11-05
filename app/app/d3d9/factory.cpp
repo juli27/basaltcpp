@@ -4,7 +4,6 @@
 #include "device.h"
 #include "util.h"
 
-#include <api/platform/platform.h>
 #include <api/shared/config.h>
 #include <api/shared/log.h>
 
@@ -87,7 +86,8 @@ auto D3D9Factory::query_adapter_info() const -> AdapterInfo {
   return adapterInfo;
 }
 
-auto D3D9Factory::create_device_and_context(const HWND window) const
+auto D3D9Factory::create_device_and_context(const HWND window,
+                                            const Config& config) const
   -> tuple<DevicePtr, ContextPtr> {
   D3DPRESENT_PARAMETERS pp {};
   pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
@@ -96,10 +96,8 @@ auto D3D9Factory::create_device_and_context(const HWND window) const
   pp.EnableAutoDepthStencil = TRUE;
   pp.AutoDepthStencilFormat = D3DFMT_D16;
 
-  const auto windowMode = platform::get_window_mode();
-
   // setup exclusive fullscreen
-  if (windowMode == WindowMode::FullscreenExclusive) {
+  if (config.windowMode == WindowMode::FullscreenExclusive) {
     D3DDISPLAYMODE displayMode {};
     D3D9CALL(mFactory->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &displayMode));
 
@@ -110,7 +108,7 @@ auto D3D9Factory::create_device_and_context(const HWND window) const
     pp.FullScreen_RefreshRateInHz = displayMode.RefreshRate;
   }
 
-  ComPtr<IDirect3DDevice9> d3d9Device {};
+  ComPtr<IDirect3DDevice9> d3d9Device;
   D3D9CALL(mFactory->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, window,
                                   D3DCREATE_HARDWARE_VERTEXPROCESSING, &pp,
                                   d3d9Device.GetAddressOf()));

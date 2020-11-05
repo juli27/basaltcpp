@@ -36,6 +36,8 @@ struct Engine {
   [[nodiscard]] auto mouse_cursor() const noexcept -> MouseCursor;
   void set_mouse_cursor(MouseCursor) noexcept;
 
+  void set_window_mode(WindowMode) noexcept;
+
   void load(Resource);
 
   template <typename T>
@@ -51,7 +53,7 @@ protected:
   std::shared_ptr<gfx::Context> mGfxContext;
   gfx::ResourceCache mGfxResourceCache;
 
-  MouseCursor mMouseCursor {};
+  MouseCursor mMouseCursor {MouseCursor::Arrow};
   bool mIsDirty {false};
 
   Engine(Config&, std::shared_ptr<gfx::Context>) noexcept;
