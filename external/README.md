@@ -1,5 +1,5 @@
 * Dear ImGui (v1.79)
 * EnTT (v3.5.2)
-* fmt (7.0.3)
+* fmt (7.1.2)
 * GSL (v3.1.0)
 * spdlog (v1.8.1)
