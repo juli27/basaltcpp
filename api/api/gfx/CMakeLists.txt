@@ -7,6 +7,7 @@ target_sources(${CURRENT_TARGET}
     "draw_target.cpp"
     "resource_cache.cpp"
     "scene_view.cpp"
+    "solid_color_view.cpp"
   PUBLIC
     "camera.h"
     "command_list_recorder.h"
@@ -16,6 +17,7 @@ target_sources(${CURRENT_TARGET}
     "drawable.h"
     "resource_cache.h"
     "scene_view.h"
+    "solid_color_view.h"
     "types.h"
 )
 

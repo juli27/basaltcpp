@@ -165,6 +165,7 @@
     <ClCompile Include="api\gfx\draw_target.cpp" />
     <ClCompile Include="api\gfx\resource_cache.cpp" />
     <ClCompile Include="api\gfx\scene_view.cpp" />
+    <ClCompile Include="api\gfx\solid_color_view.cpp" />
     <ClCompile Include="api\input.cpp" />
     <ClCompile Include="api\math\mat4.cpp" />
     <ClCompile Include="api\math\vector3.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="api\gfx\draw_target.h" />
     <ClInclude Include="api\gfx\resource_cache.h" />
     <ClInclude Include="api\gfx\scene_view.h" />
+    <ClInclude Include="api\gfx\solid_color_view.h" />
     <ClInclude Include="api\gfx\types.h" />
     <ClInclude Include="api\client_app.h" />
     <ClInclude Include="api\input.h" />

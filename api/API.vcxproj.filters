@@ -53,6 +53,9 @@
     <ClCompile Include="api\shared\resource_registry.cpp">
       <Filter>shared</Filter>
     </ClCompile>
+    <ClCompile Include="api\gfx\solid_color_view.cpp">
+      <Filter>gfx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="api\gfx\backend\context.h">
@@ -187,6 +190,9 @@
     </ClInclude>
     <ClInclude Include="api\base\platform.h">
       <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="api\gfx\solid_color_view.h">
+      <Filter>gfx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
