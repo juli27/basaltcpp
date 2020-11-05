@@ -160,6 +160,7 @@
     <ClCompile Include="app\d3d9\device.cpp" />
     <ClCompile Include="app\d3d9\factory.cpp" />
     <ClCompile Include="app\d3d9\context.cpp" />
+    <ClCompile Include="app\gfx\compositor.cpp" />
     <ClCompile Include="app\gfx\utils.cpp" />
     <ClCompile Include="app\app.cpp" />
     <ClCompile Include="app\engine.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="app\d3d9\context.h" />
     <ClInclude Include="app\app.h" />
     <ClInclude Include="app\build_config.h" />
+    <ClInclude Include="app\gfx\compositor.h" />
     <ClInclude Include="app\gfx\debug.h" />
     <ClInclude Include="app\gfx\types.h" />
     <ClInclude Include="app\gfx\utils.h" />

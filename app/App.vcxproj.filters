@@ -28,6 +28,9 @@
     <ClCompile Include="app\base\platform.cpp">
       <Filter>base</Filter>
     </ClCompile>
+    <ClCompile Include="app\gfx\compositor.cpp">
+      <Filter>gfx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app\d3d9\context.h">
@@ -70,6 +73,9 @@
       <Filter>gfx</Filter>
     </ClInclude>
     <ClInclude Include="app\types.h" />
+    <ClInclude Include="app\gfx\compositor.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="d3d9">

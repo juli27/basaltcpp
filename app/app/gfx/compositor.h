@@ -1,7 +1,7 @@
 #pragma once
 
-#include "types.h"
-#include "backend/types.h"
+#include <api/gfx/types.h>
+#include <api/gfx/backend/types.h>
 
 namespace basalt::gfx {
 

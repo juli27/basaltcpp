@@ -160,7 +160,6 @@
     <ClCompile Include="api\gfx\backend\composite.cpp" />
     <ClCompile Include="api\gfx\camera.cpp" />
     <ClCompile Include="api\gfx\command_list_recorder.cpp" />
-    <ClCompile Include="api\gfx\compositor.cpp" />
     <ClCompile Include="api\gfx\device_state_cache.cpp" />
     <ClCompile Include="api\gfx\draw_target.cpp" />
     <ClCompile Include="api\gfx\resource_cache.cpp" />
@@ -195,7 +194,6 @@
     <ClInclude Include="api\gfx\backend\types.h" />
     <ClInclude Include="api\gfx\camera.h" />
     <ClInclude Include="api\gfx\command_list_recorder.h" />
-    <ClInclude Include="api\gfx\compositor.h" />
     <ClInclude Include="api\gfx\device_state_cache.h" />
     <ClInclude Include="api\gfx\drawable.h" />
     <ClInclude Include="api\gfx\draw_target.h" />

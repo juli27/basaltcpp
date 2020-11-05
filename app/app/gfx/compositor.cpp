@@ -1,9 +1,9 @@
 #include "compositor.h"
 
-#include "draw_target.h"
-#include "drawable.h"
+#include <api/gfx/draw_target.h>
+#include <api/gfx/drawable.h>
 
-#include "backend/composite.h"
+#include <api/gfx/backend/composite.h>
 
 namespace basalt::gfx {
 

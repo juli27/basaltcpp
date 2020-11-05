@@ -12,6 +12,7 @@
 #include "d3d9/types.h"
 #include "d3d9/util.h"
 
+#include "gfx/compositor.h"
 #include "gfx/debug.h"
 
 #include <api/client_app.h>
@@ -20,7 +21,6 @@
 
 #include <api/gfx/backend/composite.h>
 
-#include <api/gfx/compositor.h>
 #include <api/gfx/draw_target.h>
 
 #include <api/shared/asserts.h>

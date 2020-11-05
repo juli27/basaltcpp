@@ -2,7 +2,6 @@ target_sources(${CURRENT_TARGET}
   PRIVATE
     "camera.cpp"
     "command_list_recorder.cpp"
-    "compositor.cpp"
     "device_state_cache.cpp"
     "draw_target.cpp"
     "resource_cache.cpp"
@@ -11,7 +10,6 @@ target_sources(${CURRENT_TARGET}
   PUBLIC
     "camera.h"
     "command_list_recorder.h"
-    "compositor.h"
     "device_state_cache.h"
     "draw_target.h"
     "drawable.h"

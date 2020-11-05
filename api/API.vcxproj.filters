@@ -13,9 +13,6 @@
     <ClCompile Include="api\gfx\scene_view.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
-    <ClCompile Include="api\gfx\compositor.cpp">
-      <Filter>gfx</Filter>
-    </ClCompile>
     <ClCompile Include="api\gfx\draw_target.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
@@ -82,9 +79,6 @@
       <Filter>gfx</Filter>
     </ClInclude>
     <ClInclude Include="api\gfx\drawable.h">
-      <Filter>gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="api\gfx\compositor.h">
       <Filter>gfx</Filter>
     </ClInclude>
     <ClInclude Include="api\gfx\draw_target.h">

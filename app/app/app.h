@@ -4,8 +4,6 @@
 
 #include "shared/Windows_custom.h"
 
-#include <memory>
-
 namespace basalt {
 
 struct Window;
