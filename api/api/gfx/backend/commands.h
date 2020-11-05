@@ -14,6 +14,15 @@
 
 namespace basalt::gfx {
 
+struct CommandClear final : CommandT<CommandType::Clear> {
+  Color color;
+
+  constexpr explicit CommandClear(const Color& c) noexcept : color {c} {
+  }
+};
+
+static_assert(sizeof(CommandClear) == 20);
+
 struct CommandDraw final : CommandT<CommandType::Draw> {
   PrimitiveType primitiveType {PrimitiveType::TriangleList};
   VertexBuffer vertexBuffer {VertexBuffer::null()};
@@ -95,8 +104,7 @@ static_assert(sizeof(CommandSetTextureStageState) == 8);
 struct CommandSetTexture final : CommandT<CommandType::SetTexture> {
   Texture texture {Texture::null()};
 
-  constexpr explicit CommandSetTexture(const Texture t) noexcept
-    : texture {t} {
+  constexpr explicit CommandSetTexture(const Texture t) noexcept : texture {t} {
   }
 };
 

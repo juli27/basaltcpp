@@ -146,6 +146,7 @@ void D3D9Device::begin_execution() const {
 void D3D9Device::execute(const CommandList& cmdList) {
   for (const auto& cmd : cmdList.commands()) {
     switch (cmd->type) {
+      EXECUTE(CommandClear);
       EXECUTE(CommandDraw);
       EXECUTE(CommandSetDirectionalLights);
       EXECUTE(CommandSetTransform);
@@ -246,6 +247,13 @@ auto D3D9Device::query_extension(const ext::ExtensionId id)
   }
 
   return std::nullopt;
+}
+
+void D3D9Device::execute(const CommandClear& cmd) const {
+  const DWORD clearColor {to_d3d_color(cmd.color)};
+
+  D3D9CALL(mDevice->Clear(0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+                          clearColor, 1.0f, 0u));
 }
 
 void D3D9Device::execute(const CommandDraw& cmd) const {

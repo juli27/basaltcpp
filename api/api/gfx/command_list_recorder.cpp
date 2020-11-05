@@ -12,6 +12,10 @@ using std::vector;
 
 namespace basalt::gfx {
 
+void CommandListRecorder::clear(const Color& color) {
+  mCommandList.add<CommandClear>(color);
+}
+
 void CommandListRecorder::draw(const VertexBuffer vertexBuffer,
                                const PrimitiveType primitiveType,
                                const u32 startVertex,

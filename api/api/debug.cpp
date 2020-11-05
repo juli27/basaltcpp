@@ -37,6 +37,7 @@ using entt::entity;
 
 namespace basalt {
 
+using gfx::CommandClear;
 using gfx::CommandDraw;
 using gfx::CommandSetDirectionalLights;
 using gfx::CommandSetMaterial;
@@ -236,6 +237,17 @@ auto to_string(const gfx::TransformState transformType) -> const char* {
   return "(unknown)";
 }
 
+void display(const CommandClear& cmd) {
+  ImGui::TextUnformatted("Clear");
+  if (ImGui::IsItemHovered()) {
+    ImGui::BeginTooltip();
+
+    display_color4("color", cmd.color);
+
+    ImGui::EndTooltip();
+  }
+}
+
 void display(const CommandDraw& cmd) {
   ImGui::TextUnformatted("Draw");
   if (ImGui::IsItemHovered()) {
@@ -395,6 +407,7 @@ void Debug::update(const gfx::Composite& composite) {
                         part.commands().size())) {
       for (const auto& command : part.commands()) {
         switch (command->type) {
+          DISPLAY(CommandClear);
           DISPLAY(CommandDraw);
           DISPLAY(CommandSetDirectionalLights);
           DISPLAY(CommandSetTransform);

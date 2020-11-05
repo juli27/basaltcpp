@@ -20,6 +20,7 @@ struct Device;
 using DevicePtr = std::shared_ptr<Device>;
 
 enum class CommandType : u8 {
+  Clear,
   Draw,
   SetRenderState,
   SetTexture,
