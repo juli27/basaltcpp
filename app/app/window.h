@@ -31,17 +31,21 @@ struct Window final {
   [[nodiscard]] auto client_area_size() const noexcept -> Size2Du16;
   [[nodiscard]] auto current_mode() const noexcept -> WindowMode;
 
-  void set_mode(WindowMode);
+  void set_mode(WindowMode, const gfx::AdapterMode&);
   void set_cursor(MouseCursor) noexcept;
   auto drain_input() -> Input;
 
   // return null on failure
   [[nodiscard]] static auto create(HMODULE, int showCommand,
                                    const Config& config,
-                                   const gfx::AdapterMode& currentMode)
-    -> WindowPtr;
+                                   const gfx::AdapterMode&) -> WindowPtr;
 
 private:
+  struct SavedWindowInfo final {
+    DWORD style {};
+    RECT rect {};
+  };
+
   static constexpr auto CLASS_NAME = L"BS_WINDOW_CLASS";
 
   HMODULE mModuleHandle {};
@@ -49,18 +53,23 @@ private:
 
   Input mInput;
 
+  SavedWindowInfo mSavedWindowInfo;
+  // set on first WM_SIZE
   Size2Du16 mClientAreaSize {Size2Du16::dont_care()};
-  WindowMode mCurrentMode {WindowMode::Windowed};
   bool mInSizingMode {false};
 
-  std::array<HCURSOR, MOUSE_CURSOR_COUNT> mLoadedCursors {};
+  WindowMode mCurrentMode {WindowMode::Windowed};
   MouseCursor mCurrentCursor {MouseCursor::Arrow};
 
-  Window(HMODULE, HWND, Size2Du16 clientAreaSize, WindowMode);
+  std::array<HCURSOR, MOUSE_CURSOR_COUNT> mLoadedCursors {};
+
+  Window(HMODULE, HWND);
 
   [[nodiscard]] auto handle_message(UINT message, WPARAM, LPARAM) -> LRESULT;
 
   void process_mouse_message_states(WPARAM);
+
+  void update_client_area_size();
 
   static ATOM register_class(HMODULE);
 

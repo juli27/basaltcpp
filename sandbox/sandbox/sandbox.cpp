@@ -104,11 +104,13 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
     if (ImGui::BeginMenu("View")) {
       const auto currentMode = ctx.engine.config().windowMode;
       if (ImGui::MenuItem("Windowed", nullptr,
-                          currentMode == WindowMode::Windowed, false)) {
+                          currentMode == WindowMode::Windowed,
+                          currentMode != WindowMode::Windowed)) {
         ctx.engine.set_window_mode(WindowMode::Windowed);
       }
       if (ImGui::MenuItem("Fullscreen", nullptr,
-                          currentMode == WindowMode::Fullscreen, false)) {
+                          currentMode == WindowMode::Fullscreen,
+                          currentMode != WindowMode::Fullscreen)) {
         ctx.engine.set_window_mode(WindowMode::Fullscreen);
       }
       if (ImGui::MenuItem("Fullscreen (Exclusive)", nullptr,

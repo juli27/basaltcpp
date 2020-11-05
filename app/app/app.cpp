@@ -116,7 +116,8 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
       window->set_cursor(app.mMouseCursor);
 
       if (window->current_mode() != config.windowMode) {
-        window->set_mode(config.windowMode);
+        window->set_mode(config.windowMode,
+                         gfxFactory->get_current_adapter_mode());
       }
     }
 

@@ -100,8 +100,8 @@ std::string to_string(POINT point);
 
 } // namespace
 
-std::string message_to_string(const UINT message, const WPARAM wParam,
-                              const LPARAM lParam) {
+auto message_to_string(const UINT message, const WPARAM wParam,
+                       const LPARAM lParam) -> std::string {
   switch (message) {
   case WM_NULL:
     break;

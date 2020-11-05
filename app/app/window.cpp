@@ -10,8 +10,6 @@
 
 #include "shared/util.h"
 
-#include <api/engine.h>
-
 #include <api/shared/config.h>
 #include <api/shared/log.h>
 
@@ -33,6 +31,28 @@ using std::wstring;
 using std::wstring_view;
 
 namespace basalt {
+
+auto calc_windowed_size(const gfx::AdapterMode& adapterMode, const DWORD style,
+                        const DWORD styleEx, const Size2Du16 clientArea)
+  -> Size2Du16 {
+  RECT rect {0l, 0l, clientArea.width(), clientArea.height()};
+  // the default size is two thirds of the current display mode
+  if (rect.right == 0l) {
+    rect.right = adapterMode.width * 2 / 3;
+  }
+  if (rect.bottom == 0l) {
+    rect.bottom = adapterMode.height * 2 / 3;
+  }
+
+  // calculate the window size for the given client area size
+  if (!AdjustWindowRectEx(&rect, style, FALSE, styleEx)) {
+    throw system_error {static_cast<int>(GetLastError()),
+                        std::system_category()};
+  }
+
+  return Size2Du16 {static_cast<u16>(rect.right - rect.left),
+                    static_cast<u16>(rect.bottom - rect.top)};
+}
 
 Window::~Window() {
   if (!DestroyWindow(mHandle)) {
@@ -58,9 +78,47 @@ auto Window::current_mode() const noexcept -> WindowMode {
   return mCurrentMode;
 }
 
-void Window::set_mode(WindowMode) {
-  // TODO: support window modes
-  BASALT_ASSERT(false);
+void Window::set_mode(const WindowMode windowMode,
+                      const gfx::AdapterMode& adapterMode) {
+  if (mCurrentMode == windowMode) {
+    return;
+  }
+
+  auto style {static_cast<DWORD>(GetWindowLongPtrW(mHandle, GWL_STYLE))};
+  RECT rect {};
+  UINT swpFlags {SWP_NOZORDER};
+
+  switch (windowMode) {
+  case WindowMode::Windowed:
+    style |= mSavedWindowInfo.style;
+    rect = mSavedWindowInfo.rect;
+    swpFlags |= SWP_FRAMECHANGED;
+
+    break;
+
+  case WindowMode::Fullscreen:
+    mSavedWindowInfo.style =
+      static_cast<DWORD>(GetWindowLongPtrW(mHandle, GWL_STYLE));
+    GetWindowRect(mHandle, &mSavedWindowInfo.rect);
+
+    style &= ~WS_OVERLAPPEDWINDOW;
+    rect.right = adapterMode.width;
+    rect.bottom = adapterMode.height;
+    swpFlags |= SWP_FRAMECHANGED;
+
+    break;
+
+  case WindowMode::FullscreenExclusive:
+    // TODO: support FullscreenExclusive
+    BASALT_ASSERT_MSG(false, "not implemented");
+    break;
+  }
+
+  SetWindowLongPtrW(mHandle, GWL_STYLE, style);
+  SetWindowPos(mHandle, HWND_TOP, rect.left, rect.top, rect.right - rect.left,
+               rect.bottom - rect.top, swpFlags);
+
+  mCurrentMode = windowMode;
 }
 
 // issue with our input handling
@@ -78,55 +136,31 @@ auto Window::drain_input() -> Input {
 }
 
 auto Window::create(const HMODULE moduleHandle, const int showCommand,
-                    const Config& config, const gfx::AdapterMode& currentMode)
+                    const Config& config, const gfx::AdapterMode& adapterMode)
   -> WindowPtr {
   const ATOM windowClass {register_class(moduleHandle)};
   if (!windowClass) {
-    throw system_error {static_cast<int>(::GetLastError()),
+    throw system_error {static_cast<int>(GetLastError()),
                         std::system_category(),
                         "Failed to register window class"s};
   }
 
-  RECT rect {0l, 0l, config.windowedSize.width(), config.windowedSize.height()};
-
-  // handle don't care cases. The default size is two thirds of the current
-  // display mode
-  if (rect.right == 0l) {
-    rect.right = currentMode.width * 2 / 3;
-  }
-  if (rect.bottom == 0l) {
-    rect.bottom = currentMode.height * 2 / 3;
-  }
-
+  // WS_CLIPSIBLINGS is added automatically (tested on Windows 10)
   DWORD style {WS_OVERLAPPEDWINDOW};
   if (!config.isWindowResizeable) {
     style &= ~(WS_MAXIMIZEBOX | WS_SIZEBOX);
   }
 
-  // WS_EX_WINDOWEDGE is added automatically (tested on W10)
-  DWORD styleEx {WS_EX_WINDOWEDGE};
+  // WS_EX_WINDOWEDGE is added automatically (tested on Windows 10)
+  const DWORD styleEx {};
 
-  // calculate the window size for the given client area size
-  if (!::AdjustWindowRectEx(&rect, style, FALSE, styleEx)) {
-    throw system_error {static_cast<int>(::GetLastError()),
-                        std::system_category()};
-  }
-
-  const int windowWidth {static_cast<int>(rect.right - rect.left)};
-  const int windowHeight {static_cast<int>(rect.bottom - rect.top)};
-
-  BASALT_ASSERT_MSG(config.windowMode == WindowMode::Windowed,
-                    "fullscreen not implemented");
-
-  // if (config.windowMode != WindowMode::Windowed) {
-  //  style = WS_POPUP;
-  //  styleEx |= WS_EX_TOPMOST;
-  //}
+  const Size2Du16 size {
+    calc_windowed_size(adapterMode, style, styleEx, config.windowedSize)};
 
   const wstring windowTitle {create_wide_from_utf8(config.appName)};
-  const HWND handle {::CreateWindowExW(
+  const HWND handle {CreateWindowExW(
     styleEx, reinterpret_cast<LPCWSTR>(windowClass), windowTitle.c_str(), style,
-    CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, nullptr, nullptr,
+    CW_USEDEFAULT, CW_USEDEFAULT, size.width(), size.height(), nullptr, nullptr,
     moduleHandle, nullptr)};
   if (!handle) {
     BASALT_LOG_ERROR("failed to create window");
@@ -135,25 +169,25 @@ auto Window::create(const HMODULE moduleHandle, const int showCommand,
   }
 
   // can't use make_unique because of the private constructor
-  auto* const window =
-    new Window {moduleHandle, handle, config.windowedSize, config.windowMode};
+  auto* const window = new Window {moduleHandle, handle};
 
   // unique_ptr is actually a lie
   // see the comment at the WM_CLOSE message for details
-  ::SetWindowLongPtrW(handle, GWLP_USERDATA,
-                      reinterpret_cast<LONG_PTR>(window));
+  SetWindowLongPtrW(handle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
 
-  ::ShowWindow(handle, showCommand);
+  ShowWindow(handle, showCommand);
+
+  // required to be after ShowWindow because otherwise the application icon
+  // would not appear in the titlebar if the application launches with
+  // fullscreen and switches to windowed
+  // TODO: find a better workaround
+  window->set_mode(config.windowMode, adapterMode);
 
   return unique_ptr<Window> {window};
 }
 
-Window::Window(const HMODULE moduleHandle, const HWND handle,
-               const Size2Du16 clientAreaSize, const WindowMode mode)
-  : mModuleHandle {moduleHandle}
-  , mHandle {handle}
-  , mClientAreaSize {clientAreaSize}
-  , mCurrentMode {mode} {
+Window::Window(const HMODULE moduleHandle, const HWND handle)
+  : mModuleHandle {moduleHandle}, mHandle {handle} {
   BASALT_ASSERT(mModuleHandle);
   BASALT_ASSERT(mHandle);
 
@@ -217,7 +251,7 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
       ::FillRect(dc, &ps.rcPaint, reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1));
     }
 
-    ::EndPaint(mHandle, &ps);
+    EndPaint(mHandle, &ps);
 
     return 0;
   }
@@ -226,12 +260,13 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
     // ::DefWindowProcW would destroy the window.
     // In order to not lie about the lifetime of the window object, we handle
     // the WM_CLOSE message here to trigger our normal shutdown path
-    quit();
+    PostQuitMessage(0);
+
     return 0;
 
   case WM_SETCURSOR:
     if (LOWORD(lParam) == HTCLIENT) {
-      ::SetCursor(mLoadedCursors[enum_cast(mCurrentCursor)]);
+      SetCursor(mLoadedCursors[enum_cast(mCurrentCursor)]);
 
       return TRUE;
     }
@@ -254,12 +289,11 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
       // HACK: AltGr sends Ctrl + right Alt keydown messages but only sends
       // a keyup message for right Alt
       if (keyCode == Key::Control) {
-        const DWORD ctrlMessageTime = ::GetMessageTime();
         MSG next {};
-        if (::PeekMessageW(&next, nullptr, 0u, 0u, PM_NOREMOVE)) {
+        if (PeekMessageW(&next, nullptr, 0u, 0u, PM_NOREMOVE)) {
           if (next.message == WM_KEYDOWN) {
-            if (next.wParam == VK_MENU && (HIWORD(next.lParam) & KF_EXTENDED) &&
-                next.time == ctrlMessageTime) {
+            if (next.wParam == VK_MENU && HIWORD(next.lParam) & KF_EXTENDED &&
+                next.time == static_cast<DWORD>(GetMessageTime())) {
               // skip ctrl message
               return 0;
             }
@@ -316,11 +350,11 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
     constexpr u16 anyButton =
       MK_LBUTTON | MK_RBUTTON | MK_MBUTTON | MK_XBUTTON1 | MK_XBUTTON2;
     if (wParam & anyButton) {
-      ::SetCapture(mHandle);
+      SetCapture(mHandle);
     } else {
       // release capture if all buttons are up
       // TODO: assert on the return value
-      ::ReleaseCapture();
+      ReleaseCapture();
     }
 
     // WM_XBUTTONDOWN and WM_XBUTTONUP requires us to return TRUE
@@ -329,12 +363,13 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
 
   case WM_MOUSEWHEEL: {
     POINT cursorPos {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
-    ::ScreenToClient(mHandle, &cursorPos);
+    ScreenToClient(mHandle, &cursorPos);
     mInput.mouse_moved(CursorPosition {cursorPos.x, cursorPos.y});
     process_mouse_message_states(LOWORD(wParam));
     const f32 offset {static_cast<f32>(GET_WHEEL_DELTA_WPARAM(wParam)) /
                       static_cast<f32>(WHEEL_DELTA)};
     mInput.mouse_wheel(offset);
+
     return 0;
   }
 
@@ -344,10 +379,8 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
 
   case WM_EXITSIZEMOVE: {
     mInSizingMode = false;
-    RECT clientRect {};
-    ::GetClientRect(mHandle, &clientRect);
-    mClientAreaSize.set(static_cast<u16>(clientRect.right),
-                        static_cast<u16>(clientRect.bottom));
+    update_client_area_size();
+
     return 0;
   }
 
@@ -355,7 +388,7 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
     break;
   }
 
-  return ::DefWindowProcW(mHandle, message, wParam, lParam);
+  return DefWindowProcW(mHandle, message, wParam, lParam);
 }
 
 void Window::process_mouse_message_states(const WPARAM wParam) {
@@ -396,19 +429,26 @@ void Window::process_mouse_message_states(const WPARAM wParam) {
   }
 }
 
+void Window::update_client_area_size() {
+  RECT rect {};
+  GetClientRect(handle(), &rect);
+  mClientAreaSize.set(static_cast<u16>(rect.right),
+                      static_cast<u16>(rect.bottom));
+}
+
 auto Window::register_class(const HMODULE moduleHandle) -> ATOM {
   auto* const icon = static_cast<HICON>(
-    ::LoadImageW(nullptr, MAKEINTRESOURCEW(OIC_SAMPLE), IMAGE_ICON, 0, 0,
-                 LR_DEFAULTSIZE | LR_SHARED));
+    LoadImageW(nullptr, MAKEINTRESOURCEW(OIC_SAMPLE), IMAGE_ICON, 0, 0,
+               LR_DEFAULTSIZE | LR_SHARED));
   if (!icon) {
     BASALT_LOG_ERROR("failed to load icon");
   }
 
-  const int smallIconSizeX = ::GetSystemMetrics(SM_CXSMICON);
-  const int smallIconSizeY = ::GetSystemMetrics(SM_CYSMICON);
+  const int smallIconSizeX = GetSystemMetrics(SM_CXSMICON);
+  const int smallIconSizeY = GetSystemMetrics(SM_CYSMICON);
   auto* const smallIcon = static_cast<HICON>(
-    ::LoadImageW(nullptr, MAKEINTRESOURCEW(OIC_SAMPLE), IMAGE_ICON,
-                 smallIconSizeX, smallIconSizeY, LR_SHARED));
+    LoadImageW(nullptr, MAKEINTRESOURCEW(OIC_SAMPLE), IMAGE_ICON,
+               smallIconSizeX, smallIconSizeY, LR_SHARED));
   if (!smallIcon) {
     BASALT_LOG_ERROR("failed to load small icon");
   }
@@ -426,7 +466,7 @@ auto Window::register_class(const HMODULE moduleHandle) -> ATOM {
                            CLASS_NAME,
                            smallIcon};
 
-  return ::RegisterClassExW(&windowClass);
+  return RegisterClassExW(&windowClass);
 }
 
 auto CALLBACK Window::window_proc(const HWND handle, const UINT message,
@@ -437,12 +477,12 @@ auto CALLBACK Window::window_proc(const HWND handle, const UINT message,
                    message_to_string(message, wParam, lParam));
 #endif // BASALT_TRACE_WINDOWS_MESSAGES
 
-  if (const auto window = ::GetWindowLongPtrW(handle, GWLP_USERDATA)) {
+  if (const auto window = GetWindowLongPtrW(handle, GWLP_USERDATA)) {
     return reinterpret_cast<Window*>(window)->handle_message(message, wParam,
                                                              lParam);
   }
 
-  return ::DefWindowProcW(handle, message, wParam, lParam);
+  return DefWindowProcW(handle, message, wParam, lParam);
 }
 
 } // namespace basalt

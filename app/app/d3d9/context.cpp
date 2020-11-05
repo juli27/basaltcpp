@@ -51,6 +51,11 @@ void D3D9Context::submit(const Composite& composite) {
 }
 
 void D3D9Context::resize(const Size2Du16 size) {
+  BASALT_LOG_DEBUG("resizing back buffer from ({},{}) to ({},{})",
+                   mPresentParams.BackBufferWidth,
+                   mPresentParams.BackBufferHeight, size.width(),
+                   size.height());
+
   mDevice->before_reset();
 
   mPresentParams.BackBufferWidth = size.width();
@@ -58,8 +63,6 @@ void D3D9Context::resize(const Size2Du16 size) {
   D3D9CALL(mD3D9Device->Reset(&mPresentParams));
 
   mDevice->after_reset();
-
-  BASALT_LOG_DEBUG("resized d3d9 back buffer");
 }
 
 void D3D9Context::present() {
