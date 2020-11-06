@@ -19,9 +19,8 @@
 #include <api/dear_imgui.h>
 #include <api/debug.h>
 
-#include <api/gfx/backend/composite.h>
-
 #include <api/gfx/draw_target.h>
+#include <api/gfx/backend/command_list.h>
 
 #include <api/shared/asserts.h>
 #include <api/shared/config.h>

@@ -2,6 +2,8 @@
 
 #include "api/base/vec.h"
 
+#include "api/math/rectangle.h"
+
 namespace basalt {
 
 template <typename T>
@@ -31,6 +33,10 @@ struct Size2D final : vec<Size2D<T>, T, 2> {
 
   constexpr void set_height(const T height) noexcept {
     std::get<1>(elements) = height;
+  }
+
+  [[nodiscard]] constexpr auto to_rectangle() const noexcept -> Rectangle<T> {
+    return Rectangle<T> {0, 0, width(), height()};
   }
 
   [[nodiscard]] static constexpr auto dont_care() noexcept -> Size2D {

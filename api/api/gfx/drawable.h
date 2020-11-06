@@ -5,7 +5,9 @@
 
 #include "api/shared/types.h"
 
-#include <optional>
+#include "api/math/types.h"
+
+#include <tuple>
 
 namespace basalt::gfx {
 
@@ -18,9 +20,9 @@ struct Drawable {
   auto operator=(const Drawable&) -> Drawable& = default;
   auto operator=(Drawable &&) -> Drawable& = default;
 
-  virtual auto draw(ResourceCache&, Size2Du16 viewport) -> CommandList = 0;
-
-  [[nodiscard]] virtual auto clear_color() const -> std::optional<Color> = 0;
+  virtual auto draw(ResourceCache&, Size2Du16 viewport,
+                    const RectangleU16& clip)
+    -> std::tuple<CommandList, RectangleU16> = 0;
 
 protected:
   Drawable() = default;

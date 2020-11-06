@@ -157,7 +157,6 @@
     <ClCompile Include="api\engine.cpp" />
     <ClCompile Include="api\gfx\backend\command_list.cpp" />
     <ClCompile Include="api\dear_imgui.cpp" />
-    <ClCompile Include="api\gfx\backend\composite.cpp" />
     <ClCompile Include="api\gfx\camera.cpp" />
     <ClCompile Include="api\gfx\command_list_recorder.cpp" />
     <ClCompile Include="api\gfx\device_state_cache.cpp" />
@@ -183,7 +182,6 @@
     <ClInclude Include="api\debug.h" />
     <ClInclude Include="api\engine.h" />
     <ClInclude Include="api\gfx\backend\command_list.h" />
-    <ClInclude Include="api\gfx\backend\composite.h" />
     <ClInclude Include="api\gfx\backend\device.h" />
     <ClInclude Include="api\gfx\backend\commands.h" />
     <ClInclude Include="api\gfx\backend\ext\dear_imgui_renderer.h" />
@@ -205,6 +203,7 @@
     <ClInclude Include="api\input.h" />
     <ClInclude Include="api\math\constants.h" />
     <ClInclude Include="api\math\mat4.h" />
+    <ClInclude Include="api\math\rectangle.h" />
     <ClInclude Include="api\math\types.h" />
     <ClInclude Include="api\math\vector3.h" />
     <ClInclude Include="api\gfx\backend\context.h" />

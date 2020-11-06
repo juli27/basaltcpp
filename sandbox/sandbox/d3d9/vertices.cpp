@@ -1,7 +1,5 @@
 #include "vertices.h"
 
-#include "utils.h"
-
 #include <api/engine.h>
 #include <api/prelude.h>
 
@@ -20,6 +18,7 @@ using std::string_view;
 using namespace std::literals;
 
 using basalt::Engine;
+using basalt::RectangleU16;
 using basalt::Size2Du16;
 using basalt::gfx::CommandList;
 using basalt::gfx::CommandListRecorder;
@@ -39,17 +38,16 @@ struct MyDrawable final : Drawable {
   explicit MyDrawable(const Mesh triangle) noexcept : mTriangle {triangle} {
   }
 
-  auto draw(ResourceCache& cache, Size2Du16) -> CommandList override {
-    CommandListRecorder cmdListRecorder;
+  auto draw(ResourceCache& cache, const Size2Du16 viewport, const RectangleU16&)
+    -> std::tuple<CommandList, RectangleU16> override {
+    CommandListRecorder cmdList;
+    cmdList.clear(Colors::BLUE);
+
     const auto& mesh = cache.get(mTriangle);
-    cmdListRecorder.draw(mesh.vertexBuffer, mesh.primitiveType,
+    cmdList.draw(mesh.vertexBuffer, mesh.primitiveType,
                          mesh.startVertex, mesh.primitiveCount);
 
-    return cmdListRecorder.complete_command_list();
-  }
-
-  [[nodiscard]] auto clear_color() const -> std::optional<Color> override {
-    return Colors::BLUE;
+    return {cmdList.take_cmd_list(), viewport.to_rectangle()};
   }
 
 private:

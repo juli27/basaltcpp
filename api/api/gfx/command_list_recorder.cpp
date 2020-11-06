@@ -75,7 +75,7 @@ void CommandListRecorder::ext_draw_x_model(const ext::XModel handle) {
   mCommandList.add<ext::CommandDrawXModel>(handle);
 }
 
-auto CommandListRecorder::complete_command_list() -> CommandList {
+auto CommandListRecorder::take_cmd_list() -> CommandList {
   return std::move(mCommandList);
 }
 

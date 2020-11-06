@@ -2,7 +2,7 @@
 
 #include "util.h"
 
-#include <api/gfx/backend/composite.h>
+#include <api/gfx/backend/command_list.h>
 
 #include <api/shared/log.h>
 #include <api/shared/size2d.h>
@@ -30,16 +30,11 @@ auto D3D9Context::device() const noexcept -> DevicePtr {
 }
 
 void D3D9Context::submit(const Composite& composite) {
-  const D3DCOLOR clearColor = to_d3d_color(composite.background());
-
-  D3D9CALL(mD3D9Device->Clear(0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-                              clearColor, 1.0f, 0u));
-
   // TODO: should we make all rendering code dependent
   // on the success of BeginScene? -> Log error and/or throw exception
   mDevice->begin_execution();
 
-  for (const auto& commandList : composite.parts()) {
+  for (const auto& commandList : composite) {
     PIX_BEGIN_EVENT(0, L"command list");
 
     mDevice->execute(commandList);

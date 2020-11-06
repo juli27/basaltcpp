@@ -5,6 +5,7 @@ target_sources(${CURRENT_TARGET}
   PUBLIC
     "constants.h"
     "mat4.h"
+    "rectangle.h"
     "types.h"
     "vector3.h"
 )

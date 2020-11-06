@@ -1,9 +1,15 @@
 #include "compositor.h"
 
+#include <api/gfx/command_list_recorder.h>
 #include <api/gfx/draw_target.h>
 #include <api/gfx/drawable.h>
+#include <api/gfx/backend/command_list.h>
 
-#include <api/gfx/backend/composite.h>
+#include <api/math/rectangle.h>
+
+#include <algorithm>
+#include <vector>
+#include <utility>
 
 namespace basalt::gfx {
 
@@ -11,14 +17,36 @@ auto Compositor::compose(ResourceCache& resourceCache,
                          const DrawTarget& drawTarget) -> Composite {
   Composite composite;
 
-  for (const auto& drawable : drawTarget.drawables()) {
-    composite.add_part(drawable->draw(resourceCache, drawTarget.size()));
+  const Size2Du16 viewport = drawTarget.size();
+  RectangleU16 obscuredRegion;
 
-    const auto clearColor = drawable->clear_color();
-    if (clearColor) {
-      composite.set_background(*clearColor);
-    }
+  const auto& drawables = drawTarget.drawables();
+  std::for_each(drawables.rbegin(), drawables.rend(),
+                [&](const DrawablePtr& drawable) {
+                  if (obscuredRegion.area() == 0) {
+                    return;
+                  }
+
+                  auto [commandList, clipRect] =
+                    drawable->draw(resourceCache, viewport, obscuredRegion);
+
+                  obscuredRegion = RectangleU16 {
+                    std::min(obscuredRegion.left(), clipRect.left()),
+                    std::min(obscuredRegion.top(), clipRect.top()),
+                    std::max(obscuredRegion.right(), clipRect.right()),
+                    std::max(obscuredRegion.bottom(), clipRect.bottom()),
+                  };
+
+                  composite.emplace_back(std::move(commandList));
+                });
+
+  if (obscuredRegion != viewport.to_rectangle()) {
+    CommandListRecorder cmdList;
+    cmdList.clear(Colors::BLACK);
+    composite.emplace_back(cmdList.take_cmd_list());
   }
+
+  std::reverse(composite.begin(), composite.end());
 
   return composite;
 }

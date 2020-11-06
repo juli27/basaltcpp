@@ -22,10 +22,8 @@ struct DearImGui final : gfx::Drawable {
 
   void new_frame(const UpdateContext&) const;
 
-  auto draw(gfx::ResourceCache&, Size2Du16 viewport)
-    -> gfx::CommandList override;
-
-  [[nodiscard]] auto clear_color() const -> std::optional<Color> override;
+  auto draw(gfx::ResourceCache&, Size2Du16 viewport, const RectangleU16& clip)
+    -> std::tuple<gfx::CommandList, RectangleU16> override;
 
 private:
   std::shared_ptr<gfx::ext::DearImGuiRenderer> mRenderer;

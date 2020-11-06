@@ -1,11 +1,9 @@
 #include "debug.h"
 
 #include "gfx/types.h"
-
+#include "gfx/backend/command_list.h"
 #include "gfx/backend/commands.h"
-#include "gfx/backend/composite.h"
 #include "gfx/backend/types.h"
-
 #include "gfx/backend/ext/dear_imgui_renderer.h"
 #include "gfx/backend/ext/x_model_support.h"
 
@@ -397,15 +395,12 @@ void Debug::update(const gfx::Composite& composite) {
     return;
   }
 
-  display_color4("Background Color", composite.background());
-  ImGui::Separator();
-
   i32 i = 0;
-  for (const auto& part : composite.parts()) {
+  for (const auto& cmdList : composite) {
     ImGui::PushID(i);
     if (ImGui::TreeNode("Part", "Command List (%llu commands)",
-                        part.commands().size())) {
-      for (const auto& command : part.commands()) {
+                        cmdList.commands().size())) {
+      for (const auto& command : cmdList.commands()) {
         switch (command->type) {
           DISPLAY(CommandClear);
           DISPLAY(CommandDraw);

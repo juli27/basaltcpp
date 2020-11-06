@@ -9,12 +9,13 @@
 #include "gfx/backend/utils.h"
 #include "gfx/backend/ext/dear_imgui_renderer.h"
 
-#include "shared/color.h"
 #include "shared/size2d.h"
 
 #include "base/utils.h"
 
 #include <imgui/imgui.h>
+
+#include <utility>
 
 using std::nullopt;
 using std::optional;
@@ -153,15 +154,12 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
   ImGui::NewFrame();
 }
 
-auto DearImGui::draw(ResourceCache&, Size2Du16) -> CommandList {
+auto DearImGui::draw(ResourceCache&, Size2Du16, const RectangleU16&)
+  -> std::tuple<CommandList, RectangleU16> {
   CommandList commandList;
   commandList.add<CommandRenderDearImGui>();
 
-  return commandList;
-}
-
-auto DearImGui::clear_color() const -> optional<Color> {
-  return nullopt;
+  return {std::move(commandList), RectangleU16 {}};
 }
 
 } // namespace basalt

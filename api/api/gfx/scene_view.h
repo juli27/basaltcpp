@@ -23,9 +23,8 @@ struct SceneView final : Drawable {
 
   [[nodiscard]] auto camera() const noexcept -> const Camera&;
 
-  auto draw(ResourceCache&, Size2Du16 viewport) -> CommandList override;
-
-  [[nodiscard]] auto clear_color() const -> std::optional<Color> override;
+  auto draw(ResourceCache&, Size2Du16 viewport, const RectangleU16& clip)
+    -> std::tuple<CommandList, RectangleU16> override;
 
 private:
   ScenePtr mScene;

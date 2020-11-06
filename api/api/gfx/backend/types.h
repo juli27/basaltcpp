@@ -11,7 +11,8 @@
 namespace basalt::gfx {
 
 struct CommandList;
-struct Composite;
+
+using Composite = std::vector<CommandList>;
 
 struct Context;
 using ContextPtr = std::shared_ptr<Context>;

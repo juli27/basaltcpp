@@ -30,7 +30,7 @@ struct CommandListRecorder final {
 
   void ext_draw_x_model(ext::XModel);
 
-  [[nodiscard]] auto complete_command_list() -> CommandList;
+  [[nodiscard]] auto take_cmd_list() -> CommandList;
 
 private:
   CommandList mCommandList;
