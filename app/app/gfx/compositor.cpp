@@ -23,7 +23,7 @@ auto Compositor::compose(ResourceCache& resourceCache,
   const auto& drawables = drawTarget.drawables();
   std::for_each(drawables.rbegin(), drawables.rend(),
                 [&](const DrawablePtr& drawable) {
-                  if (obscuredRegion.area() == 0) {
+                  if (obscuredRegion.area() == viewport.to_rectangle().area()) {
                     return;
                   }
 
