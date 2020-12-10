@@ -6,13 +6,14 @@ jobs:
   build:
     runs-on: windows-2019
 
+    env:
+      DXSDK_DIR: "C:\Program Files (x86)\Microsoft DirectX SDK"
+
     steps:
     - uses: actions/checkout@v2
 
-    - name: Cache node modules
+    - name: Cache DirectX SDK setup
       uses: actions/cache@v2
-      env:
-        cache-name: cache-node-modules
       with:
         # npm cache files are stored in `~/.npm` on Linux/macOS
         path: ${{env.temp}}/DXSDK_Jun10.exe
