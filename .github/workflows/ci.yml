@@ -1,0 +1,22 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: windows-2019
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{runner.workspace}}/_ci
+
+    - name: Configure
+      working-directory: ${{runner.workspace}}/_ci
+      run: cmake -G "Visual Studio 16 2019" -A x64 ${GITHUB_WORKSPACE}
+
+    - name: Build
+      working-directory: ${{runner.workspace}}/_ci
+      shell: bash
+      run: cmake --build . --config Release
