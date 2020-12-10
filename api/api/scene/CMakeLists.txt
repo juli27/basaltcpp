@@ -1,9 +1,7 @@
-target_sources(${CURRENT_TARGET}
-  PRIVATE
-    "scene.cpp"
-    "transform.cpp"
-  PUBLIC
-    "scene.h"
-    "transform.h"
-    "types.h"
+target_sources(${CURRENT_TARGET} PRIVATE
+  "scene.cpp"
+  "scene.h"
+  "transform.cpp"
+  "transform.h"
+  "types.h"
 )

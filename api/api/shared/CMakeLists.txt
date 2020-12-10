@@ -1,17 +1,15 @@
-target_sources(${CURRENT_TARGET}
-  PRIVATE
-    "asserts.cpp"
-    "log.cpp"
-    "resource_registry.cpp"
-  PUBLIC
-    "asserts.h"
-    "color.h"
-    "config.h"
-    "data.h"
-    "handle.h"
-    "handle_pool.h"
-    "log.h"
-    "resource_registry.h"
-    "size2d.h"
-    "types.h"
+target_sources(${CURRENT_TARGET} PRIVATE
+  "asserts.cpp"
+  "asserts.h"
+  "color.h"
+  "config.h"
+  "data.h"
+  "handle_pool.h"
+  "handle.h"
+  "log.cpp"
+  "log.h"
+  "resource_registry.cpp"
+  "resource_registry.h"
+  "size2d.h"
+  "types.h"
 )

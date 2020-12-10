@@ -5,17 +5,16 @@ add_subdirectory("d3d9")
 
 target_sources(${CURRENT_TARGET} PRIVATE
   "app.cpp"
-  "debug.cpp"
-  "engine.cpp"
-  "main.cpp"
-  "util.cpp"
-  "window.cpp"
-  
   "app.h"
   "build_config.h"
+  "debug.cpp"
   "debug.h"
+  "engine.cpp"
   "key_map.h"
+  "main.cpp"
   "types.h"
+  "util.cpp"
   "util.h"
+  "window.cpp"
   "window.h"
 )

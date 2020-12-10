@@ -1,18 +1,27 @@
 add_library(spdlog STATIC)
 set(CURRENT_TARGET spdlog)
 
+target_link_libraries(${CURRENT_TARGET}
+  PUBLIC
+    Fmt
+  PRIVATE
+    CommonPrivate
+    Cpp17_Strict
+    ControlFlowGuard
+)
+
+target_include_directories(${CURRENT_TARGET} PUBLIC
+  "${CMAKE_CURRENT_SOURCE_DIR}"
+)
+
+target_compile_definitions(${CURRENT_TARGET} PUBLIC "SPDLOG_COMPILED_LIB")
+
+set_target_properties(${CURRENT_TARGET} PROPERTIES
+  FOLDER "external"
+  STATIC_LIBRARY_OPTIONS "/WX"
+)
+
 add_subdirectory("spdlog")
 
-target_link_libraries(spdlog PUBLIC Fmt PRIVATE CommonOptions)
-
-target_include_directories(spdlog PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-
-target_compile_definitions(spdlog PUBLIC SPDLOG_COMPILED_LIB)
-
-target_compile_options(spdlog PRIVATE "/permissive-")
-
-set_target_properties(spdlog PROPERTIES
-  STATIC_LIBRARY_OPTIONS "/WX"
-  INTERPROCEDURAL_OPTIMIZATION ON
-  INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF
-  INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL OFF)
+get_target_property(TARGET_SOURCES ${CURRENT_TARGET} SOURCES)
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${TARGET_SOURCES})

@@ -1,4 +1,4 @@
-target_sources(${CURRENT_TARGET} PUBLIC
+target_sources(${CURRENT_TARGET} PRIVATE
   "backtracer.h"
   "backtracer-inl.h"
   "circular_q.h"

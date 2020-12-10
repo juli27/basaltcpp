@@ -1,4 +1,4 @@
-target_sources(${CURRENT_TARGET} PUBLIC
+target_sources(${CURRENT_TARGET} PRIVATE
   "android_sink.h"
   "ansicolor_sink.h"
   "ansicolor_sink-inl.h"

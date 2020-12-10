@@ -1,13 +1,11 @@
-target_sources(${CURRENT_TARGET}
-  PRIVATE
-    "context.cpp"
-    "device.cpp"
-    "factory.cpp"
-  PUBLIC
-    "context.h"
-    "d3d9_custom.h"
-    "device.h"
-    "factory.h"
-    "types.h"
-    "util.h"
+target_sources(${CURRENT_TARGET} PRIVATE
+  "context.cpp"
+  "context.h"
+  "d3d9_custom.h"
+  "device.cpp"
+  "device.h"
+  "factory.cpp"
+  "factory.h"
+  "types.h"
+  "util.h"
 )

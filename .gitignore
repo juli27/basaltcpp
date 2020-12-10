@@ -352,7 +352,10 @@ MigrationBackup/
 
 
 ### CUSTOM
-build/
-data/
+# ignore directories relative to this directory which start with an underscore
+/_*/
+
+/data/
+
 log.txt
 imgui.ini

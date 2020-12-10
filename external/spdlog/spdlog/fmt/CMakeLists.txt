@@ -1,4 +1,4 @@
-target_sources(${CURRENT_TARGET} PUBLIC
+target_sources(${CURRENT_TARGET} PRIVATE
   "bin_to_hex.h"
   "chrono.h"
   "fmt.h"

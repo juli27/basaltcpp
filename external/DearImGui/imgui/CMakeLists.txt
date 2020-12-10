@@ -1,16 +1,14 @@
-target_sources(${CURRENT_TARGET}
-  PRIVATE
-    "imgui.cpp"
-    "imgui_demo.cpp"
-    "imgui_draw.cpp"
-    "imgui_impl_dx9.cpp"
-    "imgui_widgets.cpp"
-  PUBLIC
-    "imconfig.h"
-    "imgui.h"
-    "imgui_impl_dx9.h"
-    "imgui_internal.h"
-    "imstb_rectpack.h"
-    "imstb_textedit.h"
-    "imstb_truetype.h"
+target_sources(${CURRENT_TARGET} PRIVATE
+  "imconfig.h"
+  "imgui.cpp"
+  "imgui.h"
+  "imgui_demo.cpp"
+  "imgui_draw.cpp"
+  "imgui_impl_dx9.cpp"
+  "imgui_impl_dx9.h"
+  "imgui_internal.h"
+  "imgui_widgets.cpp"
+  "imstb_rectpack.h"
+  "imstb_textedit.h"
+  "imstb_truetype.h"
 )

@@ -1,9 +1,7 @@
-target_sources(${CURRENT_TARGET}
-  PRIVATE
-    "format.cc"
-    "format-inl.h"
-  PUBLIC
-    "core.h"
-    "format.h"
-    "ostream.h"
+target_sources(${CURRENT_TARGET} PRIVATE
+  "core.h"
+  "format.cc"
+  "format.h"
+  "format-inl.h"
+  "ostream.h"
 )

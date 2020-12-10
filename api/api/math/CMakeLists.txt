@@ -1,11 +1,9 @@
-target_sources(${CURRENT_TARGET}
-  PRIVATE
-    "mat4.cpp"
-    "vector3.cpp"
-  PUBLIC
-    "constants.h"
-    "mat4.h"
-    "rectangle.h"
-    "types.h"
-    "vector3.h"
+target_sources(${CURRENT_TARGET} PRIVATE
+  "constants.h"
+  "mat4.cpp"
+  "mat4.h"
+  "rectangle.h"
+  "types.h"
+  "vector3.cpp"
+  "vector3.h"
 )

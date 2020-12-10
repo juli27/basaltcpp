@@ -1,16 +1,23 @@
 add_library(Fmt STATIC)
 set(CURRENT_TARGET Fmt)
 
+target_link_libraries(${CURRENT_TARGET}
+  PRIVATE
+    CommonPrivate
+    Cpp17_Strict
+    ControlFlowGuard
+)
+
+target_include_directories(${CURRENT_TARGET}
+  PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}"
+)
+
+set_target_properties(${CURRENT_TARGET} PROPERTIES
+  FOLDER "external"
+  STATIC_LIBRARY_OPTIONS "/WX"
+)
+
 add_subdirectory("fmt")
 
-target_link_libraries(DearImGui PRIVATE CommonOptions)
-
-target_include_directories(Fmt PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-
-target_compile_options(Fmt PRIVATE /permissive-)
-
-set_target_properties(Fmt PROPERTIES
-  STATIC_LIBRARY_OPTIONS "/WX"
-  INTERPROCEDURAL_OPTIMIZATION ON
-  INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF
-  INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL OFF)
+get_target_property(TARGET_SOURCES ${CURRENT_TARGET} SOURCES)
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${TARGET_SOURCES})

@@ -1,29 +1,53 @@
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
-set(CMAKE_CXX_EXTENSIONS FALSE)
+project(Basalt VERSION 0.4 LANGUAGES CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-project(Basalt VERSION 0.4 LANGUAGES CXX)
+include(FeatureSummary)
+
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(CheckIPOSupported)
 check_ipo_supported()
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL OFF)
 
-add_library(CommonOptions INTERFACE)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-target_compile_definitions(CommonOptions INTERFACE "_UNICODE" "UNICODE")
-target_compile_options(CommonOptions INTERFACE
-  /diagnostics:caret /FC /fp:fast /guard:cf /Gy /sdl /W4 /WX /Zc:inline
-  /Zc:rvalueCast
-  $<$<CONFIG:Debug>:/GF>
-  $<$<CONFIG:RelWithDebInfo>:/Ob2>
+# Dependencies
+find_package(DirectXSDK MODULE REQUIRED "d3dx9")
+## TODO: move to find module?
+set_package_properties(DirectXSDK PROPERTIES
+  DESCRIPTION "Microsoft DirectX SDK"
+  URL "https://www.microsoft.com/en-us/download/details.aspx?id=6812"
+  PURPOSE "Dependency of the Direct3D 9 gfx backend"
 )
 
-add_subdirectory("external")
+# Needs to be linked into the final exe in order to enable it
+add_library(ControlFlowGuard INTERFACE)
+target_compile_options(ControlFlowGuard INTERFACE "/guard:cf")
+target_link_options(ControlFlowGuard INTERFACE "/GUARD:CF")
+
+# Strict C++17 conformance
+add_library(Cpp17_Strict INTERFACE)
+target_compile_features(Cpp17_Strict INTERFACE cxx_std_17)
+target_compile_options(Cpp17_Strict INTERFACE "/permissive-" "/Zc:inline")
+
+add_library(CommonPrivate INTERFACE)
+target_compile_definitions(CommonPrivate INTERFACE "_UNICODE" "UNICODE")
+target_compile_options(CommonPrivate INTERFACE
+  "/FC" "/fp:fast" "/Gy" "/sdl" "/W4" "/WX"
+  "$<$<CONFIG:Debug>:/GF>"
+  "$<$<CONFIG:RelWithDebInfo>:/Ob2>"
+  "$<$<CONFIG:Release>:/Zi>"
+)
+
+add_subdirectory("external" EXCLUDE_FROM_ALL)
 add_subdirectory("api")
-
 add_subdirectory("sandbox")
-
 add_subdirectory("app")
+
+set_directory_properties(PROPERTIES VS_STARTUP_PROJECT App)
+
+feature_summary(WHAT ALL)
