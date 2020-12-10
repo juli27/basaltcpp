@@ -4,6 +4,11 @@ on: [push]
 
 jobs:
   build:
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [Debug, RelWithDebInfo, Release]
+
     runs-on: windows-2019
 
     steps:
@@ -32,13 +37,13 @@ jobs:
         }
 
     - name: Create Build Environment
-      run: cmake -E make_directory ${{runner.workspace}}/_ci
+      run: cmake -E make_directory ${{ runner.workspace }}/_ci
 
     - name: Configure
-      working-directory: ${{runner.workspace}}/_ci
+      working-directory: ${{ runner.workspace }}/_ci
       run: cmake -G "Visual Studio 16 2019" -A x64 ${env:GITHUB_WORKSPACE}
 
     - name: Build
       working-directory: ${{runner.workspace}}/_ci
       shell: bash
-      run: cmake --build . --config Release
+      run: cmake --build . --config ${{ matrix.configuration }}
