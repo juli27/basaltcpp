@@ -22,8 +22,6 @@
 ## OS Support
 ### Windows
 * Windows 8.1
-* Windows 10 1809 RS5 October 2018 Update (Build 17763)
-* Windows 10 1903 19H1 May 2019 Update (Build 18362)
 * Windows 10 1909 19H2 November 2019 Update (Build 18363)
 * Windows 10 2004 20H1 May 2020 Update (Build 19041)
 * Windows 10 20H2 October 2020 Update (Build 19042)
@@ -44,6 +42,8 @@ in these versions haven't been made mandatory yet:
 > * Windows 10 1703 RS2 Creators Update (Build 15063)
 > * Windows 10 1709 RS3 Fall Creators Update (Build 16299)
 > * Windows 10 1803 RS4 April 2018 Update (Build 17134)
+> * Windows 10 1809 RS5 October 2018 Update (Build 17763)
+> * Windows 10 1903 19H1 May 2019 Update (Build 18362)
 
 ## Hardware Support
 * CPU: x86-64

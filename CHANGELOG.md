@@ -7,25 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Colors
 - Engine object to query and configure runtime behaviour
   - Engine.mouseCursor to get or set the current mouse cursor
+  - load resources
 - **/types.h includes to prelude.h
 - Dear ImGui clipboard support
 - Dear ImGui IME support
+- Gfx: `DrawTarget`
+- Gfx: `Drawable`
+  - `SceneView`: draws a scene through the specified camera
+  - `SolidColorView` fills its own area with a single color
+- Gfx: `Model` component
+- Gfx: `CommandList`, `CommandListRecorder`, `DeviceStateCache`
+- Gfx: Commands
+  - `SetDirectionalLights`, `SetTransform`, `SetRenderState`,
+    `SetTextureStageState`, `SetTexture`, `SetMaterial`, `Draw`, `Clear`
+- Gfx: device extensions
+  - `ext_dear_imgui_renderer`
+  - `ext_x_model_support`
+- Gfx: Materials
 
 ### Changed
+- Renamed runtime to api
 - The ClientApp::update method now receives a UpdateContext instead of only
   the delta time
 - Input is now part of the update context
+- Input: all mouse buttons capture the mouse
 - Moved app code into its own folder
 - Renamed various public fields, methods and functions
-- Updated Dear ImGui (v1.72b -> v1.76)
-- Updated EnTT (19ef290 -> v3.4.0)
-- Updated fmt (5.3.0 -> 6.2.1)
-- Updated spdlog (1.3.1 -> 1.6.0)
+- Updated Dear ImGui (v1.72b -> v1.79)
+- Updated EnTT (19ef290 -> v3.5.2)
+- Updated fmt (5.3.0 -> 7.1.2)
+- Updated spdlog (1.3.1 -> 1.8.1)
   - now compiled as a static library
 
 ### Deprecated
 
 ### Removed
+- gfx: `View`
 - Super key
   - the super key is not supported on Windows. It will be added again on other
     platforms once the need arises
@@ -52,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [sandbox] D3D9 Tutorial 6: Using Meshes
 - [build] CMake build support for Windows x86-64
 - [build-vs] RelWithDebInfo configuration
-- [build-vs] BASALT_DEV_BUILD macro or Debug and RelWithDebInfo builds
+- [build-vs] BASALT_DEV_BUILD macro for Debug and RelWithDebInfo builds
 
 ### Changed
 - Refactored platform events
