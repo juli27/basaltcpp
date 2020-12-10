@@ -13,19 +13,19 @@ struct Rectangle final : vec<Rectangle<T>, T, 4> {
   }
 
   [[nodiscard]] auto left() const -> T {
-    return std::get<0>(elements);
+    return std::get<0>(this->elements);
   }
 
   [[nodiscard]] auto top() const -> T {
-    return std::get<1>(elements);
+    return std::get<1>(this->elements);
   }
 
   [[nodiscard]] auto right() const -> T {
-    return std::get<2>(elements);
+    return std::get<2>(this->elements);
   }
 
   [[nodiscard]] auto bottom() const -> T {
-    return std::get<3>(elements);
+    return std::get<3>(this->elements);
   }
 
   [[nodiscard]] auto area() const -> T {

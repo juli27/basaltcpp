@@ -15,24 +15,24 @@ struct Size2D final : vec<Size2D<T>, T, 2> {
   }
 
   [[nodiscard]] constexpr auto width() const noexcept -> T {
-    return std::get<0>(elements);
+    return std::get<0>(this->elements);
   }
 
   [[nodiscard]] constexpr auto height() const noexcept -> T {
-    return std::get<1>(elements);
+    return std::get<1>(this->elements);
   }
 
   constexpr void set(const T width, const T height) noexcept {
-    std::get<0>(elements) = width;
-    std::get<1>(elements) = height;
+    std::get<0>(this->elements) = width;
+    std::get<1>(this->elements) = height;
   }
 
   constexpr void set_width(const T width) noexcept {
-    std::get<0>(elements) = width;
+    std::get<0>(this->elements) = width;
   }
 
   constexpr void set_height(const T height) noexcept {
-    std::get<1>(elements) = height;
+    std::get<1>(this->elements) = height;
   }
 
   [[nodiscard]] constexpr auto to_rectangle() const noexcept -> Rectangle<T> {
