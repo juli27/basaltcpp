@@ -120,17 +120,19 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
       }
     }
 
-    if (config.debugUiEnabled) {
-      Debug::update();
-      gfx::Debug::update(adapterInfo);
-    }
-
+    // The DearImGui drawable doesn't actually cause the UI to render during
+    // the compositing but is being done at execution of the ExtRenderDearImGui
+    // command instead.
     drawTarget.draw(dearImGui);
 
     // device needed for our current model support
     const Composite composite =
       Compositor::compose(app.mGfxResourceCache, drawTarget);
-    Debug::update(composite);
+
+    if (config.debugUiEnabled) {
+      Debug::update();
+      gfx::Debug::update(adapterInfo, composite);
+    }
 
     gfxContext->submit(composite);
     gfxContext->present();

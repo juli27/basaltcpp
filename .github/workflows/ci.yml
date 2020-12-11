@@ -36,14 +36,8 @@ jobs:
           Write-Host "Using cached DirectX SDK. Skipping install ..."
         }
 
-    - name: Create Build Environment
-      run: cmake -E make_directory ${{ runner.workspace }}/_ci
-
     - name: Configure
-      working-directory: ${{ runner.workspace }}/_ci
-      run: cmake -G "Visual Studio 16 2019" -A x64 ${env:GITHUB_WORKSPACE}
+      run: cmake -S . -B _ci -G "Visual Studio 16 2019" -A x64
 
     - name: Build
-      working-directory: ${{runner.workspace}}/_ci
-      shell: bash
-      run: cmake --build . --config ${{ matrix.configuration }}
+      run: cmake --build _ci --config ${{ matrix.configuration }}

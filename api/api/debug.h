@@ -1,6 +1,5 @@
 #pragma once
 
-#include "gfx/backend/types.h"
 #include "scene/types.h"
 
 namespace basalt {
@@ -19,7 +18,6 @@ struct Debug final {
 
   static void update();
   static void update(Scene&);
-  static void update(const gfx::Composite&);
 
 private:
   static void draw_scene_debug_ui(Scene&);
