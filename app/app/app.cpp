@@ -1,6 +1,7 @@
 #include "app.h"
 
 #include "build_config.h"
+#include "dear_imgui.h"
 #include "window.h"
 
 #if BASALT_TRACE_WINDOWS_MESSAGES
@@ -10,13 +11,11 @@
 #include "d3d9/context.h"
 #include "d3d9/factory.h"
 #include "d3d9/types.h"
-#include "d3d9/util.h"
 
 #include "gfx/compositor.h"
 #include "gfx/debug.h"
 
 #include <api/client_app.h>
-#include <api/dear_imgui.h>
 #include <api/debug.h>
 
 #include <api/gfx/draw_target.h>

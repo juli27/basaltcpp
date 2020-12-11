@@ -7,6 +7,8 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "app.cpp"
   "app.h"
   "build_config.h"
+  "dear_imgui.cpp"
+  "dear_imgui.h"
   "debug.cpp"
   "debug.h"
   "engine.cpp"

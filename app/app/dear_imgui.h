@@ -1,9 +1,9 @@
 #pragma once
 
-#include "gfx/drawable.h"
+#include <api/gfx/drawable.h>
 
-#include "types.h"
-#include "gfx/backend/ext/types.h"
+#include <api/types.h>
+#include <api/gfx/backend/ext/types.h>
 
 #include <memory>
 
