@@ -2,6 +2,9 @@
 
 #include "base/utils.h"
 
+#include <memory>
+#include <utility>
+
 using std::vector;
 
 namespace basalt {
@@ -62,7 +65,8 @@ void Input::key_up(const Key key) {
 }
 
 void Input::characters_typed(std::string characters) {
-  mEvents.emplace_back(std::make_unique<CharactersTyped>(std::move(characters)));
+  mEvents.emplace_back(
+    std::make_unique<CharactersTyped>(std::move(characters)));
 }
 
 } // namespace basalt

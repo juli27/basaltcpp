@@ -1,14 +1,12 @@
 #pragma once
 
+#include "input_events.h"
 #include "types.h"
-
-#include "shared/asserts.h"
 
 #include "base/types.h"
 
 #include <bitset>
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace basalt {
@@ -47,59 +45,6 @@ private:
   std::bitset<MOUSE_BUTTON_COUNT> mMouseButtonsDown;
   CursorPosition mMousePosition;
   std::bitset<KEY_COUNT> mKeysDown;
-};
-
-struct MouseMoved final : InputEventT<InputEventType::MouseMoved> {
-  CursorPosition position;
-
-  constexpr explicit MouseMoved(const CursorPosition& pos) noexcept
-    : position {pos} {
-  }
-};
-
-struct MouseWheel final : InputEventT<InputEventType::MouseWheel> {
-  f32 offset;
-
-  constexpr explicit MouseWheel(const f32 mouseWheelOffset) noexcept
-    : offset {mouseWheelOffset} {
-  }
-};
-
-struct MouseButtonDown final : InputEventT<InputEventType::MouseButtonDown> {
-  MouseButton button;
-
-  constexpr explicit MouseButtonDown(const MouseButton b) noexcept
-    : button {b} {
-  }
-};
-
-struct MouseButtonUp final : InputEventT<InputEventType::MouseButtonUp> {
-  MouseButton button;
-
-  constexpr explicit MouseButtonUp(const MouseButton b) noexcept : button {b} {
-  }
-};
-
-struct KeyDown final : InputEventT<InputEventType::KeyDown> {
-  Key key;
-
-  constexpr explicit KeyDown(const Key k) noexcept : key {k} {
-  }
-};
-
-struct KeyUp : InputEventT<InputEventType::KeyUp> {
-  Key key;
-
-  constexpr explicit KeyUp(const Key k) noexcept : key {k} {
-  }
-};
-
-struct CharactersTyped final : InputEventT<InputEventType::CharactersTyped> {
-  std::string chars;
-
-  explicit CharactersTyped(std::string typedCharacters)
-    : chars {std::move(typedCharacters)} {
-  }
 };
 
 } // namespace basalt

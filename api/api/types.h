@@ -8,7 +8,10 @@
 namespace basalt {
 
 struct Engine;
+struct InputEvent;
 struct UpdateContext;
+
+using InputEventPtr = std::unique_ptr<InputEvent>;
 
 enum class InputEventType : u8 {
   MouseMoved,
@@ -18,32 +21,6 @@ enum class InputEventType : u8 {
   KeyDown,
   KeyUp,
   CharactersTyped
-};
-
-struct InputEvent {
-  const InputEventType type;
-
-  template <typename T>
-  auto as() -> T& {
-    BASALT_ASSERT_MSG(type == T::TYPE, "invalid input event cast");
-    return *static_cast<T*>(this);
-  }
-
-protected:
-  constexpr explicit InputEvent(const InputEventType eType) noexcept
-    : type {eType} {
-  }
-};
-
-using InputEventPtr = std::unique_ptr<InputEvent>;
-
-template <InputEventType Type>
-struct InputEventT : InputEvent {
-  static constexpr InputEventType TYPE = Type;
-
-protected:
-  constexpr InputEventT() noexcept : InputEvent {TYPE} {
-  }
 };
 
 enum class MouseButton : u8 { Left, Right, Middle, Button4, Button5 };
@@ -74,8 +51,8 @@ struct CursorPosition : vec<CursorPosition, i32, 2> {
 
 // TODO: add super/meta key for linux/osx
 //       should not map to windows key on windows
-// clang-format off
 enum class Key : u8 {
+  // clang-format off
   Unknown = 0,
   F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
   Escape, Tab, CapsLock, Shift, Control, Alt, /*Super,*/
@@ -94,9 +71,9 @@ enum class Key : u8 {
   Minus,
   Comma, Period,
   Oem1, Oem2, Oem3, Oem4, Oem5, Oem6, Oem7, Oem8, Oem9,
+  // clang-format on
 };
 
-// clang-format on
 constexpr uSize KEY_COUNT = 102u;
 
 } // namespace basalt

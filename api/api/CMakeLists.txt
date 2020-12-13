@@ -6,6 +6,7 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "engine.h"
   "input.cpp"
   "input.h"
+  "input_events.h"
   "prelude.h"
   "types.h"
 )
