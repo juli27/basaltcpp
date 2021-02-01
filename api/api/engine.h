@@ -48,7 +48,7 @@ struct Engine {
 
 protected:
   Config& mConfig;
-  ResourceRegistryPtr mResourceRegistry = std::make_shared<ResourceRegistry>();
+  ResourceRegistryPtr mResourceRegistry {std::make_shared<ResourceRegistry>()};
 
   std::shared_ptr<gfx::Context> mGfxContext;
   gfx::ResourceCache mGfxResourceCache;

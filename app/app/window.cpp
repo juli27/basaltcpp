@@ -222,24 +222,14 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
   case WM_SIZE:
     switch (wParam) {
     case SIZE_RESTORED:
-      if (!mInSizingMode) {
-        if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam));
-            mClientAreaSize != newSize) {
-          mClientAreaSize = newSize;
-        }
-      }
-      break;
-
     case SIZE_MAXIMIZED:
-      if (const Size2Du16 newSize(LOWORD(lParam), HIWORD(lParam));
-          mClientAreaSize != newSize) {
-        mClientAreaSize = {LOWORD(lParam), HIWORD(lParam)};
-      }
+      mClientAreaSize = Size2Du16 {LOWORD(lParam), HIWORD(lParam)};
       break;
 
     default:
       break;
     }
+
     break;
 
   case WM_PAINT: {
@@ -274,15 +264,15 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
 
   case WM_KEYDOWN:
   case WM_KEYUP: {
-    const auto vkCode = static_cast<u8>(wParam);
-    auto keyCode = VK_TO_KEY_MAP[vkCode];
-    if (vkCode == VK_RETURN && (HIWORD(lParam) & KF_EXTENDED)) {
+    auto keyCode = VK_TO_KEY_MAP[wParam];
+    const auto highLParam = HIWORD(lParam);
+    if (wParam == VK_RETURN && highLParam & KF_EXTENDED) {
       keyCode = Key::NumpadEnter;
     }
 
-    if (message == WM_KEYDOWN) {
-      // don't dispatch repeat events
-      if (HIWORD(lParam) & KF_REPEAT) {
+    if (!(highLParam & KF_UP)) {
+      // ignore repeat messages
+      if (highLParam & KF_REPEAT) {
         return 0;
       }
 
@@ -374,11 +364,9 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
   }
 
   case WM_ENTERSIZEMOVE:
-    mInSizingMode = true;
     return 0;
 
   case WM_EXITSIZEMOVE: {
-    mInSizingMode = false;
     update_client_area_size();
 
     return 0;

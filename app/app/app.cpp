@@ -63,8 +63,8 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
     return;
   }
 
-  const WindowPtr window = Window::create(
-    moduleHandle, showCommand, config, gfxFactory->get_current_adapter_mode());
+  const WindowPtr window {Window::create(
+    moduleHandle, showCommand, config, gfxFactory->get_current_adapter_mode())};
   if (!window) {
     BASALT_LOG_FATAL("failed to create window");
 
@@ -80,7 +80,7 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
                   adapterInfo.displayName, adapterInfo.driver,
                   adapterInfo.driverVersion);
 
-  const auto dearImGui = std::make_shared<DearImGui>(*gfxDevice);
+  const auto dearImGui {std::make_shared<DearImGui>(*gfxDevice)};
   ImGuiIO& io {ImGui::GetIO()};
   io.ImeWindowHandle = window->handle();
 
@@ -96,7 +96,7 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   f64 currentDeltaTime {};
 
   while (poll_events()) {
-    if (const Size2Du16 size = window->client_area_size();
+    if (const Size2Du16 size {window->client_area_size()};
         size != gfxContext->surface_size()) {
       gfxContext->resize(size);
     }
@@ -124,7 +124,6 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
     // command instead.
     drawTarget.draw(dearImGui);
 
-    // device needed for our current model support
     const Composite composite =
       Compositor::compose(app.mGfxResourceCache, drawTarget);
 
@@ -162,9 +161,9 @@ void dump_config(const Config& config) {
 
 auto poll_events() -> bool {
   MSG msg {};
-  while (::PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
-    ::TranslateMessage(&msg);
-    ::DispatchMessageW(&msg);
+  while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
+    TranslateMessage(&msg);
+    DispatchMessageW(&msg);
 
     if (!msg.hwnd) {
 #if BASALT_TRACE_WINDOWS_MESSAGES

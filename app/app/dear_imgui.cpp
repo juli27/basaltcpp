@@ -17,9 +17,6 @@
 
 #include <utility>
 
-using std::nullopt;
-using std::optional;
-
 namespace basalt {
 
 using gfx::CommandList;

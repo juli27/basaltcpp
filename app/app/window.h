@@ -9,8 +9,6 @@
 #include <api/input.h>
 #include <api/types.h>
 
-#include <api/gfx/backend/types.h>
-
 #include <api/shared/size2d.h>
 #include <api/shared/types.h>
 
@@ -56,7 +54,6 @@ private:
   SavedWindowInfo mSavedWindowInfo;
   // set on first WM_SIZE
   Size2Du16 mClientAreaSize {Size2Du16::dont_care()};
-  bool mInSizingMode {false};
 
   WindowMode mCurrentMode {WindowMode::Windowed};
   MouseCursor mCurrentCursor {MouseCursor::Arrow};
