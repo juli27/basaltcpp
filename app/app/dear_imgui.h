@@ -1,5 +1,7 @@
 #pragma once
 
+#include <api/input_layer.h>
+
 #include <api/gfx/drawable.h>
 
 #include <api/types.h>
@@ -9,7 +11,9 @@
 
 namespace basalt {
 
-struct DearImGui final : gfx::Drawable {
+struct DearImGui final
+  : gfx::Drawable
+  , InputLayer {
   explicit DearImGui(gfx::Device&);
 
   DearImGui(const DearImGui&) = delete;
@@ -27,6 +31,8 @@ struct DearImGui final : gfx::Drawable {
 
 private:
   std::shared_ptr<gfx::ext::DearImGuiRenderer> mRenderer;
+
+  auto do_handle_input(const InputEvent&) -> InputEventHandled override;
 };
 
 } // namespace basalt

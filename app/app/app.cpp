@@ -84,6 +84,8 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   ImGuiIO& io {ImGui::GetIO()};
   io.ImeWindowHandle = window->handle();
 
+  window->input_manager().set_overlay(dearImGui);
+
   App app {config, gfxContext};
 
   const auto clientApp {ClientApp::create(app)};
@@ -101,10 +103,11 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
       gfxContext->resize(size);
     }
 
+    window->input_manager().dispatch_pending(app.mInputLayers);
+
     gfx::DrawTarget drawTarget {gfxContext->surface_size()};
 
-    const UpdateContext ctx {app, drawTarget, currentDeltaTime,
-                             window->drain_input()};
+    const UpdateContext ctx {app, drawTarget, currentDeltaTime};
     dearImGui->new_frame(ctx);
 
     clientApp->on_update(ctx);

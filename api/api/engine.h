@@ -1,6 +1,5 @@
 #pragma once
 
-#include "input.h"
 #include "types.h"
 
 #include "gfx/resource_cache.h"
@@ -33,6 +32,8 @@ struct Engine {
   [[nodiscard]] auto gfx_device() const -> gfx::DevicePtr;
   [[nodiscard]] auto gfx_context() const noexcept -> gfx::Context&;
 
+  void push_input_layer(InputLayerPtr);
+
   [[nodiscard]] auto mouse_cursor() const noexcept -> MouseCursor;
   void set_mouse_cursor(MouseCursor) noexcept;
 
@@ -52,6 +53,8 @@ protected:
 
   std::shared_ptr<gfx::Context> mGfxContext;
   gfx::ResourceCache mGfxResourceCache;
+
+  std::vector<InputLayerPtr> mInputLayers;
 
   MouseCursor mMouseCursor {MouseCursor::Arrow};
   bool mIsDirty {false};
@@ -75,7 +78,6 @@ struct UpdateContext final {
   Engine& engine;
   gfx::DrawTarget& drawTarget;
   f64 deltaTime {};
-  Input input;
 };
 
 void quit();

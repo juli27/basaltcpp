@@ -9,9 +9,13 @@ namespace basalt {
 
 struct Engine;
 struct InputEvent;
+struct InputLayer;
 struct UpdateContext;
 
 using InputEventPtr = std::unique_ptr<InputEvent>;
+using InputLayerPtr = std::shared_ptr<InputLayer>;
+
+enum class InputEventHandled : u8 { No, Yes };
 
 enum class InputEventType : u8 {
   MouseMoved,
@@ -20,7 +24,7 @@ enum class InputEventType : u8 {
   MouseButtonUp,
   KeyDown,
   KeyUp,
-  CharactersTyped
+  CharacterTyped
 };
 
 enum class MouseButton : u8 { Left, Right, Middle, Button4, Button5 };
@@ -39,7 +43,7 @@ enum class MouseCursor : u8 {
 };
 constexpr uSize MOUSE_CURSOR_COUNT = 9u;
 
-struct CursorPosition : vec<CursorPosition, i32, 2> {
+struct PointerPosition : vec<PointerPosition, i32, 2> {
   [[nodiscard]] constexpr auto x() const noexcept -> i32 {
     return std::get<0>(elements);
   }

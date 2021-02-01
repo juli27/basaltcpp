@@ -6,8 +6,7 @@
 
 #include "base/types.h"
 
-#include <string>
-#include <utility>
+#include <array>
 
 namespace basalt {
 
@@ -36,10 +35,12 @@ protected:
   }
 };
 
+// TODO: turn this into an relative mouse motion event.
+//       The pointer position must be polled
 struct MouseMoved final : InputEventT<InputEventType::MouseMoved> {
-  CursorPosition position;
+  PointerPosition position;
 
-  constexpr explicit MouseMoved(const CursorPosition& pos) noexcept
+  constexpr explicit MouseMoved(const PointerPosition& pos) noexcept
     : position {pos} {
   }
 };
@@ -83,11 +84,11 @@ struct KeyUp : InputEventT<InputEventType::KeyUp> {
   }
 };
 
-struct CharactersTyped final : InputEventT<InputEventType::CharactersTyped> {
-  std::string chars;
+struct CharacterTyped final : InputEventT<InputEventType::CharacterTyped> {
+  std::array<char, 4> character {};
 
-  explicit CharactersTyped(std::string typedCharacters)
-    : chars {std::move(typedCharacters)} {
+  explicit CharacterTyped(std::array<char, 4> character)
+    : character {character} {
   }
 };
 

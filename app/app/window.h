@@ -1,12 +1,12 @@
 #pragma once
 
+#include "input_manager.h"
 #include "types.h"
 
 #include "gfx/types.h"
 
 #include "shared/Windows_custom.h"
 
-#include <api/input.h>
 #include <api/types.h>
 
 #include <api/shared/size2d.h>
@@ -26,12 +26,12 @@ struct Window final {
   auto operator=(Window &&) -> Window& = delete;
 
   [[nodiscard]] auto handle() const noexcept -> HWND;
+  [[nodiscard]] auto input_manager() noexcept -> InputManager&;
   [[nodiscard]] auto client_area_size() const noexcept -> Size2Du16;
   [[nodiscard]] auto current_mode() const noexcept -> WindowMode;
 
   void set_mode(WindowMode, const gfx::AdapterMode&);
   void set_cursor(MouseCursor) noexcept;
-  auto drain_input() -> Input;
 
   // return null on failure
   [[nodiscard]] static auto create(HMODULE, int showCommand,
@@ -49,7 +49,7 @@ private:
   HMODULE mModuleHandle {};
   HWND mHandle {};
 
-  Input mInput;
+  InputManager mInputManager;
 
   SavedWindowInfo mSavedWindowInfo;
   // set on first WM_SIZE

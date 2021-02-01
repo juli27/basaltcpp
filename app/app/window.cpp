@@ -17,13 +17,14 @@
 
 #include <windowsx.h>
 
+#include <algorithm>
 #include <string>
 #include <string_view>
 #include <system_error>
-#include <utility>
 
 using namespace std::literals;
 
+using std::array;
 using std::string;
 using std::system_error;
 using std::unique_ptr;
@@ -68,6 +69,10 @@ Window::~Window() {
 
 auto Window::handle() const noexcept -> HWND {
   return mHandle;
+}
+
+auto Window::input_manager() noexcept -> InputManager& {
+  return mInputManager;
 }
 
 auto Window::client_area_size() const noexcept -> Size2Du16 {
@@ -129,10 +134,6 @@ void Window::set_mode(const WindowMode windowMode,
 void Window::set_cursor(const MouseCursor cursor) noexcept {
   mCurrentCursor = cursor;
   SetCursor(mLoadedCursors[enum_cast(mCurrentCursor)]);
-}
-
-auto Window::drain_input() -> Input {
-  return std::move(mInput);
 }
 
 auto Window::create(const HMODULE moduleHandle, const int showCommand,
@@ -291,10 +292,11 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
         }
       }
 
-      mInput.key_down(keyCode);
+      mInputManager.key_down(keyCode);
     } else {
-      mInput.key_up(keyCode);
+      mInputManager.key_up(keyCode);
     }
+
     return 0;
   }
 
@@ -306,9 +308,12 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
     BASALT_ASSERT(wParam < 0x10000);
     const auto c {static_cast<wchar_t>(wParam)};
     const string typedChar {create_utf8_from_wide(wstring_view {&c, 1})};
+    BASALT_ASSERT(typedChar.size() <= 4);
+    array<char, 4> character {};
+    std::copy_n(typedChar.begin(), 4, character.begin());
 
     for (u16 repCount {LOWORD(lParam)}; repCount > 0; repCount--) {
-      mInput.characters_typed(typedChar);
+      mInputManager.character_utf8(character);
     }
 
     return 0;
@@ -321,8 +326,8 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
   case WM_MOUSEMOVE:
     // insert the mouse moved last, because this is the most recent message
     process_mouse_message_states(wParam);
-    mInput.mouse_moved(
-      CursorPosition {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)});
+    mInputManager.mouse_moved(
+      PointerPosition {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)});
     return 0;
 
   case WM_LBUTTONDOWN:
@@ -333,8 +338,8 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
   case WM_MBUTTONUP:
   case WM_XBUTTONDOWN:
   case WM_XBUTTONUP: {
-    mInput.mouse_moved(
-      CursorPosition {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)});
+    mInputManager.mouse_moved(
+      PointerPosition {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)});
     process_mouse_message_states(wParam);
 
     constexpr u16 anyButton =
@@ -354,11 +359,11 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
   case WM_MOUSEWHEEL: {
     POINT cursorPos {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
     ScreenToClient(mHandle, &cursorPos);
-    mInput.mouse_moved(CursorPosition {cursorPos.x, cursorPos.y});
+    mInputManager.mouse_moved(PointerPosition {cursorPos.x, cursorPos.y});
     process_mouse_message_states(LOWORD(wParam));
     const f32 offset {static_cast<f32>(GET_WHEEL_DELTA_WPARAM(wParam)) /
                       static_cast<f32>(WHEEL_DELTA)};
-    mInput.mouse_wheel(offset);
+    mInputManager.mouse_wheel(offset);
 
     return 0;
   }
@@ -381,39 +386,39 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
 
 void Window::process_mouse_message_states(const WPARAM wParam) {
   if (wParam & MK_SHIFT) {
-    mInput.key_down(Key::Shift);
+    mInputManager.key_down(Key::Shift);
   } else {
-    mInput.key_up(Key::Shift);
+    mInputManager.key_up(Key::Shift);
   }
   if (wParam & MK_CONTROL) {
-    mInput.key_down(Key::Control);
+    mInputManager.key_down(Key::Control);
   } else {
-    mInput.key_up(Key::Control);
+    mInputManager.key_up(Key::Control);
   }
   if (wParam & MK_LBUTTON) {
-    mInput.mouse_button_down(MouseButton::Left);
+    mInputManager.mouse_button_down(MouseButton::Left);
   } else {
-    mInput.mouse_button_up(MouseButton::Left);
+    mInputManager.mouse_button_up(MouseButton::Left);
   }
   if (wParam & MK_RBUTTON) {
-    mInput.mouse_button_down(MouseButton::Right);
+    mInputManager.mouse_button_down(MouseButton::Right);
   } else {
-    mInput.mouse_button_up(MouseButton::Right);
+    mInputManager.mouse_button_up(MouseButton::Right);
   }
   if (wParam & MK_MBUTTON) {
-    mInput.mouse_button_down(MouseButton::Middle);
+    mInputManager.mouse_button_down(MouseButton::Middle);
   } else {
-    mInput.mouse_button_up(MouseButton::Middle);
+    mInputManager.mouse_button_up(MouseButton::Middle);
   }
   if (wParam & MK_XBUTTON1) {
-    mInput.mouse_button_down(MouseButton::Button4);
+    mInputManager.mouse_button_down(MouseButton::Button4);
   } else {
-    mInput.mouse_button_up(MouseButton::Button4);
+    mInputManager.mouse_button_up(MouseButton::Button4);
   }
   if (wParam & MK_XBUTTON2) {
-    mInput.mouse_button_down(MouseButton::Button5);
+    mInputManager.mouse_button_down(MouseButton::Button5);
   } else {
-    mInput.mouse_button_up(MouseButton::Button5);
+    mInputManager.mouse_button_up(MouseButton::Button5);
   }
 }
 

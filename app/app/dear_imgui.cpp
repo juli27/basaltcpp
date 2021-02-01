@@ -1,7 +1,7 @@
 #include "dear_imgui.h"
 
 #include <api/engine.h>
-#include <api/input.h>
+#include <api/input_events.h>
 
 #include <api/gfx/draw_target.h>
 
@@ -15,6 +15,8 @@
 
 #include <imgui/imgui.h>
 
+#include <algorithm>
+#include <array>
 #include <utility>
 
 namespace basalt {
@@ -67,68 +69,20 @@ DearImGui::~DearImGui() {
 }
 
 void DearImGui::new_frame(const UpdateContext& ctx) const {
-  mRenderer->new_frame();
-
-  auto& io = ImGui::GetIO();
-  const Input& input {ctx.input};
-
-  const CursorPosition mousePos {input.cursor_position()};
-  io.MousePos =
-    ImVec2 {static_cast<float>(mousePos.x()), static_cast<float>(mousePos.y())};
-
   static_assert(ImGuiMouseButton_COUNT == MOUSE_BUTTON_COUNT);
   static_assert(KEY_COUNT <= 512);
 
-  for (const InputEventPtr& event : input.events()) {
-    switch (event->type) {
-    case InputEventType::MouseButtonDown: {
-      const auto& mbPressed {event->as<MouseButtonDown>()};
-      io.MouseDown[enum_cast(mbPressed.button)] = true;
-      break;
-    }
+  mRenderer->new_frame();
 
-    case InputEventType::MouseButtonUp: {
-      const auto& mbReleased {event->as<MouseButtonUp>()};
-      io.MouseDown[enum_cast(mbReleased.button)] = false;
-      break;
-    }
-
-    case InputEventType::MouseWheel: {
-      const auto& mouseWheel {event->as<MouseWheel>()};
-      io.MouseWheel += mouseWheel.offset;
-      break;
-    }
-
-    case InputEventType::KeyDown: {
-      const auto& keyDown {event->as<KeyDown>()};
-      io.KeysDown[enum_cast(keyDown.key)] = true;
-      break;
-    }
-
-    case InputEventType::KeyUp: {
-      const auto& keyUp {event->as<KeyUp>()};
-      io.KeysDown[enum_cast(keyUp.key)] = false;
-      break;
-    }
-
-    case InputEventType::CharactersTyped: {
-      const auto& charactersTyped {event->as<CharactersTyped>()};
-      io.AddInputCharactersUTF8(charactersTyped.chars.c_str());
-      break;
-    }
-
-    default:
-      break;
-    }
-  }
+  auto& io = ImGui::GetIO();
 
   const Size2Du16 displaySize = ctx.drawTarget.size();
   io.DisplaySize = ImVec2 {static_cast<float>(displaySize.width()),
                            static_cast<float>(displaySize.height())};
   io.DeltaTime = static_cast<float>(ctx.deltaTime);
-  io.KeyCtrl = input.is_key_down(Key::Control);
-  io.KeyShift = input.is_key_down(Key::Shift);
-  io.KeyAlt = input.is_key_down(Key::Alt);
+  io.KeyCtrl = is_key_down(Key::Control);
+  io.KeyShift = is_key_down(Key::Shift);
+  io.KeyAlt = is_key_down(Key::Alt);
 
   // TODO: reenable once super/meta key has been implemented on linux/macOS
   //       the super key mapping to the windows key on windows caused
@@ -157,6 +111,61 @@ auto DearImGui::draw(ResourceCache&, Size2Du16, const RectangleU16&)
   commandList.add<CommandRenderDearImGui>();
 
   return {std::move(commandList), RectangleU16 {}};
+}
+
+auto DearImGui::do_handle_input(const InputEvent& e) -> InputEventHandled {
+  ImGuiIO& io = ImGui::GetIO();
+
+  switch (e.type) {
+  case InputEventType::MouseMoved: {
+    const auto& pointerPos = e.as<MouseMoved>().position;
+    io.MousePos = ImVec2 {static_cast<float>(pointerPos.x()),
+                          static_cast<float>(pointerPos.y())};
+  }
+
+    return io.WantCaptureMouse ? InputEventHandled::Yes : InputEventHandled::No;
+
+  case InputEventType::MouseWheel:
+    io.MouseWheel += e.as<MouseWheel>().offset;
+
+    break;
+
+  case InputEventType::MouseButtonDown:
+    io.MouseDown[enum_cast(e.as<MouseButtonDown>().button)] = true;
+
+    break;
+
+  case InputEventType::MouseButtonUp:
+    io.MouseDown[enum_cast(e.as<MouseButtonUp>().button)] = false;
+
+    break;
+
+  case InputEventType::KeyDown:
+    io.KeysDown[enum_cast(e.as<KeyDown>().key)] = true;
+
+    return io.WantCaptureKeyboard ? InputEventHandled::Yes
+                                  : InputEventHandled::No;
+
+  case InputEventType::KeyUp:
+    io.KeysDown[enum_cast(e.as<KeyUp>().key)] = false;
+
+    return io.WantCaptureKeyboard ? InputEventHandled::Yes
+                                  : InputEventHandled::No;
+
+  case InputEventType::CharacterTyped: {
+    const auto charTyped = e.as<CharacterTyped>().character;
+    std::array<char, 5> nullTerminatedChar {};
+    std::copy(charTyped.begin(), charTyped.end(), nullTerminatedChar.begin());
+    io.AddInputCharactersUTF8(nullTerminatedChar.data());
+
+    return io.WantTextInput ? InputEventHandled::Yes : InputEventHandled::No;
+  }
+
+  default:
+    break;
+  }
+
+  return InputEventHandled::No;
 }
 
 } // namespace basalt

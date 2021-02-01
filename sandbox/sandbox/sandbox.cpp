@@ -9,7 +9,7 @@
 #include "d3d9/vertices.h"
 
 #include <api/engine.h>
-#include <api/input.h>
+#include <api/input_layer.h>
 #include <api/prelude.h>
 
 #include <api/shared/config.h>
@@ -22,10 +22,20 @@ using namespace std::literals;
 using basalt::ClientApp;
 using basalt::Config;
 using basalt::Engine;
+using basalt::InputEvent;
+using basalt::InputEventHandled;
+using basalt::InputLayer;
 using basalt::Key;
 using basalt::UpdateContext;
 using basalt::WindowMode;
 using basalt::gfx::Device;
+
+struct SandboxApp::Input final : InputLayer {
+private:
+  auto do_handle_input(const InputEvent&) -> InputEventHandled override {
+    return InputEventHandled::Yes;
+  }
+};
 
 auto ClientApp::configure() -> Config {
   auto config = Config::defaults();
@@ -39,7 +49,9 @@ auto ClientApp::create(Engine& engine) -> unique_ptr<ClientApp> {
   return std::make_unique<SandboxApp>(engine);
 }
 
-SandboxApp::SandboxApp(Engine& engine) {
+SandboxApp::SandboxApp(Engine& engine) : mInput {std::make_shared<Input>()} {
+  engine.push_input_layer(mInput);
+
   mScenes.reserve(7u);
   mScenes.emplace_back(std::make_unique<d3d9::Device>());
   mScenes.emplace_back(std::make_unique<d3d9::Vertices>(engine));
@@ -53,7 +65,7 @@ SandboxApp::SandboxApp(Engine& engine) {
 void SandboxApp::on_update(const UpdateContext& ctx) {
   static auto pageUpPressed = false;
   static auto pageDownPressed = false;
-  if (ctx.input.is_key_down(Key::PageUp)) {
+  if (mInput->is_key_down(Key::PageUp)) {
     if (!pageUpPressed) {
       pageUpPressed = true;
 
@@ -63,7 +75,7 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
     pageUpPressed = false;
   }
 
-  if (ctx.input.is_key_down(Key::PageDown)) {
+  if (mInput->is_key_down(Key::PageDown)) {
     if (!pageDownPressed) {
       pageDownPressed = true;
 

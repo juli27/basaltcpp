@@ -12,6 +12,8 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "debug.cpp"
   "debug.h"
   "engine.cpp"
+  "input_manager.cpp"
+  "input_manager.h"
   "key_map.h"
   "main.cpp"
   "types.h"

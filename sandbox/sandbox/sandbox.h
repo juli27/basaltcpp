@@ -23,6 +23,9 @@ struct SandboxApp final : basalt::ClientApp {
   void on_update(const basalt::UpdateContext&) override;
 
 private:
+  struct Input;
+
+  std::shared_ptr<Input> mInput;
   std::vector<std::unique_ptr<TestCase>> mScenes;
   basalt::uSize mCurrentSceneIndex {6};
 

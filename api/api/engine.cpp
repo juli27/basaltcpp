@@ -32,6 +32,10 @@ auto Engine::gfx_context() const noexcept -> Context& {
   return *mGfxContext;
 }
 
+void Engine::push_input_layer(InputLayerPtr inputTarget) {
+  mInputLayers.emplace(mInputLayers.begin(), std::move(inputTarget));
+}
+
 auto Engine::mouse_cursor() const noexcept -> MouseCursor {
   return mMouseCursor;
 }
