@@ -14,6 +14,8 @@
 using std::string_view;
 using namespace std::literals;
 
+using namespace entt::literals;
+
 using basalt::Debug;
 using basalt::Engine;
 using basalt::Transform;

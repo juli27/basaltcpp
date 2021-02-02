@@ -88,6 +88,18 @@ public:
     using hash_type = id_type;
 
     /**
+     * @brief Returns directly the numeric representation of a string view.
+     * @param str Human-readable identifer.
+     * @param size Length of the string to hash.
+     * @return The numeric representation of the string.
+     */
+    [[nodiscard]] static constexpr hash_type value(const value_type *str, std::size_t size) ENTT_NOEXCEPT {
+        id_type partial{traits_type::offset};
+        while(size--) { partial = (partial^(str++)[0])*traits_type::prime; }
+        return partial;
+    }
+
+    /**
      * @brief Returns directly the numeric representation of a string.
      *
      * Forcing template resolution avoids implicit conversions. An
@@ -114,18 +126,6 @@ public:
      */
     [[nodiscard]] static hash_type value(const_wrapper wrapper) ENTT_NOEXCEPT {
         return helper(wrapper.str);
-    }
-
-    /**
-     * @brief Returns directly the numeric representation of a string view.
-     * @param str Human-readable identifer.
-     * @param size Length of the string to hash.
-     * @return The numeric representation of the string.
-     */
-    [[nodiscard]] static hash_type value(const value_type *str, std::size_t size) ENTT_NOEXCEPT {
-        id_type partial{traits_type::offset};
-        while(size--) { partial = (partial^(str++)[0])*traits_type::prime; }
-        return partial;
     }
 
     /*! @brief Constructs an empty hashed string. */
@@ -237,7 +237,7 @@ using hashed_string = basic_hashed_string<char>;
 using hashed_wstring = basic_hashed_string<wchar_t>;
 
 
-}
+inline namespace literals {
 
 
 /**
@@ -245,7 +245,7 @@ using hashed_wstring = basic_hashed_string<wchar_t>;
  * @param str The literal without its suffix.
  * @return A properly initialized hashed string.
  */
-[[nodiscard]] constexpr entt::hashed_string operator"" ENTT_HS_SUFFIX(const char *str, std::size_t) ENTT_NOEXCEPT {
+[[nodiscard]] constexpr entt::hashed_string operator"" _hs(const char *str, std::size_t) ENTT_NOEXCEPT {
     return entt::hashed_string{str};
 }
 
@@ -255,8 +255,14 @@ using hashed_wstring = basic_hashed_string<wchar_t>;
  * @param str The literal without its suffix.
  * @return A properly initialized hashed wstring.
  */
-[[nodiscard]] constexpr entt::hashed_wstring operator"" ENTT_HWS_SUFFIX(const wchar_t *str, std::size_t) ENTT_NOEXCEPT {
+[[nodiscard]] constexpr entt::hashed_wstring operator"" _hws(const wchar_t *str, std::size_t) ENTT_NOEXCEPT {
     return entt::hashed_wstring{str};
+}
+
+
+}
+
+
 }
 
 
