@@ -9,6 +9,7 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "imgui_internal.h"
   "imgui_widgets.cpp"
   "imstb_rectpack.h"
+  "imgui_tables.cpp"
   "imstb_textedit.h"
   "imstb_truetype.h"
 )
