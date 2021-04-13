@@ -75,8 +75,6 @@ Lights::Lights(Engine& engine)
   const VertexLayout vertexLayout {VertexElement::Position3F32,
                                    VertexElement::Normal3F32};
 
-  (void)mCylinder.emplace<Transform>();
-
   const MeshDescriptor mesh {as_bytes(gsl::span(vertices)), vertexLayout,
                              PrimitiveType::TriangleStrip,
                              static_cast<u32>(vertices.size() - 2)};

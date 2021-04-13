@@ -28,7 +28,6 @@ Meshes::Meshes(Engine& engine) {
   mScene->set_background(Colors::BLUE);
   mScene->set_ambient_light(Colors::WHITE);
 
-  (void)mTiger.emplace<Transform>();
   mTiger.emplace<XModel>(engine.get_or_load<XModel>("data/Tiger.x"_hs));
 }
 

@@ -81,8 +81,6 @@ TexturesTci::TexturesTci(Engine& engine) {
   const VertexLayout vertexLayout {VertexElement::Position3F32,
                                    VertexElement::ColorDiffuse1U32};
 
-  (void)mCylinder.emplace<Transform>();
-
   auto& rc = mCylinder.emplace<RenderComponent>();
   const auto device = engine.gfx_device();
 

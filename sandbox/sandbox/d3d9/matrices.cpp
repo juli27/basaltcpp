@@ -53,8 +53,6 @@ Matrices::Matrices(Engine& engine)
   const VertexLayout vertexLayout {VertexElement::Position3F32,
                                    VertexElement::ColorDiffuse1U32};
 
-  (void)mTriangle.emplace<Transform>();
-
   const MeshDescriptor mesh {as_bytes(gsl::span {vertices}), vertexLayout,
                              PrimitiveType::TriangleList,
                              static_cast<u32>(vertices.size() / 3)};

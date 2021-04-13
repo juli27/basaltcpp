@@ -80,8 +80,6 @@ Textures::Textures(Engine& engine)
                                    VertexElement::ColorDiffuse1U32,
                                    VertexElement::TextureCoords2F32};
 
-  (void)mCylinder.emplace<Transform>();
-
   const MeshDescriptor mesh {as_bytes(gsl::span {vertices}), vertexLayout,
                              PrimitiveType::TriangleStrip,
                              static_cast<u32>(vertices.size() - 2)};
