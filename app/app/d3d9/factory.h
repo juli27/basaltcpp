@@ -27,8 +27,9 @@ struct D3D9Factory final {
   auto operator=(const D3D9Factory&) -> D3D9Factory& = delete;
   auto operator=(D3D9Factory &&) -> D3D9Factory& = delete;
 
-  auto get_current_adapter_mode() const -> AdapterMode;
+  [[nodiscard]] auto get_current_adapter_mode() const -> AdapterMode;
   [[nodiscard]] auto query_adapter_info() const -> AdapterInfo;
+  [[nodiscard]] auto query_adapter_modes() const -> AdapterModeList;
 
   auto create_device_and_context(HWND window, const Config&) const
     -> std::tuple<DevicePtr, ContextPtr>;

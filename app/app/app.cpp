@@ -76,9 +76,8 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
 
   const AdapterInfo adapterInfo = gfxFactory->query_adapter_info();
 
-  BASALT_LOG_INFO("Direct3D9 context created: adapter={}, driver={}({})",
-                  adapterInfo.displayName, adapterInfo.driver,
-                  adapterInfo.driverVersion);
+  BASALT_LOG_INFO("Direct3D9 context created: adapter={}, driver={}",
+                  adapterInfo.displayName, adapterInfo.driverInfo);
 
   const auto dearImGui {std::make_shared<DearImGui>(*gfxDevice)};
   ImGuiIO& io {ImGui::GetIO()};

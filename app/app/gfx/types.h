@@ -28,11 +28,12 @@ struct AdapterMode final {
   SurfaceFormat displayFormat {SurfaceFormat::B8G8R8X8};
 };
 
+using AdapterModeList = std::vector<AdapterMode>;
+
 struct AdapterInfo final {
-  std::string displayName;
-  std::string driver;
-  std::string driverVersion;
-  std::vector<AdapterMode> adapterModes;
+  std::string displayName {};
+  std::string driverInfo {};
+  AdapterModeList adapterModes {};
 };
 
 } // namespace basalt::gfx

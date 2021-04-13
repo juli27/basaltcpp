@@ -363,8 +363,7 @@ void Debug::update(const AdapterInfo& currentAdapter,
   if (ImGui::BeginPopupModal("Gfx Info", nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
     ImGui::Text("GFX Adapter: %s", currentAdapter.displayName.c_str());
-    ImGui::Text("Driver: %s (%s)", currentAdapter.driver.c_str(),
-                currentAdapter.driverVersion.c_str());
+    ImGui::Text("Driver: %s", currentAdapter.driverInfo.c_str());
 
     ImGui::Separator();
 

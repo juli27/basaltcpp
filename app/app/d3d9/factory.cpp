@@ -4,6 +4,7 @@
 #include "device.h"
 #include "util.h"
 
+#include <api/shared/asserts.h>
 #include <api/shared/config.h>
 #include <api/shared/log.h>
 
@@ -32,7 +33,31 @@ constexpr array<D3DFORMAT, 6> ALLOWED_BACK_BUFFER_FORMATS {
   D3DFMT_R5G6B5,   D3DFMT_X1R5G5B5, D3DFMT_A1R5G5B5,
   D3DFMT_X8R8G8B8, D3DFMT_A8R8G8B8, D3DFMT_A2R10G10B10};
 
-auto to_surface_format(D3DFORMAT) -> SurfaceFormat;
+auto to_surface_format(const D3DFORMAT format) -> SurfaceFormat {
+  switch (format) {
+  case D3DFMT_A8R8G8B8:
+    return SurfaceFormat::B8G8R8A8;
+
+  case D3DFMT_X8R8G8B8:
+    return SurfaceFormat::B8G8R8X8;
+
+  case D3DFMT_R5G6B5:
+    return SurfaceFormat::B5G6R5;
+
+  case D3DFMT_X1R5G5B5:
+    return SurfaceFormat::B5G5R5X1;
+
+  case D3DFMT_A1R5G5B5:
+    return SurfaceFormat::B5G5R5A1;
+
+  case D3DFMT_A2R10G10B10:
+    return SurfaceFormat::B10G10R10A2;
+
+  default:
+    BASALT_ASSERT_MSG(false, "unsupported format");
+    throw runtime_error {"unsupported format"};
+  }
+}
 
 } // namespace
 
@@ -59,31 +84,33 @@ auto D3D9Factory::query_adapter_info() const -> AdapterInfo {
   u16 subVersion = HIWORD(adapterIdentifier.DriverVersion.LowPart);
   u16 build = LOWORD(adapterIdentifier.DriverVersion.LowPart);
 
-  AdapterInfo adapterInfo {
-    string {adapterIdentifier.Description}, string {adapterIdentifier.Driver},
-    fmt::format("{}.{}.{}.{}", product, version, subVersion, build)};
+  string driverInfo = fmt::format("{} ({}.{}.{}.{})", adapterIdentifier.Driver,
+                                  product, version, subVersion, build);
 
-  // query adapter modes
+  return AdapterInfo {string {adapterIdentifier.Description},
+                      std::move(driverInfo), query_adapter_modes()};
+}
+
+auto D3D9Factory::query_adapter_modes() const -> AdapterModeList {
+  AdapterModeList adapterModes {};
+
   for (const D3DFORMAT format : ALLOWED_DISPLAY_FORMATS) {
-    const u32 adapterModeCount =
-      mFactory->GetAdapterModeCount(D3DADAPTER_DEFAULT, format);
+    const u32 count = mFactory->GetAdapterModeCount(D3DADAPTER_DEFAULT, format);
 
-    adapterInfo.adapterModes.reserve(adapterInfo.adapterModes.size() +
-                                     adapterModeCount);
+    adapterModes.reserve(adapterModes.size() + count);
 
-    for (u32 i = 0; i < adapterModeCount; i++) {
-      D3DDISPLAYMODE adapterMode {};
-      [[maybe_unused]] const HRESULT hr =
-        mFactory->EnumAdapterModes(D3DADAPTER_DEFAULT, format, i, &adapterMode);
-      BASALT_ASSERT(SUCCEEDED(hr));
+    for (u32 i = 0; i < count; i++) {
+      D3DDISPLAYMODE adapterMode;
+      D3D9CALL(mFactory->EnumAdapterModes(D3DADAPTER_DEFAULT, format, i,
+                                          &adapterMode));
 
-      adapterInfo.adapterModes.emplace_back(AdapterMode {
+      adapterModes.emplace_back(AdapterMode {
         adapterMode.Width, adapterMode.Height, adapterMode.RefreshRate,
         to_surface_format(adapterMode.Format)});
     }
   }
 
-  return adapterInfo;
+  return adapterModes;
 }
 
 auto D3D9Factory::create_device_and_context(const HWND window,
@@ -135,35 +162,5 @@ auto D3D9Factory::create() -> D3D9FactoryPtr {
 
   return std::make_unique<D3D9Factory>(std::move(factory));
 }
-
-namespace {
-
-auto to_surface_format(const D3DFORMAT format) -> SurfaceFormat {
-  switch (format) {
-  case D3DFMT_A8R8G8B8:
-    return SurfaceFormat::B8G8R8A8;
-
-  case D3DFMT_X8R8G8B8:
-    return SurfaceFormat::B8G8R8X8;
-
-  case D3DFMT_R5G6B5:
-    return SurfaceFormat::B5G6R5;
-
-  case D3DFMT_X1R5G5B5:
-    return SurfaceFormat::B5G5R5X1;
-
-  case D3DFMT_A1R5G5B5:
-    return SurfaceFormat::B5G5R5A1;
-
-  case D3DFMT_A2R10G10B10:
-    return SurfaceFormat::B10G10R10A2;
-
-  default:
-    BASALT_ASSERT_MSG(false, "unsupported format");
-    throw runtime_error {"unsupported format"};
-  }
-}
-
-} // namespace
 
 } // namespace basalt::gfx
