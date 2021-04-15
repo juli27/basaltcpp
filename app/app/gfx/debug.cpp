@@ -35,12 +35,17 @@ bool sShowCompositeDebugUi {false};
 void draw_overlay() {
   static i8 corner = 2;
 
-  const f32 distanceToEdge = 10.0f;
-  auto& io = ImGui::GetIO();
-  const f32 windowPosX =
-    corner & 0x1 ? io.DisplaySize.x - distanceToEdge : distanceToEdge;
-  const f32 windowPosY =
-    corner & 0x2 ? io.DisplaySize.y - distanceToEdge : distanceToEdge + 15.0f;
+  const f32 distanceToEdge = 8.0f;
+  auto* vp = ImGui::GetMainViewport();
+
+  const f32 windowPosX = corner & 0x1
+                           ? vp->WorkPos.x + vp->WorkSize.x - distanceToEdge
+                           : vp->WorkPos.x + distanceToEdge;
+
+  const f32 windowPosY = corner & 0x2
+                           ? vp->WorkPos.y + vp->WorkSize.y - distanceToEdge
+                           : vp->WorkPos.y + distanceToEdge;
+
   const ImVec2 windowPosPivot {corner & 0x1 ? 1.0f : 0.0f,
                                corner & 0x2 ? 1.0f : 0.0f};
 
@@ -54,6 +59,8 @@ void draw_overlay() {
     ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 
   if (ImGui::Begin("Overlay", nullptr, flags)) {
+    auto& io = ImGui::GetIO();
+
     ImGui::Text("%.3f ms/frame (%.1f fps)", 1000.0f / io.Framerate,
                 io.Framerate);
 
