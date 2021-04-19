@@ -47,10 +47,63 @@ target_compile_options(CommonPrivate INTERFACE
 )
 
 add_subdirectory("external" EXCLUDE_FROM_ALL)
-add_subdirectory("api")
-add_subdirectory("sandbox")
-add_subdirectory("app")
+add_subdirectory("libapi")
+add_subdirectory("libruntime")
+add_subdirectory("platformlibs")
 
-set_directory_properties(PROPERTIES VS_STARTUP_PROJECT App)
+set(BASALT_SOURCE_DIR ${CMAKE_SOURCE_DIR})
+
+function(basalt_add_app APP_NAME)
+  add_library(${APP_NAME} STATIC)
+  set(CURRENT_TARGET ${APP_NAME} PARENT_SCOPE)
+
+  target_link_libraries(${APP_NAME} PUBLIC Basalt::LibAPI)
+
+  set_target_properties(${APP_NAME} PROPERTIES
+    FOLDER ${APP_NAME}
+  )
+
+  set(EXE_NAME "${APP_NAME}.Win32")
+  add_executable(${EXE_NAME} WIN32)
+  set(CURRENT_TARGET ${EXE_NAME})
+
+  target_link_libraries(${CURRENT_TARGET} PRIVATE
+    ControlFlowGuard
+    CommonPrivate
+    WarningsAsErrors
+    ${APP_NAME}
+    Basalt::LibAPI
+    Basalt::LibRuntime
+    Basalt::LibWin32
+  )
+
+  # TODO: /LTCG:incremental with ninja
+  target_link_options(${CURRENT_TARGET} PRIVATE
+    "/WX"
+    "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:/DEBUG:FASTLINK>"
+    "$<$<NOT:$<CONFIG:Debug>>:/OPT:REF;/OPT:ICF>"
+    "$<$<CONFIG:Release>:/DEBUG:FULL>"
+  )
+
+  set_target_properties(${CURRENT_TARGET} PROPERTIES
+    FOLDER ${APP_NAME}
+    OUTPUT_NAME ${APP_NAME}
+    RUNTIME_OUTPUT_DIRECTORY "win32"
+    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    VS_JUST_MY_CODE_DEBUGGING "$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>"
+  )
+
+  target_sources(${CURRENT_TARGET} PRIVATE
+    "${BASALT_SOURCE_DIR}/launchers/win32/App.manifest"
+    "${BASALT_SOURCE_DIR}/launchers/win32/main.cpp"
+  )
+
+  get_target_property(TARGET_SOURCES ${CURRENT_TARGET} SOURCES)
+  source_group(TREE "${BASALT_SOURCE_DIR}/launchers/win32" FILES ${TARGET_SOURCES})
+endfunction()
+
+add_subdirectory("sandbox")
+
+set_directory_properties(PROPERTIES VS_STARTUP_PROJECT Sandbox.Win32)
 
 feature_summary(WHAT ALL)
