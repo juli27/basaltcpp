@@ -5,6 +5,7 @@ set(CURRENT_TARGET App)
 target_link_libraries(${CURRENT_TARGET} PRIVATE
   ControlFlowGuard
   CommonPrivate
+  WarningsAsErrors
   Basalt::API
   Basalt::Sandbox
   "d3d9"

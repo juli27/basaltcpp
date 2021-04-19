@@ -8,6 +8,7 @@ target_link_libraries(${CURRENT_TARGET}
     CommonPrivate
     Cpp17_Strict
     ControlFlowGuard
+    WarningsAsErrors
 )
 
 target_include_directories(${CURRENT_TARGET} PUBLIC

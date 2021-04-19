@@ -4,6 +4,8 @@ set(CURRENT_TARGET DearImGui)
 target_link_libraries(${CURRENT_TARGET} PRIVATE
   CommonPrivate
   ControlFlowGuard
+  # DearImGui v1.82 fails to build in release configs with warnings as errors
+  #WarningsAsErrors
 )
 
 target_include_directories(${CURRENT_TARGET}
