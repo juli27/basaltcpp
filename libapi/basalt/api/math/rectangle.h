@@ -28,11 +28,20 @@ struct Rectangle final : vec<Rectangle<T>, T, 4> {
     return std::get<3>(this->elements);
   }
 
+  [[nodiscard]] auto width() const -> T {
+    return right() - left();
+  }
+
+  [[nodiscard]] auto height() const -> T {
+    return bottom() - top();
+  }
+
   [[nodiscard]] auto area() const -> T {
     return (right() - left()) * (bottom() - top());
   }
 };
 
+using RectangleI16 = Rectangle<i16>;
 using RectangleU16 = Rectangle<u16>;
 
 } // namespace basalt

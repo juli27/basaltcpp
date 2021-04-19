@@ -18,7 +18,7 @@
 #include <windowsx.h>
 
 #include <algorithm>
-#include <string>
+#include <numeric>
 #include <string_view>
 #include <system_error>
 
@@ -33,27 +33,52 @@ using std::wstring_view;
 
 namespace basalt {
 
-auto calc_windowed_size(const gfx::AdapterMode& adapterMode, const DWORD style,
-                        const DWORD styleEx, const Size2Du16 clientArea)
-  -> Size2Du16 {
+namespace {
+
+// posX and posY: location of the upper left corner of the client area
+// clientArea is the preferred size of the client area (width and/or height can
+// be 0 if no preference)
+// workArea in virtual-screen coords
+auto calc_window_rect(const int posX, const int posY, const DWORD style,
+                      const DWORD styleEx, const Size2Du16 clientArea,
+                      const Size2Du16 monitorSize,
+                      const RECT& workArea) noexcept -> RECT {
+  // window dimensions in client coords
   RECT rect {0l, 0l, clientArea.width(), clientArea.height()};
+
   // the default size is two thirds of the current display mode
   if (rect.right == 0l) {
-    rect.right = adapterMode.width * 2 / 3;
+    rect.right = MulDiv(monitorSize.width(), 2, 3);
   }
   if (rect.bottom == 0l) {
-    rect.bottom = adapterMode.height * 2 / 3;
+    rect.bottom = MulDiv(monitorSize.height(), 2, 3);
   }
+
+  OffsetRect(&rect, posX, posY);
 
   // calculate the window size for the given client area size
-  if (!AdjustWindowRectEx(&rect, style, FALSE, styleEx)) {
-    throw system_error {static_cast<int>(GetLastError()),
-                        std::system_category()};
+  AdjustWindowRectEx(&rect, style, FALSE, styleEx);
+
+  if (rect.right > workArea.right) {
+    OffsetRect(&rect, -std::min(rect.right - workArea.right, rect.left), 0);
   }
 
-  return Size2Du16 {static_cast<u16>(rect.right - rect.left),
-                    static_cast<u16>(rect.bottom - rect.top)};
+  if (rect.bottom > workArea.bottom) {
+    OffsetRect(&rect, 0, -std::min(rect.bottom - workArea.bottom, rect.top));
+  }
+
+  if (rect.right > workArea.right) {
+    rect.right += workArea.right - rect.right;
+  }
+
+  if (rect.bottom > workArea.bottom) {
+    rect.bottom += workArea.bottom - rect.bottom;
+  }
+
+  return rect;
 }
+
+} // namespace
 
 Window::~Window() {
   if (!DestroyWindow(mHandle)) {
@@ -83,8 +108,7 @@ auto Window::current_mode() const noexcept -> WindowMode {
   return mCurrentMode;
 }
 
-void Window::set_mode(const WindowMode windowMode,
-                      const gfx::AdapterMode& adapterMode) {
+void Window::set_mode(const WindowMode windowMode) {
   if (mCurrentMode == windowMode) {
     return;
   }
@@ -101,17 +125,22 @@ void Window::set_mode(const WindowMode windowMode,
 
     break;
 
-  case WindowMode::Fullscreen:
+  case WindowMode::Fullscreen: {
     mSavedWindowInfo.style =
       static_cast<DWORD>(GetWindowLongPtrW(mHandle, GWL_STYLE));
     GetWindowRect(mHandle, &mSavedWindowInfo.rect);
 
+    MONITORINFO mi {};
+    mi.cbSize = sizeof(mi);
+    GetMonitorInfoW(MonitorFromWindow(mHandle, MONITOR_DEFAULTTONEAREST), &mi);
+
+    rect = mi.rcMonitor;
+
     style &= ~WS_OVERLAPPEDWINDOW;
-    rect.right = adapterMode.width;
-    rect.bottom = adapterMode.height;
     swpFlags |= SWP_FRAMECHANGED;
 
     break;
+  }
 
   case WindowMode::FullscreenExclusive:
     // TODO: support FullscreenExclusive
@@ -137,8 +166,7 @@ void Window::set_cursor(const MouseCursor cursor) noexcept {
 }
 
 auto Window::create(const HMODULE moduleHandle, const int showCommand,
-                    const Config& config, const gfx::AdapterMode& adapterMode)
-  -> WindowPtr {
+                    const Desc& desc) -> WindowPtr {
   const ATOM windowClass {register_class(moduleHandle)};
   if (!windowClass) {
     throw system_error {static_cast<int>(GetLastError()),
@@ -148,21 +176,20 @@ auto Window::create(const HMODULE moduleHandle, const int showCommand,
 
   // WS_CLIPSIBLINGS is added automatically (tested on Windows 10)
   DWORD style {WS_OVERLAPPEDWINDOW};
-  if (!config.isWindowResizeable) {
+  if (!desc.resizeable) {
     style &= ~(WS_MAXIMIZEBOX | WS_SIZEBOX);
   }
 
   // WS_EX_WINDOWEDGE is added automatically (tested on Windows 10)
   const DWORD styleEx {};
 
-  const Size2Du16 size {
-    calc_windowed_size(adapterMode, style, styleEx, config.windowedSize)};
+  const wstring windowTitle {create_wide_from_utf8(desc.title)};
+  Size2Du16 clientAreaSize = desc.preferredClientAreaSize;
 
-  const wstring windowTitle {create_wide_from_utf8(config.appName)};
-  const HWND handle {CreateWindowExW(
-    styleEx, reinterpret_cast<LPCWSTR>(windowClass), windowTitle.c_str(), style,
-    CW_USEDEFAULT, CW_USEDEFAULT, size.width(), size.height(), nullptr, nullptr,
-    moduleHandle, nullptr)};
+  const HWND handle {
+    CreateWindowExW(styleEx, reinterpret_cast<LPCWSTR>(windowClass),
+                    windowTitle.c_str(), style, CW_USEDEFAULT, 0, CW_USEDEFAULT,
+                    0, nullptr, nullptr, moduleHandle, &clientAreaSize)};
   if (!handle) {
     BASALT_LOG_ERROR("failed to create window");
 
@@ -182,7 +209,7 @@ auto Window::create(const HMODULE moduleHandle, const int showCommand,
   // would not appear in the titlebar if the application launches with
   // fullscreen and switches to windowed
   // TODO: find a better workaround
-  window->set_mode(config.windowMode, adapterMode);
+  window->set_mode(desc.mode);
 
   return unique_ptr<Window> {window};
 }
@@ -474,6 +501,39 @@ auto CALLBACK Window::window_proc(const HWND handle, const UINT message,
   if (const auto window = GetWindowLongPtrW(handle, GWLP_USERDATA)) {
     return reinterpret_cast<Window*>(window)->handle_message(message, wParam,
                                                              lParam);
+  }
+
+  switch (message) {
+  case WM_CREATE: {
+    const auto& cs = *reinterpret_cast<CREATESTRUCTW*>(lParam);
+    const Size2Du16& clientAreaSize =
+      *static_cast<Size2Du16*>(cs.lpCreateParams);
+
+    MONITORINFO mi {};
+    mi.cbSize = sizeof(mi);
+    GetMonitorInfoW(MonitorFromWindow(handle, MONITOR_DEFAULTTONEAREST), &mi);
+
+    POINT topLeftClient {0, 0};
+    ClientToScreen(handle, &topLeftClient);
+
+    const Size2Du16 monitorSize {
+      static_cast<u16>(mi.rcMonitor.right - mi.rcMonitor.left),
+      static_cast<u16>(mi.rcMonitor.bottom - mi.rcMonitor.top)};
+
+    const LONG ncOffsetX = topLeftClient.x - cs.x;
+    const LONG ncOffsetY = topLeftClient.y - cs.y;
+
+    const RECT rect =
+      calc_window_rect(cs.x + ncOffsetX, cs.y + ncOffsetY, cs.style,
+                       cs.dwExStyle, clientAreaSize, monitorSize, mi.rcWork);
+
+    SetWindowPos(handle, HWND_TOP, rect.left, rect.top, rect.right - rect.left,
+                 rect.bottom - rect.top, SWP_NOZORDER | SWP_NOACTIVATE);
+
+    break;
+  }
+  default:
+    break;
   }
 
   return DefWindowProcW(handle, message, wParam, lParam);

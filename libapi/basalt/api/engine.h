@@ -22,7 +22,7 @@ struct Engine {
   Engine(Engine&&) = delete;
 
   auto operator=(const Engine&) -> Engine& = delete;
-  auto operator=(Engine &&) -> Engine& = delete;
+  auto operator=(Engine&&) -> Engine& = delete;
 
   [[nodiscard]] auto config() const noexcept -> const Config&;
 
@@ -51,7 +51,7 @@ protected:
   Config& mConfig;
   ResourceRegistryPtr mResourceRegistry {std::make_shared<ResourceRegistry>()};
 
-  std::shared_ptr<gfx::Context> mGfxContext;
+  gfx::ContextPtr mGfxContext;
   gfx::ResourceCache mGfxResourceCache;
 
   std::vector<InputLayerPtr> mInputLayers;
@@ -59,7 +59,7 @@ protected:
   MouseCursor mMouseCursor {MouseCursor::Arrow};
   bool mIsDirty {false};
 
-  Engine(Config&, std::shared_ptr<gfx::Context>) noexcept;
+  Engine(Config&, gfx::ContextPtr) noexcept;
 
   ~Engine() noexcept = default;
 };

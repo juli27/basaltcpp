@@ -14,30 +14,37 @@
 #include <basalt/api/shared/types.h>
 
 #include <array>
+#include <string>
 
 namespace basalt {
 
 struct Window final {
+  struct Desc {
+    std::string title {};
+    Size2Du16 preferredClientAreaSize {Size2Du16::dont_care()};
+    WindowMode mode {WindowMode::Windowed};
+    bool resizeable {true};
+  };
+
   Window(const Window&) = delete;
   Window(Window&&) = delete;
 
   ~Window();
 
   auto operator=(const Window&) -> Window& = delete;
-  auto operator=(Window &&) -> Window& = delete;
+  auto operator=(Window&&) -> Window& = delete;
 
   [[nodiscard]] auto handle() const noexcept -> HWND;
   [[nodiscard]] auto input_manager() noexcept -> InputManager&;
   [[nodiscard]] auto client_area_size() const noexcept -> Size2Du16;
   [[nodiscard]] auto current_mode() const noexcept -> WindowMode;
 
-  void set_mode(WindowMode, const gfx::AdapterMode&);
+  void set_mode(WindowMode);
   void set_cursor(MouseCursor) noexcept;
 
   // return null on failure
-  [[nodiscard]] static auto create(HMODULE, int showCommand,
-                                   const Config& config,
-                                   const gfx::AdapterMode&) -> WindowPtr;
+  [[nodiscard]] static auto create(HMODULE, int showCommand, const Desc&)
+    -> WindowPtr;
 
 private:
   struct SavedWindowInfo final {

@@ -20,7 +20,7 @@ struct Config final {
   std::string appName {"Basalt App"s};
 
   // the window size is only used for the windowed window mode
-  Size2Du16 windowedSize {Size2Du16::dont_care()};
+  Size2Du16 preferredSurfaceSize {Size2Du16::dont_care()};
 
   WindowMode windowMode {WindowMode::Windowed};
   bool isWindowResizeable {true};

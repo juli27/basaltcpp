@@ -54,7 +54,7 @@ void Engine::load(const Resource resource) {
   get_or_load<gfx::ext::XModel>(resource);
 }
 
-Engine::Engine(Config& config, shared_ptr<Context> context) noexcept
+Engine::Engine(Config& config, gfx::ContextPtr context) noexcept
   : mConfig {config}
   , mGfxContext {std::move(context)}
   , mGfxResourceCache {mResourceRegistry, mGfxContext->device()} {

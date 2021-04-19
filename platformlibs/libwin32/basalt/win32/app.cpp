@@ -64,8 +64,10 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
     return;
   }
 
-  const WindowPtr window {Window::create(
-    moduleHandle, showCommand, config, gfxFactory->get_current_adapter_mode())};
+  const Window::Desc windowDesc {config.appName, config.preferredSurfaceSize,
+                                 config.windowMode, config.isWindowResizeable};
+  const WindowPtr window {
+    Window::create(moduleHandle, showCommand, windowDesc)};
   if (!window) {
     BASALT_LOG_FATAL("failed to create window");
 
@@ -115,11 +117,7 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
     if (app.mIsDirty) {
       app.mIsDirty = false;
       window->set_cursor(app.mMouseCursor);
-
-      if (window->current_mode() != config.windowMode) {
-        window->set_mode(config.windowMode,
-                         gfxFactory->get_current_adapter_mode());
-      }
+      window->set_mode(config.windowMode);
     }
 
     // The DearImGui drawable doesn't actually cause the UI to render during
@@ -145,7 +143,7 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
   }
 }
 
-App::App(Config& config, shared_ptr<gfx::Context> gfxContext)
+App::App(Config& config, gfx::ContextPtr gfxContext)
   : Engine {config, std::move(gfxContext)} {
 }
 
@@ -155,8 +153,8 @@ void dump_config(const Config& config) {
   BASALT_LOG_INFO("config");
   BASALT_LOG_INFO("\tapp name: {}", config.appName);
   BASALT_LOG_INFO(
-    "\twindow: {}x{}{} {}{}", config.windowedSize.width(),
-    config.windowedSize.height(),
+    "\twindow: {}x{}{} {}{}", config.preferredSurfaceSize.width(),
+    config.preferredSurfaceSize.height(),
     config.windowMode == WindowMode::FullscreenExclusive ? " exclusive" : "",
     config.windowMode != WindowMode::Windowed ? "fullscreen" : "windowed",
     config.isWindowResizeable ? " resizeable" : "");
