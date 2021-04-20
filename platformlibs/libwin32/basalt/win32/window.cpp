@@ -310,7 +310,8 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
     const string typedChar {create_utf8_from_wide(wstring_view {&c, 1})};
     BASALT_ASSERT(typedChar.size() <= 4);
     array<char, 4> character {};
-    std::copy_n(typedChar.begin(), 4, character.begin());
+    std::copy_n(typedChar.begin(), std::min(typedChar.size(), 4ull),
+                character.begin());
 
     for (u16 repCount {LOWORD(lParam)}; repCount > 0; repCount--) {
       mInputManager.character_utf8(character);
