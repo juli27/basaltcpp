@@ -77,6 +77,11 @@ function(basalt_add_app APP_NAME)
     Basalt::LibWin32
   )
 
+  target_compile_definitions(${CURRENT_TARGET} PRIVATE
+    "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:BASALT_DEV_BUILD>"
+    "$<$<CONFIG:Debug>:BASALT_DEBUG_BUILD>"
+  )
+
   # TODO: /LTCG:incremental with ninja
   target_link_options(${CURRENT_TARGET} PRIVATE
     "/WX"
