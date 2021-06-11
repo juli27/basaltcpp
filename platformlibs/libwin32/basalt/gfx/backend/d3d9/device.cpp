@@ -207,8 +207,7 @@ auto D3D9Device::create_vertex_buffer(const gsl::span<const std::byte> data,
 
   BASALT_ASSERT(!layout.empty());
   const DWORD fvf = to_fvf(layout);
-  BASALT_ASSERT_MSG(verify_fvf(fvf),
-                    "invalid fvf. Consult the log for details");
+  BASALT_ASSERT(verify_fvf(fvf), "invalid fvf. Consult the log for details");
 
   const auto [handle, vertexBuffer] = mVertexBuffers.allocate();
 
@@ -272,8 +271,8 @@ void D3D9Device::execute(const CommandDraw& cmd) const {
 
 void D3D9Device::execute(const CommandSetDirectionalLights& cmd) {
   const auto& directionalLights = cmd.directionalLights;
-  BASALT_ASSERT_MSG(directionalLights.size() <= mDeviceCaps.MaxActiveLights,
-                    "the renderer doesn't support that many lights");
+  BASALT_ASSERT(directionalLights.size() <= mDeviceCaps.MaxActiveLights,
+                "the renderer doesn't support that many lights");
 
   mMaxLightsUsed =
     std::max(mMaxLightsUsed, static_cast<u8>(directionalLights.size()));
@@ -297,8 +296,8 @@ void D3D9Device::execute(const CommandSetTransform& cmd) const {
 
   switch (cmd.state) {
   case TransformState::Projection:
-    BASALT_ASSERT_MSG(transform._34 >= 0,
-                      "(3,4) can't be negative in a projection matrix");
+    BASALT_ASSERT(transform._34 >= 0,
+                  "(3,4) can't be negative in a projection matrix");
 
     D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &transform));
     break;

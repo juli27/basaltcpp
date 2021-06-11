@@ -14,8 +14,7 @@ auto ResourceRegistry::has_resource(const ResourceId id) const -> bool {
 
 auto ResourceRegistry::get_path(const ResourceId id) const
   -> const std::filesystem::path& {
-  BASALT_ASSERT_MSG(mResources.find(id) != mResources.end(),
-                    "invalid ResourceId");
+  BASALT_ASSERT(mResources.find(id) != mResources.end(), "invalid ResourceId");
 
   return mResources.at(id);
 }

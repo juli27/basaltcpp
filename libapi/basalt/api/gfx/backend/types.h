@@ -42,7 +42,7 @@ struct Command {
 
   template <typename T>
   auto as() -> T& {
-    BASALT_ASSERT_MSG(type == T::TYPE, "invalid command cast");
+    BASALT_ASSERT(type == T::TYPE, "invalid command cast");
     return *static_cast<T*>(this);
   }
 

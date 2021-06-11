@@ -10,8 +10,7 @@
 #if BASALT_DEBUG_BUILD
 
 // TODO: add detailed logging
-#define D3D9CALL(x)                                                            \
-  BASALT_ASSERT_MSG(SUCCEEDED((x)), "Direct3D 9 call failed: " #x)
+#define D3D9CALL(x) BASALT_ASSERT(SUCCEEDED((x)), "Direct3D 9 call failed: " #x)
 
 #else // BASALT_DEBUG_BUILD
 

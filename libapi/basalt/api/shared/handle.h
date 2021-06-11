@@ -16,7 +16,7 @@ struct HandleBase {
 
   constexpr explicit HandleBase(const ValueType value) noexcept
     : mValue {value} {
-    BASALT_ASSERT_MSG(mValue != NULL_VALUE, "null handle value");
+    BASALT_ASSERT(mValue != NULL_VALUE, "null handle value");
   }
 
   constexpr explicit operator bool() const noexcept {

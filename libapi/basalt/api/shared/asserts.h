@@ -15,25 +15,34 @@ namespace basalt::detail {
 #define BASALT_FUNCTION_SIGNATURE __func__
 #endif
 
-#define BASALT_ASSERT(b)                                                       \
+#define BASALT_GLUE(a, b) a b
+
+#define BASALT_ASSERT_IMPL1(expr)                                              \
   do {                                                                         \
-    if (!(b)) {                                                                \
-      ::basalt::detail::fail_assert(#b, __FILE__, __LINE__,                    \
+    if (!(expr)) {                                                             \
+      ::basalt::detail::fail_assert(#expr, __FILE__, __LINE__,                 \
                                     BASALT_FUNCTION_SIGNATURE);                \
     }                                                                          \
   } while (false)
 
-#define BASALT_ASSERT_MSG(b, msg)                                              \
+#define BASALT_ASSERT_IMPL2(expr, msg)                                         \
   do {                                                                         \
-    if (!(b)) {                                                                \
-      ::basalt::detail::fail_assert(msg " (" #b ")", __FILE__, __LINE__,       \
+    if (!(expr)) {                                                             \
+      ::basalt::detail::fail_assert(msg " (" #expr ")", __FILE__, __LINE__,    \
                                     BASALT_FUNCTION_SIGNATURE);                \
     }                                                                          \
   } while (false)
+
+#define BASALT_ASSERT_GET_IMPL(_1, _2, name, ...) name
+
+// BASALT_GLUE to work around legacy msvc preprocessor bugs
+#define BASALT_ASSERT(...)                                                     \
+  BASALT_GLUE(BASALT_ASSERT_GET_IMPL(__VA_ARGS__, BASALT_ASSERT_IMPL2,         \
+                                     BASALT_ASSERT_IMPL1),                     \
+              (__VA_ARGS__))
 
 #else // !BASALT_DEV_BUILD
 
-#define BASALT_ASSERT(b)
-#define BASALT_ASSERT_MSG(b, msg)
+#define BASALT_ASSERT(...)
 
 #endif // BASALT_DEV_BUILD

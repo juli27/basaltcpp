@@ -54,7 +54,7 @@ auto to_surface_format(const D3DFORMAT format) -> SurfaceFormat {
     return SurfaceFormat::B10G10R10A2;
 
   default:
-    BASALT_ASSERT_MSG(false, "unsupported format");
+    BASALT_ASSERT(false, "unsupported format");
     throw runtime_error {"unsupported format"};
   }
 }

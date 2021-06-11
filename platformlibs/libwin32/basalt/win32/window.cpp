@@ -144,7 +144,7 @@ void Window::set_mode(const WindowMode windowMode) {
 
   case WindowMode::FullscreenExclusive:
     // TODO: support FullscreenExclusive
-    BASALT_ASSERT_MSG(false, "not implemented");
+    BASALT_ASSERT(false, "not implemented");
     break;
   }
 

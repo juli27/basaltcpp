@@ -15,7 +15,7 @@ struct InputEvent {
 
   template <typename T>
   [[nodiscard]] auto as() const -> const T& {
-    BASALT_ASSERT_MSG(type == T::TYPE, "invalid input event cast");
+    BASALT_ASSERT(type == T::TYPE, "invalid input event cast");
 
     return *static_cast<const T*>(this);
   }

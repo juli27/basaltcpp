@@ -42,7 +42,7 @@ auto ResourceCache::is_loaded(const ResourceId id) const -> bool {
 
 template <>
 auto ResourceCache::load(const ResourceId id) -> ext::XModel {
-  BASALT_ASSERT_MSG(!is_loaded(id), "XModel already loaded");
+  BASALT_ASSERT(!is_loaded(id), "XModel already loaded");
 
   const auto modelExt =
     *gfx::query_device_extension<ext::XModelSupport>(*mDevice);
@@ -54,7 +54,7 @@ auto ResourceCache::load(const ResourceId id) -> ext::XModel {
 
 template <>
 auto ResourceCache::load(const ResourceId id) -> Texture {
-  BASALT_ASSERT_MSG(!is_loaded(id), "Texture already loaded");
+  BASALT_ASSERT(!is_loaded(id), "Texture already loaded");
 
   const auto& path = mResourceRegistry->get_path(id);
   return mTextures[id] = mDevice->add_texture(path.u8string());
