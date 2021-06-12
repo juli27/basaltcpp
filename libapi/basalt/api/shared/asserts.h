@@ -1,12 +1,13 @@
 #pragma once
 
-#if BASALT_DEV_BUILD
-
 namespace basalt::detail {
-
+#if BASALT_DEV_BUILD
 [[noreturn]] void fail_assert(const char* message, const char* file, int line,
                               const char* func);
+#endif
 
+[[noreturn]] void crash(const char* message, const char* file, int line,
+                        const char* func);
 } // namespace basalt::detail
 
 #ifdef _MSC_VER
@@ -14,6 +15,14 @@ namespace basalt::detail {
 #else
 #define BASALT_FUNCTION_SIGNATURE __func__
 #endif
+
+#define BASALT_CRASH(msg)                                                      \
+  do {                                                                         \
+    ::basalt::detail::crash(msg, __FILE__, __LINE__,                           \
+                            BASALT_FUNCTION_SIGNATURE);                        \
+  } while (false)
+
+#if BASALT_DEV_BUILD
 
 #define BASALT_GLUE(a, b) a b
 

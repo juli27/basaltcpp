@@ -11,7 +11,6 @@
 #include <fmt/format.h>
 
 #include <array>
-#include <stdexcept>
 #include <string>
 #include <utility>
 
@@ -20,7 +19,6 @@ namespace basalt::gfx {
 using Microsoft::WRL::ComPtr;
 
 using std::array;
-using std::runtime_error;
 using std::string;
 using std::tuple;
 
@@ -54,8 +52,7 @@ auto to_surface_format(const D3DFORMAT format) -> SurfaceFormat {
     return SurfaceFormat::B10G10R10A2;
 
   default:
-    BASALT_ASSERT(false, "unsupported format");
-    throw runtime_error {"unsupported format"};
+    BASALT_CRASH("unsupported format");
   }
 }
 

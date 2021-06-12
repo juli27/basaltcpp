@@ -59,7 +59,7 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
 
   const auto gfxFactory {D3D9Factory::create()};
   if (!gfxFactory) {
-    BASALT_LOG_FATAL("couln't create any gfx factory");
+    BASALT_LOG_FATAL("couldn't create any gfx factory");
 
     return;
   }
@@ -118,6 +118,7 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
       app.mIsDirty = false;
       window->set_cursor(app.mMouseCursor);
       window->set_mode(config.windowMode);
+      config.windowMode = window->current_mode();
     }
 
     // The DearImGui drawable doesn't actually cause the UI to render during

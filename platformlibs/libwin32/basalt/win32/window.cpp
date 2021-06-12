@@ -109,6 +109,10 @@ auto Window::current_mode() const noexcept -> WindowMode {
 }
 
 void Window::set_mode(const WindowMode windowMode) {
+  // TODO: support FullscreenExclusive
+  BASALT_ASSERT(windowMode != WindowMode::FullscreenExclusive,
+                "not implemented");
+
   if (mCurrentMode == windowMode) {
     return;
   }
@@ -143,9 +147,8 @@ void Window::set_mode(const WindowMode windowMode) {
   }
 
   case WindowMode::FullscreenExclusive:
-    // TODO: support FullscreenExclusive
-    BASALT_ASSERT(false, "not implemented");
-    break;
+    BASALT_LOG_ERROR("WindowMode::FullscreenExclusive is not implemented");
+    return;
   }
 
   SetWindowLongPtrW(mHandle, GWL_STYLE, style);

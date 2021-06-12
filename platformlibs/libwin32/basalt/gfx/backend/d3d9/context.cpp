@@ -79,7 +79,7 @@ void D3D9Context::present() {
 
       BASALT_LOG_INFO("d3d9 device reset");
     } else {
-      BASALT_ASSERT(false, "present failed");
+      BASALT_CRASH("present failed");
     }
   }
 }
