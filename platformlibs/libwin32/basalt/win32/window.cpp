@@ -263,20 +263,6 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
 
     break;
 
-  case WM_PAINT: {
-    PAINTSTRUCT ps {};
-    const HDC dc = ::BeginPaint(mHandle, &ps);
-    if (dc && ps.fErase) {
-      // this will never be called as long as our window class has a background
-      // brush and ::DefWindowProcW handles WM_ERASEBKGND
-      ::FillRect(dc, &ps.rcPaint, reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1));
-    }
-
-    EndPaint(mHandle, &ps);
-
-    return 0;
-  }
-
   case WM_CLOSE:
     // ::DefWindowProcW would destroy the window.
     // In order to not lie about the lifetime of the window object, we handle
@@ -478,7 +464,7 @@ auto Window::register_class(const HMODULE moduleHandle) -> ATOM {
   }
 
   WNDCLASSEXW windowClass {sizeof(WNDCLASSEXW),
-                           CS_OWNDC,
+                           0, // style
                            &Window::window_proc,
                            0, // cbClsExtra
                            0, // cbWndExtra
