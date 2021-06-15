@@ -1,3 +1,5 @@
+add_subdirectory("shared")
+
 target_sources(${CURRENT_TARGET} PRIVATE
   "app.cpp"
   "app.h"

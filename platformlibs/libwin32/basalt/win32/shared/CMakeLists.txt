@@ -1,5 +1,5 @@
 target_sources(${CURRENT_TARGET} PRIVATE
-  "util.cpp"
-  "util.h"
+  "utils.cpp"
+  "utils.h"
   "Windows_custom.h"
 )

@@ -2,7 +2,7 @@
 
 #include <basalt/gfx/backend/d3d9/util.h>
 
-#include <basalt/win32utilities/util.h>
+#include <basalt/win32/shared/utils.h>
 
 #include <basalt/api/scene/types.h>
 

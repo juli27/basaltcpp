@@ -1,7 +1,7 @@
 #include <basalt/win32/app.h>
 
-#include <basalt/win32utilities/util.h>
-#include <basalt/win32utilities/Windows_custom.h>
+#include <basalt/win32/shared/utils.h>
+#include <basalt/win32/shared/Windows_custom.h>
 
 #include <basalt/api/shared/log.h>
 

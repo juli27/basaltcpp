@@ -8,7 +8,7 @@
 #include <basalt/win32/debug.h>
 #endif // BASALT_TRACE_WINDOWS_MESSAGES
 
-#include <basalt/win32utilities/util.h>
+#include <basalt/win32/shared/utils.h>
 
 #include <basalt/api/shared/config.h>
 #include <basalt/api/shared/log.h>
