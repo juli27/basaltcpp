@@ -125,11 +125,12 @@ auto D3D9Device::device() const -> ComPtr<IDirect3DDevice9> {
   return mDevice;
 }
 
-void D3D9Device::before_reset() {
+void D3D9Device::reset(D3DPRESENT_PARAMETERS& pp) const {
   ImGui_ImplDX9_InvalidateDeviceObjects();
-}
 
-void D3D9Device::after_reset() {
+  // TODO: test cooperative level (see D3D9Context::present)
+  D3D9CALL(mDevice->Reset(&pp));
+
   ImGui_ImplDX9_CreateDeviceObjects();
 }
 

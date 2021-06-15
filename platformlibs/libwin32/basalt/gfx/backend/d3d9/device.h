@@ -18,8 +18,7 @@ struct D3D9Device final : Device {
 
   [[nodiscard]] auto device() const -> Microsoft::WRL::ComPtr<IDirect3DDevice9>;
 
-  void before_reset();
-  void after_reset();
+  void reset(D3DPRESENT_PARAMETERS&) const;
 
   void begin_execution() const;
   void execute(const CommandList&);

@@ -13,7 +13,7 @@ namespace basalt::gfx {
 
 // the implicit swap chain of the device
 struct D3D9Context final : Context {
-  D3D9Context(std::shared_ptr<D3D9Device>, const D3DPRESENT_PARAMETERS&);
+  explicit D3D9Context(std::shared_ptr<D3D9Device>);
 
   [[nodiscard]] auto surface_size() const noexcept -> Size2Du16 override;
 
@@ -27,7 +27,7 @@ struct D3D9Context final : Context {
 private:
   std::shared_ptr<D3D9Device> mDevice {};
   Microsoft::WRL::ComPtr<IDirect3DDevice9> mD3D9Device {};
-  D3DPRESENT_PARAMETERS mPresentParams {};
+  Microsoft::WRL::ComPtr<IDirect3DSwapChain9> mImplicitSwapChain {};
 };
 
 } // namespace basalt::gfx

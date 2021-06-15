@@ -174,7 +174,7 @@ auto D3D9Factory::create_device_and_context(
 
   auto device = std::make_shared<D3D9Device>(std::move(d3d9Device));
 
-  return std::make_tuple(device, std::make_shared<D3D9Context>(device, pp));
+  return std::make_tuple(device, std::make_shared<D3D9Context>(device));
 }
 
 auto D3D9Factory::create() -> D3D9FactoryPtr {
