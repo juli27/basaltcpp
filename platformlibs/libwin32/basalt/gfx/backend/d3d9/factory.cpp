@@ -5,7 +5,6 @@
 #include <basalt/gfx/backend/d3d9/util.h>
 
 #include <basalt/api/shared/asserts.h>
-#include <basalt/api/shared/config.h>
 #include <basalt/api/shared/log.h>
 
 #include <fmt/format.h>
@@ -62,19 +61,36 @@ D3D9Factory::D3D9Factory(ComPtr<IDirect3D9> factory)
   : mFactory {std::move(factory)} {
 }
 
-auto D3D9Factory::get_current_adapter_mode() const -> AdapterMode {
+auto D3D9Factory::get_current_adapter_mode(const u32 adapterIndex) const
+  -> AdapterMode {
+  BASALT_ASSERT(adapterIndex < get_adapter_count());
+
   D3DDISPLAYMODE currentAdapterMode;
-  mFactory->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &currentAdapterMode);
+  mFactory->GetAdapterDisplayMode(adapterIndex, &currentAdapterMode);
 
   return AdapterMode {currentAdapterMode.Width, currentAdapterMode.Height,
                       currentAdapterMode.RefreshRate,
                       to_surface_format(currentAdapterMode.Format)};
 }
 
-auto D3D9Factory::query_adapter_info() const -> AdapterInfo {
-  D3DADAPTER_IDENTIFIER9 adapterIdentifier;
+auto D3D9Factory::get_adapter_count() const -> u32 {
+  return mFactory->GetAdapterCount();
+}
+
+auto D3D9Factory::get_adapter_monitor(const u32 adapterIndex) const
+  -> HMONITOR {
+  BASALT_ASSERT(adapterIndex < get_adapter_count());
+
+  return mFactory->GetAdapterMonitor(adapterIndex);
+}
+
+auto D3D9Factory::query_adapter_info(const u32 adapterIndex) const
+  -> AdapterInfo {
+  BASALT_ASSERT(adapterIndex < get_adapter_count());
+
+  D3DADAPTER_IDENTIFIER9 adapterIdentifier {};
   D3D9CALL(
-    mFactory->GetAdapterIdentifier(D3DADAPTER_DEFAULT, 0, &adapterIdentifier));
+    mFactory->GetAdapterIdentifier(adapterIndex, 0ul, &adapterIdentifier));
 
   u16 product = HIWORD(adapterIdentifier.DriverVersion.HighPart);
   u16 version = LOWORD(adapterIdentifier.DriverVersion.HighPart);
@@ -84,35 +100,54 @@ auto D3D9Factory::query_adapter_info() const -> AdapterInfo {
   string driverInfo = fmt::format("{} ({}.{}.{}.{})", adapterIdentifier.Driver,
                                   product, version, subVersion, build);
 
+  AdapterCapabilities capabilities {};
+  // TODO: figure out the difference between caps from factory and device
+  // interface
+  D3DCAPS9 d3d9Caps {};
+  D3D9CALL(mFactory->GetDeviceCaps(adapterIndex, D3DDEVTYPE_HAL, &d3d9Caps));
+
   return AdapterInfo {string {adapterIdentifier.Description},
-                      std::move(driverInfo), query_adapter_modes()};
+                      std::move(driverInfo), query_adapter_modes(adapterIndex),
+                      adapterIndex, capabilities};
 }
 
-auto D3D9Factory::query_adapter_modes() const -> AdapterModeList {
+auto D3D9Factory::query_adapter_modes(const u32 adapterIndex) const
+  -> AdapterModeList {
+  BASALT_ASSERT(adapterIndex < get_adapter_count());
+
   AdapterModeList adapterModes {};
 
   for (const D3DFORMAT format : ALLOWED_DISPLAY_FORMATS) {
-    const u32 count = mFactory->GetAdapterModeCount(D3DADAPTER_DEFAULT, format);
+    const u32 count = mFactory->GetAdapterModeCount(adapterIndex, format);
 
     adapterModes.reserve(adapterModes.size() + count);
+    const SurfaceFormat surfaceFormat = to_surface_format(format);
 
     for (u32 i = 0; i < count; i++) {
       D3DDISPLAYMODE adapterMode;
-      D3D9CALL(mFactory->EnumAdapterModes(D3DADAPTER_DEFAULT, format, i,
-                                          &adapterMode));
+      D3D9CALL(
+        mFactory->EnumAdapterModes(adapterIndex, format, i, &adapterMode));
 
-      adapterModes.emplace_back(AdapterMode {
-        adapterMode.Width, adapterMode.Height, adapterMode.RefreshRate,
-        to_surface_format(adapterMode.Format)});
+      // EnumAdapterModes treats pixel formats 565 and 555 as equivalent, and
+      // returns the correct version
+      if (adapterMode.Format != format) {
+        break;
+      }
+
+      adapterModes.emplace_back(
+        AdapterMode {adapterMode.Width, adapterMode.Height,
+                     adapterMode.RefreshRate, surfaceFormat});
     }
   }
 
   return adapterModes;
 }
 
-auto D3D9Factory::create_device_and_context(const HWND window,
-                                            const Config& config) const
+auto D3D9Factory::create_device_and_context(
+  const HWND window, const DeviceAndContextDesc& desc) const
   -> tuple<DevicePtr, ContextPtr> {
+  BASALT_ASSERT(desc.adapterIndex < get_adapter_count());
+
   D3DPRESENT_PARAMETERS pp {};
   pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
   pp.hDeviceWindow = window;
@@ -121,9 +156,9 @@ auto D3D9Factory::create_device_and_context(const HWND window,
   pp.AutoDepthStencilFormat = D3DFMT_D16;
 
   // setup exclusive fullscreen
-  if (config.windowMode == WindowMode::FullscreenExclusive) {
+  if (desc.exclusive) {
     D3DDISPLAYMODE displayMode {};
-    D3D9CALL(mFactory->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &displayMode));
+    D3D9CALL(mFactory->GetAdapterDisplayMode(desc.adapterIndex, &displayMode));
 
     pp.BackBufferWidth = displayMode.Width;
     pp.BackBufferHeight = displayMode.Height;
@@ -133,7 +168,7 @@ auto D3D9Factory::create_device_and_context(const HWND window,
   }
 
   ComPtr<IDirect3DDevice9> d3d9Device;
-  D3D9CALL(mFactory->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, window,
+  D3D9CALL(mFactory->CreateDevice(desc.adapterIndex, D3DDEVTYPE_HAL, window,
                                   D3DCREATE_HARDWARE_VERTEXPROCESSING, &pp,
                                   d3d9Device.GetAddressOf()));
 

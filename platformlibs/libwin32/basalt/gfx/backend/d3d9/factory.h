@@ -7,7 +7,7 @@
 
 #include <basalt/api/gfx/backend/types.h>
 
-#include <basalt/api/shared/types.h>
+#include <basalt/api/base/types.h>
 
 #include <wrl/client.h>
 
@@ -17,6 +17,11 @@
 namespace basalt::gfx {
 
 struct D3D9Factory final {
+  struct DeviceAndContextDesc final {
+    u32 adapterIndex {0};
+    bool exclusive {false};
+  };
+
   explicit D3D9Factory(Microsoft::WRL::ComPtr<IDirect3D9> factory);
 
   D3D9Factory(const D3D9Factory&) = delete;
@@ -25,13 +30,18 @@ struct D3D9Factory final {
   ~D3D9Factory() noexcept = default;
 
   auto operator=(const D3D9Factory&) -> D3D9Factory& = delete;
-  auto operator=(D3D9Factory &&) -> D3D9Factory& = delete;
+  auto operator=(D3D9Factory&&) -> D3D9Factory& = delete;
 
-  [[nodiscard]] auto get_current_adapter_mode() const -> AdapterMode;
-  [[nodiscard]] auto query_adapter_info() const -> AdapterInfo;
-  [[nodiscard]] auto query_adapter_modes() const -> AdapterModeList;
+  [[nodiscard]] auto get_current_adapter_mode(u32 adapterIndex) const
+    -> AdapterMode;
+  [[nodiscard]] auto get_adapter_count() const -> u32;
+  [[nodiscard]] auto get_adapter_monitor(u32 adapterIndex) const -> HMONITOR;
+  [[nodiscard]] auto query_adapter_info(u32 adapterIndex = 0) const
+    -> AdapterInfo;
+  [[nodiscard]] auto query_adapter_modes(u32 adapterIndex) const
+    -> AdapterModeList;
 
-  auto create_device_and_context(HWND window, const Config&) const
+  auto create_device_and_context(HWND window, const DeviceAndContextDesc&) const
     -> std::tuple<DevicePtr, ContextPtr>;
 
 private:

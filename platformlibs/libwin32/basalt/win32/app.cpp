@@ -48,6 +48,17 @@ namespace {
 
 void dump_config(const Config&);
 
+auto build_gfx_info(const D3D9Factory& factory) -> gfx::Info {
+  gfx::Info gfxInfo {};
+  const u32 adapterCount = factory.get_adapter_count();
+  gfxInfo.adapters.reserve(adapterCount);
+  for (u32 i = 0; i < adapterCount; ++i) {
+    gfxInfo.adapters.emplace_back(factory.query_adapter_info(i));
+  }
+
+  return gfxInfo;
+}
+
 [[nodiscard]] auto poll_events() -> bool;
 
 } // namespace
@@ -76,13 +87,18 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
 
   config.windowMode = window->current_mode();
 
-  const auto [gfxDevice, gfxContext] =
-    gfxFactory->create_device_and_context(window->handle(), config);
+  D3D9Factory::DeviceAndContextDesc deviceAndContextDesc {};
+  deviceAndContextDesc.exclusive =
+    config.windowMode == WindowMode::FullscreenExclusive;
 
-  const AdapterInfo adapterInfo = gfxFactory->query_adapter_info();
+  const auto [gfxDevice, gfxContext] = gfxFactory->create_device_and_context(
+    window->handle(), deviceAndContextDesc);
+
+  const gfx::Info gfxInfo {build_gfx_info(*gfxFactory)};
 
   BASALT_LOG_INFO("Direct3D9 context created: adapter={}, driver={}",
-                  adapterInfo.displayName, adapterInfo.driverInfo);
+                  gfxInfo.adapters[0].displayName,
+                  gfxInfo.adapters[0].driverInfo);
 
   const auto dearImGui {std::make_shared<DearImGui>(*gfxDevice)};
   ImGuiIO& io {ImGui::GetIO()};
@@ -133,7 +149,7 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
 
     if (config.debugUiEnabled) {
       Debug::update();
-      gfx::Debug::update(adapterInfo, composite);
+      gfx::Debug::update(gfxInfo, composite);
     }
 
     gfxContext->submit(composite);

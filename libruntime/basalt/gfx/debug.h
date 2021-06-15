@@ -15,9 +15,9 @@ struct Debug final {
   ~Debug() = delete;
 
   auto operator=(const Debug&) -> Debug& = delete;
-  auto operator=(Debug &&) -> Debug& = delete;
+  auto operator=(Debug&&) -> Debug& = delete;
 
-  static void update(const AdapterInfo& currentAdapter, const Composite&);
+  static void update(const Info&, const Composite&);
 };
 
 } // namespace basalt::gfx

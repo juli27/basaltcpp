@@ -17,6 +17,8 @@
 #include <basalt/api/base/types.h>
 #include <basalt/api/base/utils.h>
 
+#include <fmt/format.h>
+
 #include <imgui/imgui.h>
 
 #include <array>
@@ -339,8 +341,7 @@ void draw_composite_inspector(const Composite& composite) {
 
 } // namespace
 
-void Debug::update(const AdapterInfo& currentAdapter,
-                   const Composite& composite) {
+void Debug::update(const Info& info, const Composite& composite) {
   draw_overlay();
 
   // https://github.com/ocornut/imgui/issues/331
@@ -369,15 +370,34 @@ void Debug::update(const AdapterInfo& currentAdapter,
 
   if (ImGui::BeginPopupModal("Gfx Info", nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
-    ImGui::Text("GFX Adapter: %s", currentAdapter.displayName.c_str());
-    ImGui::Text("Driver: %s", currentAdapter.driverInfo.c_str());
+    static u32 currentIndex = 0;
+    const AdapterInfo& current = info.adapters[currentIndex];
+    if (ImGui::BeginCombo("GFX Adapter", current.displayName.c_str())) {
+      for (const auto& adapter : info.adapters) {
+        const bool isSelected = adapter.adapterIndex == currentIndex;
+        if (ImGui::Selectable(
+              fmt::format("{} ##{}", adapter.displayName, adapter.adapterIndex)
+                .c_str(),
+              isSelected)) {
+          currentIndex = adapter.adapterIndex;
+        }
+
+        if (isSelected) {
+          ImGui::SetItemDefaultFocus();
+        }
+      }
+
+      ImGui::EndCombo();
+    }
+
+    ImGui::Text("Driver: %s", current.driverInfo.c_str());
 
     ImGui::Separator();
 
     ImGui::TextUnformatted("Adapter Modes");
 
     if (ImGui::BeginChild("modes", ImVec2 {0, 250})) {
-      for (const auto& adapterMode : currentAdapter.adapterModes) {
+      for (const auto& adapterMode : current.adapterModes) {
         ImGui::Selectable(to_string(adapterMode).c_str(), false,
                           ImGuiSelectableFlags_DontClosePopups);
       }
