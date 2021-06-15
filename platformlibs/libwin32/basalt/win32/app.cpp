@@ -74,6 +74,8 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
     return;
   }
 
+  config.windowMode = window->current_mode();
+
   const auto [gfxDevice, gfxContext] =
     gfxFactory->create_device_and_context(window->handle(), config);
 
