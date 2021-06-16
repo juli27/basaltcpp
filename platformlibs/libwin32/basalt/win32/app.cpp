@@ -1,6 +1,7 @@
 #include <basalt/win32/app.h>
 
 #include <basalt/win32/build_config.h>
+#include <basalt/win32/util.h>
 #include <basalt/win32/window.h>
 
 #if BASALT_TRACE_WINDOWS_MESSAGES
@@ -59,7 +60,69 @@ auto build_gfx_info(const D3D9Factory& factory) -> gfx::Info {
   return gfxInfo;
 }
 
-[[nodiscard]] auto poll_events() -> bool;
+[[nodiscard]] auto poll_events() -> bool {
+  MSG msg {};
+  while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
+    TranslateMessage(&msg);
+    DispatchMessageW(&msg);
+
+    if (!msg.hwnd) {
+#if BASALT_TRACE_WINDOWS_MESSAGES
+      BASALT_LOG_TRACE("received thread message: {}",
+                       message_to_string(msg.message, msg.wParam, msg.lParam));
+#endif // BASALT_TRACE_WINDOWS_MESSAGES
+
+      if (msg.message == WM_QUIT) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+[[nodiscard]] auto wait_for_events() -> bool {
+  MSG msg {};
+  const auto ret = GetMessageW(&msg, nullptr, 0u, 0u);
+  if (ret == -1) {
+    BASALT_LOG_FATAL(create_win32_error_message(GetLastError()));
+
+    return false;
+  }
+
+  // received WM_QUIT
+  if (ret == 0) {
+    return false;
+  }
+
+  TranslateMessage(&msg);
+  DispatchMessageW(&msg);
+
+  // handle any remaining messages in the queue
+  return poll_events();
+}
+
+auto run_lost_device_loop(gfx::Context& gfxContext) -> bool {
+  while (wait_for_events()) {
+    switch (gfxContext.get_status()) {
+    case gfx::ContextStatus::Ok:
+      return true;
+
+    case gfx::ContextStatus::Error:
+      return false;
+
+    case gfx::ContextStatus::DeviceLost:
+      break;
+
+    case gfx::ContextStatus::ResetNeeded:
+      gfxContext.reset();
+
+      return true;
+    }
+  }
+
+  return false;
+}
 
 } // namespace
 
@@ -84,8 +147,6 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
 
     return;
   }
-
-  config.windowMode = window->current_mode();
 
   D3D9Factory::DeviceAndContextDesc deviceAndContextDesc {};
   deviceAndContextDesc.exclusive =
@@ -119,8 +180,25 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
 
   while (poll_events()) {
     if (const Size2Du16 size {window->client_area_size()};
-        size != gfxContext->surface_size()) {
-      gfxContext->resize(size);
+        config.windowMode != window->mode() ||
+        size != gfxContext->surface_size() &&
+          config.windowMode == WindowMode::Windowed) {
+      // call Window::set_mode after resetting the context when leaving
+      // exclusive mode because the D3D9 runtime handles all exclusive mode
+      // window changes
+      if (window->mode() == WindowMode::FullscreenExclusive) {
+        gfx::ContextDesc desc {};
+        gfxContext->reset(desc);
+
+        window->set_mode(config.windowMode);
+      } else {
+        window->set_mode(config.windowMode);
+
+        gfx::ContextDesc desc {};
+        desc.windowBackBufferSize = window->client_area_size();
+        desc.exclusive = config.windowMode == WindowMode::FullscreenExclusive;
+        gfxContext->reset(desc);
+      }
     }
 
     window->input_manager().dispatch_pending(app.mInputLayers);
@@ -135,8 +213,6 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
     if (app.mIsDirty) {
       app.mIsDirty = false;
       window->set_cursor(app.mMouseCursor);
-      window->set_mode(config.windowMode);
-      config.windowMode = window->current_mode();
     }
 
     // The DearImGui drawable doesn't actually cause the UI to render during
@@ -153,7 +229,16 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
     }
 
     gfxContext->submit(composite);
-    gfxContext->present();
+    switch (gfxContext->present()) {
+    case gfx::PresentResult::Ok:
+      break;
+    case gfx::PresentResult::DeviceLost:
+      if (!run_lost_device_loop(*gfxContext)) {
+        quit();
+      }
+
+      continue;
+    }
 
     const auto endTime = Clock::now();
     currentDeltaTime = static_cast<f64>((endTime - startTime).count()) /
@@ -178,49 +263,6 @@ void dump_config(const Config& config) {
     config.windowMode != WindowMode::Windowed ? "fullscreen" : "windowed",
     config.isWindowResizeable ? " resizeable" : "");
 }
-
-auto poll_events() -> bool {
-  MSG msg {};
-  while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
-    TranslateMessage(&msg);
-    DispatchMessageW(&msg);
-
-    if (!msg.hwnd) {
-#if BASALT_TRACE_WINDOWS_MESSAGES
-      BASALT_LOG_TRACE("received thread message: {}",
-                       message_to_string(msg.message, msg.wParam, msg.lParam));
-#endif // BASALT_TRACE_WINDOWS_MESSAGES
-
-      if (msg.message == WM_QUIT) {
-        return false;
-      }
-    }
-  }
-
-  return true;
-}
-
-// auto wait_for_events() -> vector<shared_ptr<Event>> {
-//  MSG msg{};
-//  const auto ret = ::GetMessageW(&msg, nullptr, 0u, 0u);
-//  if (ret == -1) {
-//    BASALT_LOG_ERROR(create_win32_error_message(::GetLastError()));
-//    // TODO: fixme
-//    BASALT_ASSERT_MSG(false, "::GetMessageW error");
-//  }
-//
-//  // GetMessage retrieved WM_QUIT
-//  if (ret == 0) {
-//    sPendingEvents.push_back(std::make_shared<QuitEvent>());
-//    return sPendingEvents;
-//  }
-//
-//  ::TranslateMessage(&msg);
-//  ::DispatchMessageW(&msg);
-//
-//  // handle any remainig messages in the queue
-//  return poll_events();
-//}
 
 ///**
 // * \brief Processes the windows command line string and populates an argv

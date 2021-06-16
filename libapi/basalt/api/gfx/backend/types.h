@@ -2,6 +2,7 @@
 
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/handle.h>
+#include <basalt/api/shared/size2d.h>
 
 #include <basalt/api/base/types.h>
 
@@ -19,6 +20,25 @@ using ContextPtr = std::shared_ptr<Context>;
 
 struct Device;
 using DevicePtr = std::shared_ptr<Device>;
+
+enum class ContextStatus : u8 {
+  Ok,
+  Error,
+  DeviceLost,
+  ResetNeeded,
+};
+
+struct ContextDesc final {
+  // ignored when exclusive == true
+  Size2Du16 windowBackBufferSize {};
+
+  bool exclusive {};
+};
+
+enum class PresentResult : u8 {
+  Ok,
+  DeviceLost,
+};
 
 enum class CommandType : u8 {
   Clear,

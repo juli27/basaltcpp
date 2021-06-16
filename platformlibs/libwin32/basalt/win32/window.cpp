@@ -10,7 +10,6 @@
 
 #include <basalt/win32/shared/utils.h>
 
-#include <basalt/api/shared/config.h>
 #include <basalt/api/shared/log.h>
 
 #include <basalt/api/base/utils.h>
@@ -104,22 +103,24 @@ auto Window::client_area_size() const noexcept -> Size2Du16 {
   return mClientAreaSize;
 }
 
-auto Window::current_mode() const noexcept -> WindowMode {
+auto Window::mode() const noexcept -> WindowMode {
   return mCurrentMode;
 }
 
 void Window::set_mode(const WindowMode windowMode) {
-  // TODO: support FullscreenExclusive
-  BASALT_ASSERT(windowMode != WindowMode::FullscreenExclusive,
-                "not implemented");
-
   if (mCurrentMode == windowMode) {
     return;
   }
 
   auto style {static_cast<DWORD>(GetWindowLongPtrW(mHandle, GWL_STYLE))};
   RECT rect {};
-  UINT swpFlags {SWP_NOZORDER};
+  UINT swpFlags {};
+
+  if (mCurrentMode == WindowMode::Windowed) {
+    mSavedWindowInfo.style =
+      static_cast<DWORD>(GetWindowLongPtrW(mHandle, GWL_STYLE));
+    GetWindowRect(mHandle, &mSavedWindowInfo.rect);
+  }
 
   switch (windowMode) {
   case WindowMode::Windowed:
@@ -130,13 +131,10 @@ void Window::set_mode(const WindowMode windowMode) {
     break;
 
   case WindowMode::Fullscreen: {
-    mSavedWindowInfo.style =
-      static_cast<DWORD>(GetWindowLongPtrW(mHandle, GWL_STYLE));
-    GetWindowRect(mHandle, &mSavedWindowInfo.rect);
-
     MONITORINFO mi {};
     mi.cbSize = sizeof(mi);
-    GetMonitorInfoW(MonitorFromWindow(mHandle, MONITOR_DEFAULTTONEAREST), &mi);
+    GetMonitorInfoW(
+      MonitorFromRect(&mSavedWindowInfo.rect, MONITOR_DEFAULTTONEAREST), &mi);
 
     rect = mi.rcMonitor;
 
@@ -147,13 +145,18 @@ void Window::set_mode(const WindowMode windowMode) {
   }
 
   case WindowMode::FullscreenExclusive:
-    BASALT_LOG_ERROR("WindowMode::FullscreenExclusive is not implemented");
+    // the d3d9 runtime handles window changes to exclusive mode
+    // TODO: revisit when adding a new graphics api
+    mCurrentMode = windowMode;
     return;
   }
 
   SetWindowLongPtrW(mHandle, GWL_STYLE, style);
-  SetWindowPos(mHandle, HWND_TOP, rect.left, rect.top, rect.right - rect.left,
-               rect.bottom - rect.top, swpFlags);
+
+  // the d3d9 runtime doesn't clean up the WS_EX_TOPMOST style when leaving
+  // exclusive fullscreen, so we just make sure that we aren't topmost
+  SetWindowPos(mHandle, HWND_NOTOPMOST, rect.left, rect.top,
+               rect.right - rect.left, rect.bottom - rect.top, swpFlags);
 
   mCurrentMode = windowMode;
 }

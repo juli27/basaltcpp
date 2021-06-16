@@ -17,12 +17,15 @@ struct D3D9Context final : Context {
 
   [[nodiscard]] auto surface_size() const noexcept -> Size2Du16 override;
 
-  void resize(Size2Du16) override;
+  [[nodiscard]] auto get_status() const noexcept -> ContextStatus override;
+
+  void reset() override;
+  void reset(const ContextDesc&) override;
 
   [[nodiscard]] auto device() const noexcept -> DevicePtr override;
 
   void submit(const Composite&) override;
-  void present() override;
+  auto present() -> PresentResult override;
 
 private:
   std::shared_ptr<D3D9Device> mDevice {};

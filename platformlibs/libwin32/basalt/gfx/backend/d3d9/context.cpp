@@ -4,14 +4,34 @@
 
 #include <basalt/api/gfx/backend/command_list.h>
 
+#include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/log.h>
 #include <basalt/api/shared/size2d.h>
-
-using Microsoft::WRL::ComPtr;
 
 using std::shared_ptr;
 
 namespace basalt::gfx {
+
+namespace {
+
+auto to_context_status(const HRESULT hr) -> ContextStatus {
+  if (SUCCEEDED(hr)) {
+    return ContextStatus::Ok;
+  }
+
+  switch (hr) {
+  case D3DERR_DEVICELOST:
+    return ContextStatus::DeviceLost;
+
+  case D3DERR_DEVICENOTRESET:
+    return ContextStatus::ResetNeeded;
+
+  default:
+    return ContextStatus::Error;
+  }
+}
+
+} // namespace
 
 D3D9Context::D3D9Context(shared_ptr<D3D9Device> device)
   : mDevice {std::move(device)}, mD3D9Device {mDevice->device()} {
@@ -28,6 +48,41 @@ auto D3D9Context::surface_size() const noexcept -> Size2Du16 {
 
   return Size2Du16 {static_cast<u16>(pp.BackBufferWidth),
                     static_cast<u16>(pp.BackBufferHeight)};
+}
+
+auto D3D9Context::get_status() const noexcept -> ContextStatus {
+  return to_context_status(mD3D9Device->TestCooperativeLevel());
+}
+
+void D3D9Context::reset() {
+  D3DPRESENT_PARAMETERS pp {};
+  D3D9CALL(mImplicitSwapChain->GetPresentParameters(&pp));
+
+  mDevice->reset(pp);
+}
+
+void D3D9Context::reset(const ContextDesc& desc) {
+  D3DPRESENT_PARAMETERS pp {};
+  D3D9CALL(mImplicitSwapChain->GetPresentParameters(&pp));
+
+  pp.Windowed = !desc.exclusive;
+
+  if (desc.exclusive) {
+    D3DDISPLAYMODE dm {};
+    D3D9CALL(mImplicitSwapChain->GetDisplayMode(&dm));
+
+    pp.BackBufferWidth = dm.Width;
+    pp.BackBufferHeight = dm.Height;
+    pp.BackBufferFormat = dm.Format;
+    pp.FullScreen_RefreshRateInHz = dm.RefreshRate;
+  } else {
+    pp.BackBufferWidth = desc.windowBackBufferSize.width();
+    pp.BackBufferHeight = desc.windowBackBufferSize.height();
+    pp.BackBufferFormat = D3DFMT_UNKNOWN;
+    pp.FullScreen_RefreshRateInHz = 0;
+  }
+
+  mDevice->reset(pp);
 }
 
 auto D3D9Context::device() const noexcept -> DevicePtr {
@@ -50,41 +105,18 @@ void D3D9Context::submit(const Composite& composite) {
   mDevice->end_execution();
 }
 
-void D3D9Context::resize(const Size2Du16 size) {
-  D3DPRESENT_PARAMETERS pp {};
-  D3D9CALL(mImplicitSwapChain->GetPresentParameters(&pp));
-
-  BASALT_LOG_DEBUG("resizing back buffer from ({},{}) to ({},{})",
-                   pp.BackBufferWidth, pp.BackBufferHeight, size.width(),
-                   size.height());
-
-  pp.BackBufferWidth = size.width();
-  pp.BackBufferHeight = size.height();
-
-  mDevice->reset(pp);
-}
-
-void D3D9Context::present() {
-  if (auto hr =
+auto D3D9Context::present() -> PresentResult {
+  if (const HRESULT hr =
         mImplicitSwapChain->Present(nullptr, nullptr, nullptr, nullptr, 0ul);
       FAILED(hr)) {
     if (hr == D3DERR_DEVICELOST) {
-      // TODO: get rid of busy wait (and move to D3D9Device?)
-      do {
-        hr = mD3D9Device->TestCooperativeLevel();
-      } while (hr == D3DERR_DEVICELOST);
-
-      BASALT_ASSERT(hr == D3DERR_DEVICENOTRESET);
-
-      D3DPRESENT_PARAMETERS pp {};
-      mImplicitSwapChain->GetPresentParameters(&pp);
-      mDevice->reset(pp);
-
-      BASALT_LOG_INFO("d3d9 device reset");
-    } else {
-      BASALT_CRASH("present failed");
+      return PresentResult::DeviceLost;
     }
+
+    BASALT_CRASH("present failed");
   }
+
+  return PresentResult::Ok;
 }
 
 } // namespace basalt::gfx

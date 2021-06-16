@@ -127,7 +127,7 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
       }
       if (ImGui::MenuItem("Fullscreen (Exclusive)", nullptr,
                           currentMode == WindowMode::FullscreenExclusive,
-                          false)) {
+                          currentMode != WindowMode::FullscreenExclusive)) {
         ctx.engine.set_window_mode(WindowMode::FullscreenExclusive);
       }
 

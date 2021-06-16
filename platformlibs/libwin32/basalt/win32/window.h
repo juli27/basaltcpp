@@ -37,7 +37,7 @@ struct Window final {
   [[nodiscard]] auto handle() const noexcept -> HWND;
   [[nodiscard]] auto input_manager() noexcept -> InputManager&;
   [[nodiscard]] auto client_area_size() const noexcept -> Size2Du16;
-  [[nodiscard]] auto current_mode() const noexcept -> WindowMode;
+  [[nodiscard]] auto mode() const noexcept -> WindowMode;
 
   void set_mode(WindowMode);
   void set_cursor(MouseCursor) noexcept;

@@ -15,16 +15,19 @@ struct Context {
   virtual ~Context() noexcept = default;
 
   auto operator=(const Context&) -> Context& = delete;
-  auto operator=(Context &&) -> Context& = delete;
+  auto operator=(Context&&) -> Context& = delete;
 
   [[nodiscard]] virtual auto surface_size() const noexcept -> Size2Du16 = 0;
 
-  virtual void resize(Size2Du16) = 0;
+  [[nodiscard]] virtual auto get_status() const noexcept -> ContextStatus = 0;
+
+  virtual void reset() = 0;
+  virtual void reset(const ContextDesc&) = 0;
 
   [[nodiscard]] virtual auto device() const noexcept -> DevicePtr = 0;
 
   virtual void submit(const Composite&) = 0;
-  virtual void present() = 0;
+  [[nodiscard]] virtual auto present() -> PresentResult = 0;
 
 protected:
   Context() noexcept = default;

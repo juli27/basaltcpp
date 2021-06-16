@@ -149,13 +149,14 @@ auto D3D9Factory::create_device_and_context(
   BASALT_ASSERT(desc.adapterIndex < get_adapter_count());
 
   D3DPRESENT_PARAMETERS pp {};
+  pp.BackBufferCount = 1;
   pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
   pp.hDeviceWindow = window;
-  pp.Windowed = TRUE;
+  pp.Windowed = !desc.exclusive;
   pp.EnableAutoDepthStencil = TRUE;
   pp.AutoDepthStencilFormat = D3DFMT_D16;
+  pp.Flags = D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL;
 
-  // setup exclusive fullscreen
   if (desc.exclusive) {
     D3DDISPLAYMODE displayMode {};
     D3D9CALL(mFactory->GetAdapterDisplayMode(desc.adapterIndex, &displayMode));
@@ -163,7 +164,6 @@ auto D3D9Factory::create_device_and_context(
     pp.BackBufferWidth = displayMode.Width;
     pp.BackBufferHeight = displayMode.Height;
     pp.BackBufferFormat = displayMode.Format;
-    pp.Windowed = FALSE;
     pp.FullScreen_RefreshRateInHz = displayMode.RefreshRate;
   }
 
@@ -173,8 +173,9 @@ auto D3D9Factory::create_device_and_context(
                                   d3d9Device.GetAddressOf()));
 
   auto device = std::make_shared<D3D9Device>(std::move(d3d9Device));
+  auto context = std::make_shared<D3D9Context>(device);
 
-  return std::make_tuple(device, std::make_shared<D3D9Context>(device));
+  return std::make_tuple(std::move(device), std::move(context));
 }
 
 auto D3D9Factory::create() -> D3D9FactoryPtr {
