@@ -2,15 +2,24 @@
 
 #include <basalt/gfx/backend/d3d9/d3d9_custom.h>
 
-#include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/color.h>
 
 #include <basalt/api/base/utils.h>
 
 #if BASALT_DEBUG_BUILD
 
-// TODO: add detailed logging
-#define D3D9CALL(x) BASALT_ASSERT(SUCCEEDED((x)), "Direct3D 9 call failed: " #x)
+#include <DxErr.h>
+
+#endif
+
+#if BASALT_DEBUG_BUILD
+
+#define D3D9CALL(x)                                                            \
+  do {                                                                         \
+    if (const HRESULT hr = (x); FAILED(hr)) {                                  \
+      DXTraceW(__FILE__, __LINE__, hr, L#x, TRUE);                             \
+    }                                                                          \
+  } while (false)
 
 #else // BASALT_DEBUG_BUILD
 

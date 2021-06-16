@@ -16,7 +16,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL OFF)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Dependencies
-find_package(DirectXSDK MODULE REQUIRED "d3dx9")
+find_package(DirectXSDK MODULE REQUIRED "d3dx9" "dxerr")
 ## TODO: move to find module?
 set_package_properties(DirectXSDK PROPERTIES
   DESCRIPTION "Microsoft DirectX SDK"

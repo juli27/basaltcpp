@@ -12,6 +12,8 @@ target_link_libraries(${CURRENT_TARGET}
     WarningsAsErrors
     "d3d9"
     DirectXSDK::d3dx9
+    DirectXSDK::dxerr
+    "legacy_stdio_definitions"
 )
 
 target_include_directories(${CURRENT_TARGET} PUBLIC

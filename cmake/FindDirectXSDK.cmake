@@ -25,6 +25,13 @@ foreach(FIND_COMPONENT ${DirectXSDK_FIND_COMPONENTS})
     )
     mark_as_advanced(DirectXSDK_d3dx9_LIBRARY_DEBUG)
     set(DirectXSDK_${FIND_COMPONENT}_FOUND TRUE)
+  elseif(${FIND_COMPONENT} STREQUAL "dxerr")
+    find_library(DirectXSDK_dxerr_LIBRARY
+      NAMES "dxerr"
+      PATHS "${DirecXSDK_LIB_DIR}")
+    mark_as_advanced(DirectXSDK_dxerr_LIBRARY)
+
+    set(DirectXSDK_${FIND_COMPONENT}_FOUND TRUE)
   endif()
 endforeach()
 
@@ -55,6 +62,19 @@ if (DirectXSDK_FOUND)
       )
       set_target_properties(DirectXSDK::d3dx9 PROPERTIES
         IMPORTED_LOCATION_DEBUG ${DirectXSDK_d3dx9_LIBRARY_DEBUG}
+      )
+    endif()
+  endif()
+
+  if (DirectXSDK_dxerr_FOUND AND NOT TARGET DirectXSDK::dxerr)
+    add_library(DirectXSDK::dxerr UNKNOWN IMPORTED)
+    target_include_directories(DirectXSDK::dxerr INTERFACE
+      ${DirectXSDK_INCLUDE_DIR}
+    )
+
+    if (DirectXSDK_dxerr_LIBRARY)
+      set_target_properties(DirectXSDK::dxerr PROPERTIES
+        IMPORTED_LOCATION ${DirectXSDK_dxerr_LIBRARY}
       )
     endif()
   endif()
