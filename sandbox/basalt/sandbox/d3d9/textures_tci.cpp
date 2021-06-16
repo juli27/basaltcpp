@@ -82,7 +82,6 @@ TexturesTci::TexturesTci(Engine& engine) {
                                    VertexElement::ColorDiffuse1U32};
 
   auto& rc = mCylinder.emplace<RenderComponent>();
-  const auto device = engine.gfx_device();
 
   MeshDescriptor mesh;
   mesh.data = as_bytes(gsl::span {vertices});

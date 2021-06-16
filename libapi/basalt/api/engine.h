@@ -29,7 +29,6 @@ struct Engine {
   [[nodiscard]] auto resource_registry() const noexcept -> ResourceRegistry&;
   [[nodiscard]] auto gfx_resource_cache() noexcept -> gfx::ResourceCache&;
 
-  [[nodiscard]] auto gfx_device() const -> gfx::DevicePtr;
   [[nodiscard]] auto gfx_context() const noexcept -> gfx::Context&;
 
   void push_input_layer(InputLayerPtr);

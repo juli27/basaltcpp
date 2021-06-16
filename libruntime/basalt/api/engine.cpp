@@ -10,8 +10,6 @@ using std::shared_ptr;
 
 namespace basalt {
 
-using gfx::Context;
-
 auto Engine::config() const noexcept -> const Config& {
   return mConfig;
 }
@@ -24,11 +22,7 @@ auto Engine::gfx_resource_cache() noexcept -> gfx::ResourceCache& {
   return mGfxResourceCache;
 }
 
-auto Engine::gfx_device() const -> gfx::DevicePtr {
-  return mGfxContext->device();
-}
-
-auto Engine::gfx_context() const noexcept -> Context& {
+auto Engine::gfx_context() const noexcept -> gfx::Context& {
   return *mGfxContext;
 }
 
