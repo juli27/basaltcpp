@@ -32,9 +32,9 @@ struct D3D9Factory final {
   auto operator=(const D3D9Factory&) -> D3D9Factory& = delete;
   auto operator=(D3D9Factory&&) -> D3D9Factory& = delete;
 
+  [[nodiscard]] auto get_adapter_count() const -> u32;
   [[nodiscard]] auto get_current_adapter_mode(u32 adapterIndex) const
     -> AdapterMode;
-  [[nodiscard]] auto get_adapter_count() const -> u32;
   [[nodiscard]] auto get_adapter_monitor(u32 adapterIndex) const -> HMONITOR;
   [[nodiscard]] auto query_adapter_info(u32 adapterIndex = 0) const
     -> AdapterInfo;

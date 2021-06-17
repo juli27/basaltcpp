@@ -30,28 +30,28 @@ constexpr array<D3DFORMAT, 6> ALLOWED_BACK_BUFFER_FORMATS {
   D3DFMT_R5G6B5,   D3DFMT_X1R5G5B5, D3DFMT_A1R5G5B5,
   D3DFMT_X8R8G8B8, D3DFMT_A8R8G8B8, D3DFMT_A2R10G10B10};
 
-auto to_surface_format(const D3DFORMAT format) -> SurfaceFormat {
+auto to_image_format(const D3DFORMAT format) -> ImageFormat {
   switch (format) {
   case D3DFMT_A8R8G8B8:
-    return SurfaceFormat::B8G8R8A8;
+    return ImageFormat::B8G8R8A8;
 
   case D3DFMT_X8R8G8B8:
-    return SurfaceFormat::B8G8R8X8;
+    return ImageFormat::B8G8R8X8;
 
   case D3DFMT_R5G6B5:
-    return SurfaceFormat::B5G6R5;
+    return ImageFormat::B5G6R5;
 
   case D3DFMT_X1R5G5B5:
-    return SurfaceFormat::B5G5R5X1;
+    return ImageFormat::B5G5R5X1;
 
   case D3DFMT_A1R5G5B5:
-    return SurfaceFormat::B5G5R5A1;
+    return ImageFormat::B5G5R5A1;
 
   case D3DFMT_A2R10G10B10:
-    return SurfaceFormat::B10G10R10A2;
+    return ImageFormat::B10G10R10A2;
 
   default:
-    BASALT_CRASH("unsupported format");
+    return ImageFormat::Unknown;
   }
 }
 
@@ -70,7 +70,7 @@ auto D3D9Factory::get_current_adapter_mode(const u32 adapterIndex) const
 
   return AdapterMode {currentAdapterMode.Width, currentAdapterMode.Height,
                       currentAdapterMode.RefreshRate,
-                      to_surface_format(currentAdapterMode.Format)};
+                      to_image_format(currentAdapterMode.Format)};
 }
 
 auto D3D9Factory::get_adapter_count() const -> u32 {
@@ -121,7 +121,7 @@ auto D3D9Factory::query_adapter_modes(const u32 adapterIndex) const
     const u32 count = mFactory->GetAdapterModeCount(adapterIndex, format);
 
     adapterModes.reserve(adapterModes.size() + count);
-    const SurfaceFormat surfaceFormat = to_surface_format(format);
+    const ImageFormat surfaceFormat = to_image_format(format);
 
     for (u32 i = 0; i < count; i++) {
       D3DDISPLAYMODE adapterMode;
