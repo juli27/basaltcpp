@@ -20,7 +20,7 @@ struct D3D9Context final : Context {
   [[nodiscard]] auto get_status() const noexcept -> ContextStatus override;
 
   void reset() override;
-  void reset(const ContextDesc&) override;
+  void reset(const ResetDesc&) override;
 
   [[nodiscard]] auto device() const noexcept -> DevicePtr override;
 

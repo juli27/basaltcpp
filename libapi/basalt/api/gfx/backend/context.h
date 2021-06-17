@@ -2,7 +2,7 @@
 
 #include <basalt/api/gfx/backend/types.h>
 
-#include <basalt/api/shared/types.h>
+#include <basalt/api/shared/size2d.h>
 
 namespace basalt::gfx {
 
@@ -22,7 +22,15 @@ struct Context {
   [[nodiscard]] virtual auto get_status() const noexcept -> ContextStatus = 0;
 
   virtual void reset() = 0;
-  virtual void reset(const ContextDesc&) = 0;
+
+  struct ResetDesc final {
+    // ignored when exclusive == true
+    Size2Du16 windowBackBufferSize {};
+
+    bool exclusive {};
+  };
+
+  virtual void reset(const ResetDesc&) = 0;
 
   [[nodiscard]] virtual auto device() const noexcept -> DevicePtr = 0;
 

@@ -187,14 +187,14 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
       // exclusive mode because the D3D9 runtime handles all exclusive mode
       // window changes
       if (window->mode() == WindowMode::FullscreenExclusive) {
-        gfx::ContextDesc desc {};
+        gfx::Context::ResetDesc desc {};
         gfxContext->reset(desc);
 
         window->set_mode(config.windowMode);
       } else {
         window->set_mode(config.windowMode);
 
-        gfx::ContextDesc desc {};
+        gfx::Context::ResetDesc desc {};
         desc.windowBackBufferSize = window->client_area_size();
         desc.exclusive = config.windowMode == WindowMode::FullscreenExclusive;
         gfxContext->reset(desc);

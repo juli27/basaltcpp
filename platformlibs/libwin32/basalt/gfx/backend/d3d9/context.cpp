@@ -6,7 +6,6 @@
 
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/log.h>
-#include <basalt/api/shared/size2d.h>
 
 using std::shared_ptr;
 
@@ -61,7 +60,7 @@ void D3D9Context::reset() {
   mDevice->reset(pp);
 }
 
-void D3D9Context::reset(const ContextDesc& desc) {
+void D3D9Context::reset(const ResetDesc& desc) {
   D3DPRESENT_PARAMETERS pp {};
   D3D9CALL(mImplicitSwapChain->GetPresentParameters(&pp));
 
