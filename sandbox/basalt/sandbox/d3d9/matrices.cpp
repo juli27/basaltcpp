@@ -75,7 +75,7 @@ void Matrices::on_update(const basalt::UpdateContext& ctx) {
 
   ctx.drawTarget.draw(mSceneView);
 
-  if (ctx.engine.config().debugUiEnabled) {
+  if (ctx.engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
 }

@@ -6,6 +6,8 @@
 
 #include <utility>
 
+using namespace std::string_literals;
+
 using std::shared_ptr;
 
 namespace basalt {
@@ -40,7 +42,7 @@ void Engine::set_mouse_cursor(const MouseCursor mouseCursor) noexcept {
 }
 
 void Engine::set_window_mode(const WindowMode windowMode) noexcept {
-  mConfig.windowMode = windowMode;
+  mConfig.set_enum("window.mode"s, windowMode);
   mIsDirty = true;
 }
 

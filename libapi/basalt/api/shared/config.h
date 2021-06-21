@@ -1,35 +1,82 @@
 #pragma once
 
-#include <basalt/api/shared/size2d.h>
-#include <basalt/api/shared/types.h>
+#include <basalt/api/shared/asserts.h>
 
 #include <basalt/api/base/types.h>
+#include <basalt/api/base/utils.h>
 
+#include <optional>
 #include <string>
+#include <type_traits>
+#include <unordered_map>
+#include <variant>
 
 namespace basalt {
 
-using namespace std::string_literals;
-
+// SERIALIZED
 enum class GfxBackendApi : u8 {
-  Default,
-  Direct3D9,
+  Default = 0,
+  Direct3D9 = 1,
 };
 
-struct Config final {
-  std::string appName {"Basalt App"s};
+constexpr i32 GFX_BACKEND_API_COUNT = 2u;
 
-  // the window size is only used for the windowed window mode
-  Size2Du16 preferredSurfaceSize {Size2Du16::dont_care()};
+constexpr auto to_gfx_backend_api(const i32 num) -> GfxBackendApi {
+  BASALT_ASSERT(num < GFX_BACKEND_API_COUNT);
 
-  WindowMode windowMode {WindowMode::Windowed};
-  bool isWindowResizeable {true};
-  GfxBackendApi gfxBackendApi {GfxBackendApi::Default};
-  bool debugUiEnabled {false};
-
-  static auto defaults() -> Config {
-    return Config {};
+  if (num >= GFX_BACKEND_API_COUNT || num < 0) {
+    return GfxBackendApi::Default;
   }
+
+  return GfxBackendApi {static_cast<u8>(num)};
+}
+
+struct Config final {
+  using Value = std::variant<bool, i32, std::string>;
+  using VarMap = std::unordered_map<std::string, Value>;
+
+  explicit Config(std::initializer_list<VarMap::value_type> defaults);
+
+  [[nodiscard]] auto get_bool(const std::string& key, bool def = false) const
+    -> bool;
+  [[nodiscard]] auto get_i32(const std::string& key, i32 def = 0) const -> i32;
+  [[nodiscard]] auto get_string(const std::string& key,
+                                std::string def = {}) const -> std::string;
+
+  template <typename Fun>
+  auto get_enum(const std::string& key, Fun f) const
+    -> std::invoke_result_t<Fun, i32> {
+    return f(get_i32(key));
+  }
+
+  [[nodiscard]] auto try_get_bool(const std::string& key) const
+    -> std::optional<bool>;
+  [[nodiscard]] auto try_get_i32(const std::string& key) const
+    -> std::optional<i32>;
+  [[nodiscard]] auto try_get_string(const std::string& key) const
+    -> std::optional<std::string>;
+
+  void set_bool(const std::string& key, bool value);
+  void set_i32(const std::string& key, i32 value);
+  void set_string(const std::string& key, std::string value);
+
+  template <typename E, std::enable_if_t<std::is_enum_v<E>, int> = 0>
+  void set_enum(const std::string& key, const E e) {
+    set_i32(key, enum_cast(e));
+  }
+
+private:
+  VarMap mVars {};
+
+  template <typename T,
+            typename V = std::remove_cv_t<std::remove_reference_t<T>>>
+  [[nodiscard]] auto get(const std::string& key, T&& def) const -> V;
+
+  template <typename V>
+  [[nodiscard]] auto try_get(const std::string& key) const -> std::optional<V>;
+
+  template <typename V>
+  void set(const std::string& key, V&& value);
 };
 
 } // namespace basalt

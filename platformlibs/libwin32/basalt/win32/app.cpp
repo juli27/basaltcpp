@@ -8,9 +8,7 @@
 #include <basalt/win32/debug.h>
 #endif // BASALT_TRACE_WINDOWS_MESSAGES
 
-#include <basalt/gfx/backend/d3d9/context.h>
 #include <basalt/gfx/backend/d3d9/factory.h>
-#include <basalt/gfx/backend/d3d9/types.h>
 
 #include <basalt/dear_imgui.h>
 
@@ -22,6 +20,7 @@
 
 #include <basalt/api/gfx/draw_target.h>
 #include <basalt/api/gfx/backend/command_list.h>
+#include <basalt/api/gfx/backend/context.h>
 
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/config.h>
@@ -34,12 +33,13 @@
 #include <string>
 #include <utility>
 
+using namespace std::literals;
+
 using std::shared_ptr;
 using std::string;
 
 namespace basalt {
 
-using gfx::AdapterInfo;
 using gfx::Composite;
 using gfx::Compositor;
 using gfx::D3D9Factory;
@@ -47,7 +47,21 @@ using gfx::D3D9FactoryPtr;
 
 namespace {
 
-void dump_config(const Config&);
+void dump_config(const Config& config) {
+  BASALT_LOG_INFO("config"sv);
+  BASALT_LOG_INFO("\truntime.debugUI.enabled = {}"sv,
+                  config.get_bool("runtime.debugUI.enabled"s));
+  BASALT_LOG_INFO("\tgfx.backend.api = {}"sv,
+                  config.get_i32("gfx.backend.api"s));
+  BASALT_LOG_INFO("\twindow.title = {}"sv, config.get_string("window.title"s));
+  BASALT_LOG_INFO("\twindow.surface.windowedSize = "
+                  "{{.width = {}, .height = {}}}"sv,
+                  config.get_i32("window.surface.windowedSize.width"),
+                  config.get_i32("window.surface.windowedSize.height"));
+  BASALT_LOG_INFO("\twindow.mode = {}"sv, config.get_i32("window.mode"s));
+  BASALT_LOG_INFO("\twindow.resizeable = {}"sv,
+                  config.get_bool("window.resizeable"s));
+}
 
 auto build_gfx_info(const D3D9Factory& factory) -> gfx::Info {
   gfx::Info gfxInfo {};
@@ -127,8 +141,17 @@ auto run_lost_device_loop(gfx::Context& gfxContext) -> bool {
 } // namespace
 
 void App::run(const HMODULE moduleHandle, const int showCommand) {
-  // let the client app configure us
-  Config config {ClientApp::configure()};
+  Config config {
+    {"runtime.debugUI.enabled"s, false},
+    {"window.title"s, "Basalt Application"s},
+    {"window.resizeable"s, true},
+    {"window.mode"s, enum_cast(WindowMode::Windowed)},
+    {"window.surface.windowedSize.width"s, 0},
+    {"window.surface.windowedSize.height"s, 0},
+    {"gfx.backend.api"s, enum_cast(GfxBackendApi::Default)},
+  };
+
+  ClientApp::configure(config);
   dump_config(config);
 
   const auto gfxFactory {D3D9Factory::create()};
@@ -138,8 +161,13 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
     return;
   }
 
-  const Window::Desc windowDesc {config.appName, config.preferredSurfaceSize,
-                                 config.windowMode, config.isWindowResizeable};
+  const Size2Du16 windowedSurfaceSize {
+    static_cast<u16>(config.get_i32("window.surface.windowedSize.width"s)),
+    static_cast<u16>(config.get_i32("window.surface.windowedSize.height"s))};
+  const Window::Desc windowDesc {
+    config.get_string("window.title"s), windowedSurfaceSize,
+    config.get_enum("window.mode"s, to_window_mode),
+    config.get_bool("window.resizeable"s)};
   const WindowPtr window {
     Window::create(moduleHandle, showCommand, windowDesc)};
   if (!window) {
@@ -150,7 +178,7 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
 
   D3D9Factory::DeviceAndContextDesc deviceAndContextDesc {};
   deviceAndContextDesc.exclusive =
-    config.windowMode == WindowMode::FullscreenExclusive;
+    window->mode() == WindowMode::FullscreenExclusive;
 
   const auto [gfxDevice, gfxContext] = gfxFactory->create_device_and_context(
     window->handle(), deviceAndContextDesc);
@@ -180,9 +208,9 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
 
   while (poll_events()) {
     if (const Size2Du16 size {window->client_area_size()};
-        config.windowMode != window->mode() ||
+        config.get_enum("window.mode"s, to_window_mode) != window->mode() ||
         size != gfxContext->surface_size() &&
-          config.windowMode == WindowMode::Windowed) {
+          window->mode() == WindowMode::Windowed) {
       // call Window::set_mode after resetting the context when leaving
       // exclusive mode because the D3D9 runtime handles all exclusive mode
       // window changes
@@ -190,13 +218,14 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
         gfx::Context::ResetDesc desc {};
         gfxContext->reset(desc);
 
-        window->set_mode(config.windowMode);
+        window->set_mode(config.get_enum("window.mode"s, to_window_mode));
       } else {
-        window->set_mode(config.windowMode);
+        const WindowMode mode = config.get_enum("window.mode"s, to_window_mode);
+        window->set_mode(mode);
 
         gfx::Context::ResetDesc desc {};
         desc.windowBackBufferSize = window->client_area_size();
-        desc.exclusive = config.windowMode == WindowMode::FullscreenExclusive;
+        desc.exclusive = mode == WindowMode::FullscreenExclusive;
         gfxContext->reset(desc);
       }
     }
@@ -223,7 +252,7 @@ void App::run(const HMODULE moduleHandle, const int showCommand) {
     const Composite composite =
       Compositor::compose(app.mGfxResourceCache, drawTarget);
 
-    if (config.debugUiEnabled) {
+    if (config.get_bool("runtime.debugUI.enabled"s)) {
       Debug::update();
       gfx::Debug::update(gfxInfo, composite);
     }
@@ -252,17 +281,6 @@ App::App(Config& config, gfx::ContextPtr gfxContext)
 }
 
 namespace {
-
-void dump_config(const Config& config) {
-  BASALT_LOG_INFO("config");
-  BASALT_LOG_INFO("\tapp name: {}", config.appName);
-  BASALT_LOG_INFO(
-    "\twindow: {}x{}{} {}{}", config.preferredSurfaceSize.width(),
-    config.preferredSurfaceSize.height(),
-    config.windowMode == WindowMode::FullscreenExclusive ? " exclusive" : "",
-    config.windowMode != WindowMode::Windowed ? "fullscreen" : "windowed",
-    config.isWindowResizeable ? " resizeable" : "");
-}
 
 ///**
 // * \brief Processes the windows command line string and populates an argv

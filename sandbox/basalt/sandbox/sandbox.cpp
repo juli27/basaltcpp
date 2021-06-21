@@ -37,12 +37,9 @@ private:
   }
 };
 
-auto ClientApp::configure() -> Config {
-  auto config = Config::defaults();
-  config.appName = "Sandbox"s;
-  config.debugUiEnabled = true;
-
-  return config;
+void ClientApp::configure(Config& config) {
+  config.set_string("window.title"s, "Basalt Sandbox"s);
+  config.set_bool("runtime.debugUI.enabled"s, true);
 }
 
 auto ClientApp::create(Engine& engine) -> unique_ptr<ClientApp> {
@@ -114,7 +111,8 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
     }
 
     if (ImGui::BeginMenu("View")) {
-      const auto currentMode = ctx.engine.config().windowMode;
+      const auto currentMode =
+        ctx.engine.config().get_enum("window.mode"s, basalt::to_window_mode);
       if (ImGui::MenuItem("Windowed", nullptr,
                           currentMode == WindowMode::Windowed,
                           currentMode != WindowMode::Windowed)) {
@@ -131,7 +129,7 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
         ctx.engine.set_window_mode(WindowMode::FullscreenExclusive);
       }
 
-      if (ctx.engine.config().debugUiEnabled) {
+      if (ctx.engine.config().get_bool("runtime.debugUI.enabled"s)) {
         ImGui::Separator();
       }
 

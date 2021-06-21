@@ -14,11 +14,11 @@ struct ClientApp {
   virtual ~ClientApp() = default;
 
   auto operator=(const ClientApp&) -> ClientApp& = delete;
-  auto operator=(ClientApp &&) -> ClientApp& = delete;
+  auto operator=(ClientApp&&) -> ClientApp& = delete;
 
   virtual void on_update(const UpdateContext&) = 0;
 
-  static auto configure() -> Config;
+  static void configure(Config&);
   static auto create(Engine&) -> std::unique_ptr<ClientApp>;
 
 protected:
