@@ -9,6 +9,7 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "daily_file_sink.h"
   "dist_sink.h"
   "dup_filter_sink.h"
+  "hourly_file_sink.h"
   "msvc_sink.h"
   "null_sink.h"
   "ostream_sink.h"
