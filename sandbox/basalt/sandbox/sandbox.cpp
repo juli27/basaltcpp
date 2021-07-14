@@ -13,6 +13,7 @@
 #include <basalt/api/prelude.h>
 
 #include <basalt/api/shared/config.h>
+#include <basalt/api/shared/types.h>
 
 #include <imgui/imgui.h>
 
@@ -28,7 +29,6 @@ using basalt::InputLayer;
 using basalt::Key;
 using basalt::UpdateContext;
 using basalt::WindowMode;
-using basalt::gfx::Device;
 
 struct SandboxApp::Input final : InputLayer {
 private:
@@ -36,11 +36,6 @@ private:
     return InputEventHandled::Yes;
   }
 };
-
-void ClientApp::configure(Config& config) {
-  config.set_string("window.title"s, "Basalt Sandbox"s);
-  config.set_bool("runtime.debugUI.enabled"s, true);
-}
 
 auto ClientApp::create(Engine& engine) -> unique_ptr<ClientApp> {
   return std::make_unique<SandboxApp>(engine);
@@ -111,8 +106,9 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
     }
 
     if (ImGui::BeginMenu("View")) {
+      const Config& config = ctx.engine.config();
       const auto currentMode =
-        ctx.engine.config().get_enum("window.mode"s, basalt::to_window_mode);
+        config.get_enum("window.mode"s, basalt::to_window_mode);
       if (ImGui::MenuItem("Windowed", nullptr,
                           currentMode == WindowMode::Windowed,
                           currentMode != WindowMode::Windowed)) {
@@ -129,7 +125,7 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
         ctx.engine.set_window_mode(WindowMode::FullscreenExclusive);
       }
 
-      if (ctx.engine.config().get_bool("runtime.debugUI.enabled"s)) {
+      if (config.get_bool("runtime.debugUI.enabled"s)) {
         ImGui::Separator();
       }
 

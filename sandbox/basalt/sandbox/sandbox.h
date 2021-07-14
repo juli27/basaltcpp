@@ -18,7 +18,7 @@ struct SandboxApp final : basalt::ClientApp {
   ~SandboxApp() override = default;
 
   auto operator=(const SandboxApp&) -> SandboxApp& = delete;
-  auto operator=(SandboxApp &&) -> SandboxApp& = delete;
+  auto operator=(SandboxApp&&) -> SandboxApp& = delete;
 
   void on_update(const basalt::UpdateContext&) override;
 

@@ -7,7 +7,7 @@ target_link_libraries(${CURRENT_TARGET} PRIVATE
   WarningsAsErrors
 )
 
-target_include_directories(${CURRENT_TARGET} PRIVATE
+target_include_directories(${CURRENT_TARGET} PUBLIC
   "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
@@ -31,4 +31,8 @@ add_subdirectory("basalt")
 get_target_property(TARGET_SOURCES ${CURRENT_TARGET} SOURCES)
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/basalt/sandbox"
   FILES ${TARGET_SOURCES}
+)
+
+target_sources(${CURRENT_TARGET} PRIVATE
+  "config_defaults.h"
 )

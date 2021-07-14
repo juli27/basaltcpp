@@ -140,18 +140,8 @@ auto run_lost_device_loop(gfx::Context& gfxContext) -> bool {
 
 } // namespace
 
-void App::run(const HMODULE moduleHandle, const int showCommand) {
-  Config config {
-    {"runtime.debugUI.enabled"s, false},
-    {"window.title"s, "Basalt Application"s},
-    {"window.resizeable"s, true},
-    {"window.mode"s, enum_cast(WindowMode::Windowed)},
-    {"window.surface.windowedSize.width"s, 0},
-    {"window.surface.windowedSize.height"s, 0},
-    {"gfx.backend.api"s, enum_cast(GfxBackendApi::Default)},
-  };
-
-  ClientApp::configure(config);
+void App::run(Config& config, const HMODULE moduleHandle,
+              const int showCommand) {
   dump_config(config);
 
   const auto gfxFactory {D3D9Factory::create()};

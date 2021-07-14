@@ -15,7 +15,7 @@ struct InputLayer {
   virtual ~InputLayer() = default;
 
   auto operator=(const InputLayer&) -> InputLayer& = delete;
-  auto operator=(InputLayer &&) -> InputLayer& = delete;
+  auto operator=(InputLayer&&) -> InputLayer& = delete;
 
   [[nodiscard]] auto pointer_position() const noexcept -> PointerPosition;
   [[nodiscard]] auto is_mouse_button_down(MouseButton) const -> bool;

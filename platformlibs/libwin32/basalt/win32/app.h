@@ -7,7 +7,7 @@
 namespace basalt {
 
 struct App final : Engine {
-  static void run(HMODULE, int showCommand);
+  static void run(Config&, HMODULE, int showCommand);
 
 private:
   App(Config&, gfx::ContextPtr);

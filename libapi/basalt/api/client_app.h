@@ -1,7 +1,6 @@
 #pragma once
 
 #include "types.h"
-#include "shared/types.h"
 
 #include <memory>
 
@@ -18,7 +17,6 @@ struct ClientApp {
 
   virtual void on_update(const UpdateContext&) = 0;
 
-  static void configure(Config&);
   static auto create(Engine&) -> std::unique_ptr<ClientApp>;
 
 protected:
