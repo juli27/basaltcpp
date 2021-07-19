@@ -4,7 +4,7 @@
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 
-#include <basalt/api/gfx/draw_target.h>
+#include <basalt/api/gfx/surface.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 
 #include <basalt/api/scene/transform.h>

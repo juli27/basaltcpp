@@ -121,7 +121,7 @@ auto D3D9Factory::query_adapter_modes(const u32 adapterIndex) const
     const u32 count = mFactory->GetAdapterModeCount(adapterIndex, format);
 
     adapterModes.reserve(adapterModes.size() + count);
-    const ImageFormat surfaceFormat = to_image_format(format);
+    const ImageFormat displayFormat = to_image_format(format);
 
     for (u32 i = 0; i < count; i++) {
       D3DDISPLAYMODE adapterMode;
@@ -136,7 +136,7 @@ auto D3D9Factory::query_adapter_modes(const u32 adapterIndex) const
 
       adapterModes.emplace_back(
         AdapterMode {adapterMode.Width, adapterMode.Height,
-                     adapterMode.RefreshRate, surfaceFormat});
+                     adapterMode.RefreshRate, displayFormat});
     }
   }
 

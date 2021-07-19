@@ -5,7 +5,7 @@
 #include <basalt/api/prelude.h>
 
 #include <basalt/api/gfx/camera.h>
-#include <basalt/api/gfx/draw_target.h>
+#include <basalt/api/gfx/surface.h>
 
 #include <basalt/api/gfx/backend/context.h>
 

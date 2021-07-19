@@ -18,7 +18,7 @@
 #include <basalt/api/client_app.h>
 #include <basalt/api/debug.h>
 
-#include <basalt/api/gfx/draw_target.h>
+#include <basalt/api/gfx/surface.h>
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/context.h>
 
@@ -221,7 +221,7 @@ void App::run(Config& config, const HMODULE moduleHandle,
 
     window->input_manager().dispatch_pending(app.mInputLayers);
 
-    gfx::DrawTarget drawTarget {gfxContext->surface_size()};
+    gfx::Surface drawTarget {gfxContext->surface_size()};
 
     const UpdateContext ctx {app, drawTarget};
     dearImGui->new_frame(ctx);

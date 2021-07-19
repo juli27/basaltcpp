@@ -17,7 +17,7 @@
 
 namespace basalt::gfx {
 
-struct DrawTarget;
+struct Surface;
 
 struct Drawable;
 using DrawablePtr = std::shared_ptr<Drawable>;

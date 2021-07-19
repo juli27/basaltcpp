@@ -16,7 +16,7 @@ struct Compositor final {
   auto operator=(const Compositor&) -> Compositor& = delete;
   auto operator=(Compositor &&) -> Compositor& = delete;
 
-  static auto compose(ResourceCache&, const DrawTarget&) -> Composite;
+  static auto compose(ResourceCache&, const Surface&) -> Composite;
 };
 
 } // namespace basalt::gfx

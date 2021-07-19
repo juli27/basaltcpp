@@ -31,7 +31,7 @@ struct Engine {
 
   [[nodiscard]] auto gfx_context() const noexcept -> gfx::Context&;
 
-  auto delta_time() const noexcept -> f64;
+  [[nodiscard]] auto delta_time() const noexcept -> f64;
 
   void push_input_layer(InputLayerPtr);
 
@@ -79,7 +79,7 @@ template <>
 
 struct UpdateContext final {
   Engine& engine;
-  gfx::DrawTarget& drawTarget;
+  gfx::Surface& drawTarget;
 };
 
 void quit();

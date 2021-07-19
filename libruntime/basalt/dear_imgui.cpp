@@ -3,7 +3,7 @@
 #include <basalt/api/engine.h>
 #include <basalt/api/input_events.h>
 
-#include <basalt/api/gfx/draw_target.h>
+#include <basalt/api/gfx/surface.h>
 
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/utils.h>

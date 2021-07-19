@@ -8,16 +8,16 @@
 
 namespace basalt::gfx {
 
-struct DrawTarget final {
-  explicit DrawTarget(Size2Du16) noexcept;
+struct Surface final {
+  explicit Surface(Size2Du16) noexcept;
 
-  DrawTarget(const DrawTarget&) = delete;
-  DrawTarget(DrawTarget&&) = default;
+  Surface(const Surface&) = delete;
+  Surface(Surface&&) = default;
 
-  ~DrawTarget() noexcept = default;
+  ~Surface() noexcept = default;
 
-  auto operator=(const DrawTarget&) -> DrawTarget& = delete;
-  auto operator=(DrawTarget &&) -> DrawTarget& = default;
+  auto operator=(const Surface&) -> Surface& = delete;
+  auto operator=(Surface &&) -> Surface& = default;
 
   [[nodiscard]] auto drawables() const noexcept
     -> const std::vector<DrawablePtr>&;

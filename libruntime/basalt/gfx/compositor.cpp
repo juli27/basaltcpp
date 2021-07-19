@@ -1,7 +1,7 @@
 #include <basalt/gfx/compositor.h>
 
 #include <basalt/api/gfx/command_list_recorder.h>
-#include <basalt/api/gfx/draw_target.h>
+#include <basalt/api/gfx/surface.h>
 #include <basalt/api/gfx/drawable.h>
 #include <basalt/api/gfx/backend/command_list.h>
 
@@ -14,7 +14,7 @@
 namespace basalt::gfx {
 
 auto Compositor::compose(ResourceCache& resourceCache,
-                         const DrawTarget& drawTarget) -> Composite {
+                         const Surface& drawTarget) -> Composite {
   Composite composite;
 
   const Size2Du16 viewport = drawTarget.size();
