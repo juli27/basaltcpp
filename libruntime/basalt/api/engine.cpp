@@ -28,6 +28,10 @@ auto Engine::gfx_context() const noexcept -> gfx::Context& {
   return *mGfxContext;
 }
 
+auto Engine::delta_time() const noexcept -> f64 {
+  return mDeltaTime;
+}
+
 void Engine::push_input_layer(InputLayerPtr inputTarget) {
   mInputLayers.emplace(mInputLayers.begin(), std::move(inputTarget));
 }

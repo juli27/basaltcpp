@@ -31,6 +31,8 @@ struct Engine {
 
   [[nodiscard]] auto gfx_context() const noexcept -> gfx::Context&;
 
+  auto delta_time() const noexcept -> f64;
+
   void push_input_layer(InputLayerPtr);
 
   [[nodiscard]] auto mouse_cursor() const noexcept -> MouseCursor;
@@ -55,6 +57,8 @@ protected:
 
   std::vector<InputLayerPtr> mInputLayers;
 
+  f64 mDeltaTime {};
+
   MouseCursor mMouseCursor {MouseCursor::Arrow};
   bool mIsDirty {false};
 
@@ -76,7 +80,6 @@ template <>
 struct UpdateContext final {
   Engine& engine;
   gfx::DrawTarget& drawTarget;
-  f64 deltaTime {};
 };
 
 void quit();

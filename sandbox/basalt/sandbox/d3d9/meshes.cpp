@@ -32,7 +32,8 @@ Meshes::Meshes(Engine& engine) {
 }
 
 void Meshes::on_update(const basalt::UpdateContext& ctx) {
-  mTiger.get<Transform>().rotate(0.0f, static_cast<f32>(ctx.deltaTime), 0.0f);
+  mTiger.get<Transform>().rotate(
+    0.0f, static_cast<f32>(ctx.engine.delta_time()), 0.0f);
 
   ctx.drawTarget.draw(mSceneView);
 

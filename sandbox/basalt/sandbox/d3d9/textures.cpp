@@ -98,7 +98,7 @@ Textures::Textures(Engine& engine)
 
 void Textures::on_update(const basalt::UpdateContext& ctx) {
   auto& transform {mCylinder.get<Transform>()};
-  transform.rotate(static_cast<f32>(ctx.deltaTime), 0.0f, 0.0f);
+  transform.rotate(static_cast<f32>(ctx.engine.delta_time()), 0.0f, 0.0f);
 
   ctx.drawTarget.draw(mSceneView);
 

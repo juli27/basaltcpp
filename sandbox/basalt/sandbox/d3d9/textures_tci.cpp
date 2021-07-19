@@ -110,8 +110,8 @@ TexturesTci::TexturesTci(Engine& engine) {
 }
 
 void TexturesTci::on_update(const basalt::UpdateContext& ctx) {
-  mCylinder.get<Transform>().rotate(static_cast<f32>(ctx.deltaTime), 0.0f,
-                                    0.0f);
+  mCylinder.get<Transform>().rotate(static_cast<f32>(ctx.engine.delta_time()),
+                                    0.0f, 0.0f);
 
   // update the texture transform, since it depends on the draw target size
   auto& rc = mCylinder.get<RenderComponent>();

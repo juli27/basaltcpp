@@ -90,7 +90,7 @@ Lights::Lights(Engine& engine)
 }
 
 void Lights::on_update(const basalt::UpdateContext& ctx) {
-  const auto dt {static_cast<f32>(ctx.deltaTime)};
+  const auto dt {static_cast<f32>(ctx.engine.delta_time())};
   auto& transform {mCylinder.get<Transform>()};
   transform.rotate(2.0f * dt, 0.0f, 0.0f);
 

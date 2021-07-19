@@ -69,7 +69,7 @@ Matrices::Matrices(Engine& engine)
 
 void Matrices::on_update(const basalt::UpdateContext& ctx) {
   // 1 full rotation per second
-  const f32 radOffsetY {2.0f * PI * static_cast<f32>(ctx.deltaTime)};
+  const f32 radOffsetY {2.0f * PI * static_cast<f32>(ctx.engine.delta_time())};
   auto& transform {mTriangle.get<Transform>()};
   transform.rotate(0.0f, radOffsetY, 0.0f);
 

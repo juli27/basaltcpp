@@ -79,7 +79,7 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
   const Size2Du16 displaySize = ctx.drawTarget.size();
   io.DisplaySize = ImVec2 {static_cast<float>(displaySize.width()),
                            static_cast<float>(displaySize.height())};
-  io.DeltaTime = static_cast<float>(ctx.deltaTime);
+  io.DeltaTime = static_cast<float>(ctx.engine.delta_time());
   io.KeyCtrl = is_key_down(Key::Control);
   io.KeyShift = is_key_down(Key::Shift);
   io.KeyAlt = is_key_down(Key::Alt);

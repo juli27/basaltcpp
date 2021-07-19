@@ -194,7 +194,6 @@ void App::run(Config& config, const HMODULE moduleHandle,
   static_assert(Clock::is_steady);
 
   auto startTime {Clock::now()};
-  f64 currentDeltaTime {};
 
   while (poll_events()) {
     if (const Size2Du16 size {window->client_area_size()};
@@ -224,7 +223,7 @@ void App::run(Config& config, const HMODULE moduleHandle,
 
     gfx::DrawTarget drawTarget {gfxContext->surface_size()};
 
-    const UpdateContext ctx {app, drawTarget, currentDeltaTime};
+    const UpdateContext ctx {app, drawTarget};
     dearImGui->new_frame(ctx);
 
     clientApp->on_update(ctx);
@@ -260,8 +259,8 @@ void App::run(Config& config, const HMODULE moduleHandle,
     }
 
     const auto endTime = Clock::now();
-    currentDeltaTime = static_cast<f64>((endTime - startTime).count()) /
-                       (Clock::period::den * Clock::period::num);
+    app.mDeltaTime = static_cast<f64>((endTime - startTime).count()) /
+                     (Clock::period::den * Clock::period::num);
     startTime = endTime;
   }
 }
