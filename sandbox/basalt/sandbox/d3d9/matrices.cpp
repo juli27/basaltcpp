@@ -73,13 +73,13 @@ auto Matrices::drawable() -> basalt::gfx::DrawablePtr {
   return mSceneView;
 }
 
-void Matrices::on_update(const basalt::UpdateContext& ctx) {
+void Matrices::on_update(Engine& engine) {
   // 1 full rotation per second
-  const f32 radOffsetY {2.0f * PI * static_cast<f32>(ctx.engine.delta_time())};
+  const f32 radOffsetY {2.0f * PI * static_cast<f32>(engine.delta_time())};
   auto& transform {mTriangle.get<Transform>()};
   transform.rotate(0.0f, radOffsetY, 0.0f);
 
-  if (ctx.engine.config().get_bool("runtime.debugUI.enabled"s)) {
+  if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
 }

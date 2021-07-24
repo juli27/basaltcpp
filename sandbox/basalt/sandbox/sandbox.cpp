@@ -28,7 +28,6 @@ using basalt::InputEvent;
 using basalt::InputEventHandled;
 using basalt::InputLayer;
 using basalt::Key;
-using basalt::UpdateContext;
 using basalt::WindowMode;
 
 struct SandboxApp::Input final : InputLayer {
@@ -57,14 +56,14 @@ SandboxApp::SandboxApp(Engine& engine) : mInput {std::make_shared<Input>()} {
   engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
 }
 
-void SandboxApp::on_update(const UpdateContext& ctx) {
+void SandboxApp::on_update(Engine& engine) {
   static auto pageUpPressed = false;
   static auto pageDownPressed = false;
   if (mInput->is_key_down(Key::PageUp)) {
     if (!pageUpPressed) {
       pageUpPressed = true;
 
-      prev_scene(ctx.engine);
+      prev_scene(engine);
     }
   } else {
     pageUpPressed = false;
@@ -74,7 +73,7 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
     if (!pageDownPressed) {
       pageDownPressed = true;
 
-      next_scene(ctx.engine);
+      next_scene(engine);
     }
   } else {
     pageDownPressed = false;
@@ -86,17 +85,17 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
         const bool isCurrent = mCurrentSceneIndex == i;
         if (ImGui::MenuItem(mScenes[i]->name().data(), nullptr, isCurrent,
                             !isCurrent)) {
-          set_scene(i, ctx.engine);
+          set_scene(i, engine);
         }
       }
 
       ImGui::Separator();
 
       if (ImGui::MenuItem("Next Scene", "PgDn")) {
-        next_scene(ctx.engine);
+        next_scene(engine);
       }
       if (ImGui::MenuItem("Prev Scene", "PgUp")) {
-        prev_scene(ctx.engine);
+        prev_scene(engine);
       }
 
       ImGui::Separator();
@@ -109,23 +108,23 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
     }
 
     if (ImGui::BeginMenu("View")) {
-      const Config& config = ctx.engine.config();
+      const Config& config = engine.config();
       const auto currentMode =
         config.get_enum("window.mode"s, basalt::to_window_mode);
       if (ImGui::MenuItem("Windowed", nullptr,
                           currentMode == WindowMode::Windowed,
                           currentMode != WindowMode::Windowed)) {
-        ctx.engine.set_window_mode(WindowMode::Windowed);
+        engine.set_window_mode(WindowMode::Windowed);
       }
       if (ImGui::MenuItem("Fullscreen", nullptr,
                           currentMode == WindowMode::Fullscreen,
                           currentMode != WindowMode::Fullscreen)) {
-        ctx.engine.set_window_mode(WindowMode::Fullscreen);
+        engine.set_window_mode(WindowMode::Fullscreen);
       }
       if (ImGui::MenuItem("Fullscreen (Exclusive)", nullptr,
                           currentMode == WindowMode::FullscreenExclusive,
                           currentMode != WindowMode::FullscreenExclusive)) {
-        ctx.engine.set_window_mode(WindowMode::FullscreenExclusive);
+        engine.set_window_mode(WindowMode::FullscreenExclusive);
       }
 
       if (config.get_bool("runtime.debugUI.enabled"s)) {
@@ -138,7 +137,7 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
     ImGui::EndMainMenuBar();
   }
 
-  mScenes[mCurrentSceneIndex]->on_update(ctx);
+  mScenes[mCurrentSceneIndex]->on_update(engine);
 }
 
 void SandboxApp::next_scene(Engine& engine) noexcept {

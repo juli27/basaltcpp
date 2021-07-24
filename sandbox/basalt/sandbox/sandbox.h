@@ -20,7 +20,7 @@ struct SandboxApp final : basalt::ClientApp {
   auto operator=(const SandboxApp&) -> SandboxApp& = delete;
   auto operator=(SandboxApp&&) -> SandboxApp& = delete;
 
-  void on_update(const basalt::UpdateContext&) override;
+  void on_update(basalt::Engine&) override;
 
 private:
   struct Input;

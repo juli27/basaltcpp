@@ -25,7 +25,7 @@ struct Matrices final : TestCase {
   auto name() -> std::string_view override;
   auto drawable() -> basalt::gfx::DrawablePtr override;
 
-  void on_update(const basalt::UpdateContext&) override;
+  void on_update(basalt::Engine&) override;
 
 private:
   std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();

@@ -22,9 +22,9 @@ struct DearImGui final
   ~DearImGui() override;
 
   auto operator=(const DearImGui&) -> DearImGui& = delete;
-  auto operator=(DearImGui &&) -> DearImGui& = delete;
+  auto operator=(DearImGui&&) -> DearImGui& = delete;
 
-  void new_frame(const UpdateContext&) const;
+  void new_frame(Engine& engine) const;
 
   auto draw(gfx::ResourceCache&, Size2Du16 viewport, const RectangleU16& clip)
     -> std::tuple<gfx::CommandList, RectangleU16> override;

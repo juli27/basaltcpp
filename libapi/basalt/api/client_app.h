@@ -15,7 +15,7 @@ struct ClientApp {
   auto operator=(const ClientApp&) -> ClientApp& = delete;
   auto operator=(ClientApp&&) -> ClientApp& = delete;
 
-  virtual void on_update(const UpdateContext&) = 0;
+  virtual void on_update(Engine&) = 0;
 
   static auto create(Engine&) -> std::unique_ptr<ClientApp>;
 

@@ -26,7 +26,7 @@ auto Device::drawable() -> basalt::gfx::DrawablePtr {
   return mDrawable;
 }
 
-void Device::on_update(const basalt::UpdateContext&) {
+void Device::on_update(basalt::Engine&) {
 }
 
 } // namespace d3d9

@@ -117,18 +117,18 @@ auto TexturesTci::drawable() -> basalt::gfx::DrawablePtr {
   return mSceneView;
 }
 
-void TexturesTci::on_update(const basalt::UpdateContext& ctx) {
-  mCylinder.get<Transform>().rotate(static_cast<f32>(ctx.engine.delta_time()),
-                                    0.0f, 0.0f);
+void TexturesTci::on_update(Engine& engine) {
+  mCylinder.get<Transform>().rotate(static_cast<f32>(engine.delta_time()), 0.0f,
+                                    0.0f);
 
   // update the texture transform, since it depends on the draw target size
   auto& rc = mCylinder.get<RenderComponent>();
   rc.texTransform =
-    mSceneView->camera().projection_matrix(ctx.engine.window_surface_size()) *
+    mSceneView->camera().projection_matrix(engine.window_surface_size()) *
     Mat4f32::scaling(Vector3f32 {0.5f, -0.5f, 1.0f}) *
     Mat4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f});
 
-  if (ctx.engine.config().get_bool("runtime.debugUI.enabled"s)) {
+  if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
 }

@@ -18,7 +18,7 @@ struct Device final : TestCase {
   auto name() -> std::string_view override;
   auto drawable() -> basalt::gfx::DrawablePtr override;
 
-  void on_update(const basalt::UpdateContext&) override;
+  void on_update(basalt::Engine&) override;
 
 private:
   basalt::gfx::DrawablePtr mDrawable;

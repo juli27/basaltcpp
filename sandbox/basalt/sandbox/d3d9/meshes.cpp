@@ -38,11 +38,11 @@ auto Meshes::drawable() -> basalt::gfx::DrawablePtr {
   return mSceneView;
 }
 
-void Meshes::on_update(const basalt::UpdateContext& ctx) {
-  mTiger.get<Transform>().rotate(
-    0.0f, static_cast<f32>(ctx.engine.delta_time()), 0.0f);
+void Meshes::on_update(Engine& engine) {
+  mTiger.get<Transform>().rotate(0.0f, static_cast<f32>(engine.delta_time()),
+                                 0.0f);
 
-  if (ctx.engine.config().get_bool("runtime.debugUI.enabled"s)) {
+  if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
 }

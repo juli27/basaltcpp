@@ -17,7 +17,7 @@ struct TestCase {
   [[nodiscard]] virtual auto name() -> std::string_view = 0;
   [[nodiscard]] virtual auto drawable() -> basalt::gfx::DrawablePtr = 0;
 
-  virtual void on_update(const basalt::UpdateContext&) = 0;
+  virtual void on_update(basalt::Engine&) = 0;
 
 protected:
   TestCase() noexcept = default;

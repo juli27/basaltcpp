@@ -10,7 +10,6 @@ namespace basalt {
 struct Engine;
 struct InputEvent;
 struct InputLayer;
-struct UpdateContext;
 
 using InputEventPtr = std::unique_ptr<InputEvent>;
 using InputLayerPtr = std::shared_ptr<InputLayer>;

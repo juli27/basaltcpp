@@ -81,10 +81,6 @@ template <>
 template <>
 [[nodiscard]] auto Engine::get(ResourceId) -> gfx::Texture;
 
-struct UpdateContext final {
-  Engine& engine;
-};
-
 void quit();
 
 } // namespace basalt

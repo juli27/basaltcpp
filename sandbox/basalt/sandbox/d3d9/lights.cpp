@@ -95,8 +95,8 @@ auto Lights::drawable() -> basalt::gfx::DrawablePtr {
   return mSceneView;
 }
 
-void Lights::on_update(const basalt::UpdateContext& ctx) {
-  const auto dt {static_cast<f32>(ctx.engine.delta_time())};
+void Lights::on_update(Engine& engine) {
+  const auto dt {static_cast<f32>(engine.delta_time())};
   auto& transform {mCylinder.get<Transform>()};
   transform.rotate(2.0f * dt, 0.0f, 0.0f);
 
@@ -112,7 +112,7 @@ void Lights::on_update(const basalt::UpdateContext& ctx) {
                              std::sin(mLightAngle)};
   mScene->add_directional_light(Vector3f32::normalize(lightDir), Colors::WHITE);
 
-  if (ctx.engine.config().get_bool("runtime.debugUI.enabled"s)) {
+  if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
 }

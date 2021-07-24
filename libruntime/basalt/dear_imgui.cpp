@@ -68,7 +68,7 @@ DearImGui::~DearImGui() {
   ImGui::DestroyContext();
 }
 
-void DearImGui::new_frame(const UpdateContext& ctx) const {
+void DearImGui::new_frame(Engine& engine) const {
   static_assert(ImGuiMouseButton_COUNT == MOUSE_BUTTON_COUNT);
   static_assert(KEY_COUNT <= 512);
 
@@ -76,10 +76,10 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
 
   auto& io = ImGui::GetIO();
 
-  const Size2Du16 displaySize = ctx.engine.window_surface_size();
+  const Size2Du16 displaySize = engine.window_surface_size();
   io.DisplaySize = ImVec2 {static_cast<float>(displaySize.width()),
                            static_cast<float>(displaySize.height())};
-  io.DeltaTime = static_cast<float>(ctx.engine.delta_time());
+  io.DeltaTime = static_cast<float>(engine.delta_time());
   io.KeyCtrl = is_key_down(Key::Control);
   io.KeyShift = is_key_down(Key::Shift);
   io.KeyAlt = is_key_down(Key::Alt);
@@ -96,8 +96,8 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
     // TODO: no mouse cursor / imgui cursor drawing
     if (cursor != ImGuiMouseCursor_None) {
       const auto mouseCursor {MouseCursor {static_cast<u8>(cursor)}};
-      if (mouseCursor != ctx.engine.mouse_cursor()) {
-        ctx.engine.set_mouse_cursor(mouseCursor);
+      if (mouseCursor != engine.mouse_cursor()) {
+        engine.set_mouse_cursor(mouseCursor);
       }
     }
   }

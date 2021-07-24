@@ -220,11 +220,8 @@ void App::run(Config& config, const HMODULE moduleHandle,
     }
 
     window->input_manager().dispatch_pending(app.mInputLayers);
-
-    const UpdateContext ctx {app};
-    dearImGui->new_frame(ctx);
-
-    clientApp->on_update(ctx);
+    dearImGui->new_frame(app);
+    clientApp->on_update(app);
 
     if (app.mIsDirty) {
       app.mIsDirty = false;

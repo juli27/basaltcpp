@@ -93,7 +93,7 @@ auto Vertices::drawable() -> basalt::gfx::DrawablePtr {
   return mDrawable;
 }
 
-void Vertices::on_update(const basalt::UpdateContext&) {
+void Vertices::on_update(Engine&) {
 }
 
 } // namespace d3d9
