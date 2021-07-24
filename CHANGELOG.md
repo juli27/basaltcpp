@@ -8,10 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Engine object to query and configure runtime behaviour
   - Engine.mouseCursor to get or set the current mouse cursor
   - load resources
+- Support for Windowed, Fullscreen, and Fullscreen (Exclusive) window modes
 - **/types.h includes to prelude.h
 - Dear ImGui clipboard support
 - Dear ImGui IME support
-- Gfx: `DrawTarget`
+- Gfx: `Surface`
 - Gfx: `Drawable`
   - `SceneView`: draws a scene through the specified camera
   - `SolidColorView` fills its own area with a single color
@@ -24,19 +25,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `ext_dear_imgui_renderer`
   - `ext_x_model_support`
 - Gfx: Materials
+- BASALT_CRASH
 
 ### Changed
-- Renamed runtime to api
-- The ClientApp::update method now receives a UpdateContext instead of only
+- Renamed and moved various public fields, methods and functions
+- Restructured the project
+  - libapi: public API
+  - libruntime: platform independent runtime
+  - platformlibs/libwin32: win32 runtime
+  - launchers/win32: win32 bootstrapping
+  - sandbox: sample application
+- The ClientApp::update method now receives the Engine object instead of only
   the delta time
-- Input is now part of the update context
+- Input: refactored input routing
+  - replaced global Input object with InputLayers
 - Input: all mouse buttons capture the mouse
-- Moved app code into its own folder
-- Renamed various public fields, methods and functions
-- Updated Dear ImGui (v1.72b -> v1.79)
-- Updated EnTT (19ef290 -> v3.5.2)
-- Updated fmt (5.3.0 -> 7.1.2)
-- Updated spdlog (1.3.1 -> 1.8.1)
+- Scene: every entity is now created with a transform component
+- Collapsed BASALT_ASSERT_MSG into BASALT_ASSERT
+- Refactored Config into a generic key-value store
+- Updated Dear ImGui (v1.72b -> v1.82)
+- Updated EnTT (19ef290 -> v3.6.0)
+- Updated fmt (5.3.0 -> 7.1.3)
+- Updated spdlog (1.3.1 -> 1.8.5)
   - now compiled as a static library
 
 ### Deprecated
@@ -47,7 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - the super key is not supported on Windows. It will be added again on other
     platforms once the need arises
 - free standing input functions
-  - input is now part of the update context
+  - an input layer must be registered with the engine object
 - platform events
 
 ### Fixed
