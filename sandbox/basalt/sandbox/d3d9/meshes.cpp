@@ -4,7 +4,6 @@
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 
-#include <basalt/api/gfx/surface.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 
 #include <basalt/api/scene/transform.h>
@@ -31,19 +30,21 @@ Meshes::Meshes(Engine& engine) {
   mTiger.emplace<XModel>(engine.get_or_load<XModel>("data/Tiger.x"_hs));
 }
 
+auto Meshes::name() -> string_view {
+  return "Tutorial 6: Using Meshes"sv;
+}
+
+auto Meshes::drawable() -> basalt::gfx::DrawablePtr {
+  return mSceneView;
+}
+
 void Meshes::on_update(const basalt::UpdateContext& ctx) {
   mTiger.get<Transform>().rotate(
     0.0f, static_cast<f32>(ctx.engine.delta_time()), 0.0f);
 
-  ctx.drawTarget.draw(mSceneView);
-
   if (ctx.engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
-}
-
-auto Meshes::name() -> string_view {
-  return "Tutorial 6: Using Meshes"sv;
 }
 
 } // namespace d3d9

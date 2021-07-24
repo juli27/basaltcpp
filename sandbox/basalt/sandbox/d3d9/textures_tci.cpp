@@ -109,6 +109,14 @@ TexturesTci::TexturesTci(Engine& engine) {
     Mat4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f});
 }
 
+auto TexturesTci::name() -> string_view {
+  return "Tutorial 5: Using Texture Maps (TCI)"sv;
+}
+
+auto TexturesTci::drawable() -> basalt::gfx::DrawablePtr {
+  return mSceneView;
+}
+
 void TexturesTci::on_update(const basalt::UpdateContext& ctx) {
   mCylinder.get<Transform>().rotate(static_cast<f32>(ctx.engine.delta_time()),
                                     0.0f, 0.0f);
@@ -116,19 +124,13 @@ void TexturesTci::on_update(const basalt::UpdateContext& ctx) {
   // update the texture transform, since it depends on the draw target size
   auto& rc = mCylinder.get<RenderComponent>();
   rc.texTransform =
-    mSceneView->camera().projection_matrix(ctx.drawTarget.size()) *
+    mSceneView->camera().projection_matrix(ctx.engine.window_surface_size()) *
     Mat4f32::scaling(Vector3f32 {0.5f, -0.5f, 1.0f}) *
     Mat4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f});
-
-  ctx.drawTarget.draw(mSceneView);
 
   if (ctx.engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
-}
-
-auto TexturesTci::name() -> string_view {
-  return "Tutorial 5: Using Texture Maps (TCI)"sv;
 }
 
 } // namespace d3d9

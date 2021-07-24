@@ -76,7 +76,7 @@ void DearImGui::new_frame(const UpdateContext& ctx) const {
 
   auto& io = ImGui::GetIO();
 
-  const Size2Du16 displaySize = ctx.drawTarget.size();
+  const Size2Du16 displaySize = ctx.engine.window_surface_size();
   io.DisplaySize = ImVec2 {static_cast<float>(displaySize.width()),
                            static_cast<float>(displaySize.height())};
   io.DeltaTime = static_cast<float>(ctx.engine.delta_time());

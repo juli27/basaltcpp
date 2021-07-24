@@ -17,7 +17,7 @@ struct Surface final {
   ~Surface() noexcept = default;
 
   auto operator=(const Surface&) -> Surface& = delete;
-  auto operator=(Surface &&) -> Surface& = default;
+  auto operator=(Surface&&) -> Surface& = delete;
 
   [[nodiscard]] auto drawables() const noexcept
     -> const std::vector<DrawablePtr>&;

@@ -221,9 +221,7 @@ void App::run(Config& config, const HMODULE moduleHandle,
 
     window->input_manager().dispatch_pending(app.mInputLayers);
 
-    gfx::Surface drawTarget {gfxContext->surface_size()};
-
-    const UpdateContext ctx {app, drawTarget};
+    const UpdateContext ctx {app};
     dearImGui->new_frame(ctx);
 
     clientApp->on_update(ctx);
@@ -233,13 +231,18 @@ void App::run(Config& config, const HMODULE moduleHandle,
       window->set_cursor(app.mMouseCursor);
     }
 
+    gfx::Surface surface {gfxContext->surface_size()};
+    if (app.mWindowSurfaceContent) {
+      surface.draw(app.mWindowSurfaceContent);
+    }
+
     // The DearImGui drawable doesn't actually cause the UI to render during
     // the compositing but is being done at execution of the ExtRenderDearImGui
     // command instead.
-    drawTarget.draw(dearImGui);
+    surface.draw(dearImGui);
 
     const Composite composite =
-      Compositor::compose(app.mGfxResourceCache, drawTarget);
+      Compositor::compose(app.mGfxResourceCache, surface);
 
     if (config.get_bool("runtime.debugUI.enabled"s)) {
       Debug::update();

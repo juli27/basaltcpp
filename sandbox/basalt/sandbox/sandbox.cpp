@@ -12,6 +12,7 @@
 #include <basalt/api/input_layer.h>
 #include <basalt/api/prelude.h>
 
+#include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/config.h>
 #include <basalt/api/shared/types.h>
 
@@ -52,6 +53,8 @@ SandboxApp::SandboxApp(Engine& engine) : mInput {std::make_shared<Input>()} {
   mScenes.emplace_back(std::make_unique<d3d9::Textures>(engine));
   mScenes.emplace_back(std::make_unique<d3d9::TexturesTci>(engine));
   mScenes.emplace_back(std::make_unique<d3d9::Meshes>(engine));
+
+  engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
 }
 
 void SandboxApp::on_update(const UpdateContext& ctx) {
@@ -61,7 +64,7 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
     if (!pageUpPressed) {
       pageUpPressed = true;
 
-      prev_scene();
+      prev_scene(ctx.engine);
     }
   } else {
     pageUpPressed = false;
@@ -71,7 +74,7 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
     if (!pageDownPressed) {
       pageDownPressed = true;
 
-      next_scene();
+      next_scene(ctx.engine);
     }
   } else {
     pageDownPressed = false;
@@ -83,17 +86,17 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
         const bool isCurrent = mCurrentSceneIndex == i;
         if (ImGui::MenuItem(mScenes[i]->name().data(), nullptr, isCurrent,
                             !isCurrent)) {
-          set_scene(i);
+          set_scene(i, ctx.engine);
         }
       }
 
       ImGui::Separator();
 
       if (ImGui::MenuItem("Next Scene", "PgDn")) {
-        next_scene();
+        next_scene(ctx.engine);
       }
       if (ImGui::MenuItem("Prev Scene", "PgUp")) {
-        prev_scene();
+        prev_scene(ctx.engine);
       }
 
       ImGui::Separator();
@@ -138,21 +141,28 @@ void SandboxApp::on_update(const UpdateContext& ctx) {
   mScenes[mCurrentSceneIndex]->on_update(ctx);
 }
 
-void SandboxApp::next_scene() noexcept {
+void SandboxApp::next_scene(Engine& engine) noexcept {
   mCurrentSceneIndex++;
   if (mCurrentSceneIndex >= mScenes.size()) {
     mCurrentSceneIndex = 0;
   }
+
+  engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
 }
 
-void SandboxApp::prev_scene() noexcept {
+void SandboxApp::prev_scene(Engine& engine) noexcept {
   if (mCurrentSceneIndex == 0) {
     mCurrentSceneIndex = mScenes.size() - 1;
   } else {
     mCurrentSceneIndex--;
   }
+
+  engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
 }
 
-void SandboxApp::set_scene(const uSize index) noexcept {
+void SandboxApp::set_scene(const uSize index, Engine& engine) noexcept {
+  BASALT_ASSERT(index < mScenes.size());
+
   mCurrentSceneIndex = index;
+  engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
 }

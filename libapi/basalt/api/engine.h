@@ -1,17 +1,17 @@
 #pragma once
 
-#include "types.h"
+#include <basalt/api/types.h>
 
-#include "gfx/resource_cache.h"
-#include "gfx/types.h"
+#include <basalt/api/gfx/resource_cache.h>
+#include <basalt/api/gfx/types.h>
 
-#include "gfx/backend/types.h"
-#include "gfx/backend/ext/types.h"
+#include <basalt/api/gfx/backend/types.h>
+#include <basalt/api/gfx/backend/ext/types.h>
 
-#include "shared/resource_registry.h"
-#include "shared/types.h"
+#include <basalt/api/shared/resource_registry.h>
+#include <basalt/api/shared/types.h>
 
-#include "base/types.h"
+#include <basalt/api/base/types.h>
 
 #include <memory>
 
@@ -32,6 +32,9 @@ struct Engine {
   [[nodiscard]] auto gfx_context() const noexcept -> gfx::Context&;
 
   [[nodiscard]] auto delta_time() const noexcept -> f64;
+  [[nodiscard]] auto window_surface_size() const -> Size2Du16;
+
+  void set_window_surface_content(gfx::DrawablePtr);
 
   void push_input_layer(InputLayerPtr);
 
@@ -55,6 +58,7 @@ protected:
   gfx::ContextPtr mGfxContext;
   gfx::ResourceCache mGfxResourceCache;
 
+  gfx::DrawablePtr mWindowSurfaceContent;
   std::vector<InputLayerPtr> mInputLayers;
 
   f64 mDeltaTime {};
@@ -79,7 +83,6 @@ template <>
 
 struct UpdateContext final {
   Engine& engine;
-  gfx::Surface& drawTarget;
 };
 
 void quit();

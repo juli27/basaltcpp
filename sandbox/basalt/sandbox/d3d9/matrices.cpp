@@ -6,7 +6,6 @@
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 
-#include <basalt/api/gfx/surface.h>
 #include <basalt/api/scene/transform.h>
 #include <basalt/api/math/constants.h>
 #include <basalt/api/shared/config.h>
@@ -21,7 +20,6 @@ using basalt::Debug;
 using basalt::Engine;
 using basalt::PI;
 using basalt::Transform;
-using basalt::gfx::Device;
 using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::MeshDescriptor;
 using basalt::gfx::PrimitiveType;
@@ -67,21 +65,23 @@ Matrices::Matrices(Engine& engine)
   rc.material = engine.gfx_resource_cache().create_material(material);
 }
 
+auto Matrices::name() -> string_view {
+  return "Tutorial 3: Using Matrices"sv;
+}
+
+auto Matrices::drawable() -> basalt::gfx::DrawablePtr {
+  return mSceneView;
+}
+
 void Matrices::on_update(const basalt::UpdateContext& ctx) {
   // 1 full rotation per second
   const f32 radOffsetY {2.0f * PI * static_cast<f32>(ctx.engine.delta_time())};
   auto& transform {mTriangle.get<Transform>()};
   transform.rotate(0.0f, radOffsetY, 0.0f);
 
-  ctx.drawTarget.draw(mSceneView);
-
   if (ctx.engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
-}
-
-auto Matrices::name() -> string_view {
-  return "Tutorial 3: Using Matrices"sv;
 }
 
 } // namespace d3d9

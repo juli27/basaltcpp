@@ -2,8 +2,6 @@
 
 #include <basalt/sandbox/test_case.h>
 
-#include <basalt/api/gfx/types.h>
-
 namespace d3d9 {
 
 struct Vertices final : TestCase {
@@ -17,8 +15,10 @@ struct Vertices final : TestCase {
   auto operator=(const Vertices&) -> Vertices& = delete;
   auto operator=(Vertices &&) -> Vertices& = delete;
 
-  void on_update(const basalt::UpdateContext&) override;
   auto name() -> std::string_view override;
+  auto drawable() -> basalt::gfx::DrawablePtr override;
+
+  void on_update(const basalt::UpdateContext&) override;
 
 private:
   basalt::gfx::DrawablePtr mDrawable;

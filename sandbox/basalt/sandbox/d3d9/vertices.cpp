@@ -5,8 +5,9 @@
 
 #include <basalt/api/gfx/command_list_recorder.h>
 #include <basalt/api/gfx/drawable.h>
-#include <basalt/api/gfx/surface.h>
 #include <basalt/api/gfx/backend/types.h>
+
+#include <basalt/api/shared/size2d.h>
 
 #include <gsl/span>
 
@@ -84,12 +85,15 @@ Vertices::Vertices(Engine& engine) {
   mDrawable = std::make_shared<MyDrawable>(triangle);
 }
 
-void Vertices::on_update(const basalt::UpdateContext& ctx) {
-  ctx.drawTarget.draw(mDrawable);
-}
-
 auto Vertices::name() -> string_view {
   return "Tutorial 2: Rendering Vertices"sv;
+}
+
+auto Vertices::drawable() -> basalt::gfx::DrawablePtr {
+  return mDrawable;
+}
+
+void Vertices::on_update(const basalt::UpdateContext&) {
 }
 
 } // namespace d3d9

@@ -6,7 +6,6 @@
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 
-#include <basalt/api/gfx/surface.h>
 #include <basalt/api/scene/transform.h>
 
 #include <basalt/api/math/constants.h>
@@ -26,7 +25,6 @@ using basalt::Engine;
 using basalt::PI;
 using basalt::Transform;
 using basalt::Vector3f32;
-using basalt::gfx::Device;
 using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::MeshDescriptor;
 using basalt::gfx::PrimitiveType;
@@ -89,6 +87,14 @@ Lights::Lights(Engine& engine)
   rc.material = engine.gfx_resource_cache().create_material(material);
 }
 
+auto Lights::name() -> string_view {
+  return "Tutorial 4: Creating and Using Lights"sv;
+}
+
+auto Lights::drawable() -> basalt::gfx::DrawablePtr {
+  return mSceneView;
+}
+
 void Lights::on_update(const basalt::UpdateContext& ctx) {
   const auto dt {static_cast<f32>(ctx.engine.delta_time())};
   auto& transform {mCylinder.get<Transform>()};
@@ -106,15 +112,9 @@ void Lights::on_update(const basalt::UpdateContext& ctx) {
                              std::sin(mLightAngle)};
   mScene->add_directional_light(Vector3f32::normalize(lightDir), Colors::WHITE);
 
-  ctx.drawTarget.draw(mSceneView);
-
   if (ctx.engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
-}
-
-auto Lights::name() -> string_view {
-  return "Tutorial 4: Creating and Using Lights"sv;
 }
 
 } // namespace d3d9

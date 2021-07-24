@@ -6,8 +6,6 @@
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 
-#include <basalt/api/gfx/surface.h>
-
 #include <basalt/api/scene/transform.h>
 
 #include <basalt/api/math/constants.h>
@@ -27,7 +25,6 @@ using basalt::Debug;
 using basalt::Engine;
 using basalt::PI;
 using basalt::Transform;
-using basalt::gfx::Device;
 using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::MeshDescriptor;
 using basalt::gfx::PrimitiveType;
@@ -96,19 +93,21 @@ Textures::Textures(Engine& engine)
   rc.material = engine.gfx_resource_cache().create_material(material);
 }
 
+auto Textures::name() -> string_view {
+  return "Tutorial 5: Using Texture Maps"sv;
+}
+
+auto Textures::drawable() -> basalt::gfx::DrawablePtr {
+  return mSceneView;
+}
+
 void Textures::on_update(const basalt::UpdateContext& ctx) {
   auto& transform {mCylinder.get<Transform>()};
   transform.rotate(static_cast<f32>(ctx.engine.delta_time()), 0.0f, 0.0f);
 
-  ctx.drawTarget.draw(mSceneView);
-
   if (ctx.engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
-}
-
-auto Textures::name() -> string_view {
-  return "Tutorial 5: Using Texture Maps"sv;
 }
 
 } // namespace d3d9

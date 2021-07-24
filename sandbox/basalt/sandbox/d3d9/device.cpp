@@ -4,7 +4,6 @@
 #include <basalt/api/prelude.h>
 
 #include <basalt/api/gfx/solid_color_view.h>
-#include <basalt/api/gfx/surface.h>
 
 #include <memory>
 
@@ -19,12 +18,15 @@ namespace d3d9 {
 Device::Device() : mDrawable {std::make_shared<SolidColorView>(Colors::BLUE)} {
 }
 
-void Device::on_update(const basalt::UpdateContext& ctx) {
-  ctx.drawTarget.draw(mDrawable);
-}
-
 auto Device::name() -> string_view {
   return "Tutorial 1: Creating a Device"sv;
+}
+
+auto Device::drawable() -> basalt::gfx::DrawablePtr {
+  return mDrawable;
+}
+
+void Device::on_update(const basalt::UpdateContext&) {
 }
 
 } // namespace d3d9

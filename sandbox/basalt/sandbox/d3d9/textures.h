@@ -22,8 +22,10 @@ struct Textures final : TestCase {
   auto operator=(const Textures&) -> Textures& = delete;
   auto operator=(Textures &&) -> Textures& = delete;
 
-  void on_update(const basalt::UpdateContext&) override;
   auto name() -> std::string_view override;
+  auto drawable() -> basalt::gfx::DrawablePtr override;
+
+  void on_update(const basalt::UpdateContext&) override;
 
 private:
   std::shared_ptr<basalt::Scene> mScene {std::make_shared<basalt::Scene>()};

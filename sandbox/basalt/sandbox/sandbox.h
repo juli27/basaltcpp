@@ -29,7 +29,7 @@ private:
   std::vector<std::unique_ptr<TestCase>> mScenes;
   basalt::uSize mCurrentSceneIndex {6};
 
-  void next_scene() noexcept;
-  void prev_scene() noexcept;
-  void set_scene(basalt::uSize index) noexcept;
+  void next_scene(basalt::Engine&) noexcept;
+  void prev_scene(basalt::Engine&) noexcept;
+  void set_scene(basalt::uSize index, basalt::Engine&) noexcept;
 };
