@@ -43,13 +43,8 @@ struct Engine {
 
   void set_window_mode(WindowMode) noexcept;
 
-  void load(Resource);
-
   template <typename T>
   auto get_or_load(Resource) -> T;
-
-  template <typename T>
-  auto get(ResourceId) -> T;
 
 protected:
   Config& mConfig;
@@ -75,11 +70,6 @@ template <>
 auto Engine::get_or_load(Resource) -> gfx::ext::XModel;
 template <>
 auto Engine::get_or_load(Resource) -> gfx::Texture;
-
-template <>
-[[nodiscard]] auto Engine::get(ResourceId) -> gfx::ext::XModel;
-template <>
-[[nodiscard]] auto Engine::get(ResourceId) -> gfx::Texture;
 
 void quit();
 

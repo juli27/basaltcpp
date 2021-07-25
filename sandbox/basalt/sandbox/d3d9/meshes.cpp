@@ -18,7 +18,6 @@ using namespace entt::literals;
 using basalt::Debug;
 using basalt::Engine;
 using basalt::Transform;
-using basalt::gfx::SceneView;
 using basalt::gfx::ext::XModel;
 
 namespace d3d9 {

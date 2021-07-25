@@ -58,10 +58,6 @@ void Engine::set_window_mode(const WindowMode windowMode) noexcept {
   mIsDirty = true;
 }
 
-void Engine::load(const Resource resource) {
-  get_or_load<gfx::ext::XModel>(resource);
-}
-
 Engine::Engine(Config& config, gfx::ContextPtr context) noexcept
   : mConfig {config}
   , mGfxContext {std::move(context)}
@@ -75,7 +71,7 @@ auto Engine::get_or_load(const Resource resource) -> gfx::ext::XModel {
   }
 
   if (mGfxResourceCache.is_loaded(resource)) {
-    return get<gfx::ext::XModel>(resource);
+    return mGfxResourceCache.get<gfx::ext::XModel>(resource);
   }
 
   return mGfxResourceCache.load<gfx::ext::XModel>(resource);
@@ -88,20 +84,10 @@ auto Engine::get_or_load(const Resource resource) -> gfx::Texture {
   }
 
   if (mGfxResourceCache.is_loaded(resource)) {
-    return get<gfx::Texture>(resource);
+    return mGfxResourceCache.get<gfx::Texture>(resource);
   }
 
   return mGfxResourceCache.load<gfx::Texture>(resource);
-}
-
-template <>
-auto Engine::get(const ResourceId id) -> gfx::ext::XModel {
-  return mGfxResourceCache.get<gfx::ext::XModel>(id);
-}
-
-template <>
-auto Engine::get(const ResourceId id) -> gfx::Texture {
-  return mGfxResourceCache.get<gfx::Texture>(id);
 }
 
 } // namespace basalt
