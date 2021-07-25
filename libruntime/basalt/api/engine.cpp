@@ -24,10 +24,6 @@ auto Engine::gfx_resource_cache() noexcept -> gfx::ResourceCache& {
   return mGfxResourceCache;
 }
 
-auto Engine::gfx_context() const noexcept -> gfx::Context& {
-  return *mGfxContext;
-}
-
 auto Engine::delta_time() const noexcept -> f64 {
   return mDeltaTime;
 }

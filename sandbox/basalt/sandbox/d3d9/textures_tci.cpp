@@ -103,10 +103,9 @@ TexturesTci::TexturesTci(Engine& engine) {
   rc.material = engine.gfx_resource_cache().create_material(material);
 
   const auto& camera = mSceneView->camera();
-  rc.texTransform =
-    camera.projection_matrix(engine.gfx_context().surface_size()) *
-    Mat4f32::scaling(Vector3f32 {0.5f, -0.5f, 1.0f}) *
-    Mat4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f});
+  rc.texTransform = camera.projection_matrix(engine.window_surface_size()) *
+                    Mat4f32::scaling(Vector3f32 {0.5f, -0.5f, 1.0f}) *
+                    Mat4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f});
 }
 
 auto TexturesTci::name() -> string_view {

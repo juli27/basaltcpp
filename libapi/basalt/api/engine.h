@@ -29,8 +29,6 @@ struct Engine {
   [[nodiscard]] auto resource_registry() const noexcept -> ResourceRegistry&;
   [[nodiscard]] auto gfx_resource_cache() noexcept -> gfx::ResourceCache&;
 
-  [[nodiscard]] auto gfx_context() const noexcept -> gfx::Context&;
-
   [[nodiscard]] auto delta_time() const noexcept -> f64;
   [[nodiscard]] auto window_surface_size() const -> Size2Du16;
 
