@@ -1,11 +1,13 @@
 #pragma once
 
 #include <basalt/api/shared/asserts.h>
+#include <basalt/api/shared/color.h>
 #include <basalt/api/shared/handle.h>
 
 #include <basalt/api/base/types.h>
 
 #include <memory>
+#include <variant>
 #include <vector>
 
 namespace basalt::gfx {
@@ -73,16 +75,25 @@ struct CommandT : Command {
   }
 };
 
-enum class RenderState : u8 {
+enum class RenderStateType : u8 {
   // vertex state
-  CullMode = 0,
+  CullMode,
   // - fixed function only
-  Ambient = 1,
-  Lighting = 2,
+  Ambient,
+  Lighting,
 };
 constexpr uSize RENDER_STATE_COUNT = 3u;
 
-enum CullMode : u8 { CullModeNone, CullModeCw, CullModeCcw };
+enum class CullMode : u8 {
+  None,
+  Clockwise,
+  CounterClockwise,
+};
+constexpr uSize CULL_MODE_COUNT = 3u;
+
+using RenderStateValue = std::variant<bool, CullMode, Color>;
+
+struct RenderState;
 
 enum class TextureStageState : u8 {
   CoordinateSource = 0,

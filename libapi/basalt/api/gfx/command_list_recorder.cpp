@@ -50,10 +50,9 @@ void CommandListRecorder::set_material(const Color& diffuse,
   }
 }
 
-void CommandListRecorder::set_render_state(const RenderState state,
-                                           const u32 value) {
-  if (mDeviceState.update(state, value)) {
-    mCommandList.add<CommandSetRenderState>(state, value);
+void CommandListRecorder::set_render_state(const RenderState& renderState) {
+  if (mDeviceState.update(renderState)) {
+    mCommandList.add<CommandSetRenderState>(renderState);
   }
 }
 

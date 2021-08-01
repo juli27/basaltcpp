@@ -8,6 +8,7 @@
 
 namespace basalt::gfx {
 
+// serialized commands which the gfx device should execute
 struct CommandList final {
   CommandList() noexcept = default;
 
@@ -17,7 +18,7 @@ struct CommandList final {
   ~CommandList() noexcept = default;
 
   auto operator=(const CommandList&) -> CommandList& = delete;
-  auto operator=(CommandList &&) -> CommandList& = default;
+  auto operator=(CommandList&&) -> CommandList& = default;
 
   [[nodiscard]] auto commands() const noexcept
     -> const std::vector<CommandPtr>&;

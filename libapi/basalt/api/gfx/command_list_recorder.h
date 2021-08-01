@@ -15,6 +15,7 @@
 
 namespace basalt::gfx {
 
+// command list with redundant state filtering
 struct CommandListRecorder final {
   void clear(const Color&);
   void draw(VertexBuffer, PrimitiveType, u32 startVertex, u32 primitiveCount);
@@ -22,7 +23,7 @@ struct CommandListRecorder final {
   void set_transform(TransformState, const Mat4f32&);
   void set_material(const Color& diffuse, const Color& ambient,
                     const Color& emissive);
-  void set_render_state(RenderState, u32 value);
+  void set_render_state(const RenderState&);
   void set_texture(Texture);
 
   // TODO: stage currently not supported

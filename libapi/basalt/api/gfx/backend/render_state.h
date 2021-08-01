@@ -1,0 +1,35 @@
+#pragma once
+
+#include <basalt/api/gfx/backend/types.h>
+#include <basalt/api/shared/color.h>
+
+#include <variant>
+
+namespace basalt::gfx {
+
+struct RenderState {
+  using Value = RenderStateValue;
+
+  constexpr RenderState(const RenderState&) = default;
+  constexpr RenderState(RenderState&&) = default;
+
+  constexpr auto operator=(const RenderState&) -> RenderState& = delete;
+  constexpr auto operator=(RenderState&&) -> RenderState& = delete;
+
+  [[nodiscard]] static auto cull_mode(CullMode) -> RenderState;
+  [[nodiscard]] static auto ambient(const Color&) -> RenderState;
+  [[nodiscard]] static auto lighting(bool enabled) -> RenderState;
+
+  [[nodiscard]] auto type() const noexcept -> RenderStateType;
+  [[nodiscard]] auto value() const noexcept -> Value;
+
+private:
+  const RenderStateType mType;
+  const Value mValue;
+
+  constexpr RenderState(const RenderStateType type, Value value)
+    : mType {type}, mValue {value} {
+  }
+};
+
+} // namespace basalt::gfx

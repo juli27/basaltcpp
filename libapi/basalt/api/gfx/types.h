@@ -1,6 +1,6 @@
 #pragma once
 
-#include "backend/types.h"
+#include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/math/mat4.h>
 
@@ -57,6 +57,7 @@ struct MaterialDescriptor final {
   Color diffuse;
   Color ambient;
 
+  // TODO: upgrade boolean flag to CullMode enum
   bool cullBackFace {true};
   bool lit {true};
 
@@ -85,7 +86,10 @@ struct MeshData final {
 };
 
 struct MaterialData final {
-  EnumArray<RenderState, u32, RENDER_STATE_COUNT> renderStates {};
+  using RenderStates =
+    EnumArray<RenderStateType, RenderStateValue, RENDER_STATE_COUNT>;
+
+  RenderStates renderStates {};
   EnumArray<TextureStageState, u32, TEXTURE_STAGE_STATE_COUNT>
     textureStageStates {};
 

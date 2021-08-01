@@ -71,12 +71,11 @@ auto ResourceCache::create_mesh(const MeshDescriptor& desc) -> Mesh {
 
 auto ResourceCache::create_material(const MaterialDescriptor& desc)
   -> Material {
-  auto [material, data] = mMaterials.allocate();
+  auto [handle, data] = mMaterials.allocate();
 
-  // TODO: Cw winding order? Or only support CCw
-  data.renderStates[RenderState::CullMode] =
-    desc.cullBackFace ? CullModeCcw : CullModeNone;
-  data.renderStates[RenderState::Lighting] = desc.lit;
+  data.renderStates[RenderStateType::CullMode] =
+    desc.cullBackFace ? CullMode::CounterClockwise : CullMode::None;
+  data.renderStates[RenderStateType::Lighting] = desc.lit;
 
   data.textureStageStates[TextureStageState::CoordinateSource] =
     convert(desc.textureCoordinateSource);
@@ -100,7 +99,7 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
   data.diffuse = desc.diffuse;
   data.ambient = desc.ambient;
 
-  return material;
+  return handle;
 }
 
 template <>

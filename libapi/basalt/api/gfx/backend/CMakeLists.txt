@@ -4,6 +4,8 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "command_list.h"
   "context.h"
   "device.h"
+  "render_state.cpp"
+  "render_state.h"
   "types.h"
   "utils.h"
 )

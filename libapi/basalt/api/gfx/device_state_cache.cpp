@@ -1,21 +1,18 @@
 #include <basalt/api/gfx/device_state_cache.h>
 
+#include <basalt/api/gfx/backend/render_state.h>
+
 namespace basalt::gfx {
 
 DeviceStateCache::DeviceStateCache() {
-  mRenderStates[RenderState::CullMode] = CullModeCcw;
-  mRenderStates[RenderState::Ambient] = 0u;
-  mRenderStates[RenderState::Lighting] = true;
-
   mTextureStates[TextureStageState::CoordinateSource] = TcsVertex;
   mTextureStates[TextureStageState::TextureTransformFlags] = TtfDisabled;
 }
 
-auto DeviceStateCache::update(const RenderState state, const u32 value) noexcept
-  -> bool {
-  auto& currentValue = mRenderStates[state];
-  if (currentValue != value) {
-    currentValue = value;
+auto DeviceStateCache::update(const RenderState& renderState) noexcept -> bool {
+  if (auto& currentValue = mRenderStates[renderState.type()];
+      currentValue != renderState.value()) {
+    currentValue = renderState.value();
     return true;
   }
 

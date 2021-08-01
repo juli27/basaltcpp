@@ -23,6 +23,7 @@
 
 #include <array>
 #include <string>
+#include <variant>
 
 using std::array;
 using std::string;
@@ -168,6 +169,21 @@ void display(const CommandSetDirectionalLights& cmd) {
   }
 }
 
+auto to_string(const CullMode mode) -> const char* {
+  switch (mode) {
+  case CullMode::None:
+    return "CullMode::None";
+
+  case CullMode::Clockwise:
+    return "CullMode::Clockwise";
+
+  case CullMode::CounterClockwise:
+    return "CullMode::CounterClockwise";
+  }
+
+  return "(unknown)";
+}
+
 auto to_string(const TransformState state) -> const char* {
   switch (state) {
   case TransformState::Projection:
@@ -232,16 +248,16 @@ void display(const CommandSetMaterial& cmd) {
   }
 }
 
-auto to_string(const RenderState state) -> const char* {
+auto to_string(const RenderStateType state) -> const char* {
   switch (state) {
-  case RenderState::Lighting:
-    return "RenderState::Lighting";
+  case RenderStateType::Lighting:
+    return "RenderStateType::Lighting";
 
-  case RenderState::Ambient:
-    return "RenderState::Ambient";
+  case RenderStateType::Ambient:
+    return "RenderStateType::Ambient";
 
-  case RenderState::CullMode:
-    return "RenderState::CullMode";
+  case RenderStateType::CullMode:
+    return "RenderStateType::CullMode";
   }
 
   return "(unknown)";
@@ -250,8 +266,26 @@ auto to_string(const RenderState state) -> const char* {
 void display(const CommandSetRenderState& cmd) {
   ImGui::TextUnformatted("SetRenderState");
   if (ImGui::IsItemHovered()) {
-    ImGui::SetTooltip("renderState = %s\nvalue = %#x",
-                      to_string(cmd.renderState), cmd.value);
+    ImGui::BeginTooltip();
+
+    ImGui::Text("type = %s", to_string(cmd.renderState.type()));
+
+    std::visit(
+      [](auto&& value) {
+        using T = std::decay_t<decltype(value)>;
+        if constexpr (std::is_same_v<T, bool>) {
+          ImGui::Text("value = %s", value ? "true" : "false");
+        } else if constexpr (std::is_same_v<T, CullMode>) {
+          ImGui::Text("mode = %s", to_string(value));
+        } else if constexpr (std::is_same_v<T, Color>) {
+          display_color4("color", value);
+        } else {
+          static_assert(false, "non-exhaustive visitor");
+        }
+      },
+      cmd.renderState.value());
+
+    ImGui::EndTooltip();
   }
 }
 

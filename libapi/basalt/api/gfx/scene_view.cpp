@@ -1,9 +1,10 @@
-#include "scene_view.h"
+#include <basalt/api/gfx/scene_view.h>
 
 #include <basalt/api/gfx/command_list_recorder.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/types.h>
 
+#include <basalt/api/gfx/backend/render_state.h>
 #include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/scene/transform.h>
@@ -14,10 +15,9 @@
 
 #include <basalt/api/shared/size2d.h>
 
-#include <basalt/api/base/utils.h>
-
 #include <entt/entity/registry.hpp>
 
+#include <variant>
 #include <utility>
 
 namespace basalt::gfx {
@@ -26,10 +26,11 @@ namespace {
 
 void record_material(CommandListRecorder& cmdList,
                      const MaterialData& material) {
-  cmdList.set_render_state(RenderState::CullMode,
-                           material.renderStates[RenderState::CullMode]);
-  cmdList.set_render_state(RenderState::Lighting,
-                           material.renderStates[RenderState::Lighting]);
+  cmdList.set_render_state(RenderState::cull_mode(
+    std::get<CullMode>(material.renderStates[RenderStateType::CullMode])));
+
+  cmdList.set_render_state(RenderState::lighting(
+    std::get<bool>(material.renderStates[RenderStateType::Lighting])));
 
   cmdList.set_texture_stage_state(
     0, TextureStageState::CoordinateSource,
@@ -62,8 +63,7 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport,
                         mCamera.projection_matrix(viewport));
   cmdList.set_transform(TransformState::View, mCamera.view_matrix());
 
-  cmdList.set_render_state(RenderState::Ambient,
-                           enum_cast(mScene->ambient_light().to_argb()));
+  cmdList.set_render_state(RenderState::ambient(mScene->ambient_light()));
 
   const auto& directionalLights = mScene->directional_lights();
   if (!directionalLights.empty()) {

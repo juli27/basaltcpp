@@ -1,5 +1,6 @@
 #pragma once
 
+#include <basalt/api/gfx/backend/render_state.h>
 #include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/scene/types.h>
@@ -11,6 +12,7 @@
 #include <basalt/api/base/types.h>
 
 #include <array>
+#include <utility>
 
 namespace basalt::gfx {
 
@@ -76,15 +78,13 @@ static_assert(sizeof(CommandSetMaterial) == 52);
 
 struct CommandSetRenderState final : CommandT<CommandType::SetRenderState> {
   RenderState renderState;
-  u32 value;
 
-  constexpr CommandSetRenderState(const RenderState state,
-                                  const u32 val) noexcept
-    : renderState {state}, value {val} {
+  constexpr explicit CommandSetRenderState(RenderState state) noexcept
+    : renderState {std::move(state)} {
   }
 };
 
-static_assert(sizeof(CommandSetRenderState) == 8);
+static_assert(sizeof(CommandSetRenderState) == 28);
 
 struct CommandSetTextureStageState final
   : CommandT<CommandType::SetTextureStageState> {

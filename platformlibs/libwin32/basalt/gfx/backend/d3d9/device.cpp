@@ -16,6 +16,7 @@
 #include <basalt/api/shared/color.h>
 #include <basalt/api/shared/log.h>
 
+#include <basalt/api/base/enum_array.h>
 #include <basalt/api/base/utils.h>
 
 #include <imgui/imgui.h>
@@ -27,6 +28,7 @@
 #include <stdexcept>
 #include <tuple>
 #include <utility>
+#include <variant>
 #include <vector>
 
 using std::array;
@@ -65,8 +67,49 @@ auto verify_fvf(DWORD fvf) -> bool;
 
 #endif
 
-auto to_d3d_render_state(RenderState, u32 value)
-  -> std::tuple<D3DRENDERSTATETYPE, DWORD>;
+auto to_d3d(const CullMode mode) -> D3DCULL {
+  static constexpr EnumArray<CullMode, D3DCULL, 3> TO_D3D {
+    {CullMode::None, D3DCULL_NONE},
+    {CullMode::Clockwise, D3DCULL_CW},
+    {CullMode::CounterClockwise, D3DCULL_CCW},
+  };
+
+  static_assert(CULL_MODE_COUNT == TO_D3D.size());
+
+  return TO_D3D[mode];
+}
+
+auto to_d3d(const RenderState& rs)
+  -> std::tuple<D3DRENDERSTATETYPE, DWORD> {
+  static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 3> TO_D3D {
+    {RenderStateType::CullMode, D3DRS_CULLMODE},
+    {RenderStateType::Ambient, D3DRS_AMBIENT},
+    {RenderStateType::Lighting, D3DRS_LIGHTING},
+  };
+
+  static_assert(RENDER_STATE_COUNT == TO_D3D.size());
+
+  const D3DRENDERSTATETYPE d3dRs = TO_D3D[rs.type()];
+
+  const DWORD d3dValue = std::visit(
+    [](auto&& value) -> DWORD {
+      using T = std::decay_t<decltype(value)>;
+      if constexpr (std::is_same_v<T, bool>) {
+        return value ? TRUE : FALSE;
+      } else if constexpr (std::is_same_v<T, CullMode>) {
+        return to_d3d(value);
+      } else if constexpr (std::is_same_v<T, Color>) {
+        return enum_cast(value.to_argb());
+      } else {
+        static_assert(false, "non-exhaustive visitor");
+
+        return 0ul;
+      }
+    },
+    rs.value());
+
+  return {d3dRs, d3dValue};
+}
 
 auto to_d3d_texture_stage_state(TextureStageState state, u32 value)
   -> std::tuple<D3DTEXTURESTAGESTATETYPE, DWORD>;
@@ -326,8 +369,7 @@ void D3D9Device::execute(const CommandSetMaterial& cmd) const {
 }
 
 void D3D9Device::execute(const CommandSetRenderState& cmd) const {
-  const auto [renderState, value] =
-    to_d3d_render_state(cmd.renderState, cmd.value);
+  const auto [renderState, value] = to_d3d(cmd.renderState);
 
   D3D9CALL(mDevice->SetRenderState(renderState, value));
 }
@@ -393,32 +435,6 @@ auto verify_fvf(const DWORD fvf) -> bool {
 }
 
 #endif
-
-auto to_d3d_render_state(const RenderState rs, const u32 value)
-  -> std::tuple<D3DRENDERSTATETYPE, DWORD> {
-  static constexpr std::array<D3DRENDERSTATETYPE, 3> RENDER_STATE_TO_D3D = {
-    /* RenderState::CullMode */ D3DRS_CULLMODE,
-    /* RenderState::Ambient  */ D3DRS_AMBIENT,
-    /* RenderState::Lighting */ D3DRS_LIGHTING,
-  };
-  static_assert(RENDER_STATE_COUNT == RENDER_STATE_TO_D3D.size());
-
-  const D3DRENDERSTATETYPE renderState = RENDER_STATE_TO_D3D[enum_cast(rs)];
-  DWORD d3dValue = 0;
-
-  switch (rs) {
-  case RenderState::CullMode:
-    d3dValue = value + 1;
-    break;
-
-  case RenderState::Lighting:
-  case RenderState::Ambient:
-    d3dValue = value;
-    break;
-  }
-
-  return {renderState, d3dValue};
-}
 
 auto to_d3d_texture_stage_state(const TextureStageState state, const u32 value)
   -> std::tuple<D3DTEXTURESTAGESTATETYPE, DWORD> {
