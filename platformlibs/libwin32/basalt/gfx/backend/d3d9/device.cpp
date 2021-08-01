@@ -27,6 +27,7 @@
 #include <limits>
 #include <stdexcept>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -79,12 +80,36 @@ auto to_d3d(const CullMode mode) -> D3DCULL {
   return TO_D3D[mode];
 }
 
-auto to_d3d(const RenderState& rs)
-  -> std::tuple<D3DRENDERSTATETYPE, DWORD> {
-  static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 3> TO_D3D {
+auto to_d3d(const FillMode mode) -> D3DFILLMODE {
+  static constexpr EnumArray<FillMode, D3DFILLMODE, 3> TO_D3D {
+    {FillMode::Point, D3DFILL_POINT},
+    {FillMode::Wireframe, D3DFILL_WIREFRAME},
+    {FillMode::Solid, D3DFILL_SOLID},
+  };
+
+  static_assert(FILL_MODE_COUNT == TO_D3D.size());
+
+  return TO_D3D[mode];
+}
+
+auto to_d3d(const ShadeMode mode) -> D3DSHADEMODE {
+  static constexpr EnumArray<ShadeMode, D3DSHADEMODE, 2> TO_D3D {
+    {ShadeMode::Flat, D3DSHADE_FLAT},
+    {ShadeMode::Gouraud, D3DSHADE_GOURAUD},
+  };
+
+  static_assert(SHADE_MODE_COUNT == TO_D3D.size());
+
+  return TO_D3D[mode];
+}
+
+auto to_d3d(const RenderState& rs) -> std::tuple<D3DRENDERSTATETYPE, DWORD> {
+  static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 5> TO_D3D {
     {RenderStateType::CullMode, D3DRS_CULLMODE},
     {RenderStateType::Ambient, D3DRS_AMBIENT},
     {RenderStateType::Lighting, D3DRS_LIGHTING},
+    {RenderStateType::FillMode, D3DRS_FILLMODE},
+    {RenderStateType::ShadeMode, D3DRS_SHADEMODE},
   };
 
   static_assert(RENDER_STATE_COUNT == TO_D3D.size());
@@ -96,7 +121,9 @@ auto to_d3d(const RenderState& rs)
       using T = std::decay_t<decltype(value)>;
       if constexpr (std::is_same_v<T, bool>) {
         return value ? TRUE : FALSE;
-      } else if constexpr (std::is_same_v<T, CullMode>) {
+      } else if constexpr (std::disjunction_v<std::is_same<T, CullMode>,
+                                              std::is_same<T, FillMode>,
+                                              std::is_same<T, ShadeMode>>) {
         return to_d3d(value);
       } else if constexpr (std::is_same_v<T, Color>) {
         return enum_cast(value.to_argb());
@@ -225,6 +252,8 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
   D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
   D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
+  D3D9CALL(mDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
+  D3D9CALL(mDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD));
 
   const auto identity = to_d3d_matrix(Mat4f32::identity());
   D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &identity));

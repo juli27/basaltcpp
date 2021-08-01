@@ -30,13 +30,16 @@ private:
   };
 
   using RenderStateArray =
-    EnumArray<RenderStateType, RenderStateValue, RENDER_STATE_COUNT>;
+    EnumArray<RenderStateType, RenderStateValue, 5>;
 
   RenderStateArray mRenderStates {
     {RenderStateType::CullMode, CullMode::CounterClockwise},
     {RenderStateType::Ambient, Color {0.0f, 0.0f, 0.0f, 0.0f}},
     {RenderStateType::Lighting, true},
+    {RenderStateType::FillMode, FillMode::Solid},
+    {RenderStateType::ShadeMode, ShadeMode::Gouraud},
   };
+
   EnumArray<TextureStageState, u32, TEXTURE_STAGE_STATE_COUNT> mTextureStates;
   EnumArray<TransformState, Mat4f32, TRANSFORM_STATE_COUNT> mTransforms;
   Material mMaterial;

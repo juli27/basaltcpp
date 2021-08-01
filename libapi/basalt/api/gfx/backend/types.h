@@ -81,8 +81,13 @@ enum class RenderStateType : u8 {
   // - fixed function only
   Ambient,
   Lighting,
+
+  // pixel state
+  FillMode,
+  // - fixed function only
+  ShadeMode,
 };
-constexpr uSize RENDER_STATE_COUNT = 3u;
+constexpr uSize RENDER_STATE_COUNT = 5u;
 
 enum class CullMode : u8 {
   None,
@@ -91,7 +96,21 @@ enum class CullMode : u8 {
 };
 constexpr uSize CULL_MODE_COUNT = 3u;
 
-using RenderStateValue = std::variant<bool, CullMode, Color>;
+enum class FillMode : u8 {
+  Point,
+  Wireframe,
+  Solid,
+};
+constexpr uSize FILL_MODE_COUNT = 3u;
+
+enum class ShadeMode : u8 {
+  Flat,
+  Gouraud,
+};
+constexpr uSize SHADE_MODE_COUNT = 2u;
+
+using RenderStateValue =
+  std::variant<bool, CullMode, FillMode, ShadeMode, Color>;
 
 struct RenderState;
 

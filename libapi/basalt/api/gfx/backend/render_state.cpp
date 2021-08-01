@@ -14,6 +14,14 @@ auto RenderState::lighting(const bool enabled) -> RenderState {
   return RenderState {RenderStateType::Lighting, enabled};
 }
 
+auto RenderState::fill_mode(const FillMode mode) -> RenderState {
+  return RenderState {RenderStateType::FillMode, mode};
+}
+
+auto RenderState::shade_mode(const ShadeMode mode) -> RenderState {
+  return RenderState {RenderStateType::ShadeMode, mode};
+}
+
 auto RenderState::type() const noexcept -> RenderStateType {
   return mType;
 }

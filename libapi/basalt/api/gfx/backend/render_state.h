@@ -19,6 +19,8 @@ struct RenderState {
   [[nodiscard]] static auto cull_mode(CullMode) -> RenderState;
   [[nodiscard]] static auto ambient(const Color&) -> RenderState;
   [[nodiscard]] static auto lighting(bool enabled) -> RenderState;
+  [[nodiscard]] static auto fill_mode(FillMode) -> RenderState;
+  [[nodiscard]] static auto shade_mode(ShadeMode) -> RenderState;
 
   [[nodiscard]] auto type() const noexcept -> RenderStateType;
   [[nodiscard]] auto value() const noexcept -> Value;
