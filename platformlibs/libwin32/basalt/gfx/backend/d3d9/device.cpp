@@ -103,12 +103,32 @@ auto to_d3d(const ShadeMode mode) -> D3DSHADEMODE {
   return TO_D3D[mode];
 }
 
+// TODO: is there a benefit to turn off z testing when func = Never?
+auto to_d3d(const DepthTestPass function) -> D3DCMPFUNC {
+  static constexpr EnumArray<DepthTestPass, D3DCMPFUNC, 8> TO_D3D {
+    {DepthTestPass::Never, D3DCMP_NEVER},
+    {DepthTestPass::IfEqual, D3DCMP_EQUAL},
+    {DepthTestPass::IfNotEqual, D3DCMP_NOTEQUAL},
+    {DepthTestPass::IfLess, D3DCMP_LESS},
+    {DepthTestPass::IfLessEqual, D3DCMP_LESSEQUAL},
+    {DepthTestPass::IfGreater, D3DCMP_GREATER},
+    {DepthTestPass::IfGreaterEqual, D3DCMP_GREATEREQUAL},
+    {DepthTestPass::Always, D3DCMP_ALWAYS},
+  };
+
+  static_assert(DEPTH_TEST_PASS_COUNT == TO_D3D.size());
+
+  return TO_D3D[function];
+}
+
 auto to_d3d(const RenderState& rs) -> std::tuple<D3DRENDERSTATETYPE, DWORD> {
-  static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 5> TO_D3D {
+  static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 7> TO_D3D {
     {RenderStateType::CullMode, D3DRS_CULLMODE},
     {RenderStateType::Ambient, D3DRS_AMBIENT},
     {RenderStateType::Lighting, D3DRS_LIGHTING},
     {RenderStateType::FillMode, D3DRS_FILLMODE},
+    {RenderStateType::DepthTest, D3DRS_ZFUNC},
+    {RenderStateType::DepthWrite, D3DRS_ZWRITEENABLE},
     {RenderStateType::ShadeMode, D3DRS_SHADEMODE},
   };
 
@@ -123,7 +143,8 @@ auto to_d3d(const RenderState& rs) -> std::tuple<D3DRENDERSTATETYPE, DWORD> {
         return value ? TRUE : FALSE;
       } else if constexpr (std::disjunction_v<std::is_same<T, CullMode>,
                                               std::is_same<T, FillMode>,
-                                              std::is_same<T, ShadeMode>>) {
+                                              std::is_same<T, ShadeMode>,
+                                              std::is_same<T, DepthTestPass>>) {
         return to_d3d(value);
       } else if constexpr (std::is_same_v<T, Color>) {
         return enum_cast(value.to_argb());
@@ -213,7 +234,6 @@ void D3D9Device::begin_execution() const {
     execute(cmd->as<commandType>());                                           \
     break
 
-// TODO: shading mode
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
 void D3D9Device::execute(const CommandList& cmdList) {
   for (const auto& cmd : cmdList.commands()) {
@@ -253,6 +273,7 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
   D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
   D3D9CALL(mDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
+  D3D9CALL(mDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL));
   D3D9CALL(mDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD));
 
   const auto identity = to_d3d_matrix(Mat4f32::identity());

@@ -263,6 +263,12 @@ auto to_string(const RenderStateType state) -> const char* {
   case RenderStateType::FillMode:
     return "RenderStateType::FillMode";
 
+  case RenderStateType::DepthTest:
+    return "RenderStateType::DepthTest";
+
+  case RenderStateType::DepthWrite:
+    return "RenderStateType::DepthWrite";
+
   case RenderStateType::ShadeMode:
     return "RenderStateType::ShadeMode";
   }
@@ -297,6 +303,36 @@ auto to_string(const ShadeMode mode) -> const char* {
   return "(unknown)";
 }
 
+auto to_string(const DepthTestPass func) -> const char* {
+  switch (func) {
+  case DepthTestPass::Never:
+    return "DepthTestPass::Never";
+
+  case DepthTestPass::IfEqual:
+    return "DepthTestPass::IfEqual";
+
+  case DepthTestPass::IfNotEqual:
+    return "DepthTestPass::IfNotEqual";
+
+  case DepthTestPass::IfLess:
+    return "DepthTestPass::IfLess";
+
+  case DepthTestPass::IfLessEqual:
+    return "DepthTestPass::IfLessEqual";
+
+  case DepthTestPass::IfGreater:
+    return "DepthTestPass::IfGreater";
+
+  case DepthTestPass::IfGreaterEqual:
+    return "DepthTestPass::IfGreaterEqual";
+
+  case DepthTestPass::Always:
+    return "DepthTestPass::Always";
+  }
+
+  return "(unknown)";
+}
+
 void display(const CommandSetRenderState& cmd) {
   ImGui::TextUnformatted("SetRenderState");
   if (ImGui::IsItemHovered()) {
@@ -308,11 +344,13 @@ void display(const CommandSetRenderState& cmd) {
       [](auto&& value) {
         using T = std::decay_t<decltype(value)>;
         if constexpr (std::is_same_v<T, bool>) {
-          ImGui::Text("value = %s", value ? "true" : "false");
-        } else if constexpr (std::disjunction_v<std::is_same<T, CullMode>,
-                                                std::is_same<T, FillMode>,
-                                                std::is_same<T, ShadeMode>>) {
-          ImGui::Text("mode = %s", to_string(value));
+          ImGui::Text("enabled = %s", value ? "true" : "false");
+        } else if constexpr (std::disjunction_v<
+                               std::is_same<T, CullMode>,
+                               std::is_same<T, FillMode>,
+                               std::is_same<T, ShadeMode>,
+                               std::is_same<T, DepthTestPass>>) {
+          ImGui::TextUnformatted(to_string(value));
         } else if constexpr (std::is_same_v<T, Color>) {
           display_color4("color", value);
         } else {

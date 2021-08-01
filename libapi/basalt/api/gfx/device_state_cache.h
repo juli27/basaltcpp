@@ -29,14 +29,15 @@ private:
     Color emissive;
   };
 
-  using RenderStateArray =
-    EnumArray<RenderStateType, RenderStateValue, 5>;
+  using RenderStateArray = EnumArray<RenderStateType, RenderStateValue, 7>;
 
   RenderStateArray mRenderStates {
     {RenderStateType::CullMode, CullMode::CounterClockwise},
     {RenderStateType::Ambient, Color {0.0f, 0.0f, 0.0f, 0.0f}},
     {RenderStateType::Lighting, true},
     {RenderStateType::FillMode, FillMode::Solid},
+    {RenderStateType::DepthTest, DepthTestPass::IfLessEqual},
+    {RenderStateType::DepthWrite, true},
     {RenderStateType::ShadeMode, ShadeMode::Gouraud},
   };
 

@@ -84,10 +84,12 @@ enum class RenderStateType : u8 {
 
   // pixel state
   FillMode,
+  DepthTest,
+  DepthWrite,
   // - fixed function only
   ShadeMode,
 };
-constexpr uSize RENDER_STATE_COUNT = 5u;
+constexpr uSize RENDER_STATE_COUNT = 7u;
 
 enum class CullMode : u8 {
   None,
@@ -109,8 +111,20 @@ enum class ShadeMode : u8 {
 };
 constexpr uSize SHADE_MODE_COUNT = 2u;
 
+enum class DepthTestPass : u8 {
+  Never,
+  IfEqual,
+  IfNotEqual,
+  IfLess,
+  IfLessEqual,
+  IfGreater,
+  IfGreaterEqual,
+  Always,
+};
+constexpr uSize DEPTH_TEST_PASS_COUNT = 8u;
+
 using RenderStateValue =
-  std::variant<bool, CullMode, FillMode, ShadeMode, Color>;
+  std::variant<bool, CullMode, FillMode, ShadeMode, DepthTestPass, Color>;
 
 struct RenderState;
 
