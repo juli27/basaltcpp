@@ -274,6 +274,7 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
   D3D9CALL(mDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
   D3D9CALL(mDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL));
+  D3D9CALL(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
   D3D9CALL(mDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD));
 
   const auto identity = to_d3d_matrix(Mat4f32::identity());
@@ -455,11 +456,11 @@ auto to_fvf(const VertexLayout& layout) -> DWORD {
       fvf |= D3DFVF_NORMAL;
       break;
 
-    case VertexElement::ColorDiffuse1U32:
+    case VertexElement::ColorDiffuseA8R8G8B8_U32:
       fvf |= D3DFVF_DIFFUSE;
       break;
 
-    case VertexElement::ColorSpecular1U32:
+    case VertexElement::ColorSpecularA8R8G8B8_U32:
       fvf |= D3DFVF_SPECULAR;
       break;
 

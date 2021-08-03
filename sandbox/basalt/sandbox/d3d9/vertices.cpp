@@ -45,8 +45,8 @@ struct MyDrawable final : Drawable {
     cmdList.clear(Colors::BLUE);
 
     const auto& mesh = cache.get(mTriangle);
-    cmdList.draw(mesh.vertexBuffer, mesh.primitiveType,
-                         mesh.startVertex, mesh.primitiveCount);
+    cmdList.draw(mesh.vertexBuffer, mesh.startVertex, mesh.primitiveType,
+                 mesh.primitiveCount);
 
     return {cmdList.take_cmd_list(), viewport.to_rectangle()};
   }
@@ -68,14 +68,14 @@ Vertices::Vertices(Engine& engine) {
 
   const array<Vertex, 3u> vertices {
     Vertex {150.0f, 50.0f, 0.5f, 1.0f,
-            ColorEncoding::pack_logical_a8r8g8b8(255, 0, 0)},
+            ColorEncoding::pack_a8r8g8b8_u32(255, 0, 0)},
     Vertex {250.0f, 250.0f, 0.5f, 1.0f,
-            ColorEncoding::pack_logical_a8r8g8b8(0, 255, 0)},
+            ColorEncoding::pack_a8r8g8b8_u32(0, 255, 0)},
     Vertex {50.0f, 250.0f, 0.5f, 1.0f,
-            ColorEncoding::pack_logical_a8r8g8b8(0, 255, 255)}};
+            ColorEncoding::pack_a8r8g8b8_u32(0, 255, 255)}};
 
   const VertexLayout vertexLayout {VertexElement::PositionTransformed4F32,
-                                   VertexElement::ColorDiffuse1U32};
+                                   VertexElement::ColorDiffuseA8R8G8B8_U32};
 
   const MeshDescriptor mesh {as_bytes(gsl::span {vertices}), vertexLayout,
                              PrimitiveType::TriangleList,

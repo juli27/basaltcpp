@@ -22,6 +22,9 @@ struct Surface;
 struct Drawable;
 using DrawablePtr = std::shared_ptr<Drawable>;
 
+struct SceneView;
+using SceneViewPtr = std::shared_ptr<SceneView>;
+
 struct ResourceCache;
 
 namespace detail {

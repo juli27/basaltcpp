@@ -60,7 +60,7 @@ Textures::Textures(Engine& engine)
     vertex1.x = sinTheta;
     vertex1.y = -1.0f;
     vertex1.z = cosTheta;
-    vertex1.color = ColorEncoding::pack_logical_a8r8g8b8(255, 255, 255);
+    vertex1.color = ColorEncoding::pack_a8r8g8b8_u32(255, 255, 255);
     vertex1.u = i / (50.0f - 1);
     vertex1.v = 1.0f;
 
@@ -68,13 +68,13 @@ Textures::Textures(Engine& engine)
     vertex2.x = sinTheta;
     vertex2.y = 1.0f;
     vertex2.z = cosTheta;
-    vertex2.color = ColorEncoding::pack_logical_a8r8g8b8(128, 128, 128);
+    vertex2.color = ColorEncoding::pack_a8r8g8b8_u32(128, 128, 128);
     vertex2.u = i / (50.0f - 1);
     vertex2.v = 0.0f;
   }
 
   const VertexLayout vertexLayout {VertexElement::Position3F32,
-                                   VertexElement::ColorDiffuse1U32,
+                                   VertexElement::ColorDiffuseA8R8G8B8_U32,
                                    VertexElement::TextureCoords2F32};
 
   const MeshDescriptor mesh {as_bytes(gsl::span {vertices}), vertexLayout,

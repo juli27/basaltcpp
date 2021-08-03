@@ -22,7 +22,7 @@ struct Color final : vec<Color, f32, 4> {
     const auto b = static_cast<u8>(blue() * 255.0f);
     const auto a = static_cast<u8>(alpha() * 255.0f);
 
-    return ColorEncoding::pack_logical_a8r8g8b8(r, g, b, a);
+    return ColorEncoding::pack_a8r8g8b8_u32(r, g, b, a);
   }
 
   [[nodiscard]] constexpr auto red() const noexcept -> f32 {

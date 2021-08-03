@@ -17,8 +17,8 @@ void CommandListRecorder::clear(const Color& color) {
 }
 
 void CommandListRecorder::draw(const VertexBuffer vertexBuffer,
-                               const PrimitiveType primitiveType,
                                const u32 startVertex,
+                               const PrimitiveType primitiveType,
                                const u32 primitiveCount) {
   mCommandList.add<CommandDraw>(vertexBuffer, primitiveType, startVertex,
                                 primitiveCount);

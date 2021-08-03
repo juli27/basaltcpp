@@ -109,8 +109,8 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport,
       }
 
       const auto& meshData = cache.get(renderComponent.mesh);
-      cmdList.draw(meshData.vertexBuffer, meshData.primitiveType,
-                   meshData.startVertex, meshData.primitiveCount);
+      cmdList.draw(meshData.vertexBuffer, meshData.startVertex,
+                   meshData.primitiveType, meshData.primitiveCount);
     });
 
   return {cmdList.take_cmd_list(), viewport.to_rectangle()};

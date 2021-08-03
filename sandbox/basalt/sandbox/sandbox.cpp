@@ -8,6 +8,8 @@
 #include <basalt/sandbox/d3d9/textures_tci.h>
 #include <basalt/sandbox/d3d9/vertices.h>
 
+#include <basalt/sandbox/tribase/02-03_dreieck.h>
+
 #include <basalt/api/engine.h>
 #include <basalt/api/input_layer.h>
 #include <basalt/api/prelude.h>
@@ -44,7 +46,7 @@ auto ClientApp::create(Engine& engine) -> unique_ptr<ClientApp> {
 SandboxApp::SandboxApp(Engine& engine) : mInput {std::make_shared<Input>()} {
   engine.push_input_layer(mInput);
 
-  mScenes.reserve(7u);
+  mScenes.reserve(8u);
   mScenes.emplace_back(std::make_unique<d3d9::Device>());
   mScenes.emplace_back(std::make_unique<d3d9::Vertices>(engine));
   mScenes.emplace_back(std::make_unique<d3d9::Matrices>(engine));
@@ -52,6 +54,8 @@ SandboxApp::SandboxApp(Engine& engine) : mInput {std::make_shared<Input>()} {
   mScenes.emplace_back(std::make_unique<d3d9::Textures>(engine));
   mScenes.emplace_back(std::make_unique<d3d9::TexturesTci>(engine));
   mScenes.emplace_back(std::make_unique<d3d9::Meshes>(engine));
+
+  mScenes.emplace_back(std::make_unique<tribase::Dreieck>(engine));
 
   engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
 }

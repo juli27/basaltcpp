@@ -92,8 +92,6 @@ function(basalt_add_app APP_NAME)
 
   set_target_properties(${CURRENT_TARGET} PROPERTIES
     FOLDER ${APP_NAME}
-    OUTPUT_NAME ${APP_NAME}
-    RUNTIME_OUTPUT_DIRECTORY "win32"
     VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     VS_JUST_MY_CODE_DEBUGGING "$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>"
   )

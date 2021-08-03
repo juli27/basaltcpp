@@ -69,17 +69,17 @@ TexturesTci::TexturesTci(Engine& engine) {
     vertex1.x = sinTheta;
     vertex1.y = -1.0f;
     vertex1.z = cosTheta;
-    vertex1.color = ColorEncoding::pack_logical_a8r8g8b8(255, 255, 255);
+    vertex1.color = ColorEncoding::pack_a8r8g8b8_u32(255, 255, 255);
 
     auto& vertex2 = vertices[2 * i + 1];
     vertex2.x = sinTheta;
     vertex2.y = 1.0f;
     vertex2.z = cosTheta;
-    vertex2.color = ColorEncoding::pack_logical_a8r8g8b8(128, 128, 128);
+    vertex2.color = ColorEncoding::pack_a8r8g8b8_u32(128, 128, 128);
   }
 
   const VertexLayout vertexLayout {VertexElement::Position3F32,
-                                   VertexElement::ColorDiffuse1U32};
+                                   VertexElement::ColorDiffuseA8R8G8B8_U32};
 
   auto& rc = mCylinder.emplace<RenderComponent>();
 

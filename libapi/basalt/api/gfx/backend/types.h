@@ -149,8 +149,8 @@ enum class VertexElement : u8 {
   Position3F32,
   PositionTransformed4F32,
   Normal3F32,
-  ColorDiffuse1U32,
-  ColorSpecular1U32,
+  ColorDiffuseA8R8G8B8_U32,
+  ColorSpecularA8R8G8B8_U32,
   TextureCoords2F32
 };
 

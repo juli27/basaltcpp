@@ -27,7 +27,7 @@ private:
 
   std::shared_ptr<Input> mInput;
   std::vector<std::unique_ptr<TestCase>> mScenes;
-  basalt::uSize mCurrentSceneIndex {6};
+  basalt::uSize mCurrentSceneIndex {7};
 
   void next_scene(basalt::Engine&) noexcept;
   void prev_scene(basalt::Engine&) noexcept;

@@ -42,14 +42,12 @@ Matrices::Matrices(Engine& engine)
   };
 
   const array<Vertex, 3u> vertices {
-    Vertex {-1.0f, -1.0f, 0.0f,
-            ColorEncoding::pack_logical_a8r8g8b8(255, 0, 0)},
-    Vertex {1.0f, -1.0f, 0.0f, ColorEncoding::pack_logical_a8r8g8b8(0, 0, 255)},
-    Vertex {0.0f, 1.0f, 0.0f,
-            ColorEncoding::pack_logical_a8r8g8b8(255, 255, 255)}};
+    Vertex {-1.0f, -1.0f, 0.0f, ColorEncoding::pack_a8r8g8b8_u32(255, 0, 0)},
+    Vertex {1.0f, -1.0f, 0.0f, ColorEncoding::pack_a8r8g8b8_u32(0, 0, 255)},
+    Vertex {0.0f, 1.0f, 0.0f, ColorEncoding::pack_a8r8g8b8_u32(255, 255, 255)}};
 
   const VertexLayout vertexLayout {VertexElement::Position3F32,
-                                   VertexElement::ColorDiffuse1U32};
+                                   VertexElement::ColorDiffuseA8R8G8B8_U32};
 
   const MeshDescriptor mesh {as_bytes(gsl::span {vertices}), vertexLayout,
                              PrimitiveType::TriangleList,
