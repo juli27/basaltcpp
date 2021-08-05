@@ -3,6 +3,9 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
 
+#include <memory>
+#include <vector>
+
 #if BASALT_DEV_BUILD
 
 #include <basalt/api/base/platform.h>
@@ -10,9 +13,6 @@
 #include <spdlog/sinks/msvc_sink.h>
 
 #endif // BASALT_DEV_BUILD
-
-#include <memory>
-#include <vector>
 
 using std::shared_ptr;
 using std::vector;
@@ -28,16 +28,16 @@ using spdlog::sinks::msvc_sink_st;
 namespace basalt {
 namespace {
 
-shared_ptr<logger> sCoreLogger;
-shared_ptr<logger> sClientLogger;
+shared_ptr<logger> sCoreLogger {};
+shared_ptr<logger> sClientLogger {};
 
-constexpr auto LOG_FILE_NAME = SPDLOG_FILENAME_T("log.txt");
-constexpr auto LOGGER_PATTERN = "[%n][%l] %v";
+constexpr auto LOG_FILE_NAME {SPDLOG_FILENAME_T("log.txt")};
+constexpr auto LOGGER_PATTERN {"[%n][%l] %v"};
 
 } // namespace
 
 void Log::init() {
-  vector<sink_ptr> sinks;
+  vector<sink_ptr> sinks {};
   sinks.reserve(2u);
   sinks.emplace_back(std::make_shared<basic_file_sink_st>(LOG_FILE_NAME));
 
@@ -47,12 +47,10 @@ void Log::init() {
   }
 #endif // BASALT_DEV_BUILD
 
-  for (auto& sink : sinks) {
-    sink->set_pattern(LOGGER_PATTERN);
-  }
-
   sCoreLogger =
     std::make_shared<logger>("Engine", sinks.cbegin(), sinks.cend());
+
+  sCoreLogger->set_pattern(LOGGER_PATTERN);
 
 #if BASALT_DEBUG_BUILD
   sCoreLogger->flush_on(spdlog::level::trace);

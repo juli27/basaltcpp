@@ -129,12 +129,12 @@ void Dreieck::on_update(Engine& engine) {
   if (ImGui::Begin("Settings##TribaseDreieck")) {
     if (ImGui::RadioButton("No Exercise", &mCurrentExercise, 0)) {
       mEntity.get<RenderComponent>().mesh = mTriangleMesh;
-      transform.scale.set(1.0f, 1.0f, 1.0f);
+      transform.scale.set(1.0f);
     }
 
     if (ImGui::RadioButton("Exercise 1", &mCurrentExercise, 1)) {
       mEntity.get<RenderComponent>().mesh = mTriangleMesh;
-      transform.scale.set(1.0f, 1.0f, 1.0f);
+      transform.scale.set(1.0f);
     }
 
     if (mCurrentExercise == 1) {
@@ -144,21 +144,21 @@ void Dreieck::on_update(Engine& engine) {
 
     if (ImGui::RadioButton("Exercise 2", &mCurrentExercise, 2)) {
       mEntity.get<RenderComponent>().mesh = mQuadMesh;
-      transform.scale.set(1.0f, 1.0f, 1.0f);
+      transform.scale.set(1.0f);
     }
 
     if (ImGui::RadioButton("Exercise 3", &mCurrentExercise, 3)) {
       mEntity.get<RenderComponent>().mesh = mTriangleMesh;
-      transform.scale.set(1.0f, 1.0f, 1.0f);
-    }
-
-    if (ImGui::RadioButton("Exercise 4", &mCurrentExercise, 4)) {
-      mEntity.get<RenderComponent>().mesh = mTriangleMesh;
+      transform.scale.set(1.0f);
     }
 
     if (mCurrentExercise == 3) {
       ImGui::SameLine();
       ImGui::TextUnformatted("TODO");
+    }
+
+    if (ImGui::RadioButton("Exercise 4", &mCurrentExercise, 4)) {
+      mEntity.get<RenderComponent>().mesh = mTriangleMesh;
     }
 
     if (mCurrentExercise == 4) {

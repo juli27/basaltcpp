@@ -2,6 +2,8 @@
 
 #include <basalt/api/base/vec.h>
 
+#include <basalt/api/math/types.h>
+
 namespace basalt {
 
 template <typename T>
@@ -12,36 +14,33 @@ struct Rectangle final : vec<Rectangle<T>, T, 4> {
     : vec {left, top, right, bottom} {
   }
 
-  [[nodiscard]] auto left() const -> T {
+  [[nodiscard]] constexpr auto left() const noexcept -> T {
     return std::get<0>(this->elements);
   }
 
-  [[nodiscard]] auto top() const -> T {
+  [[nodiscard]] constexpr auto top() const noexcept -> T {
     return std::get<1>(this->elements);
   }
 
-  [[nodiscard]] auto right() const -> T {
+  [[nodiscard]] constexpr auto right() const noexcept -> T {
     return std::get<2>(this->elements);
   }
 
-  [[nodiscard]] auto bottom() const -> T {
+  [[nodiscard]] constexpr auto bottom() const noexcept -> T {
     return std::get<3>(this->elements);
   }
 
-  [[nodiscard]] auto width() const -> T {
+  [[nodiscard]] constexpr auto width() const noexcept -> T {
     return right() - left();
   }
 
-  [[nodiscard]] auto height() const -> T {
+  [[nodiscard]] constexpr auto height() const noexcept -> T {
     return bottom() - top();
   }
 
-  [[nodiscard]] auto area() const -> T {
+  [[nodiscard]] constexpr auto area() const noexcept -> T {
     return (right() - left()) * (bottom() - top());
   }
 };
-
-using RectangleI16 = Rectangle<i16>;
-using RectangleU16 = Rectangle<u16>;
 
 } // namespace basalt

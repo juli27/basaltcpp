@@ -5,16 +5,6 @@
 namespace basalt {
 
 struct Log final {
-  Log() = delete;
-
-  Log(const Log&) = delete;
-  Log(Log&&) = delete;
-
-  ~Log() = delete;
-
-  Log& operator=(const Log&) = delete;
-  Log& operator=(Log&&) = delete;
-
   static void init();
   static void shutdown();
 

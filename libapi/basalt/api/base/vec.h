@@ -8,11 +8,9 @@ namespace basalt {
 
 template <typename Derived, typename T, uSize Size>
 struct vec {
-  constexpr vec() noexcept = default;
-
   std::array<T, Size> elements {};
 
-  auto operator+=(const vec& v) noexcept -> Derived& {
+  constexpr auto operator+=(const Derived& v) -> Derived& {
     for (uSize i = 0; i < elements.size(); ++i) {
       elements[i] += v.elements[i];
     }
@@ -20,7 +18,7 @@ struct vec {
     return *self();
   }
 
-  auto operator-=(const vec& v) noexcept -> Derived& {
+  constexpr auto operator-=(const Derived& v) -> Derived& {
     for (uSize i = 0; i < elements.size(); ++i) {
       elements[i] -= v.elements[i];
     }
@@ -28,7 +26,7 @@ struct vec {
     return *self();
   }
 
-  auto operator*=(const T s) noexcept -> Derived& {
+  constexpr auto operator*=(const T s) -> Derived& {
     for (uSize i = 0; i < elements.size(); ++i) {
       elements[i] *= s;
     }
@@ -36,7 +34,7 @@ struct vec {
     return *self();
   }
 
-  auto operator/=(const T s) noexcept -> Derived& {
+  constexpr auto operator/=(const T s) -> Derived& {
     for (uSize i = 0; i < elements.size(); ++i) {
       elements[i] /= s;
     }
@@ -44,8 +42,8 @@ struct vec {
     return *self();
   }
 
-  constexpr auto operator-() const noexcept -> Derived {
-    Derived v;
+  [[nodiscard]] constexpr auto operator-() const -> Derived {
+    Derived v {};
     for (uSize i = 0; i < elements.size(); ++i) {
       v.elements[i] = -elements[i];
     }
@@ -53,7 +51,7 @@ struct vec {
     return v;
   }
 
-  [[nodiscard]] auto operator==(const Derived& o) const noexcept -> bool {
+  [[nodiscard]] constexpr auto operator==(const Derived& o) const -> bool {
     for (uSize i = 0; i < elements.size(); ++i) {
       if (elements[i] != o.elements[i]) {
         return false;
@@ -63,37 +61,42 @@ struct vec {
     return true;
   }
 
-  [[nodiscard]] auto operator!=(const Derived& o) const noexcept -> bool {
+  [[nodiscard]] constexpr auto operator!=(const Derived& o) const -> bool {
     return !(*this == o);
   }
 
 private:
-  [[nodiscard]] auto self() noexcept -> Derived* {
+  [[nodiscard]] constexpr auto self() noexcept -> Derived* {
     return static_cast<Derived*>(this);
   }
 
 public:
-  friend auto operator+(Derived lhs, const Derived& rhs) noexcept -> Derived {
+  [[nodiscard]] friend constexpr auto operator+(Derived lhs, const Derived& rhs)
+    -> Derived {
     lhs += rhs;
     return lhs;
   }
 
-  friend auto operator-(Derived l, const Derived& r) noexcept -> Derived {
+  [[nodiscard]] friend constexpr auto operator-(Derived l, const Derived& r)
+    -> Derived {
     l -= r;
     return l;
   }
 
-  friend auto operator/(Derived v, const T s) noexcept -> Derived {
+  [[nodiscard]] friend constexpr auto operator/(Derived v, const T s)
+    -> Derived {
     v /= s;
     return v;
   }
 
-  friend auto operator*(Derived v, const T s) noexcept -> Derived {
+  [[nodiscard]] friend constexpr auto operator*(Derived v, const T s)
+    -> Derived {
     v *= s;
     return v;
   }
 
-  friend auto operator*(const T s, const Derived& v) noexcept -> Derived {
+  [[nodiscard]] friend constexpr auto operator*(const T s, const Derived& v)
+    -> Derived {
     return v * s;
   }
 };

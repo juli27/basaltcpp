@@ -2,22 +2,25 @@
 
 #include <basalt/api/base/vec.h>
 
+#include <basalt/api/math/types.h>
+
 namespace basalt {
 
 struct Vector3f32 final : vec<Vector3f32, f32, 3> {
   constexpr Vector3f32() noexcept = default;
-  constexpr Vector3f32(const f32 x, const f32 y, const f32 z) : vec {x, y, z} {
+
+  constexpr Vector3f32(const f32 value) noexcept : vec {value, value, value} {
   }
 
-  template <typename V>
-  explicit constexpr Vector3f32(const vec<V, f32, 3>& o) : vec {o.x, o.y, o.z} {
+  constexpr Vector3f32(const f32 x, const f32 y, const f32 z) noexcept
+    : vec {x, y, z} {
   }
 
   [[nodiscard]] constexpr auto x() const noexcept -> f32 {
     return std::get<0>(elements);
   }
 
-  [[nodiscard]] auto x() noexcept -> f32& {
+  [[nodiscard]] constexpr auto x() noexcept -> f32& {
     return std::get<0>(elements);
   }
 
@@ -25,7 +28,7 @@ struct Vector3f32 final : vec<Vector3f32, f32, 3> {
     return std::get<1>(elements);
   }
 
-  [[nodiscard]] auto y() noexcept -> f32& {
+  [[nodiscard]] constexpr auto y() noexcept -> f32& {
     return std::get<1>(elements);
   }
 
@@ -33,16 +36,29 @@ struct Vector3f32 final : vec<Vector3f32, f32, 3> {
     return std::get<2>(elements);
   }
 
-  [[nodiscard]] auto z() noexcept -> f32& {
+  [[nodiscard]] constexpr auto z() noexcept -> f32& {
     return std::get<2>(elements);
   }
 
-  [[nodiscard]] auto length_squared() const noexcept -> f32;
+  [[nodiscard]] constexpr auto length_squared() const noexcept -> f32 {
+    return x() * x() + y() * y() + z() * z();
+  }
+
   [[nodiscard]] auto length() const noexcept -> f32;
 
-  void set(f32 ax, f32 ay, f32 az) noexcept;
+  constexpr void set(const f32 value) noexcept {
+    x() = value;
+    y() = value;
+    z() = value;
+  }
 
-  [[nodiscard]] static auto normalize(const Vector3f32&) noexcept -> Vector3f32;
+  constexpr void set(const f32 x_, const f32 y_, const f32 z_) noexcept {
+    x() = x_;
+    y() = y_;
+    z() = z_;
+  }
+
+  [[nodiscard]] static auto normalize(const Vector3f32&) -> Vector3f32;
 
   [[nodiscard]] static constexpr auto cross(const Vector3f32& l,
                                             const Vector3f32& r) noexcept
@@ -54,8 +70,10 @@ struct Vector3f32 final : vec<Vector3f32, f32, 3> {
     // clang-format on
   }
 
-  [[nodiscard]] static auto dot(const Vector3f32&, const Vector3f32&) noexcept
-    -> f32;
+  [[nodiscard]] static constexpr auto dot(const Vector3f32& l,
+                                          const Vector3f32& r) noexcept -> f32 {
+    return l.x() * r.x() + l.y() * r.y() + l.z() * r.z();
+  }
 };
 
 } // namespace basalt
