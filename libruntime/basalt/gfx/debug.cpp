@@ -505,8 +505,8 @@ void Debug::update(const Info& info, const Composite& composite) {
     ImGui::TextUnformatted("Adapter Modes");
 
     if (ImGui::BeginChild("modes", ImVec2 {0, 250})) {
-      for (const auto& adapterMode : current.adapterModes) {
-        ImGui::Selectable(to_string(adapterMode).c_str(), false,
+      for (const auto& mode : current.adapterModes) {
+        ImGui::Selectable(to_string(mode).c_str(), false,
                           ImGuiSelectableFlags_DontClosePopups);
       }
     }

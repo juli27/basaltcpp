@@ -63,17 +63,6 @@ void dump_config(const Config& config) {
                   config.get_bool("window.resizeable"s));
 }
 
-auto build_gfx_info(const D3D9Factory& factory) -> gfx::Info {
-  gfx::Info gfxInfo {};
-  const u32 adapterCount = factory.get_adapter_count();
-  gfxInfo.adapters.reserve(adapterCount);
-  for (u32 i = 0; i < adapterCount; ++i) {
-    gfxInfo.adapters.emplace_back(factory.query_adapter_info(i));
-  }
-
-  return gfxInfo;
-}
-
 [[nodiscard]] auto poll_events() -> bool {
   MSG msg {};
   while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -173,7 +162,7 @@ void App::run(Config& config, const HMODULE moduleHandle,
   const auto [gfxDevice, gfxContext] = gfxFactory->create_device_and_context(
     window->handle(), deviceAndContextDesc);
 
-  const gfx::Info gfxInfo {build_gfx_info(*gfxFactory)};
+  const gfx::Info& gfxInfo {gfxFactory->info()};
 
   BASALT_LOG_INFO("Direct3D9 context created: adapter={}, driver={}",
                   gfxInfo.adapters[0].displayName,
