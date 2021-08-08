@@ -63,6 +63,7 @@ struct MaterialDescriptor final {
   // TODO: upgrade boolean flag to CullMode enum
   bool cullBackFace {true};
   bool lit {true};
+  bool solid {true};
 
   TextureCoordinateSource textureCoordinateSource {
     TextureCoordinateSource::Vertex};

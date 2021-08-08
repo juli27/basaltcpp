@@ -14,7 +14,7 @@ namespace tribase {
 // TODO: Figure out what to do about the FillMode RenderState for
 // Exercise 2.5.6-3
 struct Dreieck final : TestCase {
-  Dreieck(basalt::Engine&);
+  explicit Dreieck(basalt::Engine&);
 
   Dreieck(const Dreieck&) = delete;
   Dreieck(Dreieck&&) = delete;
@@ -35,6 +35,8 @@ private:
   entt::handle mEntity;
   basalt::gfx::Mesh mTriangleMesh;
   basalt::gfx::Mesh mQuadMesh;
+  basalt::gfx::Material mSolidMaterial;
+  basalt::gfx::Material mWireframeMaterial;
   basalt::f64 mTimeAccum {};
   basalt::i32 mCurrentExercise {};
 };

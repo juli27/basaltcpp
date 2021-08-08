@@ -91,20 +91,28 @@ Dreieck::Dreieck(Engine& engine)
   materialDesc.cullBackFace = false;
   materialDesc.lit = false;
 
-  mEntity.emplace<RenderComponent>(
-    mTriangleMesh, Texture::null(),
-    engine.gfx_resource_cache().create_material(materialDesc));
+  mSolidMaterial = engine.gfx_resource_cache().create_material(materialDesc);
+
+  materialDesc.cullBackFace = false;
+  materialDesc.lit = false;
+  materialDesc.solid = false;
+
+  mWireframeMaterial =
+    engine.gfx_resource_cache().create_material(materialDesc);
 
   std::array<Vertex, 4> quadVertices {
     Vertex {1.0f, -1.0f, 0.0f, ColorEncoding::pack_a8r8g8b8_u32(0, 255, 0)},
     Vertex {-1.0f, -1.0f, 0.0f, ColorEncoding::pack_a8r8g8b8_u32(0, 0, 255)},
     Vertex {1.0f, 1.0f, 0.0f, ColorEncoding::pack_a8r8g8b8_u32(255u, 0, 0)},
-    Vertex {-1.0f, 1.0f, 0.0f, ColorEncoding::pack_a8r8g8b8_u32(255u, 0, 0)},
+    Vertex {-1.0f, 1.0f, 0.0f, ColorEncoding::pack_a8r8g8b8_u32(255u, 0, 255u)},
   };
 
   meshDesc = MeshDescriptor {as_bytes(gsl::span {quadVertices}), vertexLayout,
                              PrimitiveType::TriangleStrip, 2};
   mQuadMesh = engine.gfx_resource_cache().create_mesh(meshDesc);
+
+  mEntity.emplace<RenderComponent>(mTriangleMesh, Texture::null(),
+                                   mSolidMaterial);
 }
 
 auto Dreieck::name() -> string_view {
@@ -116,7 +124,6 @@ auto Dreieck::drawable() -> DrawablePtr {
 }
 
 void Dreieck::on_update(Engine& engine) {
-  mTimeAccum += engine.delta_time();
   // 90° per second
   const f32 radOffsetY {PI / 2.0f * static_cast<f32>(engine.delta_time())};
   auto& transform {mEntity.get<Transform>()};
@@ -129,11 +136,13 @@ void Dreieck::on_update(Engine& engine) {
   if (ImGui::Begin("Settings##TribaseDreieck")) {
     if (ImGui::RadioButton("No Exercise", &mCurrentExercise, 0)) {
       mEntity.get<RenderComponent>().mesh = mTriangleMesh;
+      mEntity.get<RenderComponent>().material = mSolidMaterial;
       transform.scale.set(1.0f);
     }
 
     if (ImGui::RadioButton("Exercise 1", &mCurrentExercise, 1)) {
       mEntity.get<RenderComponent>().mesh = mTriangleMesh;
+      mEntity.get<RenderComponent>().material = mSolidMaterial;
       transform.scale.set(1.0f);
     }
 
@@ -144,28 +153,31 @@ void Dreieck::on_update(Engine& engine) {
 
     if (ImGui::RadioButton("Exercise 2", &mCurrentExercise, 2)) {
       mEntity.get<RenderComponent>().mesh = mQuadMesh;
+      mEntity.get<RenderComponent>().material = mSolidMaterial;
       transform.scale.set(1.0f);
     }
 
     if (ImGui::RadioButton("Exercise 3", &mCurrentExercise, 3)) {
       mEntity.get<RenderComponent>().mesh = mTriangleMesh;
+      mEntity.get<RenderComponent>().material = mWireframeMaterial;
       transform.scale.set(1.0f);
-    }
-
-    if (mCurrentExercise == 3) {
-      ImGui::SameLine();
-      ImGui::TextUnformatted("TODO");
     }
 
     if (ImGui::RadioButton("Exercise 4", &mCurrentExercise, 4)) {
       mEntity.get<RenderComponent>().mesh = mTriangleMesh;
+      mEntity.get<RenderComponent>().material = mSolidMaterial;
+      mTimeAccum = 0.0;
     }
 
     if (mCurrentExercise == 4) {
-      transform.scale.x() =
-        1.0f + (std::sin(static_cast<f32>(mTimeAccum)) + 1.0f) / 2.0f;
-      transform.scale.y() =
-        1.0f + (std::sin(static_cast<f32>(mTimeAccum)) + 1.0f) / 2.0f;
+      mTimeAccum += engine.delta_time();
+
+      const f32 scale {
+        1.0f +
+        (std::sin(PI / 2.0f * static_cast<f32>(mTimeAccum)) + 1.0f) / 2.0f};
+
+      transform.scale.x() = scale;
+      transform.scale.y() = scale;
     }
   }
 

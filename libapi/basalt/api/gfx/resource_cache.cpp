@@ -76,6 +76,8 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
   data.renderStates[RenderStateType::CullMode] =
     desc.cullBackFace ? CullMode::CounterClockwise : CullMode::None;
   data.renderStates[RenderStateType::Lighting] = desc.lit;
+  data.renderStates[RenderStateType::FillMode] =
+    desc.solid ? FillMode::Solid : FillMode::Wireframe;
 
   data.textureStageStates[TextureStageState::CoordinateSource] =
     convert(desc.textureCoordinateSource);

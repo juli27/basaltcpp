@@ -28,14 +28,14 @@ void record_material(CommandListRecorder& cmdList,
                      const MaterialData& material) {
   cmdList.set_render_state(RenderState::cull_mode(
     std::get<CullMode>(material.renderStates[RenderStateType::CullMode])));
-
   cmdList.set_render_state(RenderState::lighting(
     std::get<bool>(material.renderStates[RenderStateType::Lighting])));
+  cmdList.set_render_state(RenderState::fill_mode(
+    std::get<FillMode>(material.renderStates[RenderStateType::FillMode])));
 
   cmdList.set_texture_stage_state(
     0, TextureStageState::CoordinateSource,
     material.textureStageStates[TextureStageState::CoordinateSource]);
-
   cmdList.set_texture_stage_state(
     0, TextureStageState::TextureTransformFlags,
     material.textureStageStates[TextureStageState::TextureTransformFlags]);
