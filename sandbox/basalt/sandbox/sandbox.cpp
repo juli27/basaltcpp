@@ -9,6 +9,7 @@
 #include <basalt/sandbox/d3d9/vertices.h>
 
 #include <basalt/sandbox/tribase/02-03_dreieck.h>
+#include <basalt/sandbox/tribase/02-04_textures.h>
 
 #include <basalt/api/engine.h>
 #include <basalt/api/input_layer.h>
@@ -56,6 +57,7 @@ SandboxApp::SandboxApp(Engine& engine) : mInput {std::make_shared<Input>()} {
   mScenes.emplace_back(std::make_unique<d3d9::Meshes>(engine));
 
   mScenes.emplace_back(std::make_unique<tribase::Dreieck>(engine));
+  mScenes.emplace_back(std::make_unique<tribase::Textures>(engine));
 
   engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
 }

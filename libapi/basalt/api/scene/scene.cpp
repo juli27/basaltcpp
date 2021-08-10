@@ -15,9 +15,11 @@ auto Scene::ecs() -> registry& {
   return mEntityRegistry;
 }
 
-auto Scene::create_entity() -> entt::handle {
+auto Scene::create_entity(const Vector3f32& position,
+                          const Vector3f32& rotation, const Vector3f32& scale)
+  -> entt::handle {
   const entity id = mEntityRegistry.create();
-  mEntityRegistry.emplace<Transform>(id);
+  mEntityRegistry.emplace<Transform>(id, position, rotation, scale);
 
   return entt::handle {mEntityRegistry, id};
 }

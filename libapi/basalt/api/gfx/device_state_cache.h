@@ -21,6 +21,7 @@ struct DeviceStateCache final {
   auto update(const Color& diffuse, const Color& ambient,
               const Color& emissive) noexcept -> bool;
   auto update(Texture) noexcept -> bool;
+  auto update(Sampler) noexcept -> bool;
 
 private:
   struct Material final {
@@ -45,6 +46,7 @@ private:
   EnumArray<TransformState, Mat4f32, TRANSFORM_STATE_COUNT> mTransforms;
   Material mMaterial;
   Texture mBoundTexture {Texture::null()};
+  Sampler mBoundSampler {Sampler::null()};
 };
 
 } // namespace basalt::gfx

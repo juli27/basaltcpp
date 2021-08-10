@@ -39,9 +39,10 @@ enum class CommandType : u8 {
   Draw,
   SetRenderState,
   SetTexture,
-  SetTextureStageState,
+  SetSampler,
 
   // fixed function only
+  SetTextureStageState,
   SetDirectionalLights,
   SetTransform,
   SetMaterial,
@@ -166,14 +167,36 @@ enum class PrimitiveType : u8 {
 };
 constexpr uSize PRIMITIVE_TYPE_COUNT = 6u;
 
+enum class TextureFilter : u8 {
+  Point,
+  Linear,
+  Anisotropic, // TODO: check for support and set level
+};
+constexpr uSize TEXTURE_FILTER_COUNT {3u};
+
+enum class TextureMipFilter : u8 {
+  None,
+  Point,
+  Linear,
+};
+constexpr uSize TEXTURE_MIP_FILTER_COUNT {3u};
+
+struct SamplerDescription final {
+  TextureFilter minFilter {TextureFilter::Point};
+  TextureFilter magFilter {TextureFilter::Point};
+  TextureMipFilter mipFilter {TextureMipFilter::None};
+};
+
 namespace detail {
 
 struct VertexBufferTag;
 struct TextureTag;
+struct SamplerTag;
 
 } // namespace detail
 
 using VertexBuffer = Handle<detail::VertexBufferTag>;
 using Texture = Handle<detail::TextureTag>;
+using Sampler = Handle<detail::SamplerTag>;
 
 } // namespace basalt::gfx

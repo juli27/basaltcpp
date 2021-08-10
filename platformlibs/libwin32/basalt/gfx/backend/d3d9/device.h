@@ -29,6 +29,8 @@ struct D3D9Device final : Device {
 
   auto add_texture(std::string_view filePath) -> Texture override;
 
+  auto create_sampler(const SamplerDescription&) -> Sampler override;
+
   auto query_extension(ext::ExtensionId)
     -> std::optional<ext::ExtensionPtr> override;
 
@@ -37,12 +39,19 @@ private:
   using D3D9VertexBuffer = Microsoft::WRL::ComPtr<IDirect3DVertexBuffer9>;
   using TexturePtr = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
 
+  struct SamplerData final {
+    D3DTEXTUREFILTERTYPE minFilter {D3DTEXF_POINT};
+    D3DTEXTUREFILTERTYPE magFilter {D3DTEXF_POINT};
+    D3DTEXTUREFILTERTYPE mipFilter {D3DTEXF_NONE};
+  };
+
   Microsoft::WRL::ComPtr<IDirect3DDevice9> mDevice;
 
   ExtensionMap mExtensions;
 
   HandlePool<D3D9VertexBuffer, VertexBuffer> mVertexBuffers;
   HandlePool<TexturePtr, Texture> mTextures;
+  HandlePool<SamplerData, Sampler> mSamplers;
 
   D3DCAPS9 mDeviceCaps {};
   u8 mMaxLightsUsed {};
@@ -56,6 +65,7 @@ private:
   void execute(const CommandSetRenderState&) const;
   void execute(const CommandSetTexture&) const;
   void execute(const CommandSetTextureStageState&) const;
+  void execute(const CommandSetSampler&) const;
 };
 
 } // namespace basalt::gfx

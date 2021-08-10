@@ -388,6 +388,13 @@ void display(const CommandSetTextureStageState& cmd) {
   }
 }
 
+void display(const CommandSetSampler& cmd) {
+  ImGui::TextUnformatted("SetSampler");
+  if (ImGui::IsItemHovered()) {
+    ImGui::SetTooltip("handle = %#x", cmd.sampler.value());
+  }
+}
+
 void display(const ext::CommandDrawXModel& cmd) {
   ImGui::TextUnformatted("ExtDrawXModel");
   if (ImGui::IsItemHovered()) {
@@ -429,6 +436,7 @@ void draw_composite_inspector(const Composite& composite) {
           DISPLAY(CommandSetRenderState);
           DISPLAY(CommandSetTexture);
           DISPLAY(CommandSetTextureStageState);
+          DISPLAY(CommandSetSampler);
 
           DISPLAY(ext::CommandDrawXModel);
           DISPLAY(ext::CommandRenderDearImGui);

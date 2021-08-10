@@ -145,7 +145,7 @@ auto D3D9Factory::create_device_and_context(
   pp.EnableAutoDepthStencil = TRUE;
   pp.AutoDepthStencilFormat = D3DFMT_D16;
   pp.Flags = D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL;
-  pp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+  pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
   if (desc.exclusive) {
     D3DDISPLAYMODE displayMode {};

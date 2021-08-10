@@ -31,6 +31,7 @@ using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SceneView;
 using basalt::gfx::Texture;
+using basalt::gfx::TextureSamplerDescription;
 using basalt::gfx::VertexElement;
 using basalt::gfx::VertexLayout;
 
@@ -87,7 +88,8 @@ Textures::Textures(Engine& engine)
   MaterialDescriptor material;
   material.cullBackFace = false;
   material.lit = false;
-  material.texture = engine.get_or_load<Texture>("data/banana.bmp"_hs);
+  material.texture = TextureSamplerDescription {
+    engine.get_or_load<Texture>("data/banana.bmp"_hs)};
 
   rc.material = engine.gfx_resource_cache().create_material(material);
 }

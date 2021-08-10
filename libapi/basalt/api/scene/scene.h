@@ -22,11 +22,14 @@ struct Scene final {
   ~Scene() noexcept = default;
 
   auto operator=(const Scene&) -> Scene& = delete;
-  auto operator=(Scene &&) -> Scene& = delete;
+  auto operator=(Scene&&) -> Scene& = delete;
 
   auto ecs() -> entt::registry&;
 
-  [[nodiscard]] auto create_entity() -> entt::handle;
+  [[nodiscard]] auto create_entity(const Vector3f32& position = Vector3f32 {},
+                                   const Vector3f32& rotation = Vector3f32 {},
+                                   const Vector3f32& scale = Vector3f32 {1.0f})
+    -> entt::handle;
   [[nodiscard]] auto get_handle(entt::entity) -> entt::handle;
 
   [[nodiscard]] auto background() const -> const Color&;

@@ -110,4 +110,13 @@ struct CommandSetTexture final : CommandT<CommandType::SetTexture> {
 
 static_assert(sizeof(CommandSetTexture) == 8);
 
+struct CommandSetSampler final : CommandT<CommandType::SetSampler> {
+  Sampler sampler {Sampler::null()};
+
+  constexpr explicit CommandSetSampler(const Sampler s) noexcept : sampler{s} {
+  }
+};
+
+static_assert(sizeof(CommandSetSampler) == 8);
+
 } // namespace basalt::gfx

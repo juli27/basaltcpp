@@ -64,4 +64,13 @@ auto DeviceStateCache::update(const Texture texture) noexcept -> bool {
   return false;
 }
 
+auto DeviceStateCache::update(const Sampler sampler) noexcept -> bool {
+  if (sampler != mBoundSampler) {
+    mBoundSampler = sampler;
+    return true;
+  }
+
+  return false;
+}
+
 } // namespace basalt::gfx

@@ -159,6 +159,32 @@ auto to_d3d(const RenderState& rs) -> std::tuple<D3DRENDERSTATETYPE, DWORD> {
   return {d3dRs, d3dValue};
 }
 
+auto to_d3d_texture_filter_type(const TextureFilter filter)
+  -> D3DTEXTUREFILTERTYPE {
+  static constexpr EnumArray<TextureFilter, D3DTEXTUREFILTERTYPE, 3> TO_D3D {
+    {TextureFilter::Point, D3DTEXF_POINT},
+    {TextureFilter::Linear, D3DTEXF_LINEAR},
+    {TextureFilter::Anisotropic, D3DTEXF_ANISOTROPIC},
+  };
+
+  static_assert(TEXTURE_FILTER_COUNT == TO_D3D.size());
+
+  return TO_D3D[filter];
+}
+
+auto to_d3d_texture_filter_type(const TextureMipFilter filter)
+  -> D3DTEXTUREFILTERTYPE {
+  static constexpr EnumArray<TextureMipFilter, D3DTEXTUREFILTERTYPE, 3> TO_D3D {
+    {TextureMipFilter::None, D3DTEXF_NONE},
+    {TextureMipFilter::Point, D3DTEXF_POINT},
+    {TextureMipFilter::Linear, D3DTEXF_LINEAR},
+  };
+
+  static_assert(TEXTURE_MIP_FILTER_COUNT == TO_D3D.size());
+
+  return TO_D3D[filter];
+}
+
 auto to_d3d_texture_stage_state(TextureStageState state, u32 value)
   -> std::tuple<D3DTEXTURESTAGESTATETYPE, DWORD>;
 
@@ -246,6 +272,7 @@ void D3D9Device::execute(const CommandList& cmdList) {
       EXECUTE(CommandSetRenderState);
       EXECUTE(CommandSetTexture);
       EXECUTE(CommandSetTextureStageState);
+      EXECUTE(CommandSetSampler);
 
     case CommandType::ExtDrawXModel:
       std::static_pointer_cast<D3D9XModelSupport>(
@@ -266,6 +293,10 @@ void D3D9Device::execute(const CommandList& cmdList) {
 
   // reset render states
   // TODO: use command block
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY, 1));
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
                                          D3DTTFF_DISABLE));
@@ -331,6 +362,16 @@ auto D3D9Device::add_texture(const string_view filePath) -> Texture {
                                           texture.GetAddressOf()))) {
     throw std::runtime_error("loading texture file failed");
   }
+
+  return handle;
+}
+
+auto D3D9Device::create_sampler(const SamplerDescription& desc) -> Sampler {
+  const auto [handle, data] = mSamplers.allocate();
+
+  data.minFilter = to_d3d_texture_filter_type(desc.minFilter);
+  data.magFilter = to_d3d_texture_filter_type(desc.magFilter);
+  data.mipFilter = to_d3d_texture_filter_type(desc.mipFilter);
 
   return handle;
 }
@@ -435,6 +476,16 @@ void D3D9Device::execute(const CommandSetTextureStageState& cmd) const {
     to_d3d_texture_stage_state(cmd.state, cmd.value);
 
   D3D9CALL(mDevice->SetTextureStageState(0, textureStageState, value));
+}
+
+void D3D9Device::execute(const CommandSetSampler& cmd) const {
+  const auto& data {mSamplers[cmd.sampler]};
+
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, data.minFilter));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, data.magFilter));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, data.mipFilter));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY,
+                                    mDeviceCaps.MaxAnisotropy));
 }
 
 namespace {

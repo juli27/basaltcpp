@@ -37,10 +37,6 @@ struct MaterialTag;
 using Mesh = Handle<detail::MeshTag>;
 using Material = Handle<detail::MaterialTag>;
 
-// using Texture = std::string;
-// struct VertexColor final {};
-// using Diffuse = std::variant<Color, VertexColor, Texture>;
-
 enum class TextureCoordinateSource : u8 { Vertex, VertexPositionCameraSpace };
 enum class TextureTransformMode : u8 { Disabled, Count4 };
 
@@ -56,11 +52,18 @@ static_assert(sizeof(MeshDescriptor) == 56);
 static_assert(sizeof(MeshDescriptor) == 48);
 #endif
 
+struct TextureSamplerDescription final {
+  Texture texture {Texture::null()};
+  TextureFilter minFilter {TextureFilter::Point};
+  TextureFilter magFilter {TextureFilter::Point};
+  TextureMipFilter mipFilter {TextureMipFilter::None};
+};
+
 struct MaterialDescriptor final {
   Color diffuse;
   Color ambient;
 
-  Texture texture {Texture::null()};
+  TextureSamplerDescription texture;
 
   // TODO: upgrade boolean flag to CullMode enum
   bool cullBackFace {true};
@@ -73,7 +76,7 @@ struct MaterialDescriptor final {
   bool textureTransformProjected {false};
 };
 
-static_assert(sizeof(MaterialDescriptor) == 44);
+static_assert(sizeof(MaterialDescriptor) == 48);
 
 struct RenderComponent final {
   Mesh mesh {Mesh::null()};
@@ -102,6 +105,9 @@ struct MaterialData final {
   Color ambient;
 
   Texture texture {Texture::null()};
+  Sampler sampler {Sampler::null()};
 };
+
+static_assert(sizeof(MaterialData) == 188);
 
 } // namespace basalt::gfx

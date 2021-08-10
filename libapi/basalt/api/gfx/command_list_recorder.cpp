@@ -62,6 +62,12 @@ void CommandListRecorder::set_texture(const Texture texture) {
   }
 }
 
+void CommandListRecorder::set_sampler(const Sampler sampler) {
+  if (mDeviceState.update(sampler)) {
+    mCommandList.add<CommandSetSampler>(sampler);
+  }
+}
+
 void CommandListRecorder::set_texture_stage_state(const u8 stage,
                                                   const TextureStageState state,
                                                   const u32 value) {
