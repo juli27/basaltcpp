@@ -90,11 +90,11 @@ TexturesTci::TexturesTci(Engine& engine) {
   mesh.primitiveCount = static_cast<u32>(vertices.size() - 2);
 
   rc.mesh = engine.gfx_resource_cache().create_mesh(mesh);
-  rc.texture = engine.get_or_load<Texture>("data/banana.bmp"_hs);
 
   MaterialDescriptor material;
   material.cullBackFace = false;
   material.lit = false;
+  material.texture = engine.get_or_load<Texture>("data/banana.bmp"_hs);
   material.textureCoordinateSource =
     TextureCoordinateSource::VertexPositionCameraSpace;
   material.textureTransformMode = TextureTransformMode::Count4;

@@ -100,6 +100,7 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
 
   data.diffuse = desc.diffuse;
   data.ambient = desc.ambient;
+  data.texture = desc.texture;
 
   return handle;
 }

@@ -40,7 +40,6 @@ using basalt::gfx::MeshDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SceneView;
-using basalt::gfx::Texture;
 using basalt::gfx::VertexElement;
 using basalt::gfx::VertexLayout;
 
@@ -111,8 +110,7 @@ Dreieck::Dreieck(Engine& engine)
                              PrimitiveType::TriangleStrip, 2};
   mQuadMesh = engine.gfx_resource_cache().create_mesh(meshDesc);
 
-  mEntity.emplace<RenderComponent>(mTriangleMesh, Texture::null(),
-                                   mSolidMaterial);
+  mEntity.emplace<RenderComponent>(mTriangleMesh, mSolidMaterial);
 }
 
 auto Dreieck::name() -> string_view {

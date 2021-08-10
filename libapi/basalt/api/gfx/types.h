@@ -60,6 +60,8 @@ struct MaterialDescriptor final {
   Color diffuse;
   Color ambient;
 
+  Texture texture {Texture::null()};
+
   // TODO: upgrade boolean flag to CullMode enum
   bool cullBackFace {true};
   bool lit {true};
@@ -71,16 +73,15 @@ struct MaterialDescriptor final {
   bool textureTransformProjected {false};
 };
 
-static_assert(sizeof(MaterialDescriptor) == 40);
+static_assert(sizeof(MaterialDescriptor) == 44);
 
 struct RenderComponent final {
   Mesh mesh {Mesh::null()};
-  Texture texture {Texture::null()};
   Material material {Material::null()};
   Mat4f32 texTransform {Mat4f32::identity()};
 };
 
-static_assert(sizeof(RenderComponent) == 76);
+static_assert(sizeof(RenderComponent) == 72);
 
 struct MeshData final {
   VertexBuffer vertexBuffer {VertexBuffer::null()};
@@ -99,6 +100,8 @@ struct MaterialData final {
 
   Color diffuse;
   Color ambient;
+
+  Texture texture {Texture::null()};
 };
 
 } // namespace basalt::gfx

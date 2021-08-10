@@ -84,11 +84,10 @@ Textures::Textures(Engine& engine)
   auto& rc {mCylinder.emplace<RenderComponent>()};
   rc.mesh = engine.gfx_resource_cache().create_mesh(mesh);
 
-  rc.texture = engine.get_or_load<Texture>("data/banana.bmp"_hs);
-
   MaterialDescriptor material;
   material.cullBackFace = false;
   material.lit = false;
+  material.texture = engine.get_or_load<Texture>("data/banana.bmp"_hs);
 
   rc.material = engine.gfx_resource_cache().create_material(material);
 }

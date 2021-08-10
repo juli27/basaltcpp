@@ -33,6 +33,8 @@ void record_material(CommandListRecorder& cmdList,
   cmdList.set_render_state(RenderState::fill_mode(
     std::get<FillMode>(material.renderStates[RenderStateType::FillMode])));
 
+  cmdList.set_texture(material.texture);
+
   cmdList.set_texture_stage_state(
     0, TextureStageState::CoordinateSource,
     material.textureStageStates[TextureStageState::CoordinateSource]);
@@ -102,10 +104,6 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport,
       if (renderComponent.texTransform != Mat4f32::identity()) {
         cmdList.set_transform(TransformState::Texture,
                               renderComponent.texTransform);
-      }
-
-      if (renderComponent.texture) {
-        cmdList.set_texture(renderComponent.texture);
       }
 
       const auto& meshData = cache.get(renderComponent.mesh);
