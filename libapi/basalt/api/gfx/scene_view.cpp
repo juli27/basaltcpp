@@ -24,26 +24,25 @@ namespace basalt::gfx {
 
 namespace {
 
-void record_material(CommandListRecorder& cmdList,
-                     const MaterialData& material) {
+void record_material(CommandListRecorder& cmdList, const MaterialData& data) {
   cmdList.set_render_state(RenderState::cull_mode(
-    std::get<CullMode>(material.renderStates[RenderStateType::CullMode])));
+    std::get<CullMode>(data.renderStates[RenderStateType::CullMode])));
   cmdList.set_render_state(RenderState::lighting(
-    std::get<bool>(material.renderStates[RenderStateType::Lighting])));
+    std::get<bool>(data.renderStates[RenderStateType::Lighting])));
   cmdList.set_render_state(RenderState::fill_mode(
-    std::get<FillMode>(material.renderStates[RenderStateType::FillMode])));
+    std::get<FillMode>(data.renderStates[RenderStateType::FillMode])));
 
-  cmdList.set_texture(material.texture);
-  cmdList.set_sampler(material.sampler);
+  cmdList.set_texture(data.texture);
+  cmdList.set_sampler(data.sampler);
 
   cmdList.set_texture_stage_state(
     0, TextureStageState::CoordinateSource,
-    material.textureStageStates[TextureStageState::CoordinateSource]);
+    data.textureStageStates[TextureStageState::CoordinateSource]);
   cmdList.set_texture_stage_state(
     0, TextureStageState::TextureTransformFlags,
-    material.textureStageStates[TextureStageState::TextureTransformFlags]);
+    data.textureStageStates[TextureStageState::TextureTransformFlags]);
 
-  cmdList.set_material(material.diffuse, material.ambient, Color {});
+  cmdList.set_material(data.diffuse, data.ambient, Color {});
 }
 
 } // namespace
@@ -59,7 +58,7 @@ auto SceneView::camera() const noexcept -> const Camera& {
 auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport,
                      const RectangleU16&)
   -> std::tuple<CommandList, RectangleU16> {
-  CommandListRecorder cmdList;
+  CommandListRecorder cmdList {};
   cmdList.clear(mScene->background());
 
   cmdList.set_transform(TransformState::Projection,
@@ -68,44 +67,35 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport,
 
   cmdList.set_render_state(RenderState::ambient(mScene->ambient_light()));
 
-  const auto& directionalLights = mScene->directional_lights();
+  const auto& directionalLights {mScene->directional_lights()};
   if (!directionalLights.empty()) {
     cmdList.set_directional_lights(directionalLights);
   }
 
-  const auto& ecs = mScene->ecs();
+  const auto& ecs {mScene->ecs()};
 
-  ecs.view<const ext::XModel>().each(
-    [&, this](const entt::entity entity, const ext::XModel& model) {
-      if (const auto* transform = ecs.try_get<Transform>(entity)) {
-        const auto worldTransform = Mat4f32::scaling(transform->scale) *
-                                    Mat4f32::rotation(transform->rotation) *
-                                    Mat4f32::translation(transform->position);
-        cmdList.set_transform(TransformState::World, worldTransform);
-      }
+  ecs.view<const Transform, const ext::XModel>().each(
+    [&](const Transform& transform, const ext::XModel& model) {
+      const auto objToWorldMatrix {Mat4f32::scaling(transform.scale) *
+                                   Mat4f32::rotation(transform.rotation) *
+                                   Mat4f32::translation(transform.position)};
+      cmdList.set_transform(TransformState::World, objToWorldMatrix);
 
       cmdList.ext_draw_x_model(model);
     });
 
-  ecs.view<const RenderComponent>().each(
-    [&](const entt::entity entity, const RenderComponent& renderComponent) {
-      if (renderComponent.material) {
-        const auto& materialData = cache.get(renderComponent.material);
+  ecs.view<const Transform, const RenderComponent>().each(
+    [&](const Transform& transform, const RenderComponent& renderComponent) {
+      const auto& materialData = cache.get(renderComponent.material);
+      record_material(cmdList, materialData);
 
-        record_material(cmdList, materialData);
-      }
+      cmdList.set_transform(TransformState::Texture,
+                            renderComponent.texTransform);
 
-      if (const auto* transform = ecs.try_get<Transform>(entity)) {
-        const auto worldTransform = Mat4f32::scaling(transform->scale) *
-                                    Mat4f32::rotation(transform->rotation) *
-                                    Mat4f32::translation(transform->position);
-        cmdList.set_transform(TransformState::World, worldTransform);
-      }
-
-      if (renderComponent.texTransform != Mat4f32::identity()) {
-        cmdList.set_transform(TransformState::Texture,
-                              renderComponent.texTransform);
-      }
+      const auto objToWorldMatrix {Mat4f32::scaling(transform.scale) *
+                                   Mat4f32::rotation(transform.rotation) *
+                                   Mat4f32::translation(transform.position)};
+      cmdList.set_transform(TransformState::World, objToWorldMatrix);
 
       const auto& meshData = cache.get(renderComponent.mesh);
       cmdList.draw(meshData.vertexBuffer, meshData.startVertex,

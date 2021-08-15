@@ -43,7 +43,12 @@ private:
   };
 
   EnumArray<TextureStageState, u32, TEXTURE_STAGE_STATE_COUNT> mTextureStates;
-  EnumArray<TransformState, Mat4f32, TRANSFORM_STATE_COUNT> mTransforms;
+  EnumArray<TransformState, Mat4f32, TRANSFORM_STATE_COUNT> mTransforms {
+    {TransformState::Projection, Mat4f32::identity()},
+    {TransformState::View, Mat4f32::identity()},
+    {TransformState::World, Mat4f32::identity()},
+    {TransformState::Texture, Mat4f32::identity()},
+  };
   Material mMaterial;
   Texture mBoundTexture {Texture::null()};
   Sampler mBoundSampler {Sampler::null()};

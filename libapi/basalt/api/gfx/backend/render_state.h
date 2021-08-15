@@ -13,6 +13,8 @@ struct RenderState {
   constexpr RenderState(const RenderState&) = default;
   constexpr RenderState(RenderState&&) = default;
 
+  ~RenderState() = default;
+
   constexpr auto operator=(const RenderState&) -> RenderState& = delete;
   constexpr auto operator=(RenderState&&) -> RenderState& = delete;
 

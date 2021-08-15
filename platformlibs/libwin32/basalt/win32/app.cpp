@@ -227,8 +227,8 @@ void App::run(Config& config, const HMODULE moduleHandle,
     // command instead.
     surface.draw(dearImGui);
 
-    const Composite composite =
-      Compositor::compose(app.mGfxResourceCache, surface);
+    const Composite composite {
+      Compositor::compose(app.mGfxResourceCache, surface)};
 
     if (config.get_bool("runtime.debugUI.enabled"s)) {
       Debug::update();

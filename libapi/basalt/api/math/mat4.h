@@ -51,26 +51,43 @@ struct Mat4 final {
   }
 
   constexpr auto operator*=(const Mat4& rhs) noexcept -> Mat4& {
-    *this =
-      Mat4 {rhs.m11 * m11 + rhs.m21 * m12 + rhs.m31 * m13 + rhs.m41 * m14,
-            rhs.m12 * m11 + rhs.m22 * m12 + rhs.m32 * m13 + rhs.m42 * m14,
-            rhs.m13 * m11 + rhs.m23 * m12 + rhs.m33 * m13 + rhs.m43 * m14,
-            rhs.m14 * m11 + rhs.m24 * m12 + rhs.m34 * m13 + rhs.m44 * m14,
+    const Mat4 lhs {*this};
 
-            rhs.m11 * m21 + rhs.m21 * m22 + rhs.m31 * m23 + rhs.m41 * m24,
-            rhs.m12 * m21 + rhs.m22 * m22 + rhs.m32 * m23 + rhs.m42 * m24,
-            rhs.m13 * m21 + rhs.m23 * m22 + rhs.m33 * m23 + rhs.m43 * m24,
-            rhs.m14 * m21 + rhs.m24 * m22 + rhs.m34 * m23 + rhs.m44 * m24,
+    m11 = lhs.m11 * rhs.m11 + lhs.m12 * rhs.m21 + lhs.m13 * rhs.m31 +
+          lhs.m14 * rhs.m41;
+    m12 = lhs.m11 * rhs.m12 + lhs.m12 * rhs.m22 + lhs.m13 * rhs.m32 +
+          lhs.m14 * rhs.m42;
+    m13 = lhs.m11 * rhs.m13 + lhs.m12 * rhs.m23 + lhs.m13 * rhs.m33 +
+          lhs.m14 * rhs.m43;
+    m14 = lhs.m11 * rhs.m14 + lhs.m12 * rhs.m24 + lhs.m13 * rhs.m34 +
+          lhs.m14 * rhs.m44;
 
-            rhs.m11 * m31 + rhs.m21 * m32 + rhs.m31 * m33 + rhs.m41 * m34,
-            rhs.m12 * m31 + rhs.m22 * m32 + rhs.m32 * m33 + rhs.m42 * m34,
-            rhs.m13 * m31 + rhs.m23 * m32 + rhs.m33 * m33 + rhs.m43 * m34,
-            rhs.m14 * m31 + rhs.m24 * m32 + rhs.m34 * m33 + rhs.m44 * m34,
+    m21 = lhs.m21 * rhs.m11 + lhs.m22 * rhs.m21 + lhs.m23 * rhs.m31 +
+          lhs.m24 * rhs.m41;
+    m22 = lhs.m21 * rhs.m12 + lhs.m22 * rhs.m22 + lhs.m23 * rhs.m32 +
+          lhs.m24 * rhs.m42;
+    m23 = lhs.m21 * rhs.m13 + lhs.m22 * rhs.m23 + lhs.m23 * rhs.m33 +
+          lhs.m24 * rhs.m43;
+    m24 = lhs.m21 * rhs.m14 + lhs.m22 * rhs.m24 + lhs.m23 * rhs.m34 +
+          lhs.m24 * rhs.m44;
 
-            rhs.m11 * m41 + rhs.m21 * m42 + rhs.m31 * m43 + rhs.m41 * m44,
-            rhs.m12 * m41 + rhs.m22 * m42 + rhs.m32 * m43 + rhs.m42 * m44,
-            rhs.m13 * m41 + rhs.m23 * m42 + rhs.m33 * m43 + rhs.m43 * m44,
-            rhs.m14 * m41 + rhs.m24 * m42 + rhs.m34 * m43 + rhs.m44 * m44};
+    m31 = lhs.m31 * rhs.m11 + lhs.m32 * rhs.m21 + lhs.m33 * rhs.m31 +
+          lhs.m34 * rhs.m41;
+    m32 = lhs.m31 * rhs.m12 + lhs.m32 * rhs.m22 + lhs.m33 * rhs.m32 +
+          lhs.m34 * rhs.m42;
+    m33 = lhs.m31 * rhs.m13 + lhs.m32 * rhs.m23 + lhs.m33 * rhs.m33 +
+          lhs.m34 * rhs.m43;
+    m34 = lhs.m31 * rhs.m14 + lhs.m32 * rhs.m24 + lhs.m33 * rhs.m34 +
+          lhs.m34 * rhs.m44;
+
+    m41 = lhs.m41 * rhs.m11 + lhs.m42 * rhs.m21 + lhs.m43 * rhs.m31 +
+          lhs.m44 * rhs.m41;
+    m42 = lhs.m41 * rhs.m12 + lhs.m42 * rhs.m22 + lhs.m43 * rhs.m32 +
+          lhs.m44 * rhs.m42;
+    m43 = lhs.m41 * rhs.m13 + lhs.m42 * rhs.m23 + lhs.m43 * rhs.m33 +
+          lhs.m44 * rhs.m43;
+    m44 = lhs.m41 * rhs.m14 + lhs.m42 * rhs.m24 + lhs.m43 * rhs.m34 +
+          lhs.m44 * rhs.m44;
 
     return *this;
   }
