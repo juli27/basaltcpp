@@ -63,9 +63,9 @@ private:
   void execute(const CommandSetTransform&) const;
   void execute(const CommandSetMaterial&) const;
   void execute(const CommandSetRenderState&) const;
-  void execute(const CommandSetTexture&) const;
+  void execute(const CommandBindTexture&) const;
   void execute(const CommandSetTextureStageState&) const;
-  void execute(const CommandSetSampler&) const;
+  void execute(const CommandBindSampler&) const;
 };
 
 } // namespace basalt::gfx

@@ -101,22 +101,22 @@ struct CommandSetTextureStageState final
 
 static_assert(sizeof(CommandSetTextureStageState) == 8);
 
-struct CommandSetTexture final : CommandT<CommandType::SetTexture> {
+struct CommandBindTexture final : CommandT<CommandType::BindTexture> {
   Texture texture {Texture::null()};
 
-  constexpr explicit CommandSetTexture(const Texture t) noexcept : texture {t} {
+  constexpr explicit CommandBindTexture(const Texture t) noexcept : texture {t} {
   }
 };
 
-static_assert(sizeof(CommandSetTexture) == 8);
+static_assert(sizeof(CommandBindTexture) == 8);
 
-struct CommandSetSampler final : CommandT<CommandType::SetSampler> {
+struct CommandBindSampler final : CommandT<CommandType::BindSampler> {
   Sampler sampler {Sampler::null()};
 
-  constexpr explicit CommandSetSampler(const Sampler s) noexcept : sampler{s} {
+  constexpr explicit CommandBindSampler(const Sampler s) noexcept : sampler{s} {
   }
 };
 
-static_assert(sizeof(CommandSetSampler) == 8);
+static_assert(sizeof(CommandBindSampler) == 8);
 
 } // namespace basalt::gfx

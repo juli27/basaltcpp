@@ -56,15 +56,15 @@ void CommandListRecorder::set_render_state(const RenderState& renderState) {
   }
 }
 
-void CommandListRecorder::set_texture(const Texture texture) {
+void CommandListRecorder::bind_texture(const Texture texture) {
   if (mDeviceState.update(texture)) {
-    mCommandList.add<CommandSetTexture>(texture);
+    mCommandList.add<CommandBindTexture>(texture);
   }
 }
 
-void CommandListRecorder::set_sampler(const Sampler sampler) {
+void CommandListRecorder::bind_sampler(const Sampler sampler) {
   if (mDeviceState.update(sampler)) {
-    mCommandList.add<CommandSetSampler>(sampler);
+    mCommandList.add<CommandBindSampler>(sampler);
   }
 }
 

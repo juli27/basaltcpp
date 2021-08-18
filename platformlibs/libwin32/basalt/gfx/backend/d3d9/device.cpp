@@ -270,9 +270,9 @@ void D3D9Device::execute(const CommandList& cmdList) {
       EXECUTE(CommandSetTransform);
       EXECUTE(CommandSetMaterial);
       EXECUTE(CommandSetRenderState);
-      EXECUTE(CommandSetTexture);
+      EXECUTE(CommandBindTexture);
       EXECUTE(CommandSetTextureStageState);
-      EXECUTE(CommandSetSampler);
+      EXECUTE(CommandBindSampler);
 
     case CommandType::ExtDrawXModel:
       std::static_pointer_cast<D3D9XModelSupport>(
@@ -466,7 +466,7 @@ void D3D9Device::execute(const CommandSetRenderState& cmd) const {
   D3D9CALL(mDevice->SetRenderState(renderState, value));
 }
 
-void D3D9Device::execute(const CommandSetTexture& cmd) const {
+void D3D9Device::execute(const CommandBindTexture& cmd) const {
   const auto& texture = mTextures[cmd.texture];
   D3D9CALL(mDevice->SetTexture(0, texture.Get()));
 }
@@ -478,7 +478,7 @@ void D3D9Device::execute(const CommandSetTextureStageState& cmd) const {
   D3D9CALL(mDevice->SetTextureStageState(0, textureStageState, value));
 }
 
-void D3D9Device::execute(const CommandSetSampler& cmd) const {
+void D3D9Device::execute(const CommandBindSampler& cmd) const {
   const auto& data {mSamplers[cmd.sampler]};
 
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, data.minFilter));

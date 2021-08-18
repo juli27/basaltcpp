@@ -24,8 +24,8 @@ struct CommandListRecorder final {
   void set_material(const Color& diffuse, const Color& ambient,
                     const Color& emissive);
   void set_render_state(const RenderState&);
-  void set_texture(Texture);
-  void set_sampler(Sampler);
+  void bind_texture(Texture);
+  void bind_sampler(Sampler);
 
   // TODO: stage currently not supported
   void set_texture_stage_state(u8 stage, TextureStageState, u32 value);

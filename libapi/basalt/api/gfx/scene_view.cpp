@@ -32,8 +32,8 @@ void record_material(CommandListRecorder& cmdList, const MaterialData& data) {
   cmdList.set_render_state(RenderState::fill_mode(
     std::get<FillMode>(data.renderStates[RenderStateType::FillMode])));
 
-  cmdList.set_texture(data.texture);
-  cmdList.set_sampler(data.sampler);
+  cmdList.bind_texture(data.texture);
+  cmdList.bind_sampler(data.sampler);
 
   cmdList.set_texture_stage_state(
     0, TextureStageState::CoordinateSource,

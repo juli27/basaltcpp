@@ -38,8 +38,8 @@ enum class CommandType : u8 {
   Clear,
   Draw,
   SetRenderState,
-  SetTexture,
-  SetSampler,
+  BindTexture,
+  BindSampler,
 
   // fixed function only
   SetTextureStageState,

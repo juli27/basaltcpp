@@ -363,8 +363,8 @@ void display(const CommandSetRenderState& cmd) {
   }
 }
 
-void display(const CommandSetTexture& cmd) {
-  ImGui::TextUnformatted("SetTexture");
+void display(const CommandBindTexture& cmd) {
+  ImGui::TextUnformatted("BindTexture");
   if (ImGui::IsItemHovered()) {
     ImGui::SetTooltip("handle = %#x", cmd.texture.value());
   }
@@ -388,8 +388,8 @@ void display(const CommandSetTextureStageState& cmd) {
   }
 }
 
-void display(const CommandSetSampler& cmd) {
-  ImGui::TextUnformatted("SetSampler");
+void display(const CommandBindSampler& cmd) {
+  ImGui::TextUnformatted("BindSampler");
   if (ImGui::IsItemHovered()) {
     ImGui::SetTooltip("handle = %#x", cmd.sampler.value());
   }
@@ -434,9 +434,9 @@ void draw_composite_inspector(const Composite& composite) {
           DISPLAY(CommandSetTransform);
           DISPLAY(CommandSetMaterial);
           DISPLAY(CommandSetRenderState);
-          DISPLAY(CommandSetTexture);
+          DISPLAY(CommandBindTexture);
           DISPLAY(CommandSetTextureStageState);
-          DISPLAY(CommandSetSampler);
+          DISPLAY(CommandBindSampler);
 
           DISPLAY(ext::CommandDrawXModel);
           DISPLAY(ext::CommandRenderDearImGui);
