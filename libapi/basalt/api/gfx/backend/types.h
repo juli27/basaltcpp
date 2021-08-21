@@ -170,7 +170,7 @@ constexpr uSize PRIMITIVE_TYPE_COUNT = 6u;
 enum class TextureFilter : u8 {
   Point,
   Linear,
-  Anisotropic, // TODO: check for support and set level
+  LinearAnisotropic, // TODO: check for support and set level
 };
 constexpr uSize TEXTURE_FILTER_COUNT {3u};
 

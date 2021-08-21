@@ -114,7 +114,7 @@ Textures::Textures(basalt::Engine& engine)
   materialDesc.texture.mipFilter = TextureMipFilter::Linear;
   mLinearSamplerWithMip = gfxResources.create_material(materialDesc);
 
-  materialDesc.texture.minFilter = TextureFilter::Anisotropic;
+  materialDesc.texture.minFilter = TextureFilter::LinearAnisotropic;
   materialDesc.texture.magFilter = TextureFilter::Linear;
   materialDesc.texture.mipFilter = TextureMipFilter::None;
   mAnisotropicSampler = gfxResources.create_material(materialDesc);

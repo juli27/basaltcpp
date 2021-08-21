@@ -164,7 +164,7 @@ auto to_d3d_texture_filter_type(const TextureFilter filter)
   static constexpr EnumArray<TextureFilter, D3DTEXTUREFILTERTYPE, 3> TO_D3D {
     {TextureFilter::Point, D3DTEXF_POINT},
     {TextureFilter::Linear, D3DTEXF_LINEAR},
-    {TextureFilter::Anisotropic, D3DTEXF_ANISOTROPIC},
+    {TextureFilter::LinearAnisotropic, D3DTEXF_ANISOTROPIC},
   };
 
   static_assert(TEXTURE_FILTER_COUNT == TO_D3D.size());

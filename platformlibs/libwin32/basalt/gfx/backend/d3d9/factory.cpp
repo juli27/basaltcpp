@@ -100,6 +100,54 @@ auto create_info(IDirect3D9& factory) -> Info {
   return info;
 }
 
+auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
+  if (!(caps.TextureCaps & D3DPTEXTURECAPS_PERSPECTIVE)) {
+    return false;
+  }
+
+  if (!(caps.TextureCaps & D3DPTEXTURECAPS_ALPHA)) {
+    return false;
+  }
+
+  if (caps.TextureCaps & D3DPTEXTURECAPS_SQUAREONLY) {
+    return false;
+  }
+
+  if (!(caps.TextureCaps & D3DPTEXTURECAPS_PROJECTED)) {
+    return false;
+  }
+
+  if (!(caps.TextureCaps & D3DPTEXTURECAPS_MIPMAP)) {
+    return false;
+  }
+
+  if (!(caps.TextureFilterCaps & D3DPTFILTERCAPS_MINFPOINT)) {
+    return false;
+  }
+
+  if (!(caps.TextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR)) {
+    return false;
+  }
+
+  if (!(caps.TextureFilterCaps & D3DPTFILTERCAPS_MIPFPOINT)) {
+    return false;
+  }
+
+  if (!(caps.TextureFilterCaps & D3DPTFILTERCAPS_MIPFLINEAR)) {
+    return false;
+  }
+
+  if (!(caps.TextureFilterCaps & D3DPTFILTERCAPS_MAGFPOINT)) {
+    return false;
+  }
+
+  if (!(caps.TextureFilterCaps & D3DPTFILTERCAPS_MAGFLINEAR)) {
+    return false;
+  }
+
+  return true;
+}
+
 } // namespace
 
 D3D9Factory::D3D9Factory(Token, ComPtr<IDirect3D9> factory, Info info)
@@ -157,10 +205,19 @@ auto D3D9Factory::create_device_and_context(
     pp.FullScreen_RefreshRateInHz = displayMode.RefreshRate;
   }
 
+  constexpr DWORD flags {D3DCREATE_HARDWARE_VERTEXPROCESSING |
+                         D3DCREATE_DISABLE_DRIVER_MANAGEMENT};
+
   ComPtr<IDirect3DDevice9> d3d9Device;
-  D3D9CALL(mFactory->CreateDevice(desc.adapterIndex, DEVICE_TYPE, window,
-                                  D3DCREATE_HARDWARE_VERTEXPROCESSING, &pp,
-                                  &d3d9Device));
+  D3D9CALL(mFactory->CreateDevice(desc.adapterIndex, DEVICE_TYPE, window, flags,
+                                  &pp, &d3d9Device));
+
+  D3DCAPS9 caps {};
+  D3D9CALL(d3d9Device->GetDeviceCaps(&caps));
+
+  if (!verify_minimum_caps(caps)) {
+    BASALT_LOG_ERROR("minimum device caps not satisfied");
+  }
 
   auto device = std::make_shared<D3D9Device>(std::move(d3d9Device));
   auto context = std::make_shared<D3D9Context>(device);
