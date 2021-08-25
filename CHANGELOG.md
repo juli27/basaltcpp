@@ -44,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Collapsed BASALT_ASSERT_MSG into BASALT_ASSERT
 - Refactored Config into a generic key-value store
 - Updated Dear ImGui (v1.72b -> v1.82)
-- Updated EnTT (19ef290 -> v3.6.0)
+- Updated EnTT (19ef290 -> v3.7.1)
 - Updated fmt (5.3.0 -> 7.1.3)
 - Updated spdlog (1.3.1 -> 1.8.5)
   - now compiled as a static library
