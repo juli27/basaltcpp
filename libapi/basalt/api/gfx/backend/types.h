@@ -181,10 +181,23 @@ enum class TextureMipFilter : u8 {
 };
 constexpr uSize TEXTURE_MIP_FILTER_COUNT {3u};
 
+// TODO: support border and custom border color (no/partial support in Vulkan
+// and OpenGL ES)
+// TODO: support MirrorOnce
+enum class TextureAddressMode {
+  WrapRepeat,
+  MirrorRepeat,
+  ClampEdge,
+};
+constexpr uSize TEXTURE_ADDRESS_MODE_COUNT {3u};
+
 struct SamplerDescription final {
   TextureFilter minFilter {TextureFilter::Point};
   TextureFilter magFilter {TextureFilter::Point};
   TextureMipFilter mipFilter {TextureMipFilter::None};
+  TextureAddressMode addressModeU {TextureAddressMode::WrapRepeat};
+  TextureAddressMode addressModeV {TextureAddressMode::WrapRepeat};
+  TextureAddressMode addressModeW {TextureAddressMode::WrapRepeat};
 };
 
 namespace detail {

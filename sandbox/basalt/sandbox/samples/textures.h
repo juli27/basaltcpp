@@ -15,6 +15,8 @@
 
 namespace samples {
 
+// TODO: when supporting dynamic buffers: texture coordinate modification and
+// address mode demo
 struct Textures final : TestCase {
   explicit Textures(basalt::Engine&);
 

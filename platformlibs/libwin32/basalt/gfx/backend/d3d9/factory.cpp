@@ -145,6 +145,22 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
     return false;
   }
 
+  if (!(caps.TextureAddressCaps & D3DPTADDRESSCAPS_WRAP)) {
+    return false;
+  }
+
+  if (!(caps.TextureAddressCaps & D3DPTADDRESSCAPS_MIRROR)) {
+    return false;
+  }
+
+  if (!(caps.TextureAddressCaps & D3DPTADDRESSCAPS_CLAMP)) {
+    return false;
+  }
+
+  if (!(caps.TextureAddressCaps & D3DPTADDRESSCAPS_INDEPENDENTUV)) {
+    return false;
+  }
+
   return true;
 }
 

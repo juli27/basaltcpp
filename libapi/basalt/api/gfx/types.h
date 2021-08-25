@@ -57,6 +57,8 @@ struct TextureSamplerDescription final {
   TextureFilter minFilter {TextureFilter::Point};
   TextureFilter magFilter {TextureFilter::Point};
   TextureMipFilter mipFilter {TextureMipFilter::None};
+  TextureAddressMode addressModeU {TextureAddressMode::WrapRepeat};
+  TextureAddressMode addressModeV {TextureAddressMode::WrapRepeat};
 };
 
 struct MaterialDescriptor final {
@@ -76,7 +78,7 @@ struct MaterialDescriptor final {
   bool textureTransformProjected {false};
 };
 
-static_assert(sizeof(MaterialDescriptor) == 48);
+static_assert(sizeof(MaterialDescriptor) == 56);
 
 struct RenderComponent final {
   Mesh mesh {Mesh::null()};

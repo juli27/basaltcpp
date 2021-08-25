@@ -159,8 +159,7 @@ auto to_d3d(const RenderState& rs) -> std::tuple<D3DRENDERSTATETYPE, DWORD> {
   return {d3dRs, d3dValue};
 }
 
-auto to_d3d_texture_filter_type(const TextureFilter filter)
-  -> D3DTEXTUREFILTERTYPE {
+auto to_d3d(const TextureFilter filter) -> D3DTEXTUREFILTERTYPE {
   static constexpr EnumArray<TextureFilter, D3DTEXTUREFILTERTYPE, 3> TO_D3D {
     {TextureFilter::Point, D3DTEXF_POINT},
     {TextureFilter::Linear, D3DTEXF_LINEAR},
@@ -172,8 +171,7 @@ auto to_d3d_texture_filter_type(const TextureFilter filter)
   return TO_D3D[filter];
 }
 
-auto to_d3d_texture_filter_type(const TextureMipFilter filter)
-  -> D3DTEXTUREFILTERTYPE {
+auto to_d3d(const TextureMipFilter filter) -> D3DTEXTUREFILTERTYPE {
   static constexpr EnumArray<TextureMipFilter, D3DTEXTUREFILTERTYPE, 3> TO_D3D {
     {TextureMipFilter::None, D3DTEXF_NONE},
     {TextureMipFilter::Point, D3DTEXF_POINT},
@@ -183,6 +181,18 @@ auto to_d3d_texture_filter_type(const TextureMipFilter filter)
   static_assert(TEXTURE_MIP_FILTER_COUNT == TO_D3D.size());
 
   return TO_D3D[filter];
+}
+
+auto to_d3d(const TextureAddressMode mode) -> D3DTEXTUREADDRESS {
+  static constexpr EnumArray<TextureAddressMode, D3DTEXTUREADDRESS, 3> TO_D3D {
+    {TextureAddressMode::WrapRepeat, D3DTADDRESS_WRAP},
+    {TextureAddressMode::MirrorRepeat, D3DTADDRESS_MIRROR},
+    {TextureAddressMode::ClampEdge, D3DTADDRESS_CLAMP},
+  };
+
+  static_assert(TEXTURE_ADDRESS_MODE_COUNT == TO_D3D.size());
+
+  return TO_D3D[mode];
 }
 
 auto to_d3d_texture_stage_state(TextureStageState state, u32 value)
@@ -297,6 +307,9 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY, 1));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, D3DTADDRESS_WRAP));
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
                                          D3DTTFF_DISABLE));
@@ -369,9 +382,12 @@ auto D3D9Device::add_texture(const string_view filePath) -> Texture {
 auto D3D9Device::create_sampler(const SamplerDescription& desc) -> Sampler {
   const auto [handle, data] = mSamplers.allocate();
 
-  data.minFilter = to_d3d_texture_filter_type(desc.minFilter);
-  data.magFilter = to_d3d_texture_filter_type(desc.magFilter);
-  data.mipFilter = to_d3d_texture_filter_type(desc.mipFilter);
+  data.minFilter = to_d3d(desc.minFilter);
+  data.magFilter = to_d3d(desc.magFilter);
+  data.mipFilter = to_d3d(desc.mipFilter);
+  data.addressModeU = to_d3d(desc.addressModeU);
+  data.addressModeV = to_d3d(desc.addressModeV);
+  data.addressModeW = to_d3d(desc.addressModeW);
 
   return handle;
 }
@@ -486,6 +502,9 @@ void D3D9Device::execute(const CommandBindSampler& cmd) const {
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, data.mipFilter));
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY,
                                     mDeviceCaps.MaxAnisotropy));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, data.addressModeU));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, data.addressModeV));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, data.addressModeW));
 }
 
 namespace {
