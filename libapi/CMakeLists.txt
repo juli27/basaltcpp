@@ -4,6 +4,7 @@ set(CURRENT_TARGET LibAPI)
 
 target_link_libraries(${CURRENT_TARGET}
   PUBLIC
+    EnTT::EnTT
     ExternalHeaderOnly
     DearImGui
     Fmt
