@@ -197,8 +197,7 @@ auto D3D9Factory::get_adapter_monitor(const u32 adapterIndex) const
 }
 
 auto D3D9Factory::create_device_and_context(
-  const HWND window, const DeviceAndContextDesc& desc) const
-  -> tuple<DevicePtr, ContextPtr> {
+  const HWND window, const DeviceAndContextDesc& desc) const -> ContextPtr {
   BASALT_ASSERT(desc.adapterIndex < get_adapter_count());
 
   D3DPRESENT_PARAMETERS pp {};
@@ -235,10 +234,9 @@ auto D3D9Factory::create_device_and_context(
     BASALT_LOG_ERROR("minimum device caps not satisfied");
   }
 
-  auto device = std::make_shared<D3D9Device>(std::move(d3d9Device));
-  auto context = std::make_shared<D3D9Context>(device);
+  auto device = std::make_unique<D3D9Device>(std::move(d3d9Device));
 
-  return std::make_tuple(std::move(device), std::move(context));
+  return std::make_unique<D3D9Context>(std::move(device));
 }
 
 auto D3D9Factory::create() -> D3D9FactoryPtr {

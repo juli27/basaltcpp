@@ -30,9 +30,8 @@ auto convert(const TextureCoordinateSource s) -> TexCoordinateSrc {
 } // namespace
 
 ResourceCache::ResourceCache(ResourceRegistryPtr resourceRegistry,
-                             DevicePtr device)
-  : mResourceRegistry {std::move(resourceRegistry)}
-  , mDevice {std::move(device)} {
+                             Device& device)
+  : mResourceRegistry {std::move(resourceRegistry)}, mDevice {device} {
 }
 
 auto ResourceCache::is_loaded(const ResourceId id) const -> bool {
@@ -45,7 +44,7 @@ auto ResourceCache::load(const ResourceId id) -> ext::XModel {
   BASALT_ASSERT(!is_loaded(id), "XModel already loaded");
 
   const auto modelExt =
-    *gfx::query_device_extension<ext::XModelSupport>(*mDevice);
+    *gfx::query_device_extension<ext::XModelSupport>(mDevice);
 
   const auto& path = mResourceRegistry->get_path(id);
 
@@ -57,12 +56,12 @@ auto ResourceCache::load(const ResourceId id) -> Texture {
   BASALT_ASSERT(!is_loaded(id), "Texture already loaded");
 
   const auto& path = mResourceRegistry->get_path(id);
-  return mTextures[id] = mDevice->add_texture(path.u8string());
+  return mTextures[id] = mDevice.load_texture(path);
 }
 
 auto ResourceCache::create_mesh(const MeshDescriptor& desc) -> Mesh {
   auto [mesh, data] = mMeshes.allocate();
-  data.vertexBuffer = mDevice->create_vertex_buffer(desc.data, desc.layout);
+  data.vertexBuffer = mDevice.create_vertex_buffer(desc.data, desc.layout);
   data.primitiveType = desc.primitiveType;
   data.primitiveCount = desc.primitiveCount;
 
@@ -106,7 +105,7 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
   const SamplerDescription samplerDesc {
     desc.texture.minFilter, desc.texture.magFilter, desc.texture.mipFilter,
     desc.texture.addressModeU, desc.texture.addressModeV};
-  data.sampler = mDevice->create_sampler(samplerDesc);
+  data.sampler = mDevice.create_sampler(samplerDesc);
 
   return handle;
 }

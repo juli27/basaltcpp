@@ -35,6 +35,7 @@
 using std::array;
 using std::optional;
 using std::string_view;
+using std::filesystem::path;
 
 using Microsoft::WRL::ComPtr;
 
@@ -367,13 +368,14 @@ auto D3D9Device::create_vertex_buffer(const gsl::span<const std::byte> data,
   return handle;
 }
 
-auto D3D9Device::add_texture(const string_view filePath) -> Texture {
+auto D3D9Device::load_texture(const path& filePath) -> Texture {
   const auto [handle, texture] = mTextures.allocate();
 
-  const auto wideFilePath = create_wide_from_utf8(filePath);
-  if (FAILED(::D3DXCreateTextureFromFileW(mDevice.Get(), wideFilePath.c_str(),
-                                          texture.GetAddressOf()))) {
-    throw std::runtime_error("loading texture file failed");
+  if (FAILED(D3DXCreateTextureFromFileExW(
+        mDevice.Get(), filePath.c_str(), D3DX_DEFAULT, D3DX_DEFAULT,
+        D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT,
+        D3DX_DEFAULT, 0, nullptr, nullptr, &texture))) {
+    throw std::runtime_error {"loading texture file failed"};
   }
 
   return handle;

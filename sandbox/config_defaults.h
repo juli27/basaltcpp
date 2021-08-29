@@ -9,6 +9,5 @@
   {"runtime.debugUI.enabled"s, true}, {"window.title"s, "Basalt Sandbox"s},    \
     {"window.resizeable"s, true},                                              \
     {"window.mode"s, enum_cast(basalt::WindowMode::Windowed)},                 \
-    {"window.surface.windowedSize.width"s, 0},                                 \
-    {"window.surface.windowedSize.height"s, 0},                                \
+    {"window.size.width"s, 0}, {"window.size.height"s, 0},                     \
     {"gfx.backend.api"s, enum_cast(basalt::GfxBackendApi::Default)},

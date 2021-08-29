@@ -9,6 +9,7 @@
 
 #include <wrl/client.h>
 
+#include <filesystem>
 #include <unordered_map>
 
 namespace basalt::gfx {
@@ -27,7 +28,7 @@ struct D3D9Device final : Device {
   auto create_vertex_buffer(gsl::span<const std::byte> data,
                             const VertexLayout&) -> VertexBuffer override;
 
-  auto add_texture(std::string_view filePath) -> Texture override;
+  auto load_texture(const std::filesystem::path&) -> Texture override;
 
   auto create_sampler(const SamplerDescription&) -> Sampler override;
 

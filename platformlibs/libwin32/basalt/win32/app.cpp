@@ -31,7 +31,6 @@
 
 #include <chrono>
 #include <string>
-#include <utility>
 
 using namespace std::literals;
 
@@ -54,10 +53,9 @@ void dump_config(const Config& config) {
   BASALT_LOG_INFO("\tgfx.backend.api = {}"sv,
                   config.get_i32("gfx.backend.api"s));
   BASALT_LOG_INFO("\twindow.title = {}"sv, config.get_string("window.title"s));
-  BASALT_LOG_INFO("\twindow.surface.windowedSize = "
-                  "{{.width = {}, .height = {}}}"sv,
-                  config.get_i32("window.surface.windowedSize.width"),
-                  config.get_i32("window.surface.windowedSize.height"));
+  BASALT_LOG_INFO("\twindow.size = {{.width = {}, .height = {}}}"sv,
+                  config.get_i32("window.size.width"),
+                  config.get_i32("window.size.height"));
   BASALT_LOG_INFO("\twindow.mode = {}"sv, config.get_i32("window.mode"s));
   BASALT_LOG_INFO("\twindow.resizeable = {}"sv,
                   config.get_bool("window.resizeable"s));
@@ -133,7 +131,7 @@ void App::run(Config& config, const HMODULE moduleHandle,
               const int showCommand) {
   dump_config(config);
 
-  const auto gfxFactory {D3D9Factory::create()};
+  const D3D9FactoryPtr gfxFactory {D3D9Factory::create()};
   if (!gfxFactory) {
     BASALT_LOG_FATAL("couldn't create any gfx factory");
 
@@ -141,26 +139,23 @@ void App::run(Config& config, const HMODULE moduleHandle,
   }
 
   const Size2Du16 windowedSurfaceSize {
-    static_cast<u16>(config.get_i32("window.surface.windowedSize.width"s)),
-    static_cast<u16>(config.get_i32("window.surface.windowedSize.height"s))};
+    static_cast<u16>(config.get_i32("window.size.width"s)),
+    static_cast<u16>(config.get_i32("window.size.height"s))};
   const Window::Desc windowDesc {
-    config.get_string("window.title"s), windowedSurfaceSize,
+    config.get_string("window.title"s),
+    windowedSurfaceSize,
     config.get_enum("window.mode"s, to_window_mode),
-    config.get_bool("window.resizeable"s)};
+    config.get_bool("window.resizeable"s),
+  };
   const WindowPtr window {
-    Window::create(moduleHandle, showCommand, windowDesc)};
+    Window::create(moduleHandle, showCommand, windowDesc, *gfxFactory)};
   if (!window) {
     BASALT_LOG_FATAL("failed to create window");
 
     return;
   }
 
-  D3D9Factory::DeviceAndContextDesc deviceAndContextDesc {};
-  deviceAndContextDesc.exclusive =
-    window->mode() == WindowMode::FullscreenExclusive;
-
-  const auto [gfxDevice, gfxContext] = gfxFactory->create_device_and_context(
-    window->handle(), deviceAndContextDesc);
+  gfx::Context& gfxContext {window->gfx_context()};
 
   const gfx::Info& gfxInfo {gfxFactory->info()};
 
@@ -168,7 +163,7 @@ void App::run(Config& config, const HMODULE moduleHandle,
                   gfxInfo.adapters[0].displayName,
                   gfxInfo.adapters[0].driverInfo);
 
-  const auto dearImGui {std::make_shared<DearImGui>(*gfxDevice)};
+  const auto dearImGui {std::make_shared<DearImGui>(gfxContext.device())};
   ImGuiIO& io {ImGui::GetIO()};
   io.ImeWindowHandle = window->handle();
 
@@ -185,27 +180,9 @@ void App::run(Config& config, const HMODULE moduleHandle,
   auto startTime {Clock::now()};
 
   while (poll_events()) {
-    if (const Size2Du16 size {window->client_area_size()};
-        config.get_enum("window.mode"s, to_window_mode) != window->mode() ||
-        size != gfxContext->surface_size() &&
-          window->mode() == WindowMode::Windowed) {
-      // call Window::set_mode after resetting the context when leaving
-      // exclusive mode because the D3D9 runtime handles all exclusive mode
-      // window changes
-      if (window->mode() == WindowMode::FullscreenExclusive) {
-        gfx::Context::ResetDesc desc {};
-        gfxContext->reset(desc);
-
-        window->set_mode(config.get_enum("window.mode"s, to_window_mode));
-      } else {
-        const WindowMode mode = config.get_enum("window.mode"s, to_window_mode);
-        window->set_mode(mode);
-
-        gfx::Context::ResetDesc desc {};
-        desc.windowBackBufferSize = window->client_area_size();
-        desc.exclusive = mode == WindowMode::FullscreenExclusive;
-        gfxContext->reset(desc);
-      }
+    if (const WindowMode mode {config.get_enum("window.mode"s, to_window_mode)};
+        mode != window->mode()) {
+      window->set_mode(mode);
     }
 
     window->input_manager().dispatch_pending(app.mInputLayers);
@@ -217,7 +194,7 @@ void App::run(Config& config, const HMODULE moduleHandle,
       window->set_cursor(app.mMouseCursor);
     }
 
-    gfx::Surface surface {gfxContext->surface_size()};
+    gfx::Surface surface {gfxContext.surface_size()};
     if (app.mWindowSurfaceContent) {
       surface.draw(app.mWindowSurfaceContent);
     }
@@ -235,12 +212,12 @@ void App::run(Config& config, const HMODULE moduleHandle,
       gfx::Debug::update(gfxInfo, composite);
     }
 
-    gfxContext->submit(composite);
-    switch (gfxContext->present()) {
+    gfxContext.submit(composite);
+    switch (gfxContext.present()) {
     case gfx::PresentResult::Ok:
       break;
     case gfx::PresentResult::DeviceLost:
-      if (!run_lost_device_loop(*gfxContext)) {
+      if (!run_lost_device_loop(gfxContext)) {
         quit();
       }
 
@@ -254,8 +231,8 @@ void App::run(Config& config, const HMODULE moduleHandle,
   }
 }
 
-App::App(Config& config, gfx::ContextPtr gfxContext)
-  : Engine {config, std::move(gfxContext)} {
+App::App(Config& config, gfx::Context& gfxContext)
+  : Engine {config, gfxContext} {
 }
 
 namespace {

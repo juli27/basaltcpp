@@ -12,7 +12,7 @@
 namespace basalt::gfx {
 
 struct ResourceCache {
-  explicit ResourceCache(ResourceRegistryPtr, DevicePtr);
+  explicit ResourceCache(ResourceRegistryPtr, Device&);
 
   template <typename T>
   auto load(ResourceId) -> T;
@@ -30,7 +30,7 @@ struct ResourceCache {
 
 private:
   ResourceRegistryPtr mResourceRegistry;
-  DevicePtr mDevice;
+  Device& mDevice;
   std::unordered_map<ResourceId, ext::XModel> mModels;
   std::unordered_map<ResourceId, Texture> mTextures;
   HandlePool<MeshData, Mesh> mMeshes;

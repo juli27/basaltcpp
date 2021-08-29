@@ -10,6 +10,10 @@
 
 #include <basalt/win32/shared/utils.h>
 
+#include <basalt/gfx/backend/d3d9/factory.h>
+
+#include <basalt/api/gfx/backend/context.h>
+
 #include <basalt/api/shared/log.h>
 
 #include <basalt/api/base/utils.h>
@@ -79,155 +83,14 @@ auto calc_window_rect(const int posX, const int posY, const DWORD style,
 
 } // namespace
 
-Window::~Window() {
-  if (!DestroyWindow(mHandle)) {
-    BASALT_LOG_ERROR("DestroyWindow failed: {}",
-                     create_win32_error_message(GetLastError()));
-  }
-
-  if (!UnregisterClassW(CLASS_NAME, mModuleHandle)) {
-    BASALT_LOG_ERROR("UnregisterClassW failed: {}",
-                     create_win32_error_message(::GetLastError()));
-  }
-}
-
-auto Window::handle() const noexcept -> HWND {
-  return mHandle;
-}
-
-auto Window::input_manager() noexcept -> InputManager& {
-  return mInputManager;
-}
-
-auto Window::client_area_size() const noexcept -> Size2Du16 {
-  return mClientAreaSize;
-}
-
-auto Window::mode() const noexcept -> WindowMode {
-  return mCurrentMode;
-}
-
-void Window::set_mode(const WindowMode windowMode) {
-  if (mCurrentMode == windowMode) {
-    return;
-  }
-
-  auto style {static_cast<DWORD>(GetWindowLongPtrW(mHandle, GWL_STYLE))};
-  RECT rect {};
-  UINT swpFlags {};
-
-  if (mCurrentMode == WindowMode::Windowed) {
-    mSavedWindowInfo.style =
-      static_cast<DWORD>(GetWindowLongPtrW(mHandle, GWL_STYLE));
-    GetWindowRect(mHandle, &mSavedWindowInfo.rect);
-  }
-
-  switch (windowMode) {
-  case WindowMode::Windowed:
-    style |= mSavedWindowInfo.style;
-    rect = mSavedWindowInfo.rect;
-    swpFlags |= SWP_FRAMECHANGED;
-
-    break;
-
-  case WindowMode::Fullscreen: {
-    MONITORINFO mi {};
-    mi.cbSize = sizeof(mi);
-    GetMonitorInfoW(
-      MonitorFromRect(&mSavedWindowInfo.rect, MONITOR_DEFAULTTONEAREST), &mi);
-
-    rect = mi.rcMonitor;
-
-    style &= ~WS_OVERLAPPEDWINDOW;
-    swpFlags |= SWP_FRAMECHANGED;
-
-    break;
-  }
-
-  case WindowMode::FullscreenExclusive:
-    // the d3d9 runtime handles window changes to exclusive mode
-    // TODO: revisit when adding a new graphics api
-    mCurrentMode = windowMode;
-    return;
-  }
-
-  SetWindowLongPtrW(mHandle, GWL_STYLE, style);
-
-  // the d3d9 runtime doesn't clean up the WS_EX_TOPMOST style when leaving
-  // exclusive fullscreen, so we just make sure that we aren't topmost
-  SetWindowPos(mHandle, HWND_NOTOPMOST, rect.left, rect.top,
-               rect.right - rect.left, rect.bottom - rect.top, swpFlags);
-
-  mCurrentMode = windowMode;
-}
-
-// issue with our input handling
-//   WM_MOUSEMOVE is handled before WM_SETCURSOR and put in our
-//   input queue -> the rest of the app gets the ability to set the
-//   cursor only in the next frame -> the new cursor is only set at the
-//   next WM_MOUSEMOVE/WM_SETCURSOR
-void Window::set_cursor(const MouseCursor cursor) noexcept {
-  mCurrentCursor = cursor;
-  SetCursor(mLoadedCursors[enum_cast(mCurrentCursor)]);
-}
-
-auto Window::create(const HMODULE moduleHandle, const int showCommand,
-                    const Desc& desc) -> WindowPtr {
-  const ATOM windowClass {register_class(moduleHandle)};
-  if (!windowClass) {
-    throw system_error {static_cast<int>(GetLastError()),
-                        std::system_category(),
-                        "Failed to register window class"s};
-  }
-
-  // WS_CLIPSIBLINGS is added automatically (tested on Windows 10)
-  DWORD style {WS_OVERLAPPEDWINDOW};
-  if (!desc.resizeable) {
-    style &= ~(WS_MAXIMIZEBOX | WS_SIZEBOX);
-  }
-
-  // WS_EX_WINDOWEDGE is added automatically (tested on Windows 10)
-  const DWORD styleEx {};
-
-  const wstring windowTitle {create_wide_from_utf8(desc.title)};
-  Size2Du16 clientAreaSize = desc.preferredClientAreaSize;
-
-  const HWND handle {
-    CreateWindowExW(styleEx, reinterpret_cast<LPCWSTR>(windowClass),
-                    windowTitle.c_str(), style, CW_USEDEFAULT, 0, CW_USEDEFAULT,
-                    0, nullptr, nullptr, moduleHandle, &clientAreaSize)};
-  if (!handle) {
-    BASALT_LOG_ERROR("failed to create window");
-
-    return nullptr;
-  }
-
-  // can't use make_unique because of the private constructor
-  auto* const window = new Window {moduleHandle, handle};
-
-  // unique_ptr is actually a lie
-  // see the comment at the WM_CLOSE message for details
-  SetWindowLongPtrW(handle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
-
-  ShowWindow(handle, showCommand);
-
-  // required to be after ShowWindow because otherwise the application icon
-  // would not appear in the titlebar if the application launches with
-  // fullscreen and switches to windowed
-  // TODO: find a better workaround
-  window->set_mode(desc.mode);
-
-  return unique_ptr<Window> {window};
-}
-
-Window::Window(const HMODULE moduleHandle, const HWND handle)
-  : mModuleHandle {moduleHandle}, mHandle {handle} {
+Window::Window(const Token, const HMODULE moduleHandle,
+               const Size2Du16 clientAreaSize)
+  : mModuleHandle {moduleHandle}, mClientAreaSize {clientAreaSize} {
   BASALT_ASSERT(mModuleHandle);
-  BASALT_ASSERT(mHandle);
 
   auto loadCursor = [](const LPCWSTR name, const UINT flags) -> HCURSOR {
     return static_cast<HCURSOR>(
-      ::LoadImageW(nullptr, name, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | flags));
+      LoadImageW(nullptr, name, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | flags));
   };
 
   std::get<enum_cast(MouseCursor::Arrow)>(mLoadedCursors) =
@@ -250,14 +113,209 @@ Window::Window(const HMODULE moduleHandle, const HWND handle)
     loadCursor(MAKEINTRESOURCEW(OCR_NO), LR_SHARED);
 }
 
+Window::~Window() {
+  shutdown_gfx_context();
+
+  if (!DestroyWindow(mHandle)) {
+    BASALT_LOG_ERROR("DestroyWindow failed: {}",
+                     create_win32_error_message(GetLastError()));
+  }
+
+  if (!UnregisterClassW(CLASS_NAME, mModuleHandle)) {
+    BASALT_LOG_ERROR("UnregisterClassW failed: {}",
+                     create_win32_error_message(::GetLastError()));
+  }
+}
+
+auto Window::handle() const noexcept -> HWND {
+  return mHandle;
+}
+
+auto Window::gfx_context() const noexcept -> gfx::Context& {
+  return *mGfxContext;
+}
+
+auto Window::input_manager() noexcept -> InputManager& {
+  return mInputManager;
+}
+
+auto Window::client_area_size() const noexcept -> Size2Du16 {
+  return mClientAreaSize;
+}
+
+auto Window::mode() const noexcept -> WindowMode {
+  return mCurrentMode;
+}
+
+void Window::set_mode(const WindowMode windowMode) {
+  if (mCurrentMode == windowMode) {
+    return;
+  }
+
+  if (windowMode == WindowMode::FullscreenExclusive) {
+    set_mode(WindowMode::Fullscreen);
+
+    mCurrentMode = windowMode;
+
+    gfx::Context::ResetDesc desc {};
+    desc.exclusive = true;
+    mGfxContext->reset(desc);
+
+    return;
+  }
+
+  // exclusive ownership of the output monitor needs to be released before
+  // window changes can be made
+  if (mCurrentMode == WindowMode::FullscreenExclusive) {
+    mGfxContext->reset(gfx::Context::ResetDesc {});
+
+    // the d3d9 runtime leaves the window as topmost when exiting exclusive
+    // fullscreen
+    SetWindowPos(mHandle, HWND_NOTOPMOST, 0, 0, 0, 0,
+                 SWP_NOSIZE | SWP_NOSIZE | SWP_NOACTIVATE);
+
+    mCurrentMode = WindowMode::Fullscreen;
+
+    set_mode(windowMode);
+
+    return;
+  }
+
+  auto style {static_cast<DWORD>(GetWindowLongPtrW(mHandle, GWL_STYLE))};
+
+  if (mCurrentMode == WindowMode::Windowed) {
+    mSavedWindowInfo.style = style;
+    GetWindowRect(mHandle, &mSavedWindowInfo.windowRect);
+  }
+
+  mCurrentMode = windowMode;
+
+  BASALT_ASSERT(mCurrentMode != WindowMode::FullscreenExclusive,
+                "fullscreen exclusive mode must be handled by the gfx context");
+
+  RECT rect {};
+
+  switch (mCurrentMode) {
+  case WindowMode::Windowed:
+    style = mSavedWindowInfo.style;
+    rect = mSavedWindowInfo.windowRect;
+
+    break;
+
+  case WindowMode::Fullscreen:
+  case WindowMode::FullscreenExclusive: {
+    MONITORINFO mi {};
+    mi.cbSize = sizeof(MONITORINFO);
+    GetMonitorInfoW(
+      MonitorFromRect(&mSavedWindowInfo.windowRect, MONITOR_DEFAULTTONEAREST),
+      &mi);
+
+    rect = mi.rcMonitor;
+    style &= ~WS_OVERLAPPEDWINDOW;
+
+    break;
+  }
+  }
+
+  SetWindowLongPtrW(mHandle, GWL_STYLE, style);
+
+  // SWP_NOCOPYBITS causes the window to flash white
+  constexpr UINT swpFlags {SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED};
+  SetWindowPos(mHandle, nullptr, rect.left, rect.top, rect.right - rect.left,
+               rect.bottom - rect.top, swpFlags);
+}
+
+// issue with our input handling
+//   WM_MOUSEMOVE is handled before WM_SETCURSOR and put in our
+//   input queue -> the rest of the app gets the ability to set the
+//   cursor only in the next frame -> the new cursor is only set at the
+//   next WM_MOUSEMOVE/WM_SETCURSOR
+void Window::set_cursor(const MouseCursor cursor) noexcept {
+  mCurrentCursor = cursor;
+  SetCursor(mLoadedCursors[enum_cast(mCurrentCursor)]);
+}
+
+auto Window::create(const HMODULE moduleHandle, const int showCommand,
+                    const Desc& desc, const gfx::D3D9Factory& gfxFactory)
+  -> WindowPtr {
+  const ATOM windowClass {register_class(moduleHandle)};
+  if (!windowClass) {
+    throw system_error {static_cast<int>(GetLastError()),
+                        std::system_category(),
+                        "Failed to register window class"s};
+  }
+
+  // WS_CLIPSIBLINGS is added automatically (tested on Windows 10)
+  DWORD style {WS_OVERLAPPEDWINDOW};
+  if (!desc.resizeable) {
+    style &= ~(WS_MAXIMIZEBOX | WS_SIZEBOX);
+  }
+
+  // WS_EX_WINDOWEDGE is added automatically (tested on Windows 10)
+  const DWORD styleEx {};
+
+  const wstring windowTitle {create_wide_from_utf8(desc.title)};
+
+  auto window {std::make_unique<Window>(Token {}, moduleHandle,
+                                        desc.preferredClientAreaSize)};
+
+  const HWND handle {
+    CreateWindowExW(styleEx, reinterpret_cast<LPCWSTR>(windowClass),
+                    windowTitle.c_str(), style, CW_USEDEFAULT, 0, CW_USEDEFAULT,
+                    0, nullptr, nullptr, moduleHandle, window.get())};
+  if (!handle) {
+    BASALT_LOG_ERROR("failed to create window");
+
+    return nullptr;
+  }
+
+  // this pointer gets removed when the OS window data is destroyed by the
+  // Window objects destructor
+  SetWindowLongPtrW(handle, GWLP_USERDATA,
+                    reinterpret_cast<LONG_PTR>(window.get()));
+
+  ShowWindow(handle, showCommand);
+
+  // required to be after ShowWindow because otherwise the application icon
+  // would not appear in the titlebar if the application launches with
+  // fullscreen and switches to windowed
+  // TODO: find a better workaround
+  window->set_mode(desc.mode);
+
+  window->init_gfx_context(gfxFactory);
+
+  return window;
+}
+
+void Window::init_gfx_context(const gfx::D3D9Factory& gfxFactory) {
+  const gfx::D3D9Factory::DeviceAndContextDesc contextDesc {
+    0, mCurrentMode == WindowMode::FullscreenExclusive};
+
+  mGfxContext = gfxFactory.create_device_and_context(mHandle, contextDesc);
+}
+
+void Window::shutdown_gfx_context() {
+  mGfxContext.reset();
+}
+
 auto Window::handle_message(const UINT message, const WPARAM wParam,
                             const LPARAM lParam) -> LRESULT {
   switch (message) {
+  case WM_CREATE: {
+    const auto& cs {*reinterpret_cast<CREATESTRUCTW*>(lParam)};
+    on_create(cs);
+
+    break;
+  }
+
   case WM_SIZE:
     switch (wParam) {
     case SIZE_RESTORED:
     case SIZE_MAXIMIZED:
-      mClientAreaSize = Size2Du16 {LOWORD(lParam), HIWORD(lParam)};
+      if (!mIsInSizeMoveModalLoop) {
+        on_resize(Size2Du16 {LOWORD(lParam), HIWORD(lParam)});
+      }
+
       break;
 
     default:
@@ -267,9 +325,10 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
     break;
 
   case WM_CLOSE:
-    // ::DefWindowProcW would destroy the window.
-    // In order to not lie about the lifetime of the window object, we handle
-    // the WM_CLOSE message here to trigger our normal shutdown path
+    // DefWindowProcW would destroy the window. This would invalidate the window
+    // handle and therefore put this Window object in an invalid state. In order
+    // to prevent this, we handle the WM_CLOSE message here to trigger our
+    // regular shutdown path
     PostQuitMessage(0);
 
     return 0;
@@ -389,10 +448,17 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
   }
 
   case WM_ENTERSIZEMOVE:
+    mIsInSizeMoveModalLoop = true;
+
     return 0;
 
   case WM_EXITSIZEMOVE: {
-    update_client_area_size();
+    mIsInSizeMoveModalLoop = false;
+
+    RECT rect {};
+    GetClientRect(mHandle, &rect);
+    on_resize(
+      Size2Du16 {static_cast<u16>(rect.right), static_cast<u16>(rect.bottom)});
 
     return 0;
   }
@@ -402,6 +468,46 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
   }
 
   return DefWindowProcW(mHandle, message, wParam, lParam);
+}
+
+void Window::on_create(const CREATESTRUCTW& cs) const {
+  MONITORINFO mi {};
+  mi.cbSize = sizeof(MONITORINFO);
+  GetMonitorInfoW(MonitorFromWindow(mHandle, MONITOR_DEFAULTTONEAREST), &mi);
+
+  POINT topLeftClient {0, 0};
+  ClientToScreen(mHandle, &topLeftClient);
+
+  const Size2Du16 monitorSize {
+    static_cast<u16>(mi.rcMonitor.right - mi.rcMonitor.left),
+    static_cast<u16>(mi.rcMonitor.bottom - mi.rcMonitor.top)};
+
+  const LONG ncOffsetX {topLeftClient.x - cs.x};
+  const LONG ncOffsetY {topLeftClient.y - cs.y};
+
+  const RECT rect {calc_window_rect(cs.x + ncOffsetX, cs.y + ncOffsetY,
+                                    cs.style, cs.dwExStyle, mClientAreaSize,
+                                    monitorSize, mi.rcWork)};
+
+  SetWindowPos(mHandle, nullptr, rect.left, rect.top, rect.right - rect.left,
+               rect.bottom - rect.top, SWP_NOZORDER | SWP_NOACTIVATE);
+}
+
+void Window::on_resize(const Size2Du16 newClientAreaSize) {
+  if (mClientAreaSize == newClientAreaSize || mIsInSizeMoveModalLoop) {
+    return;
+  }
+
+  mClientAreaSize = newClientAreaSize;
+
+  // mGfxContext is null when this method is called from on_create through
+  // SetWindowPos
+  if (mGfxContext) {
+    if (mCurrentMode != WindowMode::FullscreenExclusive &&
+        mClientAreaSize != mGfxContext->surface_size()) {
+      mGfxContext->reset(gfx::Context::ResetDesc {});
+    }
+  }
 }
 
 void Window::process_mouse_message_states(const WPARAM wParam) {
@@ -440,13 +546,6 @@ void Window::process_mouse_message_states(const WPARAM wParam) {
   } else {
     mInputManager.mouse_button_up(MouseButton::Button5);
   }
-}
-
-void Window::update_client_area_size() {
-  RECT rect {};
-  GetClientRect(handle(), &rect);
-  mClientAreaSize.set(static_cast<u16>(rect.right),
-                      static_cast<u16>(rect.bottom));
 }
 
 auto Window::register_class(const HMODULE moduleHandle) -> ATOM {
@@ -490,42 +589,18 @@ auto CALLBACK Window::window_proc(const HWND handle, const UINT message,
                    message_to_string(message, wParam, lParam));
 #endif // BASALT_TRACE_WINDOWS_MESSAGES
 
+  if (message == WM_CREATE) {
+    const auto& cs {*reinterpret_cast<CREATESTRUCTW*>(lParam)};
+    auto* const window {static_cast<Window*>(cs.lpCreateParams)};
+    window->mHandle = handle;
+
+    SetWindowLongPtrW(handle, GWLP_USERDATA,
+                      reinterpret_cast<LONG_PTR>(window));
+  }
+
   if (const auto window = GetWindowLongPtrW(handle, GWLP_USERDATA)) {
     return reinterpret_cast<Window*>(window)->handle_message(message, wParam,
                                                              lParam);
-  }
-
-  switch (message) {
-  case WM_CREATE: {
-    const auto& cs = *reinterpret_cast<CREATESTRUCTW*>(lParam);
-    const Size2Du16& clientAreaSize =
-      *static_cast<Size2Du16*>(cs.lpCreateParams);
-
-    MONITORINFO mi {};
-    mi.cbSize = sizeof(mi);
-    GetMonitorInfoW(MonitorFromWindow(handle, MONITOR_DEFAULTTONEAREST), &mi);
-
-    POINT topLeftClient {0, 0};
-    ClientToScreen(handle, &topLeftClient);
-
-    const Size2Du16 monitorSize {
-      static_cast<u16>(mi.rcMonitor.right - mi.rcMonitor.left),
-      static_cast<u16>(mi.rcMonitor.bottom - mi.rcMonitor.top)};
-
-    const LONG ncOffsetX = topLeftClient.x - cs.x;
-    const LONG ncOffsetY = topLeftClient.y - cs.y;
-
-    const RECT rect =
-      calc_window_rect(cs.x + ncOffsetX, cs.y + ncOffsetY, cs.style,
-                       cs.dwExStyle, clientAreaSize, monitorSize, mi.rcWork);
-
-    SetWindowPos(handle, HWND_TOP, rect.left, rect.top, rect.right - rect.left,
-                 rect.bottom - rect.top, SWP_NOZORDER | SWP_NOACTIVATE);
-
-    break;
-  }
-  default:
-    break;
   }
 
   return DefWindowProcW(handle, message, wParam, lParam);

@@ -17,10 +17,9 @@ struct CommandList;
 using Composite = std::vector<CommandList>;
 
 struct Context;
-using ContextPtr = std::shared_ptr<Context>;
+using ContextPtr = std::unique_ptr<Context>;
 
 struct Device;
-using DevicePtr = std::shared_ptr<Device>;
 
 enum class ContextStatus : u8 {
   Ok,

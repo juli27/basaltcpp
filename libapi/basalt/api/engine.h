@@ -48,7 +48,7 @@ protected:
   Config& mConfig;
   ResourceRegistryPtr mResourceRegistry {std::make_shared<ResourceRegistry>()};
 
-  gfx::ContextPtr mGfxContext;
+  gfx::Context& mGfxContext;
   gfx::ResourceCache mGfxResourceCache;
 
   gfx::DrawablePtr mWindowSurfaceContent;
@@ -59,7 +59,7 @@ protected:
   MouseCursor mMouseCursor {MouseCursor::Arrow};
   bool mIsDirty {false};
 
-  Engine(Config&, gfx::ContextPtr) noexcept;
+  Engine(Config&, gfx::Context&) noexcept;
 
   ~Engine() noexcept = default;
 };

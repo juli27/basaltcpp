@@ -11,8 +11,6 @@
 
 #include <wrl/client.h>
 
-#include <tuple>
-
 namespace basalt::gfx {
 
 struct D3D9Factory final {
@@ -44,7 +42,7 @@ public:
   [[nodiscard]] auto get_adapter_monitor(u32 adapterIndex) const -> HMONITOR;
 
   auto create_device_and_context(HWND window, const DeviceAndContextDesc&) const
-    -> std::tuple<DevicePtr, ContextPtr>;
+    -> ContextPtr;
 
 private:
   Microsoft::WRL::ComPtr<IDirect3D9> mFactory;

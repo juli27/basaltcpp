@@ -27,12 +27,12 @@ struct Context {
     // ignored when exclusive == true
     Size2Du16 windowBackBufferSize {};
 
-    bool exclusive {};
+    bool exclusive {false};
   };
 
   virtual void reset(const ResetDesc&) = 0;
 
-  [[nodiscard]] virtual auto device() const noexcept -> DevicePtr = 0;
+  [[nodiscard]] virtual auto device() const noexcept -> Device& = 0;
 
   virtual void submit(const Composite&) = 0;
   [[nodiscard]] virtual auto present() -> PresentResult = 0;

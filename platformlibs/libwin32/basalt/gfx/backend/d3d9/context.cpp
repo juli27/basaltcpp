@@ -7,7 +7,7 @@
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/log.h>
 
-using std::shared_ptr;
+using std::unique_ptr;
 
 namespace basalt::gfx {
 
@@ -32,7 +32,7 @@ auto to_context_status(const HRESULT hr) -> ContextStatus {
 
 } // namespace
 
-D3D9Context::D3D9Context(shared_ptr<D3D9Device> device)
+D3D9Context::D3D9Context(unique_ptr<D3D9Device> device)
   : mDevice {std::move(device)}, mD3D9Device {mDevice->device()} {
   BASALT_ASSERT(mDevice);
   BASALT_ASSERT(mD3D9Device);
@@ -84,8 +84,8 @@ void D3D9Context::reset(const ResetDesc& desc) {
   mDevice->reset(pp);
 }
 
-auto D3D9Context::device() const noexcept -> DevicePtr {
-  return mDevice;
+auto D3D9Context::device() const noexcept -> Device& {
+  return *mDevice;
 }
 
 void D3D9Context::submit(const Composite& composite) {

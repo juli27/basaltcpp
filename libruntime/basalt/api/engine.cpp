@@ -29,7 +29,7 @@ auto Engine::delta_time() const noexcept -> f64 {
 }
 
 auto Engine::window_surface_size() const -> Size2Du16 {
-  return mGfxContext->surface_size();
+  return mGfxContext.surface_size();
 }
 
 void Engine::set_window_surface_content(gfx::DrawablePtr drawable) {
@@ -54,10 +54,10 @@ void Engine::set_window_mode(const WindowMode windowMode) noexcept {
   mIsDirty = true;
 }
 
-Engine::Engine(Config& config, gfx::ContextPtr context) noexcept
+Engine::Engine(Config& config, gfx::Context& context) noexcept
   : mConfig {config}
-  , mGfxContext {std::move(context)}
-  , mGfxResourceCache {mResourceRegistry, mGfxContext->device()} {
+  , mGfxContext {context}
+  , mGfxResourceCache {mResourceRegistry, mGfxContext.device()} {
 }
 
 template <>

@@ -8,6 +8,7 @@
 #include <gsl/span>
 
 #include <cstddef>
+#include <filesystem>
 #include <optional>
 #include <string_view>
 
@@ -20,7 +21,7 @@ struct Device {
   virtual ~Device() noexcept = default;
 
   auto operator=(const Device&) -> Device& = delete;
-  auto operator=(Device &&) -> Device& = delete;
+  auto operator=(Device&&) -> Device& = delete;
 
   // TODO: noexcept method to validate the layout for the device requirements
   //       bool Device::ValidateVertexLayout(const VertexLayout&)
@@ -35,9 +36,8 @@ struct Device {
   virtual auto create_vertex_buffer(gsl::span<const std::byte> data,
                                     const VertexLayout&) -> VertexBuffer = 0;
 
-  // takes in a file path for now
-  // TODO: move file loading into the resources namespace
-  virtual auto add_texture(std::string_view filePath) -> Texture = 0;
+  // TODO: load file somewhere else
+  virtual auto load_texture(const std::filesystem::path&) -> Texture = 0;
 
   virtual auto create_sampler(const SamplerDescription&) -> Sampler = 0;
 
