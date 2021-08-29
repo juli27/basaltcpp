@@ -109,13 +109,11 @@ Textures::Textures(basalt::Engine& engine)
   auto& gfxResources {engine.gfx_resource_cache()};
   mPointSampler = gfxResources.create_material(materialDesc);
 
-  materialDesc.texture.minFilter = TextureFilter::Linear;
-  materialDesc.texture.magFilter = TextureFilter::Linear;
+  materialDesc.texture.filter = TextureFilter::Linear;
   materialDesc.texture.mipFilter = TextureMipFilter::Linear;
   mLinearSamplerWithMip = gfxResources.create_material(materialDesc);
 
-  materialDesc.texture.minFilter = TextureFilter::LinearAnisotropic;
-  materialDesc.texture.magFilter = TextureFilter::Linear;
+  materialDesc.texture.filter = TextureFilter::LinearAnisotropic;
   materialDesc.texture.mipFilter = TextureMipFilter::None;
   mAnisotropicSampler = gfxResources.create_material(materialDesc);
 
@@ -198,7 +196,7 @@ void Textures::on_update(basalt::Engine& engine) {
     mScene->ecs().view<RenderComponent>().each(
       [this](RenderComponent& rc) { rc.material = mPointSampler; });
   } else {
-    currentMode = "MIN: Anisotropic, MAG: Linear, MIP: None";
+    currentMode = "MIN: Anisotropic, MAG: Anisotropic, MIP: None";
     mScene->ecs().view<RenderComponent>().each(
       [this](RenderComponent& rc) { rc.material = mAnisotropicSampler; });
   }

@@ -54,8 +54,7 @@ static_assert(sizeof(MeshDescriptor) == 48);
 
 struct TextureSamplerDescription final {
   Texture texture {Texture::null()};
-  TextureFilter minFilter {TextureFilter::Point};
-  TextureFilter magFilter {TextureFilter::Point};
+  TextureFilter filter {TextureFilter::Point};
   TextureMipFilter mipFilter {TextureMipFilter::None};
   TextureAddressMode addressModeU {TextureAddressMode::WrapRepeat};
   TextureAddressMode addressModeV {TextureAddressMode::WrapRepeat};

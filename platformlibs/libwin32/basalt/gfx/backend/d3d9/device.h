@@ -41,8 +41,7 @@ private:
   using TexturePtr = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
 
   struct SamplerData final {
-    D3DTEXTUREFILTERTYPE minFilter {D3DTEXF_POINT};
-    D3DTEXTUREFILTERTYPE magFilter {D3DTEXF_POINT};
+    D3DTEXTUREFILTERTYPE filter {D3DTEXF_POINT};
     D3DTEXTUREFILTERTYPE mipFilter {D3DTEXF_NONE};
     D3DTEXTUREADDRESS addressModeU {D3DTADDRESS_WRAP};
     D3DTEXTUREADDRESS addressModeV {D3DTADDRESS_WRAP};

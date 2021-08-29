@@ -72,29 +72,20 @@ Textures::Textures(Engine& engine)
   MaterialDescriptor material {};
   material.cullBackFace = false;
   material.lit = false;
-
   material.texture.texture = engine.get_or_load<Texture>("data/Tiger.bmp"_hs);
-  material.texture.magFilter = TextureFilter::Point;
-  material.texture.minFilter = TextureFilter::Point;
-  material.texture.mipFilter = TextureMipFilter::None;
 
   u32 i {0};
 
-  for (const auto magFilter : {TextureFilter::Point, TextureFilter::Linear,
-                               TextureFilter::LinearAnisotropic}) {
-    material.texture.magFilter = magFilter;
+  for (const auto filter : {TextureFilter::Point, TextureFilter::Linear,
+                            TextureFilter::LinearAnisotropic}) {
+    material.texture.filter = filter;
 
-    for (const auto minFilter : {TextureFilter::Point, TextureFilter::Linear,
-                                 TextureFilter::LinearAnisotropic}) {
-      material.texture.minFilter = minFilter;
-
-      for (const auto mipFilter :
-           {TextureMipFilter::None, TextureMipFilter::Point,
-            TextureMipFilter::Linear}) {
-        material.texture.mipFilter = mipFilter;
-        mMaterials[i] = gfxResourceCache.create_material(material);
-        ++i;
-      }
+    for (const auto mipFilter :
+         {TextureMipFilter::None, TextureMipFilter::Point,
+          TextureMipFilter::Linear}) {
+      material.texture.mipFilter = mipFilter;
+      mMaterials[i] = gfxResourceCache.create_material(material);
+      ++i;
     }
   }
 
@@ -137,10 +128,6 @@ void Textures::on_update(Engine& engine) {
   constexpr u8 filterMask {0x3};
   constexpr u8 mipFilterShift {0};
   constexpr u8 minFilterShift {2};
-  constexpr u8 magFilterShift {4};
-
-  i32 magFilter {
-    static_cast<i32>(mChosenMaterial >> magFilterShift & filterMask)};
 
   i32 minFilter {
     static_cast<i32>(mChosenMaterial >> minFilterShift & filterMask)};
@@ -151,17 +138,8 @@ void Textures::on_update(Engine& engine) {
   auto& rc {mQuad.get<RenderComponent>()};
 
   if (ImGui::Begin("Settings##SamplesTextures")) {
-    ImGui::TextUnformatted("Magnification Filter");
-    ImGui::PushID("Mag");
-    ImGui::RadioButton("Point", &magFilter, 0);
-    ImGui::SameLine();
-    ImGui::RadioButton("Linear", &magFilter, 1);
-    ImGui::SameLine();
-    ImGui::RadioButton("Linear (anisotropic)", &magFilter, 2);
-    ImGui::PopID();
-
-    ImGui::TextUnformatted("Minification Filter");
-    ImGui::PushID("Min");
+    ImGui::TextUnformatted("Filter");
+    ImGui::PushID("Filter");
     ImGui::RadioButton("Point", &minFilter, 0);
     ImGui::SameLine();
     ImGui::RadioButton("Linear", &minFilter, 1);
@@ -179,14 +157,12 @@ void Textures::on_update(Engine& engine) {
     ImGui::PopID();
   }
 
-  mChosenMaterial = static_cast<u32>(magFilter) << magFilterShift |
-                    static_cast<u32>(minFilter) << minFilterShift |
+  mChosenMaterial = static_cast<u32>(minFilter) << minFilterShift |
                     static_cast<u32>(mipFilter) << mipFilterShift;
 
   ImGui::End();
 
-  const Material newMaterial =
-    mMaterials[magFilter * 9 + minFilter * 3 + mipFilter];
+  const Material newMaterial = mMaterials[minFilter * 3 + mipFilter];
 
   if (newMaterial != rc.material) {
     rc.material = newMaterial;

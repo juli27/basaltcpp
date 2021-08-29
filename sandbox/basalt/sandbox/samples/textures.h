@@ -29,7 +29,7 @@ private:
   basalt::gfx::SceneViewPtr mSceneView;
   entt::handle mQuad;
   basalt::u32 mChosenMaterial {0};
-  std::array<basalt::gfx::Material, 27> mMaterials {};
+  std::array<basalt::gfx::Material, 9> mMaterials {};
 };
 
 } // namespace samples

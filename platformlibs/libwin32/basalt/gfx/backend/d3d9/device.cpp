@@ -384,8 +384,7 @@ auto D3D9Device::load_texture(const path& filePath) -> Texture {
 auto D3D9Device::create_sampler(const SamplerDescription& desc) -> Sampler {
   const auto [handle, data] = mSamplers.allocate();
 
-  data.minFilter = to_d3d(desc.minFilter);
-  data.magFilter = to_d3d(desc.magFilter);
+  data.filter = to_d3d(desc.filter);
   data.mipFilter = to_d3d(desc.mipFilter);
   data.addressModeU = to_d3d(desc.addressModeU);
   data.addressModeV = to_d3d(desc.addressModeV);
@@ -499,8 +498,8 @@ void D3D9Device::execute(const CommandSetTextureStageState& cmd) const {
 void D3D9Device::execute(const CommandBindSampler& cmd) const {
   const auto& data {mSamplers[cmd.sampler]};
 
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, data.minFilter));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, data.magFilter));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, data.filter));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, data.filter));
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, data.mipFilter));
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY,
                                     mDeviceCaps.MaxAnisotropy));

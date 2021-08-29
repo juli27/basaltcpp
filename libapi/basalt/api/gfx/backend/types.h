@@ -191,8 +191,7 @@ enum class TextureAddressMode {
 constexpr uSize TEXTURE_ADDRESS_MODE_COUNT {3u};
 
 struct SamplerDescription final {
-  TextureFilter minFilter {TextureFilter::Point};
-  TextureFilter magFilter {TextureFilter::Point};
+  TextureFilter filter {TextureFilter::Point};
   TextureMipFilter mipFilter {TextureMipFilter::None};
   TextureAddressMode addressModeU {TextureAddressMode::WrapRepeat};
   TextureAddressMode addressModeV {TextureAddressMode::WrapRepeat};
