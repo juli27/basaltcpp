@@ -135,8 +135,6 @@ void Textures::on_update(Engine& engine) {
   i32 mipFilter {
     static_cast<i32>(mChosenMaterial >> mipFilterShift & filterMask)};
 
-  auto& rc {mQuad.get<RenderComponent>()};
-
   if (ImGui::Begin("Settings##SamplesTextures")) {
     ImGui::TextUnformatted("Filter");
     ImGui::PushID("Filter");
@@ -162,11 +160,8 @@ void Textures::on_update(Engine& engine) {
 
   ImGui::End();
 
-  const Material newMaterial = mMaterials[minFilter * 3 + mipFilter];
-
-  if (newMaterial != rc.material) {
-    rc.material = newMaterial;
-  }
+  auto& rc {mQuad.get<RenderComponent>()};
+  rc.material = mMaterials[minFilter * 3 + mipFilter];
 
   if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);

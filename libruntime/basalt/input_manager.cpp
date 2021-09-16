@@ -1,7 +1,7 @@
 #include <basalt/input_manager.h>
 
 #include <basalt/api/input_events.h>
-#include <basalt/api/input_layer.h>
+#include <basalt/api/layer.h>
 
 #include <basalt/api/base/utils.h>
 
@@ -12,18 +12,18 @@ using std::array;
 
 namespace basalt {
 
-void InputManager::set_overlay(InputLayerPtr overlay) {
+void InputManager::set_overlay(LayerPtr overlay) {
   mOverlay = std::move(overlay);
 }
 
 void InputManager::dispatch_pending(
-  const std::vector<InputLayerPtr>& dispatchChain) {
+  const std::vector<LayerPtr>& dispatchChain) {
   for (const InputEventPtr& e : mEvents) {
     if (mOverlay && mOverlay->handle_input(*e)) {
       continue;
     }
 
-    for (const InputLayerPtr& inputTarget : dispatchChain) {
+    for (const LayerPtr& inputTarget : dispatchChain) {
       if (inputTarget->handle_input(*e)) {
         break;
       }

@@ -1,24 +1,24 @@
-#include "input_layer.h"
+#include <basalt/api/layer.h>
 
-#include "input_events.h"
+#include <basalt/api/input_events.h>
 
-#include "base/utils.h"
+#include <basalt/api/base/utils.h>
 
 namespace basalt {
 
-auto InputLayer::pointer_position() const noexcept -> PointerPosition {
+auto Layer::pointer_position() const noexcept -> PointerPosition {
   return mPointerPos;
 }
 
-auto InputLayer::is_mouse_button_down(const MouseButton button) const -> bool {
+auto Layer::is_mouse_button_down(const MouseButton button) const -> bool {
   return mMouseButtonsDown[enum_cast(button)];
 }
 
-auto InputLayer::is_key_down(const Key key) const -> bool {
+auto Layer::is_key_down(const Key key) const -> bool {
   return mKeysDown[enum_cast(key)];
 }
 
-auto InputLayer::handle_input(const InputEvent& e) -> bool {
+auto Layer::handle_input(const InputEvent& e) -> bool {
   if (do_handle_input(e) == InputEventHandled::Yes) {
     update(e);
 
@@ -28,7 +28,7 @@ auto InputLayer::handle_input(const InputEvent& e) -> bool {
   return false;
 }
 
-void InputLayer::update(const InputEvent& e) {
+void Layer::update(const InputEvent& e) {
   switch (e.type) {
   case InputEventType::MouseMoved:
     mPointerPos = e.as<MouseMoved>().position;

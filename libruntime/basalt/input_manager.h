@@ -14,9 +14,9 @@ namespace basalt {
 // TODO: mouse leave
 // TODO: mouse capturing
 struct InputManager final {
-  void set_overlay(InputLayerPtr);
+  void set_overlay(LayerPtr);
 
-  void dispatch_pending(const std::vector<InputLayerPtr>& dispatchChain);
+  void dispatch_pending(const std::vector<LayerPtr>& dispatchChain);
 
   void mouse_moved(PointerPosition);
 
@@ -31,7 +31,7 @@ struct InputManager final {
   void character_utf8(std::array<char, 4>);
 
 private:
-  InputLayerPtr mOverlay;
+  LayerPtr mOverlay;
   std::vector<InputEventPtr> mEvents;
   PointerPosition mPointerPos;
   std::bitset<MOUSE_BUTTON_COUNT> mMouseButtonsDown;

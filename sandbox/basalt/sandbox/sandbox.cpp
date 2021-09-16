@@ -14,7 +14,7 @@
 #include <basalt/sandbox/tribase/02-04_textures.h>
 
 #include <basalt/api/engine.h>
-#include <basalt/api/input_layer.h>
+#include <basalt/api/layer.h>
 #include <basalt/api/prelude.h>
 
 #include <basalt/api/shared/asserts.h>
@@ -31,11 +31,11 @@ using basalt::Config;
 using basalt::Engine;
 using basalt::InputEvent;
 using basalt::InputEventHandled;
-using basalt::InputLayer;
 using basalt::Key;
+using basalt::Layer;
 using basalt::WindowMode;
 
-struct SandboxApp::Input final : InputLayer {
+struct SandboxApp::Input final : Layer {
 private:
   auto do_handle_input(const InputEvent&) -> InputEventHandled override {
     return InputEventHandled::Yes;
@@ -47,7 +47,7 @@ auto ClientApp::create(Engine& engine) -> unique_ptr<ClientApp> {
 }
 
 SandboxApp::SandboxApp(Engine& engine) : mInput {std::make_shared<Input>()} {
-  engine.push_input_layer(mInput);
+  engine.add_layer_top(mInput);
 
   mScenes.reserve(8u);
   mScenes.emplace_back(std::make_unique<d3d9::Device>());

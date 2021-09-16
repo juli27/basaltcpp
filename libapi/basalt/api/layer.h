@@ -1,21 +1,19 @@
 #pragma once
 
-#include "types.h"
+#include <basalt/api/types.h>
 
 #include <bitset>
 
 namespace basalt {
 
-struct InputLayer {
-  InputLayer() = default;
+struct Layer {
+  Layer(const Layer&) = delete;
+  Layer(Layer&&) noexcept = default;
 
-  InputLayer(const InputLayer&) = delete;
-  InputLayer(InputLayer&&) = default;
+  virtual ~Layer() = default;
 
-  virtual ~InputLayer() = default;
-
-  auto operator=(const InputLayer&) -> InputLayer& = delete;
-  auto operator=(InputLayer&&) -> InputLayer& = delete;
+  auto operator=(const Layer&) -> Layer& = delete;
+  auto operator=(Layer&&) noexcept -> Layer& = delete;
 
   [[nodiscard]] auto pointer_position() const noexcept -> PointerPosition;
   [[nodiscard]] auto is_mouse_button_down(MouseButton) const -> bool;
@@ -24,6 +22,8 @@ struct InputLayer {
   [[nodiscard]] auto handle_input(const InputEvent&) -> bool;
 
 protected:
+  Layer() = default;
+
   virtual auto do_handle_input(const InputEvent&) -> InputEventHandled = 0;
 
 private:

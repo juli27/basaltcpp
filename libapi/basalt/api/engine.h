@@ -34,7 +34,11 @@ struct Engine {
 
   void set_window_surface_content(gfx::DrawablePtr);
 
-  void push_input_layer(InputLayerPtr);
+  void add_layer_top(LayerPtr);
+  void add_layer_bottom(LayerPtr);
+  void add_layer_above(LayerPtr, const LayerPtr& before);
+  void add_layer_below(LayerPtr, const LayerPtr& after);
+  void remove_layer(const LayerPtr&);
 
   [[nodiscard]] auto mouse_cursor() const noexcept -> MouseCursor;
   void set_mouse_cursor(MouseCursor) noexcept;
@@ -52,7 +56,8 @@ protected:
   gfx::ResourceCache mGfxResourceCache;
 
   gfx::DrawablePtr mWindowSurfaceContent;
-  std::vector<InputLayerPtr> mInputLayers;
+  // top to bottom order
+  std::vector<LayerPtr> mLayers;
 
   f64 mDeltaTime {};
 

@@ -8,11 +8,12 @@
 namespace basalt {
 
 struct Engine;
-struct InputEvent;
-struct InputLayer;
 
+struct InputEvent;
 using InputEventPtr = std::unique_ptr<InputEvent>;
-using InputLayerPtr = std::shared_ptr<InputLayer>;
+
+struct Layer;
+using LayerPtr = std::shared_ptr<Layer>;
 
 enum class InputEventHandled : u8 { No, Yes };
 

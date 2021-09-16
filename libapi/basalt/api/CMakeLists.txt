@@ -4,8 +4,8 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "debug.h"
   "engine.h"
   "input_events.h"
-  "input_layer.cpp"
-  "input_layer.h"
+  "layer.cpp"
+  "layer.h"
   "prelude.h"
   "types.h"
 )

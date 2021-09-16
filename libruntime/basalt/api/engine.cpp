@@ -4,6 +4,7 @@
 
 #include <basalt/api/shared/config.h>
 
+#include <algorithm>
 #include <utility>
 
 using namespace std::string_literals;
@@ -36,8 +37,34 @@ void Engine::set_window_surface_content(gfx::DrawablePtr drawable) {
   mWindowSurfaceContent = std::move(drawable);
 }
 
-void Engine::push_input_layer(InputLayerPtr inputTarget) {
-  mInputLayers.emplace(mInputLayers.begin(), std::move(inputTarget));
+void Engine::add_layer_top(LayerPtr layer) {
+  mLayers.emplace(mLayers.begin(), std::move(layer));
+}
+
+void Engine::add_layer_bottom(LayerPtr layer) {
+  mLayers.emplace_back(std::move(layer));
+}
+
+void Engine::add_layer_above(LayerPtr layer, const LayerPtr& before) {
+  mLayers.emplace(
+    std::find(mLayers.begin(), mLayers.end(), before),
+    std::move(layer));
+}
+
+void Engine::add_layer_below(LayerPtr layer, const LayerPtr& after) {
+  auto it {std::find(mLayers.begin(), mLayers.end(), after)};
+
+  if (it != mLayers.end()) {
+    ++it;
+  }
+
+  mLayers.emplace(it, std::move(layer));
+}
+
+void Engine::remove_layer(const LayerPtr& layer) {
+  mLayers.erase(
+    std::remove(mLayers.begin(), mLayers.end(), layer),
+    mLayers.end());
 }
 
 auto Engine::mouse_cursor() const noexcept -> MouseCursor {

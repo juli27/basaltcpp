@@ -1,10 +1,10 @@
 #pragma once
 
-#include <basalt/api/input_layer.h>
+#include <basalt/api/layer.h>
+#include <basalt/api/types.h>
 
 #include <basalt/api/gfx/drawable.h>
 
-#include <basalt/api/types.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 
 #include <memory>
@@ -13,7 +13,7 @@ namespace basalt {
 
 struct DearImGui final
   : gfx::Drawable
-  , InputLayer {
+  , Layer {
   explicit DearImGui(gfx::Device&);
 
   DearImGui(const DearImGui&) = delete;
