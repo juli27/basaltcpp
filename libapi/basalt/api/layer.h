@@ -21,6 +21,8 @@ struct Layer {
 
   [[nodiscard]] auto handle_input(const InputEvent&) -> bool;
 
+  virtual void tick(Engine&) = 0;
+
 protected:
   Layer() = default;
 

@@ -3,8 +3,6 @@
 #include <basalt/api/engine.h>
 #include <basalt/api/input_events.h>
 
-#include <basalt/api/gfx/surface.h>
-
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/utils.h>
 #include <basalt/api/gfx/backend/ext/dear_imgui_renderer.h>
@@ -68,17 +66,25 @@ DearImGui::~DearImGui() {
   ImGui::DestroyContext();
 }
 
-void DearImGui::new_frame(Engine& engine) const {
+auto DearImGui::draw(ResourceCache&, Size2Du16, const RectangleU16&)
+  -> std::tuple<CommandList, RectangleU16> {
+  CommandList commandList {};
+  commandList.add<CommandRenderDearImGui>();
+
+  return {std::move(commandList), RectangleU16 {}};
+}
+
+void DearImGui::tick(Engine& engine) {
   static_assert(ImGuiMouseButton_COUNT == MOUSE_BUTTON_COUNT);
   static_assert(KEY_COUNT <= 512);
 
   mRenderer->new_frame();
 
-  auto& io = ImGui::GetIO();
+  ImGuiIO& io {ImGui::GetIO()};
 
-  const Size2Du16 displaySize = engine.window_surface_size();
-  io.DisplaySize = ImVec2 {static_cast<float>(displaySize.width()),
-                           static_cast<float>(displaySize.height())};
+  const Size2Du16 displaySize {engine.window_surface_size()};
+  io.DisplaySize.x = static_cast<float>(displaySize.width());
+  io.DisplaySize.y = static_cast<float>(displaySize.height());
   io.DeltaTime = static_cast<float>(engine.delta_time());
   io.KeyCtrl = is_key_down(Key::Control);
   io.KeyShift = is_key_down(Key::Shift);
@@ -105,25 +111,17 @@ void DearImGui::new_frame(Engine& engine) const {
   ImGui::NewFrame();
 }
 
-auto DearImGui::draw(ResourceCache&, Size2Du16, const RectangleU16&)
-  -> std::tuple<CommandList, RectangleU16> {
-  CommandList commandList;
-  commandList.add<CommandRenderDearImGui>();
-
-  return {std::move(commandList), RectangleU16 {}};
-}
-
 auto DearImGui::do_handle_input(const InputEvent& e) -> InputEventHandled {
-  ImGuiIO& io = ImGui::GetIO();
+  ImGuiIO& io {ImGui::GetIO()};
 
   switch (e.type) {
   case InputEventType::MouseMoved: {
-    const auto& pointerPos = e.as<MouseMoved>().position;
-    io.MousePos = ImVec2 {static_cast<float>(pointerPos.x()),
-                          static_cast<float>(pointerPos.y())};
-  }
+    const PointerPosition& pointerPos {e.as<MouseMoved>().position};
+    io.MousePos.x = static_cast<float>(pointerPos.x());
+    io.MousePos.y = static_cast<float>(pointerPos.y());
 
     return io.WantCaptureMouse ? InputEventHandled::Yes : InputEventHandled::No;
+  }
 
   case InputEventType::MouseWheel:
     io.MouseWheel += e.as<MouseWheel>().offset;

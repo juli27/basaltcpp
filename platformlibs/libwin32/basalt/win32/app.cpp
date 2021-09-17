@@ -17,6 +17,7 @@
 
 #include <basalt/api/client_app.h>
 #include <basalt/api/debug.h>
+#include <basalt/api/types.h>
 
 #include <basalt/api/gfx/surface.h>
 #include <basalt/api/gfx/backend/command_list.h>
@@ -31,11 +32,12 @@
 
 #include <chrono>
 #include <string>
+#include <string_view>
+#include <vector>
 
 using namespace std::literals;
 
-using std::shared_ptr;
-using std::string;
+using std::vector;
 
 namespace basalt {
 
@@ -185,9 +187,16 @@ void App::run(Config& config, const HMODULE moduleHandle,
       window->set_mode(mode);
     }
 
-    window->input_manager().dispatch_pending(app.mLayers);
-    dearImGui->new_frame(app);
+    const vector layers {app.mLayers};
+
+    window->input_manager().dispatch_pending(layers);
+
+    dearImGui->tick(app);
     clientApp->on_update(app);
+
+    for (auto& layer : layers) {
+      layer->tick(app);
+    }
 
     if (app.mIsDirty) {
       app.mIsDirty = false;

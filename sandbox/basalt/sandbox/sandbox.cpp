@@ -36,6 +36,9 @@ using basalt::Layer;
 using basalt::WindowMode;
 
 struct SandboxApp::Input final : Layer {
+  void tick(Engine&) override {
+  }
+
 private:
   auto do_handle_input(const InputEvent&) -> InputEventHandled override {
     return InputEventHandled::Yes;
