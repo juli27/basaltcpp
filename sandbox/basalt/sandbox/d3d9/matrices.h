@@ -14,14 +14,6 @@ namespace d3d9 {
 struct Matrices final : TestCase {
   explicit Matrices(basalt::Engine&);
 
-  Matrices(const Matrices&) = delete;
-  Matrices(Matrices&&) = delete;
-
-  ~Matrices() override = default;
-
-  auto operator=(const Matrices&) -> Matrices& = delete;
-  auto operator=(Matrices&&) -> Matrices& = delete;
-
   auto name() -> std::string_view override;
   auto drawable() -> basalt::gfx::DrawablePtr override;
 

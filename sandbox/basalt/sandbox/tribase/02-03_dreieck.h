@@ -16,14 +16,6 @@ namespace tribase {
 struct Dreieck final : TestCase {
   explicit Dreieck(basalt::Engine&);
 
-  Dreieck(const Dreieck&) = delete;
-  Dreieck(Dreieck&&) = delete;
-
-  ~Dreieck() override = default;
-
-  auto operator=(const Dreieck&) -> Dreieck& = delete;
-  auto operator=(Dreieck&&) -> Dreieck& = delete;
-
   auto name() -> std::string_view override;
   auto drawable() -> basalt::gfx::DrawablePtr override;
 

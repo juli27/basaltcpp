@@ -12,14 +12,6 @@ struct TestCase;
 struct SandboxApp final : basalt::ClientApp {
   explicit SandboxApp(basalt::Engine&);
 
-  SandboxApp(const SandboxApp&) = delete;
-  SandboxApp(SandboxApp&&) = delete;
-
-  ~SandboxApp() override = default;
-
-  auto operator=(const SandboxApp&) -> SandboxApp& = delete;
-  auto operator=(SandboxApp&&) -> SandboxApp& = delete;
-
   void on_update(basalt::Engine&) override;
 
 private:

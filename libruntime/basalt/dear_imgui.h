@@ -18,7 +18,7 @@ struct DearImGui final
   DearImGui(const DearImGui&) = delete;
   DearImGui(DearImGui&&) = delete;
 
-  ~DearImGui() override;
+  ~DearImGui() noexcept override;
 
   auto operator=(const DearImGui&) -> DearImGui& = delete;
   auto operator=(DearImGui&&) -> DearImGui& = delete;

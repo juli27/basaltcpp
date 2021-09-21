@@ -11,12 +11,12 @@ struct RenderState {
   using Value = RenderStateValue;
 
   constexpr RenderState(const RenderState&) = default;
-  constexpr RenderState(RenderState&&) = default;
+  constexpr RenderState(RenderState&&) noexcept = default;
 
   ~RenderState() = default;
 
   constexpr auto operator=(const RenderState&) -> RenderState& = delete;
-  constexpr auto operator=(RenderState&&) -> RenderState& = delete;
+  constexpr auto operator=(RenderState&&) noexcept -> RenderState& = delete;
 
   [[nodiscard]] static auto cull_mode(CullMode) -> RenderState;
   [[nodiscard]] static auto ambient(const Color&) -> RenderState;

@@ -10,7 +10,7 @@ struct ClientApp {
   ClientApp(const ClientApp&) = delete;
   ClientApp(ClientApp&&) = delete;
 
-  virtual ~ClientApp() = default;
+  virtual ~ClientApp() noexcept = default;
 
   auto operator=(const ClientApp&) -> ClientApp& = delete;
   auto operator=(ClientApp&&) -> ClientApp& = delete;

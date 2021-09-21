@@ -16,14 +16,6 @@ namespace d3d9 {
 struct TexturesTci final : TestCase {
   explicit TexturesTci(basalt::Engine&);
 
-  TexturesTci(const TexturesTci&) = delete;
-  TexturesTci(TexturesTci&&) = delete;
-
-  ~TexturesTci() override = default;
-
-  auto operator=(const TexturesTci&) -> TexturesTci& = delete;
-  auto operator=(TexturesTci&&) -> TexturesTci& = delete;
-
   auto name() -> std::string_view override;
   auto drawable() -> basalt::gfx::DrawablePtr override;
 

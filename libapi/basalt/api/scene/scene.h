@@ -14,7 +14,7 @@ namespace basalt {
 struct Vector3f32;
 
 struct Scene final {
-  Scene() = default;
+  Scene() noexcept = default;
 
   Scene(const Scene&) = delete;
   Scene(Scene&&) = delete;

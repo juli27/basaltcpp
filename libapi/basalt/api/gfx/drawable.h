@@ -13,19 +13,19 @@ namespace basalt::gfx {
 
 struct Drawable {
   Drawable(const Drawable&) = default;
-  Drawable(Drawable&&) = default;
+  Drawable(Drawable&&) noexcept = default;
 
   virtual ~Drawable() noexcept = default;
 
   auto operator=(const Drawable&) -> Drawable& = default;
-  auto operator=(Drawable &&) -> Drawable& = default;
+  auto operator=(Drawable&&) noexcept -> Drawable& = default;
 
   virtual auto draw(ResourceCache&, Size2Du16 viewport,
                     const RectangleU16& clip)
     -> std::tuple<CommandList, RectangleU16> = 0;
 
 protected:
-  Drawable() = default;
+  Drawable() noexcept = default;
 };
 
 } // namespace basalt::gfx

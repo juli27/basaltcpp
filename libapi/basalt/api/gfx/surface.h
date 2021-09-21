@@ -12,12 +12,12 @@ struct Surface final {
   explicit Surface(Size2Du16) noexcept;
 
   Surface(const Surface&) = delete;
-  Surface(Surface&&) = default;
+  Surface(Surface&&) noexcept = default;
 
   ~Surface() noexcept = default;
 
   auto operator=(const Surface&) -> Surface& = delete;
-  auto operator=(Surface&&) -> Surface& = delete;
+  auto operator=(Surface&&) noexcept -> Surface& = default;
 
   [[nodiscard]] auto drawables() const noexcept
     -> const std::vector<DrawablePtr>&;

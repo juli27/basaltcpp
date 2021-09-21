@@ -27,7 +27,7 @@ public:
   ~HandlePool() noexcept = default;
 
   auto operator=(const HandlePool&) -> HandlePool& = delete;
-  auto operator=(HandlePool &&) -> HandlePool& = default;
+  auto operator=(HandlePool&&) noexcept -> HandlePool& = default;
 
 private:
   // handle must be < size

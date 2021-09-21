@@ -13,7 +13,7 @@ struct Layer {
   virtual ~Layer() = default;
 
   auto operator=(const Layer&) -> Layer& = delete;
-  auto operator=(Layer&&) noexcept -> Layer& = delete;
+  auto operator=(Layer&&) noexcept -> Layer& = default;
 
   [[nodiscard]] auto pointer_position() const noexcept -> PointerPosition;
   [[nodiscard]] auto is_mouse_button_down(MouseButton) const -> bool;
@@ -24,7 +24,7 @@ struct Layer {
   virtual void tick(Engine&) = 0;
 
 protected:
-  Layer() = default;
+  Layer() noexcept = default;
 
   virtual auto do_handle_input(const InputEvent&) -> InputEventHandled = 0;
 

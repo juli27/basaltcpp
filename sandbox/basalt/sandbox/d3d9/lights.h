@@ -14,14 +14,6 @@ namespace d3d9 {
 struct Lights final : TestCase {
   explicit Lights(basalt::Engine&);
 
-  Lights(const Lights&) = delete;
-  Lights(Lights&&) = delete;
-
-  ~Lights() override = default;
-
-  auto operator=(const Lights&) -> Lights& = delete;
-  auto operator=(Lights&&) -> Lights& = delete;
-
   auto name() -> std::string_view override;
   auto drawable() -> basalt::gfx::DrawablePtr override;
 

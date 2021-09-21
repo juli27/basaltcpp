@@ -4,6 +4,6 @@
 
 namespace d3d9 {
 
-auto create_default_camera() -> basalt::gfx::Camera;
+auto create_default_camera() noexcept -> basalt::gfx::Camera;
 
 } // namespace d3d9

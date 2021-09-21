@@ -29,11 +29,12 @@ struct EnumArray {
     return Size;
   }
 
-  [[nodiscard]] constexpr auto operator[](const K key) const -> const V& {
+  [[nodiscard]] constexpr auto operator[](const K key) const noexcept
+    -> const V& {
     return mStorage[enum_cast(key)];
   }
 
-  [[nodiscard]] constexpr auto operator[](const K key) -> V& {
+  [[nodiscard]] constexpr auto operator[](const K key) noexcept -> V& {
     return mStorage[enum_cast(key)];
   }
 
@@ -43,7 +44,7 @@ private:
 
 // can not make it work in MSVC. Is MSVC not implementing CWG 1591?
 // TODO: submit feedback
-//template <class K, typename V, uSize N>
-//EnumArray(std::pair<K, V>(&&)[N]) -> EnumArray<K, V, N>;
+// template <class K, typename V, uSize N>
+// EnumArray(std::pair<K, V>(&&)[N]) -> EnumArray<K, V, N>;
 
 } // namespace basalt

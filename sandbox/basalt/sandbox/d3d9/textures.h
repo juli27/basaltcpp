@@ -14,14 +14,6 @@ namespace d3d9 {
 struct Textures final : TestCase {
   explicit Textures(basalt::Engine&);
 
-  Textures(const Textures&) = delete;
-  Textures(Textures&&) = delete;
-
-  ~Textures() override = default;
-
-  auto operator=(const Textures&) -> Textures& = delete;
-  auto operator=(Textures &&) -> Textures& = delete;
-
   auto name() -> std::string_view override;
   auto drawable() -> basalt::gfx::DrawablePtr override;
 

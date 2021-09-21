@@ -11,14 +11,6 @@ namespace tribase {
 struct Textures final : TestCase {
   explicit Textures(basalt::Engine&);
 
-  Textures(const Textures&) = delete;
-  Textures(Textures&&) = delete;
-
-  ~Textures() override = default;
-
-  auto operator=(const Textures&) -> Textures& = delete;
-  auto operator=(Textures&&) -> Textures& = delete;
-
   [[nodiscard]] auto name() -> std::string_view override;
   [[nodiscard]] auto drawable() -> basalt::gfx::DrawablePtr override;
 

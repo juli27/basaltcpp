@@ -16,14 +16,6 @@ namespace d3d9 {
 struct Meshes final : TestCase {
   explicit Meshes(basalt::Engine&);
 
-  Meshes(const Meshes&) = delete;
-  Meshes(Meshes&&) = delete;
-
-  ~Meshes() override = default;
-
-  auto operator=(const Meshes&) -> Meshes& = delete;
-  auto operator=(Meshes&&) -> Meshes& = delete;
-
   auto name() -> std::string_view override;
   auto drawable() -> basalt::gfx::DrawablePtr override;
 

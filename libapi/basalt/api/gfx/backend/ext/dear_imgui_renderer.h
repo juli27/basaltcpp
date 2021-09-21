@@ -10,9 +10,6 @@ struct DearImGuiRenderer : ExtensionT<ExtensionId::DearImGuiRenderer> {
   virtual void init() = 0;
   virtual void shutdown() = 0;
   virtual void new_frame() = 0;
-
-protected:
-  DearImGuiRenderer() = default;
 };
 
 struct CommandRenderDearImGui final

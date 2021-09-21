@@ -14,12 +14,12 @@ struct SceneView final : Drawable {
   SceneView(ScenePtr scene, const Camera& camera);
 
   SceneView(const SceneView&) = delete;
-  SceneView(SceneView&&) = default;
+  SceneView(SceneView&&) noexcept = default;
 
-  ~SceneView() override = default;
+  ~SceneView() noexcept override = default;
 
   auto operator=(const SceneView&) -> SceneView& = delete;
-  auto operator=(SceneView &&) -> SceneView& = default;
+  auto operator=(SceneView&&) noexcept -> SceneView& = default;
 
   [[nodiscard]] auto camera() const noexcept -> const Camera&;
 

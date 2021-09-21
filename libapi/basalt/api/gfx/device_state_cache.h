@@ -13,7 +13,7 @@
 namespace basalt::gfx {
 
 struct DeviceStateCache final {
-  DeviceStateCache();
+  DeviceStateCache() noexcept;
 
   auto update(const RenderState&) noexcept -> bool;
   auto update(TextureStageState, u32 value) noexcept -> bool;

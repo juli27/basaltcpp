@@ -14,7 +14,7 @@ struct Extension {
   auto operator=(Extension &&) -> Extension& = delete;
 
 protected:
-  Extension() = default;
+  Extension() noexcept = default;
 };
 
 template <ExtensionId Id>
