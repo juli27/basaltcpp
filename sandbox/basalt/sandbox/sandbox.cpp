@@ -14,7 +14,6 @@
 #include <basalt/sandbox/tribase/02-04_textures.h>
 
 #include <basalt/api/engine.h>
-#include <basalt/api/layer.h>
 #include <basalt/api/prelude.h>
 
 #include <basalt/api/shared/asserts.h>
@@ -35,24 +34,20 @@ using basalt::Key;
 using basalt::Layer;
 using basalt::WindowMode;
 
-struct SandboxApp::Input final : Layer {
-  void tick(Engine&) override {
-  }
-
-private:
-  auto do_handle_input(const InputEvent&) -> InputEventHandled override {
-    return InputEventHandled::Yes;
-  }
-};
-
 auto ClientApp::create(Engine& engine) -> unique_ptr<ClientApp> {
   return std::make_unique<SandboxApp>(engine);
 }
 
-SandboxApp::SandboxApp(Engine& engine) : mInput {std::make_shared<Input>()} {
-  engine.add_layer_top(mInput);
+SandboxApp::SandboxApp(Engine& engine)
+  : mSandboxLayer {std::make_shared<SandboxLayer>(engine)} {
+  engine.add_layer_top(mSandboxLayer);
+}
 
-  mScenes.reserve(8u);
+void SandboxApp::on_update(Engine&) {
+}
+
+SandboxLayer::SandboxLayer(Engine& engine) {
+  mScenes.reserve(10u);
   mScenes.emplace_back(std::make_unique<d3d9::Device>());
   mScenes.emplace_back(std::make_unique<d3d9::Vertices>(engine));
   mScenes.emplace_back(std::make_unique<d3d9::Matrices>(engine));
@@ -69,10 +64,10 @@ SandboxApp::SandboxApp(Engine& engine) : mInput {std::make_shared<Input>()} {
   engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
 }
 
-void SandboxApp::on_update(Engine& engine) {
+void SandboxLayer::tick(Engine& engine) {
   static auto pageUpPressed = false;
   static auto pageDownPressed = false;
-  if (mInput->is_key_down(Key::PageUp)) {
+  if (is_key_down(Key::PageUp)) {
     if (!pageUpPressed) {
       pageUpPressed = true;
 
@@ -82,7 +77,7 @@ void SandboxApp::on_update(Engine& engine) {
     pageUpPressed = false;
   }
 
-  if (mInput->is_key_down(Key::PageDown)) {
+  if (is_key_down(Key::PageDown)) {
     if (!pageDownPressed) {
       pageDownPressed = true;
 
@@ -153,7 +148,11 @@ void SandboxApp::on_update(Engine& engine) {
   mScenes[mCurrentSceneIndex]->on_update(engine);
 }
 
-void SandboxApp::next_scene(Engine& engine) noexcept {
+auto SandboxLayer::do_handle_input(const InputEvent&) -> InputEventHandled {
+  return InputEventHandled::Yes;
+}
+
+void SandboxLayer::next_scene(Engine& engine) noexcept {
   mCurrentSceneIndex++;
   if (mCurrentSceneIndex >= mScenes.size()) {
     mCurrentSceneIndex = 0;
@@ -162,7 +161,7 @@ void SandboxApp::next_scene(Engine& engine) noexcept {
   engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
 }
 
-void SandboxApp::prev_scene(Engine& engine) noexcept {
+void SandboxLayer::prev_scene(Engine& engine) noexcept {
   if (mCurrentSceneIndex == 0) {
     mCurrentSceneIndex = mScenes.size() - 1;
   } else {
@@ -172,7 +171,7 @@ void SandboxApp::prev_scene(Engine& engine) noexcept {
   engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
 }
 
-void SandboxApp::set_scene(const uSize index, Engine& engine) noexcept {
+void SandboxLayer::set_scene(uSize index, Engine& engine) noexcept {
   BASALT_ASSERT(index < mScenes.size());
 
   mCurrentSceneIndex = index;

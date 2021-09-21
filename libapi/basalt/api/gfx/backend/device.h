@@ -3,14 +3,11 @@
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 
-#include <basalt/api/base/types.h>
-
 #include <gsl/span>
 
 #include <cstddef>
 #include <filesystem>
 #include <optional>
-#include <string_view>
 
 namespace basalt::gfx {
 

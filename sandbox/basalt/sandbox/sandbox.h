@@ -1,12 +1,14 @@
 #pragma once
 
 #include <basalt/api/client_app.h>
+#include <basalt/api/layer.h>
 
 #include <basalt/api/base/types.h>
 
 #include <memory>
 #include <vector>
 
+struct SandboxLayer;
 struct TestCase;
 
 struct SandboxApp final : basalt::ClientApp {
@@ -15,9 +17,19 @@ struct SandboxApp final : basalt::ClientApp {
   void on_update(basalt::Engine&) override;
 
 private:
-  struct Input;
+  std::shared_ptr<SandboxLayer> mSandboxLayer;
+};
 
-  std::shared_ptr<Input> mInput;
+struct SandboxLayer final : basalt::Layer {
+  explicit SandboxLayer(basalt::Engine&);
+
+  void tick(basalt::Engine&) override;
+
+protected:
+  auto do_handle_input(const basalt::InputEvent&)
+    -> basalt::InputEventHandled override;
+
+private:
   std::vector<std::unique_ptr<TestCase>> mScenes;
   basalt::uSize mCurrentSceneIndex {9};
 
