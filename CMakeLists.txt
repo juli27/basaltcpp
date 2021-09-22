@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
 project(Basalt VERSION 0.4 LANGUAGES CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
@@ -24,7 +24,6 @@ set_package_properties(DirectXSDK PROPERTIES
   PURPOSE "Dependency of the Direct3D 9 gfx backend"
 )
 
-# Needs to be linked into the final exe in order to enable it
 add_library(ControlFlowGuard INTERFACE)
 target_compile_options(ControlFlowGuard INTERFACE "/guard:cf")
 target_link_options(ControlFlowGuard INTERFACE "/GUARD:CF")
