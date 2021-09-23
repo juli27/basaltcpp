@@ -52,7 +52,7 @@ static_assert(sizeof(MeshDescriptor) == 56);
 static_assert(sizeof(MeshDescriptor) == 48);
 #endif
 
-struct TextureSamplerDescription final {
+struct SampledTextureDescriptor final {
   Texture texture {Texture::null()};
   TextureFilter filter {TextureFilter::Point};
   TextureMipFilter mipFilter {TextureMipFilter::None};
@@ -64,7 +64,7 @@ struct MaterialDescriptor final {
   Color diffuse;
   Color ambient;
 
-  TextureSamplerDescription texture;
+  SampledTextureDescriptor sampledTexture;
 
   // TODO: upgrade boolean flag to CullMode enum
   bool cullBackFace {true};

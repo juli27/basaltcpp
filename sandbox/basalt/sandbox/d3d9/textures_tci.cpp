@@ -7,8 +7,6 @@
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/surface.h>
 
-#include <basalt/api/gfx/backend/context.h>
-
 #include <basalt/api/scene/transform.h>
 
 #include <basalt/api/math/constants.h>
@@ -41,7 +39,6 @@ using basalt::gfx::SceneView;
 using basalt::gfx::TexCoordinateSrc;
 using basalt::gfx::Texture;
 using basalt::gfx::TextureCoordinateSource;
-using basalt::gfx::TextureSamplerDescription;
 using basalt::gfx::TextureTransformMode;
 using basalt::gfx::VertexElement;
 using basalt::gfx::VertexLayout;
@@ -95,8 +92,8 @@ TexturesTci::TexturesTci(Engine& engine) {
   MaterialDescriptor material;
   material.cullBackFace = false;
   material.lit = false;
-  material.texture = TextureSamplerDescription {
-    engine.get_or_load<Texture>("data/banana.bmp"_hs)};
+  material.sampledTexture.texture =
+    engine.get_or_load<Texture>("data/banana.bmp"_hs);
   material.textureCoordinateSource =
     TextureCoordinateSource::VertexPositionCameraSpace;
   material.textureTransformMode = TextureTransformMode::Count4;

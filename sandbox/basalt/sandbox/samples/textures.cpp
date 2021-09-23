@@ -72,18 +72,19 @@ Textures::Textures(Engine& engine)
   MaterialDescriptor material {};
   material.cullBackFace = false;
   material.lit = false;
-  material.texture.texture = engine.get_or_load<Texture>("data/Tiger.bmp"_hs);
+  material.sampledTexture.texture =
+    engine.get_or_load<Texture>("data/Tiger.bmp"_hs);
 
   u32 i {0};
 
   for (const auto filter : {TextureFilter::Point, TextureFilter::Linear,
                             TextureFilter::LinearAnisotropic}) {
-    material.texture.filter = filter;
+    material.sampledTexture.filter = filter;
 
     for (const auto mipFilter :
          {TextureMipFilter::None, TextureMipFilter::Point,
           TextureMipFilter::Linear}) {
-      material.texture.mipFilter = mipFilter;
+      material.sampledTexture.mipFilter = mipFilter;
       mMaterials[i] = gfxResourceCache.create_material(material);
       ++i;
     }

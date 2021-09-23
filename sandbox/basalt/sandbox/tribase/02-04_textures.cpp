@@ -47,7 +47,6 @@ using basalt::gfx::SceneView;
 using basalt::gfx::Texture;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
-using basalt::gfx::TextureSamplerDescription;
 using basalt::gfx::VertexElement;
 using basalt::gfx::VertexLayout;
 
@@ -102,19 +101,19 @@ Textures::Textures(basalt::Engine& engine)
     engine.get_or_load<Texture>("data/tribase/Texture.bmp"_hs)};
 
   MaterialDescriptor materialDesc {};
-  materialDesc.texture = TextureSamplerDescription {texture};
+  materialDesc.sampledTexture.texture = texture;
   materialDesc.cullBackFace = false;
   materialDesc.lit = false;
 
   auto& gfxResources {engine.gfx_resource_cache()};
   mPointSampler = gfxResources.create_material(materialDesc);
 
-  materialDesc.texture.filter = TextureFilter::Linear;
-  materialDesc.texture.mipFilter = TextureMipFilter::Linear;
+  materialDesc.sampledTexture.filter = TextureFilter::Linear;
+  materialDesc.sampledTexture.mipFilter = TextureMipFilter::Linear;
   mLinearSamplerWithMip = gfxResources.create_material(materialDesc);
 
-  materialDesc.texture.filter = TextureFilter::LinearAnisotropic;
-  materialDesc.texture.mipFilter = TextureMipFilter::None;
+  materialDesc.sampledTexture.filter = TextureFilter::LinearAnisotropic;
+  materialDesc.sampledTexture.mipFilter = TextureMipFilter::None;
   mAnisotropicSampler = gfxResources.create_material(materialDesc);
 
   RandomNumberGenerator rng {};

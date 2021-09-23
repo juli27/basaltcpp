@@ -86,7 +86,7 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport,
 
   ecs.view<const Transform, const RenderComponent>().each(
     [&](const Transform& transform, const RenderComponent& renderComponent) {
-      const auto& materialData = cache.get(renderComponent.material);
+      const MaterialData& materialData {cache.get(renderComponent.material)};
       record_material(cmdList, materialData);
 
       cmdList.set_transform(TransformState::Texture,
