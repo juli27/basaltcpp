@@ -4,10 +4,10 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "debug.h"
   "engine.h"
   "input_events.h"
-  "layer.cpp"
-  "layer.h"
   "prelude.h"
   "types.h"
+  "view.cpp"
+  "view.h"
 )
 
 add_subdirectory("base")

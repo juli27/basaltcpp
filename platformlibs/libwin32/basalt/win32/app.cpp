@@ -187,15 +187,15 @@ void App::run(Config& config, const HMODULE moduleHandle,
       window->set_mode(mode);
     }
 
-    const vector layers {app.mLayers};
+    const vector views {app.mViews};
 
-    window->input_manager().dispatch_pending(layers);
+    window->input_manager().dispatch_pending(views);
 
     dearImGui->tick(app);
     clientApp->on_update(app);
 
-    for (auto& layer : layers) {
-      layer->tick(app);
+    for (auto& view : views) {
+      view->tick(app);
     }
 
     if (app.mIsDirty) {

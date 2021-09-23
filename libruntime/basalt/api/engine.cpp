@@ -37,34 +37,31 @@ void Engine::set_window_surface_content(gfx::DrawablePtr drawable) {
   mWindowSurfaceContent = std::move(drawable);
 }
 
-void Engine::add_layer_top(LayerPtr layer) {
-  mLayers.emplace(mLayers.begin(), std::move(layer));
+void Engine::add_view_top(ViewPtr view) {
+  mViews.emplace(mViews.begin(), std::move(view));
 }
 
-void Engine::add_layer_bottom(LayerPtr layer) {
-  mLayers.emplace_back(std::move(layer));
+void Engine::add_view_bottom(ViewPtr view) {
+  mViews.emplace_back(std::move(view));
 }
 
-void Engine::add_layer_above(LayerPtr layer, const LayerPtr& before) {
-  mLayers.emplace(
-    std::find(mLayers.begin(), mLayers.end(), before),
-    std::move(layer));
+void Engine::add_view_above(ViewPtr view, const ViewPtr& before) {
+  mViews.emplace(std::find(mViews.begin(), mViews.end(), before),
+                 std::move(view));
 }
 
-void Engine::add_layer_below(LayerPtr layer, const LayerPtr& after) {
-  auto it {std::find(mLayers.begin(), mLayers.end(), after)};
+void Engine::add_view_below(ViewPtr view, const ViewPtr& after) {
+  auto it {std::find(mViews.begin(), mViews.end(), after)};
 
-  if (it != mLayers.end()) {
+  if (it != mViews.end()) {
     ++it;
   }
 
-  mLayers.emplace(it, std::move(layer));
+  mViews.emplace(it, std::move(view));
 }
 
-void Engine::remove_layer(const LayerPtr& layer) {
-  mLayers.erase(
-    std::remove(mLayers.begin(), mLayers.end(), layer),
-    mLayers.end());
+void Engine::remove_view(const ViewPtr& view) {
+  mViews.erase(std::remove(mViews.begin(), mViews.end(), view), mViews.end());
 }
 
 auto Engine::mouse_cursor() const noexcept -> MouseCursor {

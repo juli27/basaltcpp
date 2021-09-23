@@ -12,8 +12,8 @@ struct Engine;
 struct InputEvent;
 using InputEventPtr = std::unique_ptr<InputEvent>;
 
-struct Layer;
-using LayerPtr = std::shared_ptr<Layer>;
+struct View;
+using ViewPtr = std::shared_ptr<View>;
 
 enum class InputEventHandled : u8 { No, Yes };
 

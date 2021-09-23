@@ -6,14 +6,14 @@
 
 namespace basalt {
 
-struct Layer {
-  Layer(const Layer&) = delete;
-  Layer(Layer&&) noexcept = default;
+struct View {
+  View(const View&) = delete;
+  View(View&&) noexcept = default;
 
-  virtual ~Layer() = default;
+  virtual ~View() noexcept = default;
 
-  auto operator=(const Layer&) -> Layer& = delete;
-  auto operator=(Layer&&) noexcept -> Layer& = default;
+  auto operator=(const View&) -> View& = delete;
+  auto operator=(View&&) noexcept -> View& = default;
 
   [[nodiscard]] auto pointer_position() const noexcept -> PointerPosition;
   [[nodiscard]] auto is_mouse_button_down(MouseButton) const -> bool;
@@ -24,7 +24,7 @@ struct Layer {
   virtual void tick(Engine&) = 0;
 
 protected:
-  Layer() noexcept = default;
+  View() noexcept = default;
 
   virtual auto do_handle_input(const InputEvent&) -> InputEventHandled = 0;
 

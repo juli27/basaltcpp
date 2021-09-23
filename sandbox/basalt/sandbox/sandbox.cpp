@@ -31,7 +31,7 @@ using basalt::Engine;
 using basalt::InputEvent;
 using basalt::InputEventHandled;
 using basalt::Key;
-using basalt::Layer;
+using basalt::View;
 using basalt::WindowMode;
 
 auto ClientApp::create(Engine& engine) -> unique_ptr<ClientApp> {
@@ -39,14 +39,14 @@ auto ClientApp::create(Engine& engine) -> unique_ptr<ClientApp> {
 }
 
 SandboxApp::SandboxApp(Engine& engine)
-  : mSandboxLayer {std::make_shared<SandboxLayer>(engine)} {
-  engine.add_layer_top(mSandboxLayer);
+  : mSandboxView {std::make_shared<SandboxView>(engine)} {
+  engine.add_view_top(mSandboxView);
 }
 
 void SandboxApp::on_update(Engine&) {
 }
 
-SandboxLayer::SandboxLayer(Engine& engine) {
+SandboxView::SandboxView(Engine& engine) {
   mScenes.reserve(10u);
   mScenes.emplace_back(std::make_unique<d3d9::Device>());
   mScenes.emplace_back(std::make_unique<d3d9::Vertices>(engine));
@@ -64,7 +64,7 @@ SandboxLayer::SandboxLayer(Engine& engine) {
   engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
 }
 
-void SandboxLayer::tick(Engine& engine) {
+void SandboxView::tick(Engine& engine) {
   static auto pageUpPressed = false;
   static auto pageDownPressed = false;
   if (is_key_down(Key::PageUp)) {
@@ -148,11 +148,11 @@ void SandboxLayer::tick(Engine& engine) {
   mScenes[mCurrentSceneIndex]->on_update(engine);
 }
 
-auto SandboxLayer::do_handle_input(const InputEvent&) -> InputEventHandled {
+auto SandboxView::do_handle_input(const InputEvent&) -> InputEventHandled {
   return InputEventHandled::Yes;
 }
 
-void SandboxLayer::next_scene(Engine& engine) noexcept {
+void SandboxView::next_scene(Engine& engine) noexcept {
   mCurrentSceneIndex++;
   if (mCurrentSceneIndex >= mScenes.size()) {
     mCurrentSceneIndex = 0;
@@ -161,7 +161,7 @@ void SandboxLayer::next_scene(Engine& engine) noexcept {
   engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
 }
 
-void SandboxLayer::prev_scene(Engine& engine) noexcept {
+void SandboxView::prev_scene(Engine& engine) noexcept {
   if (mCurrentSceneIndex == 0) {
     mCurrentSceneIndex = mScenes.size() - 1;
   } else {
@@ -171,7 +171,7 @@ void SandboxLayer::prev_scene(Engine& engine) noexcept {
   engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
 }
 
-void SandboxLayer::set_scene(uSize index, Engine& engine) noexcept {
+void SandboxView::set_scene(uSize index, Engine& engine) noexcept {
   BASALT_ASSERT(index < mScenes.size());
 
   mCurrentSceneIndex = index;

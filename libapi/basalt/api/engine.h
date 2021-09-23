@@ -34,11 +34,11 @@ struct Engine {
 
   void set_window_surface_content(gfx::DrawablePtr);
 
-  void add_layer_top(LayerPtr);
-  void add_layer_bottom(LayerPtr);
-  void add_layer_above(LayerPtr, const LayerPtr& before);
-  void add_layer_below(LayerPtr, const LayerPtr& after);
-  void remove_layer(const LayerPtr&);
+  void add_view_top(ViewPtr);
+  void add_view_bottom(ViewPtr);
+  void add_view_above(ViewPtr, const ViewPtr& before);
+  void add_view_below(ViewPtr, const ViewPtr& after);
+  void remove_view(const ViewPtr&);
 
   [[nodiscard]] auto mouse_cursor() const noexcept -> MouseCursor;
   void set_mouse_cursor(MouseCursor) noexcept;
@@ -57,7 +57,7 @@ protected:
 
   gfx::DrawablePtr mWindowSurfaceContent;
   // top to bottom order
-  std::vector<LayerPtr> mLayers;
+  std::vector<ViewPtr> mViews;
 
   f64 mDeltaTime {};
 

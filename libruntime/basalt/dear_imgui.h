@@ -1,6 +1,6 @@
 #pragma once
 
-#include <basalt/api/layer.h>
+#include <basalt/api/view.h>
 
 #include <basalt/api/gfx/drawable.h>
 
@@ -12,7 +12,7 @@ namespace basalt {
 
 struct DearImGui final
   : gfx::Drawable
-  , Layer {
+  , View {
   explicit DearImGui(gfx::Device&);
 
   DearImGui(const DearImGui&) = delete;

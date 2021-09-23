@@ -1,14 +1,14 @@
 #pragma once
 
 #include <basalt/api/client_app.h>
-#include <basalt/api/layer.h>
+#include <basalt/api/view.h>
 
 #include <basalt/api/base/types.h>
 
 #include <memory>
 #include <vector>
 
-struct SandboxLayer;
+struct SandboxView;
 struct TestCase;
 
 struct SandboxApp final : basalt::ClientApp {
@@ -17,11 +17,11 @@ struct SandboxApp final : basalt::ClientApp {
   void on_update(basalt::Engine&) override;
 
 private:
-  std::shared_ptr<SandboxLayer> mSandboxLayer;
+  std::shared_ptr<SandboxView> mSandboxView;
 };
 
-struct SandboxLayer final : basalt::Layer {
-  explicit SandboxLayer(basalt::Engine&);
+struct SandboxView final : basalt::View {
+  explicit SandboxView(basalt::Engine&);
 
   void tick(basalt::Engine&) override;
 
