@@ -19,7 +19,11 @@ struct Dreieck final : TestCase {
   auto name() -> std::string_view override;
   auto drawable() -> basalt::gfx::DrawablePtr override;
 
-  void on_update(basalt::Engine&) override;
+  void tick(basalt::Engine&) override;
+
+protected:
+  auto do_handle_input(const basalt::InputEvent&)
+    -> basalt::InputEventHandled override;
 
 private:
   basalt::ScenePtr mScene;

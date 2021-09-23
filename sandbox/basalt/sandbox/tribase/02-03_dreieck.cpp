@@ -29,6 +29,8 @@ using std::string_view;
 
 using basalt::Debug;
 using basalt::Engine;
+using basalt::InputEvent;
+using basalt::InputEventHandled;
 using basalt::PI;
 using basalt::Scene;
 using basalt::Transform;
@@ -121,7 +123,7 @@ auto Dreieck::drawable() -> DrawablePtr {
   return mSceneView;
 }
 
-void Dreieck::on_update(Engine& engine) {
+void Dreieck::tick(Engine& engine) {
   // 90° per second
   const f32 radOffsetY {PI / 2.0f * static_cast<f32>(engine.delta_time())};
   auto& transform {mEntity.get<Transform>()};
@@ -180,6 +182,10 @@ void Dreieck::on_update(Engine& engine) {
   }
 
   ImGui::End();
+}
+
+auto Dreieck::do_handle_input(const InputEvent&) -> InputEventHandled {
+  return InputEventHandled::No;
 }
 
 } // namespace tribase

@@ -17,7 +17,11 @@ struct Matrices final : TestCase {
   auto name() -> std::string_view override;
   auto drawable() -> basalt::gfx::DrawablePtr override;
 
-  void on_update(basalt::Engine&) override;
+  void tick(basalt::Engine&) override;
+
+protected:
+  auto do_handle_input(const basalt::InputEvent&)
+    -> basalt::InputEventHandled override;
 
 private:
   std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();

@@ -30,7 +30,7 @@ protected:
     -> basalt::InputEventHandled override;
 
 private:
-  std::vector<std::unique_ptr<TestCase>> mScenes;
+  std::vector<std::shared_ptr<TestCase>> mScenes;
   basalt::uSize mCurrentSceneIndex {9};
 
   void next_scene(basalt::Engine&) noexcept;

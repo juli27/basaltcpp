@@ -11,6 +11,10 @@ using namespace std::literals;
 
 using std::string_view;
 
+using basalt::Engine;
+using basalt::InputEvent;
+using basalt::InputEventHandled;
+using basalt::gfx::DrawablePtr;
 using basalt::gfx::SolidColorView;
 
 namespace d3d9 {
@@ -22,11 +26,15 @@ auto Device::name() -> string_view {
   return "Tutorial 1: Creating a Device"sv;
 }
 
-auto Device::drawable() -> basalt::gfx::DrawablePtr {
+auto Device::drawable() -> DrawablePtr {
   return mDrawable;
 }
 
-void Device::on_update(basalt::Engine&) {
+void Device::tick(Engine&) {
+}
+
+auto Device::do_handle_input(const InputEvent&) -> InputEventHandled {
+  return InputEventHandled::No;
 }
 
 } // namespace d3d9

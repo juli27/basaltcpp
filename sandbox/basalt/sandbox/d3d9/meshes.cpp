@@ -17,6 +17,8 @@ using namespace entt::literals;
 
 using basalt::Debug;
 using basalt::Engine;
+using basalt::InputEvent;
+using basalt::InputEventHandled;
 using basalt::Transform;
 using basalt::gfx::ext::XModel;
 
@@ -37,13 +39,17 @@ auto Meshes::drawable() -> basalt::gfx::DrawablePtr {
   return mSceneView;
 }
 
-void Meshes::on_update(Engine& engine) {
+void Meshes::tick(Engine& engine) {
   mTiger.get<Transform>().rotate(0.0f, static_cast<f32>(engine.delta_time()),
                                  0.0f);
 
   if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
+}
+
+auto Meshes::do_handle_input(const InputEvent&) -> InputEventHandled {
+  return InputEventHandled::No;
 }
 
 } // namespace d3d9

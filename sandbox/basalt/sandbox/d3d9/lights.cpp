@@ -22,6 +22,8 @@ using namespace std::literals;
 
 using basalt::Debug;
 using basalt::Engine;
+using basalt::InputEvent;
+using basalt::InputEventHandled;
 using basalt::PI;
 using basalt::Transform;
 using basalt::Vector3f32;
@@ -95,7 +97,7 @@ auto Lights::drawable() -> basalt::gfx::DrawablePtr {
   return mSceneView;
 }
 
-void Lights::on_update(Engine& engine) {
+void Lights::tick(Engine& engine) {
   const auto dt {static_cast<f32>(engine.delta_time())};
   auto& transform {mCylinder.get<Transform>()};
   transform.rotate(2.0f * dt, 0.0f, 0.0f);
@@ -115,6 +117,10 @@ void Lights::on_update(Engine& engine) {
   if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
+}
+
+auto Lights::do_handle_input(const InputEvent&) -> InputEventHandled {
+  return InputEventHandled::No;
 }
 
 } // namespace d3d9

@@ -26,6 +26,8 @@ using namespace entt::literals;
 
 using basalt::Debug;
 using basalt::Engine;
+using basalt::InputEvent;
+using basalt::InputEventHandled;
 using basalt::Mat4f32;
 using basalt::PI;
 using basalt::Transform;
@@ -115,7 +117,7 @@ auto TexturesTci::drawable() -> basalt::gfx::DrawablePtr {
   return mSceneView;
 }
 
-void TexturesTci::on_update(Engine& engine) {
+void TexturesTci::tick(Engine& engine) {
   mCylinder.get<Transform>().rotate(static_cast<f32>(engine.delta_time()), 0.0f,
                                     0.0f);
 
@@ -129,6 +131,10 @@ void TexturesTci::on_update(Engine& engine) {
   if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
+}
+
+auto TexturesTci::do_handle_input(const InputEvent&) -> InputEventHandled {
+  return InputEventHandled::No;
 }
 
 } // namespace d3d9

@@ -30,6 +30,8 @@ using gsl::span;
 using basalt::Color;
 using basalt::Debug;
 using basalt::Engine;
+using basalt::InputEvent;
+using basalt::InputEventHandled;
 using basalt::PI;
 using basalt::Scene;
 using basalt::Vector3f32;
@@ -125,7 +127,7 @@ auto Textures::drawable() -> DrawablePtr {
   return mSceneView;
 }
 
-void Textures::on_update(Engine& engine) {
+void Textures::tick(Engine& engine) {
   constexpr u8 filterMask {0x3};
   constexpr u8 mipFilterShift {0};
   constexpr u8 minFilterShift {2};
@@ -167,6 +169,10 @@ void Textures::on_update(Engine& engine) {
   if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
+}
+
+auto Textures::do_handle_input(const InputEvent&) -> InputEventHandled {
+  return InputEventHandled::No;
 }
 
 } // namespace samples

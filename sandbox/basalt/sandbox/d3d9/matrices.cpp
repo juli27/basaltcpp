@@ -18,6 +18,8 @@ using namespace std::literals;
 
 using basalt::Debug;
 using basalt::Engine;
+using basalt::InputEvent;
+using basalt::InputEventHandled;
 using basalt::PI;
 using basalt::Transform;
 using basalt::gfx::MaterialDescriptor;
@@ -71,7 +73,7 @@ auto Matrices::drawable() -> basalt::gfx::DrawablePtr {
   return mSceneView;
 }
 
-void Matrices::on_update(Engine& engine) {
+void Matrices::tick(Engine& engine) {
   // 1 full rotation per second
   const f32 radOffsetY {2.0f * PI * static_cast<f32>(engine.delta_time())};
   auto& transform {mTriangle.get<Transform>()};
@@ -80,6 +82,10 @@ void Matrices::on_update(Engine& engine) {
   if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
+}
+
+auto Matrices::do_handle_input(const InputEvent&) -> InputEventHandled {
+  return InputEventHandled::No;
 }
 
 } // namespace d3d9

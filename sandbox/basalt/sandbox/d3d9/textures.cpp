@@ -23,6 +23,8 @@ using namespace entt::literals;
 
 using basalt::Debug;
 using basalt::Engine;
+using basalt::InputEvent;
+using basalt::InputEventHandled;
 using basalt::PI;
 using basalt::Transform;
 using basalt::gfx::MaterialDescriptor;
@@ -101,13 +103,17 @@ auto Textures::drawable() -> basalt::gfx::DrawablePtr {
   return mSceneView;
 }
 
-void Textures::on_update(Engine& engine) {
+void Textures::tick(Engine& engine) {
   auto& transform {mCylinder.get<Transform>()};
   transform.rotate(static_cast<f32>(engine.delta_time()), 0.0f, 0.0f);
 
   if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
+}
+
+auto Textures::do_handle_input(const InputEvent&) -> InputEventHandled {
+  return InputEventHandled::No;
 }
 
 } // namespace d3d9

@@ -19,6 +19,8 @@ using std::string_view;
 using namespace std::literals;
 
 using basalt::Engine;
+using basalt::InputEvent;
+using basalt::InputEventHandled;
 using basalt::RectangleU16;
 using basalt::Size2Du16;
 using basalt::gfx::CommandList;
@@ -93,7 +95,11 @@ auto Vertices::drawable() -> basalt::gfx::DrawablePtr {
   return mDrawable;
 }
 
-void Vertices::on_update(Engine&) {
+void Vertices::tick(Engine&) {
+}
+
+auto Vertices::do_handle_input(const InputEvent&) -> InputEventHandled {
+  return InputEventHandled::No;
 }
 
 } // namespace d3d9

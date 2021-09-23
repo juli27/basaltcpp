@@ -33,6 +33,10 @@ using std::array;
 using gsl::span;
 
 using basalt::Debug;
+using basalt::Engine;
+using basalt::InputEvent;
+using basalt::InputEventHandled;
+using basalt::Key;
 using basalt::PI;
 using basalt::Scene;
 using basalt::Transform;
@@ -88,7 +92,7 @@ auto create_camera() -> Camera {
 
 } // namespace
 
-Textures::Textures(basalt::Engine& engine)
+Textures::Textures(Engine& engine)
   : mScene {std::make_shared<Scene>()}
   , mSceneView {std::make_shared<SceneView>(mScene, create_camera())} {
   mScene->set_background(Color::from_rgba(0, 0, 63));
@@ -169,28 +173,30 @@ auto Textures::drawable() -> basalt::gfx::DrawablePtr {
   return mSceneView;
 }
 
-void Textures::on_update(basalt::Engine& engine) {
+void Textures::tick(Engine& engine) {
   mTimeAccum += engine.delta_time();
 
-  mScene->ecs().view<Transform, TriangleData>().each(
-    [&](Transform& transform, TriangleData& data) {
-      const f32 deltaTime {static_cast<f32>(engine.delta_time())};
+  if (!is_key_down(Key::Space)) {
+    mScene->ecs().view<Transform, TriangleData>().each(
+      [&](Transform& transform, TriangleData& data) {
+        const f32 deltaTime {static_cast<f32>(engine.delta_time())};
 
-      transform.position += data.velocity * deltaTime;
-      transform.rotation += data.rotationVelocity * deltaTime;
+        transform.position += data.velocity * deltaTime;
+        transform.rotation += data.rotationVelocity * deltaTime;
 
-      if (transform.position.length() > 100.0f) {
-        data.velocity *= -1.0f;
-      }
-    });
+        if (transform.position.length() > 100.0f) {
+          data.velocity *= -1.0f;
+        }
+      });
+  }
 
   const char* currentMode;
 
-  if (static_cast<i32>(mTimeAccum / 3.0f) % 3 == 0) {
+  if (static_cast<i32>(mTimeAccum / 3.0) % 3 == 0) {
     currentMode = "MIN: Linear, MAG: Linear, MIP: Linear";
     mScene->ecs().view<RenderComponent>().each(
       [this](RenderComponent& rc) { rc.material = mLinearSamplerWithMip; });
-  } else if (static_cast<i32>(mTimeAccum / 3.0f) % 3 == 2) {
+  } else if (static_cast<i32>(mTimeAccum / 3.0) % 3 == 2) {
     currentMode = "MIN: Point, MAG: Point, MIP: None";
     mScene->ecs().view<RenderComponent>().each(
       [this](RenderComponent& rc) { rc.material = mPointSampler; });
@@ -201,6 +207,7 @@ void Textures::on_update(basalt::Engine& engine) {
   }
 
   if (ImGui::Begin("Textures##TribaseTextures")) {
+    ImGui::TextUnformatted("Hold SPACE to stop animating");
     ImGui::TextUnformatted(currentMode);
   }
 
@@ -209,6 +216,10 @@ void Textures::on_update(basalt::Engine& engine) {
   if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
+}
+
+auto Textures::do_handle_input(const InputEvent&) -> InputEventHandled {
+  return InputEventHandled::Yes;
 }
 
 } // namespace tribase

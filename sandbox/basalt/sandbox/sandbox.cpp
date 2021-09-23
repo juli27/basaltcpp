@@ -14,7 +14,9 @@
 #include <basalt/sandbox/tribase/02-04_textures.h>
 
 #include <basalt/api/engine.h>
+#include <basalt/api/input_events.h>
 #include <basalt/api/prelude.h>
+#include <basalt/api/types.h>
 
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/config.h>
@@ -30,7 +32,10 @@ using basalt::Config;
 using basalt::Engine;
 using basalt::InputEvent;
 using basalt::InputEventHandled;
+using basalt::InputEventType;
 using basalt::Key;
+using basalt::KeyDown;
+using basalt::KeyUp;
 using basalt::View;
 using basalt::WindowMode;
 
@@ -48,20 +53,21 @@ void SandboxApp::on_update(Engine&) {
 
 SandboxView::SandboxView(Engine& engine) {
   mScenes.reserve(10u);
-  mScenes.emplace_back(std::make_unique<d3d9::Device>());
-  mScenes.emplace_back(std::make_unique<d3d9::Vertices>(engine));
-  mScenes.emplace_back(std::make_unique<d3d9::Matrices>(engine));
-  mScenes.emplace_back(std::make_unique<d3d9::Lights>(engine));
-  mScenes.emplace_back(std::make_unique<d3d9::Textures>(engine));
-  mScenes.emplace_back(std::make_unique<d3d9::TexturesTci>(engine));
-  mScenes.emplace_back(std::make_unique<d3d9::Meshes>(engine));
+  mScenes.emplace_back(std::make_shared<d3d9::Device>());
+  mScenes.emplace_back(std::make_shared<d3d9::Vertices>(engine));
+  mScenes.emplace_back(std::make_shared<d3d9::Matrices>(engine));
+  mScenes.emplace_back(std::make_shared<d3d9::Lights>(engine));
+  mScenes.emplace_back(std::make_shared<d3d9::Textures>(engine));
+  mScenes.emplace_back(std::make_shared<d3d9::TexturesTci>(engine));
+  mScenes.emplace_back(std::make_shared<d3d9::Meshes>(engine));
 
-  mScenes.emplace_back(std::make_unique<tribase::Dreieck>(engine));
-  mScenes.emplace_back(std::make_unique<tribase::Textures>(engine));
+  mScenes.emplace_back(std::make_shared<tribase::Dreieck>(engine));
+  mScenes.emplace_back(std::make_shared<tribase::Textures>(engine));
 
-  mScenes.emplace_back(std::make_unique<samples::Textures>(engine));
+  mScenes.emplace_back(std::make_shared<samples::Textures>(engine));
 
   engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
+  engine.add_view_bottom(mScenes[mCurrentSceneIndex]);
 }
 
 void SandboxView::tick(Engine& engine) {
@@ -144,24 +150,59 @@ void SandboxView::tick(Engine& engine) {
 
     ImGui::EndMainMenuBar();
   }
-
-  mScenes[mCurrentSceneIndex]->on_update(engine);
 }
 
-auto SandboxView::do_handle_input(const InputEvent&) -> InputEventHandled {
-  return InputEventHandled::Yes;
+auto SandboxView::do_handle_input(const InputEvent& event)
+  -> InputEventHandled {
+  switch (event.type) {
+  case InputEventType::KeyDown: {
+    switch (event.as<KeyDown>().key) {
+    case Key::PageDown:
+    case Key::PageUp:
+      return InputEventHandled::Yes;
+
+    default:
+      break;
+    }
+
+    break;
+  }
+
+  case InputEventType::KeyUp: {
+    switch (event.as<KeyUp>().key) {
+    case Key::PageDown:
+    case Key::PageUp:
+      return InputEventHandled::Yes;
+
+    default:
+      break;
+    }
+
+    break;
+  }
+
+  default:
+    break;
+  }
+
+  return InputEventHandled::No;
 }
 
 void SandboxView::next_scene(Engine& engine) noexcept {
+  engine.remove_view(mScenes[mCurrentSceneIndex]);
+
   mCurrentSceneIndex++;
   if (mCurrentSceneIndex >= mScenes.size()) {
     mCurrentSceneIndex = 0;
   }
 
   engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
+  engine.add_view_bottom(mScenes[mCurrentSceneIndex]);
 }
 
 void SandboxView::prev_scene(Engine& engine) noexcept {
+  engine.remove_view(mScenes[mCurrentSceneIndex]);
+
   if (mCurrentSceneIndex == 0) {
     mCurrentSceneIndex = mScenes.size() - 1;
   } else {
@@ -169,11 +210,16 @@ void SandboxView::prev_scene(Engine& engine) noexcept {
   }
 
   engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
+  engine.add_view_bottom(mScenes[mCurrentSceneIndex]);
 }
 
 void SandboxView::set_scene(uSize index, Engine& engine) noexcept {
   BASALT_ASSERT(index < mScenes.size());
 
+  engine.remove_view(mScenes[mCurrentSceneIndex]);
+
   mCurrentSceneIndex = index;
+
   engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
+  engine.add_view_bottom(mScenes[mCurrentSceneIndex]);
 }
