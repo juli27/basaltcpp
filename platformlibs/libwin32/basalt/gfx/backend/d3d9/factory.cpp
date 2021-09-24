@@ -2,7 +2,6 @@
 
 #include <basalt/gfx/backend/d3d9/context.h>
 #include <basalt/gfx/backend/d3d9/device.h>
-#include <basalt/gfx/backend/d3d9/util.h>
 
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/log.h>

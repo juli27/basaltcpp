@@ -26,7 +26,6 @@
 #include <array>
 #include <limits>
 #include <stdexcept>
-#include <tuple>
 #include <type_traits>
 #include <utility>
 #include <variant>
@@ -61,11 +60,51 @@ constexpr auto to_d3d_vector(const Vector3f32& vec) noexcept -> D3DVECTOR {
   return D3DVECTOR {vec.x(), vec.y(), vec.z()};
 }
 
-auto to_fvf(const VertexLayout& layout) -> DWORD;
+auto to_fvf(const VertexLayout& layout) -> DWORD {
+  DWORD fvf = 0u;
+
+  for (const auto& element : layout) {
+    switch (element) {
+    case VertexElement::Position3F32:
+      fvf |= D3DFVF_XYZ;
+      break;
+
+    case VertexElement::PositionTransformed4F32:
+      fvf |= D3DFVF_XYZRHW;
+      break;
+
+    case VertexElement::Normal3F32:
+      fvf |= D3DFVF_NORMAL;
+      break;
+
+    case VertexElement::ColorDiffuseA8R8G8B8_U32:
+      fvf |= D3DFVF_DIFFUSE;
+      break;
+
+    case VertexElement::ColorSpecularA8R8G8B8_U32:
+      fvf |= D3DFVF_SPECULAR;
+      break;
+
+    case VertexElement::TextureCoords2F32:
+      fvf |= D3DFVF_TEX1;
+      break;
+    }
+  }
+
+  return fvf;
+}
 
 #if BASALT_DEV_BUILD
 
-auto verify_fvf(DWORD fvf) -> bool;
+auto verify_fvf(const DWORD fvf) -> bool {
+  if (fvf & D3DFVF_XYZRHW && (fvf & D3DFVF_XYZ || fvf & D3DFVF_NORMAL)) {
+    BASALT_LOG_ERROR("can't use transformed positions with untransformed"
+                     "positions or normals");
+    return false;
+  }
+
+  return true;
+}
 
 #endif
 
@@ -122,7 +161,12 @@ auto to_d3d(const DepthTestPass function) -> D3DCMPFUNC {
   return TO_D3D[function];
 }
 
-auto to_d3d(const RenderState& rs) -> std::tuple<D3DRENDERSTATETYPE, DWORD> {
+struct D3D9RenderState {
+  D3DRENDERSTATETYPE state;
+  DWORD value;
+};
+
+auto to_d3d(const RenderState& rs) -> D3D9RenderState {
   static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 7> TO_D3D {
     {RenderStateType::CullMode, D3DRS_CULLMODE},
     {RenderStateType::Ambient, D3DRS_AMBIENT},
@@ -157,7 +201,7 @@ auto to_d3d(const RenderState& rs) -> std::tuple<D3DRENDERSTATETYPE, DWORD> {
     },
     rs.value());
 
-  return {d3dRs, d3dValue};
+  return D3D9RenderState {d3dRs, d3dValue};
 }
 
 auto to_d3d(const TextureFilter filter) -> D3DTEXTUREFILTERTYPE {
@@ -196,30 +240,156 @@ auto to_d3d(const TextureAddressMode mode) -> D3DTEXTUREADDRESS {
   return TO_D3D[mode];
 }
 
-auto to_d3d_texture_stage_state(TextureStageState state, u32 value)
-  -> std::tuple<D3DTEXTURESTAGESTATETYPE, DWORD>;
+struct D3D9TextureStageState {
+  D3DTEXTURESTAGESTATETYPE state;
+  DWORD value;
+};
 
-auto to_d3d_primitive_type(PrimitiveType) -> D3DPRIMITIVETYPE;
+auto to_d3d_texture_stage_state(const TextureStageState state, const u32 value)
+  -> D3D9TextureStageState {
+  static constexpr std::array<D3DTEXTURESTAGESTATETYPE, 2>
+    TEXTURE_STAGE_STATE_CONV = {
+      /* CoordinateSource      */ D3DTSS_TEXCOORDINDEX,
+      /* TextureTransformFlags */ D3DTSS_TEXTURETRANSFORMFLAGS,
+    };
+  static constexpr EnumArray<TextureStageState, D3DTEXTURESTAGESTATETYPE, 2>
+    TO_D3D {
+      {TextureStageState::CoordinateSource, D3DTSS_TEXCOORDINDEX},
+      {TextureStageState::TextureTransformFlags, D3DTSS_TEXTURETRANSFORMFLAGS},
+    };
+  static_assert(TEXTURE_STAGE_STATE_COUNT == TEXTURE_STAGE_STATE_CONV.size());
+
+  DWORD d3dValue {0};
+
+  switch (state) {
+  case TextureStageState::CoordinateSource:
+    d3dValue = value == TcsVertexPositionCameraSpace
+                 ? D3DTSS_TCI_CAMERASPACEPOSITION
+                 : D3DTSS_TCI_PASSTHRU;
+    break;
+
+  case TextureStageState::TextureTransformFlags:
+    if ((value & ~TtfProjected) == TtfCount4) {
+      d3dValue = D3DTTFF_COUNT4;
+    }
+
+    if (value & TtfProjected) {
+      d3dValue |= D3DTTFF_PROJECTED;
+    }
+    break;
+  }
+
+  return D3D9TextureStageState {TO_D3D[state], d3dValue};
+}
+
+auto to_d3d_primitive_type(const PrimitiveType primitiveType)
+  -> D3DPRIMITIVETYPE {
+  switch (primitiveType) {
+  case PrimitiveType::PointList:
+    return D3DPT_POINTLIST;
+
+  case PrimitiveType::LineList:
+    return D3DPT_LINELIST;
+
+  case PrimitiveType::LineStrip:
+    return D3DPT_LINESTRIP;
+
+  case PrimitiveType::TriangleList:
+    return D3DPT_TRIANGLELIST;
+
+  case PrimitiveType::TriangleStrip:
+    return D3DPT_TRIANGLESTRIP;
+
+  case PrimitiveType::TriangleFan:
+    return D3DPT_TRIANGLEFAN;
+  }
+
+  return D3DPT_FORCE_DWORD;
+}
 
 struct D3D9ImGuiRenderer final : ext::DearImGuiRenderer {
-  explicit D3D9ImGuiRenderer(ComPtr<IDirect3DDevice9>);
+  explicit D3D9ImGuiRenderer(ComPtr<IDirect3DDevice9> device)
+    : mDevice {std::move(device)} {
+  }
 
-  static void execute(const ext::CommandRenderDearImGui&);
+  static void execute(const ext::CommandRenderDearImGui&) {
+    ImGui::Render();
+    if (auto* drawData {ImGui::GetDrawData()}) {
+      ImGui_ImplDX9_RenderDrawData(drawData);
+    }
+  }
 
-  void init() override;
-  void shutdown() override;
-  void new_frame() override;
+  void init() override {
+    ImGui_ImplDX9_Init(mDevice.Get());
+  }
+
+  void shutdown() override {
+    ImGui_ImplDX9_Shutdown();
+  }
+
+  void new_frame() override {
+    ImGui_ImplDX9_NewFrame();
+  }
 
 private:
   ComPtr<IDirect3DDevice9> mDevice;
 };
 
 struct D3D9XModelSupport final : ext::XModelSupport {
-  explicit D3D9XModelSupport(ComPtr<IDirect3DDevice9>);
+  explicit D3D9XModelSupport(ComPtr<IDirect3DDevice9> device)
+    : mDevice {std::move(device)} {
+  }
 
-  void execute(const ext::CommandDrawXModel&) const;
+  void execute(const ext::CommandDrawXModel& cmd) const {
+    const auto& model = mModels[cmd.handle];
+    for (DWORD i = 0; i < model.materials.size(); i++) {
+      D3D9CALL(mDevice->SetMaterial(&model.materials[i]));
+      D3D9CALL(mDevice->SetTexture(0, model.textures[i].Get()));
 
-  auto load(string_view filePath) -> ext::XModel override;
+      model.mesh->DrawSubset(i);
+    }
+
+    D3D9CALL(mDevice->SetTexture(0, nullptr));
+  }
+
+  auto load(string_view filePath) -> ext::XModel override {
+    const auto [handle, model] = mModels.allocate();
+
+    const auto wideFilePath = create_wide_from_utf8(filePath);
+
+    ComPtr<ID3DXBuffer> materialBuffer;
+    DWORD numMaterials {};
+    auto hr = ::D3DXLoadMeshFromXW(wideFilePath.c_str(), D3DXMESH_MANAGED,
+                                   mDevice.Get(), nullptr,
+                                   materialBuffer.GetAddressOf(), nullptr,
+                                   &numMaterials, model.mesh.GetAddressOf());
+    BASALT_ASSERT(SUCCEEDED(hr));
+
+    auto const* materials =
+      static_cast<D3DXMATERIAL*>(materialBuffer->GetBufferPointer());
+    model.materials.reserve(numMaterials);
+    model.textures.resize(numMaterials);
+
+    for (DWORD i = 0; i < numMaterials; i++) {
+      model.materials.emplace_back(materials->MatD3D);
+
+      // d3dx doesn't set the ambient color
+      model.materials[i].Ambient = model.materials[i].Diffuse;
+
+      if (materials[i].pTextureFilename != nullptr &&
+          lstrlenA(materials[i].pTextureFilename) > 0) {
+        array<char, MAX_PATH> texPath {};
+        strcpy_s(texPath.data(), texPath.size(), "data/");
+        strcat_s(texPath.data(), texPath.size(), materials[i].pTextureFilename);
+
+        hr = ::D3DXCreateTextureFromFileA(mDevice.Get(), texPath.data(),
+                                          model.textures[i].GetAddressOf());
+        BASALT_ASSERT(SUCCEEDED(hr));
+      }
+    }
+
+    return handle;
+  }
 
 private:
   using TexturePtr = ComPtr<IDirect3DTexture9>;
@@ -478,9 +648,9 @@ void D3D9Device::execute(const CommandSetMaterial& cmd) const {
 }
 
 void D3D9Device::execute(const CommandSetRenderState& cmd) const {
-  const auto [renderState, value] = to_d3d(cmd.renderState);
+  const auto [state, value] {to_d3d(cmd.renderState)};
 
-  D3D9CALL(mDevice->SetRenderState(renderState, value));
+  D3D9CALL(mDevice->SetRenderState(state, value));
 }
 
 void D3D9Device::execute(const CommandBindTexture& cmd) const {
@@ -489,10 +659,9 @@ void D3D9Device::execute(const CommandBindTexture& cmd) const {
 }
 
 void D3D9Device::execute(const CommandSetTextureStageState& cmd) const {
-  const auto [textureStageState, value] =
-    to_d3d_texture_stage_state(cmd.state, cmd.value);
+  const auto [state, value] {to_d3d_texture_stage_state(cmd.state, cmd.value)};
 
-  D3D9CALL(mDevice->SetTextureStageState(0, textureStageState, value));
+  D3D9CALL(mDevice->SetTextureStageState(0, state, value));
 }
 
 void D3D9Device::execute(const CommandBindSampler& cmd) const {
@@ -507,194 +676,5 @@ void D3D9Device::execute(const CommandBindSampler& cmd) const {
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, data.addressModeV));
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, data.addressModeW));
 }
-
-namespace {
-
-auto to_fvf(const VertexLayout& layout) -> DWORD {
-  DWORD fvf = 0u;
-
-  for (const auto& element : layout) {
-    switch (element) {
-    case VertexElement::Position3F32:
-      fvf |= D3DFVF_XYZ;
-      break;
-
-    case VertexElement::PositionTransformed4F32:
-      fvf |= D3DFVF_XYZRHW;
-      break;
-
-    case VertexElement::Normal3F32:
-      fvf |= D3DFVF_NORMAL;
-      break;
-
-    case VertexElement::ColorDiffuseA8R8G8B8_U32:
-      fvf |= D3DFVF_DIFFUSE;
-      break;
-
-    case VertexElement::ColorSpecularA8R8G8B8_U32:
-      fvf |= D3DFVF_SPECULAR;
-      break;
-
-    case VertexElement::TextureCoords2F32:
-      fvf |= D3DFVF_TEX1;
-      break;
-    }
-  }
-
-  return fvf;
-}
-
-#if BASALT_DEV_BUILD
-
-auto verify_fvf(const DWORD fvf) -> bool {
-  if (fvf & D3DFVF_XYZRHW && (fvf & D3DFVF_XYZ || fvf & D3DFVF_NORMAL)) {
-    BASALT_LOG_ERROR("can't use transformed positions with untransformed"
-                     "positions or normals");
-    return false;
-  }
-
-  return true;
-}
-
-#endif
-
-auto to_d3d_texture_stage_state(const TextureStageState state, const u32 value)
-  -> std::tuple<D3DTEXTURESTAGESTATETYPE, DWORD> {
-  static constexpr std::array<D3DTEXTURESTAGESTATETYPE, 2>
-    TEXTURE_STAGE_STATE_CONV = {
-      /* CoordinateSource      */ D3DTSS_TEXCOORDINDEX,
-      /* TextureTransformFlags */ D3DTSS_TEXTURETRANSFORMFLAGS,
-    };
-  static_assert(TEXTURE_STAGE_STATE_COUNT == TEXTURE_STAGE_STATE_CONV.size());
-
-  const D3DTEXTURESTAGESTATETYPE textureStageState =
-    TEXTURE_STAGE_STATE_CONV[enum_cast(state)];
-  DWORD d3dValue = 0;
-
-  switch (state) {
-  case TextureStageState::CoordinateSource:
-    d3dValue = value == TcsVertexPositionCameraSpace
-                 ? D3DTSS_TCI_CAMERASPACEPOSITION
-                 : D3DTSS_TCI_PASSTHRU;
-    break;
-
-  case TextureStageState::TextureTransformFlags:
-    if ((value & ~TtfProjected) == TtfCount4) {
-      d3dValue = D3DTTFF_COUNT4;
-    }
-
-    if (value & TtfProjected) {
-      d3dValue |= D3DTTFF_PROJECTED;
-    }
-    break;
-  }
-
-  return {textureStageState, d3dValue};
-}
-
-auto to_d3d_primitive_type(const PrimitiveType primitiveType)
-  -> D3DPRIMITIVETYPE {
-  switch (primitiveType) {
-  case PrimitiveType::PointList:
-    return D3DPT_POINTLIST;
-
-  case PrimitiveType::LineList:
-    return D3DPT_LINELIST;
-
-  case PrimitiveType::LineStrip:
-    return D3DPT_LINESTRIP;
-
-  case PrimitiveType::TriangleList:
-    return D3DPT_TRIANGLELIST;
-
-  case PrimitiveType::TriangleStrip:
-    return D3DPT_TRIANGLESTRIP;
-
-  case PrimitiveType::TriangleFan:
-    return D3DPT_TRIANGLEFAN;
-  }
-
-  return D3DPT_FORCE_DWORD;
-}
-
-D3D9ImGuiRenderer::D3D9ImGuiRenderer(ComPtr<IDirect3DDevice9> device)
-  : mDevice {std::move(device)} {
-}
-
-void D3D9ImGuiRenderer::execute(const ext::CommandRenderDearImGui&) {
-  ImGui::Render();
-  if (auto* drawData = ImGui::GetDrawData()) {
-    ImGui_ImplDX9_RenderDrawData(drawData);
-  }
-}
-
-void D3D9ImGuiRenderer::init() {
-  ImGui_ImplDX9_Init(mDevice.Get());
-}
-
-void D3D9ImGuiRenderer::shutdown() {
-  ImGui_ImplDX9_Shutdown();
-}
-
-void D3D9ImGuiRenderer::new_frame() {
-  ImGui_ImplDX9_NewFrame();
-}
-
-D3D9XModelSupport::D3D9XModelSupport(ComPtr<IDirect3DDevice9> device)
-  : mDevice {std::move(device)} {
-}
-
-void D3D9XModelSupport::execute(const ext::CommandDrawXModel& cmd) const {
-  const auto& model = mModels[cmd.handle];
-  for (DWORD i = 0; i < model.materials.size(); i++) {
-    D3D9CALL(mDevice->SetMaterial(&model.materials[i]));
-    D3D9CALL(mDevice->SetTexture(0, model.textures[i].Get()));
-
-    model.mesh->DrawSubset(i);
-  }
-
-  D3D9CALL(mDevice->SetTexture(0, nullptr));
-}
-
-auto D3D9XModelSupport::load(const string_view filePath) -> ext::XModel {
-  const auto [handle, model] = mModels.allocate();
-
-  const auto wideFilePath = create_wide_from_utf8(filePath);
-
-  ComPtr<ID3DXBuffer> materialBuffer;
-  DWORD numMaterials {};
-  auto hr =
-    ::D3DXLoadMeshFromXW(wideFilePath.c_str(), D3DXMESH_MANAGED, mDevice.Get(),
-                         nullptr, materialBuffer.GetAddressOf(), nullptr,
-                         &numMaterials, model.mesh.GetAddressOf());
-  BASALT_ASSERT(SUCCEEDED(hr));
-
-  auto const* materials =
-    static_cast<D3DXMATERIAL*>(materialBuffer->GetBufferPointer());
-  model.materials.reserve(numMaterials);
-  model.textures.resize(numMaterials);
-
-  for (DWORD i = 0; i < numMaterials; i++) {
-    model.materials.emplace_back(materials->MatD3D);
-
-    // d3dx doesn't set the ambient color
-    model.materials[i].Ambient = model.materials[i].Diffuse;
-
-    if (materials[i].pTextureFilename != nullptr &&
-        lstrlenA(materials[i].pTextureFilename) > 0) {
-      array<char, MAX_PATH> texPath {};
-      strcpy_s(texPath.data(), texPath.size(), "data/");
-      strcat_s(texPath.data(), texPath.size(), materials[i].pTextureFilename);
-
-      hr = ::D3DXCreateTextureFromFileA(mDevice.Get(), texPath.data(),
-                                        model.textures[i].GetAddressOf());
-      BASALT_ASSERT(SUCCEEDED(hr));
-    }
-  }
-
-  return handle;
-}
-
-} // namespace
 
 } // namespace basalt::gfx
