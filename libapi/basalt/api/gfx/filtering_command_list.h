@@ -8,6 +8,7 @@
 #include <basalt/api/gfx/backend/ext/types.h>
 
 #include <basalt/api/scene/types.h>
+#include <basalt/api/shared/types.h>
 #include <basalt/api/math/types.h>
 #include <basalt/api/base/types.h>
 
@@ -31,6 +32,7 @@ struct FilteringCommandList final {
   void set_texture_stage_state(u8 stage, TextureStageState, u32 value);
 
   void ext_draw_x_model(ext::XModel);
+  void ext_render_dear_imgui();
 
   [[nodiscard]] auto take_cmd_list() -> CommandList;
 

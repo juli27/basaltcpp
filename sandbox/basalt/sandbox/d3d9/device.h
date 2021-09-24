@@ -2,6 +2,8 @@
 
 #include <basalt/sandbox/test_case.h>
 
+#include <basalt/api/gfx/types.h>
+
 namespace d3d9 {
 
 struct Device final : TestCase {

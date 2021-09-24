@@ -2,6 +2,12 @@
 
 #include <basalt/api/gfx/backend/types.h>
 
+#include <basalt/api/gfx/backend/ext/types.h>
+
+#include <basalt/api/scene/types.h>
+#include <basalt/api/math/types.h>
+#include <basalt/api/base/types.h>
+
 #include <memory>
 #include <memory_resource>
 #include <type_traits>
@@ -23,6 +29,28 @@ struct CommandList final {
 
   [[nodiscard]] auto commands() const noexcept -> const std::vector<Command*>&;
 
+  void clear(const Color&);
+  void draw(VertexBuffer, u32 startVertex, PrimitiveType, u32 primitiveCount);
+  void set_directional_lights(const std::vector<DirectionalLight>&);
+  void set_transform(TransformState, const Mat4f32&);
+  void set_material(const Color& diffuse, const Color& ambient,
+                    const Color& emissive);
+  void set_render_state(const RenderState&);
+  void bind_texture(Texture);
+  void bind_sampler(Sampler);
+
+  // TODO: stage currently not supported
+  void set_texture_stage_state(u8 stage, TextureStageState, u32 value);
+
+  void ext_draw_x_model(ext::XModel);
+  void ext_render_dear_imgui();
+
+private:
+  using CommandBuffer = std::pmr::monotonic_buffer_resource;
+
+  std::unique_ptr<CommandBuffer> mBuffer;
+  std::vector<Command*> mCommands;
+
   template <typename T, typename... Args>
   void add(Args&&... args) {
     static_assert(std::is_base_of_v<Command, T>,
@@ -32,12 +60,6 @@ struct CommandList final {
     mCommands.emplace_back(::new (mBuffer->allocate(sizeof(T), alignof(T)))
                              T(std::forward<Args>(args)...));
   }
-
-private:
-  using CommandBuffer = std::pmr::monotonic_buffer_resource;
-
-  std::unique_ptr<CommandBuffer> mBuffer;
-  std::vector<Command*> mCommands;
 };
 
 } // namespace basalt::gfx

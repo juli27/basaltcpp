@@ -4,7 +4,8 @@
 #include <basalt/api/prelude.h>
 
 #include <basalt/api/gfx/drawable.h>
-#include <basalt/api/gfx/filtering_command_list.h>
+
+#include <basalt/api/gfx/backend/command_list.h>
 
 #include <basalt/api/shared/size2d.h>
 
@@ -12,6 +13,7 @@
 
 #include <array>
 #include <memory>
+#include <utility>
 
 using std::array;
 using std::string_view;
@@ -22,7 +24,6 @@ using basalt::RectangleU16;
 using basalt::Size2Du16;
 using basalt::gfx::CommandList;
 using basalt::gfx::Drawable;
-using basalt::gfx::FilteringCommandList;
 using basalt::gfx::Mesh;
 using basalt::gfx::MeshDescriptor;
 using basalt::gfx::PrimitiveType;
@@ -40,14 +41,14 @@ struct MyDrawable final : Drawable {
 
   auto draw(ResourceCache& cache, const Size2Du16 viewport, const RectangleU16&)
     -> std::tuple<CommandList, RectangleU16> override {
-    FilteringCommandList cmdList;
+    CommandList cmdList {};
     cmdList.clear(Colors::BLUE);
 
     const auto& mesh = cache.get(mTriangle);
     cmdList.draw(mesh.vertexBuffer, mesh.startVertex, mesh.primitiveType,
                  mesh.primitiveCount);
 
-    return {cmdList.take_cmd_list(), viewport.to_rectangle()};
+    return {std::move(cmdList), viewport.to_rectangle()};
   }
 
 private:

@@ -1,7 +1,6 @@
 #include <basalt/gfx/compositor.h>
 
 #include <basalt/api/gfx/drawable.h>
-#include <basalt/api/gfx/filtering_command_list.h>
 #include <basalt/api/gfx/surface.h>
 
 #include <basalt/api/gfx/backend/command_list.h>
@@ -42,9 +41,10 @@ auto Compositor::compose(ResourceCache& resourceCache,
                 });
 
   if (obscuredRegion != viewport.to_rectangle()) {
-    FilteringCommandList cmdList;
+    CommandList cmdList {};
     cmdList.clear(Colors::BLACK);
-    composite.emplace_back(cmdList.take_cmd_list());
+
+    composite.emplace_back(std::move(cmdList));
   }
 
   std::reverse(composite.begin(), composite.end());

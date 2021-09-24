@@ -60,7 +60,7 @@ DearImGui::DearImGui(Device& gfxDevice) {
   mRenderer->init();
 }
 
-DearImGui::~DearImGui() {
+DearImGui::~DearImGui() noexcept {
   mRenderer->shutdown();
 
   ImGui::DestroyContext();
@@ -69,7 +69,7 @@ DearImGui::~DearImGui() {
 auto DearImGui::draw(ResourceCache&, Size2Du16, const RectangleU16&)
   -> std::tuple<CommandList, RectangleU16> {
   CommandList commandList {};
-  commandList.add<CommandRenderDearImGui>();
+  commandList.ext_render_dear_imgui();
 
   return {std::move(commandList), RectangleU16 {}};
 }
