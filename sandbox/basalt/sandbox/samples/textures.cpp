@@ -8,8 +8,6 @@
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/scene_view.h>
 
-#include <basalt/api/gfx/backend/types.h>
-
 #include <basalt/api/scene/scene.h>
 
 #include <basalt/api/shared/config.h>
@@ -30,8 +28,6 @@ using gsl::span;
 using basalt::Color;
 using basalt::Debug;
 using basalt::Engine;
-using basalt::InputEvent;
-using basalt::InputEventHandled;
 using basalt::PI;
 using basalt::Scene;
 using basalt::Vector3f32;
@@ -169,10 +165,6 @@ void Textures::tick(Engine& engine) {
   if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
-}
-
-auto Textures::do_handle_input(const InputEvent&) -> InputEventHandled {
-  return InputEventHandled::No;
 }
 
 } // namespace samples

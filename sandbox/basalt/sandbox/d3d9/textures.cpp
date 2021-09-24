@@ -23,8 +23,6 @@ using namespace entt::literals;
 
 using basalt::Debug;
 using basalt::Engine;
-using basalt::InputEvent;
-using basalt::InputEventHandled;
 using basalt::PI;
 using basalt::Transform;
 using basalt::gfx::MaterialDescriptor;
@@ -110,10 +108,6 @@ void Textures::tick(Engine& engine) {
   if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
-}
-
-auto Textures::do_handle_input(const InputEvent&) -> InputEventHandled {
-  return InputEventHandled::No;
 }
 
 } // namespace d3d9

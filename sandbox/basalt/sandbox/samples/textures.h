@@ -24,10 +24,6 @@ struct Textures final : TestCase {
   [[nodiscard]] auto drawable() -> basalt::gfx::DrawablePtr override;
   void tick(basalt::Engine&) override;
 
-protected:
-  auto do_handle_input(const basalt::InputEvent&)
-    -> basalt::InputEventHandled override;
-
 private:
   basalt::ScenePtr mScene;
   basalt::gfx::SceneViewPtr mSceneView;

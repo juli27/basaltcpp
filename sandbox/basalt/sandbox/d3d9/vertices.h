@@ -12,10 +12,6 @@ struct Vertices final : TestCase {
 
   void tick(basalt::Engine&) override;
 
-protected:
-  auto do_handle_input(const basalt::InputEvent&)
-    -> basalt::InputEventHandled override;
-
 private:
   basalt::gfx::DrawablePtr mDrawable;
 };

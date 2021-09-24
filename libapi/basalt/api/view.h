@@ -26,7 +26,9 @@ struct View {
 protected:
   View() noexcept = default;
 
-  virtual auto do_handle_input(const InputEvent&) -> InputEventHandled = 0;
+  virtual auto do_handle_input(const InputEvent&) -> InputEventHandled {
+    return InputEventHandled::No;
+  }
 
 private:
   PointerPosition mPointerPos;

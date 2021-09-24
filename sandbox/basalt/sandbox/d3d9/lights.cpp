@@ -22,8 +22,6 @@ using namespace std::literals;
 
 using basalt::Debug;
 using basalt::Engine;
-using basalt::InputEvent;
-using basalt::InputEventHandled;
 using basalt::PI;
 using basalt::Transform;
 using basalt::Vector3f32;
@@ -117,10 +115,6 @@ void Lights::tick(Engine& engine) {
   if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
-}
-
-auto Lights::do_handle_input(const InputEvent&) -> InputEventHandled {
-  return InputEventHandled::No;
 }
 
 } // namespace d3d9

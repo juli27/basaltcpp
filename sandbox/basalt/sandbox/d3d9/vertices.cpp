@@ -5,7 +5,6 @@
 
 #include <basalt/api/gfx/command_list_recorder.h>
 #include <basalt/api/gfx/drawable.h>
-#include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/shared/size2d.h>
 
@@ -19,8 +18,6 @@ using std::string_view;
 using namespace std::literals;
 
 using basalt::Engine;
-using basalt::InputEvent;
-using basalt::InputEventHandled;
 using basalt::RectangleU16;
 using basalt::Size2Du16;
 using basalt::gfx::CommandList;
@@ -96,10 +93,6 @@ auto Vertices::drawable() -> basalt::gfx::DrawablePtr {
 }
 
 void Vertices::tick(Engine&) {
-}
-
-auto Vertices::do_handle_input(const InputEvent&) -> InputEventHandled {
-  return InputEventHandled::No;
 }
 
 } // namespace d3d9

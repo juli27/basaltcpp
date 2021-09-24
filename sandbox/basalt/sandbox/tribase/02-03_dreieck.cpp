@@ -8,8 +8,6 @@
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/scene_view.h>
 
-#include <basalt/api/gfx/backend/types.h>
-
 #include <basalt/api/scene/transform.h>
 #include <basalt/api/scene/scene.h>
 
@@ -29,8 +27,6 @@ using std::string_view;
 
 using basalt::Debug;
 using basalt::Engine;
-using basalt::InputEvent;
-using basalt::InputEventHandled;
 using basalt::PI;
 using basalt::Scene;
 using basalt::Transform;
@@ -182,10 +178,6 @@ void Dreieck::tick(Engine& engine) {
   }
 
   ImGui::End();
-}
-
-auto Dreieck::do_handle_input(const InputEvent&) -> InputEventHandled {
-  return InputEventHandled::No;
 }
 
 } // namespace tribase

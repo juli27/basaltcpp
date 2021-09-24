@@ -12,8 +12,6 @@ using namespace std::literals;
 using std::string_view;
 
 using basalt::Engine;
-using basalt::InputEvent;
-using basalt::InputEventHandled;
 using basalt::gfx::DrawablePtr;
 using basalt::gfx::SolidColorView;
 
@@ -31,10 +29,6 @@ auto Device::drawable() -> DrawablePtr {
 }
 
 void Device::tick(Engine&) {
-}
-
-auto Device::do_handle_input(const InputEvent&) -> InputEventHandled {
-  return InputEventHandled::No;
 }
 
 } // namespace d3d9

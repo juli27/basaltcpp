@@ -17,8 +17,6 @@ using namespace entt::literals;
 
 using basalt::Debug;
 using basalt::Engine;
-using basalt::InputEvent;
-using basalt::InputEventHandled;
 using basalt::Transform;
 using basalt::gfx::ext::XModel;
 
@@ -46,10 +44,6 @@ void Meshes::tick(Engine& engine) {
   if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }
-}
-
-auto Meshes::do_handle_input(const InputEvent&) -> InputEventHandled {
-  return InputEventHandled::No;
 }
 
 } // namespace d3d9
