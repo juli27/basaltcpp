@@ -1,6 +1,6 @@
 #include <basalt/api/gfx/scene_view.h>
 
-#include <basalt/api/gfx/command_list_recorder.h>
+#include <basalt/api/gfx/filtering_command_list.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/types.h>
 
@@ -24,7 +24,7 @@ namespace basalt::gfx {
 
 namespace {
 
-void record_material(CommandListRecorder& cmdList, const MaterialData& data) {
+void record_material(FilteringCommandList& cmdList, const MaterialData& data) {
   cmdList.set_render_state(RenderState::cull_mode(
     std::get<CullMode>(data.renderStates[RenderStateType::CullMode])));
   cmdList.set_render_state(RenderState::lighting(
@@ -58,7 +58,7 @@ auto SceneView::camera() const noexcept -> const Camera& {
 auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport,
                      const RectangleU16&)
   -> std::tuple<CommandList, RectangleU16> {
-  CommandListRecorder cmdList {};
+  FilteringCommandList cmdList {};
   cmdList.clear(mScene->background());
 
   cmdList.set_transform(TransformState::Projection,

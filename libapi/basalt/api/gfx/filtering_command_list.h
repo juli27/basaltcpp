@@ -16,7 +16,7 @@
 namespace basalt::gfx {
 
 // command list with redundant state filtering
-struct CommandListRecorder final {
+struct FilteringCommandList final {
   void clear(const Color&);
   void draw(VertexBuffer, u32 startVertex, PrimitiveType, u32 primitiveCount);
   void set_directional_lights(const std::vector<DirectionalLight>&);

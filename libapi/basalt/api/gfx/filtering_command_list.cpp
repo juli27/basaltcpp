@@ -1,4 +1,4 @@
-#include <basalt/api/gfx/command_list_recorder.h>
+#include <basalt/api/gfx/filtering_command_list.h>
 
 #include <basalt/api/gfx/backend/commands.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
@@ -12,19 +12,19 @@ using std::vector;
 
 namespace basalt::gfx {
 
-void CommandListRecorder::clear(const Color& color) {
+void FilteringCommandList::clear(const Color& color) {
   mCommandList.add<CommandClear>(color);
 }
 
-void CommandListRecorder::draw(const VertexBuffer vertexBuffer,
-                               const u32 startVertex,
-                               const PrimitiveType primitiveType,
-                               const u32 primitiveCount) {
+void FilteringCommandList::draw(const VertexBuffer vertexBuffer,
+                                const u32 startVertex,
+                                const PrimitiveType primitiveType,
+                                const u32 primitiveCount) {
   mCommandList.add<CommandDraw>(vertexBuffer, primitiveType, startVertex,
                                 primitiveCount);
 }
 
-void CommandListRecorder::set_directional_lights(
+void FilteringCommandList::set_directional_lights(
   const vector<DirectionalLight>& lights) {
   BASALT_ASSERT(lights.size() <= 4);
 
@@ -35,52 +35,51 @@ void CommandListRecorder::set_directional_lights(
   mCommandList.add<CommandSetDirectionalLights>(directionalLights);
 }
 
-void CommandListRecorder::set_transform(const TransformState state,
-                                        const Mat4f32& transform) {
+void FilteringCommandList::set_transform(const TransformState state,
+                                         const Mat4f32& transform) {
   if (mDeviceState.update(state, transform)) {
     mCommandList.add<CommandSetTransform>(state, transform);
   }
 }
 
-void CommandListRecorder::set_material(const Color& diffuse,
-                                       const Color& ambient,
-                                       const Color& emissive) {
+void FilteringCommandList::set_material(const Color& diffuse,
+                                        const Color& ambient,
+                                        const Color& emissive) {
   if (mDeviceState.update(diffuse, ambient, emissive)) {
     mCommandList.add<CommandSetMaterial>(diffuse, ambient, emissive);
   }
 }
 
-void CommandListRecorder::set_render_state(const RenderState& renderState) {
+void FilteringCommandList::set_render_state(const RenderState& renderState) {
   if (mDeviceState.update(renderState)) {
     mCommandList.add<CommandSetRenderState>(renderState);
   }
 }
 
-void CommandListRecorder::bind_texture(const Texture texture) {
+void FilteringCommandList::bind_texture(const Texture texture) {
   if (mDeviceState.update(texture)) {
     mCommandList.add<CommandBindTexture>(texture);
   }
 }
 
-void CommandListRecorder::bind_sampler(const Sampler sampler) {
+void FilteringCommandList::bind_sampler(const Sampler sampler) {
   if (mDeviceState.update(sampler)) {
     mCommandList.add<CommandBindSampler>(sampler);
   }
 }
 
-void CommandListRecorder::set_texture_stage_state(const u8 stage,
-                                                  const TextureStageState state,
-                                                  const u32 value) {
+void FilteringCommandList::set_texture_stage_state(
+  const u8 stage, const TextureStageState state, const u32 value) {
   if (mDeviceState.update(state, value)) {
     mCommandList.add<CommandSetTextureStageState>(stage, state, value);
   }
 }
 
-void CommandListRecorder::ext_draw_x_model(const ext::XModel handle) {
+void FilteringCommandList::ext_draw_x_model(const ext::XModel handle) {
   mCommandList.add<ext::CommandDrawXModel>(handle);
 }
 
-auto CommandListRecorder::take_cmd_list() -> CommandList {
+auto FilteringCommandList::take_cmd_list() -> CommandList {
   return std::move(mCommandList);
 }
 

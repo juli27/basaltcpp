@@ -1,8 +1,9 @@
 #include <basalt/gfx/compositor.h>
 
-#include <basalt/api/gfx/command_list_recorder.h>
-#include <basalt/api/gfx/surface.h>
 #include <basalt/api/gfx/drawable.h>
+#include <basalt/api/gfx/filtering_command_list.h>
+#include <basalt/api/gfx/surface.h>
+
 #include <basalt/api/gfx/backend/command_list.h>
 
 #include <basalt/api/math/rectangle.h>
@@ -41,7 +42,7 @@ auto Compositor::compose(ResourceCache& resourceCache,
                 });
 
   if (obscuredRegion != viewport.to_rectangle()) {
-    CommandListRecorder cmdList;
+    FilteringCommandList cmdList;
     cmdList.clear(Colors::BLACK);
     composite.emplace_back(cmdList.take_cmd_list());
   }
