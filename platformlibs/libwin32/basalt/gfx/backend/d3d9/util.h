@@ -8,7 +8,7 @@
 
 namespace basalt::gfx {
 
-constexpr auto to_d3d_color(const Color& color) noexcept -> D3DCOLOR {
+constexpr auto to_d3d(const Color& color) noexcept -> D3DCOLOR {
   return enum_cast(color.to_argb());
 }
 

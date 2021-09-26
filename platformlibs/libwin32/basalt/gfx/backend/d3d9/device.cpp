@@ -108,6 +108,10 @@ auto verify_fvf(const DWORD fvf) -> bool {
 
 #endif
 
+constexpr auto to_d3d(const bool b) noexcept -> BOOL {
+  return b;
+}
+
 auto to_d3d(const CullMode mode) -> D3DCULL {
   static constexpr EnumArray<CullMode, D3DCULL, 3> TO_D3D {
     {CullMode::None, D3DCULL_NONE},
@@ -167,6 +171,11 @@ struct D3D9RenderState {
   DWORD value;
 };
 
+// the RenderState visitor below doesn't find the Color overload without this
+// with the MSVC compiler.
+// TODO: is it a compiler bug?
+using gfx::to_d3d;
+
 auto to_d3d(const RenderState& rs) -> D3D9RenderState {
   static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 7> TO_D3D {
     {RenderStateType::CullMode, D3DRS_CULLMODE},
@@ -180,29 +189,10 @@ auto to_d3d(const RenderState& rs) -> D3D9RenderState {
 
   static_assert(RENDER_STATE_COUNT == TO_D3D.size());
 
-  const D3DRENDERSTATETYPE d3dRs {TO_D3D[rs.type()]};
-
-  const DWORD d3dValue {std::visit(
-    [](auto&& value) -> DWORD {
-      using T = std::decay_t<decltype(value)>;
-      if constexpr (std::is_same_v<T, bool>) {
-        return value ? TRUE : FALSE;
-      } else if constexpr (std::disjunction_v<std::is_same<T, CullMode>,
-                                              std::is_same<T, FillMode>,
-                                              std::is_same<T, ShadeMode>,
-                                              std::is_same<T, DepthTestPass>>) {
-        return to_d3d(value);
-      } else if constexpr (std::is_same_v<T, Color>) {
-        return enum_cast(value.to_argb());
-      } else {
-        static_assert(false, "non-exhaustive visitor");
-
-        return 0ul;
-      }
-    },
-    rs.value())};
-
-  return D3D9RenderState {d3dRs, d3dValue};
+  return D3D9RenderState {
+    TO_D3D[rs.type()],
+    std::visit([](auto&& value) -> DWORD { return to_d3d(value); }, rs.value()),
+  };
 }
 
 auto to_d3d(const TextureFilter filter) -> D3DTEXTUREFILTERTYPE {
@@ -593,8 +583,8 @@ void D3D9Device::execute(const CommandClearAttachments& cmd) const {
     return f;
   }()};
 
-  D3D9CALL(mDevice->Clear(0u, nullptr, flags, to_d3d_color(cmd.color), cmd.z,
-                          cmd.stencil));
+  D3D9CALL(
+    mDevice->Clear(0u, nullptr, flags, to_d3d(cmd.color), cmd.z, cmd.stencil));
 }
 
 void D3D9Device::execute(const CommandDraw& cmd) const {
