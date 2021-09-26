@@ -42,7 +42,8 @@ auto Compositor::compose(ResourceCache& resourceCache,
 
   if (obscuredRegion != viewport.to_rectangle()) {
     CommandList cmdList {};
-    cmdList.clear(Colors::BLACK);
+    cmdList.clear_attachments(Attachments {Attachment::Color}, Colors::BLACK,
+                              1.0f, 0);
 
     composite.emplace_back(std::move(cmdList));
   }

@@ -4,6 +4,7 @@
 #include <basalt/api/shared/color.h>
 #include <basalt/api/shared/handle.h>
 
+#include <basalt/api/base/enum_set.h>
 #include <basalt/api/base/types.h>
 
 #include <memory>
@@ -34,7 +35,7 @@ enum class PresentResult : u8 {
 };
 
 enum class CommandType : u8 {
-  Clear,
+  ClearAttachments,
   Draw,
   SetRenderState,
   BindTexture,
@@ -74,6 +75,14 @@ struct CommandT : Command {
   constexpr CommandT() noexcept : Command {TYPE} {
   }
 };
+
+enum class Attachment : u8 {
+  Color,
+  ZBuffer,
+  Stencil,
+};
+
+using Attachments = EnumSet<Attachment, Attachment::Stencil>;
 
 enum class RenderStateType : u8 {
   // vertex state

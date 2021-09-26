@@ -99,12 +99,42 @@ void display_color4(const char* label, const Color& color) {
                       ImGuiColorEditFlags_NoDragDrop);
 }
 
-void display(const CommandClear& cmd) {
-  ImGui::TextUnformatted("Clear");
+#define ENUM_TO_STRING(e)                                                      \
+  case e:                                                                      \
+    return #e
+
+auto to_string(const Attachment attachment) -> const char* {
+  switch (attachment) {
+    ENUM_TO_STRING(Attachment::Color);
+    ENUM_TO_STRING(Attachment::ZBuffer);
+    ENUM_TO_STRING(Attachment::Stencil);
+  }
+
+  return "(unknown)";
+}
+
+#undef ENUM_TO_STRING
+
+void display(const CommandClearAttachments& cmd) {
+  ImGui::TextUnformatted("ClearAttachments");
   if (ImGui::IsItemHovered()) {
     ImGui::BeginTooltip();
 
-    display_color4("color", cmd.color);
+    if (cmd.attachments.has(Attachment::Color)) {
+      ImGui::TextUnformatted(to_string(Attachment::Color));
+      display_color4("color", cmd.color);
+    }
+
+    if (cmd.attachments.has(Attachment::ZBuffer)) {
+      ImGui::TextUnformatted(to_string(Attachment::ZBuffer));
+      ImGui::Text("z = %#g", static_cast<f64>(cmd.z));
+
+    }
+
+    if (cmd.attachments.has(Attachment::Stencil)) {
+      ImGui::TextUnformatted(to_string(Attachment::Stencil));
+      ImGui::Text("stencil = %u", cmd.stencil);
+    }
 
     ImGui::EndTooltip();
   }
@@ -428,7 +458,7 @@ void draw_composite_inspector(const Composite& composite) {
                         cmdList.commands().size())) {
       for (const auto& command : cmdList.commands()) {
         switch (command->type) {
-          DISPLAY(CommandClear);
+          DISPLAY(CommandClearAttachments);
           DISPLAY(CommandDraw);
           DISPLAY(CommandSetDirectionalLights);
           DISPLAY(CommandSetTransform);

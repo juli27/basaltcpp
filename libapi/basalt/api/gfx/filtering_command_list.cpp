@@ -6,8 +6,10 @@ using std::vector;
 
 namespace basalt::gfx {
 
-void FilteringCommandList::clear(const Color& color) {
-  mCommandList.clear(color);
+void FilteringCommandList::clear_attachments(const Attachments attachments,
+                                             const Color& color, const f32 z,
+                                             const u32 stencil) {
+  mCommandList.clear_attachments(attachments, color, z, stencil);
 }
 
 void FilteringCommandList::draw(const VertexBuffer vertexBuffer,

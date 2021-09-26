@@ -29,7 +29,7 @@ struct CommandList final {
 
   [[nodiscard]] auto commands() const noexcept -> const std::vector<Command*>&;
 
-  void clear(const Color&);
+  void clear_attachments(Attachments, const Color&, f32 z, u32 stencil);
   void draw(VertexBuffer, u32 startVertex, PrimitiveType, u32 primitiveCount);
   void set_directional_lights(const std::vector<DirectionalLight>&);
   void set_transform(TransformState, const Mat4f32&);

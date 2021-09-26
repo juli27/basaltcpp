@@ -59,7 +59,9 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport,
                      const RectangleU16&)
   -> std::tuple<CommandList, RectangleU16> {
   FilteringCommandList cmdList {};
-  cmdList.clear(mScene->background());
+  cmdList.clear_attachments(
+    Attachments {Attachment::Color, Attachment::ZBuffer}, mScene->background(),
+    1.0f, 0);
 
   cmdList.set_transform(TransformState::Projection,
                         mCamera.projection_matrix(viewport));

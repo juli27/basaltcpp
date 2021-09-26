@@ -28,8 +28,10 @@ auto CommandList::commands() const noexcept -> const vector<Command*>& {
   return mCommands;
 }
 
-void CommandList::clear(const Color& color) {
-  add<CommandClear>(color);
+void CommandList::clear_attachments(const Attachments attachments,
+                                    const Color& color, const f32 z,
+                                    const u32 stencil) {
+  add<CommandClearAttachments>(attachments, color, z, stencil);
 }
 
 void CommandList::draw(const VertexBuffer vertexBuffer, const u32 startVertex,

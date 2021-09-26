@@ -22,6 +22,8 @@ using namespace std::literals;
 using basalt::Engine;
 using basalt::RectangleU16;
 using basalt::Size2Du16;
+using basalt::gfx::Attachment;
+using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
 using basalt::gfx::Drawable;
 using basalt::gfx::Mesh;
@@ -42,7 +44,8 @@ struct MyDrawable final : Drawable {
   auto draw(ResourceCache& cache, const Size2Du16 viewport, const RectangleU16&)
     -> std::tuple<CommandList, RectangleU16> override {
     CommandList cmdList {};
-    cmdList.clear(Colors::BLUE);
+    cmdList.clear_attachments(Attachments {Attachment::Color}, Colors::BLUE,
+                              1.0f, 0);
 
     const auto& mesh = cache.get(mTriangle);
     cmdList.draw(mesh.vertexBuffer, mesh.startVertex, mesh.primitiveType,

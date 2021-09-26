@@ -143,7 +143,8 @@ auto to_d3d(const ShadeMode mode) -> D3DSHADEMODE {
   return TO_D3D[mode];
 }
 
-// TODO: is there a benefit to turn off z testing when func = Never?
+// TODO: is there a benefit to turn off z testing when func = Never or func =
+// Always with writing disabled?
 auto to_d3d(const DepthTestPass function) -> D3DCMPFUNC {
   static constexpr EnumArray<DepthTestPass, D3DCMPFUNC, 8> TO_D3D {
     {DepthTestPass::Never, D3DCMP_NEVER},
@@ -179,9 +180,9 @@ auto to_d3d(const RenderState& rs) -> D3D9RenderState {
 
   static_assert(RENDER_STATE_COUNT == TO_D3D.size());
 
-  const D3DRENDERSTATETYPE d3dRs = TO_D3D[rs.type()];
+  const D3DRENDERSTATETYPE d3dRs {TO_D3D[rs.type()]};
 
-  const DWORD d3dValue = std::visit(
+  const DWORD d3dValue {std::visit(
     [](auto&& value) -> DWORD {
       using T = std::decay_t<decltype(value)>;
       if constexpr (std::is_same_v<T, bool>) {
@@ -199,7 +200,7 @@ auto to_d3d(const RenderState& rs) -> D3D9RenderState {
         return 0ul;
       }
     },
-    rs.value());
+    rs.value())};
 
   return D3D9RenderState {d3dRs, d3dValue};
 }
@@ -445,7 +446,7 @@ void D3D9Device::begin_execution() const {
 void D3D9Device::execute(const CommandList& cmdList) {
   for (const auto& cmd : cmdList.commands()) {
     switch (cmd->type) {
-      EXECUTE(CommandClear);
+      EXECUTE(CommandClearAttachments);
       EXECUTE(CommandDraw);
       EXECUTE(CommandSetDirectionalLights);
       EXECUTE(CommandSetTransform);
@@ -492,7 +493,7 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
   D3D9CALL(mDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD));
 
-  const auto identity = to_d3d_matrix(Mat4f32::identity());
+  constexpr D3DMATRIX identity {to_d3d_matrix(Mat4f32::identity())};
   D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &identity));
   D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &identity));
   D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &identity));
@@ -500,6 +501,7 @@ void D3D9Device::execute(const CommandList& cmdList) {
 
   D3D9CALL(mDevice->SetTexture(0, nullptr));
   D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
+  // D3D9CALL(mDevice->SetFVF(0));
 }
 
 #undef EXECUTE
@@ -572,11 +574,27 @@ auto D3D9Device::query_extension(const ext::ExtensionId id)
   return std::nullopt;
 }
 
-void D3D9Device::execute(const CommandClear& cmd) const {
-  const DWORD clearColor {to_d3d_color(cmd.color)};
+void D3D9Device::execute(const CommandClearAttachments& cmd) const {
+  const DWORD flags {[&] {
+    DWORD f {0};
 
-  D3D9CALL(mDevice->Clear(0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-                          clearColor, 1.0f, 0u));
+    if (cmd.attachments.has(Attachment::Color)) {
+      f |= D3DCLEAR_TARGET;
+    }
+
+    if (cmd.attachments.has(Attachment::ZBuffer)) {
+      f |= D3DCLEAR_ZBUFFER;
+    }
+
+    if (cmd.attachments.has(Attachment::Stencil)) {
+      f |= D3DCLEAR_STENCIL;
+    }
+
+    return f;
+  }()};
+
+  D3D9CALL(mDevice->Clear(0u, nullptr, flags, to_d3d_color(cmd.color), cmd.z,
+                          cmd.stencil));
 }
 
 void D3D9Device::execute(const CommandDraw& cmd) const {

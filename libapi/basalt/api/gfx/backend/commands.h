@@ -16,14 +16,20 @@
 
 namespace basalt::gfx {
 
-struct CommandClear final : CommandT<CommandType::Clear> {
+struct CommandClearAttachments final : CommandT<CommandType::ClearAttachments> {
+  Attachments attachments;
   Color color;
+  f32 z;
+  u32 stencil;
 
-  constexpr explicit CommandClear(const Color& c) noexcept : color {c} {
+  constexpr explicit CommandClearAttachments(const Attachments aAttachments,
+                                             const Color& aColor, const f32 aZ,
+                                             const u32 aStencil) noexcept
+    : attachments {aAttachments}, color {aColor}, z {aZ}, stencil {aStencil} {
   }
 };
 
-static_assert(sizeof(CommandClear) == 20);
+static_assert(sizeof(CommandClearAttachments) == 32);
 
 struct CommandDraw final : CommandT<CommandType::Draw> {
   PrimitiveType primitiveType {PrimitiveType::TriangleList};
@@ -104,7 +110,8 @@ static_assert(sizeof(CommandSetTextureStageState) == 8);
 struct CommandBindTexture final : CommandT<CommandType::BindTexture> {
   Texture texture {Texture::null()};
 
-  constexpr explicit CommandBindTexture(const Texture t) noexcept : texture {t} {
+  constexpr explicit CommandBindTexture(const Texture t) noexcept
+    : texture {t} {
   }
 };
 
@@ -113,7 +120,8 @@ static_assert(sizeof(CommandBindTexture) == 8);
 struct CommandBindSampler final : CommandT<CommandType::BindSampler> {
   Sampler sampler {Sampler::null()};
 
-  constexpr explicit CommandBindSampler(const Sampler s) noexcept : sampler{s} {
+  constexpr explicit CommandBindSampler(const Sampler s) noexcept
+    : sampler {s} {
   }
 };
 
