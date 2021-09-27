@@ -102,7 +102,7 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
   data.texture = desc.sampledTexture.texture;
 
   // TODO: cache samplers
-  const SamplerDescription samplerDesc {
+  const SamplerDescriptor samplerDesc {
     desc.sampledTexture.filter, desc.sampledTexture.mipFilter,
     desc.sampledTexture.addressModeU, desc.sampledTexture.addressModeV};
   data.sampler = mDevice.create_sampler(samplerDesc);

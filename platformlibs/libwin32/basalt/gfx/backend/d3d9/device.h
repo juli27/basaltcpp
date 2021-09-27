@@ -30,7 +30,7 @@ struct D3D9Device final : Device {
 
   auto load_texture(const std::filesystem::path&) -> Texture override;
 
-  auto create_sampler(const SamplerDescription&) -> Sampler override;
+  auto create_sampler(const SamplerDescriptor&) -> Sampler override;
 
   auto query_extension(ext::ExtensionId)
     -> std::optional<ext::ExtensionPtr> override;

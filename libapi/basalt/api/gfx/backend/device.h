@@ -36,7 +36,7 @@ struct Device {
   // TODO: load file somewhere else
   virtual auto load_texture(const std::filesystem::path&) -> Texture = 0;
 
-  virtual auto create_sampler(const SamplerDescription&) -> Sampler = 0;
+  virtual auto create_sampler(const SamplerDescriptor&) -> Sampler = 0;
 
   virtual auto query_extension(ext::ExtensionId)
     -> std::optional<ext::ExtensionPtr> = 0;

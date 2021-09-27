@@ -543,7 +543,7 @@ auto D3D9Device::load_texture(const path& filePath) -> Texture {
   return handle;
 }
 
-auto D3D9Device::create_sampler(const SamplerDescription& desc) -> Sampler {
+auto D3D9Device::create_sampler(const SamplerDescriptor& desc) -> Sampler {
   const auto [handle, data] = mSamplers.allocate();
 
   data.filter = to_d3d(desc.filter);
@@ -576,7 +576,7 @@ void D3D9Device::execute(const CommandClearAttachments& cmd) const {
       f |= D3DCLEAR_ZBUFFER;
     }
 
-    if (cmd.attachments.has(Attachment::Stencil)) {
+    if (cmd.attachments.has(Attachment::StencilBuffer)) {
       f |= D3DCLEAR_STENCIL;
     }
 
