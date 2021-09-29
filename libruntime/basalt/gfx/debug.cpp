@@ -107,6 +107,7 @@ constexpr auto enumerator_to_string(const CommandType type) noexcept -> const
     ENUMERATOR_TO_STRING(CommandType, ClearAttachments);
     ENUMERATOR_TO_STRING(CommandType, Draw);
     ENUMERATOR_TO_STRING(CommandType, SetRenderState);
+    ENUMERATOR_TO_STRING(CommandType, BindVertexBuffer);
     ENUMERATOR_TO_STRING(CommandType, BindTexture);
     ENUMERATOR_TO_STRING(CommandType, BindSampler);
     ENUMERATOR_TO_STRING(CommandType, SetTextureStageState);
@@ -281,7 +282,6 @@ void display(const CommandClearAttachments& cmd) {
 }
 
 void display(const CommandDraw& cmd) {
-  ImGui::Text("vertexBuffer = %#x", cmd.vertexBuffer.value());
   ImGui::Text("startVertex = %u", cmd.startVertex);
   ImGui::Text("primitiveType = %s", to_string(cmd.primitiveType));
   ImGui::Text("primitiveCount = %u", cmd.primitiveCount);
@@ -309,12 +309,17 @@ void display(const CommandSetRenderState& cmd) {
     cmd.renderState.value());
 }
 
-void display(const CommandBindTexture& cmd) {
-  ImGui::Text("handle = %#x", cmd.texture.value());
+void display(const CommandBindVertexBuffer& cmd) {
+  ImGui::Text("handle = %#x", cmd.handle.value());
+  ImGui::Text("offset = %llu", cmd.offset);
 }
 
 void display(const CommandBindSampler& cmd) {
   ImGui::Text("handle = %#x", cmd.sampler.value());
+}
+
+void display(const CommandBindTexture& cmd) {
+  ImGui::Text("handle = %#x", cmd.texture.value());
 }
 
 void display(const CommandSetTextureStageState& cmd) {
@@ -381,13 +386,14 @@ void draw_composite_inspector(const Composite& composite) {
           switch (command->type) {
             DISPLAY(CommandClearAttachments);
             DISPLAY(CommandDraw);
-            DISPLAY(CommandSetDirectionalLights);
-            DISPLAY(CommandSetTransform);
-            DISPLAY(CommandSetMaterial);
             DISPLAY(CommandSetRenderState);
-            DISPLAY(CommandBindTexture);
-            DISPLAY(CommandSetTextureStageState);
+            DISPLAY(CommandBindVertexBuffer);
             DISPLAY(CommandBindSampler);
+            DISPLAY(CommandBindTexture);
+            DISPLAY(CommandSetTransform);
+            DISPLAY(CommandSetDirectionalLights);
+            DISPLAY(CommandSetMaterial);
+            DISPLAY(CommandSetTextureStageState);
 
             DISPLAY(ext::CommandDrawXModel);
             DISPLAY(ext::CommandRenderDearImGui);

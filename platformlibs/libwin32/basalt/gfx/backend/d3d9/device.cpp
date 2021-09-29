@@ -17,7 +17,6 @@
 #include <basalt/api/shared/log.h>
 
 #include <basalt/api/base/enum_array.h>
-#include <basalt/api/base/utils.h>
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_dx9.h>
@@ -25,6 +24,7 @@
 #include <algorithm>
 #include <array>
 #include <limits>
+#include <new>
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
@@ -32,6 +32,7 @@
 #include <vector>
 
 using std::array;
+using std::bad_alloc;
 using std::optional;
 using std::string_view;
 using std::filesystem::path;
@@ -60,10 +61,14 @@ constexpr auto to_d3d_vector(const Vector3f32& vec) noexcept -> D3DVECTOR {
   return D3DVECTOR {vec.x(), vec.y(), vec.z()};
 }
 
+// TODO: needs some form of validation
 auto to_fvf(const VertexLayout& layout) -> DWORD {
-  DWORD fvf = 0u;
+  DWORD fvf {0ul};
 
-  for (const auto& element : layout) {
+  // TODO: values >= 8 invalidate the fvf
+  i32 numTexCoords {0};
+
+  for (const VertexElement& element : layout) {
     switch (element) {
     case VertexElement::Position3F32:
       fvf |= D3DFVF_XYZ;
@@ -77,19 +82,41 @@ auto to_fvf(const VertexLayout& layout) -> DWORD {
       fvf |= D3DFVF_NORMAL;
       break;
 
-    case VertexElement::ColorDiffuseA8R8G8B8_U32:
+    case VertexElement::PointSize1F32:
+      fvf |= D3DFVF_PSIZE;
+      break;
+
+    case VertexElement::ColorDiffuse1U32A8R8G8B8:
       fvf |= D3DFVF_DIFFUSE;
       break;
 
-    case VertexElement::ColorSpecularA8R8G8B8_U32:
+    case VertexElement::ColorSpecular1U32A8R8G8B8:
       fvf |= D3DFVF_SPECULAR;
       break;
 
+    case VertexElement::TextureCoords1F32:
+      fvf |= D3DFVF_TEXCOORDSIZE1(numTexCoords);
+      ++numTexCoords;
+      break;
+
     case VertexElement::TextureCoords2F32:
-      fvf |= D3DFVF_TEX1;
+      fvf |= D3DFVF_TEXCOORDSIZE2(numTexCoords);
+      ++numTexCoords;
+      break;
+
+    case VertexElement::TextureCoords3F32:
+      fvf |= D3DFVF_TEXCOORDSIZE3(numTexCoords);
+      ++numTexCoords;
+      break;
+
+    case VertexElement::TextureCoords4F32:
+      fvf |= D3DFVF_TEXCOORDSIZE4(numTexCoords);
+      ++numTexCoords;
       break;
     }
   }
+
+  fvf |= std::min(8, numTexCoords) << D3DFVF_TEXCOUNT_SHIFT;
 
   return fvf;
 }
@@ -298,6 +325,40 @@ auto to_d3d_primitive_type(const PrimitiveType primitiveType)
   return D3DPT_FORCE_DWORD;
 }
 
+auto map_vertex_buffer(IDirect3DVertexBuffer9& vertexBuffer,
+                       const uDeviceSize offset, uDeviceSize size)
+  -> gsl::span<std::byte> {
+  D3DVERTEXBUFFER_DESC desc {};
+  D3D9CALL(vertexBuffer.GetDesc(&desc));
+
+  BASALT_ASSERT(offset < desc.Size);
+  BASALT_ASSERT(offset + size <= desc.Size);
+
+  if (size == 0) {
+    size = desc.Size - offset;
+  }
+
+  if (offset >= desc.Size || size + offset > desc.Size) {
+    BASALT_LOG_ERROR(
+      "invalid map params: offset = {} size = {} (bufferSize = {}", offset,
+      size, desc.Size);
+
+    return {};
+  }
+
+  void* vertexBufferData {};
+  // TODO: is offset in bytes or multiples of the stride
+  if (FAILED(vertexBuffer.Lock(static_cast<UINT>(offset),
+                               static_cast<UINT>(size), &vertexBufferData,
+                               0ul))) {
+    BASALT_LOG_ERROR("Failed to lock vertex buffer");
+
+    return {};
+  }
+
+  return {static_cast<std::byte*>(vertexBufferData), size};
+}
+
 struct D3D9ImGuiRenderer final : ext::DearImGuiRenderer {
   explicit D3D9ImGuiRenderer(ComPtr<IDirect3DDevice9> device)
     : mDevice {std::move(device)} {
@@ -407,7 +468,9 @@ D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
   mExtensions[ext::ExtensionId::XModelSupport] =
     std::make_shared<D3D9XModelSupport>(mDevice);
 
-  D3D9CALL(mDevice->GetDeviceCaps(&mDeviceCaps));
+  D3D9CALL(mDevice->GetDeviceCaps(&mD3D9Caps));
+
+  mCaps.maxVertexBufferSizeInBytes = std::numeric_limits<UINT>::max();
 }
 
 auto D3D9Device::device() const -> ComPtr<IDirect3DDevice9> {
@@ -434,17 +497,24 @@ void D3D9Device::begin_execution() const {
 
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
 void D3D9Device::execute(const CommandList& cmdList) {
+  // reset device state to default
+  // TODO: use state block
+  PIX_BEGIN_EVENT(D3DCOLOR_XRGB(128, 128, 128), L"set default state");
+  D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
+  PIX_END_EVENT();
+
   for (const auto& cmd : cmdList.commands()) {
     switch (cmd->type) {
       EXECUTE(CommandClearAttachments);
       EXECUTE(CommandDraw);
-      EXECUTE(CommandSetDirectionalLights);
-      EXECUTE(CommandSetTransform);
-      EXECUTE(CommandSetMaterial);
       EXECUTE(CommandSetRenderState);
-      EXECUTE(CommandBindTexture);
-      EXECUTE(CommandSetTextureStageState);
+      EXECUTE(CommandBindVertexBuffer);
       EXECUTE(CommandBindSampler);
+      EXECUTE(CommandBindTexture);
+      EXECUTE(CommandSetTransform);
+      EXECUTE(CommandSetDirectionalLights);
+      EXECUTE(CommandSetMaterial);
+      EXECUTE(CommandSetTextureStageState);
 
     case CommandType::ExtDrawXModel:
       std::static_pointer_cast<D3D9XModelSupport>(
@@ -464,7 +534,7 @@ void D3D9Device::execute(const CommandList& cmdList) {
   }
 
   // reset render states
-  // TODO: use command block
+  // TODO: use state block
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
@@ -490,8 +560,12 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
 
   D3D9CALL(mDevice->SetTexture(0, nullptr));
-  D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
   // D3D9CALL(mDevice->SetFVF(0));
+
+  // unbind resources
+  PIX_BEGIN_EVENT(D3DCOLOR_XRGB(128, 128, 128), L"unbind resources");
+  D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
+  PIX_END_EVENT();
 }
 
 #undef EXECUTE
@@ -500,34 +574,86 @@ void D3D9Device::end_execution() const {
   D3D9CALL(mDevice->EndScene());
 }
 
-auto D3D9Device::create_vertex_buffer(const gsl::span<const std::byte> data,
-                                      const VertexLayout& layout)
-  -> VertexBuffer {
-  BASALT_ASSERT(!data.empty());
-  BASALT_ASSERT(data.size() <= std::numeric_limits<UINT>::max());
-  const UINT size = static_cast<UINT>(data.size());
+// throws std::bad_allow when requested size is too large and when d3d9
+// allocation fails
+auto D3D9Device::create_vertex_buffer(
+  const VertexBufferDescriptor& desc,
+  const gsl::span<const std::byte> initialData) -> VertexBuffer {
+  BASALT_ASSERT(!desc.layout.empty());
+  BASALT_ASSERT(initialData.size() <= desc.sizeInBytes);
 
-  BASALT_ASSERT(!layout.empty());
-  const DWORD fvf = to_fvf(layout);
-  BASALT_ASSERT(verify_fvf(fvf), "invalid fvf. Consult the log for details");
+  if (desc.sizeInBytes > mCaps.maxVertexBufferSizeInBytes) {
+    BASALT_LOG_ERROR("requested vertex buffer size ({}) too large",
+                     desc.sizeInBytes);
 
-  const auto [handle, vertexBuffer] = mVertexBuffers.allocate();
-
-  D3D9CALL(mDevice->CreateVertexBuffer(size, D3DUSAGE_WRITEONLY, fvf,
-                                       D3DPOOL_MANAGED,
-                                       vertexBuffer.GetAddressOf(), nullptr));
-
-  // upload vertex data
-  void* vertexBufferData {};
-  if (SUCCEEDED(vertexBuffer->Lock(0u, 0u, &vertexBufferData, 0u))) {
-    std::copy(data.begin(), data.end(),
-              static_cast<std::byte*>(vertexBufferData));
-    D3D9CALL(vertexBuffer->Unlock());
-  } else {
-    BASALT_LOG_ERROR("Failed to lock vertex buffer");
+    throw bad_alloc {};
   }
 
-  return handle;
+  const DWORD fvf {to_fvf(desc.layout)};
+  BASALT_ASSERT(verify_fvf(fvf), "invalid fvf. Consult the log for details");
+
+  // FVF vertex buffers must be large enough to contain at least one vertex, but
+  // it need not be a multiple of the vertex size
+  const UINT minSize {D3DXGetFVFVertexSize(fvf)};
+  BASALT_ASSERT(desc.sizeInBytes >= minSize,
+                "vertex buffer must contain at least one vertex");
+
+  const UINT size {std::max(minSize, static_cast<UINT>(desc.sizeInBytes))};
+
+  D3D9VertexBuffer vertexBuffer {};
+  if (FAILED(mDevice->CreateVertexBuffer(size, 0ul, fvf, D3DPOOL_MANAGED,
+                                         &vertexBuffer, nullptr))) {
+    BASALT_LOG_ERROR("failed to allocate vertex buffer");
+
+    throw bad_alloc {};
+  }
+
+  if (!initialData.empty()) {
+    // TODO: should initialData.size() > size be an error?
+    // TODO: should failing to upload initial data be an error?
+    if (const gsl::span vertexBufferData {
+          gfx::map_vertex_buffer(*vertexBuffer.Get(), 0, 0)};
+        !vertexBufferData.empty()) {
+      std::copy_n(initialData.begin(),
+                  std::min(initialData.size(), uSize {size}),
+                  vertexBufferData.begin());
+
+      D3D9CALL(vertexBuffer->Unlock());
+    }
+  }
+
+  return std::get<0>(mVertexBuffers.allocate(std::move(vertexBuffer)));
+}
+
+void D3D9Device::destroy_vertex_buffer(const VertexBuffer handle) noexcept {
+  mVertexBuffers.deallocate(handle);
+}
+
+auto D3D9Device::map_vertex_buffer(const VertexBuffer handle,
+                                   const uDeviceSize offset,
+                                   const uDeviceSize size)
+  -> gsl::span<std::byte> {
+  BASALT_ASSERT(mVertexBuffers.is_handle_valid(handle));
+
+  if (!mVertexBuffers.is_handle_valid(handle)) {
+    return {};
+  }
+
+  const D3D9VertexBuffer& vertexBuffer {mVertexBuffers[handle]};
+
+  return gfx::map_vertex_buffer(*vertexBuffer.Get(), offset, size);
+}
+
+void D3D9Device::unmap_vertex_buffer(const VertexBuffer handle) noexcept {
+  BASALT_ASSERT(mVertexBuffers.is_handle_valid(handle));
+
+  if (!mVertexBuffers.is_handle_valid(handle)) {
+    return;
+  }
+
+  const D3D9VertexBuffer& vertexBuffer {mVertexBuffers[handle]};
+
+  D3D9CALL(vertexBuffer->Unlock());
 }
 
 auto D3D9Device::load_texture(const path& filePath) -> Texture {
@@ -588,38 +714,55 @@ void D3D9Device::execute(const CommandClearAttachments& cmd) const {
 }
 
 void D3D9Device::execute(const CommandDraw& cmd) const {
-  auto* vertexBuffer = mVertexBuffers[cmd.vertexBuffer].Get();
-
-  D3DVERTEXBUFFER_DESC desc {};
-  D3D9CALL(vertexBuffer->GetDesc(&desc));
-
-  D3D9CALL(mDevice->SetStreamSource(0u, vertexBuffer, 0u,
-                                    ::D3DXGetFVFVertexSize(desc.FVF)));
-  D3D9CALL(mDevice->SetFVF(desc.FVF));
   D3D9CALL(mDevice->DrawPrimitive(to_d3d_primitive_type(cmd.primitiveType),
                                   cmd.startVertex, cmd.primitiveCount));
 }
 
-void D3D9Device::execute(const CommandSetDirectionalLights& cmd) {
-  const auto& directionalLights = cmd.directionalLights;
-  BASALT_ASSERT(directionalLights.size() <= mDeviceCaps.MaxActiveLights,
-                "the renderer doesn't support that many lights");
+void D3D9Device::execute(const CommandSetRenderState& cmd) const {
+  const auto [state, value] {to_d3d(cmd.renderState)};
 
-  mMaxLightsUsed =
-    std::max(mMaxLightsUsed, static_cast<u8>(directionalLights.size()));
+  D3D9CALL(mDevice->SetRenderState(state, value));
+}
 
-  DWORD lightIndex = 0u;
-  for (const auto& light : directionalLights) {
-    D3DLIGHT9 d3dLight {};
-    d3dLight.Type = D3DLIGHT_DIRECTIONAL;
-    d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
-    d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
-    d3dLight.Direction = to_d3d_vector(light.direction);
+void D3D9Device::execute(const CommandBindVertexBuffer& cmd) const {
+  BASALT_ASSERT(mVertexBuffers.is_handle_valid(cmd.handle));
 
-    D3D9CALL(mDevice->SetLight(lightIndex, &d3dLight));
-    D3D9CALL(mDevice->LightEnable(lightIndex, TRUE));
-    lightIndex++;
+  if (!mVertexBuffers.is_handle_valid(cmd.handle)) {
+    return;
   }
+
+  const D3D9VertexBuffer& buffer {mVertexBuffers[cmd.handle]};
+
+  D3DVERTEXBUFFER_DESC desc {};
+  D3D9CALL(buffer->GetDesc(&desc));
+
+  D3D9CALL(mDevice->SetFVF(desc.FVF));
+
+  const UINT fvfStride {D3DXGetFVFVertexSize(desc.FVF)};
+  const UINT maxOffset {desc.Size - fvfStride};
+  BASALT_ASSERT(cmd.offset < maxOffset);
+
+  const UINT offset {std::min(maxOffset, static_cast<UINT>(cmd.offset))};
+
+  D3D9CALL(mDevice->SetStreamSource(0u, buffer.Get(), offset, fvfStride));
+}
+
+void D3D9Device::execute(const CommandBindSampler& cmd) const {
+  const auto& data {mSamplers[cmd.sampler]};
+
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, data.filter));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, data.filter));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, data.mipFilter));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY,
+                                    mD3D9Caps.MaxAnisotropy));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, data.addressModeU));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, data.addressModeV));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, data.addressModeW));
+}
+
+void D3D9Device::execute(const CommandBindTexture& cmd) const {
+  const auto& texture = mTextures[cmd.texture];
+  D3D9CALL(mDevice->SetTexture(0, texture.Get()));
 }
 
 void D3D9Device::execute(const CommandSetTransform& cmd) const {
@@ -647,6 +790,28 @@ void D3D9Device::execute(const CommandSetTransform& cmd) const {
   }
 }
 
+void D3D9Device::execute(const CommandSetDirectionalLights& cmd) {
+  const auto& directionalLights = cmd.directionalLights;
+  BASALT_ASSERT(directionalLights.size() <= mD3D9Caps.MaxActiveLights,
+                "the renderer doesn't support that many lights");
+
+  mMaxLightsUsed =
+    std::max(mMaxLightsUsed, static_cast<u8>(directionalLights.size()));
+
+  DWORD lightIndex = 0u;
+  for (const auto& light : directionalLights) {
+    D3DLIGHT9 d3dLight {};
+    d3dLight.Type = D3DLIGHT_DIRECTIONAL;
+    d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
+    d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
+    d3dLight.Direction = to_d3d_vector(light.direction);
+
+    D3D9CALL(mDevice->SetLight(lightIndex, &d3dLight));
+    D3D9CALL(mDevice->LightEnable(lightIndex, TRUE));
+    lightIndex++;
+  }
+}
+
 void D3D9Device::execute(const CommandSetMaterial& cmd) const {
   D3DMATERIAL9 material {};
   material.Diffuse = to_d3d_color_value(cmd.diffuse);
@@ -655,34 +820,10 @@ void D3D9Device::execute(const CommandSetMaterial& cmd) const {
   D3D9CALL(mDevice->SetMaterial(&material));
 }
 
-void D3D9Device::execute(const CommandSetRenderState& cmd) const {
-  const auto [state, value] {to_d3d(cmd.renderState)};
-
-  D3D9CALL(mDevice->SetRenderState(state, value));
-}
-
-void D3D9Device::execute(const CommandBindTexture& cmd) const {
-  const auto& texture = mTextures[cmd.texture];
-  D3D9CALL(mDevice->SetTexture(0, texture.Get()));
-}
-
 void D3D9Device::execute(const CommandSetTextureStageState& cmd) const {
   const auto [state, value] {to_d3d_texture_stage_state(cmd.state, cmd.value)};
 
   D3D9CALL(mDevice->SetTextureStageState(0, state, value));
-}
-
-void D3D9Device::execute(const CommandBindSampler& cmd) const {
-  const auto& data {mSamplers[cmd.sampler]};
-
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, data.filter));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, data.filter));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, data.mipFilter));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY,
-                                    mDeviceCaps.MaxAnisotropy));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, data.addressModeU));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, data.addressModeV));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, data.addressModeW));
 }
 
 } // namespace basalt::gfx

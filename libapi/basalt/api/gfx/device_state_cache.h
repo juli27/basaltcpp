@@ -16,12 +16,13 @@ struct DeviceStateCache final {
   DeviceStateCache() noexcept;
 
   auto update(const RenderState&) noexcept -> bool;
-  auto update(TextureStageState, u32 value) noexcept -> bool;
+  auto update(VertexBuffer, u64 offset) noexcept -> bool;
+  auto update(Sampler) noexcept -> bool;
+  auto update(Texture) noexcept -> bool;
   auto update(TransformState, const Mat4f32&) noexcept -> bool;
   auto update(const Color& diffuse, const Color& ambient,
               const Color& emissive) noexcept -> bool;
-  auto update(Texture) noexcept -> bool;
-  auto update(Sampler) noexcept -> bool;
+  auto update(TextureStageState, u32 value) noexcept -> bool;
 
 private:
   struct Material final {
@@ -50,8 +51,10 @@ private:
     {TransformState::Texture, Mat4f32::identity()},
   };
   Material mMaterial;
-  Texture mBoundTexture {Texture::null()};
+  VertexBuffer mBoundVertexBuffer {VertexBuffer::null()};
+  u64 mVertexBufferOffset {0ull};
   Sampler mBoundSampler {Sampler::null()};
+  Texture mBoundTexture {Texture::null()};
 };
 
 } // namespace basalt::gfx

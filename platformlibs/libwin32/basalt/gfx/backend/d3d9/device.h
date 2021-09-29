@@ -25,8 +25,15 @@ struct D3D9Device final : Device {
   void execute(const CommandList&);
   void end_execution() const;
 
-  auto create_vertex_buffer(gsl::span<const std::byte> data,
-                            const VertexLayout&) -> VertexBuffer override;
+  auto create_vertex_buffer(const VertexBufferDescriptor&,
+                            gsl::span<const std::byte> initialData)
+    -> VertexBuffer override;
+
+  void destroy_vertex_buffer(VertexBuffer) noexcept override;
+
+  auto map_vertex_buffer(VertexBuffer, uDeviceSize offset, uDeviceSize size)
+    -> gsl::span<std::byte> override;
+  void unmap_vertex_buffer(VertexBuffer) noexcept override;
 
   auto load_texture(const std::filesystem::path&) -> Texture override;
 
@@ -56,19 +63,21 @@ private:
   HandlePool<TexturePtr, Texture> mTextures;
   HandlePool<SamplerData, Sampler> mSamplers;
 
-  D3DCAPS9 mDeviceCaps {};
+  DeviceCaps mCaps {};
+  D3DCAPS9 mD3D9Caps {};
   u8 mMaxLightsUsed {};
 
   // TODO: make these return bool / an error ?
   void execute(const CommandClearAttachments&) const;
   void execute(const CommandDraw&) const;
-  void execute(const CommandSetDirectionalLights&);
-  void execute(const CommandSetTransform&) const;
-  void execute(const CommandSetMaterial&) const;
   void execute(const CommandSetRenderState&) const;
-  void execute(const CommandBindTexture&) const;
-  void execute(const CommandSetTextureStageState&) const;
+  void execute(const CommandBindVertexBuffer&) const;
   void execute(const CommandBindSampler&) const;
+  void execute(const CommandBindTexture&) const;
+  void execute(const CommandSetTransform&) const;
+  void execute(const CommandSetDirectionalLights&);
+  void execute(const CommandSetMaterial&) const;
+  void execute(const CommandSetTextureStageState&) const;
 };
 
 } // namespace basalt::gfx

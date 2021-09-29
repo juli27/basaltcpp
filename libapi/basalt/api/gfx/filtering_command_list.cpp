@@ -12,36 +12,28 @@ void FilteringCommandList::clear_attachments(const Attachments attachments,
   mCommandList.clear_attachments(attachments, color, z, stencil);
 }
 
-void FilteringCommandList::draw(const VertexBuffer vertexBuffer,
-                                const u32 startVertex,
+void FilteringCommandList::draw(const u32 startVertex,
                                 const PrimitiveType primitiveType,
                                 const u32 primitiveCount) {
-  mCommandList.draw(vertexBuffer, startVertex, primitiveType, primitiveCount);
-}
-
-void FilteringCommandList::set_directional_lights(
-  const vector<DirectionalLight>& lights) {
-  mCommandList.set_directional_lights(lights);
-}
-
-void FilteringCommandList::set_transform(const TransformState state,
-                                         const Mat4f32& transform) {
-  if (mDeviceState.update(state, transform)) {
-    mCommandList.set_transform(state, transform);
-  }
-}
-
-void FilteringCommandList::set_material(const Color& diffuse,
-                                        const Color& ambient,
-                                        const Color& emissive) {
-  if (mDeviceState.update(diffuse, ambient, emissive)) {
-    mCommandList.set_material(diffuse, ambient, emissive);
-  }
+  mCommandList.draw(startVertex, primitiveType, primitiveCount);
 }
 
 void FilteringCommandList::set_render_state(const RenderState& renderState) {
   if (mDeviceState.update(renderState)) {
     mCommandList.set_render_state(renderState);
+  }
+}
+
+void FilteringCommandList::bind_vertex_buffer(const VertexBuffer buffer,
+                                              const u64 offset) {
+  if (mDeviceState.update(buffer, offset)) {
+    mCommandList.bind_vertex_buffer(buffer, offset);
+  }
+}
+
+void FilteringCommandList::bind_sampler(const Sampler sampler) {
+  if (mDeviceState.update(sampler)) {
+    mCommandList.bind_sampler(sampler);
   }
 }
 
@@ -51,9 +43,23 @@ void FilteringCommandList::bind_texture(const Texture texture) {
   }
 }
 
-void FilteringCommandList::bind_sampler(const Sampler sampler) {
-  if (mDeviceState.update(sampler)) {
-    mCommandList.bind_sampler(sampler);
+void FilteringCommandList::set_transform(const TransformState state,
+                                         const Mat4f32& transform) {
+  if (mDeviceState.update(state, transform)) {
+    mCommandList.set_transform(state, transform);
+  }
+}
+
+void FilteringCommandList::set_directional_lights(
+  const vector<DirectionalLight>& lights) {
+  mCommandList.set_directional_lights(lights);
+}
+
+void FilteringCommandList::set_material(const Color& diffuse,
+                                        const Color& ambient,
+                                        const Color& emissive) {
+  if (mDeviceState.update(diffuse, ambient, emissive)) {
+    mCommandList.set_material(diffuse, ambient, emissive);
   }
 }
 

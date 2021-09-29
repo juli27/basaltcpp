@@ -98,7 +98,7 @@ Textures::Textures(Engine& engine)
   mScene->set_background(Color::from_rgba(0, 0, 63));
 
   const VertexLayout vertexLayout {VertexElement::Position3F32,
-                                   VertexElement::ColorDiffuseA8R8G8B8_U32,
+                                   VertexElement::ColorDiffuse1U32A8R8G8B8,
                                    VertexElement::TextureCoords2F32};
 
   const Texture texture {

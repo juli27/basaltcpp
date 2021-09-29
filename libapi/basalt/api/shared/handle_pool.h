@@ -7,6 +7,7 @@
 #include <limits>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace basalt {
@@ -50,9 +51,11 @@ public:
     return mStorage[handle.value()].data;
   }
 
-  [[nodiscard]] auto allocate() -> std::tuple<Handle, T&> {
+  template <typename... Args>
+  [[nodiscard]] auto allocate(Args&&... args) -> std::tuple<Handle, T&> {
     if (mFreeSlot) {
       SlotData& slot = mStorage[mFreeSlot.value()];
+      slot.data = T {std::forward<Args>(args)...};
       slot.handle = mFreeSlot;
       mFreeSlot = slot.nextFreeSlot;
 
@@ -63,7 +66,8 @@ public:
     BASALT_ASSERT(nextIndex < std::numeric_limits<IndexType>::max());
 
     const auto index = static_cast<IndexType>(nextIndex);
-    SlotData& slot = mStorage.emplace_back();
+    SlotData& slot =
+      mStorage.emplace_back(SlotData {T {std::forward<Args>(args)...}});
     slot.handle = Handle {index};
 
     return {slot.handle, slot.data};

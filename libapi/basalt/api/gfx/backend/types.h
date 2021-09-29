@@ -24,14 +24,15 @@ enum class CommandType : u8 {
   ClearAttachments,
   Draw,
   SetRenderState,
-  BindTexture,
+  BindVertexBuffer,
   BindSampler,
+  BindTexture,
 
   // fixed function only
-  SetTextureStageState,
-  SetDirectionalLights,
   SetTransform,
+  SetDirectionalLights,
   SetMaterial,
+  SetTextureStageState,
 
   // built-in extensions
   ExtDrawXModel,
@@ -162,9 +163,13 @@ enum class VertexElement : u8 {
   Position3F32,
   PositionTransformed4F32,
   Normal3F32,
-  ColorDiffuseA8R8G8B8_U32,
-  ColorSpecularA8R8G8B8_U32,
-  TextureCoords2F32
+  PointSize1F32,
+  ColorDiffuse1U32A8R8G8B8,
+  ColorSpecular1U32A8R8G8B8,
+  TextureCoords1F32,
+  TextureCoords2F32,
+  TextureCoords3F32,
+  TextureCoords4F32,
 };
 using VertexLayout = std::vector<VertexElement>;
 
@@ -213,12 +218,23 @@ struct CommandT : Command {
   }
 };
 
+using uDeviceSize = u64;
+
+struct DeviceCaps final {
+  uDeviceSize maxVertexBufferSizeInBytes {};
+};
+
 struct SamplerDescriptor final {
   TextureFilter filter {TextureFilter::Point};
   TextureMipFilter mipFilter {TextureMipFilter::None};
   TextureAddressMode addressModeU {TextureAddressMode::WrapRepeat};
   TextureAddressMode addressModeV {TextureAddressMode::WrapRepeat};
   TextureAddressMode addressModeW {TextureAddressMode::WrapRepeat};
+};
+
+struct VertexBufferDescriptor final {
+  uDeviceSize sizeInBytes {};
+  VertexLayout layout {};
 };
 
 } // namespace basalt::gfx

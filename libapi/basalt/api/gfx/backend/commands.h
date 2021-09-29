@@ -33,17 +33,69 @@ static_assert(sizeof(CommandClearAttachments) == 32);
 
 struct CommandDraw final : CommandT<CommandType::Draw> {
   PrimitiveType primitiveType {PrimitiveType::TriangleList};
-  VertexBuffer vertexBuffer {VertexBuffer::null()};
   u32 startVertex {};
   u32 primitiveCount {};
 
-  constexpr CommandDraw(const VertexBuffer v, const PrimitiveType p,
-                        const u32 s, const u32 c) noexcept
-    : primitiveType {p}, vertexBuffer {v}, startVertex {s}, primitiveCount {c} {
+  constexpr CommandDraw(const PrimitiveType p, const u32 s,
+                        const u32 c) noexcept
+    : primitiveType {p}, startVertex {s}, primitiveCount {c} {
   }
 };
 
-static_assert(sizeof(CommandDraw) == 16);
+static_assert(sizeof(CommandDraw) == 12);
+
+struct CommandSetRenderState final : CommandT<CommandType::SetRenderState> {
+  RenderState renderState;
+
+  constexpr explicit CommandSetRenderState(RenderState state) noexcept
+    : renderState {std::move(state)} {
+  }
+};
+
+static_assert(sizeof(CommandSetRenderState) == 28);
+
+struct CommandBindVertexBuffer final : CommandT<CommandType::BindVertexBuffer> {
+  VertexBuffer handle;
+  u64 offset;
+
+  constexpr explicit CommandBindVertexBuffer(const VertexBuffer vb,
+                                             const u64 aOffset) noexcept
+    : handle {vb}, offset {aOffset} {
+  }
+};
+
+static_assert(sizeof(CommandBindVertexBuffer) == 16);
+
+struct CommandBindSampler final : CommandT<CommandType::BindSampler> {
+  Sampler sampler {Sampler::null()};
+
+  constexpr explicit CommandBindSampler(const Sampler s) noexcept
+    : sampler {s} {
+  }
+};
+
+static_assert(sizeof(CommandBindSampler) == 8);
+
+struct CommandBindTexture final : CommandT<CommandType::BindTexture> {
+  Texture texture {Texture::null()};
+
+  constexpr explicit CommandBindTexture(const Texture t) noexcept
+    : texture {t} {
+  }
+};
+
+static_assert(sizeof(CommandBindTexture) == 8);
+
+struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
+  TransformState state;
+  Mat4f32 transform;
+
+  CommandSetTransform(const TransformState s, const Mat4f32& t) noexcept
+    : state {s}, transform {t} {
+  }
+};
+
+static_assert(sizeof(CommandSetTransform) == 68);
 
 struct CommandSetDirectionalLights final
   : CommandT<CommandType::SetDirectionalLights> {
@@ -59,17 +111,6 @@ struct CommandSetDirectionalLights final
 
 static_assert(sizeof(CommandSetDirectionalLights) == 180);
 
-struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
-  TransformState state;
-  Mat4f32 transform;
-
-  CommandSetTransform(const TransformState s, const Mat4f32& t) noexcept
-    : state {s}, transform {t} {
-  }
-};
-
-static_assert(sizeof(CommandSetTransform) == 68);
-
 struct CommandSetMaterial final : CommandT<CommandType::SetMaterial> {
   Color diffuse;
   Color ambient;
@@ -81,16 +122,6 @@ struct CommandSetMaterial final : CommandT<CommandType::SetMaterial> {
 };
 
 static_assert(sizeof(CommandSetMaterial) == 52);
-
-struct CommandSetRenderState final : CommandT<CommandType::SetRenderState> {
-  RenderState renderState;
-
-  constexpr explicit CommandSetRenderState(RenderState state) noexcept
-    : renderState {std::move(state)} {
-  }
-};
-
-static_assert(sizeof(CommandSetRenderState) == 28);
 
 struct CommandSetTextureStageState final
   : CommandT<CommandType::SetTextureStageState> {
@@ -106,25 +137,5 @@ struct CommandSetTextureStageState final
 };
 
 static_assert(sizeof(CommandSetTextureStageState) == 8);
-
-struct CommandBindTexture final : CommandT<CommandType::BindTexture> {
-  Texture texture {Texture::null()};
-
-  constexpr explicit CommandBindTexture(const Texture t) noexcept
-    : texture {t} {
-  }
-};
-
-static_assert(sizeof(CommandBindTexture) == 8);
-
-struct CommandBindSampler final : CommandT<CommandType::BindSampler> {
-  Sampler sampler {Sampler::null()};
-
-  constexpr explicit CommandBindSampler(const Sampler s) noexcept
-    : sampler {s} {
-  }
-};
-
-static_assert(sizeof(CommandBindSampler) == 8);
 
 } // namespace basalt::gfx

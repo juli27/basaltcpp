@@ -19,11 +19,30 @@ auto DeviceStateCache::update(const RenderState& renderState) noexcept -> bool {
   return false;
 }
 
-auto DeviceStateCache::update(const TextureStageState state,
-                              const u32 value) noexcept -> bool {
-  auto& currentValue = mTextureStates[state];
-  if (currentValue != value) {
-    currentValue = value;
+auto DeviceStateCache::update(const VertexBuffer buffer,
+                              const u64 offset) noexcept -> bool {
+  if (buffer != mBoundVertexBuffer || offset != mVertexBufferOffset) {
+    mBoundVertexBuffer = buffer;
+    mVertexBufferOffset = offset;
+
+    return true;
+  }
+
+  return false;
+}
+
+auto DeviceStateCache::update(const Sampler sampler) noexcept -> bool {
+  if (sampler != mBoundSampler) {
+    mBoundSampler = sampler;
+    return true;
+  }
+
+  return false;
+}
+
+auto DeviceStateCache::update(const Texture texture) noexcept -> bool {
+  if (texture != mBoundTexture) {
+    mBoundTexture = texture;
     return true;
   }
 
@@ -55,18 +74,11 @@ auto DeviceStateCache::update(const Color& diffuse, const Color& ambient,
   return false;
 }
 
-auto DeviceStateCache::update(const Texture texture) noexcept -> bool {
-  if (texture != mBoundTexture) {
-    mBoundTexture = texture;
-    return true;
-  }
-
-  return false;
-}
-
-auto DeviceStateCache::update(const Sampler sampler) noexcept -> bool {
-  if (sampler != mBoundSampler) {
-    mBoundSampler = sampler;
+auto DeviceStateCache::update(const TextureStageState state,
+                              const u32 value) noexcept -> bool {
+  auto& currentValue = mTextureStates[state];
+  if (currentValue != value) {
+    currentValue = value;
     return true;
   }
 

@@ -11,6 +11,7 @@
 
 #include <gsl/span>
 
+#include <algorithm>
 #include <array>
 #include <memory>
 #include <utility>
@@ -26,10 +27,10 @@ using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
 using basalt::gfx::Drawable;
-using basalt::gfx::Mesh;
-using basalt::gfx::MeshDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::ResourceCache;
+using basalt::gfx::VertexBuffer;
+using basalt::gfx::VertexBufferDescriptor;
 using basalt::gfx::VertexElement;
 using basalt::gfx::VertexLayout;
 
@@ -38,54 +39,74 @@ namespace d3d9 {
 namespace {
 
 struct MyDrawable final : Drawable {
-  explicit MyDrawable(const Mesh triangle) noexcept : mTriangle {triangle} {
+  explicit MyDrawable(Engine& engine) noexcept
+    : mResourceCache {engine.gfx_resource_cache()} {
+    struct Vertex final {
+      f32 x;
+      f32 y;
+      f32 z;
+      f32 rhw;
+      ColorEncoding::A8R8G8B8 color;
+    };
+
+    const array vertices {
+      Vertex {150.0f, 50.0f, 0.5f, 1.0f,
+              ColorEncoding::pack_a8r8g8b8_u32(255, 0, 0)},
+      Vertex {250.0f, 250.0f, 0.5f, 1.0f,
+              ColorEncoding::pack_a8r8g8b8_u32(0, 255, 0)},
+      Vertex {50.0f, 250.0f, 0.5f, 1.0f,
+              ColorEncoding::pack_a8r8g8b8_u32(0, 255, 255)}};
+
+    const auto vertexData {gsl::span {vertices}};
+
+    const VertexBufferDescriptor vertexBufferDesc {
+      vertexData.size_bytes(),
+      VertexLayout {
+        VertexElement::PositionTransformed4F32,
+        VertexElement::ColorDiffuse1U32A8R8G8B8,
+      },
+    };
+    mVertexBuffer = mResourceCache.create_vertex_buffer(vertexBufferDesc);
+    mResourceCache.with_mapping_of(
+      mVertexBuffer, [&](const gsl::span<std::byte> mapping) {
+        std::copy_n(as_bytes(vertexData).begin(), mapping.size_bytes(),
+                    mapping.begin());
+      });
   }
 
-  auto draw(ResourceCache& cache, const Size2Du16 viewport, const RectangleU16&)
+  MyDrawable(const MyDrawable&) = delete;
+  MyDrawable(MyDrawable&&) noexcept = default;
+
+  ~MyDrawable() noexcept override {
+    mResourceCache.destroy_vertex_buffer(mVertexBuffer);
+  }
+
+  auto operator=(const MyDrawable&) -> MyDrawable& = delete;
+  auto operator=(MyDrawable&&) -> MyDrawable& = delete;
+
+  auto draw(ResourceCache&, const Size2Du16 viewport, const RectangleU16&)
     -> std::tuple<CommandList, RectangleU16> override {
     CommandList cmdList {};
-    cmdList.clear_attachments(Attachments {Attachment::Color}, Colors::BLUE,
-                              1.0f, 0);
+    // TODO: remove z-buffer clear
+    cmdList.clear_attachments(
+      Attachments {Attachment::Color, Attachment::ZBuffer}, Colors::BLUE, 1.0f,
+      0);
 
-    const auto& mesh = cache.get(mTriangle);
-    cmdList.draw(mesh.vertexBuffer, mesh.startVertex, mesh.primitiveType,
-                 mesh.primitiveCount);
+    cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
+    cmdList.draw(0, PrimitiveType::TriangleList, 1);
 
     return {std::move(cmdList), viewport.to_rectangle()};
   }
 
 private:
-  Mesh mTriangle {Mesh::null()};
+  ResourceCache& mResourceCache;
+  VertexBuffer mVertexBuffer {VertexBuffer::null()};
 };
 
 } // namespace
 
-Vertices::Vertices(Engine& engine) {
-  struct Vertex final {
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 rhw;
-    ColorEncoding::A8R8G8B8 color;
-  };
-
-  const array<Vertex, 3u> vertices {
-    Vertex {150.0f, 50.0f, 0.5f, 1.0f,
-            ColorEncoding::pack_a8r8g8b8_u32(255, 0, 0)},
-    Vertex {250.0f, 250.0f, 0.5f, 1.0f,
-            ColorEncoding::pack_a8r8g8b8_u32(0, 255, 0)},
-    Vertex {50.0f, 250.0f, 0.5f, 1.0f,
-            ColorEncoding::pack_a8r8g8b8_u32(0, 255, 255)}};
-
-  const VertexLayout vertexLayout {VertexElement::PositionTransformed4F32,
-                                   VertexElement::ColorDiffuseA8R8G8B8_U32};
-
-  const MeshDescriptor mesh {as_bytes(gsl::span {vertices}), vertexLayout,
-                             PrimitiveType::TriangleList,
-                             static_cast<u32>(vertices.size() / 3)};
-
-  const Mesh triangle = engine.gfx_resource_cache().create_mesh(mesh);
-  mDrawable = std::make_shared<MyDrawable>(triangle);
+Vertices::Vertices(Engine& engine)
+  : mDrawable {std::make_shared<MyDrawable>(engine)} {
 }
 
 auto Vertices::name() -> string_view {

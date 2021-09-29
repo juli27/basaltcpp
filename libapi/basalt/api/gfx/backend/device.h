@@ -30,8 +30,22 @@ struct Device {
 
   // TODO: method to retrieve a preferred vertex layout ?
 
-  virtual auto create_vertex_buffer(gsl::span<const std::byte> data,
-                                    const VertexLayout&) -> VertexBuffer = 0;
+  // throws std::bad_alloc
+  virtual auto create_vertex_buffer(const VertexBufferDescriptor&,
+                                    gsl::span<const std::byte> initialData = {})
+    -> VertexBuffer = 0;
+
+  virtual void destroy_vertex_buffer(VertexBuffer) noexcept = 0;
+
+  // offset = 0 && size = 0 maps entire buffer
+  // size = 0 maps from offset until the end of the buffer
+  // can return empty span
+  // TODO: come up with a safer API
+  [[nodiscard]] virtual auto
+  map_vertex_buffer(VertexBuffer, uDeviceSize offset = 0, uDeviceSize size = 0)
+    -> gsl::span<std::byte> = 0;
+
+  virtual void unmap_vertex_buffer(VertexBuffer) noexcept = 0;
 
   // TODO: load file somewhere else
   virtual auto load_texture(const std::filesystem::path&) -> Texture = 0;

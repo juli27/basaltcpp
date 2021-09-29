@@ -34,10 +34,31 @@ void CommandList::clear_attachments(const Attachments attachments,
   add<CommandClearAttachments>(attachments, color, z, stencil);
 }
 
-void CommandList::draw(const VertexBuffer vertexBuffer, const u32 startVertex,
-                       const PrimitiveType primitiveType,
+void CommandList::draw(const u32 startVertex, const PrimitiveType primitiveType,
                        const u32 primitiveCount) {
-  add<CommandDraw>(vertexBuffer, primitiveType, startVertex, primitiveCount);
+  add<CommandDraw>(primitiveType, startVertex, primitiveCount);
+}
+
+void CommandList::set_render_state(const RenderState& renderState) {
+  add<CommandSetRenderState>(renderState);
+}
+
+void CommandList::bind_vertex_buffer(const VertexBuffer buffer,
+                                     const u64 offset) {
+  add<CommandBindVertexBuffer>(buffer, offset);
+}
+
+void CommandList::bind_sampler(const Sampler sampler) {
+  add<CommandBindSampler>(sampler);
+}
+
+void CommandList::bind_texture(const Texture texture) {
+  add<CommandBindTexture>(texture);
+}
+
+void CommandList::set_transform(const TransformState state,
+                                const Mat4f32& transform) {
+  add<CommandSetTransform>(state, transform);
 }
 
 void CommandList::set_directional_lights(
@@ -51,26 +72,9 @@ void CommandList::set_directional_lights(
   add<CommandSetDirectionalLights>(directionalLights);
 }
 
-void CommandList::set_transform(const TransformState state,
-                                const Mat4f32& transform) {
-  add<CommandSetTransform>(state, transform);
-}
-
 void CommandList::set_material(const Color& diffuse, const Color& ambient,
                                const Color& emissive) {
   add<CommandSetMaterial>(diffuse, ambient, emissive);
-}
-
-void CommandList::set_render_state(const RenderState& renderState) {
-  add<CommandSetRenderState>(renderState);
-}
-
-void CommandList::bind_texture(const Texture texture) {
-  add<CommandBindTexture>(texture);
-}
-
-void CommandList::bind_sampler(const Sampler sampler) {
-  add<CommandBindSampler>(sampler);
 }
 
 void CommandList::set_texture_stage_state(const u8 stage,

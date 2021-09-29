@@ -77,7 +77,7 @@ TexturesTci::TexturesTci(Engine& engine) {
   }
 
   const VertexLayout vertexLayout {VertexElement::Position3F32,
-                                   VertexElement::ColorDiffuseA8R8G8B8_U32};
+                                   VertexElement::ColorDiffuse1U32A8R8G8B8};
 
   auto& rc = mCylinder.emplace<RenderComponent>();
 

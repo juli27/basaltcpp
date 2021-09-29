@@ -1,6 +1,5 @@
 #include <basalt/api/gfx/resource_cache.h>
 
-#include <basalt/api/gfx/backend/device.h>
 #include <basalt/api/gfx/backend/utils.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
@@ -39,6 +38,17 @@ auto ResourceCache::is_loaded(const ResourceId id) const -> bool {
          mTextures.find(id) != mTextures.end();
 }
 
+auto ResourceCache::create_vertex_buffer(
+  const VertexBufferDescriptor& desc,
+  const gsl::span<const std::byte> initialData) const -> VertexBuffer {
+  return mDevice.create_vertex_buffer(desc, initialData);
+}
+
+void ResourceCache::destroy_vertex_buffer(
+  const VertexBuffer handle) const noexcept {
+  mDevice.destroy_vertex_buffer(handle);
+}
+
 template <>
 auto ResourceCache::load(const ResourceId id) -> ext::XModel {
   BASALT_ASSERT(!is_loaded(id), "XModel already loaded");
@@ -60,8 +70,10 @@ auto ResourceCache::load(const ResourceId id) -> Texture {
 }
 
 auto ResourceCache::create_mesh(const MeshDescriptor& desc) -> Mesh {
+  const VertexBufferDescriptor vbDesc {desc.data.size_bytes(), desc.layout};
+
   auto [mesh, data] = mMeshes.allocate();
-  data.vertexBuffer = mDevice.create_vertex_buffer(desc.data, desc.layout);
+  data.vertexBuffer = mDevice.create_vertex_buffer(vbDesc, desc.data);
   data.primitiveType = desc.primitiveType;
   data.primitiveCount = desc.primitiveCount;
 

@@ -74,7 +74,7 @@ Textures::Textures(Engine& engine)
   }
 
   const VertexLayout vertexLayout {VertexElement::Position3F32,
-                                   VertexElement::ColorDiffuseA8R8G8B8_U32,
+                                   VertexElement::ColorDiffuse1U32A8R8G8B8,
                                    VertexElement::TextureCoords2F32};
 
   const MeshDescriptor mesh {as_bytes(gsl::span {vertices}), vertexLayout,

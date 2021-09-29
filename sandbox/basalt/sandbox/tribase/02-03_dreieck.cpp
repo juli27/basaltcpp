@@ -65,7 +65,7 @@ Dreieck::Dreieck(Engine& engine)
   mEntity.get<Transform>().move(0.0f, 0.0f, 2.0f);
 
   const VertexLayout vertexLayout {VertexElement::Position3F32,
-                                   VertexElement::ColorDiffuseA8R8G8B8_U32};
+                                   VertexElement::ColorDiffuse1U32A8R8G8B8};
 
   struct Vertex final {
     f32 x;

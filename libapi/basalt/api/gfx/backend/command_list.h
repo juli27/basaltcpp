@@ -30,14 +30,15 @@ struct CommandList final {
   [[nodiscard]] auto commands() const noexcept -> const std::vector<Command*>&;
 
   void clear_attachments(Attachments, const Color&, f32 z, u32 stencil);
-  void draw(VertexBuffer, u32 startVertex, PrimitiveType, u32 primitiveCount);
-  void set_directional_lights(const std::vector<DirectionalLight>&);
+  void draw(u32 startVertex, PrimitiveType, u32 primitiveCount);
+  void set_render_state(const RenderState&);
+  void bind_vertex_buffer(VertexBuffer, u64 offset);
+  void bind_sampler(Sampler);
+  void bind_texture(Texture);
   void set_transform(TransformState, const Mat4f32&);
+  void set_directional_lights(const std::vector<DirectionalLight>&);
   void set_material(const Color& diffuse, const Color& ambient,
                     const Color& emissive);
-  void set_render_state(const RenderState&);
-  void bind_texture(Texture);
-  void bind_sampler(Sampler);
 
   // TODO: stage currently not supported
   void set_texture_stage_state(u8 stage, TextureStageState, u32 value);

@@ -160,6 +160,10 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
     return false;
   }
 
+  if (!(caps.DevCaps2 & D3DDEVCAPS2_STREAMOFFSET)) {
+    return false;
+  }
+
   return true;
 }
 
