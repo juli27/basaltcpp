@@ -63,6 +63,13 @@ void report_crash(const char* message, const char* file, int line,
                                      BASALT_ASSERT_IMPL1),                     \
               (__VA_ARGS__))
 
+#define BASALT_ASSERT_IF(cond, ...)                                            \
+  do {                                                                         \
+    if (cond) {                                                                \
+      BASALT_ASSERT(__VA_ARGS__);                                              \
+    }                                                                          \
+  } while (false)
+
 #else // !BASALT_DEV_BUILD
 
 #define BASALT_DO_CRASH()                                                      \
@@ -71,6 +78,7 @@ void report_crash(const char* message, const char* file, int line,
   } while (false)
 
 #define BASALT_ASSERT(...)
+#define BASALT_ASSERT_IF(...)
 
 #endif // BASALT_DEV_BUILD
 

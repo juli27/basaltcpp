@@ -20,6 +20,11 @@ struct Device {
   auto operator=(const Device&) -> Device& = delete;
   auto operator=(Device&&) -> Device& = delete;
 
+  [[nodiscard]] virtual auto create_pipeline(const PipelineDescriptor&)
+    -> Pipeline = 0;
+
+  virtual void destroy_pipeline(Pipeline) noexcept = 0;
+
   // TODO: noexcept method to validate the layout for the device requirements
   //       bool Device::ValidateVertexLayout(const VertexLayout&)
   //       Writes problematic vertex elements to log. Should it also change the
@@ -31,8 +36,9 @@ struct Device {
   // TODO: method to retrieve a preferred vertex layout ?
 
   // throws std::bad_alloc
-  virtual auto create_vertex_buffer(const VertexBufferDescriptor&,
-                                    gsl::span<const std::byte> initialData = {})
+  [[nodiscard]] virtual auto
+  create_vertex_buffer(const VertexBufferDescriptor&,
+                       gsl::span<const std::byte> initialData = {})
     -> VertexBuffer = 0;
 
   virtual void destroy_vertex_buffer(VertexBuffer) noexcept = 0;

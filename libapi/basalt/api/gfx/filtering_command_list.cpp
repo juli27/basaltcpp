@@ -24,6 +24,12 @@ void FilteringCommandList::set_render_state(const RenderState& renderState) {
   }
 }
 
+void FilteringCommandList::bind_pipeline(const Pipeline handle) {
+  if (mDeviceState.update(handle)) {
+    mCommandList.bind_pipeline(handle);
+  }
+}
+
 void FilteringCommandList::bind_vertex_buffer(const VertexBuffer buffer,
                                               const u64 offset) {
   if (mDeviceState.update(buffer, offset)) {

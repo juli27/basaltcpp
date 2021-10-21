@@ -54,6 +54,16 @@ struct CommandSetRenderState final : CommandT<CommandType::SetRenderState> {
 
 static_assert(sizeof(CommandSetRenderState) == 28);
 
+struct CommandBindPipeline final : CommandT<CommandType::BindPipeline> {
+  Pipeline handle;
+
+  constexpr explicit CommandBindPipeline(const Pipeline pipeline) noexcept
+    : handle {pipeline} {
+  }
+};
+
+static_assert(sizeof(CommandBindPipeline) == 8);
+
 struct CommandBindVertexBuffer final : CommandT<CommandType::BindVertexBuffer> {
   VertexBuffer handle;
   u64 offset;

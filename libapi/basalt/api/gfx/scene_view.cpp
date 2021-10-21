@@ -25,13 +25,10 @@ namespace basalt::gfx {
 namespace {
 
 void record_material(FilteringCommandList& cmdList, const MaterialData& data) {
-  cmdList.set_render_state(RenderState::cull_mode(
-    std::get<CullMode>(data.renderStates[RenderStateType::CullMode])));
-  cmdList.set_render_state(RenderState::lighting(
-    std::get<bool>(data.renderStates[RenderStateType::Lighting])));
   cmdList.set_render_state(RenderState::fill_mode(
     std::get<FillMode>(data.renderStates[RenderStateType::FillMode])));
 
+  cmdList.bind_pipeline(data.pipeline);
   cmdList.bind_texture(data.texture);
   cmdList.bind_sampler(data.sampler);
 
@@ -63,9 +60,9 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport,
     Attachments {Attachment::Color, Attachment::ZBuffer}, mScene->background(),
     1.0f, 0);
 
-  cmdList.set_transform(TransformState::Projection,
+  cmdList.set_transform(TransformState::ViewToViewport,
                         mCamera.projection_matrix(viewport));
-  cmdList.set_transform(TransformState::View, mCamera.view_matrix());
+  cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
 
   cmdList.set_render_state(RenderState::ambient(mScene->ambient_light()));
 
@@ -81,7 +78,7 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport,
       const auto objToWorldMatrix {Mat4f32::scaling(transform.scale) *
                                    Mat4f32::rotation(transform.rotation) *
                                    Mat4f32::translation(transform.position)};
-      cmdList.set_transform(TransformState::World, objToWorldMatrix);
+      cmdList.set_transform(TransformState::ModelToWorld, objToWorldMatrix);
 
       cmdList.ext_draw_x_model(model);
     });
@@ -97,7 +94,7 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport,
       const auto objToWorldMatrix {Mat4f32::scaling(transform.scale) *
                                    Mat4f32::rotation(transform.rotation) *
                                    Mat4f32::translation(transform.position)};
-      cmdList.set_transform(TransformState::World, objToWorldMatrix);
+      cmdList.set_transform(TransformState::ModelToWorld, objToWorldMatrix);
 
       const auto& meshData = cache.get(renderComponent.mesh);
       cmdList.bind_vertex_buffer(meshData.vertexBuffer, 0ull);

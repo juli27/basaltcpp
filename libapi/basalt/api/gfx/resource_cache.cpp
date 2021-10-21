@@ -38,6 +38,15 @@ auto ResourceCache::is_loaded(const ResourceId id) const -> bool {
          mTextures.find(id) != mTextures.end();
 }
 
+auto ResourceCache::create_pipeline(const PipelineDescriptor& desc) const
+  -> Pipeline {
+  return mDevice.create_pipeline(desc);
+}
+
+void ResourceCache::destroy_pipeline(const Pipeline handle) const noexcept {
+  mDevice.destroy_pipeline(handle);
+}
+
 auto ResourceCache::create_vertex_buffer(
   const VertexBufferDescriptor& desc,
   const gsl::span<const std::byte> initialData) const -> VertexBuffer {
@@ -84,9 +93,11 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
   -> Material {
   auto [handle, data] = mMaterials.allocate();
 
-  data.renderStates[RenderStateType::CullMode] =
-    desc.cullBackFace ? CullMode::CounterClockwise : CullMode::None;
-  data.renderStates[RenderStateType::Lighting] = desc.lit;
+  data.pipeline = mDevice.create_pipeline(PipelineDescriptor {
+    desc.lit,
+    desc.cullBackFace ? CullMode::CounterClockwise : CullMode::None,
+  });
+
   data.renderStates[RenderStateType::FillMode] =
     desc.solid ? FillMode::Solid : FillMode::Wireframe;
 

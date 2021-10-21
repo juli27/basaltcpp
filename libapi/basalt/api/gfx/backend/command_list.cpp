@@ -43,6 +43,10 @@ void CommandList::set_render_state(const RenderState& renderState) {
   add<CommandSetRenderState>(renderState);
 }
 
+void CommandList::bind_pipeline(const Pipeline handle) {
+  add<CommandBindPipeline>(handle);
+}
+
 void CommandList::bind_vertex_buffer(const VertexBuffer buffer,
                                      const u64 offset) {
   add<CommandBindVertexBuffer>(buffer, offset);

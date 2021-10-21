@@ -27,6 +27,10 @@ struct ResourceCache {
   template <typename T>
   auto get(ResourceId) -> T;
 
+  [[nodiscard]] auto create_pipeline(const PipelineDescriptor&) const
+    -> Pipeline;
+  void destroy_pipeline(Pipeline) const noexcept;
+
   [[nodiscard]] auto
   create_vertex_buffer(const VertexBufferDescriptor&,
                        gsl::span<const std::byte> initialData = {}) const

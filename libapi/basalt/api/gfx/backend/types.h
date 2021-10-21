@@ -24,6 +24,7 @@ enum class CommandType : u8 {
   ClearAttachments,
   Draw,
   SetRenderState,
+  BindPipeline,
   BindVertexBuffer,
   BindSampler,
   BindTexture,
@@ -89,10 +90,8 @@ constexpr uSize PRIMITIVE_TYPE_COUNT = 6u;
 
 enum class RenderStateType : u8 {
   // vertex state
-  CullMode,
   // - fixed function only
   Ambient,
-  Lighting,
 
   // pixel state
   FillMode,
@@ -101,7 +100,7 @@ enum class RenderStateType : u8 {
   // - fixed function only
   ShadeMode,
 };
-constexpr uSize RENDER_STATE_COUNT = 7u;
+constexpr uSize RENDER_STATE_COUNT = 5u;
 
 enum class ShadeMode : u8 {
   Flat,
@@ -152,9 +151,9 @@ enum TextureTransformFlags : u8 {
 };
 
 enum class TransformState : u8 {
-  Projection,
-  View,
-  World,
+  ViewToViewport,
+  WorldToView,
+  ModelToWorld,
   Texture,
 };
 constexpr uSize TRANSFORM_STATE_COUNT = 4u;
@@ -174,10 +173,12 @@ enum class VertexElement : u8 {
 using VertexLayout = std::vector<VertexElement>;
 
 namespace detail {
+struct PipelineTag;
 struct SamplerTag;
 struct TextureTag;
 struct VertexBufferTag;
 } // namespace detail
+using Pipeline = Handle<detail::PipelineTag>;
 using Sampler = Handle<detail::SamplerTag>;
 using Texture = Handle<detail::TextureTag>;
 using VertexBuffer = Handle<detail::VertexBufferTag>;
@@ -192,7 +193,7 @@ struct Device;
 
 struct RenderState;
 using RenderStateValue =
-  std::variant<bool, CullMode, FillMode, ShadeMode, DepthTestPass, Color>;
+  std::variant<bool, FillMode, ShadeMode, DepthTestPass, Color>;
 
 struct Command {
   const CommandType type;
@@ -222,6 +223,11 @@ using uDeviceSize = u64;
 
 struct DeviceCaps final {
   uDeviceSize maxVertexBufferSizeInBytes {};
+};
+
+struct PipelineDescriptor final {
+  bool lighting {false};
+  CullMode cullMode {CullMode::None};
 };
 
 struct SamplerDescriptor final {

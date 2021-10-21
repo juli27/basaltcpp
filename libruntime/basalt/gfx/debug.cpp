@@ -107,6 +107,7 @@ constexpr auto enumerator_to_string(const CommandType type) noexcept -> const
     ENUMERATOR_TO_STRING(CommandType, ClearAttachments);
     ENUMERATOR_TO_STRING(CommandType, Draw);
     ENUMERATOR_TO_STRING(CommandType, SetRenderState);
+    ENUMERATOR_TO_STRING(CommandType, BindPipeline);
     ENUMERATOR_TO_STRING(CommandType, BindVertexBuffer);
     ENUMERATOR_TO_STRING(CommandType, BindTexture);
     ENUMERATOR_TO_STRING(CommandType, BindSampler);
@@ -182,9 +183,7 @@ constexpr auto to_string(const PrimitiveType primitiveType) noexcept -> const
 
 constexpr auto to_string(const RenderStateType state) noexcept -> const char* {
   switch (state) {
-    ENUM_TO_STRING(RenderStateType::CullMode);
     ENUM_TO_STRING(RenderStateType::Ambient);
-    ENUM_TO_STRING(RenderStateType::Lighting);
     ENUM_TO_STRING(RenderStateType::FillMode);
     ENUM_TO_STRING(RenderStateType::DepthTest);
     ENUM_TO_STRING(RenderStateType::DepthWrite);
@@ -215,9 +214,9 @@ constexpr auto to_string(const TextureStageState state) noexcept -> const
 
 constexpr auto to_string(const TransformState state) noexcept -> const char* {
   switch (state) {
-    ENUM_TO_STRING(TransformState::Projection);
-    ENUM_TO_STRING(TransformState::View);
-    ENUM_TO_STRING(TransformState::World);
+    ENUM_TO_STRING(TransformState::ViewToViewport);
+    ENUM_TO_STRING(TransformState::WorldToView);
+    ENUM_TO_STRING(TransformState::ModelToWorld);
     ENUM_TO_STRING(TransformState::Texture);
   }
 
@@ -309,6 +308,10 @@ void display(const CommandSetRenderState& cmd) {
     cmd.renderState.value());
 }
 
+void display(const CommandBindPipeline& cmd) {
+  ImGui::Text("handle = %#x", cmd.handle.value());
+}
+
 void display(const CommandBindVertexBuffer& cmd) {
   ImGui::Text("handle = %#x", cmd.handle.value());
   ImGui::Text("offset = %llu", cmd.offset);
@@ -387,6 +390,7 @@ void draw_composite_inspector(const Composite& composite) {
             DISPLAY(CommandClearAttachments);
             DISPLAY(CommandDraw);
             DISPLAY(CommandSetRenderState);
+            DISPLAY(CommandBindPipeline);
             DISPLAY(CommandBindVertexBuffer);
             DISPLAY(CommandBindSampler);
             DISPLAY(CommandBindTexture);

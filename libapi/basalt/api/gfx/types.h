@@ -105,10 +105,11 @@ struct MaterialData final {
   Color diffuse;
   Color ambient;
 
+  Pipeline pipeline {Pipeline::null()};
   Texture texture {Texture::null()};
   Sampler sampler {Sampler::null()};
 };
 
-static_assert(sizeof(MaterialData) == 188);
+static_assert(sizeof(MaterialData) == 152);
 
 } // namespace basalt::gfx

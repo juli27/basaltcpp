@@ -27,6 +27,8 @@ using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
 using basalt::gfx::Drawable;
+using basalt::gfx::Pipeline;
+using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::ResourceCache;
 using basalt::gfx::VertexBuffer;
@@ -72,12 +74,15 @@ struct MyDrawable final : Drawable {
         std::copy_n(as_bytes(vertexData).begin(), mapping.size_bytes(),
                     mapping.begin());
       });
+
+    mPipeline = mResourceCache.create_pipeline(PipelineDescriptor {});
   }
 
   MyDrawable(const MyDrawable&) = delete;
   MyDrawable(MyDrawable&&) noexcept = default;
 
   ~MyDrawable() noexcept override {
+    mResourceCache.destroy_pipeline(mPipeline);
     mResourceCache.destroy_vertex_buffer(mVertexBuffer);
   }
 
@@ -92,6 +97,7 @@ struct MyDrawable final : Drawable {
       Attachments {Attachment::Color, Attachment::ZBuffer}, Colors::BLUE, 1.0f,
       0);
 
+    cmdList.bind_pipeline(mPipeline);
     cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
     cmdList.draw(0, PrimitiveType::TriangleList, 1);
 
@@ -101,6 +107,7 @@ struct MyDrawable final : Drawable {
 private:
   ResourceCache& mResourceCache;
   VertexBuffer mVertexBuffer {VertexBuffer::null()};
+  Pipeline mPipeline {Pipeline::null()};
 };
 
 } // namespace

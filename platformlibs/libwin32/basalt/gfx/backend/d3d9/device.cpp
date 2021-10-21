@@ -48,7 +48,7 @@ constexpr auto to_d3d_color_value(const Color& color) noexcept
                         color.alpha()};
 }
 
-constexpr auto to_d3d_matrix(const Mat4f32& mat) noexcept -> D3DMATRIX {
+constexpr auto to_d3d(const Mat4f32& mat) noexcept -> D3DMATRIX {
   // clang-format off
   return D3DMATRIX {mat.m11, mat.m12, mat.m13, mat.m14,
                     mat.m21, mat.m22, mat.m23, mat.m24,
@@ -174,6 +174,19 @@ auto to_d3d(const ShadeMode mode) -> D3DSHADEMODE {
   return TO_D3D[mode];
 }
 
+auto to_d3d(const TransformState state) -> D3DTRANSFORMSTATETYPE {
+  static constexpr EnumArray<TransformState, D3DTRANSFORMSTATETYPE, 4> TO_D3D {
+    {TransformState::ViewToViewport, D3DTS_PROJECTION},
+    {TransformState::WorldToView, D3DTS_VIEW},
+    {TransformState::ModelToWorld, D3DTS_WORLDMATRIX(0)},
+    {TransformState::Texture, D3DTS_TEXTURE0},
+  };
+
+  static_assert(TRANSFORM_STATE_COUNT == TO_D3D.size());
+
+  return TO_D3D[state];
+}
+
 // TODO: is there a benefit to turn off z testing when func = Never or func =
 // Always with writing disabled?
 auto to_d3d(const DepthTestPass function) -> D3DCMPFUNC {
@@ -204,10 +217,8 @@ struct D3D9RenderState {
 using gfx::to_d3d;
 
 auto to_d3d(const RenderState& rs) -> D3D9RenderState {
-  static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 7> TO_D3D {
-    {RenderStateType::CullMode, D3DRS_CULLMODE},
+  static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 5> TO_D3D {
     {RenderStateType::Ambient, D3DRS_AMBIENT},
-    {RenderStateType::Lighting, D3DRS_LIGHTING},
     {RenderStateType::FillMode, D3DRS_FILLMODE},
     {RenderStateType::DepthTest, D3DRS_ZFUNC},
     {RenderStateType::DepthWrite, D3DRS_ZWRITEENABLE},
@@ -497,10 +508,18 @@ void D3D9Device::begin_execution() const {
 
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
 void D3D9Device::execute(const CommandList& cmdList) {
-  // reset device state to default
+  // set device state to what the command list expects as default
   // TODO: use state block
   PIX_BEGIN_EVENT(D3DCOLOR_XRGB(128, 128, 128), L"set default state");
   D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
+  D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
+  D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+
+  constexpr D3DMATRIX identity {to_d3d(Mat4f32::identity())};
+  D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
+  D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &identity));
+  D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &identity));
+
   PIX_END_EVENT();
 
   for (const auto& cmd : cmdList.commands()) {
@@ -508,6 +527,7 @@ void D3D9Device::execute(const CommandList& cmdList) {
       EXECUTE(CommandClearAttachments);
       EXECUTE(CommandDraw);
       EXECUTE(CommandSetRenderState);
+      EXECUTE(CommandBindPipeline);
       EXECUTE(CommandBindVertexBuffer);
       EXECUTE(CommandBindSampler);
       EXECUTE(CommandBindTexture);
@@ -546,18 +566,12 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
                                          D3DTTFF_DISABLE));
   D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
-  D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
-  D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
   D3D9CALL(mDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
   D3D9CALL(mDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL));
   D3D9CALL(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
   D3D9CALL(mDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD));
 
-  constexpr D3DMATRIX identity {to_d3d_matrix(Mat4f32::identity())};
   D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &identity));
-  D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &identity));
-  D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &identity));
-  D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
 
   D3D9CALL(mDevice->SetTexture(0, nullptr));
   // D3D9CALL(mDevice->SetFVF(0));
@@ -572,6 +586,17 @@ void D3D9Device::execute(const CommandList& cmdList) {
 
 void D3D9Device::end_execution() const {
   D3D9CALL(mDevice->EndScene());
+}
+
+auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
+  return std::get<0>(mPipelines.allocate(PipelineData {
+    to_d3d(desc.lighting),
+    to_d3d(desc.cullMode),
+  }));
+}
+
+void D3D9Device::destroy_pipeline(const Pipeline handle) noexcept {
+  mPipelines.deallocate(handle);
 }
 
 // throws std::bad_allow when requested size is too large and when d3d9
@@ -724,6 +749,18 @@ void D3D9Device::execute(const CommandSetRenderState& cmd) const {
   D3D9CALL(mDevice->SetRenderState(state, value));
 }
 
+void D3D9Device::execute(const CommandBindPipeline& cmd) const {
+  BASALT_ASSERT(mPipelines.is_handle_valid(cmd.handle));
+
+  if (!mPipelines.is_handle_valid(cmd.handle)) {
+    return;
+  }
+
+  const PipelineData& data {mPipelines[cmd.handle]};
+  D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, data.lighting));
+  D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, data.cullMode));
+}
+
 void D3D9Device::execute(const CommandBindVertexBuffer& cmd) const {
   BASALT_ASSERT(mVertexBuffers.is_handle_valid(cmd.handle));
 
@@ -766,28 +803,14 @@ void D3D9Device::execute(const CommandBindTexture& cmd) const {
 }
 
 void D3D9Device::execute(const CommandSetTransform& cmd) const {
-  const auto transform = to_d3d_matrix(cmd.transform);
+  BASALT_ASSERT_IF(cmd.state == TransformState::ViewToViewport,
+                   cmd.transform.m34 >= 0,
+                   "(3,4) can't be negative in a projection matrix");
 
-  switch (cmd.state) {
-  case TransformState::Projection:
-    BASALT_ASSERT(transform._34 >= 0,
-                  "(3,4) can't be negative in a projection matrix");
+  const D3DTRANSFORMSTATETYPE state {to_d3d(cmd.state)};
+  const auto transform {to_d3d(cmd.transform)};
 
-    D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &transform));
-    break;
-
-  case TransformState::View:
-    D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &transform));
-    break;
-
-  case TransformState::World:
-    D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &transform));
-    break;
-
-  case TransformState::Texture:
-    D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &transform));
-    break;
-  }
+  D3D9CALL(mDevice->SetTransform(state, &transform));
 }
 
 void D3D9Device::execute(const CommandSetDirectionalLights& cmd) {

@@ -2,11 +2,6 @@
 
 #include <basalt/sandbox/test_case.h>
 
-#include <basalt/api/gfx/scene_view.h>
-#include <basalt/api/scene/scene.h>
-
-#include <entt/entity/handle.hpp>
-
 #include <memory>
 
 namespace d3d9 {
@@ -20,9 +15,9 @@ struct Matrices final : TestCase {
   void tick(basalt::Engine&) override;
 
 private:
-  std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();
-  std::shared_ptr<basalt::gfx::SceneView> mSceneView;
-  entt::handle mTriangle {mScene->create_entity()};
+  struct MyDrawable;
+
+  std::shared_ptr<MyDrawable> mDrawable;
 };
 
 } // namespace d3d9

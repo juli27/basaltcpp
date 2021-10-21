@@ -25,13 +25,20 @@ struct D3D9Device final : Device {
   void execute(const CommandList&);
   void end_execution() const;
 
-  auto create_vertex_buffer(const VertexBufferDescriptor&,
-                            gsl::span<const std::byte> initialData)
+  [[nodiscard]] auto create_pipeline(const PipelineDescriptor&)
+    -> Pipeline override;
+
+  void destroy_pipeline(Pipeline) noexcept override;
+
+  [[nodiscard]] auto
+  create_vertex_buffer(const VertexBufferDescriptor&,
+                       gsl::span<const std::byte> initialData)
     -> VertexBuffer override;
 
   void destroy_vertex_buffer(VertexBuffer) noexcept override;
 
-  auto map_vertex_buffer(VertexBuffer, uDeviceSize offset, uDeviceSize size)
+  [[nodiscard]] auto map_vertex_buffer(VertexBuffer, uDeviceSize offset,
+                                       uDeviceSize size)
     -> gsl::span<std::byte> override;
   void unmap_vertex_buffer(VertexBuffer) noexcept override;
 
@@ -47,6 +54,11 @@ private:
   using D3D9VertexBuffer = Microsoft::WRL::ComPtr<IDirect3DVertexBuffer9>;
   using TexturePtr = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
 
+  struct PipelineData final {
+    BOOL lighting {FALSE};
+    D3DCULL cullMode {D3DCULL_NONE};
+  };
+
   struct SamplerData final {
     D3DTEXTUREFILTERTYPE filter {D3DTEXF_POINT};
     D3DTEXTUREFILTERTYPE mipFilter {D3DTEXF_NONE};
@@ -59,7 +71,8 @@ private:
 
   ExtensionMap mExtensions;
 
-  HandlePool<D3D9VertexBuffer, VertexBuffer> mVertexBuffers;
+  HandlePool<PipelineData, Pipeline> mPipelines {};
+  HandlePool<D3D9VertexBuffer, VertexBuffer> mVertexBuffers {};
   HandlePool<TexturePtr, Texture> mTextures;
   HandlePool<SamplerData, Sampler> mSamplers;
 
@@ -71,6 +84,7 @@ private:
   void execute(const CommandClearAttachments&) const;
   void execute(const CommandDraw&) const;
   void execute(const CommandSetRenderState&) const;
+  void execute(const CommandBindPipeline&) const;
   void execute(const CommandBindVertexBuffer&) const;
   void execute(const CommandBindSampler&) const;
   void execute(const CommandBindTexture&) const;

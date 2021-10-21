@@ -19,6 +19,16 @@ auto DeviceStateCache::update(const RenderState& renderState) noexcept -> bool {
   return false;
 }
 
+auto DeviceStateCache::update(const Pipeline handle) noexcept -> bool {
+  if (handle != mBoundPipeline) {
+    mBoundPipeline = handle;
+
+    return true;
+  }
+
+  return false;
+}
+
 auto DeviceStateCache::update(const VertexBuffer buffer,
                               const u64 offset) noexcept -> bool {
   if (buffer != mBoundVertexBuffer || offset != mVertexBufferOffset) {

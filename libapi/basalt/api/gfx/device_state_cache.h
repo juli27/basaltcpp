@@ -16,6 +16,7 @@ struct DeviceStateCache final {
   DeviceStateCache() noexcept;
 
   auto update(const RenderState&) noexcept -> bool;
+  auto update(Pipeline) noexcept -> bool;
   auto update(VertexBuffer, u64 offset) noexcept -> bool;
   auto update(Sampler) noexcept -> bool;
   auto update(Texture) noexcept -> bool;
@@ -31,12 +32,10 @@ private:
     Color emissive;
   };
 
-  using RenderStateArray = EnumArray<RenderStateType, RenderStateValue, 7>;
+  using RenderStateArray = EnumArray<RenderStateType, RenderStateValue, 5>;
 
   RenderStateArray mRenderStates {
-    {RenderStateType::CullMode, CullMode::CounterClockwise},
     {RenderStateType::Ambient, Color {0.0f, 0.0f, 0.0f, 0.0f}},
-    {RenderStateType::Lighting, true},
     {RenderStateType::FillMode, FillMode::Solid},
     {RenderStateType::DepthTest, DepthTestPass::IfLessEqual},
     {RenderStateType::DepthWrite, true},
@@ -45,12 +44,13 @@ private:
 
   EnumArray<TextureStageState, u32, TEXTURE_STAGE_STATE_COUNT> mTextureStates;
   EnumArray<TransformState, Mat4f32, TRANSFORM_STATE_COUNT> mTransforms {
-    {TransformState::Projection, Mat4f32::identity()},
-    {TransformState::View, Mat4f32::identity()},
-    {TransformState::World, Mat4f32::identity()},
+    {TransformState::ViewToViewport, Mat4f32::identity()},
+    {TransformState::WorldToView, Mat4f32::identity()},
+    {TransformState::ModelToWorld, Mat4f32::identity()},
     {TransformState::Texture, Mat4f32::identity()},
   };
   Material mMaterial;
+  Pipeline mBoundPipeline {Pipeline::null()};
   VertexBuffer mBoundVertexBuffer {VertexBuffer::null()};
   u64 mVertexBufferOffset {0ull};
   Sampler mBoundSampler {Sampler::null()};
