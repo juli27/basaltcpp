@@ -843,10 +843,14 @@ void D3D9Device::execute(const CommandSetDirectionalLights& cmd) {
 }
 
 void D3D9Device::execute(const CommandSetMaterial& cmd) const {
-  D3DMATERIAL9 material {};
-  material.Diffuse = to_d3d_color_value(cmd.diffuse);
-  material.Ambient = to_d3d_color_value(cmd.ambient);
-  material.Emissive = to_d3d_color_value(cmd.emissive);
+  const D3DMATERIAL9 material {
+    to_d3d_color_value(cmd.diffuse),
+    to_d3d_color_value(cmd.ambient),
+    D3DCOLORVALUE {},
+    to_d3d_color_value(cmd.emissive),
+    0.0f,
+  };
+
   D3D9CALL(mDevice->SetMaterial(&material));
 }
 

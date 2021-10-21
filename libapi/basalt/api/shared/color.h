@@ -71,6 +71,7 @@ struct Colors final {
   static constexpr Color RED {1.0f, 0.0f, 0.0f};
   static constexpr Color GREEN {0.0f, 1.0f, 0.0f};
   static constexpr Color BLUE {0.0f, 0.0f, 1.0f};
+  static constexpr Color YELLOW {1.0f, 1.0f, 0.0f};
 };
 
 } // namespace basalt
