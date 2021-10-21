@@ -95,12 +95,10 @@ enum class RenderStateType : u8 {
 
   // pixel state
   FillMode,
-  DepthTest,
-  DepthWrite,
   // - fixed function only
   ShadeMode,
 };
-constexpr uSize RENDER_STATE_COUNT = 5u;
+constexpr uSize RENDER_STATE_COUNT = 3u;
 
 enum class ShadeMode : u8 {
   Flat,
@@ -192,8 +190,7 @@ using ContextPtr = std::unique_ptr<Context>;
 struct Device;
 
 struct RenderState;
-using RenderStateValue =
-  std::variant<bool, FillMode, ShadeMode, DepthTestPass, Color>;
+using RenderStateValue = std::variant<FillMode, ShadeMode, Color>;
 
 struct Command {
   const CommandType type;
@@ -228,6 +225,8 @@ struct DeviceCaps final {
 struct PipelineDescriptor final {
   bool lighting {false};
   CullMode cullMode {CullMode::None};
+  DepthTestPass depthTest {DepthTestPass::Always};
+  bool depthWriteEnable {false};
 };
 
 struct SamplerDescriptor final {

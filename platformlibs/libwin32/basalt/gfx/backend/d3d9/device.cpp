@@ -217,11 +217,9 @@ struct D3D9RenderState {
 using gfx::to_d3d;
 
 auto to_d3d(const RenderState& rs) -> D3D9RenderState {
-  static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 5> TO_D3D {
+  static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 3> TO_D3D {
     {RenderStateType::Ambient, D3DRS_AMBIENT},
     {RenderStateType::FillMode, D3DRS_FILLMODE},
-    {RenderStateType::DepthTest, D3DRS_ZFUNC},
-    {RenderStateType::DepthWrite, D3DRS_ZWRITEENABLE},
     {RenderStateType::ShadeMode, D3DRS_SHADEMODE},
   };
 
@@ -514,6 +512,9 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
   D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
   D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+  D3D9CALL(mDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE));
+  D3D9CALL(mDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS));
+  D3D9CALL(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
 
   constexpr D3DMATRIX identity {to_d3d(Mat4f32::identity())};
   D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
@@ -567,8 +568,6 @@ void D3D9Device::execute(const CommandList& cmdList) {
                                          D3DTTFF_DISABLE));
   D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
   D3D9CALL(mDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
-  D3D9CALL(mDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL));
-  D3D9CALL(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
   D3D9CALL(mDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD));
 
   D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &identity));
@@ -592,6 +591,11 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
   return std::get<0>(mPipelines.allocate(PipelineData {
     to_d3d(desc.lighting),
     to_d3d(desc.cullMode),
+    desc.depthTest == DepthTestPass::Always && !desc.depthWriteEnable
+      ? D3DZB_FALSE
+      : D3DZB_TRUE,
+    to_d3d(desc.depthTest),
+    to_d3d(desc.depthWriteEnable),
   }));
 }
 
@@ -759,6 +763,9 @@ void D3D9Device::execute(const CommandBindPipeline& cmd) const {
   const PipelineData& data {mPipelines[cmd.handle]};
   D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, data.lighting));
   D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, data.cullMode));
+  D3D9CALL(mDevice->SetRenderState(D3DRS_ZENABLE, data.zEnabled));
+  D3D9CALL(mDevice->SetRenderState(D3DRS_ZFUNC, data.zFunc));
+  D3D9CALL(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, data.zWriteEnabled));
 }
 
 void D3D9Device::execute(const CommandBindVertexBuffer& cmd) const {

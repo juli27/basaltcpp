@@ -57,6 +57,9 @@ private:
   struct PipelineData final {
     BOOL lighting {FALSE};
     D3DCULL cullMode {D3DCULL_NONE};
+    D3DZBUFFERTYPE zEnabled {D3DZB_FALSE};
+    D3DCMPFUNC zFunc {D3DCMP_ALWAYS};
+    BOOL zWriteEnabled {FALSE};
   };
 
   struct SamplerData final {

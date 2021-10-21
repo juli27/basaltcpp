@@ -20,8 +20,6 @@ struct RenderState {
 
   [[nodiscard]] static auto ambient(const Color&) -> RenderState;
   [[nodiscard]] static auto fill_mode(FillMode) -> RenderState;
-  [[nodiscard]] static auto depth_test(DepthTestPass) -> RenderState;
-  [[nodiscard]] static auto depth_write(bool enabled) -> RenderState;
   [[nodiscard]] static auto shade_mode(ShadeMode) -> RenderState;
 
   [[nodiscard]] auto type() const noexcept -> RenderStateType;

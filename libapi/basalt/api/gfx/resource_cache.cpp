@@ -96,6 +96,8 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
   data.pipeline = mDevice.create_pipeline(PipelineDescriptor {
     desc.lit,
     desc.cullBackFace ? CullMode::CounterClockwise : CullMode::None,
+    DepthTestPass::IfLessEqual,
+    true,
   });
 
   data.renderStates[RenderStateType::FillMode] =

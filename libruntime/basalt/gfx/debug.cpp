@@ -185,8 +185,6 @@ constexpr auto to_string(const RenderStateType state) noexcept -> const char* {
   switch (state) {
     ENUM_TO_STRING(RenderStateType::Ambient);
     ENUM_TO_STRING(RenderStateType::FillMode);
-    ENUM_TO_STRING(RenderStateType::DepthTest);
-    ENUM_TO_STRING(RenderStateType::DepthWrite);
     ENUM_TO_STRING(RenderStateType::ShadeMode);
   }
 

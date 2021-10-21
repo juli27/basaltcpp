@@ -110,10 +110,8 @@ struct Matrices::MyDrawable final : Drawable {
   auto draw(ResourceCache&, const Size2Du16 viewport, const RectangleU16&)
     -> std::tuple<CommandList, RectangleU16> override {
     CommandList cmdList {};
-    // TODO: remove z-buffer clear
-    cmdList.clear_attachments(
-      Attachments {Attachment::Color, Attachment::ZBuffer}, Colors::BLACK, 1.0f,
-      0);
+    cmdList.clear_attachments(Attachments {Attachment::Color}, Colors::BLACK,
+                              1.0f, 0);
 
     cmdList.bind_pipeline(mPipeline);
     cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
