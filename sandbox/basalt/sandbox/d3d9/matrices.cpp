@@ -84,7 +84,8 @@ struct Matrices::MyDrawable final : Drawable {
                     mapping.begin());
       });
 
-    mPipeline = mResourceCache.create_pipeline(PipelineDescriptor {});
+    mPipeline = mResourceCache.create_pipeline(
+      PipelineDescriptor {PrimitiveType::TriangleList});
   }
 
   MyDrawable(const MyDrawable&) = delete;
@@ -122,7 +123,7 @@ struct Matrices::MyDrawable final : Drawable {
     cmdList.set_transform(TransformState::ViewToViewport,
                           mCamera.projection_matrix(viewport));
 
-    cmdList.draw(0, PrimitiveType::TriangleList, 1);
+    cmdList.draw(0, 3);
 
     return {std::move(cmdList), viewport.to_rectangle()};
   }

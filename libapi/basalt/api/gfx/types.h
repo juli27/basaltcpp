@@ -42,9 +42,8 @@ enum class TextureTransformMode : u8 { Disabled, Count4 };
 
 struct MeshDescriptor final {
   gsl::span<const std::byte> data;
+  u32 vertexCount {};
   VertexLayout layout;
-  PrimitiveType primitiveType {PrimitiveType::PointList};
-  u32 primitiveCount {};
 };
 #if _DEBUG
 static_assert(sizeof(MeshDescriptor) == 56);
@@ -66,6 +65,7 @@ struct MaterialDescriptor final {
 
   SampledTextureDescriptor sampledTexture;
 
+  PrimitiveType primitiveType {PrimitiveType::PointList};
   // TODO: upgrade boolean flag to CullMode enum
   bool cullBackFace {true};
   bool lit {true};
@@ -89,9 +89,8 @@ static_assert(sizeof(RenderComponent) == 72);
 
 struct MeshData final {
   VertexBuffer vertexBuffer {VertexBuffer::null()};
-  PrimitiveType primitiveType {PrimitiveType::PointList};
   u32 startVertex {};
-  u32 primitiveCount {};
+  u32 vertexCount {};
 };
 
 struct MaterialData final {

@@ -56,6 +56,12 @@ using basalt::gfx::VertexLayout;
 
 namespace d3d9 {
 
+namespace {
+
+constexpr u32 VERTEX_COUNT {2u * 50u};
+
+}
+
 struct Lights::MyDrawable final : Drawable {
   explicit MyDrawable(Engine& engine) noexcept
     : mResourceCache {engine.gfx_resource_cache()} {
@@ -68,7 +74,7 @@ struct Lights::MyDrawable final : Drawable {
       f32 nz {};
     };
 
-    array<Vertex, 50u * 2u> vertices {};
+    array<Vertex, VERTEX_COUNT> vertices {};
     for (uSize i = 0u; i < 50u; i++) {
       const f32 theta {2.0f * PI * i / (50 - 1)};
       const f32 sinTheta {std::sin(theta)};
@@ -106,6 +112,7 @@ struct Lights::MyDrawable final : Drawable {
       });
 
     PipelineDescriptor pipelineDesc {};
+    pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
     pipelineDesc.lighting = true;
     pipelineDesc.depthTest = DepthTestPass::IfLessEqual;
     pipelineDesc.depthWriteEnable = true;
@@ -147,6 +154,11 @@ struct Lights::MyDrawable final : Drawable {
 
     cmdList.bind_pipeline(mPipeline);
 
+    cmdList.set_transform(TransformState::ViewToViewport,
+                          mCamera.projection_matrix(viewport));
+
+    cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
+
     cmdList.set_directional_lights({
       DirectionalLight {
         Vector3f32::normalize(
@@ -165,11 +177,8 @@ struct Lights::MyDrawable final : Drawable {
 
     cmdList.set_transform(TransformState::ModelToWorld,
                           Mat4f32::rotation_x(mAngleXRad));
-    cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
-    cmdList.set_transform(TransformState::ViewToViewport,
-                          mCamera.projection_matrix(viewport));
 
-    cmdList.draw(0, PrimitiveType::TriangleStrip, 2 * 50 - 2);
+    cmdList.draw(0, VERTEX_COUNT);
 
     return {std::move(cmdList), viewport.to_rectangle()};
   }

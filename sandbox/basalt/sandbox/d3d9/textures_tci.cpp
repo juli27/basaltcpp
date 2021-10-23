@@ -83,13 +83,13 @@ TexturesTci::TexturesTci(Engine& engine) {
 
   MeshDescriptor mesh;
   mesh.data = as_bytes(gsl::span {vertices});
+  mesh.vertexCount = static_cast<u32>(vertices.size());
   mesh.layout = vertexLayout;
-  mesh.primitiveType = PrimitiveType::TriangleStrip;
-  mesh.primitiveCount = static_cast<u32>(vertices.size() - 2);
 
   rc.mesh = engine.gfx_resource_cache().create_mesh(mesh);
 
   MaterialDescriptor material;
+  material.primitiveType = PrimitiveType::TriangleStrip;
   material.cullBackFace = false;
   material.lit = false;
   material.sampledTexture.texture =

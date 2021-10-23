@@ -68,6 +68,7 @@ Textures::Textures(Engine& engine)
   auto& gfxResourceCache {engine.gfx_resource_cache()};
 
   MaterialDescriptor material {};
+  material.primitiveType = PrimitiveType::TriangleStrip;
   material.cullBackFace = false;
   material.lit = false;
   material.sampledTexture.texture =
@@ -106,8 +107,8 @@ Textures::Textures(Engine& engine)
     Vertex {1.0f, -1.0f, 0.0f, 1.0f, 1.0f},
   };
 
-  const MeshDescriptor mesh {as_bytes(span {vertices}), vertexLayout,
-                             PrimitiveType::TriangleStrip, 2};
+  const MeshDescriptor mesh {as_bytes(span {vertices}),
+                             static_cast<u32>(vertices.size()), vertexLayout};
 
   mQuad = mScene->create_entity(Vector3f32 {0.0f, 0.0f, 1.5f});
   auto& rc {mQuad.emplace<RenderComponent>()};

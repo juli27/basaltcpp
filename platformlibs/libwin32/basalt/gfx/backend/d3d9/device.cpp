@@ -163,6 +163,20 @@ auto to_d3d(const FillMode mode) -> D3DFILLMODE {
   return TO_D3D[mode];
 }
 
+auto to_d3d(const PrimitiveType primitiveType) -> D3DPRIMITIVETYPE {
+  static constexpr EnumArray<PrimitiveType, D3DPRIMITIVETYPE, 6> TO_D3D {
+    {PrimitiveType::PointList, D3DPT_POINTLIST},
+    {PrimitiveType::LineList, D3DPT_LINELIST},
+    {PrimitiveType::LineStrip, D3DPT_LINESTRIP},
+    {PrimitiveType::TriangleList, D3DPT_TRIANGLELIST},
+    {PrimitiveType::TriangleStrip, D3DPT_TRIANGLESTRIP},
+    {PrimitiveType::TriangleFan, D3DPT_TRIANGLEFAN},
+  };
+  static_assert(PRIMITIVE_TYPE_COUNT == TO_D3D.size());
+
+  return TO_D3D[primitiveType];
+}
+
 auto to_d3d(const ShadeMode mode) -> D3DSHADEMODE {
   static constexpr EnumArray<ShadeMode, D3DSHADEMODE, 2> TO_D3D {
     {ShadeMode::Flat, D3DSHADE_FLAT},
@@ -309,31 +323,6 @@ auto to_d3d_texture_stage_state(const TextureStageState state, const u32 value)
   return D3D9TextureStageState {TO_D3D[state], d3dValue};
 }
 
-auto to_d3d_primitive_type(const PrimitiveType primitiveType)
-  -> D3DPRIMITIVETYPE {
-  switch (primitiveType) {
-  case PrimitiveType::PointList:
-    return D3DPT_POINTLIST;
-
-  case PrimitiveType::LineList:
-    return D3DPT_LINELIST;
-
-  case PrimitiveType::LineStrip:
-    return D3DPT_LINESTRIP;
-
-  case PrimitiveType::TriangleList:
-    return D3DPT_TRIANGLELIST;
-
-  case PrimitiveType::TriangleStrip:
-    return D3DPT_TRIANGLESTRIP;
-
-  case PrimitiveType::TriangleFan:
-    return D3DPT_TRIANGLEFAN;
-  }
-
-  return D3DPT_FORCE_DWORD;
-}
-
 auto map_vertex_buffer(IDirect3DVertexBuffer9& vertexBuffer,
                        const uDeviceSize offset, uDeviceSize size)
   -> gsl::span<std::byte> {
@@ -366,6 +355,32 @@ auto map_vertex_buffer(IDirect3DVertexBuffer9& vertexBuffer,
   }
 
   return {static_cast<std::byte*>(vertexBufferData), size};
+}
+
+auto calculate_primitive_count(const D3DPRIMITIVETYPE type,
+                               const u32 vertexCount) -> u32 {
+  switch (type) {
+  case D3DPT_POINTLIST:
+    return vertexCount;
+
+  case D3DPT_LINELIST:
+    return vertexCount / 2;
+
+  case D3DPT_LINESTRIP:
+    return vertexCount == 0 ? vertexCount : vertexCount - 1;
+
+  case D3DPT_TRIANGLELIST:
+    return vertexCount / 3;
+
+  case D3DPT_TRIANGLESTRIP:
+  case D3DPT_TRIANGLEFAN:
+    return vertexCount < 3 ? 0 : vertexCount - 2;
+
+  default:
+    break;
+  }
+
+  return 0;
 }
 
 struct D3D9ImGuiRenderer final : ext::DearImGuiRenderer {
@@ -509,12 +524,16 @@ void D3D9Device::execute(const CommandList& cmdList) {
   // set device state to what the command list expects as default
   // TODO: use state block
   PIX_BEGIN_EVENT(D3DCOLOR_XRGB(128, 128, 128), L"set default state");
-  D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
+
+  mCurrentPrimitiveType = D3DPT_POINTLIST;
+
   D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
   D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
   D3D9CALL(mDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE));
   D3D9CALL(mDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS));
   D3D9CALL(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
+
+  D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
 
   constexpr D3DMATRIX identity {to_d3d(Mat4f32::identity())};
   D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
@@ -589,6 +608,7 @@ void D3D9Device::end_execution() const {
 
 auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
   return std::get<0>(mPipelines.allocate(PipelineData {
+    to_d3d(desc.primitiveType),
     to_d3d(desc.lighting),
     to_d3d(desc.cullMode),
     desc.depthTest == DepthTestPass::Always && !desc.depthWriteEnable
@@ -743,8 +763,9 @@ void D3D9Device::execute(const CommandClearAttachments& cmd) const {
 }
 
 void D3D9Device::execute(const CommandDraw& cmd) const {
-  D3D9CALL(mDevice->DrawPrimitive(to_d3d_primitive_type(cmd.primitiveType),
-                                  cmd.startVertex, cmd.primitiveCount));
+  D3D9CALL(mDevice->DrawPrimitive(
+    mCurrentPrimitiveType, cmd.firstVertex,
+    calculate_primitive_count(mCurrentPrimitiveType, cmd.vertexCount)));
 }
 
 void D3D9Device::execute(const CommandSetRenderState& cmd) const {
@@ -753,7 +774,7 @@ void D3D9Device::execute(const CommandSetRenderState& cmd) const {
   D3D9CALL(mDevice->SetRenderState(state, value));
 }
 
-void D3D9Device::execute(const CommandBindPipeline& cmd) const {
+void D3D9Device::execute(const CommandBindPipeline& cmd) {
   BASALT_ASSERT(mPipelines.is_handle_valid(cmd.handle));
 
   if (!mPipelines.is_handle_valid(cmd.handle)) {
@@ -761,6 +782,8 @@ void D3D9Device::execute(const CommandBindPipeline& cmd) const {
   }
 
   const PipelineData& data {mPipelines[cmd.handle]};
+  mCurrentPrimitiveType = data.primitiveType;
+
   D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, data.lighting));
   D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, data.cullMode));
   D3D9CALL(mDevice->SetRenderState(D3DRS_ZENABLE, data.zEnabled));

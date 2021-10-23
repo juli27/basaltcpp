@@ -55,6 +55,7 @@ private:
   using TexturePtr = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
 
   struct PipelineData final {
+    D3DPRIMITIVETYPE primitiveType {D3DPT_POINTLIST};
     BOOL lighting {FALSE};
     D3DCULL cullMode {D3DCULL_NONE};
     D3DZBUFFERTYPE zEnabled {D3DZB_FALSE};
@@ -81,13 +82,14 @@ private:
 
   DeviceCaps mCaps {};
   D3DCAPS9 mD3D9Caps {};
+  D3DPRIMITIVETYPE mCurrentPrimitiveType {D3DPT_POINTLIST};
   u8 mMaxLightsUsed {};
 
   // TODO: make these return bool / an error ?
   void execute(const CommandClearAttachments&) const;
   void execute(const CommandDraw&) const;
   void execute(const CommandSetRenderState&) const;
-  void execute(const CommandBindPipeline&) const;
+  void execute(const CommandBindPipeline&);
   void execute(const CommandBindVertexBuffer&) const;
   void execute(const CommandBindSampler&) const;
   void execute(const CommandBindTexture&) const;

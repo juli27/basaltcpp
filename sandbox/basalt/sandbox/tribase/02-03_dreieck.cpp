@@ -64,6 +64,8 @@ Dreieck::Dreieck(Engine& engine)
 
   mEntity.get<Transform>().move(0.0f, 0.0f, 2.0f);
 
+  auto& gfxResourceCache {engine.gfx_resource_cache()};
+
   const VertexLayout vertexLayout {VertexElement::Position3F32,
                                    VertexElement::ColorDiffuse1U32A8R8G8B8};
 
@@ -80,22 +82,31 @@ Dreieck::Dreieck(Engine& engine)
     Vertex {-1.0f, -1.0f, 0.0f, ColorEncoding::pack_a8r8g8b8_u32(0, 0, 255)},
   };
 
-  MeshDescriptor meshDesc {as_bytes(gsl::span {triangleVertices}), vertexLayout,
-                           PrimitiveType::TriangleList, 1};
-  mTriangleMesh = engine.gfx_resource_cache().create_mesh(meshDesc);
+  MeshDescriptor meshDesc {as_bytes(gsl::span {triangleVertices}),
+                           static_cast<u32>(triangleVertices.size()),
+                           vertexLayout};
+  mTriangleMesh = gfxResourceCache.create_mesh(meshDesc);
 
   MaterialDescriptor materialDesc;
+  materialDesc.primitiveType = PrimitiveType::TriangleList;
   materialDesc.cullBackFace = false;
   materialDesc.lit = false;
 
-  mSolidMaterial = engine.gfx_resource_cache().create_material(materialDesc);
+  mSolidMaterial = gfxResourceCache.create_material(materialDesc);
 
+  materialDesc = MaterialDescriptor {};
+  materialDesc.primitiveType = PrimitiveType::TriangleList;
   materialDesc.cullBackFace = false;
   materialDesc.lit = false;
   materialDesc.solid = false;
+  mWireframeMaterial = gfxResourceCache.create_material(materialDesc);
 
-  mWireframeMaterial =
-    engine.gfx_resource_cache().create_material(materialDesc);
+  materialDesc = MaterialDescriptor {};
+  materialDesc.primitiveType = PrimitiveType::TriangleStrip;
+  materialDesc.cullBackFace = false;
+  materialDesc.lit = false;
+
+  mQuadMaterial = gfxResourceCache.create_material(materialDesc);
 
   std::array<Vertex, 4> quadVertices {
     Vertex {1.0f, -1.0f, 0.0f, ColorEncoding::pack_a8r8g8b8_u32(0, 255, 0)},
@@ -104,9 +115,12 @@ Dreieck::Dreieck(Engine& engine)
     Vertex {-1.0f, 1.0f, 0.0f, ColorEncoding::pack_a8r8g8b8_u32(255u, 0, 255u)},
   };
 
-  meshDesc = MeshDescriptor {as_bytes(gsl::span {quadVertices}), vertexLayout,
-                             PrimitiveType::TriangleStrip, 2};
-  mQuadMesh = engine.gfx_resource_cache().create_mesh(meshDesc);
+  meshDesc = MeshDescriptor {
+    as_bytes(gsl::span {quadVertices}),
+    static_cast<u32>(quadVertices.size()),
+    vertexLayout,
+  };
+  mQuadMesh = gfxResourceCache.create_mesh(meshDesc);
 
   mEntity.emplace<RenderComponent>(mTriangleMesh, mSolidMaterial);
 }
@@ -149,7 +163,7 @@ void Dreieck::tick(Engine& engine) {
 
     if (ImGui::RadioButton("Exercise 2", &mCurrentExercise, 2)) {
       mEntity.get<RenderComponent>().mesh = mQuadMesh;
-      mEntity.get<RenderComponent>().material = mSolidMaterial;
+      mEntity.get<RenderComponent>().material = mQuadMaterial;
       transform.scale.set(1.0f);
     }
 

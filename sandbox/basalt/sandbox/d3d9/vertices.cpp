@@ -75,7 +75,8 @@ struct MyDrawable final : Drawable {
                     mapping.begin());
       });
 
-    mPipeline = mResourceCache.create_pipeline(PipelineDescriptor {});
+    mPipeline = mResourceCache.create_pipeline(
+      PipelineDescriptor {PrimitiveType::TriangleList});
   }
 
   MyDrawable(const MyDrawable&) = delete;
@@ -97,7 +98,7 @@ struct MyDrawable final : Drawable {
 
     cmdList.bind_pipeline(mPipeline);
     cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
-    cmdList.draw(0, PrimitiveType::TriangleList, 1);
+    cmdList.draw(0, 3);
 
     return {std::move(cmdList), viewport.to_rectangle()};
   }

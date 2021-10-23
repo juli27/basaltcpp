@@ -29,6 +29,7 @@ private:
   basalt::gfx::Mesh mQuadMesh;
   basalt::gfx::Material mSolidMaterial;
   basalt::gfx::Material mWireframeMaterial;
+  basalt::gfx::Material mQuadMaterial;
   basalt::f64 mTimeAccum {};
   basalt::i32 mCurrentExercise {};
 };

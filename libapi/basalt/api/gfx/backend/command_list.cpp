@@ -34,9 +34,8 @@ void CommandList::clear_attachments(const Attachments attachments,
   add<CommandClearAttachments>(attachments, color, z, stencil);
 }
 
-void CommandList::draw(const u32 startVertex, const PrimitiveType primitiveType,
-                       const u32 primitiveCount) {
-  add<CommandDraw>(primitiveType, startVertex, primitiveCount);
+void CommandList::draw(const u32 firstVertex, const u32 vertexCount) {
+  add<CommandDraw>(firstVertex, vertexCount);
 }
 
 void CommandList::set_render_state(const RenderState& renderState) {

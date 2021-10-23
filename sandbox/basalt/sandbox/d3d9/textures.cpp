@@ -77,14 +77,17 @@ Textures::Textures(Engine& engine)
                                    VertexElement::ColorDiffuse1U32A8R8G8B8,
                                    VertexElement::TextureCoords2F32};
 
-  const MeshDescriptor mesh {as_bytes(gsl::span {vertices}), vertexLayout,
-                             PrimitiveType::TriangleStrip,
-                             static_cast<u32>(vertices.size() - 2)};
+  const MeshDescriptor mesh {
+    as_bytes(gsl::span {vertices}),
+    static_cast<u32>(vertices.size()),
+    vertexLayout,
+  };
 
   auto& rc {mCylinder.emplace<RenderComponent>()};
   rc.mesh = engine.gfx_resource_cache().create_mesh(mesh);
 
   MaterialDescriptor material;
+  material.primitiveType = PrimitiveType::TriangleStrip;
   material.cullBackFace = false;
   material.lit = false;
   material.sampledTexture.texture =

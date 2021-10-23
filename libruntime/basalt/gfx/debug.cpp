@@ -279,9 +279,8 @@ void display(const CommandClearAttachments& cmd) {
 }
 
 void display(const CommandDraw& cmd) {
-  ImGui::Text("startVertex = %u", cmd.startVertex);
-  ImGui::Text("primitiveType = %s", to_string(cmd.primitiveType));
-  ImGui::Text("primitiveCount = %u", cmd.primitiveCount);
+  ImGui::Text("firstVertex = %u", cmd.firstVertex);
+  ImGui::Text("vertexCount = %u", cmd.vertexCount);
 }
 
 void display(const CommandSetRenderState& cmd) {

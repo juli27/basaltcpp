@@ -19,7 +19,7 @@ namespace basalt::gfx {
 // command list with redundant state filtering
 struct FilteringCommandList final {
   void clear_attachments(Attachments, const Color&, f32 z, u32 stencil);
-  void draw(u32 startVertex, PrimitiveType, u32 primitiveCount);
+  void draw(u32 firstVertex, u32 vertexCount);
   void set_render_state(const RenderState&);
   void bind_pipeline(Pipeline);
   void bind_vertex_buffer(VertexBuffer, u64 offset);

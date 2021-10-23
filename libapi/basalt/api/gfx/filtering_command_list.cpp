@@ -12,10 +12,8 @@ void FilteringCommandList::clear_attachments(const Attachments attachments,
   mCommandList.clear_attachments(attachments, color, z, stencil);
 }
 
-void FilteringCommandList::draw(const u32 startVertex,
-                                const PrimitiveType primitiveType,
-                                const u32 primitiveCount) {
-  mCommandList.draw(startVertex, primitiveType, primitiveCount);
+void FilteringCommandList::draw(const u32 firstVertex, const u32 vertexCount) {
+  mCommandList.draw(firstVertex, vertexCount);
 }
 
 void FilteringCommandList::set_render_state(const RenderState& renderState) {

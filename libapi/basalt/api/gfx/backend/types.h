@@ -223,6 +223,7 @@ struct DeviceCaps final {
 };
 
 struct PipelineDescriptor final {
+  PrimitiveType primitiveType {PrimitiveType::PointList};
   bool lighting {false};
   CullMode cullMode {CullMode::None};
   DepthTestPass depthTest {DepthTestPass::Always};

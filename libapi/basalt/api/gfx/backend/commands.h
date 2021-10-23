@@ -32,13 +32,11 @@ struct CommandClearAttachments final : CommandT<CommandType::ClearAttachments> {
 static_assert(sizeof(CommandClearAttachments) == 32);
 
 struct CommandDraw final : CommandT<CommandType::Draw> {
-  PrimitiveType primitiveType {PrimitiveType::TriangleList};
-  u32 startVertex {};
-  u32 primitiveCount {};
+  u32 firstVertex {};
+  u32 vertexCount {};
 
-  constexpr CommandDraw(const PrimitiveType p, const u32 s,
-                        const u32 c) noexcept
-    : primitiveType {p}, startVertex {s}, primitiveCount {c} {
+  constexpr CommandDraw(const u32 s, const u32 c) noexcept
+    : firstVertex {s}, vertexCount {c} {
   }
 };
 

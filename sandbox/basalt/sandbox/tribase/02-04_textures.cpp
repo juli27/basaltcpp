@@ -106,6 +106,7 @@ Textures::Textures(Engine& engine)
 
   MaterialDescriptor materialDesc {};
   materialDesc.sampledTexture.texture = texture;
+  materialDesc.primitiveType = PrimitiveType::TriangleList;
   materialDesc.cullBackFace = false;
   materialDesc.lit = false;
 
@@ -158,8 +159,11 @@ Textures::Textures(Engine& engine)
       vertex.v = rng.generate_f32(-1.0f, 2.0f);
     }
 
-    const MeshDescriptor meshDesc {as_bytes(span {vertices}), vertexLayout,
-                                   PrimitiveType::TriangleList, 1};
+    const MeshDescriptor meshDesc {
+      as_bytes(span {vertices}),
+      static_cast<u32>(vertices.size()),
+      vertexLayout,
+    };
     triangle.emplace<RenderComponent>(gfxResources.create_mesh(meshDesc),
                                       mPointSampler);
   }

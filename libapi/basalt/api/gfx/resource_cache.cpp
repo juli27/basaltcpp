@@ -83,8 +83,7 @@ auto ResourceCache::create_mesh(const MeshDescriptor& desc) -> Mesh {
 
   auto [mesh, data] = mMeshes.allocate();
   data.vertexBuffer = mDevice.create_vertex_buffer(vbDesc, desc.data);
-  data.primitiveType = desc.primitiveType;
-  data.primitiveCount = desc.primitiveCount;
+  data.vertexCount = desc.vertexCount;
 
   return mesh;
 }
@@ -94,6 +93,7 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
   auto [handle, data] = mMaterials.allocate();
 
   data.pipeline = mDevice.create_pipeline(PipelineDescriptor {
+    desc.primitiveType,
     desc.lit,
     desc.cullBackFace ? CullMode::CounterClockwise : CullMode::None,
     DepthTestPass::IfLessEqual,
