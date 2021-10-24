@@ -196,6 +196,12 @@ struct Command {
   const CommandType type;
 
   template <typename T>
+  auto as() const -> const T& {
+    BASALT_ASSERT(type == T::TYPE, "invalid command cast");
+    return *static_cast<const T*>(this);
+  }
+
+  template <typename T>
   auto as() -> T& {
     BASALT_ASSERT(type == T::TYPE, "invalid command cast");
     return *static_cast<T*>(this);

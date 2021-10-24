@@ -93,6 +93,52 @@ void draw_overlay() {
   ImGui::End();
 }
 
+void draw_gfx_info_modal(const Info& info) {
+  if (ImGui::BeginPopupModal("Gfx Info", nullptr,
+                             ImGuiWindowFlags_AlwaysAutoResize)) {
+    static u32 currentIndex {0};
+    const AdapterInfo& current {info.adapters[currentIndex]};
+    if (ImGui::BeginCombo("GFX Adapter", current.displayName.c_str())) {
+      for (const auto& adapter : info.adapters) {
+        const bool isSelected {adapter.adapterIndex == currentIndex};
+        if (ImGui::Selectable(
+              fmt::format("{} ##{}", adapter.displayName, adapter.adapterIndex)
+                .c_str(),
+              isSelected)) {
+          currentIndex = adapter.adapterIndex;
+        }
+
+        if (isSelected) {
+          ImGui::SetItemDefaultFocus();
+        }
+      }
+
+      ImGui::EndCombo();
+    }
+
+    ImGui::Text("Driver: %s", current.driverInfo.c_str());
+
+    ImGui::Separator();
+
+    ImGui::TextUnformatted("Adapter Modes");
+
+    if (ImGui::BeginChild("modes", ImVec2 {0, 250})) {
+      for (const auto& mode : current.adapterModes) {
+        ImGui::Selectable(to_string(mode).c_str(), false,
+                          ImGuiSelectableFlags_DontClosePopups);
+      }
+    }
+
+    ImGui::EndChild();
+
+    if (ImGui::Button("Close", ImVec2 {120.0f, 0.0f})) {
+      ImGui::CloseCurrentPopup();
+    }
+
+    ImGui::EndPopup();
+  }
+}
+
 #define ENUM_TO_STRING(e)                                                      \
   case e:                                                                      \
     return #e
@@ -363,44 +409,32 @@ void display(const ext::CommandRenderDearImGui&) {
     break
 
 void draw_composite_inspector(const Composite& composite) {
-  if (!sShowCompositeDebugUi) {
-    return;
-  }
-
+  ImGui::SetNextWindowSize(ImVec2 {500, 350}, ImGuiCond_FirstUseEver);
   if (!ImGui::Begin("Composite Inspector", &sShowCompositeDebugUi)) {
     ImGui::End();
     return;
   }
 
-  i32 i {0};
+  if (!ImGui::BeginChild("commands", ImVec2 {200, 0})) {
+    ImGui::EndChild();
+    return;
+  }
+
+  // TODO: Fix ImGuiCond_Appearing has the same effect as Once
+  ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
+
+  i32 id {0};
+  const Command* hoveredCommand {};
   for (const auto& cmdList : composite) {
-    ImGui::PushID(i++);
+    ImGui::PushID(id++);
+
     if (ImGui::TreeNode("Part", "Command List (%llu commands)",
                         cmdList.commands().size())) {
       for (const auto& command : cmdList.commands()) {
         ImGui::TextUnformatted(enumerator_to_string(command->type));
 
         if (ImGui::IsItemHovered()) {
-          ImGui::BeginTooltip();
-
-          switch (command->type) {
-            DISPLAY(CommandClearAttachments);
-            DISPLAY(CommandDraw);
-            DISPLAY(CommandSetRenderState);
-            DISPLAY(CommandBindPipeline);
-            DISPLAY(CommandBindVertexBuffer);
-            DISPLAY(CommandBindSampler);
-            DISPLAY(CommandBindTexture);
-            DISPLAY(CommandSetTransform);
-            DISPLAY(CommandSetDirectionalLights);
-            DISPLAY(CommandSetMaterial);
-            DISPLAY(CommandSetTextureStageState);
-
-            DISPLAY(ext::CommandDrawXModel);
-            DISPLAY(ext::CommandRenderDearImGui);
-          }
-
-          ImGui::EndTooltip();
+          hoveredCommand = command;
         }
       }
 
@@ -410,6 +444,36 @@ void draw_composite_inspector(const Composite& composite) {
     ImGui::PopID();
   }
 
+  ImGui::EndChild();
+
+  ImGui::SameLine();
+
+  if (!ImGui::BeginChild("command data")) {
+    ImGui::EndChild();
+    return;
+  }
+
+  if (hoveredCommand) {
+    const Command* command {hoveredCommand};
+    switch (command->type) {
+      DISPLAY(CommandClearAttachments);
+      DISPLAY(CommandDraw);
+      DISPLAY(CommandSetRenderState);
+      DISPLAY(CommandBindPipeline);
+      DISPLAY(CommandBindVertexBuffer);
+      DISPLAY(CommandBindSampler);
+      DISPLAY(CommandBindTexture);
+      DISPLAY(CommandSetTransform);
+      DISPLAY(CommandSetDirectionalLights);
+      DISPLAY(CommandSetMaterial);
+      DISPLAY(CommandSetTextureStageState);
+
+      DISPLAY(ext::CommandDrawXModel);
+      DISPLAY(ext::CommandRenderDearImGui);
+    }
+  }
+
+  ImGui::EndChild();
   ImGui::End();
 }
 
@@ -418,10 +482,6 @@ void draw_composite_inspector(const Composite& composite) {
 } // namespace
 
 void Debug::update(const Info& info, const Composite& composite) {
-  if (sShowPerformanceOverlay) {
-    draw_overlay();
-  }
-
   // https://github.com/ocornut/imgui/issues/331
   enum class OpenPopup : u8 { None, GfxInfo };
   OpenPopup shouldOpenPopup {OpenPopup::None};
@@ -447,51 +507,15 @@ void Debug::update(const Info& info, const Composite& composite) {
     ImGui::OpenPopup("Gfx Info");
   }
 
-  if (ImGui::BeginPopupModal("Gfx Info", nullptr,
-                             ImGuiWindowFlags_AlwaysAutoResize)) {
-    static u32 currentIndex {0};
-    const AdapterInfo& current {info.adapters[currentIndex]};
-    if (ImGui::BeginCombo("GFX Adapter", current.displayName.c_str())) {
-      for (const auto& adapter : info.adapters) {
-        const bool isSelected {adapter.adapterIndex == currentIndex};
-        if (ImGui::Selectable(
-              fmt::format("{} ##{}", adapter.displayName, adapter.adapterIndex)
-                .c_str(),
-              isSelected)) {
-          currentIndex = adapter.adapterIndex;
-        }
+  draw_gfx_info_modal(info);
 
-        if (isSelected) {
-          ImGui::SetItemDefaultFocus();
-        }
-      }
-
-      ImGui::EndCombo();
-    }
-
-    ImGui::Text("Driver: %s", current.driverInfo.c_str());
-
-    ImGui::Separator();
-
-    ImGui::TextUnformatted("Adapter Modes");
-
-    if (ImGui::BeginChild("modes", ImVec2 {0, 250})) {
-      for (const auto& mode : current.adapterModes) {
-        ImGui::Selectable(to_string(mode).c_str(), false,
-                          ImGuiSelectableFlags_DontClosePopups);
-      }
-    }
-
-    ImGui::EndChild();
-
-    if (ImGui::Button("Close", ImVec2 {120.0f, 0.0f})) {
-      ImGui::CloseCurrentPopup();
-    }
-
-    ImGui::EndPopup();
+  if (sShowCompositeDebugUi) {
+    draw_composite_inspector(composite);
   }
 
-  draw_composite_inspector(composite);
+  if (sShowPerformanceOverlay) {
+    draw_overlay();
+  }
 }
 
 } // namespace basalt::gfx
