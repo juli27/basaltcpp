@@ -4,7 +4,6 @@
 
 #include <basalt/gfx/backend/d3d9/d3d9_custom.h>
 
-#include <basalt/api/gfx/backend/commands.h>
 #include <basalt/api/shared/handle_pool.h>
 
 #include <wrl/client.h>
@@ -85,18 +84,18 @@ private:
   D3DPRIMITIVETYPE mCurrentPrimitiveType {D3DPT_POINTLIST};
   u8 mMaxLightsUsed {};
 
-  // TODO: make these return bool / an error ?
-  void execute(const CommandClearAttachments&) const;
-  void execute(const CommandDraw&) const;
-  void execute(const CommandSetRenderState&) const;
+  void execute(const Command&);
+  void execute(const CommandClearAttachments&);
+  void execute(const CommandDraw&);
+  void execute(const CommandSetRenderState&);
   void execute(const CommandBindPipeline&);
-  void execute(const CommandBindVertexBuffer&) const;
-  void execute(const CommandBindSampler&) const;
-  void execute(const CommandBindTexture&) const;
-  void execute(const CommandSetTransform&) const;
+  void execute(const CommandBindVertexBuffer&);
+  void execute(const CommandBindSampler&);
+  void execute(const CommandBindTexture&);
+  void execute(const CommandSetTransform&);
   void execute(const CommandSetDirectionalLights&);
-  void execute(const CommandSetMaterial&) const;
-  void execute(const CommandSetTextureStageState&) const;
+  void execute(const CommandSetMaterial&);
+  void execute(const CommandSetTextureStageState&);
 };
 
 } // namespace basalt::gfx

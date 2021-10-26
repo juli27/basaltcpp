@@ -1,6 +1,7 @@
 #include <basalt/api/gfx/backend/command_list.h>
 
 #include <basalt/api/gfx/backend/commands.h>
+
 #include <basalt/api/gfx/backend/ext/dear_imgui_renderer.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
@@ -24,8 +25,16 @@ CommandList::CommandList()
   : mBuffer {std::make_unique<CommandBuffer>(INITIAL_COMMAND_BUFFER_SIZE)} {
 }
 
-auto CommandList::commands() const noexcept -> const vector<Command*>& {
-  return mCommands;
+auto CommandList::size() const noexcept -> uSize {
+  return mCommands.size();
+}
+
+auto CommandList::begin() const -> const_iterator {
+  return mCommands.begin();
+}
+
+auto CommandList::end() const -> const_iterator {
+  return mCommands.end();
 }
 
 void CommandList::clear_attachments(const Attachments attachments,

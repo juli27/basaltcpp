@@ -6,7 +6,9 @@
 
 #include <basalt/api/scene/types.h>
 
+#include <basalt/api/gfx/backend/commands.h>
 #include <basalt/api/gfx/backend/command_list.h>
+#include <basalt/api/gfx/backend/utils.h>
 #include <basalt/api/gfx/backend/ext/dear_imgui_renderer.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
@@ -514,11 +516,6 @@ void D3D9Device::begin_execution() const {
   D3D9CALL(mDevice->BeginScene());
 }
 
-#define EXECUTE(commandType)                                                   \
-  case commandType::TYPE:                                                      \
-    execute(cmd->as<commandType>());                                           \
-    break
-
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
 void D3D9Device::execute(const CommandList& cmdList) {
   // set device state to what the command list expects as default
@@ -542,31 +539,14 @@ void D3D9Device::execute(const CommandList& cmdList) {
 
   PIX_END_EVENT();
 
-  for (const auto& cmd : cmdList.commands()) {
-    switch (cmd->type) {
-      EXECUTE(CommandClearAttachments);
-      EXECUTE(CommandDraw);
-      EXECUTE(CommandSetRenderState);
-      EXECUTE(CommandBindPipeline);
-      EXECUTE(CommandBindVertexBuffer);
-      EXECUTE(CommandBindSampler);
-      EXECUTE(CommandBindTexture);
-      EXECUTE(CommandSetTransform);
-      EXECUTE(CommandSetDirectionalLights);
-      EXECUTE(CommandSetMaterial);
-      EXECUTE(CommandSetTextureStageState);
+  // overload resolution fails if one of the execute overloads is const
+  // TODO: MSVC compiler bug?
 
-    case CommandType::ExtDrawXModel:
-      std::static_pointer_cast<D3D9XModelSupport>(
-        mExtensions[ext::ExtensionId::XModelSupport])
-        ->execute(cmd->as<ext::CommandDrawXModel>());
-      break;
+  auto visitor {
+    [&](auto&& cmd) { this->execute(std::forward<decltype(cmd)>(cmd)); }};
 
-    case CommandType::ExtRenderDearImGui:
-      D3D9ImGuiRenderer::execute(cmd->as<ext::CommandRenderDearImGui>());
-      break;
-    }
-  }
+  std::for_each(cmdList.begin(), cmdList.end(),
+                [&](const Command* cmd) { visit(*cmd, visitor); });
 
   // disable used lights
   for (u8 i = 0; i < mMaxLightsUsed; i++) {
@@ -599,8 +579,6 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
   PIX_END_EVENT();
 }
-
-#undef EXECUTE
 
 void D3D9Device::end_execution() const {
   D3D9CALL(mDevice->EndScene());
@@ -739,7 +717,24 @@ auto D3D9Device::query_extension(const ext::ExtensionId id)
   return std::nullopt;
 }
 
-void D3D9Device::execute(const CommandClearAttachments& cmd) const {
+void D3D9Device::execute(const Command& cmd) {
+  switch (cmd.type) {
+  case CommandType::ExtDrawXModel:
+    std::static_pointer_cast<const D3D9XModelSupport>(
+      mExtensions[ext::ExtensionId::XModelSupport])
+      ->execute(cmd.as<ext::CommandDrawXModel>());
+    break;
+
+  case CommandType::ExtRenderDearImGui:
+    D3D9ImGuiRenderer::execute(cmd.as<ext::CommandRenderDearImGui>());
+    break;
+
+  default:
+    BASALT_LOG_ERROR("d3d9 device can't handle this command");
+  }
+}
+
+void D3D9Device::execute(const CommandClearAttachments& cmd) {
   const DWORD flags {[&] {
     DWORD f {0};
 
@@ -762,13 +757,13 @@ void D3D9Device::execute(const CommandClearAttachments& cmd) const {
     mDevice->Clear(0u, nullptr, flags, to_d3d(cmd.color), cmd.z, cmd.stencil));
 }
 
-void D3D9Device::execute(const CommandDraw& cmd) const {
+void D3D9Device::execute(const CommandDraw& cmd) {
   D3D9CALL(mDevice->DrawPrimitive(
     mCurrentPrimitiveType, cmd.firstVertex,
     calculate_primitive_count(mCurrentPrimitiveType, cmd.vertexCount)));
 }
 
-void D3D9Device::execute(const CommandSetRenderState& cmd) const {
+void D3D9Device::execute(const CommandSetRenderState& cmd) {
   const auto [state, value] {to_d3d(cmd.renderState)};
 
   D3D9CALL(mDevice->SetRenderState(state, value));
@@ -791,7 +786,7 @@ void D3D9Device::execute(const CommandBindPipeline& cmd) {
   D3D9CALL(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, data.zWriteEnabled));
 }
 
-void D3D9Device::execute(const CommandBindVertexBuffer& cmd) const {
+void D3D9Device::execute(const CommandBindVertexBuffer& cmd) {
   BASALT_ASSERT(mVertexBuffers.is_handle_valid(cmd.handle));
 
   if (!mVertexBuffers.is_handle_valid(cmd.handle)) {
@@ -814,7 +809,7 @@ void D3D9Device::execute(const CommandBindVertexBuffer& cmd) const {
   D3D9CALL(mDevice->SetStreamSource(0u, buffer.Get(), offset, fvfStride));
 }
 
-void D3D9Device::execute(const CommandBindSampler& cmd) const {
+void D3D9Device::execute(const CommandBindSampler& cmd) {
   const auto& data {mSamplers[cmd.sampler]};
 
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, data.filter));
@@ -827,12 +822,12 @@ void D3D9Device::execute(const CommandBindSampler& cmd) const {
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, data.addressModeW));
 }
 
-void D3D9Device::execute(const CommandBindTexture& cmd) const {
+void D3D9Device::execute(const CommandBindTexture& cmd) {
   const auto& texture = mTextures[cmd.texture];
   D3D9CALL(mDevice->SetTexture(0, texture.Get()));
 }
 
-void D3D9Device::execute(const CommandSetTransform& cmd) const {
+void D3D9Device::execute(const CommandSetTransform& cmd) {
   BASALT_ASSERT_IF(cmd.state == TransformState::ViewToViewport,
                    cmd.transform.m34 >= 0,
                    "(3,4) can't be negative in a projection matrix");
@@ -865,7 +860,7 @@ void D3D9Device::execute(const CommandSetDirectionalLights& cmd) {
   }
 }
 
-void D3D9Device::execute(const CommandSetMaterial& cmd) const {
+void D3D9Device::execute(const CommandSetMaterial& cmd) {
   const D3DMATERIAL9 material {
     to_d3d_color_value(cmd.diffuse),
     to_d3d_color_value(cmd.ambient),
@@ -877,7 +872,7 @@ void D3D9Device::execute(const CommandSetMaterial& cmd) const {
   D3D9CALL(mDevice->SetMaterial(&material));
 }
 
-void D3D9Device::execute(const CommandSetTextureStageState& cmd) const {
+void D3D9Device::execute(const CommandSetTextureStageState& cmd) {
   const auto [state, value] {to_d3d_texture_stage_state(cmd.state, cmd.value)};
 
   D3D9CALL(mDevice->SetTextureStageState(0, state, value));

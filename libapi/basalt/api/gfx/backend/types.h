@@ -181,6 +181,19 @@ using Sampler = Handle<detail::SamplerTag>;
 using Texture = Handle<detail::TextureTag>;
 using VertexBuffer = Handle<detail::VertexBufferTag>;
 
+struct Command;
+struct CommandClearAttachments;
+struct CommandDraw;
+struct CommandSetRenderState;
+struct CommandBindPipeline;
+struct CommandBindVertexBuffer;
+struct CommandBindSampler;
+struct CommandBindTexture;
+struct CommandSetTransform;
+struct CommandSetDirectionalLights;
+struct CommandSetMaterial;
+struct CommandSetTextureStageState;
+
 struct CommandList;
 using Composite = std::vector<CommandList>;
 
@@ -199,12 +212,6 @@ struct Command {
   auto as() const -> const T& {
     BASALT_ASSERT(type == T::TYPE, "invalid command cast");
     return *static_cast<const T*>(this);
-  }
-
-  template <typename T>
-  auto as() -> T& {
-    BASALT_ASSERT(type == T::TYPE, "invalid command cast");
-    return *static_cast<T*>(this);
   }
 
 protected:

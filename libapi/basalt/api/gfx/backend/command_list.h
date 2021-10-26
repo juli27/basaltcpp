@@ -17,6 +17,12 @@ namespace basalt::gfx {
 
 // serialized commands which the gfx device should execute
 struct CommandList final {
+private:
+  using ListType = std::vector<const Command*>;
+
+public:
+  using const_iterator = ListType::const_iterator;
+
   CommandList();
 
   CommandList(const CommandList&) = delete;
@@ -27,7 +33,10 @@ struct CommandList final {
   auto operator=(const CommandList&) -> CommandList& = delete;
   auto operator=(CommandList&&) noexcept -> CommandList& = default;
 
-  [[nodiscard]] auto commands() const noexcept -> const std::vector<Command*>&;
+  [[nodiscard]] auto size() const noexcept -> uSize;
+
+  [[nodiscard]] auto begin() const -> const_iterator;
+  [[nodiscard]] auto end() const -> const_iterator;
 
   void clear_attachments(Attachments, const Color&, f32 z, u32 stencil);
   void draw(u32 firstVertex, u32 vertexCount);
@@ -51,7 +60,7 @@ private:
   using CommandBuffer = std::pmr::monotonic_buffer_resource;
 
   std::unique_ptr<CommandBuffer> mBuffer;
-  std::vector<Command*> mCommands;
+  ListType mCommands;
 
   template <typename T, typename... Args>
   void add(Args&&... args) {

@@ -6,7 +6,8 @@
 
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/commands.h>
-#include <basalt/api/gfx/backend/ext/dear_imgui_renderer.h>
+#include <basalt/api/gfx/backend/utils.h>
+
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/shared/color.h>
@@ -20,6 +21,7 @@
 
 #include <imgui/imgui.h>
 
+#include <algorithm>
 #include <array>
 #include <string>
 #include <type_traits>
@@ -335,17 +337,10 @@ void display(const CommandSetRenderState& cmd) {
   std::visit(
     [](auto&& value) {
       using T = std::decay_t<decltype(value)>;
-      if constexpr (std::is_same_v<T, bool>) {
-        ImGui::Text("enabled = %s", value ? "true" : "false");
-      } else if constexpr (std::disjunction_v<std::is_same<T, CullMode>,
-                                              std::is_same<T, FillMode>,
-                                              std::is_same<T, ShadeMode>,
-                                              std::is_same<T, DepthTestPass>>) {
-        ImGui::TextUnformatted(to_string(value));
-      } else if constexpr (std::is_same_v<T, Color>) {
+      if constexpr (std::is_same_v<T, Color>) {
         display_color4("color", value);
       } else {
-        static_assert(false, "non-exhaustive visitor");
+        ImGui::TextUnformatted(to_string(value));
       }
     },
     cmd.renderState.value());
@@ -400,13 +395,20 @@ void display(const ext::CommandDrawXModel& cmd) {
   ImGui::Text("model = %#x", cmd.handle.value());
 }
 
-void display(const ext::CommandRenderDearImGui&) {
-}
+void display(const Command& cmd) {
+  switch (cmd.type) {
+  case CommandType::ExtDrawXModel:
+    display(cmd.as<ext::CommandDrawXModel>());
+    break;
 
-#define DISPLAY(commandStruct)                                                 \
-  case commandStruct::TYPE:                                                    \
-    display(command->as<commandStruct>());                                     \
-    break
+  case CommandType::ExtRenderDearImGui:
+    break;
+
+  default:
+    ImGui::TextUnformatted("(Unknown)");
+    break;
+  }
+}
 
 void draw_composite_inspector(const Composite& composite) {
   ImGui::SetNextWindowSize(ImVec2 {500, 350}, ImGuiCond_FirstUseEver);
@@ -429,14 +431,14 @@ void draw_composite_inspector(const Composite& composite) {
     ImGui::PushID(id++);
 
     if (ImGui::TreeNode("Part", "Command List (%llu commands)",
-                        cmdList.commands().size())) {
-      for (const auto& command : cmdList.commands()) {
-        ImGui::TextUnformatted(enumerator_to_string(command->type));
+                        cmdList.size())) {
+      std::for_each(cmdList.begin(), cmdList.end(), [&](const Command* cmd) {
+        ImGui::TextUnformatted(enumerator_to_string(cmd->type));
 
         if (ImGui::IsItemHovered()) {
-          hoveredCommand = command;
+          hoveredCommand = cmd;
         }
-      }
+      });
 
       ImGui::TreePop();
     }
@@ -454,30 +456,13 @@ void draw_composite_inspector(const Composite& composite) {
   }
 
   if (hoveredCommand) {
-    const Command* command {hoveredCommand};
-    switch (command->type) {
-      DISPLAY(CommandClearAttachments);
-      DISPLAY(CommandDraw);
-      DISPLAY(CommandSetRenderState);
-      DISPLAY(CommandBindPipeline);
-      DISPLAY(CommandBindVertexBuffer);
-      DISPLAY(CommandBindSampler);
-      DISPLAY(CommandBindTexture);
-      DISPLAY(CommandSetTransform);
-      DISPLAY(CommandSetDirectionalLights);
-      DISPLAY(CommandSetMaterial);
-      DISPLAY(CommandSetTextureStageState);
-
-      DISPLAY(ext::CommandDrawXModel);
-      DISPLAY(ext::CommandRenderDearImGui);
-    }
+    visit(*hoveredCommand,
+          [](auto&& cmd) { display(std::forward<decltype(cmd)>(cmd)); });
   }
 
   ImGui::EndChild();
   ImGui::End();
 }
-
-#undef DISPLAY
 
 } // namespace
 
