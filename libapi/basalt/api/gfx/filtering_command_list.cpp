@@ -2,7 +2,7 @@
 
 #include <utility>
 
-using std::vector;
+using gsl::span;
 
 namespace basalt::gfx {
 
@@ -61,7 +61,7 @@ void FilteringCommandList::set_ambient_light(const Color& c) {
 }
 
 void FilteringCommandList::set_directional_lights(
-  const vector<DirectionalLight>& lights) {
+  const span<const DirectionalLight> lights) {
   mCommandList.set_directional_lights(lights);
 }
 

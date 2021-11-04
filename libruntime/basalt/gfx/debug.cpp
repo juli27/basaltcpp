@@ -369,7 +369,7 @@ void display(const CommandSetTextureStageState& cmd) {
 
 void display(const CommandSetDirectionalLights& cmd) {
   i32 i {0};
-  for (const DirectionalLight& light : cmd.directionalLights) {
+  for (const DirectionalLight& light : cmd.lights) {
     ImGui::PushID(i++);
 
     display_vec3("direction", light.direction);

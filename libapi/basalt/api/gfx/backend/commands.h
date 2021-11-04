@@ -11,7 +11,8 @@
 
 #include <basalt/api/base/types.h>
 
-#include <array>
+#include <gsl/span>
+
 #include <utility>
 
 namespace basalt::gfx {
@@ -116,17 +117,15 @@ static_assert(sizeof(CommandSetAmbientLight) == 20);
 
 struct CommandSetDirectionalLights final
   : CommandT<CommandType::SetDirectionalLights> {
-  // TODO: tweak maximum
-  // can't be a vector. Otherwise it leaks. (no virtual destructor)
-  std::array<DirectionalLight, 4> directionalLights {};
+  gsl::span<const DirectionalLight> lights;
 
   constexpr explicit CommandSetDirectionalLights(
-    std::array<DirectionalLight, 4> dl) noexcept
-    : directionalLights {dl} {
+    const gsl::span<const DirectionalLight> dl) noexcept
+    : lights {dl} {
   }
 };
 
-static_assert(sizeof(CommandSetDirectionalLights) == 180);
+static_assert(sizeof(CommandSetDirectionalLights) == 24);
 
 struct CommandSetMaterial final : CommandT<CommandType::SetMaterial> {
   Color diffuse;

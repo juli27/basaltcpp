@@ -5,12 +5,7 @@
 #include <basalt/api/gfx/backend/ext/dear_imgui_renderer.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
-#include <algorithm>
-#include <array>
-#include <utility>
-
-using std::array;
-using std::vector;
+using gsl::span;
 
 namespace basalt::gfx {
 
@@ -78,14 +73,11 @@ void CommandList::set_ambient_light(const Color& c) {
 }
 
 void CommandList::set_directional_lights(
-  const vector<DirectionalLight>& lights) {
-  BASALT_ASSERT(lights.size() <= 4);
+  const span<const DirectionalLight> lights) {
+  span lightsCopy {allocate<const DirectionalLight>(lights.size())};
+  std::uninitialized_copy(lights.begin(), lights.end(), lightsCopy.begin());
 
-  array<DirectionalLight, 4> directionalLights {};
-  std::copy_n(lights.begin(), std::min(lights.size(), directionalLights.size()),
-              directionalLights.begin());
-
-  add<CommandSetDirectionalLights>(directionalLights);
+  add<CommandSetDirectionalLights>(lightsCopy);
 }
 
 void CommandList::set_material(const Color& diffuse, const Color& ambient,

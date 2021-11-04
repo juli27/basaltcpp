@@ -8,6 +8,8 @@
 #include <basalt/api/math/types.h>
 #include <basalt/api/base/types.h>
 
+#include <gsl/span>
+
 #include <memory>
 #include <memory_resource>
 #include <type_traits>
@@ -47,7 +49,7 @@ public:
   void bind_texture(Texture);
   void set_transform(TransformState, const Mat4f32&);
   void set_ambient_light(const Color&);
-  void set_directional_lights(const std::vector<DirectionalLight>&);
+  void set_directional_lights(gsl::span<const DirectionalLight>);
   void set_material(const Color& diffuse, const Color& ambient,
                     const Color& emissive);
 
@@ -63,13 +65,21 @@ private:
   std::unique_ptr<CommandBuffer> mBuffer;
   ListType mCommands;
 
+  template <typename T>
+  [[nodiscard]] auto allocate(const uSize count = 1) const -> gsl::span<T> {
+    static_assert(std::is_trivially_destructible_v<T>);
+
+    // TODO: overflow protection
+    return {static_cast<T*>(mBuffer->allocate(sizeof(T) * count, alignof(T))),
+            count};
+  }
+
   template <typename T, typename... Args>
   void add(Args&&... args) {
     static_assert(std::is_base_of_v<Command, T>,
                   "CommandList only accepts commands derived from Command");
-    static_assert(std::is_trivially_destructible_v<T>);
 
-    mCommands.emplace_back(::new (mBuffer->allocate(sizeof(T), alignof(T)))
+    mCommands.emplace_back(new (allocate<T>().data())
                              T(std::forward<Args>(args)...));
   }
 };

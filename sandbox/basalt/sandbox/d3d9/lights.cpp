@@ -157,14 +157,14 @@ struct Lights::MyDrawable final : Drawable {
 
     cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
 
-    cmdList.set_directional_lights({
-      DirectionalLight {
-        Vector3f32::normalize(
-          Vector3f32 {std::cos(mLightAngle), 1.0f, std::sin(mLightAngle)}),
-        Color {1.0f, 1.0f, 1.0f, 0.0f},
-        Color {},
-      },
-    });
+    const DirectionalLight light {
+      Vector3f32::normalize(
+        Vector3f32 {std::cos(mLightAngle), 1.0f, std::sin(mLightAngle)}),
+      Color {1.0f, 1.0f, 1.0f, 0.0f},
+      Color {},
+    };
+
+    cmdList.set_directional_lights(span {&light, 1});
 
     cmdList.set_ambient_light(Color::from_rgba(0x20, 0x20, 0x20, 0));
 
