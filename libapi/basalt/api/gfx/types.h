@@ -109,6 +109,6 @@ struct MaterialData final {
   Sampler sampler {Sampler::null()};
 };
 
-static_assert(sizeof(MaterialData) == 112);
+static_assert(sizeof(MaterialData) == 56);
 
 } // namespace basalt::gfx

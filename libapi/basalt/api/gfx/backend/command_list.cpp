@@ -73,6 +73,10 @@ void CommandList::set_transform(const TransformState state,
   add<CommandSetTransform>(state, transform);
 }
 
+void CommandList::set_ambient_light(const Color& c) {
+  add<CommandSetAmbientLight>(c);
+}
+
 void CommandList::set_directional_lights(
   const vector<DirectionalLight>& lights) {
   BASALT_ASSERT(lights.size() <= 4);

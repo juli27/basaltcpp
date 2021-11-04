@@ -43,6 +43,9 @@ namespace {
 struct MyDrawable final : Drawable {
   explicit MyDrawable(Engine& engine) noexcept
     : mResourceCache {engine.gfx_resource_cache()} {
+    mPipeline = mResourceCache.create_pipeline(
+      PipelineDescriptor {PrimitiveType::TriangleList});
+
     struct Vertex final {
       f32 x;
       f32 y;
@@ -59,7 +62,7 @@ struct MyDrawable final : Drawable {
       Vertex {50.0f, 250.0f, 0.5f, 1.0f,
               ColorEncoding::pack_a8r8g8b8_u32(0, 255, 255)}};
 
-    const auto vertexData {gsl::span {vertices}};
+    const auto vertexData {as_bytes(gsl::span {vertices})};
 
     const VertexBufferDescriptor vertexBufferDesc {
       vertexData.size_bytes(),
@@ -71,20 +74,16 @@ struct MyDrawable final : Drawable {
     mVertexBuffer = mResourceCache.create_vertex_buffer(vertexBufferDesc);
     mResourceCache.with_mapping_of(
       mVertexBuffer, [&](const gsl::span<std::byte> mapping) {
-        std::copy_n(as_bytes(vertexData).begin(), mapping.size_bytes(),
-                    mapping.begin());
+        std::copy_n(vertexData.begin(), mapping.size_bytes(), mapping.begin());
       });
-
-    mPipeline = mResourceCache.create_pipeline(
-      PipelineDescriptor {PrimitiveType::TriangleList});
   }
 
   MyDrawable(const MyDrawable&) = delete;
   MyDrawable(MyDrawable&&) noexcept = default;
 
   ~MyDrawable() noexcept override {
-    mResourceCache.destroy_pipeline(mPipeline);
     mResourceCache.destroy_vertex_buffer(mVertexBuffer);
+    mResourceCache.destroy_pipeline(mPipeline);
   }
 
   auto operator=(const MyDrawable&) -> MyDrawable& = delete;
@@ -93,6 +92,7 @@ struct MyDrawable final : Drawable {
   auto draw(ResourceCache&, const Size2Du16 viewport, const RectangleU16&)
     -> std::tuple<CommandList, RectangleU16> override {
     CommandList cmdList {};
+
     cmdList.clear_attachments(Attachments {Attachment::Color}, Colors::BLUE,
                               1.0f, 0);
 
@@ -105,8 +105,8 @@ struct MyDrawable final : Drawable {
 
 private:
   ResourceCache& mResourceCache;
-  VertexBuffer mVertexBuffer {VertexBuffer::null()};
   Pipeline mPipeline {Pipeline::null()};
+  VertexBuffer mVertexBuffer {VertexBuffer::null()};
 };
 
 } // namespace

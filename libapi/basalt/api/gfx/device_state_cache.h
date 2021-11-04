@@ -21,6 +21,7 @@ struct DeviceStateCache final {
   auto update(Sampler) noexcept -> bool;
   auto update(Texture) noexcept -> bool;
   auto update(TransformState, const Mat4f32&) noexcept -> bool;
+  auto update_ambient_light(const Color&) noexcept -> bool;
   auto update(const Color& diffuse, const Color& ambient,
               const Color& emissive) noexcept -> bool;
   auto update(TextureStageState, u32 value) noexcept -> bool;
@@ -32,10 +33,9 @@ private:
     Color emissive;
   };
 
-  using RenderStateArray = EnumArray<RenderStateType, RenderStateValue, 3>;
+  using RenderStateArray = EnumArray<RenderStateType, RenderStateValue, 2>;
 
   RenderStateArray mRenderStates {
-    {RenderStateType::Ambient, Color {0.0f, 0.0f, 0.0f, 0.0f}},
     {RenderStateType::FillMode, FillMode::Solid},
     {RenderStateType::ShadeMode, ShadeMode::Gouraud},
   };
@@ -47,6 +47,7 @@ private:
     {TransformState::ModelToWorld, Mat4f32::identity()},
     {TransformState::Texture, Mat4f32::identity()},
   };
+  Color mAmbientLight;
   Material mMaterial;
   Pipeline mBoundPipeline {Pipeline::null()};
   VertexBuffer mBoundVertexBuffer {VertexBuffer::null()};

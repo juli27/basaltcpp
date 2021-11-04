@@ -54,6 +54,9 @@ namespace d3d9 {
 struct Matrices::MyDrawable final : Drawable {
   explicit MyDrawable(Engine& engine) noexcept
     : mResourceCache {engine.gfx_resource_cache()} {
+    mPipeline = mResourceCache.create_pipeline(
+      PipelineDescriptor {PrimitiveType::TriangleList});
+
     struct Vertex final {
       f32 x;
       f32 y;
@@ -68,7 +71,7 @@ struct Matrices::MyDrawable final : Drawable {
               ColorEncoding::pack_a8r8g8b8_u32(255, 255, 255)},
     };
 
-    const auto vertexData {span {vertices}};
+    const auto vertexData {as_bytes(span {vertices})};
 
     const VertexBufferDescriptor vertexBufferDesc {
       vertexData.size_bytes(),
@@ -80,12 +83,8 @@ struct Matrices::MyDrawable final : Drawable {
     mVertexBuffer = mResourceCache.create_vertex_buffer(vertexBufferDesc);
     mResourceCache.with_mapping_of(
       mVertexBuffer, [&](const span<byte> mapping) {
-        std::copy_n(as_bytes(vertexData).begin(), mapping.size_bytes(),
-                    mapping.begin());
+        std::copy_n(vertexData.begin(), mapping.size_bytes(), mapping.begin());
       });
-
-    mPipeline = mResourceCache.create_pipeline(
-      PipelineDescriptor {PrimitiveType::TriangleList});
   }
 
   MyDrawable(const MyDrawable&) = delete;
@@ -111,17 +110,19 @@ struct Matrices::MyDrawable final : Drawable {
   auto draw(ResourceCache&, const Size2Du16 viewport, const RectangleU16&)
     -> std::tuple<CommandList, RectangleU16> override {
     CommandList cmdList {};
+
     cmdList.clear_attachments(Attachments {Attachment::Color}, Colors::BLACK,
                               1.0f, 0);
 
     cmdList.bind_pipeline(mPipeline);
-    cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
 
     cmdList.set_transform(TransformState::ModelToWorld,
                           Mat4f32::rotation_y(mAngleYRad));
     cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
     cmdList.set_transform(TransformState::ViewToViewport,
                           mCamera.projection_matrix(viewport));
+
+    cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
 
     cmdList.draw(0, 3);
 
@@ -130,8 +131,8 @@ struct Matrices::MyDrawable final : Drawable {
 
 private:
   ResourceCache& mResourceCache;
-  VertexBuffer mVertexBuffer {VertexBuffer::null()};
   Pipeline mPipeline {Pipeline::null()};
+  VertexBuffer mVertexBuffer {VertexBuffer::null()};
   Camera mCamera {create_default_camera()};
   f32 mAngleYRad {};
 };

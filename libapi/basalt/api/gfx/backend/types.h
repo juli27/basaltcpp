@@ -1,7 +1,6 @@
 #pragma once
 
 #include <basalt/api/shared/asserts.h>
-#include <basalt/api/shared/color.h>
 #include <basalt/api/shared/handle.h>
 
 #include <basalt/api/base/enum_set.h>
@@ -31,6 +30,7 @@ enum class CommandType : u8 {
 
   // fixed function only
   SetTransform,
+  SetAmbientLight,
   SetDirectionalLights,
   SetMaterial,
   SetTextureStageState,
@@ -89,16 +89,12 @@ enum class PrimitiveType : u8 {
 constexpr uSize PRIMITIVE_TYPE_COUNT = 6u;
 
 enum class RenderStateType : u8 {
-  // vertex state
-  // - fixed function only
-  Ambient,
-
   // pixel state
   FillMode,
   // - fixed function only
   ShadeMode,
 };
-constexpr uSize RENDER_STATE_COUNT = 3u;
+constexpr uSize RENDER_STATE_COUNT = 2u;
 
 enum class ShadeMode : u8 {
   Flat,
@@ -190,6 +186,7 @@ struct CommandBindVertexBuffer;
 struct CommandBindSampler;
 struct CommandBindTexture;
 struct CommandSetTransform;
+struct CommandSetAmbientLight;
 struct CommandSetDirectionalLights;
 struct CommandSetMaterial;
 struct CommandSetTextureStageState;
@@ -203,7 +200,7 @@ using ContextPtr = std::unique_ptr<Context>;
 struct Device;
 
 struct RenderState;
-using RenderStateValue = std::variant<FillMode, ShadeMode, Color>;
+using RenderStateValue = std::variant<FillMode, ShadeMode>;
 
 struct Command {
   const CommandType type;

@@ -64,7 +64,7 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport,
                         mCamera.projection_matrix(viewport));
   cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
 
-  cmdList.set_render_state(RenderState::ambient(mScene->ambient_light()));
+  cmdList.set_ambient_light(mScene->ambient_light());
 
   const auto& directionalLights {mScene->directional_lights()};
   if (!directionalLights.empty()) {

@@ -70,6 +70,16 @@ auto DeviceStateCache::update(const TransformState state,
   return false;
 }
 
+auto DeviceStateCache::update_ambient_light(const Color& c) noexcept -> bool {
+  if (mAmbientLight != c) {
+    mAmbientLight = c;
+
+    return true;
+  }
+
+  return false;
+}
+
 auto DeviceStateCache::update(const Color& diffuse, const Color& ambient,
                               const Color& emissive) noexcept -> bool {
   if (diffuse != mMaterial.diffuse || ambient != mMaterial.ambient ||

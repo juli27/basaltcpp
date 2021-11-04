@@ -1,7 +1,6 @@
 #pragma once
 
 #include <basalt/api/gfx/backend/types.h>
-#include <basalt/api/shared/color.h>
 
 #include <variant>
 
@@ -18,7 +17,6 @@ struct RenderState {
   constexpr auto operator=(const RenderState&) -> RenderState& = delete;
   constexpr auto operator=(RenderState&&) noexcept -> RenderState& = delete;
 
-  [[nodiscard]] static auto ambient(const Color&) -> RenderState;
   [[nodiscard]] static auto fill_mode(FillMode) -> RenderState;
   [[nodiscard]] static auto shade_mode(ShadeMode) -> RenderState;
 

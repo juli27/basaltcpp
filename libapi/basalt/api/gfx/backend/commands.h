@@ -50,7 +50,7 @@ struct CommandSetRenderState final : CommandT<CommandType::SetRenderState> {
   }
 };
 
-static_assert(sizeof(CommandSetRenderState) == 28);
+static_assert(sizeof(CommandSetRenderState) == 4);
 
 struct CommandBindPipeline final : CommandT<CommandType::BindPipeline> {
   Pipeline handle;
@@ -104,6 +104,15 @@ struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
 };
 
 static_assert(sizeof(CommandSetTransform) == 68);
+
+struct CommandSetAmbientLight final : CommandT<CommandType::SetAmbientLight> {
+  Color ambientColor;
+
+  explicit CommandSetAmbientLight(const Color& c) noexcept : ambientColor {c} {
+  }
+};
+
+static_assert(sizeof(CommandSetAmbientLight) == 20);
 
 struct CommandSetDirectionalLights final
   : CommandT<CommandType::SetDirectionalLights> {

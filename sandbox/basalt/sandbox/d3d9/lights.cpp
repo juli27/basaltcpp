@@ -10,7 +10,6 @@
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/api/gfx/backend/command_list.h>
-#include <basalt/api/gfx/backend/render_state.h>
 
 #include <basalt/api/shared/size2d.h>
 
@@ -46,7 +45,6 @@ using basalt::gfx::Drawable;
 using basalt::gfx::Pipeline;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
-using basalt::gfx::RenderState;
 using basalt::gfx::ResourceCache;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexBuffer;
@@ -65,6 +63,13 @@ constexpr u32 VERTEX_COUNT {2u * 50u};
 struct Lights::MyDrawable final : Drawable {
   explicit MyDrawable(Engine& engine) noexcept
     : mResourceCache {engine.gfx_resource_cache()} {
+    PipelineDescriptor pipelineDesc {};
+    pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
+    pipelineDesc.lighting = true;
+    pipelineDesc.depthTest = DepthTestPass::IfLessEqual;
+    pipelineDesc.depthWriteEnable = true;
+    mPipeline = mResourceCache.create_pipeline(pipelineDesc);
+
     struct Vertex final {
       f32 x {};
       f32 y {};
@@ -95,7 +100,7 @@ struct Lights::MyDrawable final : Drawable {
       vertex2.nz = cosTheta;
     }
 
-    const auto vertexData {span {vertices}};
+    const auto vertexData {as_bytes(span {vertices})};
 
     const VertexBufferDescriptor vertexBufferDesc {
       vertexData.size_bytes(),
@@ -107,16 +112,8 @@ struct Lights::MyDrawable final : Drawable {
     mVertexBuffer = mResourceCache.create_vertex_buffer(vertexBufferDesc);
     mResourceCache.with_mapping_of(
       mVertexBuffer, [&](const span<byte> mapping) {
-        std::copy_n(as_bytes(vertexData).begin(), mapping.size_bytes(),
-                    mapping.begin());
+        std::copy_n(vertexData.begin(), mapping.size_bytes(), mapping.begin());
       });
-
-    PipelineDescriptor pipelineDesc {};
-    pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
-    pipelineDesc.lighting = true;
-    pipelineDesc.depthTest = DepthTestPass::IfLessEqual;
-    pipelineDesc.depthWriteEnable = true;
-    mPipeline = mResourceCache.create_pipeline(pipelineDesc);
   }
 
   MyDrawable(const MyDrawable&) = delete;
@@ -148,6 +145,7 @@ struct Lights::MyDrawable final : Drawable {
   auto draw(ResourceCache&, const Size2Du16 viewport, const RectangleU16&)
     -> std::tuple<CommandList, RectangleU16> override {
     CommandList cmdList {};
+
     cmdList.clear_attachments(
       Attachments {Attachment::Color, Attachment::ZBuffer}, Colors::BLUE, 1.0f,
       0);
@@ -168,15 +166,13 @@ struct Lights::MyDrawable final : Drawable {
       },
     });
 
-    cmdList.set_render_state(
-      RenderState::ambient(Color::from_rgba(0x20, 0x20, 0x20, 0)));
-
-    cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
+    cmdList.set_ambient_light(Color::from_rgba(0x20, 0x20, 0x20, 0));
 
     cmdList.set_material(Colors::YELLOW, Colors::YELLOW, Color {});
-
     cmdList.set_transform(TransformState::ModelToWorld,
                           Mat4f32::rotation_x(mAngleXRad));
+
+    cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
 
     cmdList.draw(0, VERTEX_COUNT);
 
@@ -185,8 +181,8 @@ struct Lights::MyDrawable final : Drawable {
 
 private:
   ResourceCache& mResourceCache;
-  VertexBuffer mVertexBuffer {VertexBuffer::null()};
   Pipeline mPipeline {Pipeline::null()};
+  VertexBuffer mVertexBuffer {VertexBuffer::null()};
   Camera mCamera {create_default_camera()};
   f32 mAngleXRad {};
   f32 mLightAngle {};

@@ -26,6 +26,7 @@ struct FilteringCommandList final {
   void bind_sampler(Sampler);
   void bind_texture(Texture);
   void set_transform(TransformState, const Mat4f32&);
+  void set_ambient_light(const Color&);
   void set_directional_lights(const std::vector<DirectionalLight>&);
   void set_material(const Color& diffuse, const Color& ambient,
                     const Color& emissive);

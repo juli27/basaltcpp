@@ -162,6 +162,7 @@ constexpr auto enumerator_to_string(const CommandType type) noexcept -> const
     ENUMERATOR_TO_STRING(CommandType, SetTextureStageState);
     ENUMERATOR_TO_STRING(CommandType, SetDirectionalLights);
     ENUMERATOR_TO_STRING(CommandType, SetTransform);
+    ENUMERATOR_TO_STRING(CommandType, SetAmbientLight);
     ENUMERATOR_TO_STRING(CommandType, SetMaterial);
     ENUMERATOR_TO_STRING(CommandType, ExtDrawXModel);
     ENUMERATOR_TO_STRING(CommandType, ExtRenderDearImGui);
@@ -231,7 +232,6 @@ constexpr auto to_string(const PrimitiveType primitiveType) noexcept -> const
 
 constexpr auto to_string(const RenderStateType state) noexcept -> const char* {
   switch (state) {
-    ENUM_TO_STRING(RenderStateType::Ambient);
     ENUM_TO_STRING(RenderStateType::FillMode);
     ENUM_TO_STRING(RenderStateType::ShadeMode);
   }
@@ -378,6 +378,10 @@ void display(const CommandSetDirectionalLights& cmd) {
 
     ImGui::PopID();
   }
+}
+
+void display(const CommandSetAmbientLight& cmd) {
+  display_color4("color", cmd.ambientColor);
 }
 
 void display(const CommandSetTransform& cmd) {

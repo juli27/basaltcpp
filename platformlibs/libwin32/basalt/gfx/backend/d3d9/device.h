@@ -93,6 +93,7 @@ private:
   void execute(const CommandBindSampler&);
   void execute(const CommandBindTexture&);
   void execute(const CommandSetTransform&);
+  void execute(const CommandSetAmbientLight&);
   void execute(const CommandSetDirectionalLights&);
   void execute(const CommandSetMaterial&);
   void execute(const CommandSetTextureStageState&);

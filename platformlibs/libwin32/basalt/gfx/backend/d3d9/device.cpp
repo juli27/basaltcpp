@@ -233,8 +233,7 @@ struct D3D9RenderState {
 using gfx::to_d3d;
 
 auto to_d3d(const RenderState& rs) -> D3D9RenderState {
-  static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 3> TO_D3D {
-    {RenderStateType::Ambient, D3DRS_AMBIENT},
+  static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 2> TO_D3D {
     {RenderStateType::FillMode, D3DRS_FILLMODE},
     {RenderStateType::ShadeMode, D3DRS_SHADEMODE},
   };
@@ -340,7 +339,7 @@ auto map_vertex_buffer(IDirect3DVertexBuffer9& vertexBuffer,
 
   if (offset >= desc.Size || size + offset > desc.Size) {
     BASALT_LOG_ERROR(
-      "invalid map params: offset = {} size = {} (bufferSize = {}", offset,
+      "invalid map params: offset = {} size = {} (bufferSize = {})", offset,
       size, desc.Size);
 
     return {};
@@ -537,6 +536,8 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &identity));
   D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &identity));
 
+  D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
+
   PIX_END_EVENT();
 
   // overload resolution fails if one of the execute overloads is const
@@ -565,7 +566,6 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
                                          D3DTTFF_DISABLE));
-  D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
   D3D9CALL(mDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
   D3D9CALL(mDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD));
 
@@ -601,7 +601,7 @@ void D3D9Device::destroy_pipeline(const Pipeline handle) noexcept {
   mPipelines.deallocate(handle);
 }
 
-// throws std::bad_allow when requested size is too large and when d3d9
+// throws std::bad_alloc when requested size is too large and when d3d9
 // allocation fails
 auto D3D9Device::create_vertex_buffer(
   const VertexBufferDescriptor& desc,
@@ -836,6 +836,10 @@ void D3D9Device::execute(const CommandSetTransform& cmd) {
   const auto transform {to_d3d(cmd.transform)};
 
   D3D9CALL(mDevice->SetTransform(state, &transform));
+}
+
+void D3D9Device::execute(const CommandSetAmbientLight& cmd) {
+  D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, to_d3d(cmd.ambientColor)));
 }
 
 void D3D9Device::execute(const CommandSetDirectionalLights& cmd) {

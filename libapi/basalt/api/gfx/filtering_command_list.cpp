@@ -54,6 +54,12 @@ void FilteringCommandList::set_transform(const TransformState state,
   }
 }
 
+void FilteringCommandList::set_ambient_light(const Color& c) {
+  if (mDeviceState.update_ambient_light(c)) {
+    mCommandList.set_ambient_light(c);
+  }
+}
+
 void FilteringCommandList::set_directional_lights(
   const vector<DirectionalLight>& lights) {
   mCommandList.set_directional_lights(lights);
