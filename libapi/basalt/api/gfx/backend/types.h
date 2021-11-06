@@ -31,7 +31,7 @@ enum class CommandType : u8 {
   // fixed function only
   SetTransform,
   SetAmbientLight,
-  SetDirectionalLights,
+  SetLights,
   SetMaterial,
   SetTextureStageState,
 
@@ -187,7 +187,7 @@ struct CommandBindSampler;
 struct CommandBindTexture;
 struct CommandSetTransform;
 struct CommandSetAmbientLight;
-struct CommandSetDirectionalLights;
+struct CommandSetLights;
 struct CommandSetMaterial;
 struct CommandSetTextureStageState;
 

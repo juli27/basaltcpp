@@ -115,17 +115,16 @@ struct CommandSetAmbientLight final : CommandT<CommandType::SetAmbientLight> {
 
 static_assert(sizeof(CommandSetAmbientLight) == 20);
 
-struct CommandSetDirectionalLights final
-  : CommandT<CommandType::SetDirectionalLights> {
+struct CommandSetLights final : CommandT<CommandType::SetLights> {
   gsl::span<const DirectionalLight> lights;
 
-  constexpr explicit CommandSetDirectionalLights(
+  constexpr explicit CommandSetLights(
     const gsl::span<const DirectionalLight> dl) noexcept
     : lights {dl} {
   }
 };
 
-static_assert(sizeof(CommandSetDirectionalLights) == 24);
+static_assert(sizeof(CommandSetLights) == 24);
 
 struct CommandSetMaterial final : CommandT<CommandType::SetMaterial> {
   Color diffuse;

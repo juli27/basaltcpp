@@ -60,9 +60,9 @@ void FilteringCommandList::set_ambient_light(const Color& c) {
   }
 }
 
-void FilteringCommandList::set_directional_lights(
+void FilteringCommandList::set_lights(
   const span<const DirectionalLight> lights) {
-  mCommandList.set_directional_lights(lights);
+  mCommandList.set_lights(lights);
 }
 
 void FilteringCommandList::set_material(const Color& diffuse,

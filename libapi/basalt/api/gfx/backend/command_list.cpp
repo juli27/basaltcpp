@@ -72,12 +72,11 @@ void CommandList::set_ambient_light(const Color& c) {
   add<CommandSetAmbientLight>(c);
 }
 
-void CommandList::set_directional_lights(
-  const span<const DirectionalLight> lights) {
+void CommandList::set_lights(const span<const DirectionalLight> lights) {
   span lightsCopy {allocate<const DirectionalLight>(lights.size())};
   std::uninitialized_copy(lights.begin(), lights.end(), lightsCopy.begin());
 
-  add<CommandSetDirectionalLights>(lightsCopy);
+  add<CommandSetLights>(lightsCopy);
 }
 
 void CommandList::set_material(const Color& diffuse, const Color& ambient,

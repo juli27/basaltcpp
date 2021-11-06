@@ -4,7 +4,6 @@
 
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/types.h>
-
 #include <basalt/api/gfx/backend/ext/types.h>
 
 #include <basalt/api/scene/types.h>
@@ -27,7 +26,7 @@ struct FilteringCommandList final {
   void bind_texture(Texture);
   void set_transform(TransformState, const Mat4f32&);
   void set_ambient_light(const Color&);
-  void set_directional_lights(gsl::span<const DirectionalLight>);
+  void set_lights(gsl::span<const DirectionalLight>);
   void set_material(const Color& diffuse, const Color& ambient,
                     const Color& emissive);
 

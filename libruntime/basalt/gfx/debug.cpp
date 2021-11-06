@@ -160,7 +160,7 @@ constexpr auto enumerator_to_string(const CommandType type) noexcept -> const
     ENUMERATOR_TO_STRING(CommandType, BindTexture);
     ENUMERATOR_TO_STRING(CommandType, BindSampler);
     ENUMERATOR_TO_STRING(CommandType, SetTextureStageState);
-    ENUMERATOR_TO_STRING(CommandType, SetDirectionalLights);
+    ENUMERATOR_TO_STRING(CommandType, SetLights);
     ENUMERATOR_TO_STRING(CommandType, SetTransform);
     ENUMERATOR_TO_STRING(CommandType, SetAmbientLight);
     ENUMERATOR_TO_STRING(CommandType, SetMaterial);
@@ -367,7 +367,7 @@ void display(const CommandSetTextureStageState& cmd) {
   ImGui::Text("state = %s\nvalue = %#x", to_string(cmd.state), cmd.value);
 }
 
-void display(const CommandSetDirectionalLights& cmd) {
+void display(const CommandSetLights& cmd) {
   i32 i {0};
   for (const DirectionalLight& light : cmd.lights) {
     ImGui::PushID(i++);

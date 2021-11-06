@@ -842,7 +842,7 @@ void D3D9Device::execute(const CommandSetAmbientLight& cmd) {
   D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, to_d3d(cmd.ambientColor)));
 }
 
-void D3D9Device::execute(const CommandSetDirectionalLights& cmd) {
+void D3D9Device::execute(const CommandSetLights& cmd) {
   const auto& directionalLights {cmd.lights};
   BASALT_ASSERT(directionalLights.size() <= mD3D9Caps.MaxActiveLights,
                 "the renderer doesn't support that many lights");

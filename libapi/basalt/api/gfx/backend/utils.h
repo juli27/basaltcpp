@@ -40,7 +40,7 @@ void visit(const Command& cmd, Visitor&& visitor) {
     VISIT(CommandBindTexture);
     VISIT(CommandSetTransform);
     VISIT(CommandSetAmbientLight);
-    VISIT(CommandSetDirectionalLights);
+    VISIT(CommandSetLights);
     VISIT(CommandSetMaterial);
     VISIT(CommandSetTextureStageState);
   default:

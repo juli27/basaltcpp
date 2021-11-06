@@ -164,7 +164,7 @@ struct Lights::MyDrawable final : Drawable {
       Color {},
     };
 
-    cmdList.set_directional_lights(span {&light, 1});
+    cmdList.set_lights(span {&light, 1});
 
     cmdList.set_ambient_light(Color::from_rgba(0x20, 0x20, 0x20, 0));
 
