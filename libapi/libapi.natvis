@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="basalt::vec&lt;*,*,*&gt;">
+    <DisplayString>{elements}</DisplayString>
+    <Expand>
+      <ExpandedItem>elements</ExpandedItem>
+    </Expand>
+  </Type>
+
+  <Type Name="basalt::EnumSet&lt;*,*&gt;">
+    <DisplayString>{mBits}</DisplayString>
+    <Expand>
+      <CustomListItems>
+        <Variable Name="i" InitialValue="0"/>
+        <Size>NUM_BITS</Size>
+
+        <Loop>
+          <Item Name="[{($T1)i,en}]">(bool)mBits[i]</Item>
+          <Exec>++i</Exec>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+
+  <Type Name="basalt::EnumArray&lt;*,*,*&gt;">
+    <DisplayString>{mStorage}</DisplayString>
+    <Expand>
+      <CustomListItems>
+        <Variable Name="i" InitialValue="0"/>
+        <Size>$T3</Size>
+
+        <Loop>
+          <Item Name="[{($T1)i,en}]">mStorage[i]</Item>
+          <Exec>++i</Exec>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+
+  <Type Name="basalt::Vector3f32">
+    <Intrinsic Name="x" Expression="elements[0]"/> 
+    <Intrinsic Name="y" Expression="elements[1]"/> 
+    <Intrinsic Name="z" Expression="elements[2]"/> 
+    <DisplayString>{{ x={x(),g} y={y(),g} z={z(),g} }}</DisplayString>
+    <Expand>
+      <Item Name="x">x(),g</Item>
+      <Item Name="y">y(),g</Item>
+      <Item Name="z">z(),g</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="basalt::Mat4">
+    <DisplayString>4x4</DisplayString>
+    <!--TODO: Expand-->
+  </Type>
+
+  <Type Name="basalt::Size2D&lt;*&gt;">
+    <DisplayString>{{ width = {elements[0]} height = {elements[1]} }}</DisplayString>
+  </Type>
+
+  <Type Name="basalt::detail::HandleBase">
+    <Intrinsic Name="is_null" Expression="mValue == NULL_VALUE" />
+    <DisplayString Condition="!is_null()">{mValue,x}</DisplayString>
+    <DisplayString Condition="is_null()">null</DisplayString>
+  </Type>
+</AutoVisualizer>

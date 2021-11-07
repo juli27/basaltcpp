@@ -41,3 +41,5 @@ get_target_property(TARGET_SOURCES ${CURRENT_TARGET} SOURCES)
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/basalt/api"
   FILES ${TARGET_SOURCES}
 )
+
+target_sources(${CURRENT_TARGET} PRIVATE "libapi.natvis")
