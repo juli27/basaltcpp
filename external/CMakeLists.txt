@@ -10,7 +10,7 @@ FetchContent_Declare(EnTT
 )
 FetchContent_Declare(GSL
   GIT_REPOSITORY https://github.com/microsoft/GSL.git
-  GIT_TAG        0f6dbc9e2915ef5c16830f3fa3565738de2a9230 # v3.1.0
+  GIT_TAG        c31a9ad5e8e99da8567237a7ba51a7d8f419e5bf
 )
 
 add_subdirectory("DearImGui")
