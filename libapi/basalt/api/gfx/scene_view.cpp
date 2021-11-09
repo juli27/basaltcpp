@@ -68,7 +68,9 @@ auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport,
 
   const auto& directionalLights {mScene->directional_lights()};
   if (!directionalLights.empty()) {
-    cmdList.set_lights(directionalLights);
+    const std::vector<Light> lights {directionalLights.begin(),
+                                     directionalLights.end()};
+    cmdList.set_lights(lights);
   }
 
   const auto& ecs {mScene->ecs()};

@@ -367,15 +367,35 @@ void display(const CommandSetTextureStageState& cmd) {
   ImGui::Text("state = %s\nvalue = %#x", to_string(cmd.state), cmd.value);
 }
 
+void display(const PointLight& light) {
+  display_vec3("position", light.positionInWorld);
+  display_color4("diffuseColor", light.diffuseColor);
+  display_color4("ambientColor", light.ambientColor);
+
+  float f {light.rangeInWorld};
+  ImGui::InputFloat("range", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+  f = light.attenuation0;
+  ImGui::InputFloat("attenuation0", &f, 0, 0, "%.3f",
+                    ImGuiInputTextFlags_ReadOnly);
+  f = light.attenuation1;
+  ImGui::InputFloat("attenuation1", &f, 0, 0, "%.3f",
+                    ImGuiInputTextFlags_ReadOnly);
+  f = light.attenuation2;
+  ImGui::InputFloat("attenuation2", &f, 0, 0, "%.3f",
+                    ImGuiInputTextFlags_ReadOnly);
+}
+
+void display(const DirectionalLight& light) {
+  display_vec3("direction", light.direction);
+  display_color4("diffuseColor", light.diffuseColor);
+  display_color4("ambientColor", light.ambientColor);
+}
+
 void display(const CommandSetLights& cmd) {
   i32 i {0};
-  for (const DirectionalLight& light : cmd.lights) {
+  for (const Light& l : cmd.lights) {
     ImGui::PushID(i++);
-
-    display_vec3("direction", light.direction);
-    display_color4("diffuseColor", light.diffuseColor);
-    display_color4("ambientColor", light.ambientColor);
-
+    visit([](auto&& light) { display(light); }, l);
     ImGui::PopID();
   }
 }

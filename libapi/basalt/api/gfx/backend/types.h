@@ -1,7 +1,12 @@
 #pragma once
 
+#include <basalt/api/scene/types.h>
+
 #include <basalt/api/shared/asserts.h>
+#include <basalt/api/shared/color.h>
 #include <basalt/api/shared/handle.h>
+
+#include <basalt/api/math/vector3.h>
 
 #include <basalt/api/base/enum_set.h>
 #include <basalt/api/base/types.h>
@@ -252,5 +257,17 @@ struct VertexBufferDescriptor final {
   uDeviceSize sizeInBytes {};
   VertexLayout layout {};
 };
+
+struct PointLight final {
+  Color diffuseColor {};
+  Color ambientColor {};
+  Vector3f32 positionInWorld {};
+  f32 rangeInWorld {};
+  f32 attenuation0 {};
+  f32 attenuation1 {};
+  f32 attenuation2 {};
+};
+
+using Light = std::variant<PointLight, DirectionalLight>;
 
 } // namespace basalt::gfx

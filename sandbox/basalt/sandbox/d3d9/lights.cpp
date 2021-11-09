@@ -42,6 +42,7 @@ using basalt::gfx::Camera;
 using basalt::gfx::CommandList;
 using basalt::gfx::DepthTestPass;
 using basalt::gfx::Drawable;
+using basalt::gfx::Light;
 using basalt::gfx::Pipeline;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
@@ -157,12 +158,12 @@ struct Lights::MyDrawable final : Drawable {
 
     cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
 
-    const DirectionalLight light {
+    const Light light {DirectionalLight {
       Vector3f32::normalize(
         Vector3f32 {std::cos(mLightAngle), 1.0f, std::sin(mLightAngle)}),
       Color {1.0f, 1.0f, 1.0f, 0.0f},
       Color {},
-    };
+    }};
 
     cmdList.set_lights(span {&light, 1});
 

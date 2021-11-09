@@ -282,6 +282,30 @@ auto to_d3d(const TextureAddressMode mode) -> D3DTEXTUREADDRESS {
   return TO_D3D[mode];
 }
 
+auto to_d3d(const PointLight& light) -> D3DLIGHT9 {
+  D3DLIGHT9 d3dLight {};
+  d3dLight.Type = D3DLIGHT_POINT;
+  d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
+  d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
+  d3dLight.Position = to_d3d_vector(light.positionInWorld);
+  d3dLight.Range = light.rangeInWorld;
+  d3dLight.Attenuation0 = light.attenuation0;
+  d3dLight.Attenuation1 = light.attenuation1;
+  d3dLight.Attenuation2 = light.attenuation2;
+
+  return d3dLight;
+}
+
+auto to_d3d(const DirectionalLight& light) -> D3DLIGHT9 {
+  D3DLIGHT9 d3dLight {};
+  d3dLight.Type = D3DLIGHT_DIRECTIONAL;
+  d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
+  d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
+  d3dLight.Direction = to_d3d_vector(light.direction);
+
+  return d3dLight;
+}
+
 struct D3D9TextureStageState {
   D3DTEXTURESTAGESTATETYPE state;
   DWORD value;
@@ -843,20 +867,15 @@ void D3D9Device::execute(const CommandSetAmbientLight& cmd) {
 }
 
 void D3D9Device::execute(const CommandSetLights& cmd) {
-  const auto& directionalLights {cmd.lights};
-  BASALT_ASSERT(directionalLights.size() <= mD3D9Caps.MaxActiveLights,
+  const auto& lights {cmd.lights};
+  BASALT_ASSERT(lights.size() <= mD3D9Caps.MaxActiveLights,
                 "the renderer doesn't support that many lights");
 
-  mMaxLightsUsed =
-    std::max(mMaxLightsUsed, static_cast<u8>(directionalLights.size()));
+  mMaxLightsUsed = std::max(mMaxLightsUsed, static_cast<u8>(lights.size()));
 
-  DWORD lightIndex = 0u;
-  for (const auto& light : directionalLights) {
-    D3DLIGHT9 d3dLight {};
-    d3dLight.Type = D3DLIGHT_DIRECTIONAL;
-    d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
-    d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
-    d3dLight.Direction = to_d3d_vector(light.direction);
+  DWORD lightIndex {0ul};
+  for (const auto& l : lights) {
+    D3DLIGHT9 d3dLight {visit([](auto&& light) { return to_d3d(light); }, l)};
 
     D3D9CALL(mDevice->SetLight(lightIndex, &d3dLight));
     D3D9CALL(mDevice->LightEnable(lightIndex, TRUE));
