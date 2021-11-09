@@ -385,6 +385,31 @@ void display(const PointLight& light) {
                     ImGuiInputTextFlags_ReadOnly);
 }
 
+void display(const SpotLight& light) {
+  display_vec3("position", light.positionInWorld);
+  display_vec3("direction", light.directionInWorld);
+  display_color4("diffuseColor", light.diffuseColor);
+  display_color4("ambientColor", light.ambientColor);
+
+  float f {light.rangeInWorld};
+  ImGui::InputFloat("range", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+  f = light.attenuation0;
+  ImGui::InputFloat("attenuation0", &f, 0, 0, "%.3f",
+                    ImGuiInputTextFlags_ReadOnly);
+  f = light.attenuation1;
+  ImGui::InputFloat("attenuation1", &f, 0, 0, "%.3f",
+                    ImGuiInputTextFlags_ReadOnly);
+  f = light.attenuation2;
+  ImGui::InputFloat("attenuation2", &f, 0, 0, "%.3f",
+                    ImGuiInputTextFlags_ReadOnly);
+  f = light.falloff;
+  ImGui::InputFloat("falloff", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+  f = light.phi;
+  ImGui::InputFloat("phi", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+  f = light.theta;
+  ImGui::InputFloat("theta", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+}
+
 void display(const DirectionalLight& light) {
   display_vec3("direction", light.direction);
   display_color4("diffuseColor", light.diffuseColor);

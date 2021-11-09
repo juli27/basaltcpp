@@ -268,6 +268,20 @@ struct PointLight final {
   f32 attenuation2 {};
 };
 
-using Light = std::variant<PointLight, DirectionalLight>;
+struct SpotLight final {
+  Color diffuseColor {};
+  Color ambientColor {};
+  Vector3f32 positionInWorld {};
+  Vector3f32 directionInWorld {};
+  f32 rangeInWorld {};
+  f32 attenuation0 {};
+  f32 attenuation1 {};
+  f32 attenuation2 {};
+  f32 falloff {};
+  f32 phi {};
+  f32 theta {};
+};
+
+using Light = std::variant<PointLight, SpotLight, DirectionalLight>;
 
 } // namespace basalt::gfx

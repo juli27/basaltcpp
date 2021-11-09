@@ -296,6 +296,24 @@ auto to_d3d(const PointLight& light) -> D3DLIGHT9 {
   return d3dLight;
 }
 
+auto to_d3d(const SpotLight& light) -> D3DLIGHT9 {
+  D3DLIGHT9 d3dLight {};
+  d3dLight.Type = D3DLIGHT_SPOT;
+  d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
+  d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
+  d3dLight.Position = to_d3d_vector(light.positionInWorld);
+  d3dLight.Direction = to_d3d_vector(light.directionInWorld);
+  d3dLight.Range = light.rangeInWorld;
+  d3dLight.Falloff = light.falloff;
+  d3dLight.Attenuation0 = light.attenuation0;
+  d3dLight.Attenuation1 = light.attenuation1;
+  d3dLight.Attenuation2 = light.attenuation2;
+  d3dLight.Theta = light.theta;
+  d3dLight.Phi = light.phi;
+
+  return d3dLight;
+}
+
 auto to_d3d(const DirectionalLight& light) -> D3DLIGHT9 {
   D3DLIGHT9 d3dLight {};
   d3dLight.Type = D3DLIGHT_DIRECTIONAL;
