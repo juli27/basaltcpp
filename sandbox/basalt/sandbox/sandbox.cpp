@@ -52,22 +52,51 @@ void SandboxApp::on_update(Engine&) {
 }
 
 SandboxView::SandboxView(Engine& engine) {
-  mScenes.reserve(10u);
-  mScenes.emplace_back(std::make_shared<d3d9::Device>());
-  mScenes.emplace_back(std::make_shared<d3d9::Vertices>(engine));
-  mScenes.emplace_back(std::make_shared<d3d9::Matrices>(engine));
-  mScenes.emplace_back(std::make_shared<d3d9::Lights>(engine));
-  mScenes.emplace_back(std::make_shared<d3d9::Textures>(engine));
-  mScenes.emplace_back(std::make_shared<d3d9::TexturesTci>(engine));
-  mScenes.emplace_back(std::make_shared<d3d9::Meshes>(engine));
+  mExamples.reserve(10u);
+  mExamples.emplace_back(Example {
+    std::make_shared<d3d9::Device>(),
+    "Tutorial 1: Creating a Device"s,
+  });
+  mExamples.emplace_back(Example {
+    std::make_shared<d3d9::Vertices>(engine),
+    "Tutorial 2: Rendering Vertices"s,
+  });
+  mExamples.emplace_back(Example {
+    std::make_shared<d3d9::Matrices>(engine),
+    "Tutorial 3: Using Matrices"s,
+  });
+  mExamples.emplace_back(Example {
+    std::make_shared<d3d9::Lights>(engine),
+    "Tutorial 4: Creating and Using Lights"s,
+  });
+  mExamples.emplace_back(Example {
+    std::make_shared<d3d9::Textures>(engine),
+    "Tutorial 5: Using Texture Maps"s,
+  });
+  mExamples.emplace_back(Example {
+    std::make_shared<d3d9::TexturesTci>(engine),
+    "Tutorial 5: Using Texture Maps (TCI)"s,
+  });
+  mExamples.emplace_back(Example {
+    std::make_shared<d3d9::Meshes>(engine),
+    "Tutorial 6: Using Meshes"s,
+  });
+  mExamples.emplace_back(Example {
+    std::make_shared<tribase::Dreieck>(engine),
+    "Bsp. 02-03: Das erste Dreieck"s,
+  });
+  mExamples.emplace_back(Example {
+    std::make_shared<tribase::Textures>(engine),
+    "Bsp. 02-03: Texturen"s,
+  });
+  mExamples.emplace_back(Example {
+    std::make_shared<samples::Textures>(engine),
+    "Textures"s,
+  });
 
-  mScenes.emplace_back(std::make_shared<tribase::Dreieck>(engine));
-  mScenes.emplace_back(std::make_shared<tribase::Textures>(engine));
-
-  mScenes.emplace_back(std::make_shared<samples::Textures>(engine));
-
-  engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
-  engine.add_view_bottom(mScenes[mCurrentSceneIndex]);
+  engine.set_window_surface_content(
+    mExamples[mCurrentExampleIndex].view->drawable());
+  engine.add_view_bottom(mExamples[mCurrentExampleIndex].view);
 }
 
 void SandboxView::tick(Engine& engine) {
@@ -95,9 +124,9 @@ void SandboxView::tick(Engine& engine) {
 
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("File")) {
-      for (uSize i = 0; i < mScenes.size(); i++) {
-        const bool isCurrent = mCurrentSceneIndex == i;
-        if (ImGui::MenuItem(mScenes[i]->name().data(), nullptr, isCurrent,
+      for (uSize i {0}; i < mExamples.size(); i++) {
+        const bool isCurrent {mCurrentExampleIndex == i};
+        if (ImGui::MenuItem(mExamples[i].name.data(), nullptr, isCurrent,
                             !isCurrent)) {
           set_scene(i, engine);
         }
@@ -189,37 +218,40 @@ auto SandboxView::do_handle_input(const InputEvent& event)
 }
 
 void SandboxView::next_scene(Engine& engine) noexcept {
-  engine.remove_view(mScenes[mCurrentSceneIndex]);
+  engine.remove_view(mExamples[mCurrentExampleIndex].view);
 
-  mCurrentSceneIndex++;
-  if (mCurrentSceneIndex >= mScenes.size()) {
-    mCurrentSceneIndex = 0;
+  mCurrentExampleIndex++;
+  if (mCurrentExampleIndex >= mExamples.size()) {
+    mCurrentExampleIndex = 0;
   }
 
-  engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
-  engine.add_view_bottom(mScenes[mCurrentSceneIndex]);
+  engine.set_window_surface_content(
+    mExamples[mCurrentExampleIndex].view->drawable());
+  engine.add_view_bottom(mExamples[mCurrentExampleIndex].view);
 }
 
 void SandboxView::prev_scene(Engine& engine) noexcept {
-  engine.remove_view(mScenes[mCurrentSceneIndex]);
+  engine.remove_view(mExamples[mCurrentExampleIndex].view);
 
-  if (mCurrentSceneIndex == 0) {
-    mCurrentSceneIndex = mScenes.size() - 1;
+  if (mCurrentExampleIndex == 0) {
+    mCurrentExampleIndex = mExamples.size() - 1;
   } else {
-    mCurrentSceneIndex--;
+    mCurrentExampleIndex--;
   }
 
-  engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
-  engine.add_view_bottom(mScenes[mCurrentSceneIndex]);
+  engine.set_window_surface_content(
+    mExamples[mCurrentExampleIndex].view->drawable());
+  engine.add_view_bottom(mExamples[mCurrentExampleIndex].view);
 }
 
 void SandboxView::set_scene(uSize index, Engine& engine) noexcept {
-  BASALT_ASSERT(index < mScenes.size());
+  BASALT_ASSERT(index < mExamples.size());
 
-  engine.remove_view(mScenes[mCurrentSceneIndex]);
+  engine.remove_view(mExamples[mCurrentExampleIndex].view);
 
-  mCurrentSceneIndex = index;
+  mCurrentExampleIndex = index;
 
-  engine.set_window_surface_content(mScenes[mCurrentSceneIndex]->drawable());
-  engine.add_view_bottom(mScenes[mCurrentSceneIndex]);
+  engine.set_window_surface_content(
+    mExamples[mCurrentExampleIndex].view->drawable());
+  engine.add_view_bottom(mExamples[mCurrentExampleIndex].view);
 }

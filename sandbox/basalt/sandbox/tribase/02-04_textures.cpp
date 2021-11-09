@@ -169,10 +169,6 @@ Textures::Textures(Engine& engine)
   }
 }
 
-auto Textures::name() -> std::string_view {
-  return "Bsp. 02-03: Texturen"sv;
-}
-
 auto Textures::drawable() -> basalt::gfx::DrawablePtr {
   return mSceneView;
 }

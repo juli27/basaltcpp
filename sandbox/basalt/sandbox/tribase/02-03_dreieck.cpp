@@ -23,8 +23,6 @@
 
 using namespace std::literals;
 
-using std::string_view;
-
 using basalt::Debug;
 using basalt::Engine;
 using basalt::PI;
@@ -123,10 +121,6 @@ Dreieck::Dreieck(Engine& engine)
   mQuadMesh = gfxResourceCache.create_mesh(meshDesc);
 
   mEntity.emplace<RenderComponent>(mTriangleMesh, mSolidMaterial);
-}
-
-auto Dreieck::name() -> string_view {
-  return "Bsp. 02-03: Das erste Dreieck"sv;
 }
 
 auto Dreieck::drawable() -> DrawablePtr {

@@ -24,8 +24,6 @@
 
 using std::array;
 using std::byte;
-using std::string_view;
-using namespace std::literals;
 
 using gsl::span;
 
@@ -139,10 +137,6 @@ private:
 
 Matrices::Matrices(Engine& engine)
   : mDrawable {std::make_shared<MyDrawable>(engine)} {
-}
-
-auto Matrices::name() -> string_view {
-  return "Tutorial 3: Using Matrices"sv;
 }
 
 auto Matrices::drawable() -> basalt::gfx::DrawablePtr {

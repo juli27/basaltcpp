@@ -19,7 +19,6 @@
 #include <cmath>
 
 using std::array;
-using std::string_view;
 using namespace std::literals;
 
 using namespace entt::literals;
@@ -105,10 +104,6 @@ TexturesTci::TexturesTci(Engine& engine) {
   rc.texTransform = camera.projection_matrix(engine.window_surface_size()) *
                     Mat4f32::scaling(Vector3f32 {0.5f, -0.5f, 1.0f}) *
                     Mat4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f});
-}
-
-auto TexturesTci::name() -> string_view {
-  return "Tutorial 5: Using Texture Maps (TCI)"sv;
 }
 
 auto TexturesTci::drawable() -> basalt::gfx::DrawablePtr {

@@ -11,7 +11,6 @@ namespace tribase {
 struct Textures final : TestCase {
   explicit Textures(basalt::Engine&);
 
-  [[nodiscard]] auto name() -> std::string_view override;
   [[nodiscard]] auto drawable() -> basalt::gfx::DrawablePtr override;
 
   void tick(basalt::Engine&) override;

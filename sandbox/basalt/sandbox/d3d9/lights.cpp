@@ -24,8 +24,6 @@
 
 using std::array;
 using std::byte;
-using std::string_view;
-using namespace std::literals;
 
 using gsl::span;
 
@@ -191,10 +189,6 @@ private:
 
 Lights::Lights(Engine& engine)
   : mDrawable {std::make_shared<MyDrawable>(engine)} {
-}
-
-auto Lights::name() -> string_view {
-  return "Tutorial 4: Creating and Using Lights"sv;
 }
 
 auto Lights::drawable() -> basalt::gfx::DrawablePtr {

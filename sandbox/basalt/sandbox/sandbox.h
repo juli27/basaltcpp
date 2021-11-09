@@ -6,6 +6,7 @@
 #include <basalt/api/base/types.h>
 
 #include <memory>
+#include <string>
 #include <vector>
 
 struct SandboxView;
@@ -30,8 +31,13 @@ protected:
     -> basalt::InputEventHandled override;
 
 private:
-  std::vector<std::shared_ptr<TestCase>> mScenes;
-  basalt::uSize mCurrentSceneIndex {9};
+  struct Example final {
+    std::shared_ptr<TestCase> view;
+    std::string name;
+  };
+
+  std::vector<Example> mExamples;
+  basalt::uSize mCurrentExampleIndex {9};
 
   void next_scene(basalt::Engine&) noexcept;
   void prev_scene(basalt::Engine&) noexcept;

@@ -17,8 +17,6 @@
 #include <utility>
 
 using std::array;
-using std::string_view;
-using namespace std::literals;
 
 using basalt::Engine;
 using basalt::RectangleU16;
@@ -113,10 +111,6 @@ private:
 
 Vertices::Vertices(Engine& engine)
   : mDrawable {std::make_shared<MyDrawable>(engine)} {
-}
-
-auto Vertices::name() -> string_view {
-  return "Tutorial 2: Rendering Vertices"sv;
 }
 
 auto Vertices::drawable() -> basalt::gfx::DrawablePtr {

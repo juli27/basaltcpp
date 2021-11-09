@@ -12,9 +12,6 @@
 #include <memory>
 #include <utility>
 
-using namespace std::literals;
-
-using std::string_view;
 using std::tuple;
 
 using basalt::Engine;
@@ -45,10 +42,6 @@ struct MyDrawable final : Drawable {
 } // namespace
 
 Device::Device() : mDrawable {std::make_shared<MyDrawable>()} {
-}
-
-auto Device::name() -> string_view {
-  return "Tutorial 1: Creating a Device"sv;
 }
 
 auto Device::drawable() -> DrawablePtr {

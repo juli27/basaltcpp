@@ -7,7 +7,6 @@ namespace d3d9 {
 struct Vertices final : TestCase {
   explicit Vertices(basalt::Engine&);
 
-  auto name() -> std::string_view override;
   auto drawable() -> basalt::gfx::DrawablePtr override;
 
   void tick(basalt::Engine&) override;

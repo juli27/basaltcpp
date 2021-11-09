@@ -10,7 +10,6 @@
 
 #include <basalt/api/shared/config.h>
 
-using std::string_view;
 using namespace std::literals;
 
 using namespace entt::literals;
@@ -27,10 +26,6 @@ Meshes::Meshes(Engine& engine) {
   mScene->set_ambient_light(Colors::WHITE);
 
   mTiger.emplace<XModel>(engine.get_or_load<XModel>("data/Tiger.x"_hs));
-}
-
-auto Meshes::name() -> string_view {
-  return "Tutorial 6: Using Meshes"sv;
 }
 
 auto Meshes::drawable() -> basalt::gfx::DrawablePtr {

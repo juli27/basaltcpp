@@ -16,7 +16,6 @@
 #include <cmath>
 
 using std::array;
-using std::string_view;
 using namespace std::literals;
 
 using namespace entt::literals;
@@ -94,10 +93,6 @@ Textures::Textures(Engine& engine)
     engine.get_or_load<Texture>("data/banana.bmp"_hs);
 
   rc.material = engine.gfx_resource_cache().create_material(material);
-}
-
-auto Textures::name() -> string_view {
-  return "Tutorial 5: Using Texture Maps"sv;
 }
 
 auto Textures::drawable() -> basalt::gfx::DrawablePtr {

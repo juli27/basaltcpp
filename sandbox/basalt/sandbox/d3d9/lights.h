@@ -9,7 +9,6 @@ namespace d3d9 {
 struct Lights final : TestCase {
   explicit Lights(basalt::Engine&);
 
-  auto name() -> std::string_view override;
   auto drawable() -> basalt::gfx::DrawablePtr override;
 
   void tick(basalt::Engine&) override;

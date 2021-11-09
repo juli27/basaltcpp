@@ -116,10 +116,6 @@ Textures::Textures(Engine& engine)
   rc.material = std::get<0>(mMaterials);
 }
 
-auto Textures::name() -> std::string_view {
-  return "Textures"sv;
-}
-
 auto Textures::drawable() -> DrawablePtr {
   return mSceneView;
 }
