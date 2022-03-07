@@ -24,6 +24,8 @@ struct D3D9Device final : Device {
   void execute(const CommandList&);
   void end_execution() const;
 
+  [[nodiscard]] auto capabilities() const -> const DeviceCaps& override;
+
   [[nodiscard]] auto create_pipeline(const PipelineDescriptor&)
     -> Pipeline override;
 
@@ -80,7 +82,6 @@ private:
   HandlePool<SamplerData, Sampler> mSamplers;
 
   DeviceCaps mCaps {};
-  D3DCAPS9 mD3D9Caps {};
   D3DPRIMITIVETYPE mCurrentPrimitiveType {D3DPT_POINTLIST};
   u8 mMaxLightsUsed {};
 

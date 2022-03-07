@@ -228,11 +228,6 @@ struct D3D9RenderState {
   DWORD value;
 };
 
-// the RenderState visitor below doesn't find the Color overload without this
-// with the MSVC compiler.
-// TODO: is it a compiler bug?
-using gfx::to_d3d;
-
 auto to_d3d(const RenderState& rs) -> D3D9RenderState {
   static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 2> TO_D3D {
     {RenderStateType::FillMode, D3DRS_FILLMODE},
@@ -536,9 +531,12 @@ D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
   mExtensions[ext::ExtensionId::XModelSupport] =
     std::make_shared<D3D9XModelSupport>(mDevice);
 
-  D3D9CALL(mDevice->GetDeviceCaps(&mD3D9Caps));
+  D3DCAPS9 d3d9Caps {};
+  D3D9CALL(mDevice->GetDeviceCaps(&d3d9Caps));
 
   mCaps.maxVertexBufferSizeInBytes = std::numeric_limits<UINT>::max();
+  mCaps.maxLights = d3d9Caps.MaxActiveLights;
+  mCaps.maxTextureAnisotropy = d3d9Caps.MaxAnisotropy;
 }
 
 auto D3D9Device::device() const -> ComPtr<IDirect3DDevice9> {
@@ -555,6 +553,7 @@ void D3D9Device::reset(D3DPRESENT_PARAMETERS& pp) const {
 }
 
 void D3D9Device::begin_execution() const {
+  // TODO: should this be a fatal error when failing?
   D3D9CALL(mDevice->BeginScene());
 }
 
@@ -625,6 +624,10 @@ void D3D9Device::execute(const CommandList& cmdList) {
 
 void D3D9Device::end_execution() const {
   D3D9CALL(mDevice->EndScene());
+}
+
+auto D3D9Device::capabilities() const -> const DeviceCaps& {
+  return mCaps;
 }
 
 auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
@@ -857,14 +860,14 @@ void D3D9Device::execute(const CommandBindSampler& cmd) {
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, data.filter));
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, data.mipFilter));
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY,
-                                    mD3D9Caps.MaxAnisotropy));
+                                    mCaps.maxTextureAnisotropy));
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, data.addressModeU));
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, data.addressModeV));
   D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, data.addressModeW));
 }
 
 void D3D9Device::execute(const CommandBindTexture& cmd) {
-  const auto& texture = mTextures[cmd.texture];
+  const D3D9TexturePtr& texture {mTextures[cmd.texture]};
   D3D9CALL(mDevice->SetTexture(0, texture.Get()));
 }
 
@@ -885,7 +888,7 @@ void D3D9Device::execute(const CommandSetAmbientLight& cmd) {
 
 void D3D9Device::execute(const CommandSetLights& cmd) {
   const auto& lights {cmd.lights};
-  BASALT_ASSERT(lights.size() <= mD3D9Caps.MaxActiveLights,
+  BASALT_ASSERT(lights.size() <= mCaps.maxLights,
                 "the renderer doesn't support that many lights");
 
   mMaxLightsUsed = std::max(mMaxLightsUsed, static_cast<u8>(lights.size()));

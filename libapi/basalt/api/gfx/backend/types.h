@@ -235,6 +235,8 @@ using uDeviceSize = u64;
 
 struct DeviceCaps final {
   uDeviceSize maxVertexBufferSizeInBytes {};
+  u32 maxLights {1};
+  u32 maxTextureAnisotropy {1};
 };
 
 struct PipelineDescriptor final {

@@ -20,6 +20,8 @@ struct Device {
   auto operator=(const Device&) -> Device& = delete;
   auto operator=(Device&&) -> Device& = delete;
 
+  [[nodiscard]] virtual auto capabilities() const -> const DeviceCaps& = 0;
+
   [[nodiscard]] virtual auto create_pipeline(const PipelineDescriptor&)
     -> Pipeline = 0;
 
