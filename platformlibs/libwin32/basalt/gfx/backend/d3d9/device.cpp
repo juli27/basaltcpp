@@ -37,6 +37,7 @@ using std::array;
 using std::bad_alloc;
 using std::optional;
 using std::string_view;
+using std::vector;
 using std::filesystem::path;
 
 using Microsoft::WRL::ComPtr;
@@ -59,7 +60,7 @@ constexpr auto to_d3d(const Mat4f32& mat) noexcept -> D3DMATRIX {
   // clang-format on
 }
 
-constexpr auto to_d3d_vector(const Vector3f32& vec) noexcept -> D3DVECTOR {
+constexpr auto to_d3d(const Vector3f32& vec) noexcept -> D3DVECTOR {
   return D3DVECTOR {vec.x(), vec.y(), vec.z()};
 }
 
@@ -287,7 +288,7 @@ auto to_d3d(const PointLight& light) -> D3DLIGHT9 {
   d3dLight.Type = D3DLIGHT_POINT;
   d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
   d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
-  d3dLight.Position = to_d3d_vector(light.positionInWorld);
+  d3dLight.Position = to_d3d(light.positionInWorld);
   d3dLight.Range = light.rangeInWorld;
   d3dLight.Attenuation0 = light.attenuation0;
   d3dLight.Attenuation1 = light.attenuation1;
@@ -301,8 +302,8 @@ auto to_d3d(const SpotLight& light) -> D3DLIGHT9 {
   d3dLight.Type = D3DLIGHT_SPOT;
   d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
   d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
-  d3dLight.Position = to_d3d_vector(light.positionInWorld);
-  d3dLight.Direction = to_d3d_vector(light.directionInWorld);
+  d3dLight.Position = to_d3d(light.positionInWorld);
+  d3dLight.Direction = to_d3d(light.directionInWorld);
   d3dLight.Range = light.rangeInWorld;
   d3dLight.Falloff = light.falloff;
   d3dLight.Attenuation0 = light.attenuation0;
@@ -319,7 +320,7 @@ auto to_d3d(const DirectionalLight& light) -> D3DLIGHT9 {
   d3dLight.Type = D3DLIGHT_DIRECTIONAL;
   d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
   d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
-  d3dLight.Direction = to_d3d_vector(light.direction);
+  d3dLight.Direction = to_d3d(light.direction);
 
   return d3dLight;
 }
@@ -514,8 +515,8 @@ private:
   using TexturePtr = ComPtr<IDirect3DTexture9>;
 
   struct Model {
-    std::vector<D3DMATERIAL9> materials;
-    std::vector<TexturePtr> textures;
+    vector<D3DMATERIAL9> materials;
+    vector<TexturePtr> textures;
     ComPtr<ID3DXMesh> mesh;
   };
 
@@ -639,7 +640,7 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
   }));
 }
 
-void D3D9Device::destroy_pipeline(const Pipeline handle) noexcept {
+void D3D9Device::destroy(const Pipeline handle) noexcept {
   mPipelines.deallocate(handle);
 }
 
@@ -669,7 +670,7 @@ auto D3D9Device::create_vertex_buffer(
 
   const UINT size {std::max(minSize, static_cast<UINT>(desc.sizeInBytes))};
 
-  D3D9VertexBuffer vertexBuffer {};
+  D3D9VertexBufferPtr vertexBuffer {};
   if (FAILED(mDevice->CreateVertexBuffer(size, 0ul, fvf, D3DPOOL_MANAGED,
                                          &vertexBuffer, nullptr))) {
     BASALT_LOG_ERROR("failed to allocate vertex buffer");
@@ -694,33 +695,31 @@ auto D3D9Device::create_vertex_buffer(
   return std::get<0>(mVertexBuffers.allocate(std::move(vertexBuffer)));
 }
 
-void D3D9Device::destroy_vertex_buffer(const VertexBuffer handle) noexcept {
+void D3D9Device::destroy(const VertexBuffer handle) noexcept {
   mVertexBuffers.deallocate(handle);
 }
 
-auto D3D9Device::map_vertex_buffer(const VertexBuffer handle,
-                                   const uDeviceSize offset,
-                                   const uDeviceSize size)
-  -> gsl::span<std::byte> {
+auto D3D9Device::map(const VertexBuffer handle, const uDeviceSize offset,
+                     const uDeviceSize size) -> gsl::span<std::byte> {
   BASALT_ASSERT(mVertexBuffers.is_handle_valid(handle));
 
   if (!mVertexBuffers.is_handle_valid(handle)) {
     return {};
   }
 
-  const D3D9VertexBuffer& vertexBuffer {mVertexBuffers[handle]};
+  const D3D9VertexBufferPtr& vertexBuffer {mVertexBuffers[handle]};
 
   return gfx::map_vertex_buffer(*vertexBuffer.Get(), offset, size);
 }
 
-void D3D9Device::unmap_vertex_buffer(const VertexBuffer handle) noexcept {
+void D3D9Device::unmap(const VertexBuffer handle) noexcept {
   BASALT_ASSERT(mVertexBuffers.is_handle_valid(handle));
 
   if (!mVertexBuffers.is_handle_valid(handle)) {
     return;
   }
 
-  const D3D9VertexBuffer& vertexBuffer {mVertexBuffers[handle]};
+  const D3D9VertexBufferPtr& vertexBuffer {mVertexBuffers[handle]};
 
   D3D9CALL(vertexBuffer->Unlock());
 }
@@ -835,7 +834,7 @@ void D3D9Device::execute(const CommandBindVertexBuffer& cmd) {
     return;
   }
 
-  const D3D9VertexBuffer& buffer {mVertexBuffers[cmd.handle]};
+  const D3D9VertexBufferPtr& buffer {mVertexBuffers[cmd.handle]};
 
   D3DVERTEXBUFFER_DESC desc {};
   D3D9CALL(buffer->GetDesc(&desc));

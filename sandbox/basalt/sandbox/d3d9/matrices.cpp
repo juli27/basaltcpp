@@ -89,8 +89,8 @@ struct Matrices::MyDrawable final : Drawable {
   MyDrawable(MyDrawable&&) noexcept = default;
 
   ~MyDrawable() noexcept override {
-    mResourceCache.destroy_vertex_buffer(mVertexBuffer);
-    mResourceCache.destroy_pipeline(mPipeline);
+    mResourceCache.destroy(mVertexBuffer);
+    mResourceCache.destroy(mPipeline);
   }
 
   auto operator=(const MyDrawable&) -> MyDrawable& = delete;

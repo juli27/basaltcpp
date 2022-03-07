@@ -27,19 +27,18 @@ struct D3D9Device final : Device {
   [[nodiscard]] auto create_pipeline(const PipelineDescriptor&)
     -> Pipeline override;
 
-  void destroy_pipeline(Pipeline) noexcept override;
+  void destroy(Pipeline) noexcept override;
 
   [[nodiscard]] auto
   create_vertex_buffer(const VertexBufferDescriptor&,
                        gsl::span<const std::byte> initialData)
     -> VertexBuffer override;
 
-  void destroy_vertex_buffer(VertexBuffer) noexcept override;
+  void destroy(VertexBuffer) noexcept override;
 
-  [[nodiscard]] auto map_vertex_buffer(VertexBuffer, uDeviceSize offset,
-                                       uDeviceSize size)
+  [[nodiscard]] auto map(VertexBuffer, uDeviceSize offset, uDeviceSize size)
     -> gsl::span<std::byte> override;
-  void unmap_vertex_buffer(VertexBuffer) noexcept override;
+  void unmap(VertexBuffer) noexcept override;
 
   auto load_texture(const std::filesystem::path&) -> Texture override;
 
@@ -49,9 +48,10 @@ struct D3D9Device final : Device {
     -> std::optional<ext::ExtensionPtr> override;
 
 private:
+  using D3D9DevicePtr = Microsoft::WRL::ComPtr<IDirect3DDevice9>;
   using ExtensionMap = std::unordered_map<ext::ExtensionId, ext::ExtensionPtr>;
-  using D3D9VertexBuffer = Microsoft::WRL::ComPtr<IDirect3DVertexBuffer9>;
-  using TexturePtr = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
+  using D3D9VertexBufferPtr = Microsoft::WRL::ComPtr<IDirect3DVertexBuffer9>;
+  using D3D9TexturePtr = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
 
   struct PipelineData final {
     D3DPRIMITIVETYPE primitiveType {D3DPT_POINTLIST};
@@ -70,13 +70,13 @@ private:
     D3DTEXTUREADDRESS addressModeW {D3DTADDRESS_WRAP};
   };
 
-  Microsoft::WRL::ComPtr<IDirect3DDevice9> mDevice;
+  D3D9DevicePtr mDevice;
 
   ExtensionMap mExtensions;
 
   HandlePool<PipelineData, Pipeline> mPipelines {};
-  HandlePool<D3D9VertexBuffer, VertexBuffer> mVertexBuffers {};
-  HandlePool<TexturePtr, Texture> mTextures;
+  HandlePool<D3D9VertexBufferPtr, VertexBuffer> mVertexBuffers {};
+  HandlePool<D3D9TexturePtr, Texture> mTextures;
   HandlePool<SamplerData, Sampler> mSamplers;
 
   DeviceCaps mCaps {};

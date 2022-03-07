@@ -119,8 +119,8 @@ struct Lights::MyDrawable final : Drawable {
   MyDrawable(MyDrawable&&) noexcept = default;
 
   ~MyDrawable() noexcept override {
-    mResourceCache.destroy_pipeline(mPipeline);
-    mResourceCache.destroy_vertex_buffer(mVertexBuffer);
+    mResourceCache.destroy(mPipeline);
+    mResourceCache.destroy(mVertexBuffer);
   }
 
   auto operator=(const MyDrawable&) -> MyDrawable& = delete;

@@ -43,8 +43,8 @@ auto ResourceCache::create_pipeline(const PipelineDescriptor& desc) const
   return mDevice.create_pipeline(desc);
 }
 
-void ResourceCache::destroy_pipeline(const Pipeline handle) const noexcept {
-  mDevice.destroy_pipeline(handle);
+void ResourceCache::destroy(const Pipeline handle) const noexcept {
+  mDevice.destroy(handle);
 }
 
 auto ResourceCache::create_vertex_buffer(
@@ -53,9 +53,8 @@ auto ResourceCache::create_vertex_buffer(
   return mDevice.create_vertex_buffer(desc, initialData);
 }
 
-void ResourceCache::destroy_vertex_buffer(
-  const VertexBuffer handle) const noexcept {
-  mDevice.destroy_vertex_buffer(handle);
+void ResourceCache::destroy(const VertexBuffer handle) const noexcept {
+  mDevice.destroy(handle);
 }
 
 template <>

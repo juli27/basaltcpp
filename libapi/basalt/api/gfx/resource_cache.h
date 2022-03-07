@@ -29,14 +29,14 @@ struct ResourceCache {
 
   [[nodiscard]] auto create_pipeline(const PipelineDescriptor&) const
     -> Pipeline;
-  void destroy_pipeline(Pipeline) const noexcept;
+  void destroy(Pipeline) const noexcept;
 
   [[nodiscard]] auto
   create_vertex_buffer(const VertexBufferDescriptor&,
                        gsl::span<const std::byte> initialData = {}) const
     -> VertexBuffer;
 
-  void destroy_vertex_buffer(VertexBuffer) const noexcept;
+  void destroy(VertexBuffer) const noexcept;
 
   // span is empty on failure
   // F = void(gsl::span<std::byte>)
@@ -54,9 +54,9 @@ struct ResourceCache {
                        const uDeviceSize size, F&& func) {
     // TODO: how should this handle map failure? right now its passing the empty
     // span to the function
-    func(mDevice.map_vertex_buffer(handle, offset, size));
+    func(mDevice.map(handle, offset, size));
 
-    mDevice.unmap_vertex_buffer(handle);
+    mDevice.unmap(handle);
   }
 
   auto create_mesh(const MeshDescriptor&) -> Mesh;
