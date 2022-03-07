@@ -13,6 +13,7 @@
 #include <basalt/sandbox/tribase/02-03_dreieck.h>
 #include <basalt/sandbox/tribase/02-04_textures.h>
 
+#include <basalt/api/client_app.h>
 #include <basalt/api/engine.h>
 #include <basalt/api/input_events.h>
 #include <basalt/api/prelude.h>
@@ -24,7 +25,6 @@
 
 #include <imgui/imgui.h>
 
-using std::unique_ptr;
 using namespace std::literals;
 
 using basalt::ClientApp;
@@ -36,16 +36,10 @@ using basalt::InputEventType;
 using basalt::Key;
 using basalt::KeyDown;
 using basalt::KeyUp;
-using basalt::View;
 using basalt::WindowMode;
 
-auto ClientApp::create(Engine& engine) -> unique_ptr<ClientApp> {
-  return std::make_unique<SandboxApp>(engine);
-}
-
-SandboxApp::SandboxApp(Engine& engine)
-  : mSandboxView {std::make_shared<SandboxView>(engine)} {
-  engine.add_view_top(mSandboxView);
+void ClientApp::bootstrap(Engine& engine) {
+  engine.add_view_top(std::make_shared<SandboxView>(engine));
 }
 
 SandboxView::SandboxView(Engine& engine) {

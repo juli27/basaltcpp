@@ -23,7 +23,6 @@
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/context.h>
 
-#include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/config.h>
 #include <basalt/api/shared/log.h>
 #include <basalt/api/shared/size2d.h>
@@ -173,8 +172,7 @@ void App::run(Config& config, const HMODULE moduleHandle,
 
   App app {config, gfxContext};
 
-  const auto clientApp {ClientApp::create(app)};
-  BASALT_ASSERT(clientApp);
+  ClientApp::bootstrap(app);
 
   using Clock = std::chrono::high_resolution_clock;
   static_assert(Clock::is_steady);

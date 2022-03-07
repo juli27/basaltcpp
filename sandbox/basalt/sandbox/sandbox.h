@@ -1,6 +1,5 @@
 #pragma once
 
-#include <basalt/api/client_app.h>
 #include <basalt/api/view.h>
 
 #include <basalt/api/base/types.h>
@@ -9,15 +8,7 @@
 #include <string>
 #include <vector>
 
-struct SandboxView;
 struct TestCase;
-
-struct SandboxApp final : basalt::ClientApp {
-  explicit SandboxApp(basalt::Engine&);
-
-private:
-  std::shared_ptr<SandboxView> mSandboxView;
-};
 
 struct SandboxView final : basalt::View {
   explicit SandboxView(basalt::Engine&);

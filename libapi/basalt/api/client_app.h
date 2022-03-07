@@ -1,24 +1,20 @@
 #pragma once
 
-#include "types.h"
-
-#include <memory>
+#include <basalt/api/types.h>
 
 namespace basalt {
 
-struct ClientApp {
+struct ClientApp final {
+  ClientApp() = delete;
   ClientApp(const ClientApp&) = delete;
   ClientApp(ClientApp&&) = delete;
 
-  virtual ~ClientApp() noexcept = default;
+  ~ClientApp() = delete;
 
   auto operator=(const ClientApp&) -> ClientApp& = delete;
   auto operator=(ClientApp&&) -> ClientApp& = delete;
 
-  static auto create(Engine&) -> std::unique_ptr<ClientApp>;
-
-protected:
-  ClientApp() noexcept = default;
+  static void bootstrap(Engine&);
 };
 
 } // namespace basalt
