@@ -191,6 +191,29 @@ auto to_d3d(const ShadeMode mode) -> D3DSHADEMODE {
   return TO_D3D[mode];
 }
 
+auto to_d3d(const TextureOp op) -> D3DTEXTUREOP {
+  static constexpr EnumArray<TextureOp, D3DTEXTUREOP, 3> TO_D3D {
+    {TextureOp::SelectArg1, D3DTOP_SELECTARG1},
+    {TextureOp::SelectArg2, D3DTOP_SELECTARG2},
+    {TextureOp::Modulate, D3DTOP_MODULATE},
+  };
+  static_assert(TEXTURE_OP_COUNT == TO_D3D.size());
+
+  return TO_D3D[op];
+}
+
+auto to_d3d(const TextureStageArgument arg) -> DWORD {
+  switch (arg) {
+  case TextureStageArgument::Diffuse:
+    return D3DTA_DIFFUSE;
+
+  case TextureStageArgument::SampledTexture:
+    return D3DTA_TEXTURE;
+  }
+
+  return 0u;
+}
+
 auto to_d3d(const TransformState state) -> D3DTRANSFORMSTATETYPE {
   static constexpr EnumArray<TransformState, D3DTRANSFORMSTATETYPE, 4> TO_D3D {
     {TransformState::ViewToViewport, D3DTS_PROJECTION},
@@ -456,7 +479,23 @@ struct D3D9XModelSupport final : ext::XModelSupport {
   }
 
   void execute(const ext::CommandDrawXModel& cmd) const {
+    ComPtr<IDirect3DStateBlock9> prevState {};
+    D3D9CALL(mDevice->CreateStateBlock(D3DSBT_ALL, &prevState));
+
+    D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
+    D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
+    D3D9CALL(mDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE));
+    D3D9CALL(mDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL));
+    D3D9CALL(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
+
+    D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));
+    D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
+    D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT));
+    D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1));
+    D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE));
+
     const auto& model = mModels[cmd.handle];
+
     for (DWORD i = 0; i < model.materials.size(); i++) {
       D3D9CALL(mDevice->SetMaterial(&model.materials[i]));
       D3D9CALL(mDevice->SetTexture(0, model.textures[i].Get()));
@@ -465,6 +504,8 @@ struct D3D9XModelSupport final : ext::XModelSupport {
     }
 
     D3D9CALL(mDevice->SetTexture(0, nullptr));
+
+    D3D9CALL(prevState->Apply());
   }
 
   auto load(string_view filePath) -> ext::XModel override {
@@ -536,6 +577,8 @@ D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
 
   mCaps.maxVertexBufferSizeInBytes = std::numeric_limits<UINT>::max();
   mCaps.maxLights = d3d9Caps.MaxActiveLights;
+  mCaps.maxTextureBlendStages = d3d9Caps.MaxTextureBlendStages;
+  mCaps.maxBoundSampledTextures = d3d9Caps.MaxSimultaneousTextures;
   mCaps.maxTextureAnisotropy = d3d9Caps.MaxAnisotropy;
 }
 
@@ -572,6 +615,7 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
 
   D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
+  D3D9CALL(mDevice->SetTexture(0, nullptr));
 
   constexpr D3DMATRIX identity {to_d3d(Mat4f32::identity())};
   D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
@@ -579,6 +623,17 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &identity));
 
   D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
+
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY, 1));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP));
+  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, D3DTADDRESS_WRAP));
+
+  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_DISABLE));
+  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
 
   PIX_END_EVENT();
 
@@ -598,13 +653,6 @@ void D3D9Device::execute(const CommandList& cmdList) {
 
   // reset render states
   // TODO: use state block
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY, 1));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, D3DTADDRESS_WRAP));
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
                                          D3DTTFF_DISABLE));
@@ -613,12 +661,12 @@ void D3D9Device::execute(const CommandList& cmdList) {
 
   D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &identity));
 
-  D3D9CALL(mDevice->SetTexture(0, nullptr));
   // D3D9CALL(mDevice->SetFVF(0));
 
   // unbind resources
   PIX_BEGIN_EVENT(D3DCOLOR_XRGB(128, 128, 128), L"unbind resources");
   D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
+  D3D9CALL(mDevice->SetTexture(0, nullptr));
   PIX_END_EVENT();
 }
 
@@ -631,7 +679,26 @@ auto D3D9Device::capabilities() const -> const DeviceCaps& {
 }
 
 auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
+  BASALT_ASSERT(desc.textureStages.size() <= 1u);
+
+  DWORD stage1Arg1 {};
+  DWORD stage1Arg2 {};
+  D3DTEXTUREOP stage1ColorOp {D3DTOP_DISABLE};
+  D3DTEXTUREOP stage1AlphaOp {D3DTOP_DISABLE};
+
+  if (!desc.textureStages.empty()) {
+    const TextureBlendingStage& stage {desc.textureStages[0]};
+    stage1Arg1 = to_d3d(stage.arg1);
+    stage1Arg2 = to_d3d(stage.arg2);
+    stage1ColorOp = to_d3d(stage.colorOp);
+    stage1AlphaOp = to_d3d(stage.alphaOp);
+  }
+
   return std::get<0>(mPipelines.allocate(PipelineData {
+    stage1Arg1,
+    stage1Arg2,
+    stage1ColorOp,
+    stage1AlphaOp,
     to_d3d(desc.primitiveType),
     to_d3d(desc.lighting),
     to_d3d(desc.cullMode),
@@ -685,7 +752,7 @@ auto D3D9Device::create_vertex_buffer(
     // TODO: should initialData.size() > size be an error?
     // TODO: should failing to upload initial data be an error?
     if (const gsl::span vertexBufferData {
-          gfx::map_vertex_buffer(*vertexBuffer.Get(), 0, 0)};
+        map_vertex_buffer(*vertexBuffer.Get(), 0, 0)};
         !vertexBufferData.empty()) {
       std::copy_n(initialData.begin(),
                   std::min(initialData.size(), uSize {size}),
@@ -712,7 +779,7 @@ auto D3D9Device::map(const VertexBuffer handle, const uDeviceSize offset,
 
   const D3D9VertexBufferPtr& vertexBuffer {mVertexBuffers[handle]};
 
-  return gfx::map_vertex_buffer(*vertexBuffer.Get(), offset, size);
+  return map_vertex_buffer(*vertexBuffer.Get(), offset, size);
 }
 
 void D3D9Device::unmap(const VertexBuffer handle) noexcept {
@@ -835,6 +902,18 @@ void D3D9Device::execute(const CommandBindPipeline& cmd) {
   D3D9CALL(mDevice->SetRenderState(D3DRS_ZENABLE, data.zEnabled));
   D3D9CALL(mDevice->SetRenderState(D3DRS_ZFUNC, data.zFunc));
   D3D9CALL(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, data.zWriteEnabled));
+
+  D3D9CALL(
+    mDevice->SetTextureStageState(0, D3DTSS_COLOROP, data.stage1ColorOp));
+  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_COLORARG1, data.stage1Arg1));
+  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_COLORARG2, data.stage1Arg2));
+  D3D9CALL(
+    mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, data.stage1AlphaOp));
+  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, data.stage1Arg1));
+  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, data.stage1Arg2));
+
+  D3D9CALL(mDevice->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE));
+  D3D9CALL(mDevice->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
 }
 
 void D3D9Device::execute(const CommandBindVertexBuffer& cmd) {

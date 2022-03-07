@@ -1,5 +1,7 @@
 #include <basalt/sandbox/sandbox.h>
 
+#include <basalt/sandbox/test_case.h>
+
 #include <basalt/sandbox/d3d9/device.h>
 #include <basalt/sandbox/d3d9/lights.h>
 #include <basalt/sandbox/d3d9/matrices.h>
@@ -25,6 +27,11 @@
 
 #include <imgui/imgui.h>
 
+#include <memory>
+#include <string>
+
+using std::shared_ptr;
+using std::string;
 using namespace std::literals;
 
 using basalt::ClientApp;
@@ -41,6 +48,11 @@ using basalt::WindowMode;
 void ClientApp::bootstrap(Engine& engine) {
   engine.add_view_top(std::make_shared<SandboxView>(engine));
 }
+
+struct SandboxView::Example final {
+  shared_ptr<TestCase> view;
+  string name;
+};
 
 SandboxView::SandboxView(Engine& engine) {
   mExamples.reserve(10u);

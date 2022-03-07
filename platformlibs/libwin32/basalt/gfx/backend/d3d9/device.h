@@ -61,6 +61,10 @@ private:
   using D3D9TexturePtr = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
 
   struct PipelineData final {
+    DWORD stage1Arg1 {D3DTA_DIFFUSE};
+    DWORD stage1Arg2 {D3DTA_TEXTURE};
+    D3DTEXTUREOP stage1ColorOp {D3DTOP_DISABLE};
+    D3DTEXTUREOP stage1AlphaOp {D3DTOP_DISABLE};
     D3DPRIMITIVETYPE primitiveType {D3DPT_POINTLIST};
     BOOL lighting {FALSE};
     D3DCULL cullMode {D3DCULL_NONE};
@@ -83,8 +87,8 @@ private:
 
   HandlePool<PipelineData, Pipeline> mPipelines {};
   HandlePool<D3D9VertexBufferPtr, VertexBuffer> mVertexBuffers {};
-  HandlePool<D3D9TexturePtr, Texture> mTextures;
-  HandlePool<SamplerData, Sampler> mSamplers;
+  HandlePool<D3D9TexturePtr, Texture> mTextures {};
+  HandlePool<SamplerData, Sampler> mSamplers {};
 
   DeviceCaps mCaps {};
   D3DPRIMITIVETYPE mCurrentPrimitiveType {D3DPT_POINTLIST};

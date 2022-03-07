@@ -9,6 +9,9 @@
 #include <utility>
 
 using namespace std::literals;
+using std::filesystem::path;
+
+using gsl::span;
 
 namespace basalt::gfx {
 
@@ -49,7 +52,7 @@ void ResourceCache::destroy(const Pipeline handle) const noexcept {
 
 auto ResourceCache::create_vertex_buffer(
   const VertexBufferDescriptor& desc,
-  const gsl::span<const std::byte> initialData) const -> VertexBuffer {
+  const span<const std::byte> initialData) const -> VertexBuffer {
   return mDevice.create_vertex_buffer(desc, initialData);
 }
 
@@ -74,7 +77,24 @@ auto ResourceCache::load(const ResourceId id) -> Texture {
   BASALT_ASSERT(!is_loaded(id), "Texture already loaded");
 
   const auto& path = mResourceRegistry->get_path(id);
-  return mTextures[id] = mDevice.load_texture(path);
+  return mTextures[id] = load_texture(path);
+}
+
+auto ResourceCache::create_sampler(const SamplerDescriptor& desc) const
+  -> Sampler {
+  return mDevice.create_sampler(desc);
+}
+
+void ResourceCache::destroy(const Sampler handle) const noexcept {
+  mDevice.destroy(handle);
+}
+
+auto ResourceCache::load_texture(const path& path) const -> Texture {
+  return mDevice.load_texture(path);
+}
+
+void ResourceCache::destroy(const Texture handle) const noexcept {
+  mDevice.destroy(handle);
 }
 
 auto ResourceCache::create_mesh(const MeshDescriptor& desc) -> Mesh {
@@ -91,7 +111,10 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
   -> Material {
   auto [handle, data] = mMaterials.allocate();
 
+  constexpr TextureBlendingStage textureStage {};
+
   data.pipeline = mDevice.create_pipeline(PipelineDescriptor {
+    span {&textureStage, 1},
     desc.primitiveType,
     desc.lit,
     desc.cullBackFace ? CullMode::CounterClockwise : CullMode::None,

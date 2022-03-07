@@ -11,6 +11,8 @@
 #include <basalt/api/base/enum_set.h>
 #include <basalt/api/base/types.h>
 
+#include <gsl/span>
+
 #include <memory>
 #include <variant>
 #include <vector>
@@ -136,6 +138,18 @@ enum class TextureMipFilter : u8 {
 };
 constexpr uSize TEXTURE_MIP_FILTER_COUNT {3u};
 
+enum class TextureOp : u8 {
+  SelectArg1,
+  SelectArg2,
+  Modulate,
+};
+constexpr uSize TEXTURE_OP_COUNT {3u};
+
+enum class TextureStageArgument : u8 {
+  Diffuse,
+  SampledTexture,
+};
+
 enum class TextureStageState : u8 {
   CoordinateSource = 0,
   TextureTransformFlags = 1,
@@ -236,10 +250,20 @@ using uDeviceSize = u64;
 struct DeviceCaps final {
   uDeviceSize maxVertexBufferSizeInBytes {};
   u32 maxLights {1};
+  u32 maxTextureBlendStages {1};
+  u32 maxBoundSampledTextures {1};
   u32 maxTextureAnisotropy {1};
 };
 
+struct TextureBlendingStage final {
+  TextureStageArgument arg1 {TextureStageArgument::SampledTexture};
+  TextureStageArgument arg2 {TextureStageArgument::Diffuse};
+  TextureOp colorOp {TextureOp::Modulate};
+  TextureOp alphaOp {TextureOp::SelectArg1};
+};
+
 struct PipelineDescriptor final {
+  gsl::span<const TextureBlendingStage> textureStages {};
   PrimitiveType primitiveType {PrimitiveType::PointList};
   bool lighting {false};
   CullMode cullMode {CullMode::None};

@@ -52,8 +52,9 @@ namespace d3d9 {
 struct Matrices::MyDrawable final : Drawable {
   explicit MyDrawable(Engine& engine) noexcept
     : mResourceCache {engine.gfx_resource_cache()} {
-    mPipeline = mResourceCache.create_pipeline(
-      PipelineDescriptor {PrimitiveType::TriangleList});
+    PipelineDescriptor pipelineDesc {};
+    pipelineDesc.primitiveType = PrimitiveType::TriangleList;
+    mPipeline = mResourceCache.create_pipeline(pipelineDesc);
 
     struct Vertex final {
       f32 x;

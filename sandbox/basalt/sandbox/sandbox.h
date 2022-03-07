@@ -4,11 +4,7 @@
 
 #include <basalt/api/base/types.h>
 
-#include <memory>
-#include <string>
 #include <vector>
-
-struct TestCase;
 
 struct SandboxView final : basalt::View {
   explicit SandboxView(basalt::Engine&);
@@ -20,10 +16,7 @@ protected:
     -> basalt::InputEventHandled override;
 
 private:
-  struct Example final {
-    std::shared_ptr<TestCase> view;
-    std::string name;
-  };
+  struct Example;
 
   std::vector<Example> mExamples;
   basalt::uSize mCurrentExampleIndex {9};

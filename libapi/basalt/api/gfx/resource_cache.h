@@ -11,6 +11,7 @@
 #include <gsl/span>
 
 #include <cstddef>
+#include <filesystem>
 #include <unordered_map>
 #include <utility>
 
@@ -58,6 +59,13 @@ struct ResourceCache {
 
     mDevice.unmap(handle);
   }
+
+  [[nodiscard]] auto create_sampler(const SamplerDescriptor&) const -> Sampler;
+  void destroy(Sampler) const noexcept;
+
+  [[nodiscard]] auto load_texture(const std::filesystem::path&) const
+    -> Texture;
+  void destroy(Texture) const noexcept;
 
   auto create_mesh(const MeshDescriptor&) -> Mesh;
   auto create_material(const MaterialDescriptor&) -> Material;
