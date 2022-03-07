@@ -48,9 +48,6 @@ SandboxApp::SandboxApp(Engine& engine)
   engine.add_view_top(mSandboxView);
 }
 
-void SandboxApp::on_update(Engine&) {
-}
-
 SandboxView::SandboxView(Engine& engine) {
   mExamples.reserve(10u);
   mExamples.emplace_back(Example {

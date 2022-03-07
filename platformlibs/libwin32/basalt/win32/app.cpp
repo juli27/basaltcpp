@@ -192,7 +192,6 @@ void App::run(Config& config, const HMODULE moduleHandle,
     window->input_manager().dispatch_pending(views);
 
     dearImGui->tick(app);
-    clientApp->on_update(app);
 
     for (auto& view : views) {
       view->tick(app);

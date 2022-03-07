@@ -15,8 +15,6 @@ struct TestCase;
 struct SandboxApp final : basalt::ClientApp {
   explicit SandboxApp(basalt::Engine&);
 
-  void on_update(basalt::Engine&) override;
-
 private:
   std::shared_ptr<SandboxView> mSandboxView;
 };

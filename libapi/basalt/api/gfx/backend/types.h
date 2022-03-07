@@ -115,7 +115,7 @@ enum TexCoordinateSrc : u8 {
 // TODO: support border and custom border color (no/partial support in Vulkan
 // and OpenGL ES)
 // TODO: support MirrorOnce
-enum class TextureAddressMode {
+enum class TextureAddressMode : u8 {
   WrapRepeat,
   MirrorRepeat,
   ClampEdge,

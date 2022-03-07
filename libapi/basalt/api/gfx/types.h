@@ -77,7 +77,7 @@ struct MaterialDescriptor final {
   bool textureTransformProjected {false};
 };
 
-static_assert(sizeof(MaterialDescriptor) == 56);
+static_assert(sizeof(MaterialDescriptor) == 48);
 
 struct RenderComponent final {
   Mesh mesh {Mesh::null()};
