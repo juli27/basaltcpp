@@ -42,9 +42,14 @@ struct D3D9Device final : Device {
     -> gsl::span<std::byte> override;
   void unmap(VertexBuffer) noexcept override;
 
-  auto load_texture(const std::filesystem::path&) -> Texture override;
+  [[nodiscard]] auto load_texture(const std::filesystem::path&)
+    -> Texture override;
+  void destroy(Texture) noexcept override;
 
-  auto create_sampler(const SamplerDescriptor&) -> Sampler override;
+  [[nodiscard]] auto create_sampler(const SamplerDescriptor&)
+    -> Sampler override;
+
+  void destroy(Sampler) noexcept override;
 
   auto query_extension(ext::ExtensionId)
     -> std::optional<ext::ExtensionPtr> override;

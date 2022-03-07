@@ -56,9 +56,15 @@ struct Device {
   virtual void unmap(VertexBuffer) noexcept = 0;
 
   // TODO: load file somewhere else
-  virtual auto load_texture(const std::filesystem::path&) -> Texture = 0;
+  [[nodiscard]] virtual auto load_texture(const std::filesystem::path&)
+    -> Texture = 0;
 
-  virtual auto create_sampler(const SamplerDescriptor&) -> Sampler = 0;
+  virtual void destroy(Texture) noexcept = 0;
+
+  [[nodiscard]] virtual auto create_sampler(const SamplerDescriptor&)
+    -> Sampler = 0;
+
+  virtual void destroy(Sampler) noexcept = 0;
 
   virtual auto query_extension(ext::ExtensionId)
     -> std::optional<ext::ExtensionPtr> = 0;

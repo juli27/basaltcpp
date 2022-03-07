@@ -740,9 +740,12 @@ auto D3D9Device::load_texture(const path& filePath) -> Texture {
   return handle;
 }
 
-auto D3D9Device::create_sampler(const SamplerDescriptor& desc) -> Sampler {
-  const auto [handle, data] = mSamplers.allocate();
+void D3D9Device::destroy(const Texture handle) noexcept {
+  mTextures.deallocate(handle);
+}
 
+auto D3D9Device::create_sampler(const SamplerDescriptor& desc) -> Sampler {
+  const auto [handle, data] {mSamplers.allocate()};
   data.filter = to_d3d(desc.filter);
   data.mipFilter = to_d3d(desc.mipFilter);
   data.addressModeU = to_d3d(desc.addressModeU);
@@ -750,6 +753,10 @@ auto D3D9Device::create_sampler(const SamplerDescriptor& desc) -> Sampler {
   data.addressModeW = to_d3d(desc.addressModeW);
 
   return handle;
+}
+
+void D3D9Device::destroy(const Sampler handle) noexcept {
+  mSamplers.deallocate(handle);
 }
 
 auto D3D9Device::query_extension(const ext::ExtensionId id)
