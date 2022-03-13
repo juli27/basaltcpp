@@ -116,8 +116,11 @@ Textures::Textures(Engine& engine)
   rc.material = std::get<0>(mMaterials);
 }
 
-auto Textures::drawable() -> DrawablePtr {
-  return mSceneView;
+auto Textures::on_draw(basalt::gfx::ResourceCache& cache,
+                       const basalt::Size2Du16 viewport,
+                       const basalt::RectangleU16& clip)
+  -> std::tuple<basalt::gfx::CommandList, basalt::RectangleU16> {
+  return mSceneView->draw(cache, viewport, clip);
 }
 
 void Textures::on_tick(Engine& engine) {

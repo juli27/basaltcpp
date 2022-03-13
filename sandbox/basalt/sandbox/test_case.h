@@ -1,9 +1,9 @@
 #pragma once
 
 #include <basalt/api/view.h>
-#include <basalt/api/gfx/types.h>
+#include <basalt/api/gfx/drawable.h>
 
-struct TestCase : basalt::View {
+struct TestCase : basalt::View, basalt::gfx::Drawable {
   TestCase(const TestCase&) = delete;
   TestCase(TestCase&&) noexcept = default;
 
@@ -11,8 +11,6 @@ struct TestCase : basalt::View {
 
   auto operator=(const TestCase&) -> TestCase& = delete;
   auto operator=(TestCase&&) noexcept -> TestCase& = default;
-
-  [[nodiscard]] virtual auto drawable() -> basalt::gfx::DrawablePtr = 0;
 
 protected:
   TestCase() noexcept = default;

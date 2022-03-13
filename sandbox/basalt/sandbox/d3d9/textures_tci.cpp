@@ -106,8 +106,11 @@ TexturesTci::TexturesTci(Engine& engine) {
                     Mat4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f});
 }
 
-auto TexturesTci::drawable() -> basalt::gfx::DrawablePtr {
-  return mSceneView;
+auto TexturesTci::on_draw(basalt::gfx::ResourceCache& cache,
+                          const basalt::Size2Du16 viewport,
+                          const basalt::RectangleU16& clip)
+  -> std::tuple<basalt::gfx::CommandList, basalt::RectangleU16> {
+  return mSceneView->draw(cache, viewport, clip);
 }
 
 void TexturesTci::on_tick(Engine& engine) {

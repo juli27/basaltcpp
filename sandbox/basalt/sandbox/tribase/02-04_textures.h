@@ -11,8 +11,6 @@ namespace tribase {
 struct Textures final : TestCase {
   explicit Textures(basalt::Engine&);
 
-  [[nodiscard]] auto drawable() -> basalt::gfx::DrawablePtr override;
-
 private:
   basalt::ScenePtr mScene;
   basalt::gfx::SceneViewPtr mSceneView;
@@ -20,6 +18,10 @@ private:
   basalt::gfx::Material mLinearSamplerWithMip;
   basalt::gfx::Material mAnisotropicSampler;
   basalt::f64 mTimeAccum {};
+
+  auto on_draw(basalt::gfx::ResourceCache&, basalt::Size2Du16 viewport,
+               const basalt::RectangleU16& clip)
+    -> std::tuple<basalt::gfx::CommandList, basalt::RectangleU16> override;
 
   void on_tick(basalt::Engine&) override;
 

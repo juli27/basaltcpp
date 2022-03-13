@@ -19,14 +19,16 @@ namespace samples {
 struct Textures final : TestCase {
   explicit Textures(basalt::Engine&);
 
-  [[nodiscard]] auto drawable() -> basalt::gfx::DrawablePtr override;
-
 private:
   basalt::ScenePtr mScene;
   basalt::gfx::SceneViewPtr mSceneView;
   entt::handle mQuad;
   basalt::u32 mChosenMaterial {0};
   std::array<basalt::gfx::Material, 9> mMaterials {};
+
+  auto on_draw(basalt::gfx::ResourceCache&, basalt::Size2Du16 viewport,
+               const basalt::RectangleU16& clip)
+    -> std::tuple<basalt::gfx::CommandList, basalt::RectangleU16> override;
 
   void on_tick(basalt::Engine&) override;
 };

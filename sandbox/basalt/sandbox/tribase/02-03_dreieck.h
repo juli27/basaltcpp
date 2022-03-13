@@ -16,8 +16,6 @@ namespace tribase {
 struct Dreieck final : TestCase {
   explicit Dreieck(basalt::Engine&);
 
-  auto drawable() -> basalt::gfx::DrawablePtr override;
-
 private:
   basalt::ScenePtr mScene;
   basalt::gfx::SceneViewPtr mSceneView;
@@ -29,6 +27,10 @@ private:
   basalt::gfx::Material mQuadMaterial;
   basalt::f64 mTimeAccum {};
   basalt::i32 mCurrentExercise {};
+
+  auto on_draw(basalt::gfx::ResourceCache&, basalt::Size2Du16 viewport,
+               const basalt::RectangleU16& clip)
+    -> std::tuple<basalt::gfx::CommandList, basalt::RectangleU16> override;
 
   void on_tick(basalt::Engine&) override;
 };

@@ -123,8 +123,11 @@ Dreieck::Dreieck(Engine& engine)
   mEntity.emplace<RenderComponent>(mTriangleMesh, mSolidMaterial);
 }
 
-auto Dreieck::drawable() -> DrawablePtr {
-  return mSceneView;
+auto Dreieck::on_draw(basalt::gfx::ResourceCache& cache,
+                      const basalt::Size2Du16 viewport,
+                      const basalt::RectangleU16& clip)
+  -> std::tuple<basalt::gfx::CommandList, basalt::RectangleU16> {
+  return mSceneView->draw(cache, viewport, clip);
 }
 
 void Dreieck::on_tick(Engine& engine) {

@@ -97,8 +97,7 @@ SandboxView::SandboxView(Engine& engine) {
     "Textures"s,
   });
 
-  engine.set_window_surface_content(
-    mExamples[mCurrentExampleIndex].view->drawable());
+  engine.set_window_surface_content(mExamples[mCurrentExampleIndex].view);
   add_child_bottom(mExamples[mCurrentExampleIndex].view);
 }
 
@@ -251,7 +250,6 @@ void SandboxView::switch_scene(const uSize index, Engine& engine) noexcept {
 
   mCurrentExampleIndex = index;
 
-  engine.set_window_surface_content(
-    mExamples[mCurrentExampleIndex].view->drawable());
+  engine.set_window_surface_content(mExamples[mCurrentExampleIndex].view);
   add_child_bottom(mExamples[mCurrentExampleIndex].view);
 }

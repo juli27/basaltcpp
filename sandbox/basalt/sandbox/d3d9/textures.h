@@ -2,19 +2,36 @@
 
 #include <basalt/sandbox/test_case.h>
 
-#include <memory>
+#include <basalt/api/gfx/camera.h>
+#include <basalt/api/gfx/types.h>
+#include <basalt/api/gfx/backend/types.h>
+
+#include <basalt/api/base/types.h>
 
 namespace d3d9 {
 
 struct Textures final : TestCase {
   explicit Textures(basalt::Engine&);
+  Textures(const Textures&) = delete;
+  Textures(Textures&&) = delete;
 
-  auto drawable() -> basalt::gfx::DrawablePtr override;
+  ~Textures() noexcept override;
+
+  auto operator=(const Textures&) -> Textures& = delete;
+  auto operator=(Textures&&) -> Textures& = delete;
 
 private:
-  struct MyDrawable;
+  basalt::gfx::ResourceCache& mResourceCache;
+  basalt::gfx::Pipeline mPipeline {basalt::gfx::Pipeline::null()};
+  basalt::gfx::VertexBuffer mVertexBuffer {basalt::gfx::VertexBuffer::null()};
+  basalt::gfx::Sampler mSampler {basalt::gfx::Sampler::null()};
+  basalt::gfx::Texture mTexture {basalt::gfx::Texture::null()};
+  basalt::gfx::Camera mCamera;
+  basalt::f32 mAngleXRad {};
 
-  std::shared_ptr<MyDrawable> mDrawable;
+  auto on_draw(basalt::gfx::ResourceCache&, basalt::Size2Du16 viewport,
+               const basalt::RectangleU16& clip)
+    -> std::tuple<basalt::gfx::CommandList, basalt::RectangleU16> override;
 
   void on_tick(basalt::Engine&) override;
 };

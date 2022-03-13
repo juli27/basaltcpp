@@ -28,8 +28,11 @@ Meshes::Meshes(Engine& engine) {
   mTiger.emplace<XModel>(engine.get_or_load<XModel>("data/Tiger.x"_hs));
 }
 
-auto Meshes::drawable() -> basalt::gfx::DrawablePtr {
-  return mSceneView;
+auto Meshes::on_draw(basalt::gfx::ResourceCache& cache,
+                     const basalt::Size2Du16 viewport,
+                     const basalt::RectangleU16& clip)
+  -> std::tuple<basalt::gfx::CommandList, basalt::RectangleU16> {
+  return mSceneView->draw(cache, viewport, clip);
 }
 
 void Meshes::on_tick(Engine& engine) {
