@@ -1,6 +1,6 @@
 #pragma once
 
-#include <basalt/sandbox/test_case.h>
+#include <basalt/api/view.h>
 
 #include <basalt/api/gfx/types.h>
 
@@ -8,7 +8,7 @@
 
 namespace tribase {
 
-struct Textures final : TestCase {
+struct Textures final : basalt::View {
   explicit Textures(basalt::Engine&);
 
 private:

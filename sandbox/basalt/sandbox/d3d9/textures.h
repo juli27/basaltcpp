@@ -1,6 +1,6 @@
 #pragma once
 
-#include <basalt/sandbox/test_case.h>
+#include <basalt/api/view.h>
 
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/types.h>
@@ -10,7 +10,7 @@
 
 namespace d3d9 {
 
-struct Textures final : TestCase {
+struct Textures final : basalt::View {
   explicit Textures(basalt::Engine&);
   Textures(const Textures&) = delete;
   Textures(Textures&&) = delete;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <basalt/sandbox/test_case.h>
+#include <basalt/api/view.h>
 
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/types.h>
@@ -8,7 +8,7 @@
 
 namespace d3d9 {
 
-struct Lights final : TestCase {
+struct Lights final : basalt::View {
   explicit Lights(basalt::Engine&);
   Lights(const Lights&) = delete;
   Lights(Lights&&) = delete;

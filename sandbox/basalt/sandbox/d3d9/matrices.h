@@ -1,6 +1,6 @@
 #pragma once
 
-#include <basalt/sandbox/test_case.h>
+#include <basalt/api/view.h>
 
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/types.h>
@@ -8,7 +8,7 @@
 
 namespace d3d9 {
 
-struct Matrices final : TestCase {
+struct Matrices final : basalt::View {
   explicit Matrices(basalt::Engine&);
 
   Matrices(const Matrices&) = delete;

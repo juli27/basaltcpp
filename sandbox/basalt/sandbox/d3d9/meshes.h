@@ -1,8 +1,8 @@
 #pragma once
 
-#include <basalt/sandbox/d3d9/utils.h>
+#include <basalt/api/view.h>
 
-#include <basalt/sandbox/test_case.h>
+#include <basalt/sandbox/d3d9/utils.h>
 
 #include <basalt/api/gfx/scene_view.h>
 #include <basalt/api/scene/scene.h>
@@ -13,7 +13,7 @@
 
 namespace d3d9 {
 
-struct Meshes final : TestCase {
+struct Meshes final : basalt::View {
   explicit Meshes(basalt::Engine&);
 
 private:

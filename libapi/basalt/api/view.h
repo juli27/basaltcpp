@@ -2,16 +2,18 @@
 
 #include <basalt/api/types.h>
 
+#include <basalt/api/gfx/drawable.h>
+
 #include <bitset>
 #include <vector>
 
 namespace basalt {
 
-struct View {
+struct View : gfx::Drawable {
   View(const View&) = delete;
   View(View&&) noexcept = default;
 
-  virtual ~View() noexcept = default;
+  ~View() noexcept override = default;
 
   auto operator=(const View&) -> View& = delete;
   auto operator=(View&&) noexcept -> View& = default;

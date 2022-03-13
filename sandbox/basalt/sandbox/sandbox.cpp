@@ -1,7 +1,5 @@
 #include <basalt/sandbox/sandbox.h>
 
-#include <basalt/sandbox/test_case.h>
-
 #include <basalt/sandbox/d3d9/device.h>
 #include <basalt/sandbox/d3d9/lights.h>
 #include <basalt/sandbox/d3d9/matrices.h>
@@ -21,8 +19,11 @@
 #include <basalt/api/prelude.h>
 #include <basalt/api/types.h>
 
+#include <basalt/api/gfx/backend/command_list.h>
+
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/config.h>
+#include <basalt/api/shared/size2d.h>
 #include <basalt/api/shared/types.h>
 
 #include <imgui/imgui.h>
@@ -32,6 +33,7 @@
 
 using std::shared_ptr;
 using std::string;
+using std::tuple;
 using namespace std::literals;
 
 using basalt::ClientApp;
@@ -43,14 +45,19 @@ using basalt::InputEventType;
 using basalt::Key;
 using basalt::KeyDown;
 using basalt::KeyUp;
+using basalt::RectangleU16;
+using basalt::Size2Du16;
+using basalt::ViewPtr;
 using basalt::WindowMode;
+using basalt::gfx::CommandList;
+using basalt::gfx::ResourceCache;
 
 void ClientApp::bootstrap(Engine& engine) {
   engine.set_root(std::make_shared<SandboxView>(engine));
 }
 
 struct SandboxView::Example final {
-  shared_ptr<TestCase> view;
+  ViewPtr view;
   string name;
 };
 
@@ -252,4 +259,9 @@ void SandboxView::switch_scene(const uSize index, Engine& engine) noexcept {
 
   engine.set_window_surface_content(mExamples[mCurrentExampleIndex].view);
   add_child_bottom(mExamples[mCurrentExampleIndex].view);
+}
+
+auto SandboxView::on_draw(ResourceCache&, Size2Du16, const RectangleU16&)
+  -> tuple<CommandList, RectangleU16> {
+  return tuple {CommandList {}, RectangleU16 {}};
 }

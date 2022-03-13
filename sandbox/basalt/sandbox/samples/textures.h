@@ -1,6 +1,6 @@
 #pragma once
 
-#include <basalt/sandbox/test_case.h>
+#include <basalt/api/view.h>
 
 #include <basalt/api/types.h>
 
@@ -16,7 +16,7 @@ namespace samples {
 
 // TODO: when supporting dynamic buffers: texture coordinate modification and
 // address mode demo
-struct Textures final : TestCase {
+struct Textures final : basalt::View {
   explicit Textures(basalt::Engine&);
 
 private:

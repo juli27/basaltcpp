@@ -2,17 +2,13 @@
 
 #include <basalt/api/view.h>
 
-#include <basalt/api/gfx/drawable.h>
-
 #include <basalt/api/gfx/backend/ext/types.h>
 
 #include <memory>
 
 namespace basalt {
 
-struct DearImGui final
-  : gfx::Drawable
-  , View {
+struct DearImGui final : View {
   explicit DearImGui(gfx::Device&);
 
   DearImGui(const DearImGui&) = delete;

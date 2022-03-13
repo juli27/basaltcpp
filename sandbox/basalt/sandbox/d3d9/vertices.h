@@ -1,13 +1,13 @@
 #pragma once
 
-#include <basalt/sandbox/test_case.h>
+#include <basalt/api/view.h>
 
 #include <basalt/api/gfx/types.h>
 #include <basalt/api/gfx/backend/types.h>
 
 namespace d3d9 {
 
-struct Vertices final : TestCase {
+struct Vertices final : basalt::View {
   explicit Vertices(basalt::Engine&);
 
   Vertices(const Vertices&) = delete;

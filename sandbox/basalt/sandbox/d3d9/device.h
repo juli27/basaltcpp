@@ -1,10 +1,10 @@
 #pragma once
 
-#include <basalt/sandbox/test_case.h>
+#include <basalt/api/view.h>
 
 namespace d3d9 {
 
-struct Device final : TestCase {
+struct Device final : basalt::View {
   Device() noexcept = default;
 
 private:
