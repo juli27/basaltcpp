@@ -23,11 +23,12 @@ struct DearImGui final
   auto operator=(const DearImGui&) -> DearImGui& = delete;
   auto operator=(DearImGui&&) -> DearImGui& = delete;
 
-  auto draw(gfx::ResourceCache&, Size2Du16 viewport, const RectangleU16& clip)
-    -> std::tuple<gfx::CommandList, RectangleU16> override;
-
 private:
   std::shared_ptr<gfx::ext::DearImGuiRenderer> mRenderer;
+
+  auto on_draw(gfx::ResourceCache&, Size2Du16 viewport,
+               const RectangleU16& clip)
+    -> std::tuple<gfx::CommandList, RectangleU16> override;
 
   void on_tick(Engine&) override;
 

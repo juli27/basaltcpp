@@ -52,7 +52,7 @@ auto SceneView::camera() const noexcept -> const Camera& {
   return mCamera;
 }
 
-auto SceneView::draw(ResourceCache& cache, const Size2Du16 viewport,
+auto SceneView::on_draw(ResourceCache& cache, const Size2Du16 viewport,
                      const RectangleU16&)
   -> std::tuple<CommandList, RectangleU16> {
   FilteringCommandList cmdList {};

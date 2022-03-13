@@ -106,7 +106,8 @@ struct Matrices::MyDrawable final : Drawable {
     }
   }
 
-  auto draw(ResourceCache&, const Size2Du16 viewport, const RectangleU16&)
+private:
+  auto on_draw(ResourceCache&, const Size2Du16 viewport, const RectangleU16&)
     -> std::tuple<CommandList, RectangleU16> override {
     CommandList cmdList {};
 
@@ -128,7 +129,6 @@ struct Matrices::MyDrawable final : Drawable {
     return {std::move(cmdList), viewport.to_rectangle()};
   }
 
-private:
   ResourceCache& mResourceCache;
   Pipeline mPipeline {Pipeline::null()};
   VertexBuffer mVertexBuffer {VertexBuffer::null()};

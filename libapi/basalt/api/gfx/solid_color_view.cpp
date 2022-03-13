@@ -11,7 +11,7 @@ namespace basalt::gfx {
 SolidColorView::SolidColorView(const Color& color) : mColor {color} {
 }
 
-auto SolidColorView::draw(ResourceCache&, const Size2Du16 viewport,
+auto SolidColorView::on_draw(ResourceCache&, const Size2Du16 viewport,
                           const RectangleU16&)
   -> std::tuple<CommandList, RectangleU16> {
   CommandList cmdList {};

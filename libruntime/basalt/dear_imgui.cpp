@@ -66,7 +66,7 @@ DearImGui::~DearImGui() noexcept {
   ImGui::DestroyContext();
 }
 
-auto DearImGui::draw(ResourceCache&, Size2Du16, const RectangleU16&)
+auto DearImGui::on_draw(ResourceCache&, Size2Du16, const RectangleU16&)
   -> std::tuple<CommandList, RectangleU16> {
   CommandList commandList {};
   commandList.ext_render_dear_imgui();

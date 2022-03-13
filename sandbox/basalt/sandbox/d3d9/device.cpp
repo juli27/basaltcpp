@@ -29,7 +29,8 @@ namespace d3d9 {
 namespace {
 
 struct MyDrawable final : Drawable {
-  auto draw(ResourceCache&, const Size2Du16 viewport, const RectangleU16&)
+private:
+  auto on_draw(ResourceCache&, const Size2Du16 viewport, const RectangleU16&)
     -> tuple<CommandList, RectangleU16> override {
     CommandList cmdList {};
     cmdList.clear_attachments(Attachments {Attachment::Color}, Colors::BLUE,

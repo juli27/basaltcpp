@@ -23,12 +23,12 @@ struct SceneView final : Drawable {
 
   [[nodiscard]] auto camera() const noexcept -> const Camera&;
 
-  auto draw(ResourceCache&, Size2Du16 viewport, const RectangleU16& clip)
-    -> std::tuple<CommandList, RectangleU16> override;
-
 private:
   ScenePtr mScene;
   Camera mCamera;
+
+  auto on_draw(ResourceCache&, Size2Du16 viewport, const RectangleU16& clip)
+    -> std::tuple<CommandList, RectangleU16> override;
 };
 
 } // namespace basalt::gfx
