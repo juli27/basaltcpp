@@ -173,7 +173,7 @@ auto Textures::drawable() -> basalt::gfx::DrawablePtr {
   return mSceneView;
 }
 
-void Textures::tick(Engine& engine) {
+void Textures::on_tick(Engine& engine) {
   mTimeAccum += engine.delta_time();
 
   if (!is_key_down(Key::Space)) {
@@ -218,7 +218,7 @@ void Textures::tick(Engine& engine) {
   }
 }
 
-auto Textures::do_handle_input(const InputEvent&) -> InputEventHandled {
+auto Textures::on_input(const InputEvent&) -> InputEventHandled {
   return InputEventHandled::Yes;
 }
 

@@ -195,7 +195,7 @@ auto Lights::drawable() -> basalt::gfx::DrawablePtr {
   return mDrawable;
 }
 
-void Lights::tick(Engine& engine) {
+void Lights::on_tick(Engine& engine) {
   mDrawable->tick(engine);
 }
 

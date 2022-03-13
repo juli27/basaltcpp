@@ -18,7 +18,7 @@ struct Meshes final : TestCase {
 
   auto drawable() -> basalt::gfx::DrawablePtr override;
 
-  void tick(basalt::Engine&) override;
+  void on_tick(basalt::Engine&) override;
 
 private:
   std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();

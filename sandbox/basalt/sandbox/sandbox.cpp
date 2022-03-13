@@ -102,7 +102,7 @@ SandboxView::SandboxView(Engine& engine) {
   engine.add_view_bottom(mExamples[mCurrentExampleIndex].view);
 }
 
-void SandboxView::tick(Engine& engine) {
+void SandboxView::on_tick(Engine& engine) {
   static auto pageUpPressed = false;
   static auto pageDownPressed = false;
   if (is_key_down(Key::PageUp)) {
@@ -184,7 +184,7 @@ void SandboxView::tick(Engine& engine) {
   }
 }
 
-auto SandboxView::do_handle_input(const InputEvent& event)
+auto SandboxView::on_input(const InputEvent& event)
   -> InputEventHandled {
   switch (event.type) {
   case InputEventType::KeyDown: {

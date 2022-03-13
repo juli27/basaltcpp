@@ -20,7 +20,7 @@ struct Textures final : TestCase {
   explicit Textures(basalt::Engine&);
 
   [[nodiscard]] auto drawable() -> basalt::gfx::DrawablePtr override;
-  void tick(basalt::Engine&) override;
+  void on_tick(basalt::Engine&) override;
 
 private:
   basalt::ScenePtr mScene;

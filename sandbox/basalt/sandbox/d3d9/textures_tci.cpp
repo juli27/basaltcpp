@@ -110,7 +110,7 @@ auto TexturesTci::drawable() -> basalt::gfx::DrawablePtr {
   return mSceneView;
 }
 
-void TexturesTci::tick(Engine& engine) {
+void TexturesTci::on_tick(Engine& engine) {
   mCylinder.get<Transform>().rotate(static_cast<f32>(engine.delta_time()), 0.0f,
                                     0.0f);
 

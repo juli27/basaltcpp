@@ -120,7 +120,7 @@ auto Textures::drawable() -> DrawablePtr {
   return mSceneView;
 }
 
-void Textures::tick(Engine& engine) {
+void Textures::on_tick(Engine& engine) {
   constexpr u8 filterMask {0x3};
   constexpr u8 mipFilterShift {0};
   constexpr u8 minFilterShift {2};

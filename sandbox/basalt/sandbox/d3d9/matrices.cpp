@@ -144,7 +144,7 @@ auto Matrices::drawable() -> basalt::gfx::DrawablePtr {
   return mDrawable;
 }
 
-void Matrices::tick(Engine& engine) {
+void Matrices::on_tick(Engine& engine) {
   mDrawable->tick(engine);
 }
 

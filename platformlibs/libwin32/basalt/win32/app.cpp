@@ -189,10 +189,10 @@ void App::run(Config& config, const HMODULE moduleHandle,
 
     window->input_manager().dispatch_pending(views);
 
-    dearImGui->tick(app);
+    dearImGui->on_tick(app);
 
     for (auto& view : views) {
-      view->tick(app);
+      view->on_tick(app);
     }
 
     if (app.mIsDirty) {

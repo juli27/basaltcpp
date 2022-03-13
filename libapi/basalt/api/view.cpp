@@ -19,7 +19,7 @@ auto View::is_key_down(const Key key) const -> bool {
 }
 
 auto View::handle_input(const InputEvent& e) -> bool {
-  if (do_handle_input(e) == InputEventHandled::Yes) {
+  if (on_input(e) == InputEventHandled::Yes) {
     update(e);
 
     return true;

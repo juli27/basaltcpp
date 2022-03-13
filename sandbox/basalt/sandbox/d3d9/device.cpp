@@ -48,7 +48,7 @@ auto Device::drawable() -> DrawablePtr {
   return mDrawable;
 }
 
-void Device::tick(Engine&) {
+void Device::on_tick(Engine&) {
 }
 
 } // namespace d3d9

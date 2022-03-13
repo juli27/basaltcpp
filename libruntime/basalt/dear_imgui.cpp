@@ -74,7 +74,7 @@ auto DearImGui::draw(ResourceCache&, Size2Du16, const RectangleU16&)
   return {std::move(commandList), RectangleU16 {}};
 }
 
-void DearImGui::tick(Engine& engine) {
+void DearImGui::on_tick(Engine& engine) {
   static_assert(ImGuiMouseButton_COUNT == MOUSE_BUTTON_COUNT);
   static_assert(KEY_COUNT <= 512);
 
@@ -111,7 +111,7 @@ void DearImGui::tick(Engine& engine) {
   ImGui::NewFrame();
 }
 
-auto DearImGui::do_handle_input(const InputEvent& e) -> InputEventHandled {
+auto DearImGui::on_input(const InputEvent& e) -> InputEventHandled {
   ImGuiIO& io {ImGui::GetIO()};
 
   switch (e.type) {

@@ -26,12 +26,12 @@ struct DearImGui final
   auto draw(gfx::ResourceCache&, Size2Du16 viewport, const RectangleU16& clip)
     -> std::tuple<gfx::CommandList, RectangleU16> override;
 
-  void tick(Engine&) override;
+  void on_tick(Engine&) override;
 
 private:
   std::shared_ptr<gfx::ext::DearImGuiRenderer> mRenderer;
 
-  auto do_handle_input(const InputEvent&) -> InputEventHandled override;
+  auto on_input(const InputEvent&) -> InputEventHandled override;
 };
 
 } // namespace basalt

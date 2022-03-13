@@ -189,7 +189,7 @@ auto Textures::drawable() -> basalt::gfx::DrawablePtr {
   return mDrawable;
 }
 
-void Textures::tick(Engine& engine) {
+void Textures::on_tick(Engine& engine) {
   mDrawable->tick(engine);
 }
 

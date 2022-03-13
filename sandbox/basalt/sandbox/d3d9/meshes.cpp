@@ -32,7 +32,7 @@ auto Meshes::drawable() -> basalt::gfx::DrawablePtr {
   return mSceneView;
 }
 
-void Meshes::tick(Engine& engine) {
+void Meshes::on_tick(Engine& engine) {
   mTiger.get<Transform>().rotate(0.0f, static_cast<f32>(engine.delta_time()),
                                  0.0f);
 

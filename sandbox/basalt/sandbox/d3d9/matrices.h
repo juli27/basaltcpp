@@ -11,7 +11,7 @@ struct Matrices final : TestCase {
 
   auto drawable() -> basalt::gfx::DrawablePtr override;
 
-  void tick(basalt::Engine&) override;
+  void on_tick(basalt::Engine&) override;
 
 private:
   struct MyDrawable;

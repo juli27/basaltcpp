@@ -118,7 +118,7 @@ auto Vertices::drawable() -> basalt::gfx::DrawablePtr {
   return mDrawable;
 }
 
-void Vertices::tick(Engine&) {
+void Vertices::on_tick(Engine&) {
 }
 
 } // namespace d3d9
