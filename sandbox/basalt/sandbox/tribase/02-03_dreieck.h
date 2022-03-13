@@ -18,8 +18,6 @@ struct Dreieck final : TestCase {
 
   auto drawable() -> basalt::gfx::DrawablePtr override;
 
-  void on_tick(basalt::Engine&) override;
-
 private:
   basalt::ScenePtr mScene;
   basalt::gfx::SceneViewPtr mSceneView;
@@ -31,6 +29,8 @@ private:
   basalt::gfx::Material mQuadMaterial;
   basalt::f64 mTimeAccum {};
   basalt::i32 mCurrentExercise {};
+
+  void on_tick(basalt::Engine&) override;
 };
 
 } // namespace tribase

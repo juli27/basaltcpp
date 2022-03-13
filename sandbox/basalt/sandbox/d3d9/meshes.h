@@ -18,13 +18,13 @@ struct Meshes final : TestCase {
 
   auto drawable() -> basalt::gfx::DrawablePtr override;
 
-  void on_tick(basalt::Engine&) override;
-
 private:
   std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();
   std::shared_ptr<basalt::gfx::SceneView> mSceneView =
     std::make_shared<basalt::gfx::SceneView>(mScene, create_default_camera());
   entt::handle mTiger = mScene->create_entity();
+
+  void on_tick(basalt::Engine&) override;
 };
 
 } // namespace d3d9

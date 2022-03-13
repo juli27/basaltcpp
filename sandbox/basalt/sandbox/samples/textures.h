@@ -20,7 +20,6 @@ struct Textures final : TestCase {
   explicit Textures(basalt::Engine&);
 
   [[nodiscard]] auto drawable() -> basalt::gfx::DrawablePtr override;
-  void on_tick(basalt::Engine&) override;
 
 private:
   basalt::ScenePtr mScene;
@@ -28,6 +27,8 @@ private:
   entt::handle mQuad;
   basalt::u32 mChosenMaterial {0};
   std::array<basalt::gfx::Material, 9> mMaterials {};
+
+  void on_tick(basalt::Engine&) override;
 };
 
 } // namespace samples

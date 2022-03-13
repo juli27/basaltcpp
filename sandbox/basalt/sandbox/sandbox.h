@@ -9,12 +9,6 @@
 struct SandboxView final : basalt::View {
   explicit SandboxView(basalt::Engine&);
 
-  void on_tick(basalt::Engine&) override;
-
-protected:
-  auto on_input(const basalt::InputEvent&)
-    -> basalt::InputEventHandled override;
-
 private:
   struct Example;
 
@@ -24,4 +18,9 @@ private:
   void next_scene(basalt::Engine&) noexcept;
   void prev_scene(basalt::Engine&) noexcept;
   void set_scene(basalt::uSize index, basalt::Engine&) noexcept;
+
+  auto on_input(const basalt::InputEvent&)
+    -> basalt::InputEventHandled override;
+
+  void on_tick(basalt::Engine&) override;
 };

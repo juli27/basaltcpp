@@ -28,6 +28,10 @@ auto View::handle_input(const InputEvent& e) -> bool {
   return false;
 }
 
+void View::tick(Engine& engine) {
+  on_tick(engine);
+}
+
 void View::update(const InputEvent& e) {
   switch (e.type) {
   case InputEventType::MouseMoved:

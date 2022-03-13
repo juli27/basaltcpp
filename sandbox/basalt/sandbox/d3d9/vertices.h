@@ -9,10 +9,10 @@ struct Vertices final : TestCase {
 
   auto drawable() -> basalt::gfx::DrawablePtr override;
 
-  void on_tick(basalt::Engine&) override;
-
 private:
   basalt::gfx::DrawablePtr mDrawable;
+
+  void on_tick(basalt::Engine&) override;
 };
 
 } // namespace d3d9

@@ -21,10 +21,12 @@ struct View {
 
   [[nodiscard]] auto handle_input(const InputEvent&) -> bool;
 
-  virtual void on_tick(Engine&) = 0;
+  void tick(Engine&);
 
 protected:
   View() noexcept = default;
+
+  virtual void on_tick(Engine&) = 0;
 
   virtual auto on_input(const InputEvent&) -> InputEventHandled {
     return InputEventHandled::No;

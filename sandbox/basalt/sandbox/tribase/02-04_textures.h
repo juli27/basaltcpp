@@ -13,12 +13,6 @@ struct Textures final : TestCase {
 
   [[nodiscard]] auto drawable() -> basalt::gfx::DrawablePtr override;
 
-  void on_tick(basalt::Engine&) override;
-
-protected:
-  auto on_input(const basalt::InputEvent&)
-    -> basalt::InputEventHandled override;
-
 private:
   basalt::ScenePtr mScene;
   basalt::gfx::SceneViewPtr mSceneView;
@@ -26,6 +20,11 @@ private:
   basalt::gfx::Material mLinearSamplerWithMip;
   basalt::gfx::Material mAnisotropicSampler;
   basalt::f64 mTimeAccum {};
+
+  void on_tick(basalt::Engine&) override;
+
+  auto on_input(const basalt::InputEvent&)
+    -> basalt::InputEventHandled override;
 };
 
 } // namespace tribase
