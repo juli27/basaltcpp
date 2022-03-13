@@ -99,7 +99,7 @@ SandboxView::SandboxView(Engine& engine) {
 
   engine.set_window_surface_content(
     mExamples[mCurrentExampleIndex].view->drawable());
-  engine.add_view_bottom(mExamples[mCurrentExampleIndex].view);
+  add_child_bottom(mExamples[mCurrentExampleIndex].view);
 }
 
 void SandboxView::on_tick(Engine& engine) {
@@ -131,7 +131,7 @@ void SandboxView::on_tick(Engine& engine) {
         const bool isCurrent {mCurrentExampleIndex == i};
         if (ImGui::MenuItem(mExamples[i].name.data(), nullptr, isCurrent,
                             !isCurrent)) {
-          set_scene(i, engine);
+          switch_scene(i, engine);
         }
       }
 
@@ -184,8 +184,7 @@ void SandboxView::on_tick(Engine& engine) {
   }
 }
 
-auto SandboxView::on_input(const InputEvent& event)
-  -> InputEventHandled {
+auto SandboxView::on_input(const InputEvent& event) -> InputEventHandled {
   switch (event.type) {
   case InputEventType::KeyDown: {
     switch (event.as<KeyDown>().key) {
@@ -221,40 +220,38 @@ auto SandboxView::on_input(const InputEvent& event)
 }
 
 void SandboxView::next_scene(Engine& engine) noexcept {
-  engine.remove_view(mExamples[mCurrentExampleIndex].view);
-
-  mCurrentExampleIndex++;
-  if (mCurrentExampleIndex >= mExamples.size()) {
-    mCurrentExampleIndex = 0;
+  uSize nextSceneIndex {mCurrentExampleIndex + 1};
+  if (nextSceneIndex >= mExamples.size()) {
+    nextSceneIndex = 0;
   }
 
-  engine.set_window_surface_content(
-    mExamples[mCurrentExampleIndex].view->drawable());
-  engine.add_view_bottom(mExamples[mCurrentExampleIndex].view);
+  switch_scene(nextSceneIndex, engine);
 }
 
 void SandboxView::prev_scene(Engine& engine) noexcept {
-  engine.remove_view(mExamples[mCurrentExampleIndex].view);
+  const uSize prevSceneIndex {[this] {
+    if (mCurrentExampleIndex == 0) {
+      return mExamples.size() - 1;
+    }
 
-  if (mCurrentExampleIndex == 0) {
-    mCurrentExampleIndex = mExamples.size() - 1;
-  } else {
-    mCurrentExampleIndex--;
-  }
+    return mCurrentExampleIndex - 1;
+  }()};
 
-  engine.set_window_surface_content(
-    mExamples[mCurrentExampleIndex].view->drawable());
-  engine.add_view_bottom(mExamples[mCurrentExampleIndex].view);
+  switch_scene(prevSceneIndex, engine);
 }
 
-void SandboxView::set_scene(uSize index, Engine& engine) noexcept {
+void SandboxView::switch_scene(const uSize index, Engine& engine) noexcept {
+  if (mExamples.empty()) {
+    return;
+  }
+
   BASALT_ASSERT(index < mExamples.size());
 
-  engine.remove_view(mExamples[mCurrentExampleIndex].view);
+  remove_child(mExamples[mCurrentExampleIndex].view);
 
   mCurrentExampleIndex = index;
 
   engine.set_window_surface_content(
     mExamples[mCurrentExampleIndex].view->drawable());
-  engine.add_view_bottom(mExamples[mCurrentExampleIndex].view);
+  add_child_bottom(mExamples[mCurrentExampleIndex].view);
 }

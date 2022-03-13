@@ -3,6 +3,7 @@
 #include <basalt/api/types.h>
 
 #include <bitset>
+#include <vector>
 
 namespace basalt {
 
@@ -19,6 +20,12 @@ struct View {
   [[nodiscard]] auto is_mouse_button_down(MouseButton) const -> bool;
   [[nodiscard]] auto is_key_down(Key) const -> bool;
 
+  void add_child_top(ViewPtr);
+  void add_child_bottom(ViewPtr);
+  void add_child_above(ViewPtr, const ViewPtr& before);
+  void add_child_below(ViewPtr, const ViewPtr& after);
+  void remove_child(const ViewPtr&);
+
   [[nodiscard]] auto handle_input(const InputEvent&) -> bool;
 
   void tick(Engine&);
@@ -33,6 +40,9 @@ protected:
   }
 
 private:
+  // top to bottom order
+  std::vector<ViewPtr> mViews;
+
   PointerPosition mPointerPos;
   std::bitset<MOUSE_BUTTON_COUNT> mMouseButtonsDown;
   std::bitset<KEY_COUNT> mKeysDown;
