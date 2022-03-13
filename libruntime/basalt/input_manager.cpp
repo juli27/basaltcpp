@@ -16,17 +16,13 @@ void InputManager::set_overlay(ViewPtr overlay) {
   mOverlay = std::move(overlay);
 }
 
-void InputManager::dispatch_pending(const std::vector<ViewPtr>& dispatchChain) {
+void InputManager::dispatch_pending(const ViewPtr& root) {
   for (const InputEventPtr& e : mEvents) {
     if (mOverlay && mOverlay->handle_input(*e)) {
       continue;
     }
 
-    for (const ViewPtr& inputTarget : dispatchChain) {
-      if (inputTarget->handle_input(*e)) {
-        break;
-      }
-    }
+    (void)root->handle_input(*e);
   }
 
   mEvents.clear();

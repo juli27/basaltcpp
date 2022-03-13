@@ -32,11 +32,8 @@
 #include <chrono>
 #include <string>
 #include <string_view>
-#include <vector>
 
 using namespace std::literals;
-
-using std::vector;
 
 namespace basalt {
 
@@ -185,15 +182,10 @@ void App::run(Config& config, const HMODULE moduleHandle,
       window->set_mode(mode);
     }
 
-    const vector views {app.mViews};
-
-    window->input_manager().dispatch_pending(views);
+    window->input_manager().dispatch_pending(app.mRoot);
 
     dearImGui->tick(app);
-
-    for (auto& view : views) {
-      view->tick(app);
-    }
+    app.mRoot->tick(app);
 
     if (app.mIsDirty) {
       app.mIsDirty = false;

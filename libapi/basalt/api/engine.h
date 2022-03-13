@@ -34,11 +34,7 @@ struct Engine {
 
   void set_window_surface_content(gfx::DrawablePtr);
 
-  void add_view_top(ViewPtr);
-  void add_view_bottom(ViewPtr);
-  void add_view_above(ViewPtr, const ViewPtr& before);
-  void add_view_below(ViewPtr, const ViewPtr& after);
-  void remove_view(const ViewPtr&);
+  void set_root(ViewPtr);
 
   [[nodiscard]] auto mouse_cursor() const noexcept -> MouseCursor;
   void set_mouse_cursor(MouseCursor) noexcept;
@@ -56,8 +52,7 @@ protected:
   gfx::ResourceCache mGfxResourceCache;
 
   gfx::DrawablePtr mWindowSurfaceContent;
-  // top to bottom order
-  std::vector<ViewPtr> mViews;
+  ViewPtr mRoot;
 
   f64 mDeltaTime {};
 

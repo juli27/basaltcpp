@@ -46,7 +46,7 @@ using basalt::KeyUp;
 using basalt::WindowMode;
 
 void ClientApp::bootstrap(Engine& engine) {
-  engine.add_view_top(std::make_shared<SandboxView>(engine));
+  engine.set_root(std::make_shared<SandboxView>(engine));
 }
 
 struct SandboxView::Example final {

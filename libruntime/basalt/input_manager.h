@@ -16,7 +16,7 @@ namespace basalt {
 struct InputManager final {
   void set_overlay(ViewPtr);
 
-  void dispatch_pending(const std::vector<ViewPtr>& dispatchChain);
+  void dispatch_pending(const ViewPtr& root);
 
   void mouse_moved(PointerPosition);
 

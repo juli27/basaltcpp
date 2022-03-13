@@ -4,12 +4,9 @@
 
 #include <basalt/api/shared/config.h>
 
-#include <algorithm>
 #include <utility>
 
 using namespace std::string_literals;
-
-using std::shared_ptr;
 
 namespace basalt {
 
@@ -37,31 +34,8 @@ void Engine::set_window_surface_content(gfx::DrawablePtr drawable) {
   mWindowSurfaceContent = std::move(drawable);
 }
 
-void Engine::add_view_top(ViewPtr view) {
-  mViews.emplace(mViews.begin(), std::move(view));
-}
-
-void Engine::add_view_bottom(ViewPtr view) {
-  mViews.emplace_back(std::move(view));
-}
-
-void Engine::add_view_above(ViewPtr view, const ViewPtr& before) {
-  mViews.emplace(std::find(mViews.begin(), mViews.end(), before),
-                 std::move(view));
-}
-
-void Engine::add_view_below(ViewPtr view, const ViewPtr& after) {
-  auto it {std::find(mViews.begin(), mViews.end(), after)};
-
-  if (it != mViews.end()) {
-    ++it;
-  }
-
-  mViews.emplace(it, std::move(view));
-}
-
-void Engine::remove_view(const ViewPtr& view) {
-  mViews.erase(std::remove(mViews.begin(), mViews.end(), view), mViews.end());
+void Engine::set_root(ViewPtr view) {
+  mRoot = std::move(view);
 }
 
 auto Engine::mouse_cursor() const noexcept -> MouseCursor {
