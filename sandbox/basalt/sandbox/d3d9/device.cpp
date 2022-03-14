@@ -10,7 +10,6 @@
 
 using std::tuple;
 
-using basalt::Engine;
 using basalt::RectangleU16;
 using basalt::Size2Du16;
 using basalt::gfx::Attachment;
@@ -27,9 +26,6 @@ auto Device::on_draw(ResourceCache&, const Size2Du16 viewport,
                             0);
 
   return tuple {std::move(cmdList), viewport.to_rectangle()};
-}
-
-void Device::on_tick(Engine&) {
 }
 
 } // namespace d3d9

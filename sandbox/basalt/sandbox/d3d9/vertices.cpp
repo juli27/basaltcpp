@@ -91,7 +91,4 @@ auto Vertices::on_draw(ResourceCache&, const Size2Du16 viewport,
   return tuple {std::move(cmdList), viewport.to_rectangle()};
 }
 
-void Vertices::on_tick(Engine&) {
-}
-
 } // namespace d3d9

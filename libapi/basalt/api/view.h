@@ -35,7 +35,8 @@ struct View : gfx::Drawable {
 protected:
   View() noexcept = default;
 
-  virtual void on_tick(Engine&) = 0;
+  virtual void on_tick(Engine&) {
+  }
 
   virtual auto on_input(const InputEvent&) -> InputEventHandled {
     return InputEventHandled::No;

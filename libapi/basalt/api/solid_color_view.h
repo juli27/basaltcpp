@@ -15,9 +15,6 @@ private:
   auto on_draw(gfx::ResourceCache&, Size2Du16 viewport,
                const RectangleU16& clip)
     -> std::tuple<gfx::CommandList, RectangleU16> override;
-
-  void on_tick(Engine&) override {
-  }
 };
 
 } // namespace basalt
