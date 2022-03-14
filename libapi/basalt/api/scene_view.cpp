@@ -1,4 +1,4 @@
-#include <basalt/api/gfx/scene_view.h>
+#include <basalt/api/scene_view.h>
 
 #include <basalt/api/gfx/filtering_command_list.h>
 #include <basalt/api/gfx/resource_cache.h>
@@ -7,8 +7,8 @@
 #include <basalt/api/gfx/backend/render_state.h>
 #include <basalt/api/gfx/backend/types.h>
 
-#include <basalt/api/scene/transform.h>
 #include <basalt/api/scene/scene.h>
+#include <basalt/api/scene/transform.h>
 
 #include <basalt/api/math/mat4.h>
 #include <basalt/api/math/rectangle.h>
@@ -17,10 +17,27 @@
 
 #include <entt/entity/registry.hpp>
 
-#include <variant>
 #include <utility>
+#include <variant>
 
-namespace basalt::gfx {
+namespace basalt {
+
+using gfx::Attachment;
+using gfx::Attachments;
+using gfx::Camera;
+using gfx::CommandList;
+using gfx::FillMode;
+using gfx::FilteringCommandList;
+using gfx::Light;
+using gfx::MaterialData;
+using gfx::RenderComponent;
+using gfx::RenderState;
+using gfx::RenderStateType;
+using gfx::ResourceCache;
+using gfx::TextureStageState;
+using gfx::TransformState;
+
+namespace ext = gfx::ext;
 
 namespace {
 
@@ -53,7 +70,7 @@ auto SceneView::camera() const noexcept -> const Camera& {
 }
 
 auto SceneView::on_draw(ResourceCache& cache, const Size2Du16 viewport,
-                     const RectangleU16&)
+                        const RectangleU16&)
   -> std::tuple<CommandList, RectangleU16> {
   FilteringCommandList cmdList {};
   cmdList.clear_attachments(
@@ -106,4 +123,4 @@ auto SceneView::on_draw(ResourceCache& cache, const Size2Du16 viewport,
   return {cmdList.take_cmd_list(), viewport.to_rectangle()};
 }
 
-} // namespace basalt::gfx
+} // namespace basalt

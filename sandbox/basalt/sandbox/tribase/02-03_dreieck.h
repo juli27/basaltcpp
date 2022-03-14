@@ -1,5 +1,6 @@
 #pragma once
 
+#include <basalt/api/types.h>
 #include <basalt/api/view.h>
 
 #include <basalt/api/gfx/types.h>
@@ -18,7 +19,7 @@ struct Dreieck final : basalt::View {
 
 private:
   basalt::ScenePtr mScene;
-  basalt::gfx::SceneViewPtr mSceneView;
+  basalt::SceneViewPtr mSceneView;
   entt::handle mEntity;
   basalt::gfx::Mesh mTriangleMesh;
   basalt::gfx::Mesh mQuadMesh;

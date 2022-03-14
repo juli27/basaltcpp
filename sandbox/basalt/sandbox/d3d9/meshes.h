@@ -4,7 +4,9 @@
 
 #include <basalt/sandbox/d3d9/utils.h>
 
-#include <basalt/api/gfx/scene_view.h>
+#include <basalt/api/scene_view.h>
+#include <basalt/api/types.h>
+
 #include <basalt/api/scene/scene.h>
 
 #include <entt/entity/handle.hpp>
@@ -18,8 +20,8 @@ struct Meshes final : basalt::View {
 
 private:
   std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();
-  std::shared_ptr<basalt::gfx::SceneView> mSceneView =
-    std::make_shared<basalt::gfx::SceneView>(mScene, create_default_camera());
+  basalt::SceneViewPtr mSceneView =
+    std::make_shared<basalt::SceneView>(mScene, create_default_camera());
   entt::handle mTiger = mScene->create_entity();
 
   auto on_draw(basalt::gfx::ResourceCache&, basalt::Size2Du16 viewport,

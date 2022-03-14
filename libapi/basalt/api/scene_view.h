@@ -8,10 +8,10 @@
 
 #include <memory>
 
-namespace basalt::gfx {
+namespace basalt {
 
-struct SceneView final : Drawable {
-  SceneView(ScenePtr scene, const Camera& camera);
+struct SceneView final : gfx::Drawable {
+  SceneView(ScenePtr scene, const gfx::Camera& camera);
 
   SceneView(const SceneView&) = delete;
   SceneView(SceneView&&) noexcept = default;
@@ -21,14 +21,15 @@ struct SceneView final : Drawable {
   auto operator=(const SceneView&) -> SceneView& = delete;
   auto operator=(SceneView&&) noexcept -> SceneView& = default;
 
-  [[nodiscard]] auto camera() const noexcept -> const Camera&;
+  [[nodiscard]] auto camera() const noexcept -> const gfx::Camera&;
 
 private:
   ScenePtr mScene;
-  Camera mCamera;
+  gfx::Camera mCamera;
 
-  auto on_draw(ResourceCache&, Size2Du16 viewport, const RectangleU16& clip)
-    -> std::tuple<CommandList, RectangleU16> override;
+  auto on_draw(gfx::ResourceCache&, Size2Du16 viewport,
+               const RectangleU16& clip)
+    -> std::tuple<gfx::CommandList, RectangleU16> override;
 };
 
-} // namespace basalt::gfx
+} // namespace basalt

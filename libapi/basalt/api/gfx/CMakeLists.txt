@@ -8,8 +8,6 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "filtering_command_list.h"
   "resource_cache.cpp"
   "resource_cache.h"
-  "scene_view.cpp"
-  "scene_view.h"
   "solid_color_view.cpp"
   "solid_color_view.h"
   "surface.cpp"

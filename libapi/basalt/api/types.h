@@ -1,7 +1,9 @@
 #pragma once
 
-#include "base/types.h"
-#include "base/vec.h"
+#include <basalt/api/gfx/types.h>
+
+#include <basalt/api/base/types.h>
+#include <basalt/api/base/vec.h>
 
 #include <memory>
 
@@ -11,6 +13,9 @@ struct Engine;
 
 struct InputEvent;
 using InputEventPtr = std::unique_ptr<InputEvent>;
+
+struct SceneView;
+using SceneViewPtr = std::shared_ptr<SceneView>;
 
 struct View;
 using ViewPtr = std::shared_ptr<View>;

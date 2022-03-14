@@ -8,6 +8,8 @@
 
 #include <basalt/api/scene/types.h>
 
+#include <basalt/api/base/types.h>
+
 #include <entt/entity/handle.hpp>
 
 #include <array>
@@ -21,7 +23,7 @@ struct Textures final : basalt::View {
 
 private:
   basalt::ScenePtr mScene;
-  basalt::gfx::SceneViewPtr mSceneView;
+  basalt::SceneViewPtr mSceneView;
   entt::handle mQuad;
   basalt::u32 mChosenMaterial {0};
   std::array<basalt::gfx::Material, 9> mMaterials {};

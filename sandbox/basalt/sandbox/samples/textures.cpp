@@ -3,10 +3,10 @@
 #include <basalt/api/engine.h>
 #include <basalt/api/debug.h>
 #include <basalt/api/prelude.h>
+#include <basalt/api/scene_view.h>
 
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/resource_cache.h>
-#include <basalt/api/gfx/scene_view.h>
 
 #include <basalt/api/scene/scene.h>
 
@@ -30,6 +30,7 @@ using basalt::Debug;
 using basalt::Engine;
 using basalt::PI;
 using basalt::Scene;
+using basalt::SceneView;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::DrawablePtr;
@@ -38,7 +39,6 @@ using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::MeshDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
-using basalt::gfx::SceneView;
 using basalt::gfx::Texture;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;

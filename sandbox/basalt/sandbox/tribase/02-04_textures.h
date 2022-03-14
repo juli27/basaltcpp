@@ -1,5 +1,6 @@
 #pragma once
 
+#include <basalt/api/types.h>
 #include <basalt/api/view.h>
 
 #include <basalt/api/gfx/types.h>
@@ -13,7 +14,7 @@ struct Textures final : basalt::View {
 
 private:
   basalt::ScenePtr mScene;
-  basalt::gfx::SceneViewPtr mSceneView;
+  basalt::SceneViewPtr mSceneView;
   basalt::gfx::Material mPointSampler;
   basalt::gfx::Material mLinearSamplerWithMip;
   basalt::gfx::Material mAnisotropicSampler;
