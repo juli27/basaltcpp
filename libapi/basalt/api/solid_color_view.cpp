@@ -1,4 +1,4 @@
-#include <basalt/api/gfx/solid_color_view.h>
+#include <basalt/api/solid_color_view.h>
 
 #include <basalt/api/gfx/backend/command_list.h>
 
@@ -6,13 +6,18 @@
 
 #include <utility>
 
-namespace basalt::gfx {
+namespace basalt {
+
+using gfx::Attachment;
+using gfx::Attachments;
+using gfx::CommandList;
+using gfx::ResourceCache;
 
 SolidColorView::SolidColorView(const Color& color) : mColor {color} {
 }
 
 auto SolidColorView::on_draw(ResourceCache&, const Size2Du16 viewport,
-                          const RectangleU16&)
+                             const RectangleU16&)
   -> std::tuple<CommandList, RectangleU16> {
   CommandList cmdList {};
   cmdList.clear_attachments(Attachments {Attachment::Color}, mColor, 1.0f, 0);
@@ -20,4 +25,4 @@ auto SolidColorView::on_draw(ResourceCache&, const Size2Du16 viewport,
   return {std::move(cmdList), viewport.to_rectangle()};
 }
 
-} // namespace basalt::gfx
+} // namespace basalt
