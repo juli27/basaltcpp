@@ -16,22 +16,19 @@
 
 #include <gsl/span>
 
-#include <algorithm>
+#include <algorithm> // for copy
 #include <array>
 #include <cmath>
 #include <cstddef>
-#include <utility>
 
 using std::array;
 using std::byte;
-using std::tuple;
 
 using gsl::span;
 
 using basalt::Engine;
 using basalt::Mat4f32;
 using basalt::PI;
-using basalt::RectangleU16;
 using basalt::Size2Du16;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
@@ -125,9 +122,8 @@ Textures::~Textures() noexcept {
   mResourceCache.destroy(mPipeline);
 }
 
-auto Textures::on_draw(ResourceCache&, const Size2Du16 viewport,
-                       const RectangleU16&)
-  -> tuple<CommandList, RectangleU16> {
+auto Textures::on_draw(ResourceCache&, const Size2Du16 viewport)
+  -> CommandList {
   CommandList cmdList {};
 
   cmdList.clear_attachments(
@@ -149,7 +145,7 @@ auto Textures::on_draw(ResourceCache&, const Size2Du16 viewport,
 
   cmdList.draw(0, VERTEX_COUNT);
 
-  return tuple {std::move(cmdList), viewport.to_rectangle()};
+  return cmdList;
 }
 
 void Textures::on_tick(Engine& engine) {

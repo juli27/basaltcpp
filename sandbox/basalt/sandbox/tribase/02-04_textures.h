@@ -20,9 +20,8 @@ private:
   basalt::gfx::Material mAnisotropicSampler;
   basalt::f64 mTimeAccum {};
 
-  auto on_draw(basalt::gfx::ResourceCache&, basalt::Size2Du16 viewport,
-               const basalt::RectangleU16& clip)
-    -> std::tuple<basalt::gfx::CommandList, basalt::RectangleU16> override;
+  auto on_draw(basalt::gfx::ResourceCache&, basalt::Size2Du16 viewport)
+    -> basalt::gfx::CommandList override;
 
   void on_tick(basalt::Engine&) override;
 

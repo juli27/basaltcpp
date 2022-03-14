@@ -11,7 +11,6 @@
 #include <basalt/api/scene/transform.h>
 
 #include <basalt/api/math/mat4.h>
-#include <basalt/api/math/rectangle.h>
 
 #include <basalt/api/shared/size2d.h>
 
@@ -69,9 +68,8 @@ auto SceneView::camera() const noexcept -> const Camera& {
   return mCamera;
 }
 
-auto SceneView::on_draw(ResourceCache& cache, const Size2Du16 viewport,
-                        const RectangleU16&)
-  -> std::tuple<CommandList, RectangleU16> {
+auto SceneView::on_draw(ResourceCache& cache, const Size2Du16 viewport)
+  -> CommandList {
   FilteringCommandList cmdList {};
   cmdList.clear_attachments(
     Attachments {Attachment::Color, Attachment::ZBuffer}, mScene->background(),
@@ -120,7 +118,7 @@ auto SceneView::on_draw(ResourceCache& cache, const Size2Du16 viewport,
       cmdList.draw(meshData.startVertex, meshData.vertexCount);
     });
 
-  return {cmdList.take_cmd_list(), viewport.to_rectangle()};
+  return cmdList.take_cmd_list();
 }
 
 } // namespace basalt

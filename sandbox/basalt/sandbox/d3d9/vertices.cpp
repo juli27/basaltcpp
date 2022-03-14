@@ -12,16 +12,13 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
-#include <utility>
 
 using std::array;
 using std::byte;
-using std::tuple;
 
 using gsl::span;
 
 using basalt::Engine;
-using basalt::RectangleU16;
 using basalt::Size2Du16;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
@@ -76,9 +73,7 @@ Vertices::~Vertices() noexcept {
   mResourceCache.destroy(mPipeline);
 }
 
-auto Vertices::on_draw(ResourceCache&, const Size2Du16 viewport,
-                       const RectangleU16&)
-  -> tuple<CommandList, RectangleU16> {
+auto Vertices::on_draw(ResourceCache&, const Size2Du16) -> CommandList {
   CommandList cmdList {};
 
   cmdList.clear_attachments(Attachments {Attachment::Color}, Colors::BLUE, 1.0f,
@@ -88,7 +83,7 @@ auto Vertices::on_draw(ResourceCache&, const Size2Du16 viewport,
   cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
   cmdList.draw(0, 3);
 
-  return tuple {std::move(cmdList), viewport.to_rectangle()};
+  return cmdList;
 }
 
 } // namespace d3d9

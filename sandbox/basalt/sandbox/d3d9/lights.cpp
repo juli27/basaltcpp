@@ -21,11 +21,9 @@
 #include <array>
 #include <cmath>
 #include <cstddef>
-#include <utility>
 
 using std::array;
 using std::byte;
-using std::tuple;
 
 using gsl::span;
 
@@ -33,7 +31,6 @@ using basalt::DirectionalLight;
 using basalt::Engine;
 using basalt::Mat4f32;
 using basalt::PI;
-using basalt::RectangleU16;
 using basalt::Size2Du16;
 using basalt::Vector3f32;
 using basalt::gfx::Attachment;
@@ -117,8 +114,7 @@ Lights::~Lights() noexcept {
   mResourceCache.destroy(mVertexBuffer);
 }
 
-auto Lights::on_draw(ResourceCache&, const Size2Du16 viewport,
-                     const RectangleU16&) -> tuple<CommandList, RectangleU16> {
+auto Lights::on_draw(ResourceCache&, const Size2Du16 viewport) -> CommandList {
   CommandList cmdList {};
 
   cmdList.clear_attachments(
@@ -151,7 +147,7 @@ auto Lights::on_draw(ResourceCache&, const Size2Du16 viewport,
 
   cmdList.draw(0, VERTEX_COUNT);
 
-  return tuple {std::move(cmdList), viewport.to_rectangle()};
+  return cmdList;
 }
 
 void Lights::on_tick(Engine& engine) {

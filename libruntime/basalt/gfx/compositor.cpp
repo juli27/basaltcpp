@@ -3,13 +3,7 @@
 #include <basalt/api/gfx/drawable.h>
 #include <basalt/api/gfx/surface.h>
 
-#include <basalt/api/gfx/backend/command_list.h>
-
-#include <basalt/api/math/rectangle.h>
-
 #include <algorithm>
-#include <vector>
-#include <utility>
 
 namespace basalt::gfx {
 
@@ -18,37 +12,12 @@ auto Compositor::compose(ResourceCache& resourceCache,
   Composite composite;
 
   const Size2Du16 viewport = drawTarget.size();
-  RectangleU16 obscuredRegion;
 
   const auto& drawables = drawTarget.drawables();
-  std::for_each(drawables.rbegin(), drawables.rend(),
-                [&](const DrawablePtr& drawable) {
-                  if (obscuredRegion.area() == viewport.to_rectangle().area()) {
-                    return;
-                  }
-
-                  auto [commandList, clipRect] =
-                    drawable->draw(resourceCache, viewport, obscuredRegion);
-
-                  obscuredRegion = RectangleU16 {
-                    std::min(obscuredRegion.left(), clipRect.left()),
-                    std::min(obscuredRegion.top(), clipRect.top()),
-                    std::max(obscuredRegion.right(), clipRect.right()),
-                    std::max(obscuredRegion.bottom(), clipRect.bottom()),
-                  };
-
-                  composite.emplace_back(std::move(commandList));
-                });
-
-  if (obscuredRegion != viewport.to_rectangle()) {
-    CommandList cmdList {};
-    cmdList.clear_attachments(Attachments {Attachment::Color}, Colors::BLACK,
-                              1.0f, 0);
-
-    composite.emplace_back(std::move(cmdList));
-  }
-
-  std::reverse(composite.begin(), composite.end());
+  std::for_each(
+    drawables.begin(), drawables.end(), [&](const DrawablePtr& drawable) {
+      composite.emplace_back(drawable->draw(resourceCache, viewport));
+    });
 
   return composite;
 }

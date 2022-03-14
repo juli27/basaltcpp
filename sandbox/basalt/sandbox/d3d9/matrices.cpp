@@ -19,18 +19,15 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
-#include <utility>
 
 using std::array;
 using std::byte;
-using std::tuple;
 
 using gsl::span;
 
 using basalt::Engine;
 using basalt::Mat4f32;
 using basalt::PI;
-using basalt::RectangleU16;
 using basalt::Size2Du16;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
@@ -85,9 +82,8 @@ Matrices::~Matrices() noexcept {
   mResourceCache.destroy(mPipeline);
 }
 
-auto Matrices::on_draw(ResourceCache&, const Size2Du16 viewport,
-                       const RectangleU16&)
-  -> tuple<CommandList, RectangleU16> {
+auto Matrices::on_draw(ResourceCache&, const Size2Du16 viewport)
+  -> CommandList {
   CommandList cmdList {};
 
   cmdList.clear_attachments(Attachments {Attachment::Color}, Colors::BLACK,
@@ -105,7 +101,7 @@ auto Matrices::on_draw(ResourceCache&, const Size2Du16 viewport,
 
   cmdList.draw(0, 3);
 
-  return tuple {std::move(cmdList), viewport.to_rectangle()};
+  return cmdList;
 }
 
 void Matrices::on_tick(Engine& engine) {

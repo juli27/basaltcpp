@@ -43,6 +43,7 @@ using basalt::SceneView;
 using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
+using basalt::gfx::CommandList;
 using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::Mesh;
 using basalt::gfx::MeshDescriptor;
@@ -172,10 +173,8 @@ Textures::Textures(Engine& engine)
 }
 
 auto Textures::on_draw(basalt::gfx::ResourceCache& cache,
-                       const basalt::Size2Du16 viewport,
-                       const basalt::RectangleU16& clip)
-  -> std::tuple<basalt::gfx::CommandList, basalt::RectangleU16> {
-  return mSceneView->draw(cache, viewport, clip);
+                       const basalt::Size2Du16 viewport) -> CommandList {
+  return mSceneView->draw(cache, viewport);
 }
 
 void Textures::on_tick(Engine& engine) {

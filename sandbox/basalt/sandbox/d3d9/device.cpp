@@ -6,11 +6,6 @@
 
 #include <basalt/api/shared/size2d.h>
 
-#include <utility>
-
-using std::tuple;
-
-using basalt::RectangleU16;
 using basalt::Size2Du16;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
@@ -19,13 +14,12 @@ using basalt::gfx::ResourceCache;
 
 namespace d3d9 {
 
-auto Device::on_draw(ResourceCache&, const Size2Du16 viewport,
-                     const RectangleU16&) -> tuple<CommandList, RectangleU16> {
+auto Device::on_draw(ResourceCache&, const Size2Du16) -> CommandList {
   CommandList cmdList {};
   cmdList.clear_attachments(Attachments {Attachment::Color}, Colors::BLUE, 1.0f,
                             0);
 
-  return tuple {std::move(cmdList), viewport.to_rectangle()};
+  return cmdList;
 }
 
 } // namespace d3d9

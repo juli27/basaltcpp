@@ -33,7 +33,6 @@
 
 using std::shared_ptr;
 using std::string;
-using std::tuple;
 using namespace std::literals;
 
 using basalt::ClientApp;
@@ -45,7 +44,6 @@ using basalt::InputEventType;
 using basalt::Key;
 using basalt::KeyDown;
 using basalt::KeyUp;
-using basalt::RectangleU16;
 using basalt::Size2Du16;
 using basalt::ViewPtr;
 using basalt::WindowMode;
@@ -261,7 +259,6 @@ void SandboxView::switch_scene(const uSize index, Engine& engine) noexcept {
   add_child_bottom(mExamples[mCurrentExampleIndex].view);
 }
 
-auto SandboxView::on_draw(ResourceCache&, Size2Du16, const RectangleU16&)
-  -> tuple<CommandList, RectangleU16> {
-  return tuple {CommandList {}, RectangleU16 {}};
+auto SandboxView::on_draw(ResourceCache&, Size2Du16) -> CommandList {
+  return CommandList {};
 }

@@ -15,7 +15,6 @@
 
 #include <algorithm>
 #include <array>
-#include <utility>
 
 namespace basalt {
 
@@ -66,12 +65,11 @@ DearImGui::~DearImGui() noexcept {
   ImGui::DestroyContext();
 }
 
-auto DearImGui::on_draw(ResourceCache&, Size2Du16, const RectangleU16&)
-  -> std::tuple<CommandList, RectangleU16> {
+auto DearImGui::on_draw(ResourceCache&, Size2Du16) -> CommandList {
   CommandList commandList {};
   commandList.ext_render_dear_imgui();
 
-  return {std::move(commandList), RectangleU16 {}};
+  return commandList;
 }
 
 void DearImGui::on_tick(Engine& engine) {
