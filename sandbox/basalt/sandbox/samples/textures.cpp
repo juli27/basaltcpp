@@ -63,6 +63,8 @@ auto create_camera() -> Camera {
 Textures::Textures(Engine& engine)
   : mScene {std::make_shared<Scene>()}
   , mSceneView {std::make_shared<SceneView>(mScene, create_camera())} {
+  add_child_top(mSceneView);
+
   mScene->set_background(Color {0.103f, 0.103f, 0.103f});
 
   auto& gfxResourceCache {engine.gfx_resource_cache()};

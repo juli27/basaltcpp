@@ -47,6 +47,8 @@ namespace d3d9 {
 struct MeshBuilder final {};
 
 TexturesTci::TexturesTci(Engine& engine) {
+  add_child_top(mSceneView);
+
   mScene->set_background(Colors::BLUE);
 
   struct Vertex final {

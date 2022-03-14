@@ -22,6 +22,8 @@ using basalt::gfx::ext::XModel;
 namespace d3d9 {
 
 Meshes::Meshes(Engine& engine) {
+  add_child_top(mSceneView);
+
   mScene->set_background(Colors::BLUE);
   mScene->set_ambient_light(Colors::WHITE);
 

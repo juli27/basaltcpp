@@ -58,6 +58,8 @@ Dreieck::Dreieck(Engine& engine)
   : mScene {std::make_shared<Scene>()}
   , mSceneView {std::make_shared<SceneView>(mScene, create_camera())}
   , mEntity {mScene->create_entity()} {
+  add_child_top(mSceneView);
+
   mScene->set_background(Color::from_rgba(0, 0, 63));
 
   mEntity.get<Transform>().move(0.0f, 0.0f, 2.0f);

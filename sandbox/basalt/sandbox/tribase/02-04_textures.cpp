@@ -95,6 +95,8 @@ auto create_camera() -> Camera {
 Textures::Textures(Engine& engine)
   : mScene {std::make_shared<Scene>()}
   , mSceneView {std::make_shared<SceneView>(mScene, create_camera())} {
+  add_child_top(mSceneView);
+
   mScene->set_background(Color::from_rgba(0, 0, 63));
 
   const VertexLayout vertexLayout {VertexElement::Position3F32,

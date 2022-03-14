@@ -1,6 +1,6 @@
 #pragma once
 
-#include <basalt/api/gfx/drawable.h>
+#include <basalt/api/view.h>
 
 #include <basalt/api/gfx/camera.h>
 
@@ -10,7 +10,7 @@
 
 namespace basalt {
 
-struct SceneView final : gfx::Drawable {
+struct SceneView final : View {
   SceneView(ScenePtr scene, const gfx::Camera& camera);
 
   SceneView(const SceneView&) = delete;
