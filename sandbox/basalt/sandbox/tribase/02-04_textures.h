@@ -20,8 +20,6 @@ private:
   basalt::gfx::Material mAnisotropicSampler;
   basalt::f64 mTimeAccum {};
 
-  auto on_draw(const DrawContext&) -> void override;
-
   void on_tick(basalt::Engine&) override;
 
   auto on_input(const basalt::InputEvent&)

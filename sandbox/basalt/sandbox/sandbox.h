@@ -15,11 +15,9 @@ private:
   std::vector<Example> mExamples;
   basalt::uSize mCurrentExampleIndex {9};
 
-  void next_scene(basalt::Engine&) noexcept;
-  void prev_scene(basalt::Engine&) noexcept;
-  void switch_scene(basalt::uSize index, basalt::Engine&) noexcept;
-
-  auto on_draw(const DrawContext&) -> void override;
+  void next_scene() noexcept;
+  void prev_scene() noexcept;
+  void switch_scene(basalt::uSize index) noexcept;
 
   auto on_input(const basalt::InputEvent&)
     -> basalt::InputEventHandled override;

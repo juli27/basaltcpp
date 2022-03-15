@@ -29,8 +29,6 @@ private:
   basalt::f64 mTimeAccum {};
   basalt::i32 mCurrentExercise {};
 
-  auto on_draw(const DrawContext&) -> void override;
-
   void on_tick(basalt::Engine&) override;
 };
 

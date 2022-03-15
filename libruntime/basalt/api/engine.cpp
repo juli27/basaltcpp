@@ -30,10 +30,6 @@ auto Engine::window_surface_size() const -> Size2Du16 {
   return mGfxContext.surface_size();
 }
 
-void Engine::set_window_surface_content(gfx::DrawablePtr drawable) {
-  mWindowSurfaceContent = std::move(drawable);
-}
-
 void Engine::set_root(ViewPtr view) {
   mRoot = std::move(view);
 }

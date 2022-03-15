@@ -30,10 +30,6 @@ Meshes::Meshes(Engine& engine) {
   mTiger.emplace<XModel>(engine.get_or_load<XModel>("data/Tiger.x"_hs));
 }
 
-auto Meshes::on_draw(const DrawContext& context) -> void {
-  mSceneView->draw(context);
-}
-
 void Meshes::on_tick(Engine& engine) {
   mTiger.get<Transform>().rotate(0.0f, static_cast<f32>(engine.delta_time()),
                                  0.0f);

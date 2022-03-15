@@ -124,10 +124,6 @@ Dreieck::Dreieck(Engine& engine)
   mEntity.emplace<RenderComponent>(mTriangleMesh, mSolidMaterial);
 }
 
-auto Dreieck::on_draw(const DrawContext& context) -> void {
-  mSceneView->draw(context);
-}
-
 void Dreieck::on_tick(Engine& engine) {
   // 90° per second
   const f32 radOffsetY {PI / 2.0f * static_cast<f32>(engine.delta_time())};

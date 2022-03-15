@@ -13,14 +13,8 @@
 #include <gsl/span>
 
 #include <cstddef>
-#include <memory>
 
 namespace basalt::gfx {
-
-struct Surface;
-
-struct Drawable;
-using DrawablePtr = std::shared_ptr<Drawable>;
 
 struct ResourceCache;
 

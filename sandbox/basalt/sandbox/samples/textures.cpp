@@ -117,10 +117,6 @@ Textures::Textures(Engine& engine)
   rc.material = std::get<0>(mMaterials);
 }
 
-auto Textures::on_draw(const DrawContext& context) -> void {
-  mSceneView->draw(context);
-}
-
 void Textures::on_tick(Engine& engine) {
   constexpr u8 filterMask {0x3};
   constexpr u8 mipFilterShift {0};

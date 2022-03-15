@@ -2,18 +2,21 @@
 
 #include <basalt/api/types.h>
 
-#include <basalt/api/gfx/drawable.h>
+#include <basalt/api/gfx/types.h>
+#include <basalt/api/gfx/backend/command_list.h>
+
+#include <basalt/api/shared/size2d.h>
 
 #include <bitset>
 #include <vector>
 
 namespace basalt {
 
-struct View : gfx::Drawable {
+struct View {
   View(const View&) = delete;
   View(View&&) noexcept = default;
 
-  ~View() noexcept override = default;
+  virtual ~View() noexcept = default;
 
   auto operator=(const View&) -> View& = delete;
   auto operator=(View&&) noexcept -> View& = default;
@@ -28,12 +31,23 @@ struct View : gfx::Drawable {
   void add_child_below(ViewPtr, const ViewPtr& after);
   void remove_child(const ViewPtr&);
 
+  struct DrawContext final {
+    std::vector<gfx::CommandList>& commandLists;
+    gfx::ResourceCache& cache;
+    Size2Du16 viewport;
+  };
+
+  void draw(const DrawContext& context);
+
   [[nodiscard]] auto handle_input(const InputEvent&) -> bool;
 
   void tick(Engine&);
 
 protected:
   View() noexcept = default;
+
+  virtual void on_draw(const DrawContext&) {
+  }
 
   virtual void on_tick(Engine&) {
   }
@@ -44,7 +58,7 @@ protected:
 
 private:
   // top to bottom order
-  std::vector<ViewPtr> mViews;
+  std::vector<ViewPtr> mChildren;
 
   PointerPosition mPointerPos;
   std::bitset<MOUSE_BUTTON_COUNT> mMouseButtonsDown;

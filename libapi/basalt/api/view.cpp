@@ -5,7 +5,6 @@
 #include <basalt/api/base/utils.h>
 
 #include <algorithm>
-#include <iterator>
 #include <utility>
 
 using std::vector;
@@ -25,30 +24,38 @@ auto View::is_key_down(const Key key) const -> bool {
 }
 
 void View::add_child_top(ViewPtr view) {
-  mViews.emplace(mViews.begin(), std::move(view));
+  mChildren.emplace(mChildren.begin(), std::move(view));
 }
 
 void View::add_child_bottom(ViewPtr view) {
-  mViews.emplace_back(std::move(view));
+  mChildren.emplace_back(std::move(view));
 }
 
 void View::add_child_above(ViewPtr view, const ViewPtr& before) {
-  mViews.emplace(std::find(mViews.begin(), mViews.end(), before),
-                 std::move(view));
+  mChildren.emplace(std::find(mChildren.begin(), mChildren.end(), before),
+                    std::move(view));
 }
 
 void View::add_child_below(ViewPtr view, const ViewPtr& after) {
-  auto it {std::find(mViews.begin(), mViews.end(), after)};
+  auto it {std::find(mChildren.begin(), mChildren.end(), after)};
 
-  if (it != mViews.end()) {
+  if (it != mChildren.end()) {
     ++it;
   }
 
-  mViews.emplace(it, std::move(view));
+  mChildren.emplace(it, std::move(view));
 }
 
 void View::remove_child(const ViewPtr& view) {
-  mViews.erase(std::remove(mViews.begin(), mViews.end(), view), mViews.end());
+  mChildren.erase(std::remove(mChildren.begin(), mChildren.end(), view),
+                  mChildren.end());
+}
+
+void View::draw(const DrawContext& context) {
+  on_draw(context);
+
+  std::for_each(mChildren.begin(), mChildren.end(),
+                [&](const ViewPtr& view) { view->draw(context); });
 }
 
 auto View::handle_input(const InputEvent& e) -> bool {
@@ -58,7 +65,7 @@ auto View::handle_input(const InputEvent& e) -> bool {
     return true;
   }
 
-  const vector views {mViews};
+  const vector views {mChildren};
 
   return std::any_of(views.begin(), views.end(), [&](const ViewPtr& view) {
     return view->handle_input(e);
@@ -68,7 +75,7 @@ auto View::handle_input(const InputEvent& e) -> bool {
 void View::tick(Engine& engine) {
   on_tick(engine);
 
-  const vector views {mViews};
+  const vector views {mChildren};
 
   for (const ViewPtr& view : views) {
     view->on_tick(engine);

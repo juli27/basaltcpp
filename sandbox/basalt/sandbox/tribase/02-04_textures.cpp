@@ -171,10 +171,6 @@ Textures::Textures(Engine& engine)
   }
 }
 
-auto Textures::on_draw(const DrawContext& context) -> void {
-  mSceneView->draw(context);
-}
-
 void Textures::on_tick(Engine& engine) {
   mTimeAccum += engine.delta_time();
 

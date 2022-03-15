@@ -3,13 +3,10 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "camera.h"
   "device_state_cache.cpp"
   "device_state_cache.h"
-  "drawable.h"
   "filtering_command_list.cpp"
   "filtering_command_list.h"
   "resource_cache.cpp"
   "resource_cache.h"
-  "surface.cpp"
-  "surface.h"
   "types.h"
 )
 

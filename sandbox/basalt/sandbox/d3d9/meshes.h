@@ -24,8 +24,6 @@ private:
     std::make_shared<basalt::SceneView>(mScene, create_default_camera());
   entt::handle mTiger = mScene->create_entity();
 
-  auto on_draw(const DrawContext&) -> void override;
-
   void on_tick(basalt::Engine&) override;
 };
 

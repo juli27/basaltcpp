@@ -5,7 +5,6 @@
 #include <basalt/api/prelude.h>
 
 #include <basalt/api/gfx/camera.h>
-#include <basalt/api/gfx/surface.h>
 
 #include <basalt/api/scene/transform.h>
 
@@ -106,10 +105,6 @@ TexturesTci::TexturesTci(Engine& engine) {
   rc.texTransform = camera.projection_matrix(engine.window_surface_size()) *
                     Mat4f32::scaling(Vector3f32 {0.5f, -0.5f, 1.0f}) *
                     Mat4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f});
-}
-
-auto TexturesTci::on_draw(const DrawContext& context) -> void {
-  mSceneView->draw(context);
 }
 
 void TexturesTci::on_tick(Engine& engine) {

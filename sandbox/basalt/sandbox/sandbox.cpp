@@ -96,7 +96,6 @@ SandboxView::SandboxView(Engine& engine) {
     "Textures"s,
   });
 
-  engine.set_window_surface_content(mExamples[mCurrentExampleIndex].view);
   add_child_bottom(mExamples[mCurrentExampleIndex].view);
 }
 
@@ -107,7 +106,7 @@ void SandboxView::on_tick(Engine& engine) {
     if (!pageUpPressed) {
       pageUpPressed = true;
 
-      prev_scene(engine);
+      prev_scene();
     }
   } else {
     pageUpPressed = false;
@@ -117,7 +116,7 @@ void SandboxView::on_tick(Engine& engine) {
     if (!pageDownPressed) {
       pageDownPressed = true;
 
-      next_scene(engine);
+      next_scene();
     }
   } else {
     pageDownPressed = false;
@@ -129,17 +128,17 @@ void SandboxView::on_tick(Engine& engine) {
         const bool isCurrent {mCurrentExampleIndex == i};
         if (ImGui::MenuItem(mExamples[i].name.data(), nullptr, isCurrent,
                             !isCurrent)) {
-          switch_scene(i, engine);
+          switch_scene(i);
         }
       }
 
       ImGui::Separator();
 
       if (ImGui::MenuItem("Next Scene", "PgDn")) {
-        next_scene(engine);
+        next_scene();
       }
       if (ImGui::MenuItem("Prev Scene", "PgUp")) {
-        prev_scene(engine);
+        prev_scene();
       }
 
       ImGui::Separator();
@@ -217,16 +216,16 @@ auto SandboxView::on_input(const InputEvent& event) -> InputEventHandled {
   return InputEventHandled::No;
 }
 
-void SandboxView::next_scene(Engine& engine) noexcept {
+void SandboxView::next_scene() noexcept {
   uSize nextSceneIndex {mCurrentExampleIndex + 1};
   if (nextSceneIndex >= mExamples.size()) {
     nextSceneIndex = 0;
   }
 
-  switch_scene(nextSceneIndex, engine);
+  switch_scene(nextSceneIndex);
 }
 
-void SandboxView::prev_scene(Engine& engine) noexcept {
+void SandboxView::prev_scene() noexcept {
   const uSize prevSceneIndex {[this] {
     if (mCurrentExampleIndex == 0) {
       return mExamples.size() - 1;
@@ -235,10 +234,10 @@ void SandboxView::prev_scene(Engine& engine) noexcept {
     return mCurrentExampleIndex - 1;
   }()};
 
-  switch_scene(prevSceneIndex, engine);
+  switch_scene(prevSceneIndex);
 }
 
-void SandboxView::switch_scene(const uSize index, Engine& engine) noexcept {
+void SandboxView::switch_scene(const uSize index) noexcept {
   if (mExamples.empty()) {
     return;
   }
@@ -249,9 +248,5 @@ void SandboxView::switch_scene(const uSize index, Engine& engine) noexcept {
 
   mCurrentExampleIndex = index;
 
-  engine.set_window_surface_content(mExamples[mCurrentExampleIndex].view);
   add_child_bottom(mExamples[mCurrentExampleIndex].view);
-}
-
-auto SandboxView::on_draw(const DrawContext&) -> void {
 }

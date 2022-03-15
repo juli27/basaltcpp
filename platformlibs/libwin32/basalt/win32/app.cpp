@@ -12,15 +12,13 @@
 
 #include <basalt/dear_imgui.h>
 
-#include <basalt/gfx/compositor.h>
 #include <basalt/gfx/debug.h>
 
 #include <basalt/api/client_app.h>
 #include <basalt/api/debug.h>
 #include <basalt/api/types.h>
+#include <basalt/api/view.h>
 
-#include <basalt/api/gfx/surface.h>
-#include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/context.h>
 
 #include <basalt/api/shared/config.h>
@@ -38,7 +36,6 @@ using namespace std::literals;
 namespace basalt {
 
 using gfx::Composite;
-using gfx::Compositor;
 using gfx::D3D9Factory;
 using gfx::D3D9FactoryPtr;
 
@@ -192,17 +189,16 @@ void App::run(Config& config, const HMODULE moduleHandle,
       window->set_cursor(app.mMouseCursor);
     }
 
-    gfx::Surface surface {gfxContext.surface_size()};
-    if (app.mWindowSurfaceContent) {
-      surface.draw(app.mWindowSurfaceContent);
-    }
+    Composite composite {};
+    const View::DrawContext drawContext {composite, app.mGfxResourceCache,
+                                         gfxContext.surface_size()};
 
-    // The DearImGui drawable doesn't actually cause the UI to render during
-    // the compositing but is being done at execution of the ExtRenderDearImGui
+    app.mRoot->draw(drawContext);
+
+    // The DearImGui view doesn't actually cause the UI to render during drawing
+    // but is currently being done at execution of the ExtRenderDearImGui
     // command instead.
-    surface.draw(dearImGui);
-
-    Composite composite {Compositor::compose(app.mGfxResourceCache, surface)};
+    dearImGui->draw(drawContext);
 
     if (config.get_bool("runtime.debugUI.enabled"s)) {
       Debug::update();

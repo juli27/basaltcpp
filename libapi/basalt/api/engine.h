@@ -3,7 +3,6 @@
 #include <basalt/api/types.h>
 
 #include <basalt/api/gfx/resource_cache.h>
-#include <basalt/api/gfx/types.h>
 
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/types.h>
@@ -32,8 +31,6 @@ struct Engine {
   [[nodiscard]] auto delta_time() const noexcept -> f64;
   [[nodiscard]] auto window_surface_size() const -> Size2Du16;
 
-  void set_window_surface_content(gfx::DrawablePtr);
-
   void set_root(ViewPtr);
 
   [[nodiscard]] auto mouse_cursor() const noexcept -> MouseCursor;
@@ -51,7 +48,6 @@ protected:
   gfx::Context& mGfxContext;
   gfx::ResourceCache mGfxResourceCache;
 
-  gfx::DrawablePtr mWindowSurfaceContent;
   ViewPtr mRoot;
 
   f64 mDeltaTime {};
