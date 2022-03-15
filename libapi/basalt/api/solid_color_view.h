@@ -12,7 +12,7 @@ struct SolidColorView final : View {
 private:
   Color mColor;
 
-  auto on_draw(const DrawContext&) -> gfx::CommandList override;
+  auto on_draw(const DrawContext&) -> void override;
 };
 
 } // namespace basalt

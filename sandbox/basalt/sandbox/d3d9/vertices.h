@@ -23,7 +23,7 @@ private:
   basalt::gfx::Pipeline mPipeline {basalt::gfx::Pipeline::null()};
   basalt::gfx::VertexBuffer mVertexBuffer {basalt::gfx::VertexBuffer::null()};
 
-  auto on_draw(const DrawContext&) -> basalt::gfx::CommandList override;
+  auto on_draw(const DrawContext&) -> void override;
 };
 
 } // namespace d3d9

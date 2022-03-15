@@ -5,6 +5,8 @@
 
 #include <basalt/api/shared/size2d.h>
 
+#include <vector>
+
 namespace basalt::gfx {
 
 struct Drawable {
@@ -17,18 +19,19 @@ struct Drawable {
   auto operator=(Drawable&&) noexcept -> Drawable& = default;
 
   struct DrawContext final {
+    std::vector<CommandList>& commandLists;
     ResourceCache& cache;
     Size2Du16 viewport;
   };
 
-  auto draw(const DrawContext& context) -> CommandList {
-    return on_draw(context);
+  void draw(const DrawContext& context) {
+    on_draw(context);
   }
 
 protected:
   Drawable() noexcept = default;
 
-  virtual auto on_draw(const DrawContext&) -> CommandList = 0;
+  virtual void on_draw(const DrawContext&) = 0;
 };
 
 } // namespace basalt::gfx

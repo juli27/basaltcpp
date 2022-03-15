@@ -26,7 +26,7 @@ private:
   basalt::f32 mAngleXRad {};
   basalt::f32 mLightAngle {};
 
-  auto on_draw(const DrawContext&) -> basalt::gfx::CommandList override;
+  auto on_draw(const DrawContext&) -> void override;
 
   void on_tick(basalt::Engine&) override;
 };

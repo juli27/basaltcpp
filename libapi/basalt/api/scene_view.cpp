@@ -65,7 +65,7 @@ auto SceneView::camera() const noexcept -> const Camera& {
   return mCamera;
 }
 
-auto SceneView::on_draw(const DrawContext& context) -> CommandList {
+auto SceneView::on_draw(const DrawContext& context) -> void {
   FilteringCommandList cmdList {};
   cmdList.clear_attachments(
     Attachments {Attachment::Color, Attachment::ZBuffer}, mScene->background(),
@@ -116,7 +116,7 @@ auto SceneView::on_draw(const DrawContext& context) -> CommandList {
       cmdList.draw(meshData.startVertex, meshData.vertexCount);
     });
 
-  return cmdList.take_cmd_list();
+  context.commandLists.push_back(cmdList.take_cmd_list());
 }
 
 } // namespace basalt

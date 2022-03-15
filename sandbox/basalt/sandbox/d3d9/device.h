@@ -8,7 +8,7 @@ struct Device final : basalt::View {
   Device() noexcept = default;
 
 private:
-  auto on_draw(const DrawContext&) -> basalt::gfx::CommandList override;
+  void on_draw(const DrawContext&) override;
 };
 
 } // namespace d3d9

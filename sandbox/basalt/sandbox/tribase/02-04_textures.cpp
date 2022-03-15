@@ -43,7 +43,6 @@ using basalt::SceneView;
 using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
-using basalt::gfx::CommandList;
 using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::Mesh;
 using basalt::gfx::MeshDescriptor;
@@ -172,8 +171,8 @@ Textures::Textures(Engine& engine)
   }
 }
 
-auto Textures::on_draw(const DrawContext& context) -> CommandList {
-  return mSceneView->draw(context);
+auto Textures::on_draw(const DrawContext& context) -> void {
+  mSceneView->draw(context);
 }
 
 void Textures::on_tick(Engine& engine) {

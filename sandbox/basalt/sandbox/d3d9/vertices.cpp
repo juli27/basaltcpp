@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <utility> // for move
 
 using std::array;
 using std::byte;
@@ -69,7 +70,7 @@ Vertices::~Vertices() noexcept {
   mResourceCache.destroy(mPipeline);
 }
 
-auto Vertices::on_draw(const DrawContext&) -> CommandList {
+auto Vertices::on_draw(const DrawContext& context) -> void {
   CommandList cmdList {};
 
   cmdList.clear_attachments(Attachments {Attachment::Color}, Colors::BLUE, 1.0f,
@@ -79,7 +80,7 @@ auto Vertices::on_draw(const DrawContext&) -> CommandList {
   cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
   cmdList.draw(0, 3);
 
-  return cmdList;
+  context.commandLists.push_back(std::move(cmdList));
 }
 
 } // namespace d3d9

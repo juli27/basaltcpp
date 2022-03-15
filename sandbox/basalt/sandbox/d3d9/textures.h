@@ -29,7 +29,7 @@ private:
   basalt::gfx::Camera mCamera;
   basalt::f32 mAngleXRad {};
 
-  auto on_draw(const DrawContext&) -> basalt::gfx::CommandList override;
+  auto on_draw(const DrawContext&) -> void override;
 
   void on_tick(basalt::Engine&) override;
 };

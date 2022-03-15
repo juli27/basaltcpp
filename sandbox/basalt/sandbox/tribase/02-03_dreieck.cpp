@@ -31,7 +31,6 @@ using basalt::SceneView;
 using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
-using basalt::gfx::CommandList;
 using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::MeshDescriptor;
 using basalt::gfx::PrimitiveType;
@@ -125,8 +124,8 @@ Dreieck::Dreieck(Engine& engine)
   mEntity.emplace<RenderComponent>(mTriangleMesh, mSolidMaterial);
 }
 
-auto Dreieck::on_draw(const DrawContext& context) -> CommandList {
-  return mSceneView->draw(context);
+auto Dreieck::on_draw(const DrawContext& context) -> void {
+  mSceneView->draw(context);
 }
 
 void Dreieck::on_tick(Engine& engine) {

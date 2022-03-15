@@ -11,13 +11,12 @@ auto Compositor::compose(ResourceCache& resourceCache,
                          const Surface& drawTarget) -> Composite {
   Composite composite;
 
-  const Drawable::DrawContext context {resourceCache, drawTarget.size()};
+  const Drawable::DrawContext context {composite, resourceCache,
+                                       drawTarget.size()};
 
   const auto& drawables = drawTarget.drawables();
-  std::for_each(
-    drawables.begin(), drawables.end(), [&](const DrawablePtr& drawable) {
-      composite.emplace_back(drawable->draw(context));
-    });
+  std::for_each(drawables.begin(), drawables.end(),
+                [&](const DrawablePtr& drawable) { drawable->draw(context); });
 
   return composite;
 }

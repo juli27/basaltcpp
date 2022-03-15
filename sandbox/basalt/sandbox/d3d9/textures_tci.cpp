@@ -31,7 +31,6 @@ using basalt::SceneView;
 using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
-using basalt::gfx::CommandList;
 using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::MeshDescriptor;
 using basalt::gfx::PrimitiveType;
@@ -109,8 +108,8 @@ TexturesTci::TexturesTci(Engine& engine) {
                     Mat4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f});
 }
 
-auto TexturesTci::on_draw(const DrawContext& context) -> CommandList {
-  return mSceneView->draw(context);
+auto TexturesTci::on_draw(const DrawContext& context) -> void {
+  mSceneView->draw(context);
 }
 
 void TexturesTci::on_tick(Engine& engine) {

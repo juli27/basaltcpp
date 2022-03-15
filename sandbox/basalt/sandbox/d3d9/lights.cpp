@@ -19,6 +19,7 @@
 #include <array>
 #include <cmath>
 #include <cstddef>
+#include <utility>
 
 using std::array;
 using std::byte;
@@ -110,7 +111,7 @@ Lights::~Lights() noexcept {
   mResourceCache.destroy(mVertexBuffer);
 }
 
-auto Lights::on_draw(const DrawContext& context) -> CommandList {
+auto Lights::on_draw(const DrawContext& context) -> void {
   CommandList cmdList {};
 
   cmdList.clear_attachments(
@@ -143,7 +144,7 @@ auto Lights::on_draw(const DrawContext& context) -> CommandList {
 
   cmdList.draw(0, VERTEX_COUNT);
 
-  return cmdList;
+  context.commandLists.push_back(std::move(cmdList));
 }
 
 void Lights::on_tick(Engine& engine) {

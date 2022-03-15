@@ -17,7 +17,6 @@ using namespace entt::literals;
 using basalt::Debug;
 using basalt::Engine;
 using basalt::Transform;
-using basalt::gfx::CommandList;
 using basalt::gfx::ext::XModel;
 
 namespace d3d9 {
@@ -31,8 +30,8 @@ Meshes::Meshes(Engine& engine) {
   mTiger.emplace<XModel>(engine.get_or_load<XModel>("data/Tiger.x"_hs));
 }
 
-auto Meshes::on_draw(const DrawContext& context) -> CommandList {
-  return mSceneView->draw(context);
+auto Meshes::on_draw(const DrawContext& context) -> void {
+  mSceneView->draw(context);
 }
 
 void Meshes::on_tick(Engine& engine) {

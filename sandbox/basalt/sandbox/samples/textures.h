@@ -28,7 +28,7 @@ private:
   basalt::u32 mChosenMaterial {0};
   std::array<basalt::gfx::Material, 9> mMaterials {};
 
-  auto on_draw(const DrawContext&) -> basalt::gfx::CommandList override;
+  auto on_draw(const DrawContext&) -> void override;
 
   void on_tick(basalt::Engine&) override;
 };

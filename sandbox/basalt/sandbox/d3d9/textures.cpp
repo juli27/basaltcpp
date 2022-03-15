@@ -18,6 +18,7 @@
 #include <array>
 #include <cmath>
 #include <cstddef>
+#include <utility> // for move
 
 using std::array;
 using std::byte;
@@ -118,7 +119,7 @@ Textures::~Textures() noexcept {
   mResourceCache.destroy(mPipeline);
 }
 
-auto Textures::on_draw(const DrawContext& context) -> CommandList {
+auto Textures::on_draw(const DrawContext& context) -> void {
   CommandList cmdList {};
 
   cmdList.clear_attachments(
@@ -140,7 +141,7 @@ auto Textures::on_draw(const DrawContext& context) -> CommandList {
 
   cmdList.draw(0, VERTEX_COUNT);
 
-  return cmdList;
+  context.commandLists.push_back(std::move(cmdList));
 }
 
 void Textures::on_tick(Engine& engine) {

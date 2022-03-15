@@ -27,7 +27,7 @@ private:
   ScenePtr mScene;
   gfx::Camera mCamera;
 
-  auto on_draw(const DrawContext&) -> gfx::CommandList override;
+  auto on_draw(const DrawContext&) -> void override;
 };
 
 } // namespace basalt

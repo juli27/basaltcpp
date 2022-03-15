@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <utility>
 
 using std::array;
 using std::byte;
@@ -78,7 +79,7 @@ Matrices::~Matrices() noexcept {
   mResourceCache.destroy(mPipeline);
 }
 
-auto Matrices::on_draw(const DrawContext& context) -> CommandList {
+auto Matrices::on_draw(const DrawContext& context) -> void {
   CommandList cmdList {};
 
   cmdList.clear_attachments(Attachments {Attachment::Color}, Colors::BLACK,
@@ -96,7 +97,7 @@ auto Matrices::on_draw(const DrawContext& context) -> CommandList {
 
   cmdList.draw(0, 3);
 
-  return cmdList;
+  context.commandLists.push_back(std::move(cmdList));
 }
 
 void Matrices::on_tick(Engine& engine) {
