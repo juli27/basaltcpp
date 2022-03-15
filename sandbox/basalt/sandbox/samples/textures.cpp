@@ -118,9 +118,8 @@ Textures::Textures(Engine& engine)
   rc.material = std::get<0>(mMaterials);
 }
 
-auto Textures::on_draw(basalt::gfx::ResourceCache& cache,
-                       const basalt::Size2Du16 viewport) -> CommandList {
-  return mSceneView->draw(cache, viewport);
+auto Textures::on_draw(const DrawContext& context) -> CommandList {
+  return mSceneView->draw(context);
 }
 
 void Textures::on_tick(Engine& engine) {

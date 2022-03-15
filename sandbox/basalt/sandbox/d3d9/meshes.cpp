@@ -31,9 +31,8 @@ Meshes::Meshes(Engine& engine) {
   mTiger.emplace<XModel>(engine.get_or_load<XModel>("data/Tiger.x"_hs));
 }
 
-auto Meshes::on_draw(basalt::gfx::ResourceCache& cache,
-                     const basalt::Size2Du16 viewport) -> CommandList {
-  return mSceneView->draw(cache, viewport);
+auto Meshes::on_draw(const DrawContext& context) -> CommandList {
+  return mSceneView->draw(context);
 }
 
 void Meshes::on_tick(Engine& engine) {

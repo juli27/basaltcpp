@@ -20,7 +20,6 @@ namespace basalt {
 
 using gfx::CommandList;
 using gfx::Device;
-using gfx::ResourceCache;
 using gfx::ext::CommandRenderDearImGui;
 using gfx::ext::DearImGuiRenderer;
 
@@ -65,7 +64,7 @@ DearImGui::~DearImGui() noexcept {
   ImGui::DestroyContext();
 }
 
-auto DearImGui::on_draw(ResourceCache&, Size2Du16) -> CommandList {
+auto DearImGui::on_draw(const DrawContext&) -> CommandList {
   CommandList commandList {};
   commandList.ext_render_dear_imgui();
 

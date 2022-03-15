@@ -109,9 +109,8 @@ TexturesTci::TexturesTci(Engine& engine) {
                     Mat4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f});
 }
 
-auto TexturesTci::on_draw(basalt::gfx::ResourceCache& cache,
-                          const basalt::Size2Du16 viewport) -> CommandList {
-  return mSceneView->draw(cache, viewport);
+auto TexturesTci::on_draw(const DrawContext& context) -> CommandList {
+  return mSceneView->draw(context);
 }
 
 void TexturesTci::on_tick(Engine& engine) {

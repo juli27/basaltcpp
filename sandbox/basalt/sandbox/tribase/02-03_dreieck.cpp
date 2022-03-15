@@ -125,9 +125,8 @@ Dreieck::Dreieck(Engine& engine)
   mEntity.emplace<RenderComponent>(mTriangleMesh, mSolidMaterial);
 }
 
-auto Dreieck::on_draw(basalt::gfx::ResourceCache& cache,
-                      const basalt::Size2Du16 viewport) -> CommandList {
-  return mSceneView->draw(cache, viewport);
+auto Dreieck::on_draw(const DrawContext& context) -> CommandList {
+  return mSceneView->draw(context);
 }
 
 void Dreieck::on_tick(Engine& engine) {

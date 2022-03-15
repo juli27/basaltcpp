@@ -22,8 +22,7 @@ struct DearImGui final : View {
 private:
   std::shared_ptr<gfx::ext::DearImGuiRenderer> mRenderer;
 
-  auto on_draw(gfx::ResourceCache&, Size2Du16 viewport)
-    -> gfx::CommandList override;
+  auto on_draw(const DrawContext&) -> gfx::CommandList override;
 
   void on_tick(Engine&) override;
 

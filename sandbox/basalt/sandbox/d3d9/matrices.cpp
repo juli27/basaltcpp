@@ -9,8 +9,6 @@
 
 #include <basalt/api/gfx/backend/command_list.h>
 
-#include <basalt/api/shared/size2d.h>
-
 #include <basalt/api/math/constants.h>
 #include <basalt/api/math/mat4.h>
 
@@ -28,13 +26,11 @@ using gsl::span;
 using basalt::Engine;
 using basalt::Mat4f32;
 using basalt::PI;
-using basalt::Size2Du16;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
-using basalt::gfx::ResourceCache;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexBufferDescriptor;
 using basalt::gfx::VertexElement;
@@ -82,8 +78,7 @@ Matrices::~Matrices() noexcept {
   mResourceCache.destroy(mPipeline);
 }
 
-auto Matrices::on_draw(ResourceCache&, const Size2Du16 viewport)
-  -> CommandList {
+auto Matrices::on_draw(const DrawContext& context) -> CommandList {
   CommandList cmdList {};
 
   cmdList.clear_attachments(Attachments {Attachment::Color}, Colors::BLACK,
@@ -95,7 +90,7 @@ auto Matrices::on_draw(ResourceCache&, const Size2Du16 viewport)
                         Mat4f32::rotation_y(mAngleYRad));
   cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
   cmdList.set_transform(TransformState::ViewToViewport,
-                        mCamera.projection_matrix(viewport));
+                        mCamera.projection_matrix(context.viewport));
 
   cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
 

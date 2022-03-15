@@ -9,8 +9,6 @@
 
 #include <basalt/api/gfx/backend/command_list.h>
 
-#include <basalt/api/shared/size2d.h>
-
 #include <basalt/api/math/constants.h>
 #include <basalt/api/math/mat4.h>
 #include <basalt/api/math/vector3.h>
@@ -31,7 +29,6 @@ using basalt::DirectionalLight;
 using basalt::Engine;
 using basalt::Mat4f32;
 using basalt::PI;
-using basalt::Size2Du16;
 using basalt::Vector3f32;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
@@ -40,7 +37,6 @@ using basalt::gfx::DepthTestPass;
 using basalt::gfx::Light;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
-using basalt::gfx::ResourceCache;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexBufferDescriptor;
 using basalt::gfx::VertexElement;
@@ -114,7 +110,7 @@ Lights::~Lights() noexcept {
   mResourceCache.destroy(mVertexBuffer);
 }
 
-auto Lights::on_draw(ResourceCache&, const Size2Du16 viewport) -> CommandList {
+auto Lights::on_draw(const DrawContext& context) -> CommandList {
   CommandList cmdList {};
 
   cmdList.clear_attachments(
@@ -124,7 +120,7 @@ auto Lights::on_draw(ResourceCache&, const Size2Du16 viewport) -> CommandList {
   cmdList.bind_pipeline(mPipeline);
 
   cmdList.set_transform(TransformState::ViewToViewport,
-                        mCamera.projection_matrix(viewport));
+                        mCamera.projection_matrix(context.viewport));
 
   cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
 

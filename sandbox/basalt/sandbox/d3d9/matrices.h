@@ -26,8 +26,7 @@ private:
   basalt::gfx::Camera mCamera;
   basalt::f32 mAngleYRad {};
 
-  auto on_draw(basalt::gfx::ResourceCache&, basalt::Size2Du16 viewport)
-    -> basalt::gfx::CommandList override;
+  auto on_draw(const DrawContext&) -> basalt::gfx::CommandList override;
 
   void on_tick(basalt::Engine&) override;
 };

@@ -9,8 +9,6 @@
 
 #include <basalt/api/gfx/backend/command_list.h>
 
-#include <basalt/api/shared/size2d.h>
-
 #include <basalt/api/math/constants.h>
 #include <basalt/api/math/mat4.h>
 
@@ -29,14 +27,12 @@ using gsl::span;
 using basalt::Engine;
 using basalt::Mat4f32;
 using basalt::PI;
-using basalt::Size2Du16;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
 using basalt::gfx::DepthTestPass;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
-using basalt::gfx::ResourceCache;
 using basalt::gfx::SamplerDescriptor;
 using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TransformState;
@@ -122,8 +118,7 @@ Textures::~Textures() noexcept {
   mResourceCache.destroy(mPipeline);
 }
 
-auto Textures::on_draw(ResourceCache&, const Size2Du16 viewport)
-  -> CommandList {
+auto Textures::on_draw(const DrawContext& context) -> CommandList {
   CommandList cmdList {};
 
   cmdList.clear_attachments(
@@ -133,7 +128,7 @@ auto Textures::on_draw(ResourceCache&, const Size2Du16 viewport)
   cmdList.bind_pipeline(mPipeline);
 
   cmdList.set_transform(TransformState::ViewToViewport,
-                        mCamera.projection_matrix(viewport));
+                        mCamera.projection_matrix(context.viewport));
   cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
 
   cmdList.set_transform(TransformState::ModelToWorld,

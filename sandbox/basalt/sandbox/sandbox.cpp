@@ -23,7 +23,6 @@
 
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/config.h>
-#include <basalt/api/shared/size2d.h>
 #include <basalt/api/shared/types.h>
 
 #include <imgui/imgui.h>
@@ -44,11 +43,9 @@ using basalt::InputEventType;
 using basalt::Key;
 using basalt::KeyDown;
 using basalt::KeyUp;
-using basalt::Size2Du16;
 using basalt::ViewPtr;
 using basalt::WindowMode;
 using basalt::gfx::CommandList;
-using basalt::gfx::ResourceCache;
 
 void ClientApp::bootstrap(Engine& engine) {
   engine.set_root(std::make_shared<SandboxView>(engine));
@@ -259,6 +256,6 @@ void SandboxView::switch_scene(const uSize index, Engine& engine) noexcept {
   add_child_bottom(mExamples[mCurrentExampleIndex].view);
 }
 
-auto SandboxView::on_draw(ResourceCache&, Size2Du16) -> CommandList {
+auto SandboxView::on_draw(const DrawContext&) -> CommandList {
   return CommandList {};
 }

@@ -12,8 +12,6 @@
 
 #include <basalt/api/math/mat4.h>
 
-#include <basalt/api/shared/size2d.h>
-
 #include <entt/entity/registry.hpp>
 
 #include <utility>
@@ -32,7 +30,6 @@ using gfx::MaterialData;
 using gfx::RenderComponent;
 using gfx::RenderState;
 using gfx::RenderStateType;
-using gfx::ResourceCache;
 using gfx::TextureStageState;
 using gfx::TransformState;
 
@@ -68,15 +65,14 @@ auto SceneView::camera() const noexcept -> const Camera& {
   return mCamera;
 }
 
-auto SceneView::on_draw(ResourceCache& cache, const Size2Du16 viewport)
-  -> CommandList {
+auto SceneView::on_draw(const DrawContext& context) -> CommandList {
   FilteringCommandList cmdList {};
   cmdList.clear_attachments(
     Attachments {Attachment::Color, Attachment::ZBuffer}, mScene->background(),
     1.0f, 0);
 
   cmdList.set_transform(TransformState::ViewToViewport,
-                        mCamera.projection_matrix(viewport));
+                        mCamera.projection_matrix(context.viewport));
   cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
 
   cmdList.set_ambient_light(mScene->ambient_light());
@@ -102,6 +98,8 @@ auto SceneView::on_draw(ResourceCache& cache, const Size2Du16 viewport)
 
   ecs.view<const Transform, const RenderComponent>().each(
     [&](const Transform& transform, const RenderComponent& renderComponent) {
+      const auto& cache {context.cache};
+
       const MaterialData& materialData {cache.get(renderComponent.material)};
       record_material(cmdList, materialData);
 

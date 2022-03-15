@@ -16,14 +16,19 @@ struct Drawable {
   auto operator=(const Drawable&) -> Drawable& = default;
   auto operator=(Drawable&&) noexcept -> Drawable& = default;
 
-  auto draw(ResourceCache& cache, const Size2Du16 viewport) -> CommandList {
-    return on_draw(cache, viewport);
+  struct DrawContext final {
+    ResourceCache& cache;
+    Size2Du16 viewport;
+  };
+
+  auto draw(const DrawContext& context) -> CommandList {
+    return on_draw(context);
   }
 
 protected:
   Drawable() noexcept = default;
 
-  virtual auto on_draw(ResourceCache&, Size2Du16 viewport) -> CommandList = 0;
+  virtual auto on_draw(const DrawContext&) -> CommandList = 0;
 };
 
 } // namespace basalt::gfx

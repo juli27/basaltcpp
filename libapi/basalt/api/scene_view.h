@@ -27,8 +27,7 @@ private:
   ScenePtr mScene;
   gfx::Camera mCamera;
 
-  auto on_draw(gfx::ResourceCache&, Size2Du16 viewport)
-    -> gfx::CommandList override;
+  auto on_draw(const DrawContext&) -> gfx::CommandList override;
 };
 
 } // namespace basalt

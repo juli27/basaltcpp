@@ -2,8 +2,6 @@
 
 #include <basalt/api/gfx/backend/command_list.h>
 
-#include <basalt/api/shared/size2d.h>
-
 namespace basalt {
 
 using gfx::Attachment;
@@ -14,7 +12,7 @@ using gfx::ResourceCache;
 SolidColorView::SolidColorView(const Color& color) : mColor {color} {
 }
 
-auto SolidColorView::on_draw(ResourceCache&, const Size2Du16) -> CommandList {
+auto SolidColorView::on_draw(const DrawContext&) -> CommandList {
   CommandList cmdList {};
   cmdList.clear_attachments(Attachments {Attachment::Color}, mColor, 1.0f, 0);
 

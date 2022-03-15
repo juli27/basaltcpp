@@ -19,8 +19,7 @@ private:
   void prev_scene(basalt::Engine&) noexcept;
   void switch_scene(basalt::uSize index, basalt::Engine&) noexcept;
 
-  auto on_draw(basalt::gfx::ResourceCache&, basalt::Size2Du16 viewport)
-    -> basalt::gfx::CommandList override;
+  auto on_draw(const DrawContext&) -> basalt::gfx::CommandList override;
 
   auto on_input(const basalt::InputEvent&)
     -> basalt::InputEventHandled override;
