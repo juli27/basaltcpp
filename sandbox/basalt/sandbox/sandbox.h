@@ -13,7 +13,7 @@ private:
   struct Example;
 
   std::vector<Example> mExamples;
-  basalt::uSize mCurrentExampleIndex {9};
+  basalt::uSize mCurrentExampleIndex {8};
 
   void next_scene() noexcept;
   void prev_scene() noexcept;

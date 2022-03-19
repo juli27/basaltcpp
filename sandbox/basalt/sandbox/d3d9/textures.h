@@ -28,6 +28,7 @@ private:
   basalt::gfx::Texture mTexture {basalt::gfx::Texture::null()};
   basalt::gfx::Camera mCamera;
   basalt::f32 mAngleXRad {};
+  bool mShowTci {false};
 
   auto on_draw(const DrawContext&) -> void override;
 

@@ -5,7 +5,6 @@
 #include <basalt/sandbox/d3d9/matrices.h>
 #include <basalt/sandbox/d3d9/meshes.h>
 #include <basalt/sandbox/d3d9/textures.h>
-#include <basalt/sandbox/d3d9/textures_tci.h>
 #include <basalt/sandbox/d3d9/vertices.h>
 
 #include <basalt/sandbox/samples/textures.h>
@@ -74,10 +73,6 @@ SandboxView::SandboxView(Engine& engine) {
   mExamples.emplace_back(Example {
     std::make_shared<d3d9::Textures>(engine),
     "Tutorial 5: Using Texture Maps"s,
-  });
-  mExamples.emplace_back(Example {
-    std::make_shared<d3d9::TexturesTci>(engine),
-    "Tutorial 5: Using Texture Maps (TCI)"s,
   });
   mExamples.emplace_back(Example {
     std::make_shared<d3d9::Meshes>(engine),

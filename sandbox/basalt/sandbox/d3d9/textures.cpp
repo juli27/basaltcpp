@@ -6,13 +6,15 @@
 #include <basalt/api/prelude.h>
 
 #include <basalt/api/gfx/resource_cache.h>
-
 #include <basalt/api/gfx/backend/command_list.h>
 
 #include <basalt/api/math/constants.h>
 #include <basalt/api/math/mat4.h>
+#include <basalt/api/math/vector3.h>
 
 #include <gsl/span>
+
+#include <imgui/imgui.h>
 
 #include <algorithm> // for copy
 #include <array>
@@ -28,6 +30,7 @@ using gsl::span;
 using basalt::Engine;
 using basalt::Mat4f32;
 using basalt::PI;
+using basalt::Vector3f32;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
@@ -35,7 +38,10 @@ using basalt::gfx::DepthTestPass;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::SamplerDescriptor;
+using basalt::gfx::TexCoordinateSrc;
 using basalt::gfx::TextureBlendingStage;
+using basalt::gfx::TextureStageState;
+using basalt::gfx::TextureTransformFlags;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexBufferDescriptor;
 using basalt::gfx::VertexElement;
@@ -128,12 +134,28 @@ auto Textures::on_draw(const DrawContext& context) -> void {
 
   cmdList.bind_pipeline(mPipeline);
 
-  cmdList.set_transform(TransformState::ViewToViewport,
-                        mCamera.projection_matrix(context.viewport));
+  if (mShowTci) {
+    cmdList.set_texture_stage_state(
+      0, TextureStageState::CoordinateSource,
+      TexCoordinateSrc::TcsVertexPositionCameraSpace);
+    cmdList.set_texture_stage_state(0, TextureStageState::TextureTransformFlags,
+                                    TextureTransformFlags::TtfCount4 |
+                                      TextureTransformFlags::TtfProjected);
+  }
+
+  const Mat4f32 viewToViewport {mCamera.projection_matrix(context.viewport)};
+  cmdList.set_transform(TransformState::ViewToViewport, viewToViewport);
   cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
 
   cmdList.set_transform(TransformState::ModelToWorld,
                         Mat4f32::rotation_x(mAngleXRad));
+
+  if (mShowTci) {
+    const Mat4f32 texTransform {
+      viewToViewport * Mat4f32::scaling(Vector3f32 {0.5f, -0.5f, 1.0f}) *
+      Mat4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f})};
+    cmdList.set_transform(TransformState::Texture, texTransform);
+  }
 
   cmdList.bind_sampler(mSampler);
   cmdList.bind_texture(mTexture);
@@ -151,6 +173,12 @@ void Textures::on_tick(Engine& engine) {
   if (mAngleXRad > PI) {
     mAngleXRad -= PI * 2.0f;
   }
+
+  if (ImGui::Begin("Settings##D3D9")) {
+    ImGui::Checkbox("Show TCI", &mShowTci);
+  }
+
+  ImGui::End();
 }
 
 } // namespace d3d9

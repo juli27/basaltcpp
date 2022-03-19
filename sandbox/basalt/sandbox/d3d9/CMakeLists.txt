@@ -9,8 +9,6 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "meshes.h"
   "textures.cpp"
   "textures.h"
-  "textures_tci.cpp"
-  "textures_tci.h"
   "utils.cpp"
   "utils.h"
   "vertices.cpp"
