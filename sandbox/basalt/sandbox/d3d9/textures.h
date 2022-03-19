@@ -23,6 +23,7 @@ struct Textures final : basalt::View {
 private:
   basalt::gfx::ResourceCache& mResourceCache;
   basalt::gfx::Pipeline mPipeline {basalt::gfx::Pipeline::null()};
+  basalt::gfx::Pipeline mPipelineTci {};
   basalt::gfx::VertexBuffer mVertexBuffer {basalt::gfx::VertexBuffer::null()};
   basalt::gfx::Sampler mSampler {basalt::gfx::Sampler::null()};
   basalt::gfx::Texture mTexture {basalt::gfx::Texture::null()};

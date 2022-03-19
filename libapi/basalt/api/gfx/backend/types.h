@@ -109,11 +109,6 @@ enum class ShadeMode : u8 {
 };
 constexpr uSize SHADE_MODE_COUNT = 2u;
 
-enum TexCoordinateSrc : u8 {
-  TcsVertex = 0,
-  TcsVertexPositionCameraSpace = 1,
-};
-
 // TODO: support border and custom border color (no/partial support in Vulkan
 // and OpenGL ES)
 // TODO: support MirrorOnce
@@ -123,6 +118,12 @@ enum class TextureAddressMode : u8 {
   ClampEdge,
 };
 constexpr uSize TEXTURE_ADDRESS_MODE_COUNT {3u};
+
+enum class TextureCoordinateSource : u8 {
+  Vertex,
+  VertexPositionInView,
+};
+constexpr uSize TEXTURE_COORDINATE_SOURCE_COUNT {2u};
 
 enum class TextureFilter : u8 {
   Point,
@@ -151,10 +152,9 @@ enum class TextureStageArgument : u8 {
 };
 
 enum class TextureStageState : u8 {
-  CoordinateSource = 0,
-  TextureTransformFlags = 1,
+  TextureTransformFlags,
 };
-constexpr uSize TEXTURE_STAGE_STATE_COUNT = 2u;
+constexpr uSize TEXTURE_STAGE_STATE_COUNT = 1u;
 
 enum TextureTransformFlags : u8 {
   TtfDisabled = 0,
@@ -260,6 +260,7 @@ struct TextureBlendingStage final {
   TextureStageArgument arg2 {TextureStageArgument::Diffuse};
   TextureOp colorOp {TextureOp::Modulate};
   TextureOp alphaOp {TextureOp::SelectArg1};
+  TextureCoordinateSource texCoordinateSrc {TextureCoordinateSource::Vertex};
 };
 
 struct PipelineDescriptor final {

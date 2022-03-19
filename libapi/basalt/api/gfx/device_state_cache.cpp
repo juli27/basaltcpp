@@ -5,7 +5,6 @@
 namespace basalt::gfx {
 
 DeviceStateCache::DeviceStateCache() noexcept {
-  mTextureStates[TextureStageState::CoordinateSource] = TcsVertex;
   mTextureStates[TextureStageState::TextureTransformFlags] = TtfDisabled;
 }
 

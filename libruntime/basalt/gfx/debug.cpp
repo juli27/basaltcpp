@@ -251,7 +251,6 @@ constexpr auto to_string(const ShadeMode mode) noexcept -> const char* {
 constexpr auto to_string(const TextureStageState state) noexcept -> const
   char* {
   switch (state) {
-    ENUM_TO_STRING(TextureStageState::CoordinateSource);
     ENUM_TO_STRING(TextureStageState::TextureTransformFlags);
   }
 

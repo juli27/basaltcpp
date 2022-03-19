@@ -65,6 +65,7 @@ private:
     DWORD stage1Arg2 {D3DTA_TEXTURE};
     D3DTEXTUREOP stage1ColorOp {D3DTOP_DISABLE};
     D3DTEXTUREOP stage1AlphaOp {D3DTOP_DISABLE};
+    DWORD stage1Tci {0 | D3DTSS_TCI_PASSTHRU};
     D3DPRIMITIVETYPE primitiveType {D3DPT_POINTLIST};
     BOOL lighting {FALSE};
     D3DCULL cullMode {D3DCULL_NONE};

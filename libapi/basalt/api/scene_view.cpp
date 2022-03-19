@@ -46,9 +46,6 @@ void record_material(FilteringCommandList& cmdList, const MaterialData& data) {
   cmdList.bind_sampler(data.sampler);
 
   cmdList.set_texture_stage_state(
-    0, TextureStageState::CoordinateSource,
-    data.textureStageStates[TextureStageState::CoordinateSource]);
-  cmdList.set_texture_stage_state(
     0, TextureStageState::TextureTransformFlags,
     data.textureStageStates[TextureStageState::TextureTransformFlags]);
 

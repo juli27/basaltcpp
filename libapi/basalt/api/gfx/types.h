@@ -28,7 +28,6 @@ struct MaterialTag;
 using Mesh = Handle<detail::MeshTag>;
 using Material = Handle<detail::MaterialTag>;
 
-enum class TextureCoordinateSource : u8 { Vertex, VertexPositionCameraSpace };
 enum class TextureTransformMode : u8 { Disabled, Count4 };
 
 struct MeshDescriptor final {
@@ -100,6 +99,6 @@ struct MaterialData final {
   Sampler sampler {Sampler::null()};
 };
 
-static_assert(sizeof(MaterialData) == 56);
+static_assert(sizeof(MaterialData) == 52);
 
 } // namespace basalt::gfx

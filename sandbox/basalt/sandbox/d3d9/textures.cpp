@@ -38,8 +38,8 @@ using basalt::gfx::DepthTestPass;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::SamplerDescriptor;
-using basalt::gfx::TexCoordinateSrc;
 using basalt::gfx::TextureBlendingStage;
+using basalt::gfx::TextureCoordinateSource;
 using basalt::gfx::TextureStageState;
 using basalt::gfx::TextureTransformFlags;
 using basalt::gfx::TransformState;
@@ -66,6 +66,11 @@ Textures::Textures(Engine& engine)
   pipelineDesc.depthTest = DepthTestPass::IfLessEqual;
   pipelineDesc.depthWriteEnable = true;
   mPipeline = mResourceCache.create_pipeline(pipelineDesc);
+
+  textureBlendingStage.texCoordinateSrc =
+    TextureCoordinateSource::VertexPositionInView;
+
+  mPipelineTci = mResourceCache.create_pipeline(pipelineDesc);
 
   struct Vertex final {
     f32 x {};
@@ -132,12 +137,9 @@ auto Textures::on_draw(const DrawContext& context) -> void {
     Attachments {Attachment::Color, Attachment::ZBuffer}, Colors::BLUE, 1.0f,
     0);
 
-  cmdList.bind_pipeline(mPipeline);
+  cmdList.bind_pipeline(mShowTci ? mPipelineTci : mPipeline);
 
   if (mShowTci) {
-    cmdList.set_texture_stage_state(
-      0, TextureStageState::CoordinateSource,
-      TexCoordinateSrc::TcsVertexPositionCameraSpace);
     cmdList.set_texture_stage_state(0, TextureStageState::TextureTransformFlags,
                                     TextureTransformFlags::TtfCount4 |
                                       TextureTransformFlags::TtfProjected);

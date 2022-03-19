@@ -15,22 +15,6 @@ using gsl::span;
 
 namespace basalt::gfx {
 
-namespace {
-
-auto convert(const TextureCoordinateSource s) -> TexCoordinateSrc {
-  switch (s) {
-  case TextureCoordinateSource::Vertex:
-    return TcsVertex;
-
-  case TextureCoordinateSource::VertexPositionCameraSpace:
-    return TcsVertexPositionCameraSpace;
-  }
-
-  return TcsVertex;
-}
-
-} // namespace
-
 ResourceCache::ResourceCache(ResourceRegistryPtr resourceRegistry,
                              Device& device)
   : mResourceRegistry {std::move(resourceRegistry)}, mDevice {device} {
@@ -111,7 +95,8 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
   -> Material {
   auto [handle, data] = mMaterials.allocate();
 
-  constexpr TextureBlendingStage textureStage {};
+  TextureBlendingStage textureStage {};
+  textureStage.texCoordinateSrc = desc.textureCoordinateSource;
 
   data.pipeline = mDevice.create_pipeline(PipelineDescriptor {
     span {&textureStage, 1},
@@ -124,9 +109,6 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
 
   data.renderStates[RenderStateType::FillMode] =
     desc.solid ? FillMode::Solid : FillMode::Wireframe;
-
-  data.textureStageStates[TextureStageState::CoordinateSource] =
-    convert(desc.textureCoordinateSource);
 
   u32 value = 0;
   switch (desc.textureTransformMode) {

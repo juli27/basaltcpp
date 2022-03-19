@@ -202,6 +202,17 @@ auto to_d3d(const TextureOp op) -> D3DTEXTUREOP {
   return TO_D3D[op];
 }
 
+auto to_d3d(const TextureCoordinateSource src) -> DWORD {
+  static constexpr EnumArray<TextureCoordinateSource, DWORD, 2> TO_D3D {
+    {TextureCoordinateSource::Vertex, D3DTSS_TCI_PASSTHRU},
+    {TextureCoordinateSource::VertexPositionInView,
+     D3DTSS_TCI_CAMERASPACEPOSITION},
+  };
+  static_assert(TEXTURE_COORDINATE_SOURCE_COUNT == TO_D3D.size());
+
+  return TO_D3D[src];
+}
+
 auto to_d3d(const TextureStageArgument arg) -> DWORD {
   switch (arg) {
   case TextureStageArgument::Diffuse:
@@ -350,36 +361,20 @@ struct D3D9TextureStageState {
 
 auto to_d3d_texture_stage_state(const TextureStageState state, const u32 value)
   -> D3D9TextureStageState {
-  static constexpr std::array<D3DTEXTURESTAGESTATETYPE, 2>
-    TEXTURE_STAGE_STATE_CONV = {
-      /* CoordinateSource      */ D3DTSS_TEXCOORDINDEX,
-      /* TextureTransformFlags */ D3DTSS_TEXTURETRANSFORMFLAGS,
-    };
-  static constexpr EnumArray<TextureStageState, D3DTEXTURESTAGESTATETYPE, 2>
+  static constexpr EnumArray<TextureStageState, D3DTEXTURESTAGESTATETYPE, 1>
     TO_D3D {
-      {TextureStageState::CoordinateSource, D3DTSS_TEXCOORDINDEX},
       {TextureStageState::TextureTransformFlags, D3DTSS_TEXTURETRANSFORMFLAGS},
     };
-  static_assert(TEXTURE_STAGE_STATE_COUNT == TEXTURE_STAGE_STATE_CONV.size());
+  static_assert(TEXTURE_STAGE_STATE_COUNT == TO_D3D.size());
 
   DWORD d3dValue {0};
 
-  switch (state) {
-  case TextureStageState::CoordinateSource:
-    d3dValue = value == TcsVertexPositionCameraSpace
-                 ? D3DTSS_TCI_CAMERASPACEPOSITION
-                 : D3DTSS_TCI_PASSTHRU;
-    break;
+  if ((value & ~TtfProjected) == TtfCount4) {
+    d3dValue = D3DTTFF_COUNT4;
+  }
 
-  case TextureStageState::TextureTransformFlags:
-    if ((value & ~TtfProjected) == TtfCount4) {
-      d3dValue = D3DTTFF_COUNT4;
-    }
-
-    if (value & TtfProjected) {
-      d3dValue |= D3DTTFF_PROJECTED;
-    }
-    break;
+  if (value & TtfProjected) {
+    d3dValue |= D3DTTFF_PROJECTED;
   }
 
   return D3D9TextureStageState {TO_D3D[state], d3dValue};
@@ -491,7 +486,8 @@ struct D3D9XModelSupport final : ext::XModelSupport {
     D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));
     D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
     D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT));
-    D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1));
+    D3D9CALL(
+      mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1));
     D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE));
 
     const auto& model = mModels[cmd.handle];
@@ -634,6 +630,8 @@ void D3D9Device::execute(const CommandList& cmdList) {
 
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_DISABLE));
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
+  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX,
+                                         0 | D3DTSS_TCI_PASSTHRU));
 
   PIX_END_EVENT();
 
@@ -653,7 +651,6 @@ void D3D9Device::execute(const CommandList& cmdList) {
 
   // reset render states
   // TODO: use state block
-  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
                                          D3DTTFF_DISABLE));
   D3D9CALL(mDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
@@ -685,6 +682,7 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
   DWORD stage1Arg2 {};
   D3DTEXTUREOP stage1ColorOp {D3DTOP_DISABLE};
   D3DTEXTUREOP stage1AlphaOp {D3DTOP_DISABLE};
+  DWORD stage1Tci {0 | D3DTSS_TCI_PASSTHRU};
 
   if (!desc.textureStages.empty()) {
     const TextureBlendingStage& stage {desc.textureStages[0]};
@@ -692,6 +690,7 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
     stage1Arg2 = to_d3d(stage.arg2);
     stage1ColorOp = to_d3d(stage.colorOp);
     stage1AlphaOp = to_d3d(stage.alphaOp);
+    stage1Tci = 0 | to_d3d(stage.texCoordinateSrc);
   }
 
   return std::get<0>(mPipelines.allocate(PipelineData {
@@ -699,6 +698,7 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
     stage1Arg2,
     stage1ColorOp,
     stage1AlphaOp,
+    stage1Tci,
     to_d3d(desc.primitiveType),
     to_d3d(desc.lighting),
     to_d3d(desc.cullMode),
@@ -752,7 +752,7 @@ auto D3D9Device::create_vertex_buffer(
     // TODO: should initialData.size() > size be an error?
     // TODO: should failing to upload initial data be an error?
     if (const gsl::span vertexBufferData {
-        map_vertex_buffer(*vertexBuffer.Get(), 0, 0)};
+          map_vertex_buffer(*vertexBuffer.Get(), 0, 0)};
         !vertexBufferData.empty()) {
       std::copy_n(initialData.begin(),
                   std::min(initialData.size(), uSize {size}),
@@ -911,6 +911,8 @@ void D3D9Device::execute(const CommandBindPipeline& cmd) {
     mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, data.stage1AlphaOp));
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, data.stage1Arg1));
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, data.stage1Arg2));
+  D3D9CALL(
+    mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, data.stage1Tci));
 
   D3D9CALL(mDevice->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE));
   D3D9CALL(mDevice->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
