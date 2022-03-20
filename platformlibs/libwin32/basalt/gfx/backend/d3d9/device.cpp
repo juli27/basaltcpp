@@ -225,6 +225,18 @@ auto to_d3d(const TextureStageArgument arg) -> DWORD {
   return 0u;
 }
 
+auto to_d3d(const TextureTransformMode mode) -> D3DTEXTURETRANSFORMFLAGS {
+  static constexpr EnumArray<TextureTransformMode, D3DTEXTURETRANSFORMFLAGS, 2>
+    TO_D3D {
+      {TextureTransformMode::Disabled, D3DTTFF_DISABLE},
+      {TextureTransformMode::Count4, D3DTTFF_COUNT4},
+    };
+
+  static_assert(TEXTURE_TRANSFORM_MODE_COUNT == TO_D3D.size());
+
+  return TO_D3D[mode];
+}
+
 auto to_d3d(const TransformState state) -> D3DTRANSFORMSTATETYPE {
   static constexpr EnumArray<TransformState, D3DTRANSFORMSTATETYPE, 4> TO_D3D {
     {TransformState::ViewToViewport, D3DTS_PROJECTION},
@@ -352,32 +364,6 @@ auto to_d3d(const DirectionalLight& light) -> D3DLIGHT9 {
   d3dLight.Direction = to_d3d(light.direction);
 
   return d3dLight;
-}
-
-struct D3D9TextureStageState {
-  D3DTEXTURESTAGESTATETYPE state;
-  DWORD value;
-};
-
-auto to_d3d_texture_stage_state(const TextureStageState state, const u32 value)
-  -> D3D9TextureStageState {
-  static constexpr EnumArray<TextureStageState, D3DTEXTURESTAGESTATETYPE, 1>
-    TO_D3D {
-      {TextureStageState::TextureTransformFlags, D3DTSS_TEXTURETRANSFORMFLAGS},
-    };
-  static_assert(TEXTURE_STAGE_STATE_COUNT == TO_D3D.size());
-
-  DWORD d3dValue {0};
-
-  if ((value & ~TtfProjected) == TtfCount4) {
-    d3dValue = D3DTTFF_COUNT4;
-  }
-
-  if (value & TtfProjected) {
-    d3dValue |= D3DTTFF_PROJECTED;
-  }
-
-  return D3D9TextureStageState {TO_D3D[state], d3dValue};
 }
 
 auto map_vertex_buffer(IDirect3DVertexBuffer9& vertexBuffer,
@@ -632,6 +618,8 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX,
                                          0 | D3DTSS_TCI_PASSTHRU));
+  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
+                                         D3DTTFF_DISABLE));
 
   PIX_END_EVENT();
 
@@ -651,8 +639,6 @@ void D3D9Device::execute(const CommandList& cmdList) {
 
   // reset render states
   // TODO: use state block
-  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
-                                         D3DTTFF_DISABLE));
   D3D9CALL(mDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
   D3D9CALL(mDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD));
 
@@ -678,27 +664,34 @@ auto D3D9Device::capabilities() const -> const DeviceCaps& {
 auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
   BASALT_ASSERT(desc.textureStages.size() <= 1u);
 
+  DWORD stage1Tci {0 | D3DTSS_TCI_PASSTHRU};
+  D3DTEXTURETRANSFORMFLAGS stage0Ttf {D3DTTFF_DISABLE};
   DWORD stage1Arg1 {};
   DWORD stage1Arg2 {};
   D3DTEXTUREOP stage1ColorOp {D3DTOP_DISABLE};
   D3DTEXTUREOP stage1AlphaOp {D3DTOP_DISABLE};
-  DWORD stage1Tci {0 | D3DTSS_TCI_PASSTHRU};
 
   if (!desc.textureStages.empty()) {
     const TextureBlendingStage& stage {desc.textureStages[0]};
+    stage1Tci = 0 | to_d3d(stage.texCoordinateSrc);
+    stage0Ttf = to_d3d(stage.texCoordinateTransformMode);
+    if (stage.texCoordinateProjected) {
+      stage0Ttf =
+        static_cast<D3DTEXTURETRANSFORMFLAGS>(stage0Ttf | D3DTTFF_PROJECTED);
+    }
     stage1Arg1 = to_d3d(stage.arg1);
     stage1Arg2 = to_d3d(stage.arg2);
     stage1ColorOp = to_d3d(stage.colorOp);
     stage1AlphaOp = to_d3d(stage.alphaOp);
-    stage1Tci = 0 | to_d3d(stage.texCoordinateSrc);
   }
 
   return std::get<0>(mPipelines.allocate(PipelineData {
+    stage1Tci,
+    stage0Ttf,
     stage1Arg1,
     stage1Arg2,
     stage1ColorOp,
     stage1AlphaOp,
-    stage1Tci,
     to_d3d(desc.primitiveType),
     to_d3d(desc.lighting),
     to_d3d(desc.cullMode),
@@ -913,6 +906,8 @@ void D3D9Device::execute(const CommandBindPipeline& cmd) {
   D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, data.stage1Arg2));
   D3D9CALL(
     mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, data.stage1Tci));
+  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
+                                         data.stage0Ttf));
 
   D3D9CALL(mDevice->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE));
   D3D9CALL(mDevice->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
@@ -1001,12 +996,6 @@ void D3D9Device::execute(const CommandSetMaterial& cmd) {
   };
 
   D3D9CALL(mDevice->SetMaterial(&material));
-}
-
-void D3D9Device::execute(const CommandSetTextureStageState& cmd) {
-  const auto [state, value] {to_d3d_texture_stage_state(cmd.state, cmd.value)};
-
-  D3D9CALL(mDevice->SetTextureStageState(0, state, value));
 }
 
 } // namespace basalt::gfx

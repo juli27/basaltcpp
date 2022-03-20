@@ -137,19 +137,4 @@ struct CommandSetMaterial final : CommandT<CommandType::SetMaterial> {
 
 static_assert(sizeof(CommandSetMaterial) == 52);
 
-struct CommandSetTextureStageState final
-  : CommandT<CommandType::SetTextureStageState> {
-  u8 stage;
-  TextureStageState state;
-  u32 value;
-
-  constexpr CommandSetTextureStageState(
-    const u8 textureStage, const TextureStageState textureStageState,
-    const u32 stateValue) noexcept
-    : stage {textureStage}, state {textureStageState}, value {stateValue} {
-  }
-};
-
-static_assert(sizeof(CommandSetTextureStageState) == 8);
-
 } // namespace basalt::gfx

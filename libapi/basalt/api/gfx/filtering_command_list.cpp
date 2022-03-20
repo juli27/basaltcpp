@@ -72,13 +72,6 @@ void FilteringCommandList::set_material(const Color& diffuse,
   }
 }
 
-void FilteringCommandList::set_texture_stage_state(
-  const u8 stage, const TextureStageState state, const u32 value) {
-  if (mDeviceState.update(state, value)) {
-    mCommandList.set_texture_stage_state(stage, state, value);
-  }
-}
-
 void FilteringCommandList::ext_draw_x_model(const ext::XModel handle) {
   mCommandList.ext_draw_x_model(handle);
 }

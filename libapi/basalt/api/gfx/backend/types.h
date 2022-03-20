@@ -40,7 +40,6 @@ enum class CommandType : u8 {
   SetAmbientLight,
   SetLights,
   SetMaterial,
-  SetTextureStageState,
 
   // built-in extensions
   ExtDrawXModel,
@@ -151,17 +150,11 @@ enum class TextureStageArgument : u8 {
   SampledTexture,
 };
 
-enum class TextureStageState : u8 {
-  TextureTransformFlags,
+enum class TextureTransformMode : u8 {
+  Disabled,
+  Count4,
 };
-constexpr uSize TEXTURE_STAGE_STATE_COUNT = 1u;
-
-enum TextureTransformFlags : u8 {
-  TtfDisabled = 0,
-  TtfCount4 = 1,
-
-  TtfProjected = 0x2,
-};
+constexpr uSize TEXTURE_TRANSFORM_MODE_COUNT {2u};
 
 enum class TransformState : u8 {
   ViewToViewport,
@@ -208,7 +201,6 @@ struct CommandSetTransform;
 struct CommandSetAmbientLight;
 struct CommandSetLights;
 struct CommandSetMaterial;
-struct CommandSetTextureStageState;
 
 struct CommandList;
 using Composite = std::vector<CommandList>;
@@ -256,11 +248,14 @@ struct DeviceCaps final {
 };
 
 struct TextureBlendingStage final {
+  TextureCoordinateSource texCoordinateSrc {TextureCoordinateSource::Vertex};
+  TextureTransformMode texCoordinateTransformMode {
+    TextureTransformMode::Disabled};
+  bool texCoordinateProjected {false};
   TextureStageArgument arg1 {TextureStageArgument::SampledTexture};
   TextureStageArgument arg2 {TextureStageArgument::Diffuse};
   TextureOp colorOp {TextureOp::Modulate};
   TextureOp alphaOp {TextureOp::SelectArg1};
-  TextureCoordinateSource texCoordinateSrc {TextureCoordinateSource::Vertex};
 };
 
 struct PipelineDescriptor final {

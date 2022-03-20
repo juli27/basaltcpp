@@ -13,7 +13,7 @@
 namespace basalt::gfx {
 
 struct DeviceStateCache final {
-  DeviceStateCache() noexcept;
+  DeviceStateCache() noexcept = default;
 
   auto update(const RenderState&) noexcept -> bool;
   auto update(Pipeline) noexcept -> bool;
@@ -24,7 +24,6 @@ struct DeviceStateCache final {
   auto update_ambient_light(const Color&) noexcept -> bool;
   auto update(const Color& diffuse, const Color& ambient,
               const Color& emissive) noexcept -> bool;
-  auto update(TextureStageState, u32 value) noexcept -> bool;
 
 private:
   struct Material final {
@@ -40,7 +39,6 @@ private:
     {RenderStateType::ShadeMode, ShadeMode::Gouraud},
   };
 
-  EnumArray<TextureStageState, u32, TEXTURE_STAGE_STATE_COUNT> mTextureStates;
   EnumArray<TransformState, Mat4f32, TRANSFORM_STATE_COUNT> mTransforms {
     {TransformState::ViewToViewport, Mat4f32::identity()},
     {TransformState::WorldToView, Mat4f32::identity()},

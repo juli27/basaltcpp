@@ -30,7 +30,6 @@ using gfx::MaterialData;
 using gfx::RenderComponent;
 using gfx::RenderState;
 using gfx::RenderStateType;
-using gfx::TextureStageState;
 using gfx::TransformState;
 
 namespace ext = gfx::ext;
@@ -44,10 +43,6 @@ void record_material(FilteringCommandList& cmdList, const MaterialData& data) {
   cmdList.bind_pipeline(data.pipeline);
   cmdList.bind_texture(data.texture);
   cmdList.bind_sampler(data.sampler);
-
-  cmdList.set_texture_stage_state(
-    0, TextureStageState::TextureTransformFlags,
-    data.textureStageStates[TextureStageState::TextureTransformFlags]);
 
   cmdList.set_material(data.diffuse, data.ambient, Color {});
 }

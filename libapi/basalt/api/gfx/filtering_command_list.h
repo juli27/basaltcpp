@@ -29,9 +29,6 @@ struct FilteringCommandList final {
   void set_material(const Color& diffuse, const Color& ambient,
                     const Color& emissive);
 
-  // TODO: stage currently not supported
-  void set_texture_stage_state(u8 stage, TextureStageState, u32 value);
-
   void ext_draw_x_model(ext::XModel);
   void ext_render_dear_imgui();
 

@@ -97,6 +97,8 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
 
   TextureBlendingStage textureStage {};
   textureStage.texCoordinateSrc = desc.textureCoordinateSource;
+  textureStage.texCoordinateTransformMode = desc.textureTransformMode;
+  textureStage.texCoordinateProjected = desc.textureTransformProjected;
 
   data.pipeline = mDevice.create_pipeline(PipelineDescriptor {
     span {&textureStage, 1},
@@ -109,22 +111,6 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
 
   data.renderStates[RenderStateType::FillMode] =
     desc.solid ? FillMode::Solid : FillMode::Wireframe;
-
-  u32 value = 0;
-  switch (desc.textureTransformMode) {
-  case TextureTransformMode::Disabled:
-    value = TtfDisabled;
-    break;
-  case TextureTransformMode::Count4:
-    value = TtfCount4;
-    break;
-  }
-
-  if (desc.textureTransformProjected) {
-    value |= TtfProjected;
-  }
-
-  data.textureStageStates[TextureStageState::TextureTransformFlags] = value;
 
   data.diffuse = desc.diffuse;
   data.ambient = desc.ambient;

@@ -84,12 +84,6 @@ void CommandList::set_material(const Color& diffuse, const Color& ambient,
   add<CommandSetMaterial>(diffuse, ambient, emissive);
 }
 
-void CommandList::set_texture_stage_state(const u8 stage,
-                                          const TextureStageState state,
-                                          const u32 value) {
-  add<CommandSetTextureStageState>(stage, state, value);
-}
-
 void CommandList::ext_draw_x_model(const ext::XModel handle) {
   add<ext::CommandDrawXModel>(handle);
 }

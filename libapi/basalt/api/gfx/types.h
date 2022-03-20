@@ -28,8 +28,6 @@ struct MaterialTag;
 using Mesh = Handle<detail::MeshTag>;
 using Material = Handle<detail::MaterialTag>;
 
-enum class TextureTransformMode : u8 { Disabled, Count4 };
-
 struct MeshDescriptor final {
   gsl::span<const std::byte> data;
   u32 vertexCount {};
@@ -88,8 +86,6 @@ struct MaterialData final {
     EnumArray<RenderStateType, RenderStateValue, RENDER_STATE_COUNT>;
 
   RenderStates renderStates {};
-  EnumArray<TextureStageState, u32, TEXTURE_STAGE_STATE_COUNT>
-    textureStageStates {};
 
   Color diffuse;
   Color ambient;
@@ -99,6 +95,6 @@ struct MaterialData final {
   Sampler sampler {Sampler::null()};
 };
 
-static_assert(sizeof(MaterialData) == 52);
+static_assert(sizeof(MaterialData) == 48);
 
 } // namespace basalt::gfx

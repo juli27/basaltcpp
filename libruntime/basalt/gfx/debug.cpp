@@ -159,7 +159,6 @@ constexpr auto enumerator_to_string(const CommandType type) noexcept -> const
     ENUMERATOR_TO_STRING(CommandType, BindVertexBuffer);
     ENUMERATOR_TO_STRING(CommandType, BindTexture);
     ENUMERATOR_TO_STRING(CommandType, BindSampler);
-    ENUMERATOR_TO_STRING(CommandType, SetTextureStageState);
     ENUMERATOR_TO_STRING(CommandType, SetLights);
     ENUMERATOR_TO_STRING(CommandType, SetTransform);
     ENUMERATOR_TO_STRING(CommandType, SetAmbientLight);
@@ -243,15 +242,6 @@ constexpr auto to_string(const ShadeMode mode) noexcept -> const char* {
   switch (mode) {
     ENUM_TO_STRING(ShadeMode::Flat);
     ENUM_TO_STRING(ShadeMode::Gouraud);
-  }
-
-  return "(unknown)";
-}
-
-constexpr auto to_string(const TextureStageState state) noexcept -> const
-  char* {
-  switch (state) {
-    ENUM_TO_STRING(TextureStageState::TextureTransformFlags);
   }
 
   return "(unknown)";
@@ -360,10 +350,6 @@ void display(const CommandBindSampler& cmd) {
 
 void display(const CommandBindTexture& cmd) {
   ImGui::Text("handle = %#x", cmd.texture.value());
-}
-
-void display(const CommandSetTextureStageState& cmd) {
-  ImGui::Text("state = %s\nvalue = %#x", to_string(cmd.state), cmd.value);
 }
 
 void display(const PointLight& light) {

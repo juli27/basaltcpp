@@ -4,10 +4,6 @@
 
 namespace basalt::gfx {
 
-DeviceStateCache::DeviceStateCache() noexcept {
-  mTextureStates[TextureStageState::TextureTransformFlags] = TtfDisabled;
-}
-
 auto DeviceStateCache::update(const RenderState& renderState) noexcept -> bool {
   if (auto& currentValue = mRenderStates[renderState.type()];
       currentValue != renderState.value()) {
@@ -87,17 +83,6 @@ auto DeviceStateCache::update(const Color& diffuse, const Color& ambient,
     mMaterial.ambient = ambient;
     mMaterial.emissive = emissive;
 
-    return true;
-  }
-
-  return false;
-}
-
-auto DeviceStateCache::update(const TextureStageState state,
-                              const u32 value) noexcept -> bool {
-  auto& currentValue = mTextureStates[state];
-  if (currentValue != value) {
-    currentValue = value;
     return true;
   }
 

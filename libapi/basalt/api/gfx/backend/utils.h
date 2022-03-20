@@ -42,7 +42,6 @@ void visit(const Command& cmd, Visitor&& visitor) {
     VISIT(CommandSetAmbientLight);
     VISIT(CommandSetLights);
     VISIT(CommandSetMaterial);
-    VISIT(CommandSetTextureStageState);
   default:
     visitor(cmd);
     break;

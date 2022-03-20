@@ -40,8 +40,7 @@ using basalt::gfx::PrimitiveType;
 using basalt::gfx::SamplerDescriptor;
 using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureCoordinateSource;
-using basalt::gfx::TextureStageState;
-using basalt::gfx::TextureTransformFlags;
+using basalt::gfx::TextureTransformMode;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexBufferDescriptor;
 using basalt::gfx::VertexElement;
@@ -61,14 +60,17 @@ Textures::Textures(Engine& engine)
   TextureBlendingStage textureBlendingStage {};
 
   PipelineDescriptor pipelineDesc {};
-  pipelineDesc.textureStages = span {&textureBlendingStage, 1};
   pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
+  pipelineDesc.textureStages = span {&textureBlendingStage, 1};
   pipelineDesc.depthTest = DepthTestPass::IfLessEqual;
   pipelineDesc.depthWriteEnable = true;
   mPipeline = mResourceCache.create_pipeline(pipelineDesc);
 
   textureBlendingStage.texCoordinateSrc =
     TextureCoordinateSource::VertexPositionInView;
+  textureBlendingStage.texCoordinateTransformMode =
+    TextureTransformMode::Count4;
+  textureBlendingStage.texCoordinateProjected = true;
 
   mPipelineTci = mResourceCache.create_pipeline(pipelineDesc);
 
@@ -138,12 +140,6 @@ auto Textures::on_draw(const DrawContext& context) -> void {
     0);
 
   cmdList.bind_pipeline(mShowTci ? mPipelineTci : mPipeline);
-
-  if (mShowTci) {
-    cmdList.set_texture_stage_state(0, TextureStageState::TextureTransformFlags,
-                                    TextureTransformFlags::TtfCount4 |
-                                      TextureTransformFlags::TtfProjected);
-  }
 
   const Mat4f32 viewToViewport {mCamera.projection_matrix(context.viewport)};
   cmdList.set_transform(TransformState::ViewToViewport, viewToViewport);
