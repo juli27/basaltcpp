@@ -3,26 +3,14 @@
 #include <basalt/api/gfx/backend/utils.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
-#include <basalt/api/shared/asserts.h>
-#include <basalt/api/shared/resource_registry.h>
-
-#include <utility>
-
-using namespace std::literals;
+using std::byte;
 using std::filesystem::path;
 
 using gsl::span;
 
 namespace basalt::gfx {
 
-ResourceCache::ResourceCache(ResourceRegistryPtr resourceRegistry,
-                             Device& device)
-  : mResourceRegistry {std::move(resourceRegistry)}, mDevice {device} {
-}
-
-auto ResourceCache::is_loaded(const ResourceId id) const -> bool {
-  return mModels.find(id) != mModels.end() ||
-         mTextures.find(id) != mTextures.end();
+ResourceCache::ResourceCache(Device& device) : mDevice {device} {
 }
 
 auto ResourceCache::create_pipeline(const PipelineDescriptor& desc) const
@@ -35,33 +23,13 @@ void ResourceCache::destroy(const Pipeline handle) const noexcept {
 }
 
 auto ResourceCache::create_vertex_buffer(
-  const VertexBufferDescriptor& desc,
-  const span<const std::byte> initialData) const -> VertexBuffer {
+  const VertexBufferDescriptor& desc, const span<const byte> initialData) const
+  -> VertexBuffer {
   return mDevice.create_vertex_buffer(desc, initialData);
 }
 
 void ResourceCache::destroy(const VertexBuffer handle) const noexcept {
   mDevice.destroy(handle);
-}
-
-template <>
-auto ResourceCache::load(const ResourceId id) -> ext::XModel {
-  BASALT_ASSERT(!is_loaded(id), "XModel already loaded");
-
-  const auto modelExt =
-    *gfx::query_device_extension<ext::XModelSupport>(mDevice);
-
-  const auto& path = mResourceRegistry->get_path(id);
-
-  return mModels[id] = modelExt->load(path.u8string());
-}
-
-template <>
-auto ResourceCache::load(const ResourceId id) -> Texture {
-  BASALT_ASSERT(!is_loaded(id), "Texture already loaded");
-
-  const auto& path = mResourceRegistry->get_path(id);
-  return mTextures[id] = load_texture(path);
 }
 
 auto ResourceCache::create_sampler(const SamplerDescriptor& desc) const
@@ -79,6 +47,13 @@ auto ResourceCache::load_texture(const path& path) const -> Texture {
 
 void ResourceCache::destroy(const Texture handle) const noexcept {
   mDevice.destroy(handle);
+}
+
+auto ResourceCache::load_x_model(const path& path) const -> ext::XModel {
+  const auto modelExt {
+    *gfx::query_device_extension<ext::XModelSupport>(mDevice)};
+
+  return modelExt->load(path.u8string());
 }
 
 auto ResourceCache::create_mesh(const MeshDescriptor& desc) -> Mesh {
@@ -123,20 +98,6 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
   data.sampler = mDevice.create_sampler(samplerDesc);
 
   return handle;
-}
-
-template <>
-auto ResourceCache::get(const ResourceId id) -> ext::XModel {
-  BASALT_ASSERT(mModels.find(id) != mModels.end());
-
-  return mModels[id];
-}
-
-template <>
-auto ResourceCache::get(const ResourceId id) -> Texture {
-  BASALT_ASSERT(mTextures.find(id) != mTextures.end());
-
-  return mTextures[id];
 }
 
 auto ResourceCache::get(const Mesh mesh) const -> const MeshData& {

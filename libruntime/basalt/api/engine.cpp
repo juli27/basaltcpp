@@ -51,7 +51,12 @@ void Engine::set_window_mode(const WindowMode windowMode) noexcept {
 Engine::Engine(Config& config, gfx::Context& context) noexcept
   : mConfig {config}
   , mGfxContext {context}
-  , mGfxResourceCache {mResourceRegistry, mGfxContext.device()} {
+  , mGfxResourceCache {mGfxContext.device()} {
+}
+
+auto Engine::is_loaded(const ResourceId id) const -> bool {
+  return mTextures.find(id) != mTextures.end() ||
+         mXModels.find(id) != mXModels.end();
 }
 
 template <>
@@ -60,11 +65,13 @@ auto Engine::get_or_load(const Resource resource) -> gfx::ext::XModel {
     mResourceRegistry->register_resource(resource);
   }
 
-  if (mGfxResourceCache.is_loaded(resource)) {
-    return mGfxResourceCache.get<gfx::ext::XModel>(resource);
+  if (is_loaded(resource)) {
+    return mXModels[resource];
   }
 
-  return mGfxResourceCache.load<gfx::ext::XModel>(resource);
+  const auto& path {mResourceRegistry->get_path(resource)};
+
+  return mXModels[resource] = mGfxResourceCache.load_x_model(path);
 }
 
 template <>
@@ -73,11 +80,13 @@ auto Engine::get_or_load(const Resource resource) -> gfx::Texture {
     mResourceRegistry->register_resource(resource);
   }
 
-  if (mGfxResourceCache.is_loaded(resource)) {
-    return mGfxResourceCache.get<gfx::Texture>(resource);
+  if (is_loaded(resource)) {
+    return mTextures[resource];
   }
 
-  return mGfxResourceCache.load<gfx::Texture>(resource);
+  const auto& path {mResourceRegistry->get_path(resource)};
+
+  return mTextures[resource] = mGfxResourceCache.load_texture(path);
 }
 
 } // namespace basalt

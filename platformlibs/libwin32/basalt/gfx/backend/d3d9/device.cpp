@@ -603,6 +603,7 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
   D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &identity));
   D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &identity));
+  D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &identity));
 
   D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
 
@@ -641,8 +642,6 @@ void D3D9Device::execute(const CommandList& cmdList) {
   // TODO: use state block
   D3D9CALL(mDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
   D3D9CALL(mDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD));
-
-  D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &identity));
 
   // D3D9CALL(mDevice->SetFVF(0));
 

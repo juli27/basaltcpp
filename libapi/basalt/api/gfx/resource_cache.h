@@ -6,27 +6,17 @@
 #include <basalt/api/gfx/backend/ext/types.h>
 
 #include <basalt/api/shared/handle_pool.h>
-#include <basalt/api/shared/types.h>
 
 #include <gsl/span>
 
 #include <cstddef>
 #include <filesystem>
-#include <unordered_map>
 #include <utility>
 
 namespace basalt::gfx {
 
 struct ResourceCache {
-  explicit ResourceCache(ResourceRegistryPtr, Device&);
-
-  template <typename T>
-  auto load(ResourceId) -> T;
-
-  [[nodiscard]] auto is_loaded(ResourceId) const -> bool;
-
-  template <typename T>
-  auto get(ResourceId) -> T;
+  explicit ResourceCache(Device&);
 
   [[nodiscard]] auto create_pipeline(const PipelineDescriptor&) const
     -> Pipeline;
@@ -67,6 +57,9 @@ struct ResourceCache {
     -> Texture;
   void destroy(Texture) const noexcept;
 
+  [[nodiscard]] auto load_x_model(const std::filesystem::path&) const
+    -> ext::XModel;
+
   auto create_mesh(const MeshDescriptor&) -> Mesh;
   auto create_material(const MaterialDescriptor&) -> Material;
 
@@ -74,22 +67,9 @@ struct ResourceCache {
   [[nodiscard]] auto get(Material) const -> const MaterialData&;
 
 private:
-  ResourceRegistryPtr mResourceRegistry;
   Device& mDevice;
-  std::unordered_map<ResourceId, ext::XModel> mModels;
-  std::unordered_map<ResourceId, Texture> mTextures;
   HandlePool<MeshData, Mesh> mMeshes;
   HandlePool<MaterialData, Material> mMaterials;
 };
-
-template <>
-[[nodiscard]] auto ResourceCache::load(ResourceId) -> ext::XModel;
-template <>
-[[nodiscard]] auto ResourceCache::load(ResourceId) -> Texture;
-
-template <>
-[[nodiscard]] auto ResourceCache::get(ResourceId) -> ext::XModel;
-template <>
-[[nodiscard]] auto ResourceCache::get(ResourceId) -> Texture;
 
 } // namespace basalt::gfx

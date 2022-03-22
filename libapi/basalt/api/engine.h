@@ -13,6 +13,7 @@
 #include <basalt/api/base/types.h>
 
 #include <memory>
+#include <unordered_map>
 
 namespace basalt {
 
@@ -48,6 +49,9 @@ protected:
   gfx::Context& mGfxContext;
   gfx::ResourceCache mGfxResourceCache;
 
+  std::unordered_map<ResourceId, gfx::Texture> mTextures {};
+  std::unordered_map<ResourceId, gfx::ext::XModel> mXModels {};
+
   ViewPtr mRoot;
 
   f64 mDeltaTime {};
@@ -58,6 +62,9 @@ protected:
   Engine(Config&, gfx::Context&) noexcept;
 
   ~Engine() noexcept = default;
+
+private:
+  [[nodiscard]] auto is_loaded(ResourceId) const -> bool;
 };
 
 template <>
