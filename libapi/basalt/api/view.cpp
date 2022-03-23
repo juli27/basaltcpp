@@ -78,7 +78,7 @@ void View::tick(Engine& engine) {
   const vector views {mChildren};
 
   for (const ViewPtr& view : views) {
-    view->on_tick(engine);
+    view->tick(engine);
   }
 }
 
