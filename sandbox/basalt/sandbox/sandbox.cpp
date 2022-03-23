@@ -95,28 +95,6 @@ SandboxView::SandboxView(Engine& engine) {
 }
 
 void SandboxView::on_tick(Engine& engine) {
-  static auto pageUpPressed = false;
-  static auto pageDownPressed = false;
-  if (is_key_down(Key::PageUp)) {
-    if (!pageUpPressed) {
-      pageUpPressed = true;
-
-      prev_scene();
-    }
-  } else {
-    pageUpPressed = false;
-  }
-
-  if (is_key_down(Key::PageDown)) {
-    if (!pageDownPressed) {
-      pageDownPressed = true;
-
-      next_scene();
-    }
-  } else {
-    pageDownPressed = false;
-  }
-
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("File")) {
       for (uSize i {0}; i < mExamples.size(); i++) {
@@ -181,7 +159,13 @@ auto SandboxView::on_input(const InputEvent& event) -> InputEventHandled {
   case InputEventType::KeyDown: {
     switch (event.as<KeyDown>().key) {
     case Key::PageDown:
+      next_scene();
+
+      return InputEventHandled::Yes;
+
     case Key::PageUp:
+      prev_scene();
+
       return InputEventHandled::Yes;
 
     default:
