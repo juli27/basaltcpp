@@ -1,7 +1,6 @@
 #include <basalt/sandbox/samples/textures.h>
 
 #include <basalt/api/engine.h>
-#include <basalt/api/debug.h>
 #include <basalt/api/prelude.h>
 #include <basalt/api/scene_view.h>
 
@@ -10,7 +9,6 @@
 
 #include <basalt/api/scene/scene.h>
 
-#include <basalt/api/shared/config.h>
 #include <basalt/api/shared/log.h>
 
 #include <basalt/api/math/constants.h>
@@ -19,14 +17,12 @@
 #include <gsl/span>
 #include <imgui/imgui.h>
 
-using namespace std::literals;
 using std::array;
 
 using namespace entt::literals;
 using gsl::span;
 
 using basalt::Color;
-using basalt::Debug;
 using basalt::Engine;
 using basalt::PI;
 using basalt::Scene;
@@ -117,7 +113,7 @@ Textures::Textures(Engine& engine)
   rc.material = std::get<0>(mMaterials);
 }
 
-void Textures::on_tick(Engine& engine) {
+void Textures::on_tick(Engine&) {
   constexpr u8 filterMask {0x3};
   constexpr u8 mipFilterShift {0};
   constexpr u8 minFilterShift {2};
@@ -155,10 +151,6 @@ void Textures::on_tick(Engine& engine) {
 
   auto& rc {mQuad.get<RenderComponent>()};
   rc.material = mMaterials[minFilter * 3 + mipFilter];
-
-  if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
-    Debug::update(*mScene);
-  }
 }
 
 } // namespace samples

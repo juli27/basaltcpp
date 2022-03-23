@@ -28,6 +28,7 @@ private:
   gfx::Camera mCamera;
 
   auto on_draw(const DrawContext&) -> void override;
+  void on_tick(Engine&) override;
 };
 
 } // namespace basalt

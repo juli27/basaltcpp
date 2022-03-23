@@ -1,6 +1,5 @@
 #include <basalt/sandbox/tribase/02-04_textures.h>
 
-#include <basalt/api/debug.h>
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 #include <basalt/api/scene_view.h>
@@ -16,8 +15,6 @@
 #include <basalt/api/math/constants.h>
 #include <basalt/api/math/vector3.h>
 
-#include <basalt/api/shared/config.h>
-
 #include <entt/entity/handle.hpp>
 #include <gsl/span>
 #include <imgui/imgui.h>
@@ -25,14 +22,12 @@
 #include <array>
 #include <random>
 
-using namespace std::literals;
 using namespace entt::literals;
 
 using std::array;
 
 using gsl::span;
 
-using basalt::Debug;
 using basalt::Engine;
 using basalt::InputEvent;
 using basalt::InputEventHandled;
@@ -210,10 +205,6 @@ void Textures::on_tick(Engine& engine) {
   }
 
   ImGui::End();
-
-  if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
-    Debug::update(*mScene);
-  }
 }
 
 auto Textures::on_input(const InputEvent&) -> InputEventHandled {

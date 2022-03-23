@@ -1,6 +1,5 @@
 #include <basalt/sandbox/tribase/02-03_dreieck.h>
 
-#include <basalt/api/debug.h>
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 #include <basalt/api/scene_view.h>
@@ -14,16 +13,11 @@
 #include <basalt/api/math/constants.h>
 #include <basalt/api/math/vector3.h>
 
-#include <basalt/api/shared/config.h>
-
 #include <gsl/span>
 #include <imgui/imgui.h>
 
 #include <array>
 
-using namespace std::literals;
-
-using basalt::Debug;
 using basalt::Engine;
 using basalt::PI;
 using basalt::Scene;
@@ -129,10 +123,6 @@ void Dreieck::on_tick(Engine& engine) {
   const f32 radOffsetY {PI / 2.0f * static_cast<f32>(engine.delta_time())};
   auto& transform {mEntity.get<Transform>()};
   transform.rotate(0.0f, radOffsetY, 0.0f);
-
-  if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
-    Debug::update(*mScene);
-  }
 
   if (ImGui::Begin("Settings##TribaseDreieck")) {
     if (ImGui::RadioButton("No Exercise", &mCurrentExercise, 0)) {

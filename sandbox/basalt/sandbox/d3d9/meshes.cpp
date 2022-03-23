@@ -1,6 +1,5 @@
 #include <basalt/sandbox/d3d9/meshes.h>
 
-#include <basalt/api/debug.h>
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 
@@ -8,13 +7,8 @@
 
 #include <basalt/api/scene/transform.h>
 
-#include <basalt/api/shared/config.h>
-
-using namespace std::literals;
-
 using namespace entt::literals;
 
-using basalt::Debug;
 using basalt::Engine;
 using basalt::Transform;
 using basalt::gfx::ext::XModel;
@@ -33,10 +27,6 @@ Meshes::Meshes(Engine& engine) {
 void Meshes::on_tick(Engine& engine) {
   mTiger.get<Transform>().rotate(0.0f, static_cast<f32>(engine.delta_time()),
                                  0.0f);
-
-  if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
-    Debug::update(*mScene);
-  }
 }
 
 } // namespace d3d9

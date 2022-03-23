@@ -1,5 +1,8 @@
 #include <basalt/api/scene_view.h>
 
+#include <basalt/api/debug.h>
+#include <basalt/api/engine.h>
+
 #include <basalt/api/gfx/filtering_command_list.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/types.h>
@@ -10,14 +13,19 @@
 #include <basalt/api/scene/scene.h>
 #include <basalt/api/scene/transform.h>
 
+#include <basalt/api/shared/config.h>
+
 #include <basalt/api/math/mat4.h>
 
 #include <entt/entity/registry.hpp>
 
+#include <string>
 #include <utility>
 #include <variant>
 
 namespace basalt {
+
+using namespace std::literals;
 
 using gfx::Attachment;
 using gfx::Attachments;
@@ -109,6 +117,12 @@ auto SceneView::on_draw(const DrawContext& context) -> void {
     });
 
   context.commandLists.push_back(cmdList.take_cmd_list());
+}
+
+void SceneView::on_tick(Engine& engine) {
+  if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
+    Debug::update(*mScene);
+  }
 }
 
 } // namespace basalt
