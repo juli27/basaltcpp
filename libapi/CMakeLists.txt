@@ -7,7 +7,7 @@ target_link_libraries(${CURRENT_TARGET}
     DearImGui
     EnTT::EnTT
     Microsoft.GSL::GSL
-    Fmt
+    fmt::fmt
     spdlog
   PRIVATE
     CommonPrivate

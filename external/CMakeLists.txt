@@ -8,6 +8,10 @@ FetchContent_Declare(EnTT
   GIT_REPOSITORY https://github.com/skypjack/entt.git
   GIT_TAG        5d15a3d69f433a0e3fce266caaeb87c77c10453c # v3.7.1
 )
+FetchContent_Declare(fmt
+  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+  GIT_TAG        7bdf0628b1276379886c7f6dda2cef2b3b374f0b # 7.1.3
+)
 FetchContent_Declare(GSL
   GIT_REPOSITORY https://github.com/microsoft/GSL.git
   GIT_TAG        c31a9ad5e8e99da8567237a7ba51a7d8f419e5bf
@@ -15,6 +19,6 @@ FetchContent_Declare(GSL
 
 add_subdirectory("DearImGui")
 add_subdirectory("EnTT")
-add_subdirectory("Fmt")
+add_subdirectory("fmt")
 FetchContent_MakeAvailable(GSL)
 add_subdirectory("spdlog")

@@ -3,7 +3,7 @@ set(CURRENT_TARGET spdlog)
 
 target_link_libraries(${CURRENT_TARGET}
   PUBLIC
-    Fmt
+    fmt::fmt
   PRIVATE
     CommonPrivate
     Cpp17_Strict
