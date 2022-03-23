@@ -8,7 +8,7 @@ target_link_libraries(${CURRENT_TARGET}
     EnTT::EnTT
     Microsoft.GSL::GSL
     fmt::fmt
-    spdlog
+    spdlog::spdlog
   PRIVATE
     CommonPrivate
     ControlFlowGuard

@@ -16,6 +16,10 @@ FetchContent_Declare(GSL
   GIT_REPOSITORY https://github.com/microsoft/GSL.git
   GIT_TAG        c31a9ad5e8e99da8567237a7ba51a7d8f419e5bf
 )
+FetchContent_Declare(spdlog
+  GIT_REPOSITORY https://github.com/gabime/spdlog.git
+  GIT_TAG        100f30043f33277122e0991c83845a2617172ffd # v1.8.5
+)
 
 add_subdirectory("DearImGui")
 add_subdirectory("EnTT")
