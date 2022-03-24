@@ -1,7 +1,5 @@
 #pragma once
 
-#include <basalt/api/scene/types.h>
-
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/color.h>
 #include <basalt/api/shared/handle.h>
@@ -278,6 +276,12 @@ struct SamplerDescriptor final {
 struct VertexBufferDescriptor final {
   uDeviceSize sizeInBytes {};
   VertexLayout layout {};
+};
+
+struct DirectionalLight final {
+  Vector3f32 direction;
+  Color diffuseColor;
+  Color ambientColor;
 };
 
 struct PointLight final {

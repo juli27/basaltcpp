@@ -11,6 +11,8 @@ using entt::registry;
 
 namespace basalt {
 
+using gfx::DirectionalLight;
+
 auto Scene::ecs() -> registry& {
   return mEntityRegistry;
 }

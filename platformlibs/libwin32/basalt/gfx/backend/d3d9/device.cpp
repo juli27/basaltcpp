@@ -4,8 +4,6 @@
 
 #include <basalt/win32/shared/utils.h>
 
-#include <basalt/api/scene/types.h>
-
 #include <basalt/api/gfx/backend/commands.h>
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/utils.h>

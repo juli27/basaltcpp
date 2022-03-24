@@ -26,7 +26,6 @@ using std::byte;
 
 using gsl::span;
 
-using basalt::DirectionalLight;
 using basalt::Engine;
 using basalt::Mat4f32;
 using basalt::PI;
@@ -35,6 +34,7 @@ using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
 using basalt::gfx::DepthTestPass;
+using basalt::gfx::DirectionalLight;
 using basalt::gfx::Light;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <basalt/api/scene/types.h>
+#include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/shared/color.h>
 
@@ -39,7 +39,7 @@ struct Scene final {
   void set_ambient_light(const Color&);
 
   [[nodiscard]] auto directional_lights() const
-    -> const std::vector<DirectionalLight>&;
+    -> const std::vector<gfx::DirectionalLight>&;
   void add_directional_light(const Vector3f32& direction, const Color&);
   void clear_directional_lights();
 
@@ -47,7 +47,7 @@ private:
   friend struct Debug;
 
   entt::registry mEntityRegistry;
-  std::vector<DirectionalLight> mDirectionalLights;
+  std::vector<gfx::DirectionalLight> mDirectionalLights;
   Color mBackgroundColor {Colors::BLACK};
   Color mAmbientLightColor;
 };
