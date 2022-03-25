@@ -84,8 +84,9 @@ void CommandList::set_material(const Color& diffuse, const Color& ambient,
   add<CommandSetMaterial>(diffuse, ambient, emissive);
 }
 
-void CommandList::ext_draw_x_model(const ext::XModel handle) {
-  add<ext::CommandDrawXModel>(handle);
+void CommandList::ext_draw_x_mesh(const ext::XMesh handle,
+                                  const u32 subsetIndex) {
+  add<ext::CommandDrawXMesh>(handle, subsetIndex);
 }
 
 void CommandList::ext_render_dear_imgui() {

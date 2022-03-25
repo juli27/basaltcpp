@@ -84,6 +84,7 @@ auto SceneView::on_draw(const DrawContext& context) -> void {
     cmdList.set_lights(lights);
   }
 
+  const auto& cache {context.cache};
   const auto& ecs {mScene->ecs()};
 
   ecs.view<const Transform, const ext::XModel>().each(
@@ -93,13 +94,20 @@ auto SceneView::on_draw(const DrawContext& context) -> void {
                                    Mat4f32::translation(transform.position)};
       cmdList.set_transform(TransformState::ModelToWorld, objToWorldMatrix);
 
-      cmdList.ext_draw_x_model(model);
+      const auto& modelData {cache.get(model)};
+
+      const auto numMaterials {static_cast<u32>(modelData.materials.size())};
+
+      for (u32 i {0}; i < numMaterials; ++i) {
+        const auto& materialData {cache.get(modelData.materials[i])};
+        record_material(cmdList, materialData);
+
+        cmdList.ext_draw_x_mesh(modelData.mesh, i);
+      }
     });
 
   ecs.view<const Transform, const RenderComponent>().each(
     [&](const Transform& transform, const RenderComponent& renderComponent) {
-      const auto& cache {context.cache};
-
       const MaterialData& materialData {cache.get(renderComponent.material)};
       record_material(cmdList, materialData);
 

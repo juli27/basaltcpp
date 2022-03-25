@@ -2,8 +2,6 @@
 
 #include <basalt/gfx/backend/d3d9/util.h>
 
-#include <basalt/win32/shared/utils.h>
-
 #include <basalt/api/gfx/backend/commands.h>
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/utils.h>
@@ -22,16 +20,17 @@
 #include <imgui/imgui_impl_dx9.h>
 
 #include <algorithm>
-#include <array>
 #include <limits>
 #include <new>
 #include <stdexcept>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 #include <variant>
 #include <vector>
 
-using std::array;
+using namespace std::literals;
+
 using std::bad_alloc;
 using std::optional;
 using std::string_view;
@@ -42,6 +41,10 @@ using Microsoft::WRL::ComPtr;
 
 namespace basalt::gfx {
 namespace {
+
+constexpr auto to_color(const D3DCOLORVALUE& color) -> Color {
+  return Color {color.r, color.g, color.b, color.a};
+}
 
 constexpr auto to_d3d_color_value(const Color& color) noexcept
   -> D3DCOLORVALUE {
@@ -453,91 +456,68 @@ private:
 };
 
 struct D3D9XModelSupport final : ext::XModelSupport {
-  explicit D3D9XModelSupport(ComPtr<IDirect3DDevice9> device)
-    : mDevice {std::move(device)} {
+  using DevicePtr = ComPtr<IDirect3DDevice9>;
+
+  explicit D3D9XModelSupport(DevicePtr device) : mDevice {std::move(device)} {
   }
 
-  void execute(const ext::CommandDrawXModel& cmd) const {
-    ComPtr<IDirect3DStateBlock9> prevState {};
-    D3D9CALL(mDevice->CreateStateBlock(D3DSBT_ALL, &prevState));
+  void execute(const ext::CommandDrawXMesh& cmd) const {
+    const auto& mesh {mMeshes[cmd.handle]};
 
-    D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, TRUE));
-    D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
-    D3D9CALL(mDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE));
-    D3D9CALL(mDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL));
-    D3D9CALL(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
-
-    D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));
-    D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
-    D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT));
-    D3D9CALL(
-      mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1));
-    D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE));
-
-    const auto& model = mModels[cmd.handle];
-
-    for (DWORD i = 0; i < model.materials.size(); i++) {
-      D3D9CALL(mDevice->SetMaterial(&model.materials[i]));
-      D3D9CALL(mDevice->SetTexture(0, model.textures[i].Get()));
-
-      model.mesh->DrawSubset(i);
-    }
-
-    D3D9CALL(mDevice->SetTexture(0, nullptr));
-
-    D3D9CALL(prevState->Apply());
+    mesh->DrawSubset(cmd.subset);
   }
 
-  auto load(string_view filePath) -> ext::XModel override {
-    const auto [handle, model] = mModels.allocate();
-
-    const auto wideFilePath = create_wide_from_utf8(filePath);
+  [[nodiscard]] auto load(const path& filepath) -> ext::XModelData override {
+    const auto [meshHandle, mesh] {mMeshes.allocate()};
 
     ComPtr<ID3DXBuffer> materialBuffer;
     DWORD numMaterials {};
-    auto hr = ::D3DXLoadMeshFromXW(wideFilePath.c_str(), D3DXMESH_MANAGED,
-                                   mDevice.Get(), nullptr,
-                                   materialBuffer.GetAddressOf(), nullptr,
-                                   &numMaterials, model.mesh.GetAddressOf());
-    BASALT_ASSERT(SUCCEEDED(hr));
-
-    auto const* materials =
-      static_cast<D3DXMATERIAL*>(materialBuffer->GetBufferPointer());
-    model.materials.reserve(numMaterials);
-    model.textures.resize(numMaterials);
-
-    for (DWORD i = 0; i < numMaterials; i++) {
-      model.materials.emplace_back(materials->MatD3D);
-
-      // d3dx doesn't set the ambient color
-      model.materials[i].Ambient = model.materials[i].Diffuse;
-
-      if (materials[i].pTextureFilename != nullptr &&
-          lstrlenA(materials[i].pTextureFilename) > 0) {
-        array<char, MAX_PATH> texPath {};
-        strcpy_s(texPath.data(), texPath.size(), "data/");
-        strcat_s(texPath.data(), texPath.size(), materials[i].pTextureFilename);
-
-        hr = ::D3DXCreateTextureFromFileA(mDevice.Get(), texPath.data(),
-                                          model.textures[i].GetAddressOf());
-        BASALT_ASSERT(SUCCEEDED(hr));
-      }
+    if (FAILED(D3DXLoadMeshFromXW(filepath.c_str(), D3DXMESH_MANAGED,
+                                  mDevice.Get(), nullptr, &materialBuffer,
+                                  nullptr, &numMaterials, &mesh))) {
+      throw std::runtime_error {"loading mesh file failed"};
     }
 
-    return handle;
+    vector<ext::XModelData::Material> materials {};
+
+    materials.reserve(numMaterials);
+    const auto* const d3dMaterials {
+      static_cast<const D3DXMATERIAL*>(materialBuffer->GetBufferPointer())};
+
+    for (DWORD i {0}; i < numMaterials; i++) {
+      const auto& d3dMaterial {d3dMaterials[i].MatD3D};
+      // d3dx doesn't set the ambient color
+      auto& material {materials.emplace_back(ext::XModelData::Material {
+        to_color(d3dMaterial.Diffuse),
+        to_color(d3dMaterial.Diffuse),
+      })};
+
+      if (!d3dMaterials[i].pTextureFilename) {
+        continue;
+      }
+
+      const string_view texFileName {d3dMaterials[i].pTextureFilename};
+      if (texFileName.empty()) {
+        continue;
+      }
+
+      path texPath {"data"sv};
+      texPath /= texFileName;
+      material.textureFile = std::move(texPath);
+    }
+
+    return ext::XModelData {meshHandle, std::move(materials)};
+  }
+
+  auto destroy(const ext::XMesh handle) noexcept -> void override {
+    mMeshes.deallocate(handle);
   }
 
 private:
-  using TexturePtr = ComPtr<IDirect3DTexture9>;
+  using XMeshPtr = ComPtr<ID3DXMesh>;
 
-  struct Model {
-    vector<D3DMATERIAL9> materials;
-    vector<TexturePtr> textures;
-    ComPtr<ID3DXMesh> mesh;
-  };
-
-  ComPtr<IDirect3DDevice9> mDevice;
-  HandlePool<Model, ext::XModel> mModels;
+  DevicePtr mDevice;
+  HandlePool<XMeshPtr, ext::XMesh> mMeshes;
 };
 
 } // namespace
@@ -827,10 +807,10 @@ auto D3D9Device::query_extension(const ext::ExtensionId id)
 
 void D3D9Device::execute(const Command& cmd) {
   switch (cmd.type) {
-  case CommandType::ExtDrawXModel:
+  case CommandType::ExtDrawXMesh:
     std::static_pointer_cast<const D3D9XModelSupport>(
       mExtensions[ext::ExtensionId::XModelSupport])
-      ->execute(cmd.as<ext::CommandDrawXModel>());
+      ->execute(cmd.as<ext::CommandDrawXMesh>());
     break;
 
   case CommandType::ExtRenderDearImGui:

@@ -72,8 +72,9 @@ void FilteringCommandList::set_material(const Color& diffuse,
   }
 }
 
-void FilteringCommandList::ext_draw_x_model(const ext::XModel handle) {
-  mCommandList.ext_draw_x_model(handle);
+void FilteringCommandList::ext_draw_x_mesh(const ext::XMesh handle,
+                                           const u32 subsetIndex) {
+  mCommandList.ext_draw_x_mesh(handle, subsetIndex);
 }
 
 void FilteringCommandList::ext_render_dear_imgui() {

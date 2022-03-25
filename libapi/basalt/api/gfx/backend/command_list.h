@@ -52,7 +52,7 @@ public:
   void set_material(const Color& diffuse, const Color& ambient,
                     const Color& emissive);
 
-  void ext_draw_x_model(ext::XModel);
+  void ext_draw_x_mesh(ext::XMesh, u32 subsetIndex);
   void ext_render_dear_imgui();
 
 private:

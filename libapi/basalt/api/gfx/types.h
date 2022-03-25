@@ -1,6 +1,7 @@
 #pragma once
 
 #include <basalt/api/gfx/backend/types.h>
+#include <basalt/api/gfx/backend/ext/types.h>
 
 #include <basalt/api/math/mat4.h>
 
@@ -13,6 +14,7 @@
 #include <gsl/span>
 
 #include <cstddef>
+#include <vector>
 
 namespace basalt::gfx {
 
@@ -96,5 +98,10 @@ struct MaterialData final {
 };
 
 static_assert(sizeof(MaterialData) == 48);
+
+struct XModelData final {
+  std::vector<Material> materials;
+  ext::XMesh mesh;
+};
 
 } // namespace basalt::gfx

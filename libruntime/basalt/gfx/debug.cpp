@@ -163,7 +163,7 @@ constexpr auto enumerator_to_string(const CommandType type) noexcept -> const
     ENUMERATOR_TO_STRING(CommandType, SetTransform);
     ENUMERATOR_TO_STRING(CommandType, SetAmbientLight);
     ENUMERATOR_TO_STRING(CommandType, SetMaterial);
-    ENUMERATOR_TO_STRING(CommandType, ExtDrawXModel);
+    ENUMERATOR_TO_STRING(CommandType, ExtDrawXMesh);
     ENUMERATOR_TO_STRING(CommandType, ExtRenderDearImGui);
   }
 
@@ -425,14 +425,15 @@ void display(const CommandSetMaterial& cmd) {
   display_color4("emissiveColor", cmd.emissive);
 }
 
-void display(const ext::CommandDrawXModel& cmd) {
-  ImGui::Text("model = %#x", cmd.handle.value());
+void display(const ext::CommandDrawXMesh& cmd) {
+  ImGui::Text("mesh = %#x", cmd.handle.value());
+  ImGui::Text("subsetIndex = %#x", cmd.subset);
 }
 
 void display(const Command& cmd) {
   switch (cmd.type) {
-  case CommandType::ExtDrawXModel:
-    display(cmd.as<ext::CommandDrawXModel>());
+  case CommandType::ExtDrawXMesh:
+    display(cmd.as<ext::CommandDrawXMesh>());
     break;
 
   case CommandType::ExtRenderDearImGui:

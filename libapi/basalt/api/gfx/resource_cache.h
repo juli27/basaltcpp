@@ -57,19 +57,23 @@ struct ResourceCache {
     -> Texture;
   void destroy(Texture) const noexcept;
 
-  [[nodiscard]] auto load_x_model(const std::filesystem::path&) const
-    -> ext::XModel;
+  [[nodiscard]] auto load_x_model(const std::filesystem::path&) -> ext::XModel;
+  auto destroy(ext::XModel) noexcept -> void;
 
   auto create_mesh(const MeshDescriptor&) -> Mesh;
+
   auto create_material(const MaterialDescriptor&) -> Material;
+  auto destroy(Material) noexcept -> void;
 
   [[nodiscard]] auto get(Mesh) const -> const MeshData&;
   [[nodiscard]] auto get(Material) const -> const MaterialData&;
+  [[nodiscard]] auto get(ext::XModel) const -> const XModelData&;
 
 private:
   Device& mDevice;
   HandlePool<MeshData, Mesh> mMeshes;
   HandlePool<MaterialData, Material> mMaterials;
+  HandlePool<XModelData, ext::XModel> mXModels {};
 };
 
 } // namespace basalt::gfx

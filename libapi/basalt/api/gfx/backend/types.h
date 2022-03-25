@@ -40,7 +40,7 @@ enum class CommandType : u8 {
   SetMaterial,
 
   // built-in extensions
-  ExtDrawXModel,
+  ExtDrawXMesh,
   ExtRenderDearImGui,
 };
 

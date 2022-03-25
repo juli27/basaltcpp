@@ -3,7 +3,11 @@
 #include <basalt/api/gfx/backend/utils.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
+#include <utility>
+#include <vector>
+
 using std::byte;
+using std::vector;
 using std::filesystem::path;
 
 using gsl::span;
@@ -49,11 +53,44 @@ void ResourceCache::destroy(const Texture handle) const noexcept {
   mDevice.destroy(handle);
 }
 
-auto ResourceCache::load_x_model(const path& path) const -> ext::XModel {
+auto ResourceCache::load_x_model(const path& path) -> ext::XModel {
   const auto modelExt {
     *gfx::query_device_extension<ext::XModelSupport>(mDevice)};
+  BASALT_ASSERT(modelExt, "X model files not supported");
 
-  return modelExt->load(path.u8string());
+  const ext::XModelData xModel {modelExt->load(path)};
+
+  vector<Material> materials {};
+  materials.reserve(xModel.materials().size());
+
+  for (const auto& material : xModel.materials()) {
+    MaterialDescriptor desc {};
+    desc.diffuse = material.diffuse;
+    desc.ambient = material.ambient;
+    desc.sampledTexture.texture = load_texture(material.textureFile);
+
+    materials.push_back(create_material(desc));
+  }
+
+  auto [handle, data] {
+    mXModels.allocate(XModelData {std::move(materials), xModel.mesh()})};
+
+  return handle;
+}
+
+auto ResourceCache::destroy(const ext::XModel handle) noexcept -> void {
+  const auto& data {get(handle)};
+
+  for (const Material material : data.materials) {
+    destroy(get(material).texture);
+    destroy(material);
+  }
+
+  const auto modelExt {
+    *gfx::query_device_extension<ext::XModelSupport>(mDevice)};
+  modelExt->destroy(data.mesh);
+
+  mXModels.deallocate(handle);
 }
 
 auto ResourceCache::create_mesh(const MeshDescriptor& desc) -> Mesh {
@@ -100,12 +137,25 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
   return handle;
 }
 
+auto ResourceCache::destroy(const Material handle) noexcept -> void {
+  const auto& data {get(handle)};
+
+  mDevice.destroy(data.sampler);
+  mDevice.destroy(data.pipeline);
+
+  mMaterials.deallocate(handle);
+}
+
 auto ResourceCache::get(const Mesh mesh) const -> const MeshData& {
   return mMeshes[mesh];
 }
 
 auto ResourceCache::get(const Material material) const -> const MaterialData& {
   return mMaterials[material];
+}
+
+auto ResourceCache::get(const ext::XModel handle) const -> const XModelData& {
+  return mXModels[handle];
 }
 
 } // namespace basalt::gfx
