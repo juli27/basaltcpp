@@ -1,5 +1,7 @@
 #include <basalt/gfx/backend/d3d9/context.h>
 
+#include <basalt/gfx/backend/types.h>
+
 #include <basalt/api/gfx/backend/command_list.h>
 
 #include <basalt/api/shared/asserts.h>

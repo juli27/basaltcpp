@@ -4,11 +4,11 @@
 
 #include <basalt/win32/shared/Windows_custom.h>
 
-#include <basalt/gfx/backend/d3d9/types.h>
-
 #include <basalt/input_manager.h>
 
-#include <basalt/api/gfx/backend/types.h>
+#include <basalt/gfx/backend/d3d9/types.h>
+
+#include <basalt/gfx/backend/types.h>
 
 #include <basalt/api/types.h>
 

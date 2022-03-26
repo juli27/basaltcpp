@@ -9,18 +9,18 @@
 #include <basalt/win32/debug.h>
 #endif // BASALT_TRACE_WINDOWS_MESSAGES
 
-#include <basalt/gfx/backend/d3d9/factory.h>
-
 #include <basalt/dear_imgui.h>
 
 #include <basalt/gfx/debug.h>
 
+#include <basalt/gfx/backend/d3d9/factory.h>
+
+#include <basalt/gfx/backend/context.h>
+#include <basalt/gfx/backend/types.h>
+
 #include <basalt/api/client_app.h>
 #include <basalt/api/debug.h>
 #include <basalt/api/view.h>
-
-#include <basalt/api/gfx/backend/context.h>
-#include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/shared/config.h>
 #include <basalt/api/shared/log.h>

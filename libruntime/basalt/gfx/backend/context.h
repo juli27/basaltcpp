@@ -1,5 +1,7 @@
 #pragma once
 
+#include <basalt/gfx/backend/types.h>
+
 #include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/shared/size2d.h>

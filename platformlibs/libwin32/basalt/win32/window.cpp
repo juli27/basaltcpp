@@ -12,7 +12,7 @@
 
 #include <basalt/gfx/backend/d3d9/factory.h>
 
-#include <basalt/api/gfx/backend/context.h>
+#include <basalt/gfx/backend/context.h>
 
 #include <basalt/api/shared/log.h>
 

@@ -4,8 +4,7 @@
 #include <basalt/gfx/backend/d3d9/types.h>
 
 #include <basalt/gfx/types.h>
-
-#include <basalt/api/gfx/backend/types.h>
+#include <basalt/gfx/backend/types.h>
 
 #include <basalt/api/base/types.h>
 

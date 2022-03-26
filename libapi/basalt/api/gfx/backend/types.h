@@ -44,13 +44,6 @@ enum class CommandType : u8 {
   ExtRenderDearImGui,
 };
 
-enum class ContextStatus : u8 {
-  Ok,
-  Error,
-  DeviceLost,
-  ResetNeeded,
-};
-
 enum class CullMode : u8 {
   None,
   Clockwise,
@@ -76,11 +69,6 @@ enum class FillMode : u8 {
   Solid,
 };
 constexpr uSize FILL_MODE_COUNT = 3u;
-
-enum class PresentResult : u8 {
-  Ok,
-  DeviceLost,
-};
 
 enum class PrimitiveType : u8 {
   PointList,
@@ -201,11 +189,6 @@ struct CommandSetLights;
 struct CommandSetMaterial;
 
 struct CommandList;
-using Composite = std::vector<CommandList>;
-
-struct Context;
-using ContextPtr = std::unique_ptr<Context>;
-
 struct Device;
 
 struct RenderState;

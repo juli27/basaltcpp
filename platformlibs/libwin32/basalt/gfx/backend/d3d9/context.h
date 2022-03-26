@@ -1,6 +1,6 @@
 #pragma once
 
-#include <basalt/api/gfx/backend/context.h>
+#include <basalt/gfx/backend/context.h>
 
 #include <basalt/gfx/backend/d3d9/d3d9_custom.h>
 #include <basalt/gfx/backend/d3d9/device.h>
