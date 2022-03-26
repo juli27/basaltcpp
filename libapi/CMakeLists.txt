@@ -35,7 +35,7 @@ set_target_properties(${CURRENT_TARGET} PROPERTIES
   VS_JUST_MY_CODE_DEBUGGING "$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>"
 )
 
-add_subdirectory("basalt")
+add_subdirectory("basalt/api")
 
 get_target_property(TARGET_SOURCES ${CURRENT_TARGET} SOURCES)
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/basalt/api"

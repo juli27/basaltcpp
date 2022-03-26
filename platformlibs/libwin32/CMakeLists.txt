@@ -2,6 +2,15 @@ add_library(LibWin32 STATIC)
 add_library(Basalt::LibWin32 ALIAS LibWin32)
 set(CURRENT_TARGET LibWin32)
 
+# Dependencies
+find_package(DirectXSDK MODULE REQUIRED "d3dx9" "dxerr")
+## TODO: move to find module?
+set_package_properties(DirectXSDK PROPERTIES
+  DESCRIPTION "Microsoft DirectX SDK"
+  URL "https://www.microsoft.com/en-us/download/details.aspx?id=6812"
+  PURPOSE "Dependency of the Direct3D 9 gfx backend"
+)
+
 target_link_libraries(${CURRENT_TARGET}
   PUBLIC
     Basalt::LibAPI

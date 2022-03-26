@@ -9,8 +9,6 @@ target_link_libraries(${CURRENT_TARGET}
     ControlFlowGuard
     CommonPrivate
     WarningsAsErrors
-    "d3d9"
-    DirectXSDK::d3dx9
 )
 
 target_include_directories(${CURRENT_TARGET} PUBLIC
