@@ -486,10 +486,11 @@ struct D3D9XModelSupport final : ext::XModelSupport {
 
     for (DWORD i {0}; i < numMaterials; i++) {
       const auto& d3dMaterial {d3dMaterials[i].MatD3D};
-      // d3dx doesn't set the ambient color
+
+      const Color diffuse {to_color(d3dMaterial.Diffuse)};
       auto& material {materials.emplace_back(ext::XModelData::Material {
-        to_color(d3dMaterial.Diffuse),
-        to_color(d3dMaterial.Diffuse),
+        diffuse,
+        diffuse, // d3dx doesn't set the ambient color
       })};
 
       if (!d3dMaterials[i].pTextureFilename) {

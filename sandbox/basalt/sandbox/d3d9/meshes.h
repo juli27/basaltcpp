@@ -2,28 +2,29 @@
 
 #include <basalt/api/view.h>
 
-#include <basalt/sandbox/d3d9/utils.h>
-
-#include <basalt/api/scene_view.h>
-#include <basalt/api/types.h>
-
-#include <basalt/api/scene/scene.h>
-
-#include <entt/entity/handle.hpp>
-
-#include <memory>
+#include <basalt/api/gfx/camera.h>
+#include <basalt/api/gfx/types.h>
+#include <basalt/api/gfx/backend/ext/types.h>
 
 namespace d3d9 {
 
 struct Meshes final : basalt::View {
   explicit Meshes(basalt::Engine&);
+  Meshes(const Meshes&) = delete;
+  Meshes(const Meshes&&) = delete;
+
+  ~Meshes() noexcept override;
+
+  auto operator=(const Meshes&) -> Meshes& = delete;
+  auto operator=(const Meshes&&) -> Meshes& = delete;
 
 private:
-  std::shared_ptr<basalt::Scene> mScene = std::make_shared<basalt::Scene>();
-  basalt::SceneViewPtr mSceneView =
-    std::make_shared<basalt::SceneView>(mScene, create_default_camera());
-  entt::handle mTiger = mScene->create_entity();
+  basalt::gfx::ResourceCache& mResourceCache;
+  basalt::gfx::ext::XModel mModel {};
+  basalt::gfx::Camera mCamera;
+  basalt::f32 mAngleYRad {};
 
+  void on_draw(const DrawContext&) override;
   void on_tick(basalt::Engine&) override;
 };
 
