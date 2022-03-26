@@ -53,7 +53,7 @@ struct SandboxView::Example final {
 };
 
 SandboxView::SandboxView(Engine& engine) {
-  mExamples.reserve(10u);
+  mExamples.reserve(9u);
   mExamples.emplace_back(Example {
     std::make_shared<d3d9::Device>(),
     "Tutorial 1: Creating a Device"s,

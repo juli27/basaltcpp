@@ -65,14 +65,8 @@ DearImGui::~DearImGui() noexcept {
   ImGui::DestroyContext();
 }
 
-void DearImGui::on_draw(const DrawContext& context) {
-  CommandList commandList {};
-  commandList.ext_render_dear_imgui();
-
-  context.commandLists.push_back(std::move(commandList));
-}
-
-void DearImGui::on_tick(Engine& engine) {
+auto DearImGui::new_frame(Engine& engine, const Size2Du16 displaySize) const
+  -> void {
   static_assert(ImGuiMouseButton_COUNT == MOUSE_BUTTON_COUNT);
   static_assert(KEY_COUNT <= 512);
 
@@ -80,7 +74,6 @@ void DearImGui::on_tick(Engine& engine) {
 
   ImGuiIO& io {ImGui::GetIO()};
 
-  const Size2Du16 displaySize {engine.window_surface_size()};
   io.DisplaySize.x = static_cast<float>(displaySize.width());
   io.DisplaySize.y = static_cast<float>(displaySize.height());
   io.DeltaTime = static_cast<float>(engine.delta_time());
@@ -107,6 +100,13 @@ void DearImGui::on_tick(Engine& engine) {
   }
 
   ImGui::NewFrame();
+}
+
+void DearImGui::on_draw(const DrawContext& context) {
+  CommandList commandList {};
+  commandList.ext_render_dear_imgui();
+
+  context.commandLists.push_back(std::move(commandList));
 }
 
 auto DearImGui::on_input(const InputEvent& e) -> InputEventHandled {
@@ -156,9 +156,6 @@ auto DearImGui::on_input(const InputEvent& e) -> InputEventHandled {
 
     return io.WantTextInput ? InputEventHandled::Yes : InputEventHandled::No;
   }
-
-  default:
-    break;
   }
 
   return InputEventHandled::No;

@@ -1,8 +1,7 @@
 #include <basalt/api/engine.h>
 
-#include <basalt/api/gfx/backend/context.h>
-
 #include <basalt/api/shared/config.h>
+#include <basalt/api/shared/resource_registry.h>
 
 #include <utility>
 
@@ -26,10 +25,6 @@ auto Engine::delta_time() const noexcept -> f64 {
   return mDeltaTime;
 }
 
-auto Engine::window_surface_size() const -> Size2Du16 {
-  return mGfxContext.surface_size();
-}
-
 void Engine::set_root(ViewPtr view) {
   mRoot = std::move(view);
 }
@@ -48,10 +43,10 @@ void Engine::set_window_mode(const WindowMode windowMode) noexcept {
   mIsDirty = true;
 }
 
-Engine::Engine(Config& config, gfx::Context& context) noexcept
+Engine::Engine(Config& config, gfx::Device& gfxDevice) noexcept
   : mConfig {config}
-  , mGfxContext {context}
-  , mGfxResourceCache {mGfxContext.device()} {
+  , mResourceRegistry {std::make_shared<ResourceRegistry>()}
+  , mGfxResourceCache {gfxDevice} {
 }
 
 auto Engine::is_loaded(const ResourceId id) const -> bool {

@@ -1,8 +1,11 @@
 #pragma once
 
+#include <basalt/api/types.h>
 #include <basalt/api/view.h>
 
 #include <basalt/api/gfx/backend/ext/types.h>
+
+#include <basalt/api/shared/types.h>
 
 #include <memory>
 
@@ -19,12 +22,12 @@ struct DearImGui final : View {
   auto operator=(const DearImGui&) -> DearImGui& = delete;
   auto operator=(DearImGui&&) -> DearImGui& = delete;
 
+  auto new_frame(Engine&, Size2Du16 displaySize) const -> void;
+
 private:
   std::shared_ptr<gfx::ext::DearImGuiRenderer> mRenderer;
 
   void on_draw(const DrawContext&) override;
-
-  void on_tick(Engine&) override;
 
   auto on_input(const InputEvent&) -> InputEventHandled override;
 };

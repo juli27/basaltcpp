@@ -7,7 +7,6 @@
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 
-#include <basalt/api/shared/resource_registry.h>
 #include <basalt/api/shared/types.h>
 
 #include <basalt/api/base/types.h>
@@ -30,7 +29,6 @@ struct Engine {
   [[nodiscard]] auto gfx_resource_cache() noexcept -> gfx::ResourceCache&;
 
   [[nodiscard]] auto delta_time() const noexcept -> f64;
-  [[nodiscard]] auto window_surface_size() const -> Size2Du16;
 
   void set_root(ViewPtr);
 
@@ -44,9 +42,8 @@ struct Engine {
 
 protected:
   Config& mConfig;
-  ResourceRegistryPtr mResourceRegistry {std::make_shared<ResourceRegistry>()};
+  ResourceRegistryPtr mResourceRegistry {};
 
-  gfx::Context& mGfxContext;
   gfx::ResourceCache mGfxResourceCache;
 
   std::unordered_map<ResourceId, gfx::Texture> mTextures {};
@@ -59,7 +56,7 @@ protected:
   MouseCursor mMouseCursor {MouseCursor::Arrow};
   bool mIsDirty {false};
 
-  Engine(Config&, gfx::Context&) noexcept;
+  Engine(Config&, gfx::Device&) noexcept;
 
   ~Engine() noexcept = default;
 

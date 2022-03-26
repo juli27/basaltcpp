@@ -8,8 +8,6 @@
 
 #include <basalt/input_manager.h>
 
-#include <basalt/gfx/types.h>
-
 #include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/types.h>

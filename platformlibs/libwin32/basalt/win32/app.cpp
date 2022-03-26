@@ -1,6 +1,7 @@
 #include <basalt/win32/app.h>
 
 #include <basalt/win32/build_config.h>
+#include <basalt/win32/types.h>
 #include <basalt/win32/util.h>
 #include <basalt/win32/window.h>
 
@@ -16,10 +17,10 @@
 
 #include <basalt/api/client_app.h>
 #include <basalt/api/debug.h>
-#include <basalt/api/types.h>
 #include <basalt/api/view.h>
 
 #include <basalt/api/gfx/backend/context.h>
+#include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/shared/config.h>
 #include <basalt/api/shared/log.h>
@@ -34,10 +35,6 @@
 using namespace std::literals;
 
 namespace basalt {
-
-using gfx::Composite;
-using gfx::D3D9Factory;
-using gfx::D3D9FactoryPtr;
 
 namespace {
 
@@ -56,7 +53,7 @@ void dump_config(const Config& config) {
                   config.get_bool("window.resizeable"s));
 }
 
-[[nodiscard]] auto poll_events() -> bool {
+[[nodiscard]] auto poll_messages() -> bool {
   MSG msg {};
   while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
     TranslateMessage(&msg);
@@ -77,9 +74,9 @@ void dump_config(const Config& config) {
   return true;
 }
 
-[[nodiscard]] auto wait_for_events() -> bool {
+[[nodiscard]] auto wait_for_messages() -> bool {
   MSG msg {};
-  const auto ret = GetMessageW(&msg, nullptr, 0u, 0u);
+  const BOOL ret {GetMessageW(&msg, nullptr, 0u, 0u)};
   if (ret == -1) {
     BASALT_LOG_FATAL(create_win32_error_message(GetLastError()));
 
@@ -95,11 +92,11 @@ void dump_config(const Config& config) {
   DispatchMessageW(&msg);
 
   // handle any remaining messages in the queue
-  return poll_events();
+  return poll_messages();
 }
 
 auto run_lost_device_loop(gfx::Context& gfxContext) -> bool {
-  while (wait_for_events()) {
+  while (wait_for_messages()) {
     switch (gfxContext.get_status()) {
     case gfx::ContextStatus::Ok:
       return true;
@@ -126,7 +123,7 @@ void App::run(Config& config, const HMODULE moduleHandle,
               const int showCommand) {
   dump_config(config);
 
-  const D3D9FactoryPtr gfxFactory {D3D9Factory::create()};
+  const gfx::D3D9FactoryPtr gfxFactory {gfx::D3D9Factory::create()};
   if (!gfxFactory) {
     BASALT_LOG_FATAL("couldn't create any gfx factory");
 
@@ -164,7 +161,7 @@ void App::run(Config& config, const HMODULE moduleHandle,
 
   window->input_manager().set_overlay(dearImGui);
 
-  App app {config, gfxContext};
+  App app {config, gfxContext.device()};
 
   ClientApp::bootstrap(app);
 
@@ -173,7 +170,7 @@ void App::run(Config& config, const HMODULE moduleHandle,
 
   auto startTime {Clock::now()};
 
-  while (poll_events()) {
+  while (poll_messages()) {
     if (const WindowMode mode {config.get_enum("window.mode"s, to_window_mode)};
         mode != window->mode()) {
       window->set_mode(mode);
@@ -181,7 +178,7 @@ void App::run(Config& config, const HMODULE moduleHandle,
 
     window->input_manager().dispatch_pending(app.mRoot);
 
-    dearImGui->tick(app);
+    dearImGui->new_frame(app, gfxContext.surface_size());
     app.mRoot->tick(app);
 
     if (app.mIsDirty) {
@@ -189,7 +186,7 @@ void App::run(Config& config, const HMODULE moduleHandle,
       window->set_cursor(app.mMouseCursor);
     }
 
-    Composite composite {};
+    gfx::Composite composite {};
     const View::DrawContext drawContext {composite, app.mGfxResourceCache,
                                          gfxContext.surface_size()};
 
@@ -217,19 +214,18 @@ void App::run(Config& config, const HMODULE moduleHandle,
       continue;
     }
 
-    const auto endTime = Clock::now();
+    const auto endTime {Clock::now()};
     app.mDeltaTime = static_cast<f64>((endTime - startTime).count()) /
                      (Clock::period::den * Clock::period::num);
     startTime = endTime;
   }
 }
 
-App::App(Config& config, gfx::Context& gfxContext)
-  : Engine {config, gfxContext} {
+App::App(Config& config, gfx::Device& gfxDevice) : Engine {config, gfxDevice} {
 }
 
-namespace {
-
+// namespace {
+//
 ///**
 // * \brief Processes the windows command line string and populates an argv
 // *        style vector.
@@ -259,7 +255,7 @@ namespace {
 //
 //  ::LocalFree(argv);
 //}
-
-} // namespace
+//
+//} // namespace
 
 } // namespace basalt
