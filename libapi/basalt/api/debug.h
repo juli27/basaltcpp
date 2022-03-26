@@ -1,6 +1,6 @@
 #pragma once
 
-#include "scene/types.h"
+#include <basalt/api/scene/types.h>
 
 namespace basalt {
 
@@ -8,15 +8,6 @@ namespace basalt {
 struct Debug final {
   Debug() = delete;
 
-  Debug(const Debug&) = delete;
-  Debug(Debug&&) = delete;
-
-  ~Debug() = delete;
-
-  auto operator=(const Debug&) -> Debug& = delete;
-  auto operator=(Debug &&) -> Debug& = delete;
-
-  static void update();
   static void update(Scene&);
 
 private:

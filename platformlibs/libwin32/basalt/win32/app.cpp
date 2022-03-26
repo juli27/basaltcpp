@@ -19,7 +19,6 @@
 #include <basalt/gfx/backend/types.h>
 
 #include <basalt/api/client_app.h>
-#include <basalt/api/debug.h>
 #include <basalt/api/view.h>
 
 #include <basalt/api/shared/config.h>
@@ -198,7 +197,6 @@ void App::run(Config& config, const HMODULE moduleHandle,
     dearImGui->draw(drawContext);
 
     if (config.get_bool("runtime.debugUI.enabled"s)) {
-      Debug::update();
       gfx::Debug::update(gfxInfo, composite);
     }
 

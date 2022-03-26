@@ -15,6 +15,10 @@ private:
   std::vector<Example> mExamples;
   basalt::uSize mCurrentExampleIndex {8};
 
+  bool mShowDemo {false};
+  bool mShowMetrics {false};
+  bool mShowAbout {false};
+
   void next_scene() noexcept;
   void prev_scene() noexcept;
   void switch_scene(basalt::uSize index) noexcept;

@@ -150,7 +150,24 @@ void SandboxView::on_tick(Engine& engine) {
       ImGui::EndMenu();
     }
 
+    if (ImGui::BeginMenu("Help")) {
+      ImGui::MenuItem("Dear ImGui Demo", nullptr, &mShowDemo);
+      ImGui::MenuItem("Dear ImGui Metrics", nullptr, &mShowMetrics);
+      ImGui::MenuItem("About Dear ImGui", nullptr, &mShowAbout);
+      ImGui::EndMenu();
+    }
+
     ImGui::EndMainMenuBar();
+  }
+
+  if (mShowDemo) {
+    ImGui::ShowDemoWindow(&mShowDemo);
+  }
+  if (mShowMetrics) {
+    ImGui::ShowMetricsWindow(&mShowMetrics);
+  }
+  if (mShowAbout) {
+    ImGui::ShowAboutWindow(&mShowAbout);
   }
 }
 

@@ -1,17 +1,17 @@
-#include "debug.h"
+#include <basalt/api/debug.h>
 
-#include "gfx/types.h"
-#include "gfx/backend/ext/types.h"
+#include <basalt/api/gfx/types.h>
+#include <basalt/api/gfx/backend/ext/types.h>
 
-#include "scene/scene.h"
-#include "scene/transform.h"
+#include <basalt/api/scene/scene.h>
+#include <basalt/api/scene/transform.h>
 
-#include "math/constants.h"
-#include "math/vector3.h"
+#include <basalt/api/math/constants.h>
+#include <basalt/api/math/vector3.h>
 
-#include "shared/color.h"
+#include <basalt/api/shared/color.h>
 
-#include "base/types.h"
+#include <basalt/api/base/types.h>
 
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
@@ -29,9 +29,6 @@ namespace basalt {
 namespace {
 
 bool sShowSceneDebugUi {false};
-bool sShowDemo {false};
-bool sShowMetrics {false};
-bool sShowAbout {false};
 
 void edit_color3(const char* label, Color& color) {
   array<f32, 3> colorArray {color.red(), color.green(), color.blue()};
@@ -55,36 +52,16 @@ void edit_color4(const char* label, Color& color) {
 
 } // namespace
 
-void Debug::update() {
+void Debug::update(Scene& scene) {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("View")) {
       ImGui::MenuItem("Scene Debug UI", nullptr, &sShowSceneDebugUi);
       ImGui::EndMenu();
     }
 
-    if (ImGui::BeginMenu("Help")) {
-      ImGui::MenuItem("Dear ImGui Demo", nullptr, &sShowDemo);
-      ImGui::MenuItem("Dear ImGui Metrics", nullptr, &sShowMetrics);
-      ImGui::MenuItem("About Dear ImGui", nullptr, &sShowAbout);
-
-      ImGui::EndMenu();
-    }
-
     ImGui::EndMainMenuBar();
   }
 
-  if (sShowDemo) {
-    ImGui::ShowDemoWindow(&sShowDemo);
-  }
-  if (sShowMetrics) {
-    ImGui::ShowMetricsWindow(&sShowMetrics);
-  }
-  if (sShowAbout) {
-    ImGui::ShowAboutWindow(&sShowAbout);
-  }
-}
-
-void Debug::update(Scene& scene) {
   if (sShowSceneDebugUi) {
     draw_scene_debug_ui(scene);
   }
