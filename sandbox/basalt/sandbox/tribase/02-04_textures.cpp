@@ -56,8 +56,8 @@ namespace {
 constexpr i32 NUM_TRIANGLES {1024};
 
 struct TriangleData final {
-  Vector3f32 velocity {};
-  Vector3f32 rotationVelocity {};
+  Vector3f32 velocity {0.0f};
+  Vector3f32 rotationVelocity {0.0f};
 };
 
 struct RandomNumberGenerator final {
@@ -77,9 +77,9 @@ private:
 };
 
 auto create_camera() -> Camera {
-  return Camera {Vector3f32 {},
-                 Vector3f32 {0.0f, 0.0f, 1.0f},
-                 Vector3f32 {0.0f, 1.0f, 0.0f},
+  return Camera {Vector3f32 {0.0f},
+                 Vector3f32::forward(),
+                 Vector3f32::up(),
                  PI / 2.0f,
                  0.1f,
                  100.0f};
@@ -122,8 +122,8 @@ Textures::Textures(Engine& engine)
 
   for (i32 i {0}; i < NUM_TRIANGLES; ++i) {
     const f32 scale {rng.generate_f32(1.0f, 5.0f)};
-    auto triangle {mScene->create_entity(Vector3f32 {0.0f, 0.0f, 50.0f},
-                                         Vector3f32 {}, Vector3f32 {scale})};
+    auto triangle {mScene->create_entity(
+      Vector3f32 {0.0f, 0.0f, 50.0f}, Vector3f32 {0.0f}, Vector3f32 {scale})};
 
     const Vector3f32 velocity {rng.generate_vector3f32() *
                                rng.generate_f32(0.1f, 5.0f)};

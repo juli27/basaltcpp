@@ -43,7 +43,7 @@ struct vec {
   }
 
   [[nodiscard]] constexpr auto operator-() const -> Derived {
-    Derived v {};
+    Derived v {*self()};
     for (uSize i = 0; i < elements.size(); ++i) {
       v.elements[i] = -elements[i];
     }
@@ -66,6 +66,10 @@ struct vec {
   }
 
 private:
+  [[nodiscard]] constexpr auto self() const noexcept -> const Derived* {
+    return static_cast<const Derived*>(this);
+  }
+
   [[nodiscard]] constexpr auto self() noexcept -> Derived* {
     return static_cast<Derived*>(this);
   }

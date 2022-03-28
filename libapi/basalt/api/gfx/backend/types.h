@@ -270,7 +270,7 @@ struct DirectionalLight final {
 struct PointLight final {
   Color diffuseColor {};
   Color ambientColor {};
-  Vector3f32 positionInWorld {};
+  Vector3f32 positionInWorld {0.0f};
   f32 rangeInWorld {};
   f32 attenuation0 {};
   f32 attenuation1 {};
@@ -280,8 +280,8 @@ struct PointLight final {
 struct SpotLight final {
   Color diffuseColor {};
   Color ambientColor {};
-  Vector3f32 positionInWorld {};
-  Vector3f32 directionInWorld {};
+  Vector3f32 positionInWorld {0.0f};
+  Vector3f32 directionInWorld {0.0f};
   f32 rangeInWorld {};
   f32 attenuation0 {};
   f32 attenuation1 {};

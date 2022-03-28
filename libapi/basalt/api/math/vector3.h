@@ -7,9 +7,8 @@
 namespace basalt {
 
 struct Vector3f32 final : vec<Vector3f32, f32, 3> {
-  constexpr Vector3f32() noexcept = default;
-
-  constexpr Vector3f32(const f32 value) noexcept : vec {value, value, value} {
+  explicit constexpr Vector3f32(const f32 value) noexcept
+    : vec {value, value, value} {
   }
 
   constexpr Vector3f32(const f32 x, const f32 y, const f32 z) noexcept
@@ -56,6 +55,30 @@ struct Vector3f32 final : vec<Vector3f32, f32, 3> {
     x() = x_;
     y() = y_;
     z() = z_;
+  }
+
+  [[nodiscard]] static constexpr auto right() noexcept -> Vector3f32 {
+    return Vector3f32 {1.0f, 0.0f, 0.0f};
+  }
+
+  [[nodiscard]] static constexpr auto left() noexcept -> Vector3f32 {
+    return Vector3f32 {-1.0f, 0.0f, 0.0f};
+  }
+
+  [[nodiscard]] static constexpr auto up() noexcept -> Vector3f32 {
+    return Vector3f32 {0.0f, 1.0f, 0.0f};
+  }
+
+  [[nodiscard]] static constexpr auto down() noexcept -> Vector3f32 {
+    return Vector3f32 {0.0f, -1.0f, 0.0f};
+  }
+
+  [[nodiscard]] static constexpr auto forward() noexcept -> Vector3f32 {
+    return Vector3f32 {0.0f, 0.0f, 1.0f};
+  }
+
+  [[nodiscard]] static constexpr auto back() noexcept -> Vector3f32 {
+    return Vector3f32 {0.0f, 0.0f, -1.0f};
   }
 
   [[nodiscard]] static auto normalize(const Vector3f32&) -> Vector3f32;

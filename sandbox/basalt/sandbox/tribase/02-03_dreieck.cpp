@@ -37,9 +37,9 @@ namespace tribase {
 namespace {
 
 auto create_camera() -> Camera {
-  return Camera {Vector3f32 {},
-                 Vector3f32 {0.0f, 0.0f, 1.0f},
-                 Vector3f32 {0.0f, 1.0f, 0.0f},
+  return Camera {Vector3f32 {0.0f},
+                 Vector3f32::forward(),
+                 Vector3f32::up(),
                  PI / 2.0f,
                  0.1f,
                  100.0f};

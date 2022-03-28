@@ -4,6 +4,8 @@
 
 #include <basalt/api/shared/color.h>
 
+#include <basalt/api/math/vector3.h>
+
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
 
@@ -11,10 +13,8 @@
 
 namespace basalt {
 
-struct Vector3f32;
-
 struct Scene final {
-  Scene() noexcept = default;
+  Scene() = default;
 
   Scene(const Scene&) = delete;
   Scene(Scene&&) = delete;
@@ -26,10 +26,10 @@ struct Scene final {
 
   auto ecs() -> entt::registry&;
 
-  [[nodiscard]] auto create_entity(const Vector3f32& position = Vector3f32 {},
-                                   const Vector3f32& rotation = Vector3f32 {},
-                                   const Vector3f32& scale = Vector3f32 {1.0f})
-    -> entt::handle;
+  [[nodiscard]] auto
+  create_entity(const Vector3f32& position = Vector3f32 {0.0f},
+                const Vector3f32& rotation = Vector3f32 {0.0f},
+                const Vector3f32& scale = Vector3f32 {1.0f}) -> entt::handle;
   [[nodiscard]] auto get_handle(entt::entity) -> entt::handle;
 
   [[nodiscard]] auto background() const -> const Color&;
