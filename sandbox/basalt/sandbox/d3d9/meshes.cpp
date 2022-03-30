@@ -19,6 +19,7 @@ namespace d3d9 {
 
 using namespace std::literals;
 
+using basalt::Angle;
 using basalt::Engine;
 using basalt::Mat4f32;
 using basalt::PI;
@@ -63,7 +64,7 @@ void Meshes::on_draw(const DrawContext& context) {
     cmdList.set_material(materialData.diffuse, materialData.ambient, Color {});
 
     cmdList.set_transform(TransformState::ModelToWorld,
-                          Mat4f32::rotation_y(mAngleYRad));
+                          Mat4f32::rotation_y(mRotationY));
 
     cmdList.ext_draw_x_mesh(modelData.mesh, i);
   }
@@ -74,9 +75,9 @@ void Meshes::on_draw(const DrawContext& context) {
 void Meshes::on_tick(Engine& engine) {
   const auto dt {static_cast<f32>(engine.delta_time())};
 
-  mAngleYRad += dt;
-  while (mAngleYRad > PI) {
-    mAngleYRad -= PI * 2.0f;
+  mRotationY += Angle::radians(dt);
+  while (mRotationY.radians() > PI) {
+    mRotationY -= Angle::radians(PI * 2.0f);
   }
 }
 

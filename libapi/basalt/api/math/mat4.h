@@ -199,11 +199,11 @@ struct Mat4 final {
     // clang-format on
   }
 
-  [[nodiscard]] static auto rotation_x(f32 radians) noexcept -> Mat4;
+  [[nodiscard]] static auto rotation_x(Angle) noexcept -> Mat4;
 
-  [[nodiscard]] static auto rotation_y(f32 radians) noexcept -> Mat4;
+  [[nodiscard]] static auto rotation_y(Angle) noexcept -> Mat4;
 
-  [[nodiscard]] static auto rotation_z(f32 radians) noexcept -> Mat4;
+  [[nodiscard]] static auto rotation_z(Angle) noexcept -> Mat4;
 
   [[nodiscard]] static auto rotation(const Vector3f32& radians) noexcept
     -> Mat4;

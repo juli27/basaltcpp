@@ -26,6 +26,7 @@ using std::byte;
 
 using gsl::span;
 
+using basalt::Angle;
 using basalt::Engine;
 using basalt::Mat4f32;
 using basalt::PI;
@@ -126,8 +127,8 @@ auto Lights::on_draw(const DrawContext& context) -> void {
   cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
 
   const Light light {DirectionalLight {
-    Vector3f32::normalize(
-      Vector3f32 {std::cos(mLightAngle), 1.0f, std::sin(mLightAngle)}),
+    Vector3f32::normalize(Vector3f32 {std::cos(mLightRotation.radians()), 1.0f,
+                                      std::sin(mLightRotation.radians())}),
     Color {1.0f, 1.0f, 1.0f, 0.0f},
     Color {},
   }};
@@ -138,7 +139,7 @@ auto Lights::on_draw(const DrawContext& context) -> void {
 
   cmdList.set_material(Colors::YELLOW, Colors::YELLOW, Color {});
   cmdList.set_transform(TransformState::ModelToWorld,
-                        Mat4f32::rotation_x(mAngleXRad));
+                        Mat4f32::rotation_x(mRotationX));
 
   cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
 
@@ -150,15 +151,17 @@ auto Lights::on_draw(const DrawContext& context) -> void {
 void Lights::on_tick(Engine& engine) {
   const auto dt {static_cast<f32>(engine.delta_time())};
 
-  mAngleXRad += 2.0f * dt;
-  if (mAngleXRad > PI) {
-    mAngleXRad -= PI * 2.0f;
+  constexpr f32 twoPi {2.0f * PI};
+
+  mRotationX += Angle::radians(2.0f * dt);
+  while (mRotationX.radians() > PI) {
+    mRotationX -= Angle::radians(twoPi);
   }
 
-  mLightAngle += 20.0f / 7.0f * dt;
-  // reset when rotated 360°
-  while (mLightAngle >= PI * 2.0f) {
-    mLightAngle -= PI * 2.0f;
+  mLightRotation += Angle::radians(20.0f / 7.0f * dt);
+  // reset to -180° when rotated more than 180°
+  while (mLightRotation.radians() > PI) {
+    mLightRotation -= Angle::radians(twoPi);
   }
 }
 

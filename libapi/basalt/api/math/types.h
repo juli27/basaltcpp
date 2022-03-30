@@ -4,6 +4,8 @@
 
 namespace basalt {
 
+struct Angle;
+
 struct Mat4;
 using Mat4f32 = Mat4;
 

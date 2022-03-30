@@ -6,6 +6,8 @@
 #include <basalt/api/gfx/types.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 
+#include <basalt/api/math/angle.h>
+
 namespace d3d9 {
 
 struct Meshes final : basalt::View {
@@ -22,7 +24,7 @@ private:
   basalt::gfx::ResourceCache& mResourceCache;
   basalt::gfx::ext::XModel mModel {};
   basalt::gfx::Camera mCamera;
-  basalt::f32 mAngleYRad {};
+  basalt::Angle mRotationY {};
 
   void on_draw(const DrawContext&) override;
   void on_tick(basalt::Engine&) override;

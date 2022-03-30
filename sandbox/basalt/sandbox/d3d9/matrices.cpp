@@ -24,6 +24,7 @@ using std::byte;
 
 using gsl::span;
 
+using basalt::Angle;
 using basalt::Engine;
 using basalt::Mat4f32;
 using basalt::PI;
@@ -88,7 +89,7 @@ auto Matrices::on_draw(const DrawContext& context) -> void {
   cmdList.bind_pipeline(mPipeline);
 
   cmdList.set_transform(TransformState::ModelToWorld,
-                        Mat4f32::rotation_y(mAngleYRad));
+                        Mat4f32::rotation_y(mRotationY));
   cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
   cmdList.set_transform(TransformState::ViewToViewport,
                         mCamera.projection_matrix(context.viewport));
@@ -101,11 +102,13 @@ auto Matrices::on_draw(const DrawContext& context) -> void {
 }
 
 void Matrices::on_tick(Engine& engine) {
-  // 1 full rotation per second
+  const auto dt {static_cast<f32>(engine.delta_time())};
+
   constexpr f32 twoPi {PI * 2.0f};
-  mAngleYRad += twoPi * static_cast<f32>(engine.delta_time());
-  if (mAngleYRad > PI) {
-    mAngleYRad -= twoPi;
+  // 1 full rotation per second
+  mRotationY += Angle::radians(twoPi * dt);
+  while (mRotationY.radians() > PI) {
+    mRotationY -= Angle::radians(twoPi);
   }
 }
 

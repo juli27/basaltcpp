@@ -27,6 +27,7 @@ using std::byte;
 
 using gsl::span;
 
+using basalt::Angle;
 using basalt::Engine;
 using basalt::Mat4f32;
 using basalt::PI;
@@ -146,7 +147,7 @@ auto Textures::on_draw(const DrawContext& context) -> void {
   cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
 
   cmdList.set_transform(TransformState::ModelToWorld,
-                        Mat4f32::rotation_x(mAngleXRad));
+                        Mat4f32::rotation_x(mRotationX));
 
   if (mShowTci) {
     const Mat4f32 texTransform {
@@ -167,9 +168,9 @@ auto Textures::on_draw(const DrawContext& context) -> void {
 void Textures::on_tick(Engine& engine) {
   const auto dt {static_cast<f32>(engine.delta_time())};
 
-  mAngleXRad += dt;
-  if (mAngleXRad > PI) {
-    mAngleXRad -= PI * 2.0f;
+  mRotationX += Angle::radians(dt);
+  while (mRotationX.radians() > PI) {
+    mRotationX -= Angle::radians(PI * 2.0f);
   }
 
   if (ImGui::Begin("Settings##D3D9")) {

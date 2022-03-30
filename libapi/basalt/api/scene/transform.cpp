@@ -9,9 +9,10 @@ void Transform::move(const f32 offsetX, const f32 offsetY,
   position += Vector3f32 {offsetX, offsetY, offsetZ};
 }
 
-void Transform::rotate(const f32 radOffsetX, const f32 radOffsetY,
-                       const f32 radOffsetZ) noexcept {
-  rotation += Vector3f32 {radOffsetX, radOffsetY, radOffsetZ};
+void Transform::rotate(const Angle offsetX, const Angle offsetY,
+                       const Angle offsetZ) noexcept {
+  rotation +=
+    Vector3f32 {offsetX.radians(), offsetY.radians(), offsetZ.radians()};
 
   constexpr auto twoPi = PI * 2.0f;
   if (rotation.x() < -PI) {

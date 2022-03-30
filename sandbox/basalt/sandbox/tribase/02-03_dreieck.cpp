@@ -10,6 +10,7 @@
 #include <basalt/api/scene/scene.h>
 #include <basalt/api/scene/transform.h>
 
+#include <basalt/api/math/angle.h>
 #include <basalt/api/math/constants.h>
 #include <basalt/api/math/vector3.h>
 
@@ -18,6 +19,9 @@
 
 #include <array>
 
+using namespace basalt::literals;
+
+using basalt::Angle;
 using basalt::Engine;
 using basalt::PI;
 using basalt::Scene;
@@ -119,10 +123,10 @@ Dreieck::Dreieck(Engine& engine)
 }
 
 void Dreieck::on_tick(Engine& engine) {
-  // 90° per second
-  const f32 radOffsetY {PI / 2.0f * static_cast<f32>(engine.delta_time())};
+  const auto dt {static_cast<f32>(engine.delta_time())};
+
   auto& transform {mEntity.get<Transform>()};
-  transform.rotate(0.0f, radOffsetY, 0.0f);
+  transform.rotate(0.0_rad, Angle::degrees(90 * dt), 0.0_rad);
 
   if (ImGui::Begin("Settings##TribaseDreieck")) {
     if (ImGui::RadioButton("No Exercise", &mCurrentExercise, 0)) {

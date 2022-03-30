@@ -6,6 +6,8 @@
 #include <basalt/api/gfx/types.h>
 #include <basalt/api/gfx/backend/types.h>
 
+#include <basalt/api/math/angle.h>
+
 namespace d3d9 {
 
 struct Matrices final : basalt::View {
@@ -24,7 +26,7 @@ private:
   basalt::gfx::Pipeline mPipeline {basalt::gfx::Pipeline::null()};
   basalt::gfx::VertexBuffer mVertexBuffer {basalt::gfx::VertexBuffer::null()};
   basalt::gfx::Camera mCamera;
-  basalt::f32 mAngleYRad {};
+  basalt::Angle mRotationY {};
 
   auto on_draw(const DrawContext&) -> void override;
 

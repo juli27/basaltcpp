@@ -1,4 +1,5 @@
 target_sources(${CURRENT_TARGET} PRIVATE
+  "angle.h"
   "constants.h"
   "mat4.cpp"
   "mat4.h"

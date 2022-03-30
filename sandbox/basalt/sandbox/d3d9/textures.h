@@ -6,7 +6,7 @@
 #include <basalt/api/gfx/types.h>
 #include <basalt/api/gfx/backend/types.h>
 
-#include <basalt/api/base/types.h>
+#include <basalt/api/math/angle.h>
 
 namespace d3d9 {
 
@@ -28,7 +28,7 @@ private:
   basalt::gfx::Sampler mSampler {basalt::gfx::Sampler::null()};
   basalt::gfx::Texture mTexture {basalt::gfx::Texture::null()};
   basalt::gfx::Camera mCamera;
-  basalt::f32 mAngleXRad {};
+  basalt::Angle mRotationX {};
   bool mShowTci {false};
 
   auto on_draw(const DrawContext&) -> void override;
