@@ -218,9 +218,10 @@ struct Mat4 final {
     // clang-format on
   }
 
-  [[nodiscard]] static auto
-  perspective_projection(f32 fovRadians, f32 aspectRatio, f32 nearPlane,
-                         f32 farPlane) noexcept -> Mat4;
+  [[nodiscard]] static auto perspective_projection(Angle fov, f32 aspectRatio,
+                                                   f32 nearPlane,
+                                                   f32 farPlane) noexcept
+    -> Mat4;
 
   [[nodiscard]] friend constexpr auto operator+(Mat4 l, const Mat4& r) noexcept
     -> Mat4 {

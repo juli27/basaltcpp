@@ -12,7 +12,7 @@
 #include <basalt/api/scene/scene.h>
 #include <basalt/api/scene/transform.h>
 
-#include <basalt/api/math/constants.h>
+#include <basalt/api/math/angle.h>
 #include <basalt/api/math/vector3.h>
 
 #include <entt/entity/handle.hpp>
@@ -28,11 +28,12 @@ using std::array;
 
 using gsl::span;
 
+using namespace basalt::literals;
+
 using basalt::Engine;
 using basalt::InputEvent;
 using basalt::InputEventHandled;
 using basalt::Key;
-using basalt::PI;
 using basalt::Scene;
 using basalt::SceneView;
 using basalt::Transform;
@@ -80,7 +81,7 @@ auto create_camera() -> Camera {
   return Camera {Vector3f32 {0.0f},
                  Vector3f32::forward(),
                  Vector3f32::up(),
-                 PI / 2.0f,
+                 90.0_deg,
                  0.1f,
                  100.0f};
 }

@@ -44,7 +44,7 @@ auto create_camera() -> Camera {
   return Camera {Vector3f32 {0.0f},
                  Vector3f32::forward(),
                  Vector3f32::up(),
-                 PI / 2.0f,
+                 90.0_deg,
                  0.1f,
                  100.0f};
 }

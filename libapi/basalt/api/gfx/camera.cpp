@@ -7,7 +7,7 @@
 namespace basalt::gfx {
 
 Camera::Camera(const Vector3f32& position, const Vector3f32& lookAt,
-               const Vector3f32& up, const f32 fov, const f32 nearPlane,
+               const Vector3f32& up, const Angle fov, const f32 nearPlane,
                const f32 farPlane) noexcept
   : mPosition {position}
   , mLookAt {lookAt}
