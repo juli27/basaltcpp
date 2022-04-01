@@ -7,6 +7,7 @@
 #include <basalt/sandbox/d3d9/textures.h>
 #include <basalt/sandbox/d3d9/vertices.h>
 
+#include <basalt/sandbox/samples/simple_scene.h>
 #include <basalt/sandbox/samples/textures.h>
 
 #include <basalt/sandbox/tribase/02-03_dreieck.h>
@@ -53,7 +54,7 @@ struct SandboxView::Example final {
 };
 
 SandboxView::SandboxView(Engine& engine) {
-  mExamples.reserve(9u);
+  mExamples.reserve(10u);
   mExamples.emplace_back(Example {
     std::make_shared<d3d9::Device>(),
     "Tutorial 1: Creating a Device"s,
@@ -89,6 +90,10 @@ SandboxView::SandboxView(Engine& engine) {
   mExamples.emplace_back(Example {
     std::make_shared<samples::Textures>(engine),
     "Textures"s,
+  });
+  mExamples.emplace_back(Example {
+    std::make_shared<samples::SimpleScene>(engine),
+    "Simple Scene"s,
   });
 
   add_child_bottom(mExamples[mCurrentExampleIndex].view);
