@@ -20,19 +20,17 @@ struct ResourceCache {
 
   [[nodiscard]] auto create_pipeline(const PipelineDescriptor&) const
     -> Pipeline;
-  void destroy(Pipeline) const noexcept;
+  auto destroy(Pipeline) const noexcept -> void;
 
   [[nodiscard]] auto
   create_vertex_buffer(const VertexBufferDescriptor&,
                        gsl::span<const std::byte> initialData = {}) const
     -> VertexBuffer;
 
-  void destroy(VertexBuffer) const noexcept;
-
   // span is empty on failure
   // F = void(gsl::span<std::byte>)
   template <typename F>
-  void with_mapping_of(const VertexBuffer handle, F&& func) {
+  auto with_mapping_of(const VertexBuffer handle, F&& func) -> void {
     with_mapping_of(handle, 0ull, 0ull, std::forward<F>(func));
   }
 
@@ -41,8 +39,8 @@ struct ResourceCache {
   // span is empty on failure
   // F = void(gsl::span<std::byte>)
   template <typename F>
-  void with_mapping_of(const VertexBuffer handle, const uDeviceSize offset,
-                       const uDeviceSize size, F&& func) {
+  auto with_mapping_of(const VertexBuffer handle, const uDeviceSize offset,
+                       const uDeviceSize size, F&& func) -> void {
     // TODO: how should this handle map failure? right now its passing the empty
     // span to the function
     func(mDevice.map(handle, offset, size));
@@ -50,30 +48,32 @@ struct ResourceCache {
     mDevice.unmap(handle);
   }
 
+  auto destroy(VertexBuffer) const noexcept -> void;
+
   [[nodiscard]] auto create_sampler(const SamplerDescriptor&) const -> Sampler;
-  void destroy(Sampler) const noexcept;
+  auto destroy(Sampler) const noexcept -> void;
 
   [[nodiscard]] auto load_texture(const std::filesystem::path&) const
     -> Texture;
-  void destroy(Texture) const noexcept;
+  auto destroy(Texture) const noexcept -> void;
 
   [[nodiscard]] auto load_x_model(const std::filesystem::path&) -> ext::XModel;
+  [[nodiscard]] auto get(ext::XModel) const -> const XModelData&;
   auto destroy(ext::XModel) noexcept -> void;
 
-  auto create_mesh(const MeshDescriptor&) -> Mesh;
-
-  auto create_material(const MaterialDescriptor&) -> Material;
-  auto destroy(Material) noexcept -> void;
-
+  [[nodiscard]] auto create_mesh(const MeshDescriptor&) -> Mesh;
   [[nodiscard]] auto get(Mesh) const -> const MeshData&;
+  auto destroy(Mesh) noexcept -> void;
+
+  [[nodiscard]] auto create_material(const MaterialDescriptor&) -> Material;
   [[nodiscard]] auto get(Material) const -> const MaterialData&;
-  [[nodiscard]] auto get(ext::XModel) const -> const XModelData&;
+  auto destroy(Material) noexcept -> void;
 
 private:
   Device& mDevice;
   HandlePool<MeshData, Mesh> mMeshes;
   HandlePool<MaterialData, Material> mMaterials;
-  HandlePool<XModelData, ext::XModel> mXModels {};
+  HandlePool<XModelData, ext::XModel> mXModels;
 };
 
 } // namespace basalt::gfx

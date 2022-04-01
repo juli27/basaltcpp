@@ -31,7 +31,7 @@ using Mesh = Handle<detail::MeshTag>;
 using Material = Handle<detail::MaterialTag>;
 
 struct MeshDescriptor final {
-  gsl::span<const std::byte> data;
+  gsl::span<const std::byte> vertexData;
   u32 vertexCount {};
   VertexLayout layout;
 };
@@ -78,7 +78,7 @@ struct RenderComponent final {
 static_assert(sizeof(RenderComponent) == 72);
 
 struct MeshData final {
-  VertexBuffer vertexBuffer {VertexBuffer::null()};
+  VertexBuffer vertexBuffer;
   u32 startVertex {};
   u32 vertexCount {};
 };
@@ -87,14 +87,14 @@ struct MaterialData final {
   using RenderStates =
     EnumArray<RenderStateType, RenderStateValue, RENDER_STATE_COUNT>;
 
-  RenderStates renderStates {};
+  RenderStates renderStates;
 
   Color diffuse;
   Color ambient;
 
-  Pipeline pipeline {Pipeline::null()};
-  Texture texture {Texture::null()};
-  Sampler sampler {Sampler::null()};
+  Pipeline pipeline;
+  Texture texture;
+  Sampler sampler;
 };
 
 static_assert(sizeof(MaterialData) == 48);
