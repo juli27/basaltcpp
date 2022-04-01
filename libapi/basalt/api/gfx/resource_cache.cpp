@@ -60,11 +60,16 @@ auto ResourceCache::load_x_model(const path& path) -> ext::XModel {
 
   const ext::XModelData xModel {modelExt->load(path)};
 
+  // primitive type is overridden by D3DX rendering the mesh
+  const MaterialTemplate materialTemplate {
+    new_material_template(MaterialTemplateDescriptor {})};
+
   vector<Material> materials;
   materials.reserve(xModel.materials().size());
 
   for (const auto& material : xModel.materials()) {
     MaterialDescriptor desc;
+    desc.materialTemplate = materialTemplate;
     desc.diffuse = material.diffuse;
     desc.ambient = material.ambient;
     desc.sampledTexture.texture = load_texture(material.textureFile);
@@ -88,7 +93,11 @@ auto ResourceCache::destroy(const ext::XModel handle) noexcept -> void {
     const auto& data {get(handle)};
 
     for (const Material material : data.materials) {
-      destroy(get(material).texture);
+      {
+        const MaterialData& matData {get(material)};
+        destroy(matData.texture);
+        destroy(matData.materialTemplate);
+      }
       destroy(material);
     }
 
@@ -128,14 +137,17 @@ auto ResourceCache::destroy(const Mesh handle) noexcept -> void {
   mMeshes.deallocate(handle);
 }
 
-auto ResourceCache::new_material_template(const MaterialTemplateDescriptor&)
-  -> MaterialTemplate {
+auto ResourceCache::new_material_template(
+  const MaterialTemplateDescriptor& desc) -> MaterialTemplate {
   TextureBlendingStage textureStage;
+  textureStage.texCoordinateSrc = desc.textureCoordinateSource;
+  textureStage.texCoordinateTransformMode = desc.textureTransformMode;
+  textureStage.texCoordinateProjected = desc.textureTransformProjected;
   const Pipeline pipeline {create_pipeline(PipelineDescriptor {
     span {&textureStage, 1},
-    PrimitiveType::PointList,
-    true,
-    CullMode::CounterClockwise,
+    desc.primitiveType,
+    desc.lighting,
+    desc.cullMode,
     DepthTestPass::IfLessEqual,
     true,
   })};
@@ -149,24 +161,7 @@ auto ResourceCache::destroy(const MaterialTemplate handle) noexcept -> void {
 
 auto ResourceCache::create_material(const MaterialDescriptor& desc)
   -> Material {
-  const Pipeline pipeline {[&] {
-    if (desc.materialTemplate) {
-      return mMaterialTemplates[desc.materialTemplate];
-    }
-
-    TextureBlendingStage textureStage;
-    textureStage.texCoordinateSrc = desc.textureCoordinateSource;
-    textureStage.texCoordinateTransformMode = desc.textureTransformMode;
-    textureStage.texCoordinateProjected = desc.textureTransformProjected;
-    return create_pipeline(PipelineDescriptor {
-      span {&textureStage, 1},
-      desc.primitiveType,
-      desc.lit,
-      desc.cullBackFace ? CullMode::CounterClockwise : CullMode::None,
-      DepthTestPass::IfLessEqual,
-      true,
-    });
-  }()};
+  const Pipeline pipeline {mMaterialTemplates[desc.materialTemplate]};
 
   // TODO: cache samplers
   const Sampler sampler {create_sampler(SamplerDescriptor {
@@ -174,6 +169,7 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
     desc.sampledTexture.addressModeU, desc.sampledTexture.addressModeV})};
 
   return mMaterials.allocate(MaterialData {
+    desc.materialTemplate,
     MaterialData::RenderStates {
       {RenderStateType::FillMode,
        desc.solid ? FillMode::Solid : FillMode::Wireframe},
@@ -195,7 +191,6 @@ auto ResourceCache::destroy(const Material handle) noexcept -> void {
     const auto& data {get(handle)};
 
     destroy(data.sampler);
-    destroy(data.pipeline);
   }
 
   mMaterials.deallocate(handle);

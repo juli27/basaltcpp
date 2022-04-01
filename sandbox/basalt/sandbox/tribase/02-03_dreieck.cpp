@@ -29,7 +29,10 @@ using basalt::SceneView;
 using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
+using basalt::gfx::CullMode;
 using basalt::gfx::MaterialDescriptor;
+using basalt::gfx::MaterialTemplate;
+using basalt::gfx::MaterialTemplateDescriptor;
 using basalt::gfx::MeshDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
@@ -84,25 +87,28 @@ Dreieck::Dreieck(Engine& engine)
                            vertexLayout};
   mTriangleMesh = gfxResourceCache.create_mesh(meshDesc);
 
+  MaterialTemplateDescriptor materialTemplateDesc;
+  materialTemplateDesc.cullMode = CullMode::None;
+  materialTemplateDesc.lighting = false;
+
+  MaterialTemplate materialTemplate {
+    gfxResourceCache.new_material_template(materialTemplateDesc)};
+
   MaterialDescriptor materialDesc;
-  materialDesc.primitiveType = PrimitiveType::TriangleList;
-  materialDesc.cullBackFace = false;
-  materialDesc.lit = false;
+  materialDesc.materialTemplate = materialTemplate;
 
   mSolidMaterial = gfxResourceCache.create_material(materialDesc);
 
   materialDesc = MaterialDescriptor {};
-  materialDesc.primitiveType = PrimitiveType::TriangleList;
-  materialDesc.cullBackFace = false;
-  materialDesc.lit = false;
+  materialDesc.materialTemplate = materialTemplate;
   materialDesc.solid = false;
   mWireframeMaterial = gfxResourceCache.create_material(materialDesc);
 
-  materialDesc = MaterialDescriptor {};
-  materialDesc.primitiveType = PrimitiveType::TriangleStrip;
-  materialDesc.cullBackFace = false;
-  materialDesc.lit = false;
+  materialTemplateDesc.primitiveType = PrimitiveType::TriangleStrip;
 
+  materialDesc = MaterialDescriptor {};
+  materialDesc.materialTemplate =
+    gfxResourceCache.new_material_template(materialTemplateDesc);
   mQuadMaterial = gfxResourceCache.create_material(materialDesc);
 
   std::array<Vertex, 4> quadVertices {

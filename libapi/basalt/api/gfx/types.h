@@ -59,21 +59,20 @@ struct MaterialDescriptor final {
 
   SampledTextureDescriptor sampledTexture;
 
-  PrimitiveType primitiveType {PrimitiveType::PointList};
-  // TODO: upgrade boolean flag to CullMode enum
-  bool cullBackFace {true};
-  bool lit {true};
   bool solid {true};
+};
+
+// TODO: Ref-counted and actually destroy them
+struct MaterialTemplateDescriptor final {
+  PrimitiveType primitiveType {PrimitiveType::TriangleList};
+  CullMode cullMode {CullMode::CounterClockwise};
+  bool lighting {true};
 
   TextureCoordinateSource textureCoordinateSource {
     TextureCoordinateSource::Vertex};
   TextureTransformMode textureTransformMode {TextureTransformMode::Disabled};
   bool textureTransformProjected {false};
 };
-
-static_assert(sizeof(MaterialDescriptor) == 52);
-
-struct MaterialTemplateDescriptor final {};
 
 struct RenderComponent final {
   Mesh mesh {Mesh::null()};
@@ -90,6 +89,8 @@ struct MeshData final {
 };
 
 struct MaterialData final {
+  MaterialTemplate materialTemplate;
+
   using RenderStates =
     EnumArray<RenderStateType, RenderStateValue, RENDER_STATE_COUNT>;
 
@@ -102,8 +103,6 @@ struct MaterialData final {
   Texture texture;
   Sampler sampler;
 };
-
-static_assert(sizeof(MaterialData) == 48);
 
 struct XModelData final {
   std::vector<Material> materials;

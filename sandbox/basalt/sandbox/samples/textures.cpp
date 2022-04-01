@@ -30,8 +30,10 @@ using basalt::Scene;
 using basalt::SceneView;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
+using basalt::gfx::CullMode;
 using basalt::gfx::Material;
 using basalt::gfx::MaterialDescriptor;
+using basalt::gfx::MaterialTemplateDescriptor;
 using basalt::gfx::MeshDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
@@ -65,10 +67,14 @@ Textures::Textures(Engine& engine)
 
   auto& gfxResourceCache {engine.gfx_resource_cache()};
 
+  MaterialTemplateDescriptor materialTemplateDesc;
+  materialTemplateDesc.primitiveType = PrimitiveType::TriangleStrip;
+  materialTemplateDesc.cullMode = CullMode::None;
+  materialTemplateDesc.lighting = false;
+
   MaterialDescriptor material {};
-  material.primitiveType = PrimitiveType::TriangleStrip;
-  material.cullBackFace = false;
-  material.lit = false;
+  material.materialTemplate =
+    gfxResourceCache.new_material_template(materialTemplateDesc);
   material.sampledTexture.texture =
     engine.get_or_load<Texture>("data/Tiger.bmp"_hs);
 

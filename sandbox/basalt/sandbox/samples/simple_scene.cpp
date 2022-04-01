@@ -35,9 +35,10 @@ using basalt::SceneView;
 using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
+using basalt::gfx::CullMode;
 using basalt::gfx::MaterialDescriptor;
+using basalt::gfx::MaterialTemplateDescriptor;
 using basalt::gfx::MeshDescriptor;
-using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::VertexElement;
 using basalt::gfx::VertexLayout;
@@ -90,17 +91,25 @@ SimpleScene::SimpleScene(Engine& engine)
     },
   });
 
-  MaterialDescriptor materialDescriptor {};
-  materialDescriptor.primitiveType = PrimitiveType::TriangleList;
-  materialDescriptor.lit = false;
-  materialDescriptor.cullBackFace = false;
-  rc.material = mGfxResources.create_material(materialDescriptor);
+  MaterialTemplateDescriptor materialTemplateDesc {};
+  materialTemplateDesc.lighting = false;
+  materialTemplateDesc.cullMode = CullMode::None;
+
+  rc.material = mGfxResources.create_material(MaterialDescriptor {
+    mGfxResources.new_material_template(materialTemplateDesc),
+  });
 
   mTriangle = entity.entity();
 }
 
 SimpleScene::~SimpleScene() noexcept {
   const auto& rc {mScene->get_handle(mTriangle).get<RenderComponent>()};
+
+  {
+    const auto& materialData {mGfxResources.get(rc.material)};
+    mGfxResources.destroy(materialData.materialTemplate);
+  }
+
   mGfxResources.destroy(rc.material);
   mGfxResources.destroy(rc.mesh);
 }

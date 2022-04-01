@@ -39,7 +39,9 @@ using basalt::SceneView;
 using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
+using basalt::gfx::CullMode;
 using basalt::gfx::MaterialDescriptor;
+using basalt::gfx::MaterialTemplateDescriptor;
 using basalt::gfx::Mesh;
 using basalt::gfx::MeshDescriptor;
 using basalt::gfx::PrimitiveType;
@@ -102,13 +104,16 @@ Textures::Textures(Engine& engine)
   const Texture texture {
     engine.get_or_load<Texture>("data/tribase/Texture.bmp"_hs)};
 
-  MaterialDescriptor materialDesc {};
-  materialDesc.sampledTexture.texture = texture;
-  materialDesc.primitiveType = PrimitiveType::TriangleList;
-  materialDesc.cullBackFace = false;
-  materialDesc.lit = false;
+  MaterialTemplateDescriptor materialTemplateDesc;
+  materialTemplateDesc.cullMode = CullMode::None;
+  materialTemplateDesc.lighting = false;
 
   auto& gfxResources {engine.gfx_resource_cache()};
+  MaterialDescriptor materialDesc {};
+  materialDesc.materialTemplate =
+    gfxResources.new_material_template(materialTemplateDesc);
+  materialDesc.sampledTexture.texture = texture;
+
   mPointSampler = gfxResources.create_material(materialDesc);
 
   materialDesc.sampledTexture.filter = TextureFilter::Linear;
