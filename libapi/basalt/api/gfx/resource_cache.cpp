@@ -128,21 +128,45 @@ auto ResourceCache::destroy(const Mesh handle) noexcept -> void {
   mMeshes.deallocate(handle);
 }
 
-auto ResourceCache::create_material(const MaterialDescriptor& desc)
-  -> Material {
+auto ResourceCache::new_material_template(const MaterialTemplateDescriptor&)
+  -> MaterialTemplate {
   TextureBlendingStage textureStage;
-  textureStage.texCoordinateSrc = desc.textureCoordinateSource;
-  textureStage.texCoordinateTransformMode = desc.textureTransformMode;
-  textureStage.texCoordinateProjected = desc.textureTransformProjected;
-
   const Pipeline pipeline {create_pipeline(PipelineDescriptor {
     span {&textureStage, 1},
-    desc.primitiveType,
-    desc.lit,
-    desc.cullBackFace ? CullMode::CounterClockwise : CullMode::None,
+    PrimitiveType::PointList,
+    true,
+    CullMode::CounterClockwise,
     DepthTestPass::IfLessEqual,
     true,
   })};
+
+  return mMaterialTemplates.allocate(pipeline);
+}
+
+auto ResourceCache::destroy(const MaterialTemplate handle) noexcept -> void {
+  mMaterialTemplates.deallocate(handle);
+}
+
+auto ResourceCache::create_material(const MaterialDescriptor& desc)
+  -> Material {
+  const Pipeline pipeline {[&] {
+    if (desc.materialTemplate) {
+      return mMaterialTemplates[desc.materialTemplate];
+    }
+
+    TextureBlendingStage textureStage;
+    textureStage.texCoordinateSrc = desc.textureCoordinateSource;
+    textureStage.texCoordinateTransformMode = desc.textureTransformMode;
+    textureStage.texCoordinateProjected = desc.textureTransformProjected;
+    return create_pipeline(PipelineDescriptor {
+      span {&textureStage, 1},
+      desc.primitiveType,
+      desc.lit,
+      desc.cullBackFace ? CullMode::CounterClockwise : CullMode::None,
+      DepthTestPass::IfLessEqual,
+      true,
+    });
+  }()};
 
   // TODO: cache samplers
   const Sampler sampler {create_sampler(SamplerDescriptor {

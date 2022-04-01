@@ -65,13 +65,20 @@ struct ResourceCache {
   [[nodiscard]] auto get(Mesh) const -> const MeshData&;
   auto destroy(Mesh) noexcept -> void;
 
+  [[nodiscard]] auto new_material_template(const MaterialTemplateDescriptor&)
+    -> MaterialTemplate;
+  auto destroy(MaterialTemplate) noexcept -> void;
+
   [[nodiscard]] auto create_material(const MaterialDescriptor&) -> Material;
   [[nodiscard]] auto get(Material) const -> const MaterialData&;
   auto destroy(Material) noexcept -> void;
 
 private:
+  using MaterialTemplatePool = HandlePool<Pipeline, MaterialTemplate>;
+
   Device& mDevice;
   HandlePool<MeshData, Mesh> mMeshes;
+  MaterialTemplatePool mMaterialTemplates;
   HandlePool<MaterialData, Material> mMaterials;
   HandlePool<XModelData, ext::XModel> mXModels;
 };

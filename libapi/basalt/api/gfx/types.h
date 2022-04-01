@@ -24,11 +24,13 @@ namespace detail {
 
 struct MeshTag;
 struct MaterialTag;
+struct MaterialTemplateTag;
 
 } // namespace detail
 
 using Mesh = Handle<detail::MeshTag>;
 using Material = Handle<detail::MaterialTag>;
+using MaterialTemplate = Handle<detail::MaterialTemplateTag>;
 
 struct MeshDescriptor final {
   gsl::span<const std::byte> vertexData;
@@ -50,6 +52,8 @@ struct SampledTextureDescriptor final {
 };
 
 struct MaterialDescriptor final {
+  MaterialTemplate materialTemplate;
+
   Color diffuse;
   Color ambient;
 
@@ -67,7 +71,9 @@ struct MaterialDescriptor final {
   bool textureTransformProjected {false};
 };
 
-static_assert(sizeof(MaterialDescriptor) == 48);
+static_assert(sizeof(MaterialDescriptor) == 52);
+
+struct MaterialTemplateDescriptor final {};
 
 struct RenderComponent final {
   Mesh mesh {Mesh::null()};
