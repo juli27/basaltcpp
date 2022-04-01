@@ -16,7 +16,6 @@ namespace basalt::gfx {
 using Microsoft::WRL::ComPtr;
 
 using std::string;
-using std::tuple;
 
 namespace {
 

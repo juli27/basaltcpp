@@ -468,7 +468,7 @@ struct D3D9XModelSupport final : ext::XModelSupport {
   }
 
   [[nodiscard]] auto load(const path& filepath) -> ext::XModelData override {
-    const auto [meshHandle, mesh] {mMeshes.allocate()};
+    XMeshPtr mesh;
 
     ComPtr<ID3DXBuffer> materialBuffer;
     DWORD numMaterials {};
@@ -507,6 +507,7 @@ struct D3D9XModelSupport final : ext::XModelSupport {
       material.textureFile = std::move(texPath);
     }
 
+    const ext::XMesh meshHandle {mMeshes.allocate(std::move(mesh))};
     return ext::XModelData {meshHandle, std::move(materials)};
   }
 
@@ -663,7 +664,7 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
     stage1AlphaOp = to_d3d(stage.alphaOp);
   }
 
-  return std::get<0>(mPipelines.allocate(PipelineData {
+  return mPipelines.allocate(PipelineData {
     stage1Tci,
     stage0Ttf,
     stage1Arg1,
@@ -678,7 +679,7 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
       : D3DZB_TRUE,
     to_d3d(desc.depthTest),
     to_d3d(desc.depthWriteEnable),
-  }));
+  });
 }
 
 void D3D9Device::destroy(const Pipeline handle) noexcept {
@@ -733,7 +734,7 @@ auto D3D9Device::create_vertex_buffer(
     }
   }
 
-  return std::get<0>(mVertexBuffers.allocate(std::move(vertexBuffer)));
+  return mVertexBuffers.allocate(std::move(vertexBuffer));
 }
 
 void D3D9Device::destroy(const VertexBuffer handle) noexcept {
@@ -766,7 +767,7 @@ void D3D9Device::unmap(const VertexBuffer handle) noexcept {
 }
 
 auto D3D9Device::load_texture(const path& filePath) -> Texture {
-  const auto [handle, texture] = mTextures.allocate();
+  D3D9TexturePtr texture;
 
   if (FAILED(D3DXCreateTextureFromFileExW(
         mDevice.Get(), filePath.c_str(), D3DX_DEFAULT, D3DX_DEFAULT,
@@ -775,7 +776,7 @@ auto D3D9Device::load_texture(const path& filePath) -> Texture {
     throw std::runtime_error {"loading texture file failed"};
   }
 
-  return handle;
+  return mTextures.allocate(std::move(texture));
 }
 
 void D3D9Device::destroy(const Texture handle) noexcept {
@@ -783,14 +784,13 @@ void D3D9Device::destroy(const Texture handle) noexcept {
 }
 
 auto D3D9Device::create_sampler(const SamplerDescriptor& desc) -> Sampler {
-  const auto [handle, data] {mSamplers.allocate()};
-  data.filter = to_d3d(desc.filter);
-  data.mipFilter = to_d3d(desc.mipFilter);
-  data.addressModeU = to_d3d(desc.addressModeU);
-  data.addressModeV = to_d3d(desc.addressModeV);
-  data.addressModeW = to_d3d(desc.addressModeW);
-
-  return handle;
+  return mSamplers.allocate(SamplerData {
+    to_d3d(desc.filter),
+    to_d3d(desc.mipFilter),
+    to_d3d(desc.addressModeU),
+    to_d3d(desc.addressModeV),
+    to_d3d(desc.addressModeW),
+  });
 }
 
 void D3D9Device::destroy(const Sampler handle) noexcept {

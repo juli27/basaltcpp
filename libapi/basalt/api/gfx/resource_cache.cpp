@@ -3,7 +3,6 @@
 #include <basalt/api/gfx/backend/utils.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
-#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -73,8 +72,7 @@ auto ResourceCache::load_x_model(const path& path) -> ext::XModel {
     materials.push_back(create_material(desc));
   }
 
-  return std::get<ext::XModel>(
-    mXModels.allocate(XModelData {std::move(materials), xModel.mesh()}));
+  return mXModels.allocate(XModelData {std::move(materials), xModel.mesh()});
 }
 
 auto ResourceCache::get(const ext::XModel handle) const -> const XModelData& {
@@ -110,7 +108,7 @@ auto ResourceCache::create_mesh(const MeshDescriptor& desc) -> Mesh {
     },
     desc.vertexData)};
 
-  return std::get<Mesh>(mMeshes.allocate(vb, 0u, desc.vertexCount));
+  return mMeshes.allocate(vb, 0u, desc.vertexCount);
 }
 
 auto ResourceCache::get(const Mesh handle) const -> const MeshData& {
@@ -151,7 +149,7 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
     desc.sampledTexture.filter, desc.sampledTexture.mipFilter,
     desc.sampledTexture.addressModeU, desc.sampledTexture.addressModeV})};
 
-  return std::get<Material>(mMaterials.allocate(MaterialData {
+  return mMaterials.allocate(MaterialData {
     MaterialData::RenderStates {
       {RenderStateType::FillMode,
        desc.solid ? FillMode::Solid : FillMode::Wireframe},
@@ -161,7 +159,7 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
     pipeline,
     desc.sampledTexture.texture,
     sampler,
-  }));
+  });
 }
 
 auto ResourceCache::get(const Material material) const -> const MaterialData& {

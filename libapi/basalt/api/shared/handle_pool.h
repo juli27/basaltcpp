@@ -5,7 +5,6 @@
 #include <basalt/api/base/types.h>
 
 #include <limits>
-#include <tuple>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -52,14 +51,14 @@ public:
   }
 
   template <typename... Args>
-  [[nodiscard]] auto allocate(Args&&... args) -> std::tuple<Handle, T&> {
+  [[nodiscard]] auto allocate(Args&&... args) -> Handle {
     if (mFreeSlot) {
       SlotData& slot = mStorage[mFreeSlot.value()];
       slot.data = T {std::forward<Args>(args)...};
       slot.handle = mFreeSlot;
       mFreeSlot = slot.nextFreeSlot;
 
-      return {slot.handle, slot.data};
+      return slot.handle;
     }
 
     const uSize nextIndex = mStorage.size();
@@ -70,7 +69,7 @@ public:
       mStorage.emplace_back(SlotData {T {std::forward<Args>(args)...}});
     slot.handle = Handle {index};
 
-    return {slot.handle, slot.data};
+    return slot.handle;
   }
 
   // ignores invalid handles
