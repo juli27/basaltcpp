@@ -80,7 +80,7 @@ auto ResourceCache::get(const ext::XModel handle) const -> const XModelData& {
 }
 
 auto ResourceCache::destroy(const ext::XModel handle) noexcept -> void {
-  if (!mXModels.is_handle_valid(handle)) {
+  if (!mXModels.is_valid(handle)) {
     return;
   }
 
@@ -116,7 +116,7 @@ auto ResourceCache::get(const Mesh handle) const -> const MeshData& {
 }
 
 auto ResourceCache::destroy(const Mesh handle) noexcept -> void {
-  if (!mMeshes.is_handle_valid(handle)) {
+  if (!mMeshes.is_valid(handle)) {
     return;
   }
 

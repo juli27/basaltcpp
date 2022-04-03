@@ -743,9 +743,9 @@ void D3D9Device::destroy(const VertexBuffer handle) noexcept {
 
 auto D3D9Device::map(const VertexBuffer handle, const uDeviceSize offset,
                      const uDeviceSize size) -> gsl::span<std::byte> {
-  BASALT_ASSERT(mVertexBuffers.is_handle_valid(handle));
+  BASALT_ASSERT(mVertexBuffers.is_valid(handle));
 
-  if (!mVertexBuffers.is_handle_valid(handle)) {
+  if (!mVertexBuffers.is_valid(handle)) {
     return {};
   }
 
@@ -755,9 +755,9 @@ auto D3D9Device::map(const VertexBuffer handle, const uDeviceSize offset,
 }
 
 void D3D9Device::unmap(const VertexBuffer handle) noexcept {
-  BASALT_ASSERT(mVertexBuffers.is_handle_valid(handle));
+  BASALT_ASSERT(mVertexBuffers.is_valid(handle));
 
-  if (!mVertexBuffers.is_handle_valid(handle)) {
+  if (!mVertexBuffers.is_valid(handle)) {
     return;
   }
 
@@ -859,9 +859,9 @@ void D3D9Device::execute(const CommandSetRenderState& cmd) {
 }
 
 void D3D9Device::execute(const CommandBindPipeline& cmd) {
-  BASALT_ASSERT(mPipelines.is_handle_valid(cmd.handle));
+  BASALT_ASSERT(mPipelines.is_valid(cmd.handle));
 
-  if (!mPipelines.is_handle_valid(cmd.handle)) {
+  if (!mPipelines.is_valid(cmd.handle)) {
     return;
   }
 
@@ -892,9 +892,9 @@ void D3D9Device::execute(const CommandBindPipeline& cmd) {
 }
 
 void D3D9Device::execute(const CommandBindVertexBuffer& cmd) {
-  BASALT_ASSERT(mVertexBuffers.is_handle_valid(cmd.handle));
+  BASALT_ASSERT(mVertexBuffers.is_valid(cmd.handle));
 
-  if (!mVertexBuffers.is_handle_valid(cmd.handle)) {
+  if (!mVertexBuffers.is_valid(cmd.handle)) {
     return;
   }
 

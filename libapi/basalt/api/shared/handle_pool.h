@@ -36,15 +36,14 @@ private:
   }
 
 public:
-  [[nodiscard]] auto is_handle_valid(const Handle handle) const noexcept
-    -> bool {
+  [[nodiscard]] auto is_valid(const Handle handle) const noexcept -> bool {
     return handle.value() < mStorage.size() && is_allocated(handle);
   }
 
   // handle must be valid
   [[nodiscard]] auto operator[](const Handle handle) const noexcept
     -> const T& {
-    BASALT_ASSERT(is_handle_valid(handle));
+    BASALT_ASSERT(is_valid(handle));
 
     return mStorage[handle.value()].data;
   }
@@ -73,7 +72,7 @@ public:
 
   // ignores invalid handles
   auto deallocate(const Handle handle) noexcept -> void {
-    if (!is_handle_valid(handle)) {
+    if (!is_valid(handle)) {
       return;
     }
 
