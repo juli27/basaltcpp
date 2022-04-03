@@ -31,15 +31,14 @@ public:
 
 private:
   // handle must be < size
-  [[nodiscard]] auto is_slot_allocated(const Handle handle) const noexcept
-    -> bool {
+  [[nodiscard]] auto is_allocated(const Handle handle) const noexcept -> bool {
     return mStorage[handle.value()].handle == handle;
   }
 
 public:
   [[nodiscard]] auto is_handle_valid(const Handle handle) const noexcept
     -> bool {
-    return handle.value() < mStorage.size() && is_slot_allocated(handle);
+    return handle.value() < mStorage.size() && is_allocated(handle);
   }
 
   // handle must be valid
@@ -73,12 +72,21 @@ public:
   }
 
   // ignores invalid handles
-  void deallocate(const Handle handle) noexcept {
+  auto deallocate(const Handle handle) noexcept -> void {
     if (!is_handle_valid(handle)) {
       return;
     }
 
-    SlotData& slot = mStorage[handle.value()];
+    const auto index {handle.value()};
+
+    // don't add to freelist if last element is de-allocated
+    if (index == mStorage.size() - 1) {
+      mStorage.pop_back();
+
+      return;
+    }
+
+    SlotData& slot = mStorage[index];
     slot.data.~T();
     slot.handle = Handle {};
     slot.nextFreeSlot = mFreeSlot;

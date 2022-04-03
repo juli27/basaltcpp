@@ -30,7 +30,6 @@ using namespace std::literals;
 using gfx::Attachment;
 using gfx::Attachments;
 using gfx::Camera;
-using gfx::CommandList;
 using gfx::FillMode;
 using gfx::FilteringCommandList;
 using gfx::Light;
