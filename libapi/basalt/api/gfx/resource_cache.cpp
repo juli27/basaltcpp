@@ -3,6 +3,8 @@
 #include <basalt/api/gfx/backend/utils.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
+#include <basalt/api/math/mat4.h>
+
 #include <utility>
 #include <vector>
 
@@ -174,6 +176,7 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
       {RenderStateType::FillMode,
        desc.solid ? FillMode::Solid : FillMode::Wireframe},
     },
+    Mat4f32::identity(),
     desc.diffuse,
     desc.ambient,
     pipeline,
@@ -184,6 +187,10 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
 
 auto ResourceCache::get(const Material material) const -> const MaterialData& {
   return mMaterials[material];
+}
+
+auto ResourceCache::get(const Material handle) -> MaterialData& {
+  return mMaterials[handle];
 }
 
 auto ResourceCache::destroy(const Material handle) noexcept -> void {

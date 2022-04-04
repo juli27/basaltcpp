@@ -77,10 +77,7 @@ struct MaterialTemplateDescriptor final {
 struct RenderComponent final {
   Mesh mesh {Mesh::null()};
   Material material {Material::null()};
-  Mat4f32 texTransform {Mat4f32::identity()};
 };
-
-static_assert(sizeof(RenderComponent) == 72);
 
 struct MeshData final {
   VertexBuffer vertexBuffer;
@@ -95,6 +92,7 @@ struct MaterialData final {
     EnumArray<RenderStateType, RenderStateValue, RENDER_STATE_COUNT>;
 
   RenderStates renderStates;
+  Mat4f32 texTransform {Mat4f32::identity()};
 
   Color diffuse;
   Color ambient;

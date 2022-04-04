@@ -71,6 +71,7 @@ struct ResourceCache {
 
   [[nodiscard]] auto create_material(const MaterialDescriptor&) -> Material;
   [[nodiscard]] auto get(Material) const -> const MaterialData&;
+  [[nodiscard]] auto get(Material) -> MaterialData&;
   auto destroy(Material) noexcept -> void;
 
 private:

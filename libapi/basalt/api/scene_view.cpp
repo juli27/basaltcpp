@@ -47,6 +47,8 @@ void record_material(FilteringCommandList& cmdList, const MaterialData& data) {
   cmdList.set_render_state(RenderState::fill_mode(
     std::get<FillMode>(data.renderStates[RenderStateType::FillMode])));
 
+  cmdList.set_transform(TransformState::Texture, data.texTransform);
+
   cmdList.bind_pipeline(data.pipeline);
   cmdList.bind_texture(data.texture);
   cmdList.bind_sampler(data.sampler);
@@ -109,9 +111,6 @@ auto SceneView::on_draw(const DrawContext& context) -> void {
     [&](const Transform& transform, const RenderComponent& renderComponent) {
       const MaterialData& materialData {cache.get(renderComponent.material)};
       record_material(cmdList, materialData);
-
-      cmdList.set_transform(TransformState::Texture,
-                            renderComponent.texTransform);
 
       const auto objToWorldMatrix {Mat4f32::scaling(transform.scale) *
                                    Mat4f32::rotation(transform.rotation) *

@@ -49,6 +49,13 @@ public:
     return mStorage[handle.value()].data;
   }
 
+  // handle must be valid
+  [[nodiscard]] auto operator[](const Handle handle) noexcept -> T& {
+    BASALT_ASSERT(is_valid(handle));
+
+    return mStorage[handle.value()].data;
+  }
+
   template <typename... Args>
   [[nodiscard]] auto allocate(Args&&... args) -> Handle {
     if (mFreeSlot) {
