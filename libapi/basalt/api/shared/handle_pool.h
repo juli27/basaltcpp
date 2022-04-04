@@ -5,6 +5,7 @@
 #include <basalt/api/base/types.h>
 
 #include <limits>
+#include <memory>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -51,21 +52,23 @@ public:
   template <typename... Args>
   [[nodiscard]] auto allocate(Args&&... args) -> Handle {
     if (mFreeSlot) {
-      SlotData& slot = mStorage[mFreeSlot.value()];
-      slot.data = T {std::forward<Args>(args)...};
+      SlotData& slot {mStorage[mFreeSlot.value()]};
+      new (std::addressof(slot.data)) T {std::forward<Args>(args)...};
       slot.handle = mFreeSlot;
       mFreeSlot = slot.nextFreeSlot;
 
       return slot.handle;
     }
 
-    const uSize nextIndex = mStorage.size();
+    const uSize nextIndex {mStorage.size()};
     BASALT_ASSERT(nextIndex < std::numeric_limits<IndexType>::max());
 
-    const auto index = static_cast<IndexType>(nextIndex);
-    SlotData& slot =
-      mStorage.emplace_back(SlotData {T {std::forward<Args>(args)...}});
-    slot.handle = Handle {index};
+    const auto index {static_cast<IndexType>(nextIndex)};
+    SlotData& slot {mStorage.emplace_back(SlotData {
+      T {std::forward<Args>(args)...},
+      Handle {index},
+      Handle {},
+    })};
 
     return slot.handle;
   }
@@ -85,7 +88,7 @@ public:
       return;
     }
 
-    SlotData& slot = mStorage[index];
+    SlotData& slot {mStorage[index]};
     slot.data.~T();
     slot.handle = Handle {};
     slot.nextFreeSlot = mFreeSlot;
