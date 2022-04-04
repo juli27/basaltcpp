@@ -27,7 +27,6 @@ public:
 private:
   basalt::gfx::ResourceCache& mGfxResources;
   basalt::ScenePtr mScene;
-  basalt::gfx::Mesh mTriangleMesh;
   entt::entity mTriangle {};
 
   auto on_tick(basalt::Engine&) -> void override;

@@ -100,7 +100,9 @@ SimpleScene::SimpleScene(Engine& engine)
 }
 
 SimpleScene::~SimpleScene() noexcept {
-  mGfxResources.destroy(mTriangleMesh);
+  const auto& rc {mScene->get_handle(mTriangle).get<RenderComponent>()};
+  mGfxResources.destroy(rc.material);
+  mGfxResources.destroy(rc.mesh);
 }
 
 auto SimpleScene::on_tick(Engine& engine) -> void {
