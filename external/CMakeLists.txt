@@ -6,7 +6,7 @@ FetchContent_Declare(DearImGui
 )
 FetchContent_Declare(EnTT
   GIT_REPOSITORY https://github.com/skypjack/entt.git
-  GIT_TAG        dd6863f71da1b360ec09c25912617a3423f08149 # v3.8.1
+  GIT_TAG        8e0747fd505beb6861939a141ec0962c376d36f2 # v3.9.0
 )
 FetchContent_Declare(fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
