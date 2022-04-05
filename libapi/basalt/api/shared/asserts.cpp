@@ -2,11 +2,15 @@
 
 #include <basalt/api/shared/log.h>
 
+#include <basalt/api/base/platform.h>
+
+#include <cstdlib>
+
 namespace basalt::detail {
 
 #if BASALT_DEV_BUILD
-void report_assert_failed(const char* message, const char* file, int line,
-                          const char* func) {
+auto report_assert_failed(const char* message, const char* file, int line,
+                          const char* func) -> void {
   // TODO: allow to use asserts without logging initialized
   BASALT_LOG_FATAL("ASSERT FAILED: {}", message);
   BASALT_LOG_FATAL("\tfile: {}", file);
@@ -15,8 +19,8 @@ void report_assert_failed(const char* message, const char* file, int line,
 }
 #endif // BASALT_DEV_BUILD
 
-void report_crash(const char* message, const char* file, int line,
-  const char* func) {
+auto report_crash(const char* message, const char* file, int line,
+                  const char* func) -> void {
   // TODO: allow crashing without logging initialized
   // TODO: remove logging because it's unsafe during OOM situations
   // TODO: add crash handler/reporter
@@ -24,6 +28,14 @@ void report_crash(const char* message, const char* file, int line,
   BASALT_LOG_FATAL("\tfile: {}", file);
   BASALT_LOG_FATAL("\tline: {}", line);
   BASALT_LOG_FATAL("\tfunction: {}", func);
+}
+
+auto should_break_debugger() -> bool {
+  return Platform::is_debugger_attached();
+}
+
+auto crash() -> void {
+  std::abort();
 }
 
 } // namespace basalt::detail

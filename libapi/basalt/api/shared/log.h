@@ -5,8 +5,8 @@
 namespace basalt {
 
 struct Log final {
-  static void init();
-  static void shutdown();
+  static auto init() -> void;
+  static auto shutdown() -> void;
 
   static auto core_logger() noexcept -> spdlog::logger&;
   static auto client_logger() noexcept -> spdlog::logger&;
@@ -16,39 +16,27 @@ struct Log final {
 
 #if BASALT_BUILD
 
-#if BASALT_DEBUG_BUILD
-
-#define BASALT_LOG_TRACE(...) ::basalt::Log::core_logger().trace(__VA_ARGS__)
-#define BASALT_LOG_DEBUG(...) ::basalt::Log::core_logger().debug(__VA_ARGS__)
-
-#else // !BASALT_DEBUG_BUILD
-
-#define BASALT_LOG_TRACE(...)
-#define BASALT_LOG_DEBUG(...)
-
-#endif // BASALT_DEBUG_BUILD
-
-#define BASALT_LOG_INFO(...) ::basalt::Log::core_logger().info(__VA_ARGS__)
-#define BASALT_LOG_WARN(...) ::basalt::Log::core_logger().warn(__VA_ARGS__)
-#define BASALT_LOG_ERROR(...) ::basalt::Log::core_logger().error(__VA_ARGS__)
-#define BASALT_LOG_FATAL(...) ::basalt::Log::core_logger().critical(__VA_ARGS__)
+#define BASALT_LOGGER ::basalt::Log::core_logger()
 
 #else // !BASALT_BUILD
 
-#if BASALT_DEBUG_BUILD
-
-#define BASALT_LOG_TRACE(...) ::basalt::Log::client_logger().trace(__VA_ARGS__)
-#define BASALT_LOG_DEBUG(...) ::basalt::Log::client_logger().debug(__VA_ARGS__)
-
-#else // !BASALT_DEBUG_BUILD
-#define BASALT_LOG_TRACE(...)
-#define BASALT_LOG_DEBUG(...)
-#endif // BASALT_DEBUG_BUILD
-
-#define BASALT_LOG_INFO(...) ::basalt::Log::client_logger().info(__VA_ARGS__)
-#define BASALT_LOG_WARN(...) ::basalt::Log::client_logger().warn(__VA_ARGS__)
-#define BASALT_LOG_ERROR(...) ::basalt::Log::client_logger().error(__VA_ARGS__)
-#define BASALT_LOG_FATAL(...)                                                  \
-  ::basalt::Log::client_logger().critical(__VA_ARGS__)
+#define BASALT_LOGGER ::basalt::Log::client_logger()
 
 #endif // BASALT_BUILD
+
+#if BASALT_DEBUG_BUILD
+
+#define BASALT_LOG_TRACE(...) BASALT_LOGGER.trace(__VA_ARGS__)
+#define BASALT_LOG_DEBUG(...) BASALT_LOGGER.debug(__VA_ARGS__)
+
+#else // !BASALT_DEBUG_BUILD
+
+#define BASALT_LOG_TRACE(...)
+#define BASALT_LOG_DEBUG(...)
+
+#endif // BASALT_DEBUG_BUILD
+
+#define BASALT_LOG_INFO(...) BASALT_LOGGER.info(__VA_ARGS__)
+#define BASALT_LOG_WARN(...) BASALT_LOGGER.warn(__VA_ARGS__)
+#define BASALT_LOG_ERROR(...) BASALT_LOGGER.error(__VA_ARGS__)
+#define BASALT_LOG_FATAL(...) BASALT_LOGGER.critical(__VA_ARGS__)

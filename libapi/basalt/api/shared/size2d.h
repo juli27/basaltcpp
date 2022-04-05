@@ -22,16 +22,16 @@ struct Size2D final : vec<Size2D<T>, T, 2> {
     return std::get<1>(this->elements);
   }
 
-  constexpr void set(const T width, const T height) noexcept {
+  constexpr auto set(const T width, const T height) noexcept -> void {
     std::get<0>(this->elements) = width;
     std::get<1>(this->elements) = height;
   }
 
-  constexpr void set_width(const T width) noexcept {
+  constexpr auto set_width(const T width) noexcept -> void {
     std::get<0>(this->elements) = width;
   }
 
-  constexpr void set_height(const T height) noexcept {
+  constexpr auto set_height(const T height) noexcept -> void {
     std::get<1>(this->elements) = height;
   }
 
@@ -43,7 +43,5 @@ struct Size2D final : vec<Size2D<T>, T, 2> {
     return Size2D {};
   }
 };
-
-using Size2Du16 = Size2D<u16>;
 
 } // namespace basalt

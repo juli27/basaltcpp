@@ -4,7 +4,7 @@
 
 namespace basalt {
 
-void ResourceRegistry::register_resource(const Resource resource) {
+auto ResourceRegistry::register_resource(const Resource resource) -> void {
   mResources[resource] = resource.data();
 }
 

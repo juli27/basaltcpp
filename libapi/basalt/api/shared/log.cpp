@@ -1,6 +1,5 @@
 #include <basalt/api/shared/log.h>
 
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
 
 #include <memory>
@@ -36,8 +35,8 @@ constexpr auto LOGGER_PATTERN {"[%n][%l] %v"};
 
 } // namespace
 
-void Log::init() {
-  vector<sink_ptr> sinks {};
+auto Log::init() -> void {
+  vector<sink_ptr> sinks;
   sinks.reserve(2u);
   sinks.emplace_back(std::make_shared<basic_file_sink_st>(LOG_FILE_NAME));
 
@@ -62,10 +61,9 @@ void Log::init() {
   sClientLogger = sCoreLogger->clone("Client");
 }
 
-void Log::shutdown() {
+auto Log::shutdown() -> void {
   sClientLogger.reset();
   sCoreLogger.reset();
-  spdlog::shutdown();
 }
 
 auto Log::core_logger() noexcept -> logger& {

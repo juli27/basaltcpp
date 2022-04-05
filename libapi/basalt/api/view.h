@@ -6,6 +6,7 @@
 #include <basalt/api/gfx/backend/command_list.h>
 
 #include <basalt/api/shared/size2d.h>
+#include <basalt/api/shared/types.h>
 
 #include <bitset>
 #include <vector>

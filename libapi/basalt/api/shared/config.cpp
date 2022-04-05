@@ -34,15 +34,15 @@ auto Config::try_get_string(const std::string& key) const
   return try_get<std::string>(key);
 }
 
-void Config::set_bool(const std::string& key, bool value) {
+auto Config::set_bool(const std::string& key, bool value) -> void {
   set(key, value);
 }
 
-void Config::set_i32(const std::string& key, i32 value) {
+auto Config::set_i32(const std::string& key, i32 value) -> void {
   set(key, value);
 }
 
-void Config::set_string(const std::string& key, std::string value) {
+auto Config::set_string(const std::string& key, std::string value) -> void {
   set(key, std::move(value));
 }
 
@@ -61,7 +61,7 @@ auto Config::try_get(const std::string& key) const -> std::optional<V> {
 }
 
 template <typename V>
-void Config::set(const std::string& key, V&& value) {
+auto Config::set(const std::string& key, V&& value) -> void {
   mVars.insert_or_assign(key, std::forward<V>(value));
 }
 

@@ -56,12 +56,12 @@ struct Config final {
   [[nodiscard]] auto try_get_string(const std::string& key) const
     -> std::optional<std::string>;
 
-  void set_bool(const std::string& key, bool value);
-  void set_i32(const std::string& key, i32 value);
-  void set_string(const std::string& key, std::string value);
+  auto set_bool(const std::string& key, bool value) -> void;
+  auto set_i32(const std::string& key, i32 value) -> void;
+  auto set_string(const std::string& key, std::string value) -> void;
 
   template <typename E, std::enable_if_t<std::is_enum_v<E>, int> = 0>
-  void set_enum(const std::string& key, const E e) {
+  auto set_enum(const std::string& key, const E e) -> void {
     set_i32(key, enum_cast(e));
   }
 
@@ -76,7 +76,7 @@ private:
   [[nodiscard]] auto try_get(const std::string& key) const -> std::optional<V>;
 
   template <typename V>
-  void set(const std::string& key, V&& value);
+  auto set(const std::string& key, V&& value) -> void;
 };
 
 } // namespace basalt

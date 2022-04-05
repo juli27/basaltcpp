@@ -1,17 +1,19 @@
 #pragma once
 
-#include <basalt/api/base/platform.h>
-
-#include <cstdlib>
-
 namespace basalt::detail {
+
 #if BASALT_DEV_BUILD
-void report_assert_failed(const char* message, const char* file, int line,
-                          const char* func);
+auto report_assert_failed(const char* message, const char* file, int line,
+                          const char* func) -> void;
 #endif
 
-void report_crash(const char* message, const char* file, int line,
-                  const char* func);
+auto report_crash(const char* message, const char* file, int line,
+                  const char* func) -> void;
+
+auto should_break_debugger() -> bool;
+
+[[noreturn]] auto crash() -> void;
+
 } // namespace basalt::detail
 
 #ifdef _MSC_VER
@@ -28,11 +30,11 @@ void report_crash(const char* message, const char* file, int line,
 // instead of aborting ?
 #define BASALT_DO_CRASH()                                                      \
   do {                                                                         \
-    if (::basalt::Platform::is_debugger_attached()) {                          \
+    if (::basalt::detail::should_break_debugger()) {                           \
       BASALT_BREAK_DEBUGGER();                                                 \
     }                                                                          \
                                                                                \
-    std::abort();                                                              \
+    ::basalt::detail::crash();                                                 \
   } while (false)
 
 #define BASALT_GLUE(a, b) a b

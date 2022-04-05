@@ -5,6 +5,7 @@
 #include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/shared/size2d.h>
+#include <basalt/api/shared/types.h>
 
 namespace basalt::gfx {
 

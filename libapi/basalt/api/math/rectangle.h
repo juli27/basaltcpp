@@ -2,7 +2,7 @@
 
 #include <basalt/api/base/vec.h>
 
-#include <basalt/api/math/types.h>
+#include <array>
 
 namespace basalt {
 

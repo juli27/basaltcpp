@@ -47,9 +47,9 @@ auto Mat4::rotation(const Vector3f32& radians) noexcept -> Mat4 {
 auto Mat4::perspective_projection(const Angle fov, const f32 aspectRatio,
                                   const f32 nearPlane,
                                   const f32 farPlane) noexcept -> Mat4 {
-  const auto yScale = 1.0f / std::tan(fov.radians() * 0.5f);
-  const auto xScale = yScale / aspectRatio;
-  const auto q = farPlane / (farPlane - nearPlane);
+  const f32 yScale {1.0f / std::tan(fov.radians() * 0.5f)};
+  const f32 xScale {yScale / aspectRatio};
+  const f32 q {farPlane / (farPlane - nearPlane)};
 
   // clang-format off
   return Mat4 {

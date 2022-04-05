@@ -8,7 +8,7 @@
 namespace basalt {
 
 struct ResourceRegistry final {
-  void register_resource(Resource);
+  auto register_resource(Resource) -> void;
 
   [[nodiscard]] auto has_resource(ResourceId) const -> bool;
   [[nodiscard]] auto get_path(ResourceId) const -> const std::filesystem::path&;

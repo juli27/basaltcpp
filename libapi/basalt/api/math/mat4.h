@@ -132,7 +132,7 @@ struct Mat4 final {
     return !(*this == r);
   }
 
-  [[nodiscard]] constexpr auto operator-() noexcept -> Mat4 {
+  [[nodiscard]] constexpr auto operator-() const noexcept -> Mat4 {
     // clang-format off
     return Mat4 {-m11, -m12, -m13, -m14,
                  -m21, -m22, -m23, -m24,
