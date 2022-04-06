@@ -37,6 +37,10 @@ auto Engine::resource_registry() const noexcept -> ResourceRegistry& {
   return *mResourceRegistry;
 }
 
+auto Engine::resource_manager() noexcept -> ResourceManager& {
+  return mResourceManager;
+}
+
 auto Engine::gfx_resource_cache() noexcept -> gfx::ResourceCache& {
   return *mGfxResourceCache;
 }
@@ -67,42 +71,9 @@ Engine::Engine(Config& config, gfx::ContextPtr gfxContext) noexcept
   : mResourceRegistry{std::make_shared<ResourceRegistry>()}
   , mGfxContext{std::move(gfxContext)}
   , mGfxResourceCache{mGfxContext->create_resource_cache()}
+  , mResourceManager{mResourceRegistry, mGfxResourceCache}
   , mConfig{config} {
-}
 
-auto Engine::is_loaded(ResourceId const id) const -> bool {
-  return mTextures.find(id) != mTextures.end() ||
-         mXModels.find(id) != mXModels.end();
-}
-
-template <>
-auto Engine::get_or_load(Resource const resource) -> gfx::ext::XModel {
-  if (!mResourceRegistry->has_resource(resource)) {
-    mResourceRegistry->register_resource(resource);
-  }
-
-  if (is_loaded(resource)) {
-    return mXModels[resource];
-  }
-
-  auto const& path = mResourceRegistry->get_path(resource);
-
-  return mXModels[resource] = mGfxResourceCache->load_x_model(path);
-}
-
-template <>
-auto Engine::get_or_load(Resource const resource) -> gfx::Texture {
-  if (!mResourceRegistry->has_resource(resource)) {
-    mResourceRegistry->register_resource(resource);
-  }
-
-  if (is_loaded(resource)) {
-    return mTextures[resource];
-  }
-
-  auto const& path = mResourceRegistry->get_path(resource);
-
-  return mTextures[resource] = mGfxResourceCache->load_texture(path);
 }
 
 } // namespace basalt

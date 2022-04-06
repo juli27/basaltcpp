@@ -21,6 +21,8 @@ struct InputState;
 using Resource = entt::hashed_string;
 using ResourceId = entt::hashed_string::hash_type;
 
+class ResourceManager;
+
 class ResourceRegistry;
 using ResourceRegistryPtr = std::shared_ptr<ResourceRegistry>;
 
