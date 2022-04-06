@@ -1,4 +1,4 @@
-#include <basalt/api/shared/resource_registry.h>
+#include <basalt/api/resource_registry.h>
 
 #include <basalt/api/shared/asserts.h>
 

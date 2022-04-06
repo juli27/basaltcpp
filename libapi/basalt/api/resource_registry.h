@@ -1,6 +1,6 @@
 #pragma once
 
-#include <basalt/api/shared/types.h>
+#include <basalt/api/types.h>
 
 #include <filesystem>
 #include <unordered_map>

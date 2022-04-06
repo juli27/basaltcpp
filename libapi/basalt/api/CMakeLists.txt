@@ -5,6 +5,8 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "input.h"
   "input_events.h"
   "prelude.h"
+  "resource_registry.cpp"
+  "resource_registry.h"
   "scene_view.h"
   "types.h"
   "view.h"

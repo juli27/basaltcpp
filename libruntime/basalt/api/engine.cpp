@@ -1,10 +1,11 @@
 #include <basalt/api/engine.h>
 
+#include <basalt/api/resource_registry.h>
+
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/api/shared/config.h>
-#include <basalt/api/shared/resource_registry.h>
 
 #include <utility>
 
