@@ -2,10 +2,7 @@
 
 #include <basalt/api/base/types.h>
 
-#include <entt/core/hashed_string.hpp>
-
 #include <chrono>
-#include <memory>
 
 namespace basalt {
 
@@ -39,11 +36,5 @@ constexpr auto to_window_mode(i32 const num) noexcept -> WindowMode {
 
   return WindowMode{static_cast<u8>(num)};
 }
-
-using Resource = entt::hashed_string;
-using ResourceId = entt::hashed_string::hash_type;
-
-class ResourceRegistry;
-using ResourceRegistryPtr = std::shared_ptr<ResourceRegistry>;
 
 } // namespace basalt

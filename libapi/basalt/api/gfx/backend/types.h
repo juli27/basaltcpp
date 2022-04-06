@@ -277,11 +277,11 @@ struct VertexBufferTag;
 struct IndexBufferTag;
 } // namespace detail
 
-using Pipeline = Handle<detail::PipelineTag>;
-using Sampler = Handle<detail::SamplerTag>;
-using Texture = Handle<detail::TextureTag>;
-using VertexBuffer = Handle<detail::VertexBufferTag>;
-using IndexBuffer = Handle<detail::IndexBufferTag>;
+using PipelineHandle = Handle<detail::PipelineTag>;
+using SamplerHandle = Handle<detail::SamplerTag>;
+using TextureHandle = Handle<detail::TextureTag>;
+using VertexBufferHandle = Handle<detail::VertexBufferTag>;
+using IndexBufferHandle = Handle<detail::IndexBufferTag>;
 
 struct Command;
 class CommandList;
@@ -396,7 +396,7 @@ struct StencilOpState {
   StencilOp passDepthPassOp{StencilOp::Keep};
 };
 
-struct PipelineDescriptor final {
+struct PipelineCreateInfo final {
   // null -> default fixed vertex shader
   FixedVertexShaderCreateInfo const* vertexShader{};
   // null -> default fixed fragment shader
@@ -416,7 +416,7 @@ struct PipelineDescriptor final {
   BlendOp blendOp{BlendOp::Add};
 };
 
-struct SamplerDescriptor final {
+struct SamplerCreateInfo final {
   TextureFilter magFilter{TextureFilter::Point};
   TextureFilter minFilter{TextureFilter::Point};
   TextureMipFilter mipFilter{TextureMipFilter::None};
@@ -432,12 +432,12 @@ struct SamplerDescriptor final {
   u8 maxAnisotropy{1};
 };
 
-struct VertexBufferDescriptor final {
+struct VertexBufferCreateInfo final {
   uDeviceSize sizeInBytes{};
   VertexLayout layout{};
 };
 
-struct IndexBufferDescriptor final {
+struct IndexBufferCreateInfo final {
   uDeviceSize sizeInBytes{};
   IndexType type{IndexType::U16};
 };

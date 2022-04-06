@@ -2,7 +2,7 @@
 
 namespace basalt::gfx {
 
-auto DeviceStateCache::update(Pipeline const handle) noexcept -> bool {
+auto DeviceStateCache::update(PipelineHandle const handle) noexcept -> bool {
   if (handle != mBoundPipeline) {
     mBoundPipeline = handle;
 
@@ -12,7 +12,7 @@ auto DeviceStateCache::update(Pipeline const handle) noexcept -> bool {
   return false;
 }
 
-auto DeviceStateCache::update(VertexBuffer const buffer,
+auto DeviceStateCache::update(VertexBufferHandle const buffer,
                               u64 const offset) noexcept -> bool {
   if (buffer != mBoundVertexBuffer || offset != mVertexBufferOffset) {
     mBoundVertexBuffer = buffer;
@@ -24,7 +24,7 @@ auto DeviceStateCache::update(VertexBuffer const buffer,
   return false;
 }
 
-auto DeviceStateCache::update(IndexBuffer const handle) noexcept -> bool {
+auto DeviceStateCache::update(IndexBufferHandle const handle) noexcept -> bool {
   if (handle != mBoundIndexBuffer) {
     mBoundIndexBuffer = handle;
     return true;
@@ -33,8 +33,8 @@ auto DeviceStateCache::update(IndexBuffer const handle) noexcept -> bool {
   return false;
 }
 
-auto DeviceStateCache::update(u8 const slot, Sampler const sampler) noexcept
-  -> bool {
+auto DeviceStateCache::update(u8 const slot,
+                              SamplerHandle const sampler) noexcept -> bool {
   if (sampler != mBoundSamplers[slot]) {
     mBoundSamplers[slot] = sampler;
     return true;
@@ -43,8 +43,8 @@ auto DeviceStateCache::update(u8 const slot, Sampler const sampler) noexcept
   return false;
 }
 
-auto DeviceStateCache::update(u8 const slot, Texture const texture) noexcept
-  -> bool {
+auto DeviceStateCache::update(u8 const slot,
+                              TextureHandle const texture) noexcept -> bool {
   if (texture != mBoundTextures[slot]) {
     mBoundTextures[slot] = texture;
     return true;

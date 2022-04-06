@@ -3,6 +3,7 @@
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 
+#include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
@@ -38,7 +39,7 @@ using basalt::gfx::DirectionalLightData;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::LightData;
-using basalt::gfx::PipelineDescriptor;
+using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureCoordinateSet;
 using basalt::gfx::TextureCoordinateTransformMode;
@@ -50,6 +51,12 @@ using basalt::gfx::TransformState;
 using basalt::gfx::ext::XMeshCommandEncoder;
 
 namespace {
+
+constexpr auto TEXTURE1_FILE_PATH =
+  "data/tribase/02-09_multi_tex/Texture1.jpg"sv;
+constexpr auto TEXTURE2_FILE_PATH =
+  "data/tribase/02-09_multi_tex/Texture2.jpg"sv;
+constexpr auto CUBE_MODEL_FILE_PATH = "data/tribase/02-09_multi_tex/Cube.x"sv;
 
 constexpr auto to_matrix3x3(Matrix4x4f32 const& m) -> Matrix4x4f32 {
   // clang-format off
@@ -69,11 +76,17 @@ MultiTexturing::MultiTexturing(Engine const& engine)
   , mSampler{mGfxCache->create_sampler({TextureFilter::Bilinear,
                                         TextureFilter::Bilinear,
                                         TextureMipFilter::Linear})}
-  , mTexture0{mGfxCache->load_texture(
-      "data/tribase/02-09_multi_tex/Texture1.jpg"sv)}
-  , mTexture1{mGfxCache->load_texture(
-      "data/tribase/02-09_multi_tex/Texture2.jpg"sv)}
-  , mCube{mGfxCache->load_x_model("data/tribase/02-09_multi_tex/Cube.x"sv)} {
+  , mTexture0{mGfxCache->load_texture_2d(TEXTURE1_FILE_PATH)}
+  , mTexture1{mGfxCache->load_texture_2d(TEXTURE2_FILE_PATH)} {
+  auto const& gfxCtx = engine.gfx_context();
+
+  mCubeMesh = [&] {
+    auto const xModelHandle = mGfxCache->load_x_model({CUBE_MODEL_FILE_PATH});
+    auto const& xModelData = gfxCtx.get(xModelHandle);
+
+    return xModelData.meshes.front();
+  }();
+
   auto vs = FixedVertexShaderCreateInfo{};
   auto textureCoordinateSets = array{TextureCoordinateSet{1}};
   std::get<0>(textureCoordinateSets).transformMode =
@@ -85,7 +98,7 @@ MultiTexturing::MultiTexturing(Engine const& engine)
   auto textureStages = array{TextureStage{}, TextureStage{}};
   fs.textureStages = textureStages;
 
-  auto pipelineDesc = PipelineDescriptor{};
+  auto pipelineDesc = PipelineCreateInfo{};
   pipelineDesc.vertexShader = &vs;
   pipelineDesc.fragmentShader = &fs;
   pipelineDesc.cullMode = CullMode::CounterClockwise;
@@ -164,8 +177,6 @@ auto MultiTexturing::on_update(UpdateContext& ctx) -> void {
   cmdList.set_texture_factor(Color::from_non_linear_rgba8(
     0, 0, 0, static_cast<u8>(127.0f + 127.0f * std::sin(t))));
 
-  auto const& cubeData = mGfxCache->get(mCube);
-
   for (auto i = uSize{0}; i < 12; ++i) {
     cmdList.bind_pipeline(mPipelines[i]);
 
@@ -181,7 +192,7 @@ auto MultiTexturing::on_update(UpdateContext& ctx) -> void {
         Matrix4x4f32::rotation_z(Angle::radians(0.5f * t)) *
         Matrix4x4f32::translation(cubePos));
 
-    XMeshCommandEncoder::draw_x_mesh(cmdList, cubeData.meshes[0]);
+    XMeshCommandEncoder::draw_x_mesh(cmdList, mCubeMesh);
   }
 
   drawCtx.commandLists.emplace_back(std::move(cmdList));

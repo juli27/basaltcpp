@@ -5,8 +5,8 @@
 #include <basalt/api/view.h> // for DrawContext ...
 
 #include <basalt/api/gfx/camera.h>
+#include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/environment.h>
-#include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/types.h>
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
@@ -46,9 +46,9 @@ auto record_camera(FilteringCommandList& cmdList, Scene& scene,
                         cameraEntity.world_to_view());
 }
 
-auto record_material(FilteringCommandList& cmdList, ResourceCache const& cache,
-                     Material const id) -> void {
-  auto const& data = cache.get(id);
+auto record_material(FilteringCommandList& cmdList, Context const& ctx,
+                     MaterialHandle const id) -> void {
+  auto const& data = ctx.get(id);
 
   cmdList.bind_pipeline(data.pipeline);
   cmdList.bind_texture(0, data.texture);
@@ -60,16 +60,15 @@ auto record_material(FilteringCommandList& cmdList, ResourceCache const& cache,
                              data.fogDensity);
 }
 
-auto record_render_component(FilteringCommandList& cmdList,
-                             ResourceCache const& cache,
+auto record_render_component(FilteringCommandList& cmdList, Context const& ctx,
                              LocalToWorld const& localToWorld,
                              RenderComponent const& renderComponent) {
-  record_material(cmdList, cache, renderComponent.material);
+  record_material(cmdList, ctx, renderComponent.material);
 
   cmdList.set_transform(TransformState::Texture0, renderComponent.texTransform);
   cmdList.set_transform(TransformState::LocalToWorld, localToWorld.matrix);
 
-  auto const& meshData = cache.get(renderComponent.mesh);
+  auto const& meshData = ctx.get(renderComponent.mesh);
   cmdList.bind_vertex_buffer(meshData.vertexBuffer);
 
   if (meshData.indexBuffer) {
@@ -88,7 +87,7 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
   auto const& ecsCtx{entities.ctx()};
 
   auto const& drawCtx = ecsCtx.get<View::DrawContext const>();
-  auto const& cache = ecsCtx.get<ResourceCache const>();
+  auto const& gfxCtx = ecsCtx.get<Context const>();
   auto const& env = ecsCtx.get<Environment const>();
 
   auto cmdList = FilteringCommandList{};
@@ -133,16 +132,16 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
 
   cmdList.set_lights(lights);
 
-  entities.view<LocalToWorld const, ext::XModel const>().each(
-    [&](LocalToWorld const& localToWorld, ext::XModel const& model) {
+  entities.view<LocalToWorld const, ext::XModelHandle const>().each(
+    [&](LocalToWorld const& localToWorld, ext::XModelHandle const& model) {
       cmdList.set_transform(TransformState::LocalToWorld, localToWorld.matrix);
 
-      auto const& modelData = cache.get(model);
+      auto const& modelData = gfxCtx.get(model);
 
       auto const numMaterials = static_cast<u32>(modelData.materials.size());
 
       for (auto i = uSize{0}; i < numMaterials; ++i) {
-        record_material(cmdList, cache, modelData.materials[i]);
+        record_material(cmdList, gfxCtx, modelData.materials[i]);
 
         ext::XMeshCommandEncoder::draw_x_mesh(cmdList.cmd_list(),
                                               modelData.meshes[i]);
@@ -152,7 +151,7 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
   entities.view<LocalToWorld const, RenderComponent const>().each(
     [&](LocalToWorld const& localToWorld,
         RenderComponent const& renderComponent) {
-      record_render_component(cmdList, cache, localToWorld, renderComponent);
+      record_render_component(cmdList, gfxCtx, localToWorld, renderComponent);
     });
 
   drawCtx.commandLists.push_back(cmdList.take_cmd_list());

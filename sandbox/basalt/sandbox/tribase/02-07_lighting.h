@@ -17,13 +17,13 @@ public:
 
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;
-  basalt::gfx::Texture mSphereTexture;
-  basalt::gfx::Texture mGroundTexture;
-  basalt::gfx::ext::XModel mSphereModel;
-  basalt::gfx::ext::XModel mGroundModel;
-  basalt::gfx::Pipeline mPipeline;
-  basalt::gfx::Pipeline mNoTexturePipeline;
-  basalt::gfx::Sampler mSampler;
+  basalt::gfx::ext::XMeshHandle mSphereMesh;
+  basalt::gfx::ext::XMeshHandle mGroundMesh;
+  basalt::gfx::TextureHandle mSphereTexture;
+  basalt::gfx::TextureHandle mGroundTexture;
+  basalt::gfx::PipelineHandle mPipeline;
+  basalt::gfx::PipelineHandle mNoTexturePipeline;
+  basalt::gfx::SamplerHandle mSampler;
   basalt::SecondsF32 mTime{};
 
   auto on_update(UpdateContext&) -> void override;

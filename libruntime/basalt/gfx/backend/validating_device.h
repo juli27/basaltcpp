@@ -23,7 +23,7 @@ public:
   auto wrap_extensions(ext::DeviceExtensions&) -> void;
 
   [[nodiscard]]
-  auto construct_texture(Texture original) -> Texture;
+  auto construct_texture(TextureHandle original) -> TextureHandle;
 
   [[nodiscard]]
   auto capabilities() const -> DeviceCaps const& override;
@@ -34,85 +34,86 @@ public:
   auto reset() -> void override;
 
   [[nodiscard]]
-  auto create_pipeline(PipelineDescriptor const&) -> Pipeline override;
+  auto create_pipeline(PipelineCreateInfo const&) -> PipelineHandle override;
 
-  auto destroy(Pipeline) noexcept -> void override;
+  auto destroy(PipelineHandle) noexcept -> void override;
 
   [[nodiscard]]
-  auto create_vertex_buffer(VertexBufferDescriptor const&,
+  auto create_vertex_buffer(VertexBufferCreateInfo const&,
                             gsl::span<std::byte const> initialData)
-    -> VertexBuffer override;
+    -> VertexBufferHandle override;
 
-  auto destroy(VertexBuffer) noexcept -> void override;
+  auto destroy(VertexBufferHandle) noexcept -> void override;
 
   [[nodiscard]]
-  auto map(VertexBuffer, uDeviceSize offset, uDeviceSize size)
+  auto map(VertexBufferHandle, uDeviceSize offset, uDeviceSize size)
     -> gsl::span<std::byte> override;
 
-  auto unmap(VertexBuffer) noexcept -> void override;
+  auto unmap(VertexBufferHandle) noexcept -> void override;
 
   [[nodiscard]]
-  auto create_index_buffer(IndexBufferDescriptor const&,
+  auto create_index_buffer(IndexBufferCreateInfo const&,
                            gsl::span<std::byte const> initialData)
-    -> IndexBuffer override;
+    -> IndexBufferHandle override;
 
-  auto destroy(IndexBuffer) noexcept -> void override;
-
-  [[nodiscard]]
-  auto map(IndexBuffer, uDeviceSize offsetInBytes, uDeviceSize sizeInBytes)
-    -> gsl::span<std::byte> override;
-
-  auto unmap(IndexBuffer) noexcept -> void override;
+  auto destroy(IndexBufferHandle) noexcept -> void override;
 
   [[nodiscard]]
-  auto load_texture(std::filesystem::path const&) -> Texture override;
+  auto map(IndexBufferHandle, uDeviceSize offsetInBytes,
+           uDeviceSize sizeInBytes) -> gsl::span<std::byte> override;
+
+  auto unmap(IndexBufferHandle) noexcept -> void override;
 
   [[nodiscard]]
-  auto load_cube_texture(std::filesystem::path const&) -> Texture override;
-
-  auto destroy(Texture) noexcept -> void override;
+  auto load_texture(std::filesystem::path const&) -> TextureHandle override;
 
   [[nodiscard]]
-  auto create_sampler(SamplerDescriptor const&) -> Sampler override;
+  auto load_cube_texture(std::filesystem::path const&)
+    -> TextureHandle override;
 
-  auto destroy(Sampler) noexcept -> void override;
+  auto destroy(TextureHandle) noexcept -> void override;
+
+  [[nodiscard]]
+  auto create_sampler(SamplerCreateInfo const&) -> SamplerHandle override;
+
+  auto destroy(SamplerHandle) noexcept -> void override;
 
   auto submit(gsl::span<CommandList const>) -> void override;
 
 private:
   struct PipelineData final {
-    Pipeline originalId;
+    PipelineHandle originalId;
     std::vector<VertexElement> vertexInputLayout;
     PrimitiveType primitiveType;
   };
 
   struct VertexBufferData final {
-    VertexBuffer originalId;
+    VertexBufferHandle originalId;
     std::vector<VertexElement> layout;
     uDeviceSize sizeInBytes;
   };
 
   struct IndexBufferData final {
-    IndexBuffer originalId;
+    IndexBufferHandle originalId;
     uDeviceSize sizeInBytes;
   };
 
   struct TextureData final {
-    Texture originalId;
+    TextureHandle originalId;
   };
 
   struct SamplerData final {
-    Sampler originalId;
+    SamplerHandle originalId;
   };
 
   DevicePtr mDevice;
   DeviceCaps mCaps;
-  HandlePool<PipelineData, Pipeline> mPipelines;
-  HandlePool<VertexBufferData, VertexBuffer> mVertexBuffers;
-  HandlePool<IndexBufferData, IndexBuffer> mIndexBuffers;
-  HandlePool<TextureData, Texture> mTextures;
-  HandlePool<SamplerData, Sampler> mSamplers;
-  Pipeline mBoundPipeline;
+  HandlePool<PipelineData, PipelineHandle> mPipelines;
+  HandlePool<VertexBufferData, VertexBufferHandle> mVertexBuffers;
+  HandlePool<IndexBufferData, IndexBufferHandle> mIndexBuffers;
+  HandlePool<TextureData, TextureHandle> mTextures;
+  HandlePool<SamplerData, SamplerHandle> mSamplers;
+  PipelineHandle mBoundPipeline;
 
   PrimitiveType mCurrentPrimitiveType{PrimitiveType::PointList};
 

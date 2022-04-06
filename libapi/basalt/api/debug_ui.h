@@ -48,7 +48,7 @@ public:
   static auto local_to_world(LocalToWorld const&) -> void;
   static auto camera(gfx::Camera&) -> void;
   static auto render_component(gfx::RenderComponent const&) -> void;
-  static auto x_model(gfx::ext::XModel const&) -> void;
+  static auto x_model(gfx::ext::XModelHandle const&) -> void;
   static auto light(gfx::Light&) -> void;
   static auto point_light(gfx::PointLight&) -> void;
   static auto spot_light(gfx::SpotLight&) -> void;

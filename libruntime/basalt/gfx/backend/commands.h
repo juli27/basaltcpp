@@ -114,18 +114,19 @@ struct CommandDrawIndexed final : CommandT<CommandType::DrawIndexed> {
 };
 
 struct CommandBindPipeline final : CommandT<CommandType::BindPipeline> {
-  Pipeline pipelineId;
+  PipelineHandle pipelineId;
 
-  constexpr explicit CommandBindPipeline(Pipeline const aPipelineId) noexcept
+  constexpr explicit CommandBindPipeline(
+    PipelineHandle const aPipelineId) noexcept
     : pipelineId{aPipelineId} {
   }
 };
 
 struct CommandBindVertexBuffer final : CommandT<CommandType::BindVertexBuffer> {
-  VertexBuffer vertexBufferId;
+  VertexBufferHandle vertexBufferId;
   uDeviceSize offsetInBytes;
 
-  constexpr CommandBindVertexBuffer(VertexBuffer const aVertexBufferId,
+  constexpr CommandBindVertexBuffer(VertexBufferHandle const aVertexBufferId,
                                     uDeviceSize const aOffsetInBytes) noexcept
     : vertexBufferId{aVertexBufferId}
     , offsetInBytes{aOffsetInBytes} {
@@ -133,20 +134,20 @@ struct CommandBindVertexBuffer final : CommandT<CommandType::BindVertexBuffer> {
 };
 
 struct CommandBindIndexBuffer final : CommandT<CommandType::BindIndexBuffer> {
-  IndexBuffer indexBufferId;
+  IndexBufferHandle indexBufferId;
 
   constexpr explicit CommandBindIndexBuffer(
-    IndexBuffer const aIndexBufferId) noexcept
+    IndexBufferHandle const aIndexBufferId) noexcept
     : indexBufferId{aIndexBufferId} {
   }
 };
 
 struct CommandBindSampler final : CommandT<CommandType::BindSampler> {
   u8 slot;
-  Sampler samplerId;
+  SamplerHandle samplerId;
 
   constexpr CommandBindSampler(u8 const aSlot,
-                               Sampler const aSamplerId) noexcept
+                               SamplerHandle const aSamplerId) noexcept
     : slot{aSlot}
     , samplerId{aSamplerId} {
   }
@@ -154,10 +155,10 @@ struct CommandBindSampler final : CommandT<CommandType::BindSampler> {
 
 struct CommandBindTexture final : CommandT<CommandType::BindTexture> {
   u8 slot;
-  Texture textureId;
+  TextureHandle textureId;
 
   constexpr CommandBindTexture(u8 const aSlot,
-                               Texture const aTextureId) noexcept
+                               TextureHandle const aTextureId) noexcept
     : slot{aSlot}
     , textureId{aTextureId} {
   }
@@ -330,9 +331,9 @@ auto visit(Command const& cmd, Visitor&& visitor) -> void {
 namespace ext {
 
 struct CommandDrawXMesh final : CommandT<CommandType::ExtDrawXMesh> {
-  XMesh xMeshId;
+  XMeshHandle xMeshId;
 
-  constexpr explicit CommandDrawXMesh(XMesh const aXMeshId) noexcept
+  constexpr explicit CommandDrawXMesh(XMeshHandle const aXMeshId) noexcept
     : xMeshId{aXMeshId} {
   }
 };

@@ -3,6 +3,7 @@
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 
+#include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
@@ -34,9 +35,9 @@ using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::FogMode;
 using basalt::gfx::LightData;
-using basalt::gfx::PipelineDescriptor;
+using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PointLightData;
-using basalt::gfx::SamplerDescriptor;
+using basalt::gfx::SamplerCreateInfo;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
@@ -47,19 +48,21 @@ using basalt::gfx::ext::XMeshCommandEncoder;
 namespace {
 
 constexpr auto BACKGROUND = Color::from_non_linear_rgba8(0, 0, 63);
+constexpr auto SPHERE_TEXTURE_FILE_PATH =
+  "data/tribase/02-07_lighting/Sphere.bmp"sv;
+constexpr auto GROUND_TEXTURE_FILE_PATH =
+  "data/tribase/02-07_lighting/Ground.bmp"sv;
+constexpr auto SPHERE_MODEL_FILE_PATH =
+  "data/tribase/02-07_lighting/Sphere.x"sv;
+constexpr auto GROUND_MODEL_FILE_PATH =
+  "data/tribase/02-07_lighting/Ground.x"sv;
 
 } // namespace
 
 Lighting::Lighting(Engine const& engine)
   : mGfxCache{engine.create_gfx_resource_cache()}
-  , mSphereTexture{mGfxCache->load_texture(
-      "data/tribase/02-07_lighting/Sphere.bmp"sv)}
-  , mGroundTexture{mGfxCache->load_texture(
-      "data/tribase/02-07_lighting/Ground.bmp"sv)}
-  , mSphereModel{mGfxCache->load_x_model(
-      "data/tribase/02-07_lighting/Sphere.x"sv)}
-  , mGroundModel{mGfxCache->load_x_model(
-      "data/tribase/02-07_lighting/Ground.x"sv)}
+  , mSphereTexture{mGfxCache->load_texture_2d(SPHERE_TEXTURE_FILE_PATH)}
+  , mGroundTexture{mGfxCache->load_texture_2d(GROUND_TEXTURE_FILE_PATH)}
   , mPipeline{[&] {
     auto vs = FixedVertexShaderCreateInfo{};
     vs.lightingEnabled = true;
@@ -69,7 +72,7 @@ Lighting::Lighting(Engine const& engine)
     constexpr auto textureStages = array{TextureStage{}};
     auto const fs = FixedFragmentShaderCreateInfo{textureStages};
 
-    auto desc = PipelineDescriptor{};
+    auto desc = PipelineCreateInfo{};
     desc.vertexShader = &vs;
     desc.fragmentShader = &fs;
     desc.cullMode = CullMode::CounterClockwise;
@@ -85,7 +88,7 @@ Lighting::Lighting(Engine const& engine)
     vs.specularEnabled = true;
     vs.fog = FogMode::Exponential;
 
-    auto pipelineDesc = PipelineDescriptor{};
+    auto pipelineDesc = PipelineCreateInfo{};
     pipelineDesc.vertexShader = &vs;
     pipelineDesc.fragmentShader = nullptr;
     pipelineDesc.cullMode = CullMode::CounterClockwise;
@@ -96,13 +99,26 @@ Lighting::Lighting(Engine const& engine)
     return mGfxCache->create_pipeline(pipelineDesc);
   }()}
   , mSampler{[&] {
-    auto desc = SamplerDescriptor{};
+    auto desc = SamplerCreateInfo{};
     desc.magFilter = TextureFilter::Bilinear;
     desc.minFilter = TextureFilter::Bilinear;
     desc.mipFilter = TextureMipFilter::Linear;
 
     return mGfxCache->create_sampler(desc);
   }()} {
+  auto const& gfxCtx = engine.gfx_context();
+  mSphereMesh = [&] {
+    auto const xModelHandle = mGfxCache->load_x_model({SPHERE_MODEL_FILE_PATH});
+    auto const& xModelData = gfxCtx.get(xModelHandle);
+
+    return xModelData.meshes.front();
+  }();
+  mGroundMesh = [&] {
+    auto const xModelHandle = mGfxCache->load_x_model({GROUND_MODEL_FILE_PATH});
+    auto const& xModelData = gfxCtx.get(xModelHandle);
+
+    return xModelData.meshes.front();
+  }();
 }
 
 auto Lighting::on_update(UpdateContext& ctx) -> void {
@@ -134,7 +150,6 @@ auto Lighting::on_update(UpdateContext& ctx) -> void {
                                                  Vector3f32::up()));
 
   // render spheres
-  auto const& sphereData = mGfxCache->get(mSphereModel);
   cmdList.bind_texture(0, mSphereTexture);
 
   for (auto i = i32{0}; i < 10; i++) {
@@ -151,11 +166,10 @@ auto Lighting::on_update(UpdateContext& ctx) -> void {
           Angle::degrees(perSphereFactor * 36 + t * 10)) *
         Matrix4x4f32::translation(0, std::sin(perSphereFactor + t * 2), 0));
 
-    XMeshCommandEncoder::draw_x_mesh(cmdList, sphereData.meshes[0]);
+    XMeshCommandEncoder::draw_x_mesh(cmdList, mSphereMesh);
   }
 
   // render ground
-  auto const& groundData = mGfxCache->get(mGroundModel);
   cmdList.bind_texture(0, mGroundTexture);
   cmdList.set_material(Color::from_non_linear(0.75f, 0.75f, 0.75f),
                        Color::from_non_linear(0.25f, 0.25f, 0.25f),
@@ -163,7 +177,7 @@ auto Lighting::on_update(UpdateContext& ctx) -> void {
   cmdList.set_transform(TransformState::LocalToWorld,
                         Matrix4x4f32::rotation_y(Angle::radians(t)) *
                           Matrix4x4f32::translation(0, -50, 0));
-  XMeshCommandEncoder::draw_x_mesh(cmdList, groundData.meshes[0]);
+  XMeshCommandEncoder::draw_x_mesh(cmdList, mGroundMesh);
 
   // render light source
   cmdList.bind_pipeline(mNoTexturePipeline);
@@ -173,7 +187,7 @@ auto Lighting::on_update(UpdateContext& ctx) -> void {
   cmdList.set_transform(TransformState::LocalToWorld,
                         Matrix4x4f32::translation(pointLight.positionInWorld));
 
-  XMeshCommandEncoder::draw_x_mesh(cmdList, sphereData.meshes[0]);
+  XMeshCommandEncoder::draw_x_mesh(cmdList, mSphereMesh);
 
   drawCtx.commandLists.emplace_back(std::move(cmdList));
 }

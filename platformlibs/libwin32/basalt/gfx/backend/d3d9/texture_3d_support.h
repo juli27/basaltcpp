@@ -13,7 +13,7 @@ public:
   static auto create(D3D9DevicePtr) -> D3D9Texture3DSupportPtr;
 
   [[nodiscard]]
-  auto load(std::filesystem::path const&) -> Texture override;
+  auto load(std::filesystem::path const&) -> TextureHandle override;
 
   explicit D3D9Texture3DSupport(D3D9DevicePtr);
 

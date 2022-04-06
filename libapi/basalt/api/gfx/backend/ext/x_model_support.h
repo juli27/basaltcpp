@@ -7,7 +7,7 @@ namespace basalt::gfx::ext {
 
 class XMeshCommandEncoder final {
 public:
-  static auto draw_x_mesh(CommandList&, XMesh) -> void;
+  static auto draw_x_mesh(CommandList&, XMeshHandle) -> void;
 };
 
 } // namespace basalt::gfx::ext

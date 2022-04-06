@@ -15,7 +15,7 @@ auto D3D9Texture3DSupport::create(D3D9DevicePtr device)
   return std::make_shared<D3D9Texture3DSupport>(std::move(device));
 }
 
-auto D3D9Texture3DSupport::load(path const& path) -> Texture {
+auto D3D9Texture3DSupport::load(path const& path) -> TextureHandle {
   auto texture = IDirect3DVolumeTexture9Ptr{};
 
   // TODO: Mip map count is fixed to 1

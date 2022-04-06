@@ -27,11 +27,11 @@ private:
 
   std::vector<CubeData> mCubes;
   basalt::gfx::ResourceCachePtr mGfxCache;
-  basalt::gfx::Pipeline mPipeline;
-  basalt::gfx::VertexBuffer mVertexBuffer;
-  basalt::gfx::IndexBuffer mIndexBuffer;
-  basalt::gfx::Sampler mSampler;
-  basalt::gfx::Texture mTexture;
+  basalt::gfx::PipelineHandle mPipeline;
+  basalt::gfx::VertexBufferHandle mVertexBuffer;
+  basalt::gfx::IndexBufferHandle mIndexBuffer;
+  basalt::gfx::SamplerHandle mSampler;
+  basalt::gfx::TextureHandle mTexture;
   basalt::Vector3f32 mCameraPos{0.0f};
   basalt::Angle mCameraAngleY{};
   basalt::Angle mFov;

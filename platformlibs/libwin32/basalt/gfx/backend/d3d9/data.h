@@ -66,7 +66,7 @@ struct D3D9StencilOpState {
 };
 
 struct D3D9Pipeline {
-  static auto from(PipelineDescriptor const& desc) -> D3D9Pipeline;
+  static auto from(PipelineCreateInfo const& desc) -> D3D9Pipeline;
 
   DWORD fvf{};
   D3DPRIMITIVETYPE primitiveType{D3DPT_POINTLIST};

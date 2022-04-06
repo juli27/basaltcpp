@@ -159,11 +159,13 @@ auto D3D9Device::execute(CommandList const& cmdList) -> void {
   }
 }
 
-auto D3D9Device::add_texture(IDirect3DBaseTexture9Ptr texture) -> Texture {
+auto D3D9Device::add_texture(IDirect3DBaseTexture9Ptr texture)
+  -> TextureHandle {
   return mTextures.allocate(std::move(texture));
 }
 
-auto D3D9Device::get_d3d9(Texture const id) const -> IDirect3DBaseTexture9Ptr {
+auto D3D9Device::get_d3d9(TextureHandle const id) const
+  -> IDirect3DBaseTexture9Ptr {
   return mTextures[id];
 }
 
@@ -187,19 +189,20 @@ auto D3D9Device::reset() -> void {
   reset(pp);
 }
 
-auto D3D9Device::create_pipeline(PipelineDescriptor const& desc) -> Pipeline {
+auto D3D9Device::create_pipeline(PipelineCreateInfo const& desc)
+  -> PipelineHandle {
   return mPipelines.allocate(D3D9Pipeline::from(desc));
 }
 
-auto D3D9Device::destroy(Pipeline const handle) noexcept -> void {
+auto D3D9Device::destroy(PipelineHandle const handle) noexcept -> void {
   mPipelines.deallocate(handle);
 }
 
 // throws std::bad_alloc when requested size is too large and when d3d9
 // allocation fails
-auto D3D9Device::create_vertex_buffer(VertexBufferDescriptor const& desc,
+auto D3D9Device::create_vertex_buffer(VertexBufferCreateInfo const& desc,
                                       span<std::byte const> const initialData)
-  -> VertexBuffer {
+  -> VertexBufferHandle {
   if (desc.sizeInBytes > mCaps.maxVertexBufferSizeInBytes) {
     throw bad_alloc{};
   }
@@ -231,11 +234,11 @@ auto D3D9Device::create_vertex_buffer(VertexBufferDescriptor const& desc,
   return mVertexBuffers.allocate(std::move(vertexBuffer));
 }
 
-auto D3D9Device::destroy(VertexBuffer const handle) noexcept -> void {
+auto D3D9Device::destroy(VertexBufferHandle const handle) noexcept -> void {
   mVertexBuffers.deallocate(handle);
 }
 
-auto D3D9Device::map(VertexBuffer const handle, uDeviceSize const offset,
+auto D3D9Device::map(VertexBufferHandle const handle, uDeviceSize const offset,
                      uDeviceSize const size) -> span<std::byte> {
   if (!mVertexBuffers.is_valid(handle)) {
     return {};
@@ -246,7 +249,7 @@ auto D3D9Device::map(VertexBuffer const handle, uDeviceSize const offset,
   return map_impl(*vertexBuffer.Get(), offset, size);
 }
 
-auto D3D9Device::unmap(VertexBuffer const handle) noexcept -> void {
+auto D3D9Device::unmap(VertexBufferHandle const handle) noexcept -> void {
   if (!mVertexBuffers.is_valid(handle)) {
     return;
   }
@@ -256,9 +259,9 @@ auto D3D9Device::unmap(VertexBuffer const handle) noexcept -> void {
   D3D9CHECK(vertexBuffer->Unlock());
 }
 
-auto D3D9Device::create_index_buffer(IndexBufferDescriptor const& desc,
+auto D3D9Device::create_index_buffer(IndexBufferCreateInfo const& desc,
                                      span<std::byte const> const initialData)
-  -> IndexBuffer {
+  -> IndexBufferHandle {
   if (desc.sizeInBytes > mCaps.maxIndexBufferSizeInBytes) {
     throw bad_alloc{};
   }
@@ -290,11 +293,12 @@ auto D3D9Device::create_index_buffer(IndexBufferDescriptor const& desc,
   return mIndexBuffers.allocate(std::move(indexBuffer));
 }
 
-auto D3D9Device::destroy(IndexBuffer const handle) noexcept -> void {
+auto D3D9Device::destroy(IndexBufferHandle const handle) noexcept -> void {
   mIndexBuffers.deallocate(handle);
 }
 
-auto D3D9Device::map(IndexBuffer const handle, uDeviceSize const offsetInBytes,
+auto D3D9Device::map(IndexBufferHandle const handle,
+                     uDeviceSize const offsetInBytes,
                      uDeviceSize const sizeInBytes) -> span<std::byte> {
   if (!mIndexBuffers.is_valid(handle)) {
     return {};
@@ -305,7 +309,7 @@ auto D3D9Device::map(IndexBuffer const handle, uDeviceSize const offsetInBytes,
   return map_impl(*indexBuffer.Get(), offsetInBytes, sizeInBytes);
 }
 
-auto D3D9Device::unmap(IndexBuffer const handle) noexcept -> void {
+auto D3D9Device::unmap(IndexBufferHandle const handle) noexcept -> void {
   if (!mIndexBuffers.is_valid(handle)) {
     return;
   }
@@ -315,7 +319,7 @@ auto D3D9Device::unmap(IndexBuffer const handle) noexcept -> void {
   D3D9CHECK(indexBuffer->Unlock());
 }
 
-auto D3D9Device::load_texture(path const& filePath) -> Texture {
+auto D3D9Device::load_texture(path const& filePath) -> TextureHandle {
   auto texture = IDirect3DTexture9Ptr{};
 
   if (FAILED(D3DXCreateTextureFromFileExW(
@@ -328,7 +332,7 @@ auto D3D9Device::load_texture(path const& filePath) -> Texture {
   return mTextures.allocate(std::move(texture));
 }
 
-auto D3D9Device::load_cube_texture(path const& path) -> Texture {
+auto D3D9Device::load_cube_texture(path const& path) -> TextureHandle {
   auto texture = IDirect3DCubeTexture9Ptr{};
 
   // TODO: Mip map count is fixed to 1
@@ -342,11 +346,12 @@ auto D3D9Device::load_cube_texture(path const& path) -> Texture {
   return mTextures.allocate(std::move(texture));
 }
 
-auto D3D9Device::destroy(Texture const handle) noexcept -> void {
+auto D3D9Device::destroy(TextureHandle const handle) noexcept -> void {
   mTextures.deallocate(handle);
 }
 
-auto D3D9Device::create_sampler(SamplerDescriptor const& desc) -> Sampler {
+auto D3D9Device::create_sampler(SamplerCreateInfo const& desc)
+  -> SamplerHandle {
   return mSamplers.allocate(SamplerData{
     to_d3d(desc.magFilter),
     to_d3d(desc.minFilter),
@@ -359,7 +364,7 @@ auto D3D9Device::create_sampler(SamplerDescriptor const& desc) -> Sampler {
   });
 }
 
-auto D3D9Device::destroy(Sampler const handle) noexcept -> void {
+auto D3D9Device::destroy(SamplerHandle const handle) noexcept -> void {
   mSamplers.deallocate(handle);
 }
 

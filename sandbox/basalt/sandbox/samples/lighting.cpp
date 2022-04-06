@@ -43,19 +43,23 @@ using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::FogMode;
 using basalt::gfx::Light;
-using basalt::gfx::MaterialDescriptor;
-using basalt::gfx::PipelineDescriptor;
+using basalt::gfx::MaterialCreateInfo;
+using basalt::gfx::MaterialHandle;
+using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PointLight;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
 using basalt::gfx::TextureStage;
-using basalt::gfx::XModelDescriptor;
-using basalt::gfx::ext::XModel;
+using basalt::gfx::ext::XModelHandle;
 
 namespace {
 
 constexpr auto BACKGROUND = Color::from_non_linear_rgba8(0, 0, 63);
+constexpr auto GROUND_TEXTURE_FILE_PATH =
+  "data/tribase/02-07_lighting/Ground.bmp"sv;
+constexpr auto SPHERE_TEXTURE_FILE_PATH =
+  "data/tribase/02-07_lighting/Sphere.bmp"sv;
 
 } // namespace
 
@@ -64,10 +68,8 @@ namespace samples {
 Lighting::Lighting(Engine& engine)
   : mGfxCache{engine.create_gfx_resource_cache()} {
   // sphere models
-  auto const sphereTexture =
-    mGfxCache->load_texture("data/tribase/02-07_lighting/Sphere.bmp"sv);
-  auto materials = array<MaterialDescriptor, 1>{};
-  auto& materialDesc = std::get<0>(materials);
+  auto materials = array<MaterialHandle, 1>{};
+  auto materialDesc = MaterialCreateInfo{};
   materialDesc.pipeline = [&] {
     auto vs = FixedVertexShaderCreateInfo{};
     vs.lightingEnabled = true;
@@ -78,7 +80,7 @@ Lighting::Lighting(Engine& engine)
     constexpr auto textureStages = array{TextureStage{}};
     fs.textureStages = textureStages;
 
-    auto pipelineDesc = PipelineDescriptor{};
+    auto pipelineDesc = PipelineCreateInfo{};
     pipelineDesc.vertexShader = &vs;
     pipelineDesc.fragmentShader = &fs;
     pipelineDesc.cullMode = CullMode::CounterClockwise;
@@ -88,13 +90,14 @@ Lighting::Lighting(Engine& engine)
 
     return mGfxCache->create_pipeline(pipelineDesc);
   }();
-  materialDesc.sampledTexture.texture = sphereTexture;
+  materialDesc.sampledTexture.texture =
+    mGfxCache->load_texture_2d(SPHERE_TEXTURE_FILE_PATH);
   materialDesc.sampledTexture.sampler =
     mGfxCache->create_sampler({TextureFilter::Bilinear, TextureFilter::Bilinear,
                                TextureMipFilter::Linear});
   materialDesc.fogColor = BACKGROUND;
   materialDesc.fogDensity = 0.01f;
-  auto sphereModels = array<XModel, 10>{};
+  auto sphereModels = array<XModelHandle, 10>{};
   for (auto i = uSize{0}; i < 10; i++) {
     auto const perSphereFactor = static_cast<f32>(i);
     materialDesc.diffuse = Color::from_non_linear(0.75f, 0.75f, 0.75f);
@@ -102,22 +105,22 @@ Lighting::Lighting(Engine& engine)
     materialDesc.emissive = Colors::BLACK;
     materialDesc.specular = Color::from_non_linear(0.25f, 0.25f, 0.25f);
     materialDesc.specularPower = 5 * perSphereFactor;
-
+    std::get<0>(materials) = mGfxCache->create_material(materialDesc);
     sphereModels[i] = mGfxCache->load_x_model(
-      XModelDescriptor{"data/tribase/02-07_lighting/Sphere.x"sv, materials});
+      {"data/tribase/02-07_lighting/Sphere.x"sv, materials});
   }
 
   // ground model
-  auto const groundTexture =
-    mGfxCache->load_texture("data/tribase/02-07_lighting/Ground.bmp"sv);
   materialDesc.diffuse = Color::from_non_linear(0.75f, 0.75f, 0.75f);
   materialDesc.ambient = Color::from_non_linear(0.25f, 0.25f, 0.25f);
   materialDesc.emissive = Colors::BLACK;
   materialDesc.specular = Colors::WHITE;
   materialDesc.specularPower = 1.0f;
-  materialDesc.sampledTexture.texture = groundTexture;
+  materialDesc.sampledTexture.texture =
+    mGfxCache->load_texture_2d(GROUND_TEXTURE_FILE_PATH);
+  std::get<0>(materials) = mGfxCache->create_material(materialDesc);
   auto const groundModel = mGfxCache->load_x_model(
-    XModelDescriptor{"data/tribase/02-07_lighting/Ground.x"sv, materials});
+    {"data/tribase/02-07_lighting/Ground.x"sv, materials});
 
   // light model
   materialDesc.pipeline = [&] {
@@ -126,7 +129,7 @@ Lighting::Lighting(Engine& engine)
     vs.specularEnabled = true;
     vs.fog = FogMode::Exponential;
 
-    auto pipelineDesc = PipelineDescriptor{};
+    auto pipelineDesc = PipelineCreateInfo{};
     pipelineDesc.vertexShader = &vs;
     pipelineDesc.cullMode = CullMode::CounterClockwise;
     pipelineDesc.depthTest = TestPassCond::IfLessEqual;
@@ -141,8 +144,9 @@ Lighting::Lighting(Engine& engine)
   materialDesc.emissive = Colors::WHITE;
   materialDesc.specular = Colors::WHITE;
   materialDesc.specularPower = 1.0f;
+  std::get<0>(materials) = mGfxCache->create_material(materialDesc);
   auto const lightModel = mGfxCache->load_x_model(
-    XModelDescriptor{"data/tribase/02-07_lighting/Sphere.x"sv, materials});
+    {"data/tribase/02-07_lighting/Sphere.x"sv, materials});
 
   auto scene = Scene::create();
   auto& gfxEnv = scene->entity_registry().ctx().emplace<Environment>();
@@ -166,16 +170,16 @@ Lighting::Lighting(Engine& engine)
       fmt::format(FMT_STRING("Sphere {}"), i + 1));
     mSpheres[i].emplace<Parent>(mCenter.entity());
 
-    mSpheres[i].emplace<XModel>(sphereModels[i]);
+    mSpheres[i].emplace<XModelHandle>(sphereModels[i]);
   }
 
   mGround = scene->create_entity({0, -50, 0});
   mGround.emplace<EntityName>("Ground"s);
-  (void)mGround.emplace<XModel>(groundModel);
+  (void)mGround.emplace<XModelHandle>(groundModel);
 
   mLight = scene->create_entity();
   mLight.emplace<EntityName>("Light"s);
-  (void)mLight.emplace<XModel>(lightModel);
+  (void)mLight.emplace<XModelHandle>(lightModel);
   mLight.emplace<Light>(PointLight{Colors::WHITE, Colors::WHITE, Colors::WHITE,
                                    1000.0f, 0.0f, 0.025f, 0.0f});
 

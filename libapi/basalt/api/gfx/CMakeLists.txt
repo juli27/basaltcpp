@@ -1,3 +1,5 @@
+add_subdirectory("backend")
+
 target_sources(${CURRENT_TARGET} PRIVATE
   "camera.cpp"
   "camera.h"
@@ -7,5 +9,3 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "resource_cache.h"
   "types.h"
 )
-
-add_subdirectory("backend")

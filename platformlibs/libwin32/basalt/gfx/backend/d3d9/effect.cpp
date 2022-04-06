@@ -185,8 +185,8 @@ auto D3D9XEffect::set_string(czstring const parameter,
   return SUCCEEDED(mEffect->SetString(parameter, value));
 }
 
-auto D3D9XEffect::set_texture(czstring const parameter, Texture const id) const
-  -> bool {
+auto D3D9XEffect::set_texture(czstring const parameter,
+                              TextureHandle const id) const -> bool {
   auto const texture = id ? mDevice->get_d3d9(id) : IDirect3DBaseTexture9Ptr{};
 
   return SUCCEEDED(mEffect->SetTexture(parameter, texture.Get()));

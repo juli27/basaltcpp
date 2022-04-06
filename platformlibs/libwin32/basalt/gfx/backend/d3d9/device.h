@@ -29,8 +29,8 @@ public:
 
   auto execute(CommandList const&) -> void;
 
-  [[nodiscard]] auto add_texture(IDirect3DBaseTexture9Ptr) -> Texture;
-  [[nodiscard]] auto get_d3d9(Texture) const -> IDirect3DBaseTexture9Ptr;
+  [[nodiscard]] auto add_texture(IDirect3DBaseTexture9Ptr) -> TextureHandle;
+  [[nodiscard]] auto get_d3d9(TextureHandle) const -> IDirect3DBaseTexture9Ptr;
 
   auto set_extensions(ext::DeviceExtensions) -> void;
 
@@ -42,47 +42,48 @@ public:
   auto reset() -> void override;
 
   [[nodiscard]]
-  auto create_pipeline(PipelineDescriptor const&) -> Pipeline override;
+  auto create_pipeline(PipelineCreateInfo const&) -> PipelineHandle override;
 
-  auto destroy(Pipeline) noexcept -> void override;
+  auto destroy(PipelineHandle) noexcept -> void override;
 
   [[nodiscard]]
-  auto create_vertex_buffer(VertexBufferDescriptor const&,
+  auto create_vertex_buffer(VertexBufferCreateInfo const&,
                             gsl::span<std::byte const> initialData)
-    -> VertexBuffer override;
+    -> VertexBufferHandle override;
 
-  auto destroy(VertexBuffer) noexcept -> void override;
+  auto destroy(VertexBufferHandle) noexcept -> void override;
 
   [[nodiscard]]
-  auto map(VertexBuffer, uDeviceSize offset, uDeviceSize size)
+  auto map(VertexBufferHandle, uDeviceSize offset, uDeviceSize size)
     -> gsl::span<std::byte> override;
-  auto unmap(VertexBuffer) noexcept -> void override;
+  auto unmap(VertexBufferHandle) noexcept -> void override;
 
   [[nodiscard]]
-  auto create_index_buffer(IndexBufferDescriptor const&,
+  auto create_index_buffer(IndexBufferCreateInfo const&,
                            gsl::span<std::byte const> initialData)
-    -> IndexBuffer override;
+    -> IndexBufferHandle override;
 
-  auto destroy(IndexBuffer) noexcept -> void override;
-
-  [[nodiscard]]
-  auto map(IndexBuffer, uDeviceSize offsetInBytes, uDeviceSize sizeInBytes)
-    -> gsl::span<std::byte> override;
-
-  auto unmap(IndexBuffer) noexcept -> void override;
+  auto destroy(IndexBufferHandle) noexcept -> void override;
 
   [[nodiscard]]
-  auto load_texture(std::filesystem::path const&) -> Texture override;
+  auto map(IndexBufferHandle, uDeviceSize offsetInBytes,
+           uDeviceSize sizeInBytes) -> gsl::span<std::byte> override;
+
+  auto unmap(IndexBufferHandle) noexcept -> void override;
 
   [[nodiscard]]
-  auto load_cube_texture(std::filesystem::path const&) -> Texture override;
-
-  auto destroy(Texture) noexcept -> void override;
+  auto load_texture(std::filesystem::path const&) -> TextureHandle override;
 
   [[nodiscard]]
-  auto create_sampler(SamplerDescriptor const&) -> Sampler override;
+  auto load_cube_texture(std::filesystem::path const&)
+    -> TextureHandle override;
 
-  auto destroy(Sampler) noexcept -> void override;
+  auto destroy(TextureHandle) noexcept -> void override;
+
+  [[nodiscard]]
+  auto create_sampler(SamplerCreateInfo const&) -> SamplerHandle override;
+
+  auto destroy(SamplerHandle) noexcept -> void override;
 
   auto submit(gsl::span<CommandList const>) -> void override;
 
@@ -102,11 +103,11 @@ private:
 
   ext::DeviceExtensions mExtensions;
 
-  HandlePool<D3D9Pipeline, Pipeline> mPipelines{};
-  HandlePool<IDirect3DVertexBuffer9Ptr, VertexBuffer> mVertexBuffers{};
-  HandlePool<IDirect3DIndexBuffer9Ptr, IndexBuffer> mIndexBuffers{};
-  HandlePool<IDirect3DBaseTexture9Ptr, Texture> mTextures{};
-  HandlePool<SamplerData, Sampler> mSamplers{};
+  HandlePool<D3D9Pipeline, PipelineHandle> mPipelines{};
+  HandlePool<IDirect3DVertexBuffer9Ptr, VertexBufferHandle> mVertexBuffers{};
+  HandlePool<IDirect3DIndexBuffer9Ptr, IndexBufferHandle> mIndexBuffers{};
+  HandlePool<IDirect3DBaseTexture9Ptr, TextureHandle> mTextures{};
+  HandlePool<SamplerData, SamplerHandle> mSamplers{};
 
   DeviceCaps mCaps{};
   D3DPRIMITIVETYPE mCurrentPrimitiveType{D3DPT_POINTLIST};

@@ -106,7 +106,7 @@ auto D3D9StencilOpState::from(StencilOpState const& stencilOp) noexcept
                             to_d3d(stencilOp.passDepthPassOp)};
 }
 
-auto D3D9Pipeline::from(PipelineDescriptor const& desc) -> D3D9Pipeline {
+auto D3D9Pipeline::from(PipelineCreateInfo const& desc) -> D3D9Pipeline {
   // TODO: is there a benefit to turn off z testing when func = Always
   // and with writing disabled?
   auto const zEnabled =

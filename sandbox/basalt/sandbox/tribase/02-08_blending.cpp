@@ -3,6 +3,7 @@
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 
+#include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
@@ -45,10 +46,11 @@ using basalt::gfx::CullMode;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::LightData;
-using basalt::gfx::PipelineDescriptor;
+using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PointLightData;
-using basalt::gfx::SamplerDescriptor;
+using basalt::gfx::SamplerCreateInfo;
 using basalt::gfx::TextureFilter;
+using basalt::gfx::TextureHandle;
 using basalt::gfx::TextureMipFilter;
 using basalt::gfx::TextureOp;
 using basalt::gfx::TextureStage;
@@ -79,6 +81,9 @@ struct Planet {
 
 constexpr auto BACKGROUND = Colors::BLACK;
 constexpr auto NUM_STARS = u32{1024};
+constexpr auto PLANET_MODEL_FILE_PATH =
+  "data/tribase/02-08_blending/Planet.x"sv;
+constexpr auto SUN_MODEL_FILE_PATH = "data/tribase/02-08_blending/Sun.x"sv;
 
 auto generate_stars(span<StarVertex> const stars) -> void {
   auto randomEngine = default_random_engine{random_device{}()};
@@ -177,14 +182,14 @@ auto rotation_axis(Vector3f32 axis, Angle const angle) -> Matrix4x4f32 {
 Blending::Blending(Engine const& engine)
   : mGfxCache{engine.create_gfx_resource_cache()}
   , mStarPipeline{[&] {
-    auto desc = PipelineDescriptor{};
+    auto desc = PipelineCreateInfo{};
     desc.vertexLayout = StarVertex::sLayout;
     desc.dithering = true;
 
     return mGfxCache->create_pipeline(desc);
   }()}
   , mSampler{[&] {
-    auto desc = SamplerDescriptor{};
+    auto desc = SamplerCreateInfo{};
     desc.magFilter = TextureFilter::Bilinear;
     desc.minFilter = TextureFilter::Bilinear;
     desc.mipFilter = TextureMipFilter::Linear;
@@ -192,17 +197,15 @@ Blending::Blending(Engine const& engine)
     return mGfxCache->create_sampler(desc);
   }()}
   , mPlanetTextures{[&] {
-    auto textures = array<basalt::gfx::Texture, sNumPlanetTextures>{};
+    auto textures = array<TextureHandle, sNumPlanetTextures>{};
     for (auto i = uSize{0}; i < sNumPlanetTextures; i++) {
-      textures[i] = mGfxCache->load_texture(
-        fmt::format(FMT_STRING("data/tribase/02-08_blending/Planet{}.dds"), i));
+      auto const filePath =
+        fmt::format(FMT_STRING("data/tribase/02-08_blending/Planet{}.dds"), i);
+      textures[i] = mGfxCache->load_texture_2d(filePath);
     }
 
     return textures;
   }()}
-  , mPlanetModel{mGfxCache->load_x_model(
-      "data/tribase/02-08_blending/Planet.x"sv)}
-  , mSunModel{mGfxCache->load_x_model("data/tribase/02-08_blending/Sun.x"sv)}
   , mStarsVb{[&] {
     auto starVertices = vector<StarVertex>{NUM_STARS};
     generate_stars(starVertices);
@@ -211,6 +214,21 @@ Blending::Blending(Engine const& engine)
     return mGfxCache->create_vertex_buffer(
       {starVertexData.size_bytes(), StarVertex::sLayout}, starVertexData);
   }()} {
+  auto const& gfxCtx = engine.gfx_context();
+
+  mPlanetMesh = [&] {
+    auto const xModelHandle = mGfxCache->load_x_model({PLANET_MODEL_FILE_PATH});
+    auto const& xModelData = gfxCtx.get(xModelHandle);
+
+    return xModelData.meshes.front();
+  }();
+  mSunMesh = [&] {
+    auto const xModelHandle = mGfxCache->load_x_model({SUN_MODEL_FILE_PATH});
+    auto const& xModelData = gfxCtx.get(xModelHandle);
+
+    return xModelData.meshes.front();
+  }();
+
   auto vs = FixedVertexShaderCreateInfo{};
   vs.lightingEnabled = true;
 
@@ -219,7 +237,7 @@ Blending::Blending(Engine const& engine)
   std::get<0>(textureStages).alphaOp = TextureOp::Modulate;
   fs.textureStages = textureStages;
 
-  auto planetPipelineDesc = PipelineDescriptor{};
+  auto planetPipelineDesc = PipelineCreateInfo{};
   planetPipelineDesc.vertexShader = &vs;
   planetPipelineDesc.fragmentShader = &fs;
   planetPipelineDesc.cullMode = CullMode::Clockwise;
@@ -285,7 +303,6 @@ auto Blending::on_update(UpdateContext& ctx) -> void {
                    0}};
   cmdList.set_lights(lights);
 
-  auto const& planetModel = mGfxCache->get(mPlanetModel);
   for (auto const& planet : planets) {
     if (planet.type == 0) {
       // this is the sun
@@ -310,11 +327,10 @@ auto Blending::on_update(UpdateContext& ctx) -> void {
 
         cmdList.bind_texture(0, std::get<0>(mPlanetTextures));
 
-        auto const& sunModel = mGfxCache->get(mSunModel);
         cmdList.bind_pipeline(mPlanetPipelineCw);
-        XMeshCommandEncoder::draw_x_mesh(cmdList, sunModel.meshes[0]);
+        XMeshCommandEncoder::draw_x_mesh(cmdList, mSunMesh);
         cmdList.bind_pipeline(mPlanetPipelineCcw);
-        XMeshCommandEncoder::draw_x_mesh(cmdList, sunModel.meshes[0]);
+        XMeshCommandEncoder::draw_x_mesh(cmdList, mSunMesh);
       }
 
       continue;
@@ -330,9 +346,9 @@ auto Blending::on_update(UpdateContext& ctx) -> void {
     cmdList.bind_texture(0, mPlanetTextures[planet.type]);
 
     cmdList.bind_pipeline(mPlanetPipelineCw);
-    XMeshCommandEncoder::draw_x_mesh(cmdList, planetModel.meshes[0]);
+    XMeshCommandEncoder::draw_x_mesh(cmdList, mPlanetMesh);
     cmdList.bind_pipeline(mPlanetPipelineCcw);
-    XMeshCommandEncoder::draw_x_mesh(cmdList, planetModel.meshes[0]);
+    XMeshCommandEncoder::draw_x_mesh(cmdList, mPlanetMesh);
   }
 
   drawCtx.commandLists.emplace_back(std::move(cmdList));

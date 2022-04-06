@@ -19,7 +19,7 @@ public:
   [[nodiscard]] virtual auto load(std::filesystem::path const&)
     -> XModelData = 0;
 
-  virtual auto destroy(XMesh) noexcept -> void = 0;
+  virtual auto destroy(XMeshHandle) noexcept -> void = 0;
 };
 
 struct XModelData final {
@@ -32,7 +32,7 @@ struct XModelData final {
     std::filesystem::path textureFile;
   };
 
-  std::vector<XMesh> meshes;
+  std::vector<XMeshHandle> meshes;
   std::vector<Material> materials;
 };
 

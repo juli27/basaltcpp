@@ -48,7 +48,7 @@ auto D3D9XModelSupport::load(path const& filepath) -> XModelData {
   auto const d3dxMaterials = span<D3DXMATERIAL const>{
     static_cast<D3DXMATERIAL const*>(materialBuffer->GetBufferPointer()),
     numMaterials};
-  auto meshes = vector<XMesh>{};
+  auto meshes = vector<XMeshHandle>{};
   meshes.reserve(d3dxMaterials.size());
   auto materials = vector<XModelData::Material>{};
   materials.reserve(d3dxMaterials.size());
@@ -78,7 +78,7 @@ auto D3D9XModelSupport::load(path const& filepath) -> XModelData {
   return XModelData{std::move(meshes), std::move(materials)};
 }
 
-auto D3D9XModelSupport::destroy(XMesh const handle) noexcept -> void {
+auto D3D9XModelSupport::destroy(XMeshHandle const handle) noexcept -> void {
   mMeshes.deallocate(handle);
 }
 

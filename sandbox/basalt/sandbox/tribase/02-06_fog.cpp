@@ -4,6 +4,7 @@
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 
+#include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/command_list.h>
 
@@ -34,12 +35,12 @@ using basalt::gfx::CullMode;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::FogMode;
-using basalt::gfx::PipelineDescriptor;
+using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PrimitiveType;
-using basalt::gfx::SamplerDescriptor;
+using basalt::gfx::SamplerCreateInfo;
 using basalt::gfx::TestPassCond;
-using basalt::gfx::Texture;
 using basalt::gfx::TextureFilter;
+using basalt::gfx::TextureHandle;
 using basalt::gfx::TextureMipFilter;
 using basalt::gfx::TextureStage;
 using basalt::gfx::TransformState;
@@ -91,7 +92,7 @@ Fog::Fog(Engine const& engine)
       {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
   }()}
   , mSampler{[&] {
-    auto desc = SamplerDescriptor{};
+    auto desc = SamplerCreateInfo{};
     desc.magFilter = TextureFilter::Bilinear;
     desc.minFilter = TextureFilter::Bilinear;
     desc.mipFilter = TextureMipFilter::Linear;
@@ -99,21 +100,21 @@ Fog::Fog(Engine const& engine)
     return mGfxCache->create_sampler(desc);
   }()}
   , mTextures{[&] {
-    auto textures = array<Texture, sNumTextures>{};
+    auto textures = array<TextureHandle, sNumTextures>{};
 
     for (auto i = uSize{0}; i < sNumTextures; i++) {
       auto const fileName =
         fmt::format(FMT_STRING("data/tribase/02-06_fog/Texture{}.bmp"), i + 1);
-      textures[i] = mGfxCache->load_texture(fileName);
+      textures[i] = mGfxCache->load_texture_2d(fileName);
     }
 
     return textures;
   }()} {
-  update_pipeline();
+  update_pipeline(engine.gfx_context());
 }
 
-auto Fog::update_pipeline() -> void {
-  mGfxCache->destroy(mPipeline);
+auto Fog::update_pipeline(basalt::gfx::Context& gfxCtx) -> void {
+  mReloadableGfxResources = gfxCtx.create_resource_cache();
 
   auto vs = FixedVertexShaderCreateInfo{};
   vs.fog = mFogMode;
@@ -123,7 +124,7 @@ auto Fog::update_pipeline() -> void {
   auto const fogMode = mFragmentFog ? mFogMode : FogMode::None;
   auto const fs = FixedFragmentShaderCreateInfo{textureStages, fogMode};
 
-  auto desc = PipelineDescriptor{};
+  auto desc = PipelineCreateInfo{};
   desc.vertexShader = &vs;
   desc.fragmentShader = &fs;
   desc.vertexLayout = Vertex::sLayout;
@@ -132,10 +133,10 @@ auto Fog::update_pipeline() -> void {
   desc.depthTest = TestPassCond::IfLessEqual;
   desc.depthWriteEnable = true;
   desc.dithering = true;
-  mPipeline = mGfxCache->create_pipeline(desc);
+  mPipeline = mReloadableGfxResources->create_pipeline(desc);
 }
 
-auto Fog::render_ui() -> void {
+auto Fog::render_ui(basalt::gfx::Context& gfxCtx) -> void {
   ImGui::SetNextWindowSize({300.0f, 0}, ImGuiCond_FirstUseEver);
   if (!ImGui::Begin("Fog Settings")) {
     ImGui::End();
@@ -146,17 +147,17 @@ auto Fog::render_ui() -> void {
                          !mFragmentFog && !mVertexFogRangeBased)) {
     mVertexFogRangeBased = false;
     mFragmentFog = false;
-    update_pipeline();
+    update_pipeline(gfxCtx);
   }
   if (ImGui::RadioButton("vertex fog (range-based)",
                          !mFragmentFog && mVertexFogRangeBased)) {
     mVertexFogRangeBased = true;
     mFragmentFog = false;
-    update_pipeline();
+    update_pipeline(gfxCtx);
   }
   if (ImGui::RadioButton("fragment fog", mFragmentFog)) {
     mFragmentFog = true;
-    update_pipeline();
+    update_pipeline(gfxCtx);
   }
 
   ImGui::Separator();
@@ -167,16 +168,16 @@ auto Fog::render_ui() -> void {
 
   if (ImGui::RadioButton("linear", mFogMode == FogMode::Linear)) {
     mFogMode = FogMode::Linear;
-    update_pipeline();
+    update_pipeline(gfxCtx);
   }
   if (ImGui::RadioButton("exponential", mFogMode == FogMode::Exponential)) {
     mFogMode = FogMode::Exponential;
-    update_pipeline();
+    update_pipeline(gfxCtx);
   }
   if (ImGui::RadioButton("exponential squared",
                          mFogMode == FogMode::ExponentialSquared)) {
     mFogMode = FogMode::ExponentialSquared;
-    update_pipeline();
+    update_pipeline(gfxCtx);
   }
 
   ImGui::BeginDisabled(mFogMode != FogMode::Linear);
@@ -192,7 +193,7 @@ auto Fog::render_ui() -> void {
 }
 
 auto Fog::on_update(UpdateContext& ctx) -> void {
-  render_ui();
+  render_ui(ctx.engine.gfx_context());
 
   auto cmdList = CommandList{};
   cmdList.clear_attachments(
@@ -211,7 +212,7 @@ auto Fog::on_update(UpdateContext& ctx) -> void {
     Matrix4x4f32::perspective_projection(120_deg, aspectRatio, 0.1f, 100.0f));
 
   cmdList.set_transform(TransformState::WorldToView, Matrix4x4f32::identity());
-  
+
   cmdList.bind_vertex_buffer(mVertexBuffer);
 
   // draw signs

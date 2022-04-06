@@ -5,6 +5,7 @@
 #include <basalt/api/input.h>
 
 #include <basalt/api/gfx/camera.h>
+#include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/gfx_system.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/ext/types.h>
@@ -45,6 +46,7 @@ SceneView::SceneView(ScenePtr scene, gfx::ResourceCachePtr gfxCache)
   auto& ctx = mScene->entity_registry().ctx();
   ctx.emplace<InputState const&>(input_state());
   ctx.emplace<gfx::ResourceCache&>(*mGfxCache);
+  ctx.emplace<gfx::Context&>(*mGfxCache->context());
 
   mComponentUis.push_back({
     entt::type_hash<Transform>::value(),
@@ -76,10 +78,10 @@ SceneView::SceneView(ScenePtr scene, gfx::ResourceCachePtr gfxCache)
     [](Entity const& entity) { DebugUi::light(entity.get<gfx::Light>()); },
   });
   mComponentUis.push_back({
-    entt::type_hash<gfx::ext::XModel>::value(),
-    "gfx::ext::XModel"s,
+    entt::type_hash<gfx::ext::XModelHandle>::value(),
+    "gfx::ext::XModelHandle"s,
     [](Entity const& entity) {
-      DebugUi::x_model(entity.get<gfx::ext::XModel const>());
+      DebugUi::x_model(entity.get<gfx::ext::XModelHandle const>());
     },
   });
 }

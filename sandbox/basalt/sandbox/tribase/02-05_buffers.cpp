@@ -4,6 +4,7 @@
 #include <basalt/api/input_events.h>
 #include <basalt/api/prelude.h>
 
+#include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/command_list.h>
 
@@ -32,10 +33,9 @@ using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
-using basalt::gfx::Pipeline;
-using basalt::gfx::PipelineDescriptor;
+using basalt::gfx::PipelineCreateInfo;
+using basalt::gfx::PipelineHandle;
 using basalt::gfx::PrimitiveType;
-using basalt::gfx::SamplerDescriptor;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
@@ -69,6 +69,8 @@ struct Vertex final {
     VertexElement::TextureCoords2F32,
   };
 };
+
+constexpr auto TEXTURE_FILE_PATH = "data/tribase/Texture2.bmp"sv;
 
 constexpr auto NUM_CUBES = u32{2048};
 constexpr auto NUM_TRIANGLES_PER_CUBE = u32{2 * 6};
@@ -132,15 +134,10 @@ auto fill_buffers(span<Vertex> const vb, span<u16> const ib) {
 
 Buffers::Buffers(Engine const& engine)
   : mGfxCache{engine.create_gfx_resource_cache()}
-  , mSampler{[&] {
-    auto desc = SamplerDescriptor{};
-    desc.magFilter = TextureFilter::Bilinear;
-    desc.minFilter = TextureFilter::Bilinear;
-    desc.mipFilter = TextureMipFilter::Linear;
-
-    return mGfxCache->create_sampler(desc);
-  }()}
-  , mTexture{mGfxCache->load_texture("data/tribase/Texture2.bmp"sv)}
+  , mSampler{mGfxCache->create_sampler({TextureFilter::Bilinear,
+                                        TextureFilter::Bilinear,
+                                        TextureMipFilter::Linear})}
+  , mTexture{mGfxCache->load_texture_2d(TEXTURE_FILE_PATH)}
   , mVertexBuffer{mGfxCache->create_vertex_buffer(
       {NUM_VERTICES_PER_CUBE * sizeof(Vertex) * NUM_CUBES, Vertex::sLayout})}
   , mIndexBuffer{mGfxCache->create_index_buffer(
@@ -150,7 +147,7 @@ Buffers::Buffers(Engine const& engine)
     constexpr auto textureStages = array{TextureStage{}};
     fs.textureStages = textureStages;
 
-    auto desc = PipelineDescriptor{};
+    auto desc = PipelineCreateInfo{};
     desc.fragmentShader = &fs;
     desc.vertexLayout = Vertex::sLayout;
     desc.primitiveType = PrimitiveType::TriangleList;
@@ -161,13 +158,14 @@ Buffers::Buffers(Engine const& engine)
     return mGfxCache->create_pipeline(desc);
   }()}
   , mFov{90_deg} {
-  mGfxCache->with_mapping_of(mVertexBuffer, [&](span<byte> const vbData) {
-    auto const vb = span<Vertex>{reinterpret_cast<Vertex*>(vbData.data()),
-                                 vbData.size() / sizeof(Vertex)};
+  auto const& gfxCtx = engine.gfx_context();
+  gfxCtx.with_mapping_of(mVertexBuffer, [&](span<byte> const vbData) {
+    auto const vb = span{reinterpret_cast<Vertex*>(vbData.data()),
+                         vbData.size() / sizeof(Vertex)};
 
-    mGfxCache->with_mapping_of(mIndexBuffer, [&](span<byte> const ibData) {
-      auto const ib = span<u16>{reinterpret_cast<u16*>(ibData.data()),
-                                ibData.size() / sizeof(u16)};
+    gfxCtx.with_mapping_of(mIndexBuffer, [&](span<byte> const ibData) {
+      auto const ib = span{reinterpret_cast<u16*>(ibData.data()),
+                           ibData.size() / sizeof(u16)};
       fill_buffers(vb, ib);
     });
   });

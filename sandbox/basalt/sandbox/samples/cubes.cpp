@@ -58,8 +58,8 @@ using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::Light;
 using basalt::gfx::MaterialColorSource;
-using basalt::gfx::MaterialDescriptor;
-using basalt::gfx::PipelineDescriptor;
+using basalt::gfx::MaterialCreateInfo;
+using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::SpotLight;
@@ -86,6 +86,8 @@ struct Vertex final {
     VertexElement::TextureCoords2F32,
   };
 };
+
+constexpr auto CUBE_TEXTURE_FILE_PATH = "data/tribase/Texture2.bmp"sv;
 
 constexpr auto NUM_CUBES = u32{2048};
 constexpr auto NUM_TRIANGLES_PER_CUBE = u32{2 * 6};
@@ -291,7 +293,7 @@ auto Samples::new_cubes_sample(Engine& engine) -> ViewPtr {
   auto const mesh = gfxCache->create_mesh(
     {vertexData, vertexCount, Vertex::sLayout, indexData, indexCount});
 
-  auto matDesc = MaterialDescriptor{};
+  auto matDesc = MaterialCreateInfo{};
   matDesc.pipeline = [&] {
     auto vs = FixedVertexShaderCreateInfo{};
     vs.lightingEnabled = true;
@@ -301,7 +303,7 @@ auto Samples::new_cubes_sample(Engine& engine) -> ViewPtr {
     constexpr auto textureStages = array{TextureStage{}};
     fs.textureStages = textureStages;
 
-    auto pipelineDesc = PipelineDescriptor{};
+    auto pipelineDesc = PipelineCreateInfo{};
     pipelineDesc.vertexShader = &vs;
     pipelineDesc.fragmentShader = &fs;
     pipelineDesc.vertexLayout = Vertex::sLayout;
@@ -312,7 +314,7 @@ auto Samples::new_cubes_sample(Engine& engine) -> ViewPtr {
     return gfxCache->create_pipeline(pipelineDesc);
   }();
   matDesc.sampledTexture.texture =
-    gfxCache->load_texture("data/tribase/Texture2.bmp"sv);
+    gfxCache->load_texture_2d(CUBE_TEXTURE_FILE_PATH);
   matDesc.sampledTexture.sampler =
     gfxCache->create_sampler({TextureFilter::Bilinear, TextureFilter::Bilinear,
                               TextureMipFilter::Linear});

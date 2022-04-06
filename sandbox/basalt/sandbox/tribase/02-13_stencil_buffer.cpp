@@ -35,7 +35,7 @@ using basalt::Vector3f32;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
-using basalt::gfx::PipelineDescriptor;
+using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::StencilOp;
 using basalt::gfx::TestPassCond;
@@ -60,9 +60,17 @@ constexpr auto THING_PATH = "data/tribase/Thing.x"sv;
 } // namespace
 
 StencilBuffer::StencilBuffer(Engine const& engine)
-  : mGfxCache{engine.gfx_context().create_resource_cache()}
-  , mThing{mGfxCache->load_x_model(THING_PATH)} {
-  auto pipelineDesc = PipelineDescriptor{};
+  : mGfxCache{engine.gfx_context().create_resource_cache()} {
+  auto const& gfxCtx = engine.gfx_context();
+
+  mThingMesh = [&] {
+    auto const xModelHandle = mGfxCache->load_x_model({THING_PATH});
+    auto const& xModelData = gfxCtx.get(xModelHandle);
+
+    return xModelData.meshes.front();
+  }();
+
+  auto pipelineDesc = PipelineCreateInfo{};
   pipelineDesc.depthTest = TestPassCond::Never;
   pipelineDesc.frontFaceStencilOp.test = TestPassCond::Always;
   pipelineDesc.frontFaceStencilOp.passDepthFailOp = StencilOp::IncrementClamp;
@@ -119,7 +127,6 @@ auto StencilBuffer::on_update(UpdateContext& ctx) -> void {
   auto cmdList = CommandList{};
   cmdList.clear_attachments(Attachments{Attachment::StencilBuffer}, {}, 0, 0);
 
-  auto const& thingData = mGfxCache->get(mThing);
   cmdList.bind_pipeline(mPrePassPipeline);
   cmdList.set_stencil_write_mask(~0u);
   cmdList.set_transform(
@@ -132,21 +139,21 @@ auto StencilBuffer::on_update(UpdateContext& ctx) -> void {
                                                Angle::radians(0.5f * t),
                                                Angle::radians(0.25f * t)) *
                           Matrix4x4f32::translation(0, 0, 3));
-  XMeshCommandEncoder::draw_x_mesh(cmdList, thingData.meshes[0]);
+  XMeshCommandEncoder::draw_x_mesh(cmdList, mThingMesh);
 
   cmdList.set_transform(TransformState::LocalToWorld,
                         Matrix4x4f32::rotation(Angle::radians(0.9f * t),
                                                Angle::radians(0.6f * t),
                                                Angle::radians(0.3f * t)) *
                           Matrix4x4f32::translation(-3, 0, 5));
-  XMeshCommandEncoder::draw_x_mesh(cmdList, thingData.meshes[0]);
+  XMeshCommandEncoder::draw_x_mesh(cmdList, mThingMesh);
 
   cmdList.set_transform(TransformState::LocalToWorld,
                         Matrix4x4f32::rotation(Angle::radians(1.1f * t),
                                                Angle::radians(0.4f * t),
                                                Angle::radians(0.35f * t)) *
                           Matrix4x4f32::translation(3, 0, 5));
-  XMeshCommandEncoder::draw_x_mesh(cmdList, thingData.meshes[0]);
+  XMeshCommandEncoder::draw_x_mesh(cmdList, mThingMesh);
 
   cmdList.bind_pipeline(mOverdrawPipeline1);
   cmdList.bind_vertex_buffer(mRectanglesVb);

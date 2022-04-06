@@ -42,8 +42,8 @@ struct MaterialTag;
 
 } // namespace detail
 
-using Mesh = Handle<detail::MeshTag>;
-using Material = Handle<detail::MaterialTag>;
+using MeshHandle = Handle<detail::MeshTag>;
+using MaterialHandle = Handle<detail::MaterialTag>;
 
 namespace detail {
 
@@ -140,7 +140,7 @@ struct Info final {
   BackendApi backendApi{BackendApi::Default};
 };
 
-struct MeshDescriptor final {
+struct MeshCreateInfo final {
   gsl::span<std::byte const> vertexData;
   u32 vertexCount{};
   VertexLayout layout;
@@ -149,19 +149,19 @@ struct MeshDescriptor final {
   IndexType indexType{IndexType::U16};
 };
 
-struct SampledTextureDescriptor final {
-  Texture texture = Texture::null();
-  Sampler sampler = Sampler::null();
+struct SampledTexture final {
+  TextureHandle texture = TextureHandle::null();
+  SamplerHandle sampler = SamplerHandle::null();
 };
 
-struct MaterialDescriptor final {
-  Pipeline pipeline = Pipeline::null();
+struct MaterialCreateInfo final {
+  PipelineHandle pipeline = PipelineHandle::null();
   Color diffuse;
   Color ambient;
   Color emissive;
   Color specular;
   f32 specularPower{};
-  SampledTextureDescriptor sampledTexture;
+  SampledTexture sampledTexture;
   Color fogColor;
   f32 fogStart{};
   f32 fogEnd{};
@@ -169,8 +169,8 @@ struct MaterialDescriptor final {
 };
 
 struct RenderComponent final {
-  Mesh mesh{Mesh::null()};
-  Material material{Material::null()};
+  MeshHandle mesh;
+  MaterialHandle material;
   Matrix4x4f32 texTransform{Matrix4x4f32::identity()};
 };
 
@@ -205,10 +205,10 @@ struct SpotLight {
 using Light = std::variant<PointLight, SpotLight>;
 
 struct MeshData final {
-  VertexBuffer vertexBuffer;
-  u32 startVertex{};
-  u32 vertexCount{};
-  IndexBuffer indexBuffer;
+  VertexBufferHandle vertexBuffer;
+  u32 startVertex;
+  u32 vertexCount;
+  IndexBufferHandle indexBuffer{};
   u32 indexCount{};
 };
 
@@ -223,22 +223,31 @@ struct MaterialData final {
   f32 fogEnd{};
   f32 fogDensity{};
 
-  Pipeline pipeline;
-  Texture texture;
-  Sampler sampler;
+  PipelineHandle pipeline;
+  TextureHandle texture{};
+  SamplerHandle sampler{};
 };
 
-struct XModelDescriptor final {
-  std::filesystem::path modelPath;
+struct XModelLoadInfo final {
+  std::filesystem::path filePath;
 
   // optional materials to override (in order of the model)
-  gsl::span<MaterialDescriptor> materials{};
+  gsl::span<MaterialHandle> materials{};
 };
 
 struct XModelData final {
   // indices imply a 1:1 mapping between mesh and material
-  std::vector<ext::XMesh> meshes;
-  std::vector<Material> materials;
+  std::vector<ext::XMeshHandle> meshes;
+  std::vector<MaterialHandle> materials;
 };
+
+namespace ext {
+
+struct XModelCreateInfo {
+  gsl::span<XMeshHandle> meshes;
+  gsl::span<MaterialHandle> materials;
+};
+
+} // namespace ext
 
 } // namespace basalt::gfx

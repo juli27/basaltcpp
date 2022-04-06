@@ -20,16 +20,16 @@ public:
 
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;
-  basalt::gfx::Pipeline mSkyBoxPipeline;
-  basalt::gfx::Pipeline mSphere1Pipeline;
-  basalt::gfx::Pipeline mSphere2Pipeline;
-  basalt::gfx::Pipeline mSphere3Pipeline;
-  basalt::gfx::Sampler mSampler;
-  basalt::gfx::Texture mEnvTexture;
-  basalt::gfx::Texture mTexture;
-  basalt::gfx::ext::XModel mSphere;
-  basalt::gfx::VertexBuffer mSkyBoxVb;
-  basalt::gfx::IndexBuffer mSkyBoxIb;
+  basalt::gfx::PipelineHandle mSkyBoxPipeline;
+  basalt::gfx::PipelineHandle mSphere1Pipeline;
+  basalt::gfx::PipelineHandle mSphere2Pipeline;
+  basalt::gfx::PipelineHandle mSphere3Pipeline;
+  basalt::gfx::SamplerHandle mSampler;
+  basalt::gfx::TextureHandle mEnvTexture;
+  basalt::gfx::TextureHandle mTexture;
+  basalt::gfx::ext::XMeshHandle mSphereMesh;
+  basalt::gfx::VertexBufferHandle mSkyBoxVb;
+  basalt::gfx::IndexBufferHandle mSkyBoxIb;
   basalt::Vector3f32 mCameraPos{};
   basalt::Angle mCameraAngleY{};
   basalt::f32 mCameraUpDown{};

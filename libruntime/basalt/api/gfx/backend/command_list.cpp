@@ -47,24 +47,27 @@ auto CommandList::draw_indexed(i32 const vertexOffset, u32 const minIndex,
                           indexCount);
 }
 
-auto CommandList::bind_pipeline(Pipeline const pipelineId) -> void {
+auto CommandList::bind_pipeline(PipelineHandle const pipelineId) -> void {
   add<CommandBindPipeline>(pipelineId);
 }
 
-auto CommandList::bind_vertex_buffer(VertexBuffer const vertexBufferId,
+auto CommandList::bind_vertex_buffer(VertexBufferHandle const vertexBufferId,
                                      u64 const offsetInBytes) -> void {
   add<CommandBindVertexBuffer>(vertexBufferId, offsetInBytes);
 }
 
-auto CommandList::bind_index_buffer(IndexBuffer const indexBufferId) -> void {
+auto CommandList::bind_index_buffer(IndexBufferHandle const indexBufferId)
+  -> void {
   add<CommandBindIndexBuffer>(indexBufferId);
 }
 
-auto CommandList::bind_sampler(u8 const slot, Sampler const samplerId) -> void {
+auto CommandList::bind_sampler(u8 const slot, SamplerHandle const samplerId)
+  -> void {
   add<CommandBindSampler>(slot, samplerId);
 }
 
-auto CommandList::bind_texture(u8 const slot, Texture const textureId) -> void {
+auto CommandList::bind_texture(u8 const slot, TextureHandle const textureId)
+  -> void {
   add<CommandBindTexture>(slot, textureId);
 }
 

@@ -23,7 +23,7 @@ public:
   [[nodiscard]] auto load(std::filesystem::path const& filepath)
     -> XModelData override;
 
-  auto destroy(XMesh handle) noexcept -> void override;
+  auto destroy(XMeshHandle handle) noexcept -> void override;
 
   explicit D3D9XModelSupport(IDirect3DDevice9Ptr);
 
@@ -34,7 +34,7 @@ private:
   };
 
   IDirect3DDevice9Ptr mDevice;
-  HandlePool<XMeshData, XMesh> mMeshes;
+  HandlePool<XMeshData, XMeshHandle> mMeshes;
 };
 
 } // namespace basalt::gfx::ext

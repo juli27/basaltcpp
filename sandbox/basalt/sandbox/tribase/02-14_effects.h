@@ -30,8 +30,8 @@ private:
     basalt::gfx::ResourceCachePtr gfxCache;
     basalt::gfx::ext::EffectId id;
     std::string description;
-    basalt::gfx::Texture backgroundTexture;
-    basalt::gfx::ext::XModel model;
+    basalt::gfx::TextureHandle backgroundTexture;
+    basalt::gfx::ext::XMeshHandle mesh;
     gsl::czstring activeTechniqueName;
     basalt::u32 activeTechniqueNumPasses;
   };
@@ -40,11 +40,11 @@ private:
   std::vector<std::filesystem::path> mEffectFilePaths;
   std::filesystem::path mEffectFilePath;
   LoadedEffect mLoadedEffect;
-  basalt::gfx::VertexBuffer mRectVb;
-  basalt::gfx::Sampler mLinearSampler;
-  basalt::gfx::Texture mBackgroundTex;
-  basalt::gfx::Pipeline mBackgroundPipeline;
-  basalt::gfx::Pipeline mDefaultPipeline;
+  basalt::gfx::VertexBufferHandle mRectVb;
+  basalt::gfx::SamplerHandle mLinearSampler;
+  basalt::gfx::TextureHandle mBackgroundTex;
+  basalt::gfx::PipelineHandle mBackgroundPipeline;
+  basalt::gfx::PipelineHandle mDefaultPipeline;
   basalt::SecondsF32 mTime{0};
 
   auto list_effect_files() -> void;

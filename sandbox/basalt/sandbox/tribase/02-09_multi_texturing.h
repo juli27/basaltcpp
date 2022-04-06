@@ -19,11 +19,11 @@ public:
 
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;
-  std::array<basalt::gfx::Pipeline, 12> mPipelines{};
-  basalt::gfx::Sampler mSampler;
-  basalt::gfx::Texture mTexture0;
-  basalt::gfx::Texture mTexture1;
-  basalt::gfx::ext::XModel mCube;
+  std::array<basalt::gfx::PipelineHandle, 12> mPipelines{};
+  basalt::gfx::SamplerHandle mSampler;
+  basalt::gfx::TextureHandle mTexture0;
+  basalt::gfx::TextureHandle mTexture1;
+  basalt::gfx::ext::XMeshHandle mCubeMesh;
   basalt::SecondsF32 mTime{};
 
   auto on_update(UpdateContext&) -> void override;

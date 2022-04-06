@@ -38,8 +38,8 @@ using basalt::Vector3f32;
 using basalt::ViewPtr;
 using basalt::gfx::Camera;
 using basalt::gfx::Environment;
-using basalt::gfx::MaterialDescriptor;
-using basalt::gfx::PipelineDescriptor;
+using basalt::gfx::MaterialCreateInfo;
+using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::TestPassCond;
@@ -93,9 +93,9 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
     Vertex::sLayout,
   });
 
-  auto materialDesc = MaterialDescriptor{};
+  auto materialDesc = MaterialCreateInfo{};
   materialDesc.pipeline = [&] {
-    auto pipelineDesc = PipelineDescriptor{};
+    auto pipelineDesc = PipelineCreateInfo{};
     pipelineDesc.vertexLayout = Vertex::sLayout;
     pipelineDesc.primitiveType = PrimitiveType::TriangleList;
     pipelineDesc.depthTest = TestPassCond::IfLessEqual;

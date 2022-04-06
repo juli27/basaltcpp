@@ -3,8 +3,8 @@
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 
+#include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
-
 #include <basalt/api/gfx/backend/command_list.h>
 
 #include <basalt/api/math/angle.h>
@@ -38,7 +38,7 @@ using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
-using basalt::gfx::PipelineDescriptor;
+using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::TextureStage;
 using basalt::gfx::TransformState;
@@ -47,6 +47,8 @@ using basalt::gfx::VertexElement;
 namespace tribase {
 
 namespace {
+
+constexpr auto TEXTURE_FILE_PATH = "data/banana.bmp"sv;
 
 struct Vertex final {
   Vector3f32 pos{};
@@ -69,7 +71,7 @@ constexpr auto TRIANGLE_VERTICES = array{
 TexturesExercises::TexturesExercises(Engine const& engine)
   : mGfxCache{engine.create_gfx_resource_cache()}
   , mSampler{mGfxCache->create_sampler({})}
-  , mTexture{mGfxCache->load_texture("data/banana.bmp"sv)}
+  , mTexture{mGfxCache->load_texture_2d(TEXTURE_FILE_PATH)}
   , mVertexBuffer{[&] {
     auto const vertexData = as_bytes(span{TRIANGLE_VERTICES});
 
@@ -81,7 +83,7 @@ TexturesExercises::TexturesExercises(Engine const& engine)
     constexpr auto textureStages = array{TextureStage{}};
     fs.textureStages = textureStages;
 
-    auto desc = PipelineDescriptor{};
+    auto desc = PipelineCreateInfo{};
     desc.fragmentShader = &fs;
     desc.vertexLayout = Vertex::sLayout;
     desc.primitiveType = PrimitiveType::TriangleList;
@@ -90,9 +92,11 @@ TexturesExercises::TexturesExercises(Engine const& engine)
 }
 
 auto TexturesExercises::on_update(UpdateContext& ctx) -> void {
+  auto const& gfxCtx = ctx.engine.gfx_context();
+
   if (ImGui::Begin("Settings##TribaseTexturesEx")) {
     auto uploadTriangle = [&] {
-      mGfxCache->with_mapping_of(mVertexBuffer, [](span<byte> const vbData) {
+      gfxCtx.with_mapping_of(mVertexBuffer, [](span<byte> const vbData) {
         auto const vertexData = as_bytes(span{TRIANGLE_VERTICES});
 
         std::copy_n(vertexData.begin(),
@@ -119,7 +123,7 @@ auto TexturesExercises::on_update(UpdateContext& ctx) -> void {
   auto const dt = ctx.deltaTime.count();
 
   if (mCurrentExercise == 1) {
-    mGfxCache->with_mapping_of(mVertexBuffer, [&](span<byte> const vbData) {
+    gfxCtx.with_mapping_of(mVertexBuffer, [&](span<byte> const vbData) {
       auto const vertexData =
         span<Vertex>{reinterpret_cast<Vertex*>(vbData.data()),
                      vbData.size() / sizeof(Vertex)};
@@ -132,7 +136,7 @@ auto TexturesExercises::on_update(UpdateContext& ctx) -> void {
   }
 
   if (mCurrentExercise == 2) {
-    mGfxCache->with_mapping_of(mVertexBuffer, [&](span<byte> const vbData) {
+    gfxCtx.with_mapping_of(mVertexBuffer, [&](span<byte> const vbData) {
       auto const vertexData =
         span<Vertex>{reinterpret_cast<Vertex*>(vbData.data()),
                      vbData.size() / sizeof(Vertex)};

@@ -44,11 +44,12 @@ public:
   auto draw(u32 firstVertex, u32 vertexCount) -> void;
   auto draw_indexed(i32 vertexOffset, u32 minIndex, u32 numVertices,
                     u32 firstIndex, u32 indexCount) -> void;
-  auto bind_pipeline(Pipeline) -> void;
-  auto bind_vertex_buffer(VertexBuffer, uDeviceSize offsetInBytes = 0) -> void;
-  auto bind_index_buffer(IndexBuffer) -> void;
-  auto bind_sampler(u8 slot, Sampler) -> void;
-  auto bind_texture(u8 slot, Texture) -> void;
+  auto bind_pipeline(PipelineHandle) -> void;
+  auto bind_vertex_buffer(VertexBufferHandle, uDeviceSize offsetInBytes = 0)
+    -> void;
+  auto bind_index_buffer(IndexBufferHandle) -> void;
+  auto bind_sampler(u8 slot, SamplerHandle) -> void;
+  auto bind_texture(u8 slot, TextureHandle) -> void;
   auto set_stencil_reference(u32) -> void;
   auto set_stencil_read_mask(u32) -> void;
   auto set_stencil_write_mask(u32) -> void;

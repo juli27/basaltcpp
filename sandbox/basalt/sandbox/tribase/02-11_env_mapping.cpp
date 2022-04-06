@@ -42,7 +42,7 @@ using basalt::gfx::DirectionalLightData;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::LightData;
-using basalt::gfx::PipelineDescriptor;
+using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureCoordinateSet;
@@ -79,9 +79,8 @@ EnvMapping::EnvMapping(Engine const& engine)
   , mSampler{mGfxCache->create_sampler({TextureFilter::Bilinear,
                                         TextureFilter::Bilinear,
                                         TextureMipFilter::Linear})}
-  , mEnvTexture{mGfxCache->load_cube_texture(ENV_TEXTURE_PATH)}
-  , mTexture{mGfxCache->load_texture(TEXTURE_PATH)}
-  , mSphere{mGfxCache->load_x_model(SPHERE_PATH)}
+  , mEnvTexture{mGfxCache->load_texture_cube(ENV_TEXTURE_PATH)}
+  , mTexture{mGfxCache->load_texture_2d(TEXTURE_PATH)}
   , mSkyBoxVb{[&] {
     constexpr auto skyBoxVertices =
       array{Vertex{{-1.0f, 1.0f, 1.0f}, {-1.0f, 1.0f, 1.0f}},
@@ -111,12 +110,21 @@ EnvMapping::EnvMapping(Engine const& engine)
     return mGfxCache->create_index_buffer({skyBoxIndexData.size_bytes()},
                                           skyBoxIndexData);
   }()} {
+  auto const& gfxCtx = engine.gfx_context();
+
+  mSphereMesh = [&] {
+    auto const xModelHandle = mGfxCache->load_x_model({SPHERE_PATH});
+    auto const& xModelData = gfxCtx.get(xModelHandle);
+
+    return xModelData.meshes.front();
+  }();
+
   auto textureStages = array{TextureStage{}, TextureStage{TextureOp::Add}};
 
   auto fs = FixedFragmentShaderCreateInfo{};
   fs.textureStages = span{textureStages}.subspan(0, 1);
 
-  auto pipelineDesc = PipelineDescriptor{};
+  auto pipelineDesc = PipelineCreateInfo{};
   pipelineDesc.fragmentShader = &fs;
   pipelineDesc.vertexLayout = Vertex::sLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
@@ -195,8 +203,6 @@ auto EnvMapping::on_update(UpdateContext& ctx) -> void {
   cmdList.bind_index_buffer(mSkyBoxIb);
   cmdList.draw_indexed(0, 0, 8, 0, 36);
 
-  auto const& sphereData = mGfxCache->get(mSphere);
-
   cmdList.bind_pipeline(mSphere1Pipeline);
 
   auto lights = array<LightData, 1>{
@@ -212,19 +218,19 @@ auto EnvMapping::on_update(UpdateContext& ctx) -> void {
   cmdList.set_transform(TransformState::LocalToWorld,
                         Matrix4x4f32::translation(1, 0, 5));
   cmdList.set_transform(TransformState::Texture0, Matrix4x4f32::identity());
-  XMeshCommandEncoder::draw_x_mesh(cmdList, sphereData.meshes[0]);
+  XMeshCommandEncoder::draw_x_mesh(cmdList, mSphereMesh);
 
   cmdList.bind_pipeline(mSphere2Pipeline);
   cmdList.bind_sampler(1, mSampler);
   cmdList.bind_texture(1, mTexture);
   cmdList.set_transform(TransformState::LocalToWorld,
                         Matrix4x4f32::translation(-1, 0, 8));
-  XMeshCommandEncoder::draw_x_mesh(cmdList, sphereData.meshes[0]);
+  XMeshCommandEncoder::draw_x_mesh(cmdList, mSphereMesh);
 
   cmdList.bind_pipeline(mSphere3Pipeline);
   cmdList.set_transform(TransformState::LocalToWorld,
                         Matrix4x4f32::translation(-3, 0, 5));
-  XMeshCommandEncoder::draw_x_mesh(cmdList, sphereData.meshes[0]);
+  XMeshCommandEncoder::draw_x_mesh(cmdList, mSphereMesh);
 
   ctx.drawCtx.commandLists.push_back(std::move(cmdList));
 }

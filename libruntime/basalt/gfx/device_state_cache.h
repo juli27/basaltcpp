@@ -17,11 +17,11 @@ namespace basalt::gfx {
 struct DeviceStateCache final {
   DeviceStateCache() noexcept = default;
 
-  auto update(Pipeline) noexcept -> bool;
-  auto update(VertexBuffer, u64 offset) noexcept -> bool;
-  auto update(IndexBuffer) noexcept -> bool;
-  auto update(u8 slot, Sampler) noexcept -> bool;
-  auto update(u8 slot, Texture) noexcept -> bool;
+  auto update(PipelineHandle) noexcept -> bool;
+  auto update(VertexBufferHandle, u64 offset) noexcept -> bool;
+  auto update(IndexBufferHandle) noexcept -> bool;
+  auto update(u8 slot, SamplerHandle) noexcept -> bool;
+  auto update(u8 slot, TextureHandle) noexcept -> bool;
   auto update(TransformState, Matrix4x4f32 const&) noexcept -> bool;
   auto update_ambient_light(Color const&) noexcept -> bool;
   auto update(Color const& diffuse, Color const& ambient, Color const& emissive,
@@ -55,12 +55,12 @@ private:
   std::optional<FogParams> mFogParams;
   std::optional<Color> mBlendConstant;
   std::optional<u8> mReferenceAlpha;
-  Pipeline mBoundPipeline{Pipeline::null()};
-  VertexBuffer mBoundVertexBuffer{VertexBuffer::null()};
+  PipelineHandle mBoundPipeline{PipelineHandle::null()};
+  VertexBufferHandle mBoundVertexBuffer{VertexBufferHandle::null()};
   u64 mVertexBufferOffset{0ull};
-  IndexBuffer mBoundIndexBuffer{IndexBuffer::null()};
-  std::array<Sampler, 8> mBoundSamplers{};
-  std::array<Texture, 8> mBoundTextures{};
+  IndexBufferHandle mBoundIndexBuffer{IndexBufferHandle::null()};
+  std::array<SamplerHandle, 8> mBoundSamplers{};
+  std::array<TextureHandle, 8> mBoundTextures{};
 };
 
 } // namespace basalt::gfx

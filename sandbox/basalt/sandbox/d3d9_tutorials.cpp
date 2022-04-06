@@ -4,6 +4,7 @@
 #include <basalt/api/prelude.h>
 #include <basalt/api/view.h>
 
+#include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/ext/types.h>
@@ -28,13 +29,11 @@
 #include <utility>
 
 using namespace std::literals;
-
 using std::array;
 
 using gsl::span;
 
 using namespace basalt::literals;
-
 using basalt::Angle;
 using basalt::Engine;
 using basalt::Matrix4x4f32;
@@ -51,22 +50,22 @@ using basalt::gfx::DirectionalLightData;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::LightData;
-using basalt::gfx::Pipeline;
-using basalt::gfx::PipelineDescriptor;
+using basalt::gfx::PipelineCreateInfo;
+using basalt::gfx::PipelineHandle;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::ResourceCachePtr;
-using basalt::gfx::Sampler;
+using basalt::gfx::SamplerHandle;
 using basalt::gfx::TestPassCond;
-using basalt::gfx::Texture;
 using basalt::gfx::TextureCoordinateSet;
 using basalt::gfx::TextureCoordinateSrc;
 using basalt::gfx::TextureCoordinateTransformMode;
+using basalt::gfx::TextureHandle;
 using basalt::gfx::TextureStage;
 using basalt::gfx::TransformState;
-using basalt::gfx::VertexBuffer;
+using basalt::gfx::VertexBufferHandle;
 using basalt::gfx::VertexElement;
 using basalt::gfx::ext::XMeshCommandEncoder;
-using basalt::gfx::ext::XModel;
+using basalt::gfx::ext::XModelHandle;
 
 namespace {
 
@@ -109,7 +108,7 @@ public:
         {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
     }()}
     , mPipeline{[&] {
-      auto desc = PipelineDescriptor{};
+      auto desc = PipelineCreateInfo{};
       desc.vertexLayout = Vertex::sLayout;
       desc.primitiveType = PrimitiveType::TriangleList;
 
@@ -131,8 +130,8 @@ protected:
 
 private:
   ResourceCachePtr mGfxCache;
-  VertexBuffer mVertexBuffer;
-  Pipeline mPipeline;
+  VertexBufferHandle mVertexBuffer;
+  PipelineHandle mPipeline;
 };
 
 class Matrices final : public View {
@@ -161,7 +160,7 @@ public:
         {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
     }()}
     , mPipeline{[&] {
-      auto desc = PipelineDescriptor{};
+      auto desc = PipelineCreateInfo{};
       desc.vertexLayout = Vertex::sLayout;
       desc.primitiveType = PrimitiveType::TriangleStrip;
       return mGfxCache->create_pipeline(desc);
@@ -193,8 +192,8 @@ protected:
 
 private:
   ResourceCachePtr mGfxCache;
-  VertexBuffer mVertexBuffer;
-  Pipeline mPipeline;
+  VertexBufferHandle mVertexBuffer;
+  PipelineHandle mPipeline;
   Angle mRotationY;
 };
 
@@ -235,7 +234,7 @@ public:
       auto vs = FixedVertexShaderCreateInfo{};
       vs.lightingEnabled = true;
 
-      auto desc = PipelineDescriptor{};
+      auto desc = PipelineCreateInfo{};
       desc.vertexShader = &vs;
       desc.vertexLayout = Vertex::sLayout;
       desc.primitiveType = PrimitiveType::TriangleStrip;
@@ -247,8 +246,8 @@ public:
 
 private:
   ResourceCachePtr mGfxCache;
-  VertexBuffer mVertexBuffer;
-  Pipeline mPipeline;
+  VertexBufferHandle mVertexBuffer;
+  PipelineHandle mPipeline;
   Angle mRotationX;
   Angle mLightRotation;
 
@@ -289,6 +288,7 @@ private:
 
 class Textures final : public View {
   static constexpr auto sVertexCount = u32{2 * 50};
+  static constexpr auto sTextureFilePath = "data/banana.bmp"sv;
 
   struct Vertex {
     Vector3f32 pos{};
@@ -306,7 +306,7 @@ public:
   explicit Textures(Engine const& engine)
     : mGfxCache{engine.create_gfx_resource_cache()}
     , mSampler{mGfxCache->create_sampler({})}
-    , mTexture{mGfxCache->load_texture("data/banana.bmp"sv)}
+    , mTexture{mGfxCache->load_texture_2d(sTextureFilePath)}
     , mVertexBuffer{[&] {
       auto vertices = array<Vertex, sVertexCount>{};
       for (auto i = uSize{0}; i < 50; i++) {
@@ -337,7 +337,7 @@ public:
       constexpr auto textureStages = array{TextureStage{}};
       fs.textureStages = textureStages;
 
-      auto desc = PipelineDescriptor{};
+      auto desc = PipelineCreateInfo{};
       desc.fragmentShader = &fs;
       desc.vertexLayout = Vertex::sLayout;
       desc.primitiveType = PrimitiveType::TriangleStrip;
@@ -358,7 +358,7 @@ public:
       constexpr auto textureStages = array{TextureStage{}};
       fs.textureStages = textureStages;
 
-      auto desc = PipelineDescriptor{};
+      auto desc = PipelineCreateInfo{};
       desc.vertexShader = &vs;
       desc.fragmentShader = &fs;
       desc.vertexLayout = Vertex::sLayout;
@@ -371,11 +371,11 @@ public:
 
 private:
   ResourceCachePtr mGfxCache;
-  Sampler mSampler;
-  Texture mTexture;
-  VertexBuffer mVertexBuffer;
-  Pipeline mPipeline;
-  Pipeline mPipelineTci;
+  SamplerHandle mSampler;
+  TextureHandle mTexture;
+  VertexBufferHandle mVertexBuffer;
+  PipelineHandle mPipeline;
+  PipelineHandle mPipelineTci;
   Angle mRotationX;
   bool mShowTci{};
 
@@ -421,21 +421,25 @@ private:
 };
 
 class Meshes final : public View {
+  static constexpr auto sModelFilePath = "data/Tiger.x"sv;
+
 public:
   explicit Meshes(Engine const& engine)
     : mGfxCache{engine.create_gfx_resource_cache()}
-    , mModel{mGfxCache->load_x_model("data/Tiger.x"sv)} {
+    , mXModel{mGfxCache->load_x_model({sModelFilePath})} {
   }
 
 private:
   ResourceCachePtr mGfxCache;
-  XModel mModel;
+  XModelHandle mXModel;
   Angle mRotationY;
 
   auto on_update(UpdateContext& ctx) -> void override {
     auto const dt = ctx.deltaTime.count();
 
     mRotationY += Angle::radians(dt);
+
+    auto const& gfxCtx = ctx.engine.gfx_context();
 
     auto cmdList = CommandList{};
     cmdList.clear_attachments(
@@ -448,10 +452,11 @@ private:
     cmdList.set_transform(TransformState::WorldToView,
                           create_world_to_view_transform());
 
-    auto const& modelData = mGfxCache->get(mModel);
-    auto const numMaterials = modelData.materials.size();
-    for (auto i = uSize{0}; i < numMaterials; ++i) {
-      auto const& materialData = mGfxCache->get(modelData.materials[i]);
+    auto const& modelData = gfxCtx.get(mXModel);
+    auto const& meshes = modelData.meshes;
+    auto const& materials = modelData.materials;
+    for (auto i = uSize{0}; i < materials.size(); ++i) {
+      auto const& materialData = gfxCtx.get(materials[i]);
 
       cmdList.bind_pipeline(materialData.pipeline);
       cmdList.bind_sampler(0, materialData.sampler);
@@ -459,7 +464,7 @@ private:
       cmdList.set_material(materialData.diffuse, materialData.ambient);
       cmdList.set_transform(TransformState::LocalToWorld,
                             Matrix4x4f32::rotation_y(mRotationY));
-      XMeshCommandEncoder::draw_x_mesh(cmdList, modelData.meshes[i]);
+      XMeshCommandEncoder::draw_x_mesh(cmdList, meshes[i]);
     }
 
     ctx.drawCtx.commandLists.push_back(std::move(cmdList));

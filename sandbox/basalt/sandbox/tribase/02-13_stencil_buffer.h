@@ -17,11 +17,11 @@ public:
 
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;
-  basalt::gfx::Pipeline mPrePassPipeline;
-  basalt::gfx::Pipeline mOverdrawPipeline1;
-  basalt::gfx::Pipeline mOverdrawPipeline2;
-  basalt::gfx::ext::XModel mThing;
-  basalt::gfx::VertexBuffer mRectanglesVb;
+  basalt::gfx::PipelineHandle mPrePassPipeline;
+  basalt::gfx::PipelineHandle mOverdrawPipeline1;
+  basalt::gfx::PipelineHandle mOverdrawPipeline2;
+  basalt::gfx::ext::XMeshHandle mThingMesh;
+  basalt::gfx::VertexBufferHandle mRectanglesVb;
   basalt::SecondsF32 mTime{};
 
   auto on_update(UpdateContext&) -> void override;

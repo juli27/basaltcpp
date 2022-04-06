@@ -27,34 +27,35 @@ auto FilteringCommandList::draw_indexed(i32 const vertexOffset,
                             indexCount);
 }
 
-auto FilteringCommandList::bind_pipeline(Pipeline const handle) -> void {
+auto FilteringCommandList::bind_pipeline(PipelineHandle const handle) -> void {
   if (mDeviceState.update(handle)) {
     mCommandList.bind_pipeline(handle);
   }
 }
 
-auto FilteringCommandList::bind_vertex_buffer(VertexBuffer const buffer,
+auto FilteringCommandList::bind_vertex_buffer(VertexBufferHandle const buffer,
                                               u64 const offsetInBytes) -> void {
   if (mDeviceState.update(buffer, offsetInBytes)) {
     mCommandList.bind_vertex_buffer(buffer, offsetInBytes);
   }
 }
 
-auto FilteringCommandList::bind_index_buffer(IndexBuffer const handle) -> void {
+auto FilteringCommandList::bind_index_buffer(IndexBufferHandle const handle)
+  -> void {
   if (mDeviceState.update(handle)) {
     mCommandList.bind_index_buffer(handle);
   }
 }
 
-auto FilteringCommandList::bind_sampler(u8 const slot, Sampler const sampler)
-  -> void {
+auto FilteringCommandList::bind_sampler(u8 const slot,
+                                        SamplerHandle const sampler) -> void {
   if (mDeviceState.update(slot, sampler)) {
     mCommandList.bind_sampler(slot, sampler);
   }
 }
 
-auto FilteringCommandList::bind_texture(u8 const slot, Texture const texture)
-  -> void {
+auto FilteringCommandList::bind_texture(u8 const slot,
+                                        TextureHandle const texture) -> void {
   if (mDeviceState.update(slot, texture)) {
     mCommandList.bind_texture(slot, texture);
   }

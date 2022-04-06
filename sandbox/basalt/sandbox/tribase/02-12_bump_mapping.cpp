@@ -42,7 +42,7 @@ using basalt::gfx::DirectionalLightData;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::LightData;
-using basalt::gfx::PipelineDescriptor;
+using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureCoordinateSet;
@@ -80,10 +80,9 @@ BumpMapping::BumpMapping(Engine const& engine)
   , mSampler{mGfxCache->create_sampler({TextureFilter::Bilinear,
                                         TextureFilter::Bilinear,
                                         TextureMipFilter::Linear})}
-  , mEnvTexture{mGfxCache->load_cube_texture(ENV_TEXTURE_PATH)}
-  , mBaseTexture{mGfxCache->load_texture(TEXTURE_PATH)}
-  , mBumpMap{mGfxCache->load_texture(BUMP_MAP_PATH)}
-  , mCube{mGfxCache->load_x_model(CUBE_PATH)}
+  , mEnvTexture{mGfxCache->load_texture_cube(ENV_TEXTURE_PATH)}
+  , mBaseTexture{mGfxCache->load_texture_2d(TEXTURE_PATH)}
+  , mBumpMap{mGfxCache->load_texture_2d(BUMP_MAP_PATH)}
   , mSkyBoxVb{[&] {
     constexpr auto skyBoxVertices =
       array{Vertex{{-1.0f, 1.0f, 1.0f}, {-1.0f, 1.0f, 1.0f}},
@@ -113,6 +112,15 @@ BumpMapping::BumpMapping(Engine const& engine)
     return mGfxCache->create_index_buffer({skyBoxIndexData.size_bytes()},
                                           skyBoxIndexData);
   }()} {
+  auto const& gfxCtx = engine.gfx_context();
+
+  mCubeMesh = [&] {
+    auto const xModelHandle = mGfxCache->load_x_model({CUBE_PATH});
+    auto const& xModelData = gfxCtx.get(xModelHandle);
+
+    return xModelData.meshes.front();
+  }();
+
   auto textureStages =
     array{TextureStage{}, TextureStage{TextureOp::BumpEnvMap},
           TextureStage{TextureOp::Add}};
@@ -120,7 +128,7 @@ BumpMapping::BumpMapping(Engine const& engine)
   auto fs = FixedFragmentShaderCreateInfo{};
   fs.textureStages = span{textureStages}.subspan(0, 1);
 
-  auto pipelineDesc = PipelineDescriptor{};
+  auto pipelineDesc = PipelineCreateInfo{};
   pipelineDesc.fragmentShader = &fs;
   pipelineDesc.vertexLayout = Vertex::sLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
@@ -201,7 +209,6 @@ auto BumpMapping::on_update(UpdateContext& ctx) -> void {
   cmdList.bind_index_buffer(mSkyBoxIb);
   cmdList.draw_indexed(0, 0, 8, 0, 36);
 
-  auto const& cubeData = mGfxCache->get(mCube);
   cmdList.bind_pipeline(mCube1Pipeline);
   cmdList.bind_texture(0, mBaseTexture);
   cmdList.bind_sampler(1, mSampler);
@@ -218,7 +225,7 @@ auto BumpMapping::on_update(UpdateContext& ctx) -> void {
                         Matrix4x4f32::rotation_y(Angle::radians(0.25f * t)) *
                           Matrix4x4f32::translation(1, 0, 2.5f));
   cmdList.set_transform(TransformState::Texture2, Matrix4x4f32::identity());
-  XMeshCommandEncoder::draw_x_mesh(cmdList, cubeData.meshes[0]);
+  XMeshCommandEncoder::draw_x_mesh(cmdList, mCubeMesh);
 
   cmdList.bind_pipeline(mCube2Pipeline);
   cmdList.bind_texture(1, mEnvTexture);
@@ -226,7 +233,7 @@ auto BumpMapping::on_update(UpdateContext& ctx) -> void {
                         Matrix4x4f32::rotation_y(Angle::radians(0.25f * t)) *
                           Matrix4x4f32::translation(-1, 0, 2.5f));
   cmdList.set_transform(TransformState::Texture1, Matrix4x4f32::identity());
-  XMeshCommandEncoder::draw_x_mesh(cmdList, cubeData.meshes[0]);
+  XMeshCommandEncoder::draw_x_mesh(cmdList, mCubeMesh);
 
   ctx.drawCtx.commandLists.push_back(std::move(cmdList));
 }

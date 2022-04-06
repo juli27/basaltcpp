@@ -44,12 +44,12 @@ using basalt::ViewPtr;
 using basalt::gfx::Camera;
 using basalt::gfx::Environment;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
-using basalt::gfx::Material;
-using basalt::gfx::MaterialDescriptor;
-using basalt::gfx::PipelineDescriptor;
+using basalt::gfx::MaterialCreateInfo;
+using basalt::gfx::MaterialHandle;
+using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
-using basalt::gfx::SamplerDescriptor;
+using basalt::gfx::SamplerCreateInfo;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
@@ -57,6 +57,8 @@ using basalt::gfx::TextureStage;
 using basalt::gfx::VertexElement;
 
 namespace {
+
+constexpr auto TEXTURE_FILE_PATH = "data/Tiger.bmp"sv;
 
 struct Vertex final {
   Vector3f32 pos{};
@@ -69,7 +71,7 @@ struct Vertex final {
 };
 
 struct SamplerSettings final {
-  array<Material, 9> materials{};
+  array<MaterialHandle, 9> materials{};
   u32 chosenMaterial{0};
 };
 
@@ -167,17 +169,17 @@ auto Samples::new_textures_sample(Engine& engine) -> ViewPtr {
 
   auto const quad = scene->create_entity({0.0f, 0.0f, 1.5f});
   // material is set in SamplerSettingsSystem
-  quad.emplace<RenderComponent>(mesh, Material::null());
+  quad.emplace<RenderComponent>(mesh, MaterialHandle::null());
 
   auto& samplerSettings = quad.emplace<SamplerSettings>();
 
-  auto materialDesc = MaterialDescriptor{};
+  auto materialDesc = MaterialCreateInfo{};
   materialDesc.pipeline = [&] {
     auto fs = FixedFragmentShaderCreateInfo{};
     constexpr auto textureStages = array{TextureStage{}};
     fs.textureStages = textureStages;
 
-    auto pipelineDesc = PipelineDescriptor{};
+    auto pipelineDesc = PipelineCreateInfo{};
     pipelineDesc.fragmentShader = &fs;
     pipelineDesc.vertexLayout = Vertex::sLayout;
     pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
@@ -187,7 +189,7 @@ auto Samples::new_textures_sample(Engine& engine) -> ViewPtr {
     return gfxCache->create_pipeline(pipelineDesc);
   }();
   materialDesc.sampledTexture.texture =
-    gfxCache->load_texture("data/Tiger.bmp"sv);
+    gfxCache->load_texture_2d(TEXTURE_FILE_PATH);
 
   auto const maxAnisotropy =
     engine.gfx_info().currentDeviceCaps.samplerMaxAnisotropy;
@@ -198,8 +200,9 @@ auto Samples::new_textures_sample(Engine& engine) -> ViewPtr {
     for (auto const mipFilter :
          {TextureMipFilter::None, TextureMipFilter::Point,
           TextureMipFilter::Linear}) {
-      auto samplerDesc = SamplerDescriptor{filter, filter, mipFilter};
-      samplerDesc.maxAnisotropy = filter == TextureFilter::Anisotropic ? maxAnisotropy : 1;
+      auto samplerDesc = SamplerCreateInfo{filter, filter, mipFilter};
+      samplerDesc.maxAnisotropy =
+        filter == TextureFilter::Anisotropic ? maxAnisotropy : 1;
       materialDesc.sampledTexture.sampler =
         gfxCache->create_sampler(samplerDesc);
 

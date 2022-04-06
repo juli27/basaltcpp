@@ -35,12 +35,12 @@ private:
 
   std::vector<TriangleData> mTriangles{sNumTriangles};
   basalt::gfx::ResourceCachePtr mGfxCache;
-  basalt::gfx::Sampler mSamplerPoint;
-  basalt::gfx::Sampler mSamplerLinearWithMip;
-  basalt::gfx::Sampler mSamplerAnisotropic;
-  basalt::gfx::Texture mTexture;
-  basalt::gfx::VertexBuffer mVertexBuffer;
-  basalt::gfx::Pipeline mPipeline;
+  basalt::gfx::SamplerHandle mSamplerPoint;
+  basalt::gfx::SamplerHandle mSamplerLinearWithMip;
+  basalt::gfx::SamplerHandle mSamplerAnisotropic;
+  basalt::gfx::TextureHandle mTexture;
+  basalt::gfx::VertexBufferHandle mVertexBuffer;
+  basalt::gfx::PipelineHandle mPipeline;
   basalt::SecondsF32 mTime{};
 
   auto on_update(UpdateContext&) -> void override;

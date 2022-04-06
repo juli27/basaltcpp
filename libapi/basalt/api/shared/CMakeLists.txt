@@ -9,8 +9,6 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "handle.h"
   "log.cpp"
   "log.h"
-  "resource_registry.cpp"
-  "resource_registry.h"
   "size2d.h"
   "types.h"
 )

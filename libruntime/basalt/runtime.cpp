@@ -2,13 +2,12 @@
 
 #include <basalt/dear_imgui.h>
 
-#include <basalt/gfx/debug.h>
+#include <basalt/api/view.h>
 
+#include <basalt/gfx/debug.h>
 #include <basalt/gfx/backend/device.h>
 #include <basalt/gfx/backend/swap_chain.h>
 #include <basalt/gfx/backend/types.h>
-
-#include <basalt/api/view.h>
 
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/backend/command_list.h>

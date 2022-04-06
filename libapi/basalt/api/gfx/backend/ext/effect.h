@@ -37,7 +37,8 @@ public:
   virtual auto set_string(gsl::czstring parameter,
                           gsl::czstring value) const noexcept -> bool = 0;
 
-  virtual auto set_texture(gsl::czstring parameter, Texture) const -> bool = 0;
+  virtual auto set_texture(gsl::czstring parameter, TextureHandle) const
+    -> bool = 0;
 
 protected:
   Effect() noexcept = default;

@@ -335,7 +335,7 @@ auto DebugUi::render_component(gfx::RenderComponent const& rc) -> void {
   ImGui::Text("Material: %#x", rc.material.value());
 }
 
-auto DebugUi::x_model(gfx::ext::XModel const& xModel) -> void {
+auto DebugUi::x_model(gfx::ext::XModelHandle const& xModel) -> void {
   ImGui::Text("handle = %d", xModel.value());
 }
 

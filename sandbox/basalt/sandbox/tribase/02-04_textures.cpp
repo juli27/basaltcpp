@@ -5,7 +5,6 @@
 #include <basalt/api/scene_view.h>
 
 #include <basalt/api/gfx/resource_cache.h>
-
 #include <basalt/api/gfx/backend/command_list.h>
 
 #include <basalt/api/shared/asserts.h>
@@ -45,9 +44,9 @@ using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
-using basalt::gfx::PipelineDescriptor;
+using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PrimitiveType;
-using basalt::gfx::SamplerDescriptor;
+using basalt::gfx::SamplerCreateInfo;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureAddressMode;
 using basalt::gfx::TextureFilter;
@@ -59,6 +58,8 @@ using basalt::gfx::VertexElement;
 namespace tribase {
 
 namespace {
+
+constexpr auto TEXTURE_FILE_PATH = "data/tribase/Texture.bmp"sv;
 
 struct Vertex final {
   Vector3f32 pos{};
@@ -79,19 +80,12 @@ using Distribution = uniform_real_distribution<float>;
 Textures::Textures(Engine& engine)
   : mGfxCache{engine.create_gfx_resource_cache()}
   , mSamplerPoint{mGfxCache->create_sampler({})}
-  , mSamplerLinearWithMip{[&] {
-    auto desc = SamplerDescriptor{};
-    desc.magFilter = TextureFilter::Bilinear;
-    desc.minFilter = TextureFilter::Bilinear;
-    desc.mipFilter = TextureMipFilter::Linear;
-
-    return mGfxCache->create_sampler(desc);
-  }()}
+  , mSamplerLinearWithMip{mGfxCache->create_sampler({TextureFilter::Bilinear,
+                                                     TextureFilter::Bilinear,
+                                                     TextureMipFilter::Linear})}
   , mSamplerAnisotropic{[&] {
-    auto desc = SamplerDescriptor{};
-    desc.magFilter = TextureFilter::Bilinear;
-    desc.minFilter = TextureFilter::Anisotropic;
-    desc.mipFilter = TextureMipFilter::None;
+    auto desc =
+      SamplerCreateInfo{TextureFilter::Bilinear, TextureFilter::Anisotropic};
 
     auto const& gfxInfo = engine.gfx_info();
     BASALT_ASSERT(gfxInfo.currentDeviceCaps.samplerMinFilterAnisotropic);
@@ -99,13 +93,13 @@ Textures::Textures(Engine& engine)
 
     return mGfxCache->create_sampler(desc);
   }()}
-  , mTexture{mGfxCache->load_texture("data/tribase/Texture.bmp"sv)}
+  , mTexture{mGfxCache->load_texture_2d(TEXTURE_FILE_PATH)}
   , mPipeline{[&] {
     auto fs = FixedFragmentShaderCreateInfo{};
     constexpr auto textureStages = array{TextureStage{}};
     fs.textureStages = textureStages;
 
-    auto desc = PipelineDescriptor{};
+    auto desc = PipelineCreateInfo{};
     desc.fragmentShader = &fs;
     desc.vertexLayout = Vertex::sLayout;
     desc.primitiveType = PrimitiveType::TriangleList;
@@ -221,7 +215,7 @@ auto Textures::on_update(UpdateContext& ctx) -> void {
 
   for (auto i = u32{0}; i < sNumTriangles; ++i) {
     auto const& triangle = mTriangles[i];
-    
+
     cmdList.set_transform(
       TransformState::LocalToWorld,
       Matrix4x4f32::scaling(triangle.scale) *

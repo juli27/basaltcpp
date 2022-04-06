@@ -16,10 +16,10 @@ public:
 
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;
-  basalt::gfx::Pipeline mPipeline;
-  basalt::gfx::Sampler mSampler;
-  basalt::gfx::Texture mExplosionTexture;
-  basalt::gfx::VertexBuffer mVertexBuffer;
+  basalt::gfx::PipelineHandle mPipeline;
+  basalt::gfx::SamplerHandle mSampler;
+  basalt::gfx::TextureHandle mExplosionTexture;
+  basalt::gfx::VertexBufferHandle mVertexBuffer;
   basalt::SecondsF32 mTime{};
 
   auto on_update(UpdateContext&) -> void override;

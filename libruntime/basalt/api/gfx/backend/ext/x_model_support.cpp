@@ -5,8 +5,8 @@
 
 namespace basalt::gfx::ext {
 
-auto XMeshCommandEncoder::draw_x_mesh(CommandList& cmdList, XMesh const meshId)
-  -> void {
+auto XMeshCommandEncoder::draw_x_mesh(CommandList& cmdList,
+                                      XMeshHandle const meshId) -> void {
   cmdList.add<CommandDrawXMesh>(meshId);
 }
 

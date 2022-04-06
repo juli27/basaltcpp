@@ -21,14 +21,14 @@ private:
   static constexpr auto sNumPlanetTextures = basalt::u8{6};
 
   basalt::gfx::ResourceCachePtr mGfxCache;
-  basalt::gfx::Pipeline mStarPipeline;
-  basalt::gfx::Pipeline mPlanetPipelineCw;
-  basalt::gfx::Pipeline mPlanetPipelineCcw;
-  basalt::gfx::Sampler mSampler;
-  std::array<basalt::gfx::Texture, sNumPlanetTextures> mPlanetTextures{};
-  basalt::gfx::ext::XModel mPlanetModel;
-  basalt::gfx::ext::XModel mSunModel;
-  basalt::gfx::VertexBuffer mStarsVb;
+  basalt::gfx::PipelineHandle mStarPipeline;
+  basalt::gfx::PipelineHandle mPlanetPipelineCw;
+  basalt::gfx::PipelineHandle mPlanetPipelineCcw;
+  basalt::gfx::SamplerHandle mSampler;
+  std::array<basalt::gfx::TextureHandle, sNumPlanetTextures> mPlanetTextures{};
+  basalt::gfx::ext::XMeshHandle mPlanetMesh;
+  basalt::gfx::ext::XMeshHandle mSunMesh;
+  basalt::gfx::VertexBufferHandle mStarsVb;
   basalt::SecondsF32 mTime{};
 
   auto on_update(UpdateContext&) -> void override;

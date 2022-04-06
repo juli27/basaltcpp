@@ -55,7 +55,7 @@ public:
                                                         device);
   }
 
-  auto load(path const& path) -> Texture override {
+  auto load(path const& path) -> TextureHandle override {
     auto const id = mExtension->load(path);
 
     return mDevice->construct_texture(id);
@@ -156,7 +156,8 @@ auto ValidatingDevice::wrap_extensions(ext::DeviceExtensions& deviceExtensions)
   }
 }
 
-auto ValidatingDevice::construct_texture(Texture const original) -> Texture {
+auto ValidatingDevice::construct_texture(TextureHandle const original)
+  -> TextureHandle {
   return mTextures.allocate(TextureData{original});
 }
 
@@ -172,8 +173,8 @@ auto ValidatingDevice::reset() -> void {
   mDevice->reset();
 }
 
-auto ValidatingDevice::create_pipeline(PipelineDescriptor const& desc)
-  -> Pipeline {
+auto ValidatingDevice::create_pipeline(PipelineCreateInfo const& desc)
+  -> PipelineHandle {
   check_vertex_layout(desc.vertexLayout);
   if (desc.fragmentShader) {
     check("too many texture stages"sv,
@@ -193,7 +194,7 @@ auto ValidatingDevice::create_pipeline(PipelineDescriptor const& desc)
   });
 }
 
-auto ValidatingDevice::destroy(Pipeline const id) noexcept -> void {
+auto ValidatingDevice::destroy(PipelineHandle const id) noexcept -> void {
   if (!mPipelines.is_valid(id)) {
     return;
   }
@@ -207,9 +208,9 @@ auto ValidatingDevice::destroy(Pipeline const id) noexcept -> void {
   mPipelines.deallocate(id);
 }
 
-auto ValidatingDevice::create_vertex_buffer(VertexBufferDescriptor const& desc,
+auto ValidatingDevice::create_vertex_buffer(VertexBufferCreateInfo const& desc,
                                             span<byte const> const initialData)
-  -> VertexBuffer {
+  -> VertexBufferHandle {
   check("non empty layout"sv, !desc.layout.empty());
   check_vertex_layout(desc.layout);
 
@@ -234,7 +235,7 @@ auto ValidatingDevice::create_vertex_buffer(VertexBufferDescriptor const& desc,
   });
 }
 
-auto ValidatingDevice::destroy(VertexBuffer const id) noexcept -> void {
+auto ValidatingDevice::destroy(VertexBufferHandle const id) noexcept -> void {
   if (!mVertexBuffers.is_valid(id)) {
     return;
   }
@@ -248,8 +249,9 @@ auto ValidatingDevice::destroy(VertexBuffer const id) noexcept -> void {
   mVertexBuffers.deallocate(id);
 }
 
-auto ValidatingDevice::map(VertexBuffer const id, uDeviceSize const offset,
-                           uDeviceSize const size) -> span<byte> {
+auto ValidatingDevice::map(VertexBufferHandle const id,
+                           uDeviceSize const offset, uDeviceSize const size)
+  -> span<byte> {
   if (!check("valid vertex buffer id", mVertexBuffers.is_valid(id))) {
     return {};
   }
@@ -261,7 +263,7 @@ auto ValidatingDevice::map(VertexBuffer const id, uDeviceSize const offset,
   return mDevice->map(data.originalId, offset, size);
 }
 
-auto ValidatingDevice::unmap(VertexBuffer const id) noexcept -> void {
+auto ValidatingDevice::unmap(VertexBufferHandle const id) noexcept -> void {
   if (!check("valid vertex buffer id", mVertexBuffers.is_valid(id))) {
     return;
   }
@@ -271,9 +273,9 @@ auto ValidatingDevice::unmap(VertexBuffer const id) noexcept -> void {
   mDevice->unmap(data.originalId);
 }
 
-auto ValidatingDevice::create_index_buffer(IndexBufferDescriptor const& desc,
+auto ValidatingDevice::create_index_buffer(IndexBufferCreateInfo const& desc,
                                            span<byte const> const initialData)
-  -> IndexBuffer {
+  -> IndexBufferHandle {
   auto const& caps = mDevice->capabilities();
   check("not larger than max size"sv,
         desc.sizeInBytes <= caps.maxIndexBufferSizeInBytes);
@@ -289,7 +291,7 @@ auto ValidatingDevice::create_index_buffer(IndexBufferDescriptor const& desc,
   });
 }
 
-auto ValidatingDevice::destroy(IndexBuffer const id) noexcept -> void {
+auto ValidatingDevice::destroy(IndexBufferHandle const id) noexcept -> void {
   if (!mIndexBuffers.is_valid(id)) {
     return;
   }
@@ -303,7 +305,7 @@ auto ValidatingDevice::destroy(IndexBuffer const id) noexcept -> void {
   mIndexBuffers.deallocate(id);
 }
 
-auto ValidatingDevice::map(IndexBuffer const id,
+auto ValidatingDevice::map(IndexBufferHandle const id,
                            uDeviceSize const offsetInBytes,
                            uDeviceSize const sizeInBytes) -> span<byte> {
   if (!check("valid vertex buffer id", mIndexBuffers.is_valid(id))) {
@@ -318,7 +320,7 @@ auto ValidatingDevice::map(IndexBuffer const id,
   return mDevice->map(data.originalId, offsetInBytes, sizeInBytes);
 }
 
-auto ValidatingDevice::unmap(IndexBuffer const id) noexcept -> void {
+auto ValidatingDevice::unmap(IndexBufferHandle const id) noexcept -> void {
   if (!check("valid vertex buffer id", mIndexBuffers.is_valid(id))) {
     return;
   }
@@ -328,7 +330,7 @@ auto ValidatingDevice::unmap(IndexBuffer const id) noexcept -> void {
   mDevice->unmap(data.originalId);
 }
 
-auto ValidatingDevice::load_texture(path const& path) -> Texture {
+auto ValidatingDevice::load_texture(path const& path) -> TextureHandle {
   auto const id = mDevice->load_texture(path);
 
   return mTextures.allocate(TextureData{
@@ -336,13 +338,13 @@ auto ValidatingDevice::load_texture(path const& path) -> Texture {
   });
 }
 
-auto ValidatingDevice::load_cube_texture(path const& path) -> Texture {
+auto ValidatingDevice::load_cube_texture(path const& path) -> TextureHandle {
   auto const id = mDevice->load_cube_texture(path);
 
   return mTextures.allocate(TextureData{id});
 }
 
-auto ValidatingDevice::destroy(Texture const id) noexcept -> void {
+auto ValidatingDevice::destroy(TextureHandle const id) noexcept -> void {
   if (!mTextures.is_valid(id)) {
     return;
   }
@@ -356,8 +358,8 @@ auto ValidatingDevice::destroy(Texture const id) noexcept -> void {
   mTextures.deallocate(id);
 }
 
-auto ValidatingDevice::create_sampler(SamplerDescriptor const& desc)
-  -> Sampler {
+auto ValidatingDevice::create_sampler(SamplerCreateInfo const& desc)
+  -> SamplerHandle {
   auto const id = mDevice->create_sampler(desc);
 
   return mSamplers.allocate(SamplerData{
@@ -365,7 +367,7 @@ auto ValidatingDevice::create_sampler(SamplerDescriptor const& desc)
   });
 }
 
-auto ValidatingDevice::destroy(Sampler const id) noexcept -> void {
+auto ValidatingDevice::destroy(SamplerHandle const id) noexcept -> void {
   if (!mSamplers.is_valid(id)) {
     return;
   }

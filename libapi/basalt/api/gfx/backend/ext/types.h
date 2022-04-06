@@ -27,8 +27,8 @@ struct EffectTechniqueTag;
 
 } // namespace detail
 
-using XMesh = Handle<detail::XMeshTag>;
-using XModel = Handle<detail::XModelTag>;
+using XMeshHandle = Handle<detail::XMeshTag>;
+using XModelHandle = Handle<detail::XModelTag>;
 
 class XMeshCommandEncoder;
 

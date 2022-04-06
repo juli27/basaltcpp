@@ -52,12 +52,12 @@ using basalt::gfx::CommandList;
 using basalt::gfx::CullMode;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::FixedVertexShaderCreateInfo;
-using basalt::gfx::PipelineDescriptor;
+using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::ResourceCachePtr;
 using basalt::gfx::TestPassCond;
-using basalt::gfx::Texture;
 using basalt::gfx::TextureFilter;
+using basalt::gfx::TextureHandle;
 using basalt::gfx::TextureMipFilter;
 using basalt::gfx::TextureStage;
 using basalt::gfx::TransformState;
@@ -66,7 +66,6 @@ using basalt::gfx::ext::Effect;
 using basalt::gfx::ext::EffectCommandEncoder;
 using basalt::gfx::ext::EffectId;
 using basalt::gfx::ext::XMeshCommandEncoder;
-using basalt::gfx::ext::XModel;
 
 namespace {
 
@@ -104,7 +103,7 @@ Effects::Effects(Engine const& engine)
     constexpr auto textureStages = array{TextureStage{}};
     auto fs = FixedFragmentShaderCreateInfo{};
     fs.textureStages = textureStages;
-    auto pipelineDesc = PipelineDescriptor{};
+    auto pipelineDesc = PipelineCreateInfo{};
     pipelineDesc.fragmentShader = &fs;
     pipelineDesc.vertexLayout = Vertex::sLayout;
     pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
@@ -119,7 +118,7 @@ Effects::Effects(Engine const& engine)
     auto fs = FixedFragmentShaderCreateInfo{};
     constexpr auto textureStages = array{TextureStage{}};
     fs.textureStages = textureStages;
-    auto pipelineDesc = PipelineDescriptor{};
+    auto pipelineDesc = PipelineCreateInfo{};
     pipelineDesc.vertexShader = &vs;
     pipelineDesc.fragmentShader = &fs;
     pipelineDesc.cullMode = CullMode::CounterClockwise;
@@ -136,6 +135,7 @@ Effects::Effects(Engine const& engine)
 
 auto Effects::LoadedEffect::compile(path const& filePath, Engine const& engine)
   -> std::optional<LoadedEffect> {
+  auto const& gfxCtx = engine.gfx_context();
   auto gfxCache = engine.create_gfx_resource_cache();
   auto const result = gfxCache->compile_effect(filePath);
 
@@ -147,7 +147,7 @@ auto Effects::LoadedEffect::compile(path const& filePath, Engine const& engine)
   }
 
   auto const& id = std::get<EffectId>(result);
-  auto& effect = gfxCache->get(id);
+  auto& effect = gfxCtx.get(id);
 
   auto description = [&] {
     if (auto maybeDescription = effect.get_string("Description")) {
@@ -161,26 +161,32 @@ auto Effects::LoadedEffect::compile(path const& filePath, Engine const& engine)
   auto const backgroundTexture = [&] {
     if (auto const maybeBackgroundTexture =
           effect.get_string("BackgroundImage")) {
-      return gfxCache->load_texture(dataPath / *maybeBackgroundTexture);
+      return gfxCache->load_texture_2d(dataPath / *maybeBackgroundTexture);
     }
 
-    return Texture::null();
+    return TextureHandle::null();
   }();
 
-  auto const model = [&] {
-    if (auto const maybeModelFileName = effect.get_string("ModelFilename")) {
-      return gfxCache->load_x_model(dataPath / *maybeModelFileName);
-    }
+  auto const& xModelData = [&] {
+    auto const xModelFilePath = [&] {
+      if (auto const maybeModelFileName = effect.get_string("ModelFilename")) {
+        return dataPath / *maybeModelFileName;
+      }
 
-    return gfxCache->load_x_model(dataPath / SPHERE_FILENAME);
+      return dataPath / SPHERE_FILENAME;
+    }();
+
+    auto const xModelHandle = gfxCache->load_x_model({xModelFilePath});
+
+    return gfxCtx.get(xModelHandle);
   }();
 
-  auto textures = array<Texture, 4>{};
+  auto textures = array<TextureHandle, 4>{};
   for (auto i = i32{0}; i < 4; ++i) {
     auto const parameter = fmt::format(FMT_STRING("TextureFilename{}"), i + 1);
     if (auto const maybeTextureFilename =
           effect.get_string(parameter.c_str())) {
-      textures[i] = gfxCache->load_texture(dataPath / *maybeTextureFilename);
+      textures[i] = gfxCache->load_texture_2d(dataPath / *maybeTextureFilename);
     }
   }
 
@@ -204,8 +210,9 @@ auto Effects::LoadedEffect::compile(path const& filePath, Engine const& engine)
   auto const activeTechniqueName = effect.get_technique_name();
   auto const activeTechniqueNumPasses = effect.get_technique_num_passes();
 
-  return LoadedEffect{std::move(gfxCache),     id,    std::move(description),
-                      backgroundTexture,       model, activeTechniqueName,
+  return LoadedEffect{std::move(gfxCache),       id,
+                      std::move(description),    backgroundTexture,
+                      xModelData.meshes.front(), activeTechniqueName,
                       activeTechniqueNumPasses};
 }
 
@@ -245,13 +252,15 @@ auto Effects::on_update(UpdateContext& ctx) -> void {
   }
   ImGui::End();
 
+  auto const& gfxCtx = ctx.engine.gfx_context();
+
   auto cmdList = CommandList{};
   cmdList.clear_attachments(
     Attachments{Attachment::RenderTarget, Attachment::DepthBuffer},
     Color::from_non_linear_rgba8(0, 0, 127), 1);
 
   if (mBackgroundTex) {
-    mGfxCache->with_mapping_of(
+    gfxCtx.with_mapping_of(
       mRectVb, [viewport = ctx.drawCtx.viewport](span<byte> const vbData) {
         auto const vb = span<Vertex>{reinterpret_cast<Vertex*>(vbData.data()),
                                      vbData.size() / sizeof(Vertex)};
@@ -289,10 +298,9 @@ auto Effects::on_update(UpdateContext& ctx) -> void {
 
   EffectCommandEncoder::begin_effect(cmdList, mLoadedEffect.id);
 
-  auto const modelData = mLoadedEffect.gfxCache->get(mLoadedEffect.model);
   for (auto i = u32{0}; i < mLoadedEffect.activeTechniqueNumPasses; ++i) {
     EffectCommandEncoder::begin_effect_pass(cmdList, i);
-    XMeshCommandEncoder::draw_x_mesh(cmdList, modelData.meshes[0]);
+    XMeshCommandEncoder::draw_x_mesh(cmdList, mLoadedEffect.mesh);
     EffectCommandEncoder::end_effect_pass(cmdList);
   }
 

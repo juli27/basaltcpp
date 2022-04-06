@@ -20,10 +20,11 @@ private:
   static constexpr basalt::u8 sNumTextures{6};
 
   basalt::gfx::ResourceCachePtr mGfxCache;
-  basalt::gfx::Pipeline mPipeline;
-  basalt::gfx::VertexBuffer mVertexBuffer;
-  basalt::gfx::Sampler mSampler;
-  std::array<basalt::gfx::Texture, sNumTextures> mTextures{};
+  basalt::gfx::ResourceCachePtr mReloadableGfxResources;
+  basalt::gfx::PipelineHandle mPipeline;
+  basalt::gfx::VertexBufferHandle mVertexBuffer;
+  basalt::gfx::SamplerHandle mSampler;
+  std::array<basalt::gfx::TextureHandle, sNumTextures> mTextures{};
   basalt::gfx::FogMode mFogMode{basalt::gfx::FogMode::Linear};
   bool mVertexFogRangeBased{true};
   bool mFragmentFog{false};
@@ -32,8 +33,8 @@ private:
   basalt::f32 mFogEnd{100.0f};
   basalt::f32 mFogDensity{0.01f};
 
-  auto update_pipeline() -> void;
-  auto render_ui() -> void;
+  auto update_pipeline(basalt::gfx::Context&) -> void;
+  auto render_ui(basalt::gfx::Context&) -> void;
 
   auto on_update(UpdateContext&) -> void override;
 };

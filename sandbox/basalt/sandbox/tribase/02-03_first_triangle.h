@@ -20,10 +20,10 @@ public:
 
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;
-  basalt::gfx::VertexBuffer mVertexBuffer;
-  basalt::gfx::Pipeline mPipeline;
-  basalt::gfx::Pipeline mQuadPipeline;
-  basalt::gfx::Pipeline mWireframePipeline;
+  basalt::gfx::VertexBufferHandle mVertexBuffer;
+  basalt::gfx::PipelineHandle mPipeline;
+  basalt::gfx::PipelineHandle mQuadPipeline;
+  basalt::gfx::PipelineHandle mWireframePipeline;
   basalt::SecondsF32 mTime{};
   basalt::Angle mRotationY;
   basalt::f32 mScale{1.0f};

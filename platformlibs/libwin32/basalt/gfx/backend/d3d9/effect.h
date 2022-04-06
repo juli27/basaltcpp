@@ -66,7 +66,8 @@ public:
   auto set_string(gsl::czstring parameter, gsl::czstring value) const noexcept
     -> bool override;
 
-  auto set_texture(gsl::czstring parameter, Texture) const -> bool override;
+  auto set_texture(gsl::czstring parameter, TextureHandle) const
+    -> bool override;
 
 private:
   ID3DXEffectPtr mEffect;
