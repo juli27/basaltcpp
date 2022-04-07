@@ -18,7 +18,6 @@
 
 #include <algorithm> // for copy
 #include <array>
-#include <cmath>
 #include <cstddef>
 #include <utility> // for move
 
@@ -86,9 +85,9 @@ Textures::Textures(Engine& engine)
 
   array<Vertex, VERTEX_COUNT> vertices {};
   for (uSize i {0u}; i < 50u; i++) {
-    const f32 theta {2.0f * PI * i / (50 - 1)};
-    const f32 sinTheta {std::sin(theta)};
-    const f32 cosTheta {std::cos(theta)};
+    const Angle theta {Angle::radians(2.0f * PI * i / (50 - 1))};
+    const f32 sinTheta {theta.sin()};
+    const f32 cosTheta {theta.cos()};
 
     Vertex& vertex1 {vertices[2 * i]};
     vertex1.x = sinTheta;

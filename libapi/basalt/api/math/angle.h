@@ -7,13 +7,21 @@
 namespace basalt {
 
 struct Angle final {
-  [[nodiscard]] static constexpr auto radians(const f32 rad) -> Angle {
+  [[nodiscard]] static constexpr auto radians(const f32 rad) noexcept -> Angle {
     return Angle {rad};
   }
 
-  [[nodiscard]] static constexpr auto degrees(const f32 deg) -> Angle {
-    return Angle {deg * RAD_PER_DEG};
+  [[nodiscard]] static constexpr auto degrees(const f32 deg) noexcept -> Angle {
+    return radians(deg * RAD_PER_DEG);
   }
+
+  // sin in [-1; 1]
+  [[nodiscard]] static auto arcsin(f32 sin) noexcept -> Angle;
+
+  // cos in [-1; 1]
+  [[nodiscard]] static auto arccos(f32 cos) noexcept -> Angle;
+
+  [[nodiscard]] static auto arctan(f32 tan) noexcept -> Angle;
 
   constexpr Angle() noexcept = default;
 
@@ -25,24 +33,30 @@ struct Angle final {
     return mRadians * DEG_PER_RAD;
   }
 
-  constexpr auto operator+=(const Angle rhs) -> Angle& {
+  [[nodiscard]] auto sin() const noexcept -> f32;
+  [[nodiscard]] auto cos() const noexcept -> f32;
+  [[nodiscard]] auto tan() const noexcept -> f32;
+
+  constexpr auto operator+=(const Angle rhs) noexcept -> Angle& {
     mRadians += rhs.mRadians;
 
     return *this;
   }
 
-  constexpr auto operator-=(const Angle rhs) -> Angle& {
+  constexpr auto operator-=(const Angle rhs) noexcept -> Angle& {
     mRadians -= rhs.mRadians;
 
     return *this;
   }
 
-  [[nodiscard]] friend constexpr auto operator+(Angle lhs, const Angle rhs)
+  [[nodiscard]] friend constexpr auto operator+(Angle lhs,
+                                                const Angle rhs) noexcept
     -> Angle {
     return lhs += rhs;
   }
 
-  [[nodiscard]] friend constexpr auto operator-(Angle lhs, const Angle rhs)
+  [[nodiscard]] friend constexpr auto operator-(Angle lhs,
+                                                const Angle rhs) noexcept
     -> Angle {
     return lhs -= rhs;
   }

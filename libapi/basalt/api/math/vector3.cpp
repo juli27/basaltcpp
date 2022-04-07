@@ -19,8 +19,8 @@ auto Vector3f32::normalize(const Vector3f32& v) -> Vector3f32 {
 }
 
 auto Vector3f32::angle(const Vector3f32& v1, const Vector3f32& v2) -> Angle {
-  return Angle::radians(std::acos(
-    dot(v1, v2) / std::sqrt(v1.length_squared() * v2.length_squared())));
+  return Angle::arccos(dot(v1, v2) /
+                       std::sqrt(v1.length_squared() * v2.length_squared()));
 }
 
 } // namespace basalt
