@@ -52,7 +52,7 @@ constexpr auto to_d3d_color_value(const Color& color) noexcept
                         color.alpha()};
 }
 
-constexpr auto to_d3d(const Mat4f32& mat) noexcept -> D3DMATRIX {
+constexpr auto to_d3d(const Matrix4x4f32& mat) noexcept -> D3DMATRIX {
   // clang-format off
   return D3DMATRIX {mat.m11, mat.m12, mat.m13, mat.m14,
                     mat.m21, mat.m22, mat.m23, mat.m24,
@@ -579,7 +579,7 @@ void D3D9Device::execute(const CommandList& cmdList) {
   D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
   D3D9CALL(mDevice->SetTexture(0, nullptr));
 
-  constexpr D3DMATRIX identity {to_d3d(Mat4f32::identity())};
+  constexpr D3DMATRIX identity {to_d3d(Matrix4x4f32::identity())};
   D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
   D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &identity));
   D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &identity));

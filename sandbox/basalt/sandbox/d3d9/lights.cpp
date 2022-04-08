@@ -27,7 +27,7 @@ using gsl::span;
 
 using basalt::Angle;
 using basalt::Engine;
-using basalt::Mat4f32;
+using basalt::Matrix4x4f32;
 using basalt::PI;
 using basalt::Vector3f32;
 using basalt::gfx::Attachment;
@@ -138,7 +138,7 @@ auto Lights::on_draw(const DrawContext& context) -> void {
 
   cmdList.set_material(Colors::YELLOW, Colors::YELLOW, Color {});
   cmdList.set_transform(TransformState::ModelToWorld,
-                        Mat4f32::rotation_x(mRotationX));
+                        Matrix4x4f32::rotation_x(mRotationX));
 
   cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
 

@@ -26,7 +26,7 @@ using gsl::span;
 
 using basalt::Angle;
 using basalt::Engine;
-using basalt::Mat4f32;
+using basalt::Matrix4x4f32;
 using basalt::PI;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
@@ -89,7 +89,7 @@ auto Matrices::on_draw(const DrawContext& context) -> void {
   cmdList.bind_pipeline(mPipeline);
 
   cmdList.set_transform(TransformState::ModelToWorld,
-                        Mat4f32::rotation_y(mRotationY));
+                        Matrix4x4f32::rotation_y(mRotationY));
   cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
   cmdList.set_transform(TransformState::ViewToViewport,
                         mCamera.projection_matrix(context.viewport));

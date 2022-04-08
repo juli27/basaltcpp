@@ -64,7 +64,7 @@ void CommandList::bind_texture(const Texture texture) {
 }
 
 void CommandList::set_transform(const TransformState state,
-                                const Mat4f32& transform) {
+                                const Matrix4x4f32& transform) {
   add<CommandSetTransform>(state, transform);
 }
 

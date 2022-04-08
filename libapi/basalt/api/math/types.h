@@ -6,8 +6,7 @@ namespace basalt {
 
 struct Angle;
 
-struct Mat4;
-using Mat4f32 = Mat4;
+struct Matrix4x4f32;
 
 template <typename T>
 struct Rectangle;

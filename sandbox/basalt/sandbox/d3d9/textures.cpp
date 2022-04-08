@@ -28,7 +28,7 @@ using gsl::span;
 
 using basalt::Angle;
 using basalt::Engine;
-using basalt::Mat4f32;
+using basalt::Matrix4x4f32;
 using basalt::PI;
 using basalt::Vector3f32;
 using basalt::gfx::Attachment;
@@ -141,17 +141,18 @@ auto Textures::on_draw(const DrawContext& context) -> void {
 
   cmdList.bind_pipeline(mShowTci ? mPipelineTci : mPipeline);
 
-  const Mat4f32 viewToViewport {mCamera.projection_matrix(context.viewport)};
+  const Matrix4x4f32 viewToViewport {
+    mCamera.projection_matrix(context.viewport)};
   cmdList.set_transform(TransformState::ViewToViewport, viewToViewport);
   cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
 
   cmdList.set_transform(TransformState::ModelToWorld,
-                        Mat4f32::rotation_x(mRotationX));
+                        Matrix4x4f32::rotation_x(mRotationX));
 
   if (mShowTci) {
-    const Mat4f32 texTransform {
-      viewToViewport * Mat4f32::scaling(Vector3f32 {0.5f, -0.5f, 1.0f}) *
-      Mat4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f})};
+    const Matrix4x4f32 texTransform {
+      viewToViewport * Matrix4x4f32::scaling(Vector3f32 {0.5f, -0.5f, 1.0f}) *
+      Matrix4x4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f})};
     cmdList.set_transform(TransformState::Texture, texTransform);
   }
 

@@ -23,7 +23,7 @@ struct FilteringCommandList final {
   void bind_vertex_buffer(VertexBuffer, u64 offset);
   void bind_sampler(Sampler);
   void bind_texture(Texture);
-  void set_transform(TransformState, const Mat4f32&);
+  void set_transform(TransformState, const Matrix4x4f32&);
   void set_ambient_light(const Color&);
   void set_lights(gsl::span<const Light>);
   void set_material(const Color& diffuse, const Color& ambient,

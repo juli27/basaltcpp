@@ -20,7 +20,7 @@ struct DeviceStateCache final {
   auto update(VertexBuffer, u64 offset) noexcept -> bool;
   auto update(Sampler) noexcept -> bool;
   auto update(Texture) noexcept -> bool;
-  auto update(TransformState, const Mat4f32&) noexcept -> bool;
+  auto update(TransformState, const Matrix4x4f32&) noexcept -> bool;
   auto update_ambient_light(const Color&) noexcept -> bool;
   auto update(const Color& diffuse, const Color& ambient,
               const Color& emissive) noexcept -> bool;
@@ -39,11 +39,11 @@ private:
     {RenderStateType::ShadeMode, ShadeMode::Gouraud},
   };
 
-  EnumArray<TransformState, Mat4f32, TRANSFORM_STATE_COUNT> mTransforms {
-    {TransformState::ViewToViewport, Mat4f32::identity()},
-    {TransformState::WorldToView, Mat4f32::identity()},
-    {TransformState::ModelToWorld, Mat4f32::identity()},
-    {TransformState::Texture, Mat4f32::identity()},
+  EnumArray<TransformState, Matrix4x4f32, TRANSFORM_STATE_COUNT> mTransforms {
+    {TransformState::ViewToViewport, Matrix4x4f32::identity()},
+    {TransformState::WorldToView, Matrix4x4f32::identity()},
+    {TransformState::ModelToWorld, Matrix4x4f32::identity()},
+    {TransformState::Texture, Matrix4x4f32::identity()},
   };
   Color mAmbientLight;
   Material mMaterial;

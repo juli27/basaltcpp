@@ -15,10 +15,10 @@ struct Camera final {
   Camera(const Vector3f32& position, const Vector3f32& lookAt,
          const Vector3f32& up, Angle fov, f32 nearPlane, f32 farPlane) noexcept;
 
-  [[nodiscard]] auto view_matrix() const noexcept -> Mat4f32;
+  [[nodiscard]] auto view_matrix() const noexcept -> Matrix4x4f32;
 
   [[nodiscard]] auto projection_matrix(Size2Du16 viewport) const noexcept
-    -> Mat4f32;
+    -> Matrix4x4f32;
 
 private:
   Vector3f32 mPosition;

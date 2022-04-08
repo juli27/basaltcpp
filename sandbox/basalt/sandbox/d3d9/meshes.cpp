@@ -21,7 +21,7 @@ using namespace std::literals;
 
 using basalt::Angle;
 using basalt::Engine;
-using basalt::Mat4f32;
+using basalt::Matrix4x4f32;
 using basalt::PI;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
@@ -64,7 +64,7 @@ void Meshes::on_draw(const DrawContext& context) {
     cmdList.set_material(materialData.diffuse, materialData.ambient, Color {});
 
     cmdList.set_transform(TransformState::ModelToWorld,
-                          Mat4f32::rotation_y(mRotationY));
+                          Matrix4x4f32::rotation_y(mRotationY));
 
     cmdList.ext_draw_x_mesh(modelData.mesh, i);
   }

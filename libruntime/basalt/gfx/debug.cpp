@@ -268,7 +268,7 @@ void display_vec3(const char* label, const Vector3f32& vec) {
                      ImGuiInputTextFlags_ReadOnly);
 }
 
-void display_mat4(const char* label, const Mat4f32& mat) {
+void display_mat4(const char* label, const Matrix4x4f32& mat) {
   const string labelString {label};
 
   array<f32, 4> firstRow {mat.m11, mat.m12, mat.m13, mat.m14};
@@ -503,7 +503,11 @@ void draw_composite_inspector(const Composite& composite) {
 
 void Debug::update(const Info& info, const Composite& composite) {
   // https://github.com/ocornut/imgui/issues/331
-  enum class OpenPopup : u8 { None, GfxInfo };
+  enum class OpenPopup : u8
+  {
+    None,
+    GfxInfo
+  };
   OpenPopup shouldOpenPopup {OpenPopup::None};
 
   if (ImGui::BeginMainMenuBar()) {

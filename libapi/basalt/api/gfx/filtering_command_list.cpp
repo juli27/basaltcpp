@@ -48,7 +48,7 @@ void FilteringCommandList::bind_texture(const Texture texture) {
 }
 
 void FilteringCommandList::set_transform(const TransformState state,
-                                         const Mat4f32& transform) {
+                                         const Matrix4x4f32& transform) {
   if (mDeviceState.update(state, transform)) {
     mCommandList.set_transform(state, transform);
   }

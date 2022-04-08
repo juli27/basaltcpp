@@ -95,9 +95,9 @@ static_assert(sizeof(CommandBindTexture) == 8);
 
 struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
   TransformState state;
-  Mat4f32 transform;
+  Matrix4x4f32 transform;
 
-  CommandSetTransform(const TransformState s, const Mat4f32& t) noexcept
+  CommandSetTransform(const TransformState s, const Matrix4x4f32& t) noexcept
     : state {s}, transform {t} {
   }
 };

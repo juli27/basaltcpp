@@ -6,8 +6,8 @@
 
 namespace basalt {
 
-auto Mat4::rotation_x(const Angle angle) noexcept -> Mat4 {
-  Mat4 result {identity()};
+auto Matrix4x4f32::rotation_x(const Angle angle) noexcept -> Matrix4x4f32 {
+  Matrix4x4f32 result {identity()};
 
   result.m22 = result.m33 = angle.cos();
   result.m23 = angle.sin();
@@ -16,8 +16,8 @@ auto Mat4::rotation_x(const Angle angle) noexcept -> Mat4 {
   return result;
 }
 
-auto Mat4::rotation_y(const Angle angle) noexcept -> Mat4 {
-  Mat4 result {identity()};
+auto Matrix4x4f32::rotation_y(const Angle angle) noexcept -> Matrix4x4f32 {
+  Matrix4x4f32 result {identity()};
 
   result.m11 = result.m33 = angle.cos();
   result.m31 = angle.sin();
@@ -26,8 +26,8 @@ auto Mat4::rotation_y(const Angle angle) noexcept -> Mat4 {
   return result;
 }
 
-auto Mat4::rotation_z(const Angle angle) noexcept -> Mat4 {
-  Mat4 result {identity()};
+auto Matrix4x4f32::rotation_z(const Angle angle) noexcept -> Matrix4x4f32 {
+  Matrix4x4f32 result {identity()};
 
   result.m11 = result.m22 = angle.cos();
   result.m12 = angle.sin();
@@ -36,23 +36,26 @@ auto Mat4::rotation_z(const Angle angle) noexcept -> Mat4 {
   return result;
 }
 
-auto Mat4::rotation(const Vector3f32& radians) noexcept -> Mat4 {
-  const Mat4 x {rotation_x(Angle::radians(radians.x()))};
-  const Mat4 y {rotation_y(Angle::radians(radians.y()))};
-  const Mat4 z {rotation_z(Angle::radians(radians.z()))};
+auto Matrix4x4f32::rotation(const Vector3f32& radians) noexcept
+  -> Matrix4x4f32 {
+  const Matrix4x4f32 x {rotation_x(Angle::radians(radians.x()))};
+  const Matrix4x4f32 y {rotation_y(Angle::radians(radians.y()))};
+  const Matrix4x4f32 z {rotation_z(Angle::radians(radians.z()))};
 
   return z * x * y;
 }
 
-auto Mat4::perspective_projection(const Angle fov, const f32 aspectRatio,
-                                  const f32 nearPlane,
-                                  const f32 farPlane) noexcept -> Mat4 {
+auto Matrix4x4f32::perspective_projection(const Angle fov,
+                                          const f32 aspectRatio,
+                                          const f32 nearPlane,
+                                          const f32 farPlane) noexcept
+  -> Matrix4x4f32 {
   const f32 yScale {1.0f / std::tan(fov.radians() * 0.5f)};
   const f32 xScale {yScale / aspectRatio};
   const f32 q {farPlane / (farPlane - nearPlane)};
 
   // clang-format off
-  return Mat4 {
+  return Matrix4x4f32 {
     xScale,   0.0f,           0.0f, 0.0f,
       0.0f, yScale,           0.0f, 0.0f,
       0.0f,   0.0f,              q, 1.0f,

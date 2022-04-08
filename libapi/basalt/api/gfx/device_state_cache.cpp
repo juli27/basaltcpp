@@ -55,7 +55,7 @@ auto DeviceStateCache::update(const Texture texture) noexcept -> bool {
 }
 
 auto DeviceStateCache::update(const TransformState state,
-                              const Mat4f32& transform) noexcept -> bool {
+                              const Matrix4x4f32& transform) noexcept -> bool {
   auto& currentValue = mTransforms[state];
   if (currentValue != transform) {
     currentValue = transform;

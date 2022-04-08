@@ -72,7 +72,7 @@ static_assert(sizeof(MaterialDescriptor) == 48);
 struct RenderComponent final {
   Mesh mesh {Mesh::null()};
   Material material {Material::null()};
-  Mat4f32 texTransform {Mat4f32::identity()};
+  Matrix4x4f32 texTransform {Matrix4x4f32::identity()};
 };
 
 static_assert(sizeof(RenderComponent) == 72);

@@ -88,9 +88,10 @@ auto SceneView::on_draw(const DrawContext& context) -> void {
 
   ecs.view<const Transform, const ext::XModel>().each(
     [&](const Transform& transform, const ext::XModel& model) {
-      const auto objToWorldMatrix {Mat4f32::scaling(transform.scale) *
-                                   Mat4f32::rotation(transform.rotation) *
-                                   Mat4f32::translation(transform.position)};
+      const auto objToWorldMatrix {
+        Matrix4x4f32::scaling(transform.scale) *
+        Matrix4x4f32::rotation(transform.rotation) *
+        Matrix4x4f32::translation(transform.position)};
       cmdList.set_transform(TransformState::ModelToWorld, objToWorldMatrix);
 
       const auto& modelData {cache.get(model)};
@@ -113,9 +114,10 @@ auto SceneView::on_draw(const DrawContext& context) -> void {
       cmdList.set_transform(TransformState::Texture,
                             renderComponent.texTransform);
 
-      const auto objToWorldMatrix {Mat4f32::scaling(transform.scale) *
-                                   Mat4f32::rotation(transform.rotation) *
-                                   Mat4f32::translation(transform.position)};
+      const auto objToWorldMatrix {
+        Matrix4x4f32::scaling(transform.scale) *
+        Matrix4x4f32::rotation(transform.rotation) *
+        Matrix4x4f32::translation(transform.position)};
       cmdList.set_transform(TransformState::ModelToWorld, objToWorldMatrix);
 
       const auto& meshData = cache.get(renderComponent.mesh);
