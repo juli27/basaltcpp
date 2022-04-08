@@ -1,6 +1,6 @@
 #include <basalt/api/gfx/camera.h>
 
-#include <basalt/api/math/mat4.h>
+#include <basalt/api/math/matrix4x4.h>
 
 #include <basalt/api/shared/size2d.h>
 

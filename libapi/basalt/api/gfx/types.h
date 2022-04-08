@@ -3,7 +3,7 @@
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 
-#include <basalt/api/math/mat4.h>
+#include <basalt/api/math/matrix4x4.h>
 
 #include <basalt/api/shared/color.h>
 #include <basalt/api/shared/handle.h>

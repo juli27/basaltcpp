@@ -15,7 +15,7 @@
 
 #include <basalt/api/shared/config.h>
 
-#include <basalt/api/math/mat4.h>
+#include <basalt/api/math/matrix4x4.h>
 
 #include <entt/entity/registry.hpp>
 

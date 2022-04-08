@@ -8,7 +8,7 @@
 #include <basalt/api/gfx/backend/ext/dear_imgui_renderer.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
-#include <basalt/api/math/mat4.h>
+#include <basalt/api/math/matrix4x4.h>
 
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/color.h>

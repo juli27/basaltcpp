@@ -10,7 +10,7 @@
 #include <basalt/api/gfx/backend/command_list.h>
 
 #include <basalt/api/math/constants.h>
-#include <basalt/api/math/mat4.h>
+#include <basalt/api/math/matrix4x4.h>
 #include <basalt/api/math/vector3.h>
 
 #include <gsl/span>
