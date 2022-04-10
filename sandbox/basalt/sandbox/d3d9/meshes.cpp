@@ -48,8 +48,8 @@ void Meshes::on_draw(const DrawContext& context) {
   cmdList.set_ambient_light(Colors::WHITE);
 
   cmdList.set_transform(TransformState::ViewToViewport,
-                        mCamera.projection_matrix(context.viewport));
-  cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
+                        mCamera.view_to_viewport(context.viewport));
+  cmdList.set_transform(TransformState::WorldToView, mCamera.world_to_view());
 
   const auto& modelData {mResourceCache.get(mModel)};
 

@@ -71,8 +71,8 @@ auto SceneView::on_draw(const DrawContext& context) -> void {
     1.0f, 0);
 
   cmdList.set_transform(TransformState::ViewToViewport,
-                        mCamera.projection_matrix(context.viewport));
-  cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
+                        mCamera.view_to_viewport(context.viewport));
+  cmdList.set_transform(TransformState::WorldToView, mCamera.world_to_view());
 
   cmdList.set_ambient_light(mScene->ambient_light());
 

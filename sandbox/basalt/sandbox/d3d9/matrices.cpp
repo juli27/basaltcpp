@@ -90,9 +90,9 @@ auto Matrices::on_draw(const DrawContext& context) -> void {
 
   cmdList.set_transform(TransformState::ModelToWorld,
                         Matrix4x4f32::rotation_y(mRotationY));
-  cmdList.set_transform(TransformState::WorldToView, mCamera.view_matrix());
+  cmdList.set_transform(TransformState::WorldToView, mCamera.world_to_view());
   cmdList.set_transform(TransformState::ViewToViewport,
-                        mCamera.projection_matrix(context.viewport));
+                        mCamera.view_to_viewport(context.viewport));
 
   cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
 
