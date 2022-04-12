@@ -4,6 +4,8 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "constants.h"
   "matrix4x4.cpp"
   "matrix4x4.h"
+  "plane.cpp"
+  "plane.h"
   "rectangle.h"
   "types.h"
   "vector3.cpp"
