@@ -31,23 +31,23 @@ namespace {
 bool sShowSceneDebugUi {false};
 
 void edit_color3(const char* label, Color& color) {
-  array<f32, 3> colorArray {color.red(), color.green(), color.blue()};
+  array<f32, 3> colorArray {color.r(), color.g(), color.b()};
 
   ImGui::ColorEdit3(label, colorArray.data(), ImGuiColorEditFlags_Float);
 
   using std::get;
-  color = Color {get<0>(colorArray), get<1>(colorArray), get<2>(colorArray)};
+  color = Color::from_non_linear(get<0>(colorArray), get<1>(colorArray),
+                                 get<2>(colorArray));
 }
 
 void edit_color4(const char* label, Color& color) {
-  array<f32, 4> colorArray {color.red(), color.green(), color.blue(),
-                            color.alpha()};
+  array<f32, 4> colorArray {color.r(), color.g(), color.b(), color.a()};
 
   ImGui::ColorEdit4(label, colorArray.data(), ImGuiColorEditFlags_Float);
 
   using std::get;
-  color = Color {get<0>(colorArray), get<1>(colorArray), get<2>(colorArray),
-                 get<3>(colorArray)};
+  color = Color::from_non_linear(get<0>(colorArray), get<1>(colorArray),
+                                 get<2>(colorArray), get<3>(colorArray));
 }
 
 } // namespace

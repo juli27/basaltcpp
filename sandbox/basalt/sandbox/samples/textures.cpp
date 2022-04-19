@@ -61,7 +61,7 @@ Textures::Textures(Engine& engine)
   , mSceneView {std::make_shared<SceneView>(mScene, create_camera())} {
   add_child_top(mSceneView);
 
-  mScene->set_background(Color {0.103f, 0.103f, 0.103f});
+  mScene->set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
 
   auto& gfxResourceCache {engine.gfx_resource_cache()};
 

@@ -128,13 +128,13 @@ auto Lights::on_draw(const DrawContext& context) -> void {
   const Light light {DirectionalLight {
     Vector3f32::normalize(
       Vector3f32 {mLightRotation.cos(), 1.0f, mLightRotation.sin()}),
-    Color {1.0f, 1.0f, 1.0f, 0.0f},
+    Color::from_non_linear(1.0f, 1.0f, 1.0f, 0.0f),
     Color {},
   }};
 
   cmdList.set_lights(span {&light, 1});
 
-  cmdList.set_ambient_light(Color::from_rgba(0x20, 0x20, 0x20, 0));
+  cmdList.set_ambient_light(Color::from_non_linear_rgba8(0x20, 0x20, 0x20, 0));
 
   cmdList.set_material(Colors::YELLOW, Colors::YELLOW, Color {});
   cmdList.set_transform(TransformState::ModelToWorld,

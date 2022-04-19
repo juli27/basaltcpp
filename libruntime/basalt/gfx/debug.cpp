@@ -289,8 +289,7 @@ void display_mat4(const char* label, const Matrix4x4f32& mat) {
 }
 
 void display_color4(const char* label, const Color& color) {
-  array<float, 4> colorArray {color.red(), color.green(), color.blue(),
-                              color.alpha()};
+  array<float, 4> colorArray {color.r(), color.g(), color.b(), color.a()};
 
   ImGui::ColorEdit4(label, colorArray.data(),
                     ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoPicker |

@@ -93,7 +93,7 @@ Textures::Textures(Engine& engine)
   , mSceneView {std::make_shared<SceneView>(mScene, create_camera())} {
   add_child_top(mSceneView);
 
-  mScene->set_background(Color::from_rgba(0, 0, 63));
+  mScene->set_background(Color::from_non_linear_rgba8(0, 0, 63));
 
   const VertexLayout vertexLayout {VertexElement::Position3F32,
                                    VertexElement::ColorDiffuse1U32A8R8G8B8,
@@ -149,10 +149,10 @@ Textures::Textures(Engine& engine)
       vertex.x = pos.x();
       vertex.y = pos.y();
       vertex.z = pos.z();
-      vertex.color =
-        Color {rng.generate_f32(0.0f, 1.0f), rng.generate_f32(0.0f, 1.0f),
-               rng.generate_f32(0.0f, 1.0f)}
-          .to_argb();
+      vertex.color = Color::from_non_linear(rng.generate_f32(0.0f, 1.0f),
+                                            rng.generate_f32(0.0f, 1.0f),
+                                            rng.generate_f32(0.0f, 1.0f))
+                       .to_argb();
       vertex.u = rng.generate_f32(-1.0f, 2.0f);
       vertex.v = rng.generate_f32(-1.0f, 2.0f);
     }

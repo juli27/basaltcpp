@@ -57,7 +57,7 @@ Dreieck::Dreieck(Engine& engine)
   , mEntity {mScene->create_entity()} {
   add_child_top(mSceneView);
 
-  mScene->set_background(Color::from_rgba(0, 0, 63));
+  mScene->set_background(Color::from_non_linear_rgba8(0, 0, 63));
 
   mEntity.get<Transform>().move(0.0f, 0.0f, 2.0f);
 

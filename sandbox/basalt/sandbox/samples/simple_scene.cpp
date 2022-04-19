@@ -62,7 +62,7 @@ SimpleScene::SimpleScene(Engine& engine)
   , mScene {std::make_shared<Scene>()} {
   add_child_top(std::make_shared<SceneView>(mScene, create_camera()));
 
-  mScene->set_background(Color {0.103f, 0.103f, 0.103f});
+  mScene->set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
 
   const entt::handle entity {
     mScene->create_entity(Vector3f32::forward() * 2.5f)};
