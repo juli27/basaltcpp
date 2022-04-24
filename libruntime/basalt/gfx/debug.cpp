@@ -2,8 +2,6 @@
 
 #include <basalt/gfx/utils.h>
 
-#include <basalt/api/debug.h>
-
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/commands.h>
 #include <basalt/api/gfx/backend/utils.h>
@@ -16,8 +14,6 @@
 #include <basalt/api/math/vector3.h>
 
 #include <basalt/api/base/types.h>
-
-#include <fmt/format.h>
 
 #include <imgui/imgui.h>
 
@@ -93,52 +89,6 @@ void draw_overlay() {
   }
 
   ImGui::End();
-}
-
-void draw_gfx_info_modal(const Info& info) {
-  if (ImGui::BeginPopupModal("Gfx Info", nullptr,
-                             ImGuiWindowFlags_AlwaysAutoResize)) {
-    static u32 currentIndex {0};
-    const AdapterInfo& current {info.adapters[currentIndex]};
-    if (ImGui::BeginCombo("GFX Adapter", current.displayName.c_str())) {
-      for (const auto& adapter : info.adapters) {
-        const bool isSelected {adapter.adapterIndex == currentIndex};
-        if (ImGui::Selectable(
-              fmt::format("{} ##{}", adapter.displayName, adapter.adapterIndex)
-                .c_str(),
-              isSelected)) {
-          currentIndex = adapter.adapterIndex;
-        }
-
-        if (isSelected) {
-          ImGui::SetItemDefaultFocus();
-        }
-      }
-
-      ImGui::EndCombo();
-    }
-
-    ImGui::Text("Driver: %s", current.driverInfo.c_str());
-
-    ImGui::Separator();
-
-    ImGui::TextUnformatted("Adapter Modes");
-
-    if (ImGui::BeginChild("modes", ImVec2 {0, 250})) {
-      for (const auto& mode : current.adapterModes) {
-        ImGui::Selectable(to_string(mode).c_str(), false,
-                          ImGuiSelectableFlags_DontClosePopups);
-      }
-    }
-
-    ImGui::EndChild();
-
-    if (ImGui::Button("Close", ImVec2 {120.0f, 0.0f})) {
-      ImGui::CloseCurrentPopup();
-    }
-
-    ImGui::EndPopup();
-  }
 }
 
 #define ENUM_TO_STRING(e)                                                      \
@@ -500,37 +450,17 @@ void draw_composite_inspector(const Composite& composite) {
 
 } // namespace
 
-void Debug::update(const Info& info, const Composite& composite) {
-  // https://github.com/ocornut/imgui/issues/331
-  enum class OpenPopup : u8
-  {
-    None,
-    GfxInfo
-  };
-  OpenPopup shouldOpenPopup {OpenPopup::None};
-
+void Debug::update(const Composite& composite) {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("View")) {
       ImGui::MenuItem("Performance Overlay", nullptr, &sShowPerformanceOverlay);
       ImGui::MenuItem("Composite Inspector", nullptr, &sShowCompositeDebugUi);
-
-      ImGui::Separator();
-
-      if (ImGui::MenuItem("GFX Info...")) {
-        shouldOpenPopup = OpenPopup::GfxInfo;
-      }
 
       ImGui::EndMenu();
     }
 
     ImGui::EndMainMenuBar();
   }
-
-  if (shouldOpenPopup == OpenPopup::GfxInfo) {
-    ImGui::OpenPopup("Gfx Info");
-  }
-
-  draw_gfx_info_modal(info);
 
   if (sShowCompositeDebugUi) {
     draw_composite_inspector(composite);

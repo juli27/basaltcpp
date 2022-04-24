@@ -2,8 +2,6 @@
 
 #include <basalt/gfx/backend/types.h>
 
-#include <basalt/api/gfx/types.h>
-
 namespace basalt::gfx {
 
 struct Debug final {
@@ -17,7 +15,7 @@ struct Debug final {
   auto operator=(const Debug&) -> Debug& = delete;
   auto operator=(Debug&&) -> Debug& = delete;
 
-  static void update(const Info&, const Composite&);
+  static void update(const Composite&);
 };
 
 } // namespace basalt::gfx

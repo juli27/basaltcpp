@@ -14,6 +14,7 @@
 #include <basalt/sandbox/tribase/02-04_textures.h>
 
 #include <basalt/api/client_app.h>
+#include <basalt/api/debug_ui.h>
 #include <basalt/api/engine.h>
 #include <basalt/api/input_events.h>
 #include <basalt/api/prelude.h>
@@ -34,6 +35,7 @@ using namespace std::literals;
 
 using basalt::ClientApp;
 using basalt::Config;
+using basalt::DebugUi;
 using basalt::Engine;
 using basalt::InputEvent;
 using basalt::InputEventHandled;
@@ -100,6 +102,14 @@ SandboxView::SandboxView(Engine& engine) {
 }
 
 void SandboxView::on_tick(Engine& engine) {
+  // https://github.com/ocornut/imgui/issues/331
+  enum class OpenPopup : u8
+  {
+    None,
+    GfxInfo
+  };
+  OpenPopup shouldOpenPopup {OpenPopup::None};
+
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("File")) {
       for (uSize i {0}; i < mExamples.size(); i++) {
@@ -148,6 +158,12 @@ void SandboxView::on_tick(Engine& engine) {
         engine.set_window_mode(WindowMode::FullscreenExclusive);
       }
 
+      ImGui::Separator();
+
+      if (ImGui::MenuItem("GFX Info...")) {
+        shouldOpenPopup = OpenPopup::GfxInfo;
+      }
+
       if (config.get_bool("runtime.debugUI.enabled"s)) {
         ImGui::Separator();
       }
@@ -164,6 +180,12 @@ void SandboxView::on_tick(Engine& engine) {
 
     ImGui::EndMainMenuBar();
   }
+
+  if (shouldOpenPopup == OpenPopup::GfxInfo) {
+    ImGui::OpenPopup("Gfx Info");
+  }
+
+  DebugUi::show_gfx_info(engine.gfx_info());
 
   if (mShowDemo) {
     ImGui::ShowDemoWindow(&mShowDemo);

@@ -199,7 +199,7 @@ void App::run(Config& config, const HMODULE moduleHandle,
     dearImGui->draw(drawContext);
 
     if (config.get_bool("runtime.debugUI.enabled"s)) {
-      gfx::Debug::update(gfxInfo, composite);
+      gfx::Debug::update(composite);
     }
 
     gfxContext.submit(composite);
