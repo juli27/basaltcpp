@@ -21,6 +21,8 @@
 #include <basalt/api/client_app.h>
 #include <basalt/api/view.h>
 
+#include <basalt/api/gfx/types.h>
+
 #include <basalt/api/shared/config.h>
 #include <basalt/api/shared/log.h>
 #include <basalt/api/shared/size2d.h>
@@ -160,7 +162,7 @@ void App::run(Config& config, const HMODULE moduleHandle,
 
   window->input_manager().set_overlay(dearImGui);
 
-  App app {config, gfxContext.device()};
+  App app {config, gfxInfo, gfxContext.device()};
 
   ClientApp::bootstrap(app);
 
@@ -219,7 +221,8 @@ void App::run(Config& config, const HMODULE moduleHandle,
   }
 }
 
-App::App(Config& config, gfx::Device& gfxDevice) : Engine {config, gfxDevice} {
+App::App(Config& config, const gfx::Info& gfxInfo, gfx::Device& gfxDevice)
+  : Engine {config, gfxInfo, gfxDevice} {
 }
 
 // namespace {

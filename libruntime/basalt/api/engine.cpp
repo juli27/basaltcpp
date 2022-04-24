@@ -13,6 +13,10 @@ auto Engine::config() const noexcept -> const Config& {
   return mConfig;
 }
 
+auto Engine::gfx_info() const noexcept -> const gfx::Info& {
+  return mGfxInfo;
+}
+
 auto Engine::resource_registry() const noexcept -> ResourceRegistry& {
   return *mResourceRegistry;
 }
@@ -43,8 +47,10 @@ void Engine::set_window_mode(const WindowMode windowMode) noexcept {
   mIsDirty = true;
 }
 
-Engine::Engine(Config& config, gfx::Device& gfxDevice) noexcept
+Engine::Engine(Config& config, const gfx::Info& gfxInfo,
+               gfx::Device& gfxDevice) noexcept
   : mConfig {config}
+  , mGfxInfo {gfxInfo}
   , mResourceRegistry {std::make_shared<ResourceRegistry>()}
   , mGfxResourceCache {gfxDevice} {
 }

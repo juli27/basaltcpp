@@ -3,6 +3,7 @@
 #include <basalt/api/types.h>
 
 #include <basalt/api/gfx/resource_cache.h>
+#include <basalt/api/gfx/types.h>
 
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/types.h>
@@ -25,6 +26,8 @@ struct Engine {
 
   [[nodiscard]] auto config() const noexcept -> const Config&;
 
+  [[nodiscard]] auto gfx_info() const noexcept -> const gfx::Info&;
+
   [[nodiscard]] auto resource_registry() const noexcept -> ResourceRegistry&;
   [[nodiscard]] auto gfx_resource_cache() noexcept -> gfx::ResourceCache&;
 
@@ -42,6 +45,9 @@ struct Engine {
 
 protected:
   Config& mConfig;
+
+  const gfx::Info& mGfxInfo;
+
   ResourceRegistryPtr mResourceRegistry {};
 
   gfx::ResourceCache mGfxResourceCache;
@@ -56,7 +62,7 @@ protected:
   MouseCursor mMouseCursor {MouseCursor::Arrow};
   bool mIsDirty {false};
 
-  Engine(Config&, gfx::Device&) noexcept;
+  Engine(Config&, const gfx::Info&, gfx::Device&) noexcept;
 
   ~Engine() noexcept = default;
 

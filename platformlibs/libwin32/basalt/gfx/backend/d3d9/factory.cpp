@@ -3,6 +3,8 @@
 #include <basalt/gfx/backend/d3d9/context.h>
 #include <basalt/gfx/backend/d3d9/device.h>
 
+#include <basalt/gfx/types.h>
+
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/log.h>
 
@@ -68,7 +70,6 @@ auto create_info(IDirect3D9& factory) -> Info {
     string driverInfo {fmt::format("{} ({}.{}.{}.{})", adapterIdentifier.Driver,
                                    product, version, subVersion, build)};
 
-    AdapterCapabilities capabilities {};
     // VertexProcessingCaps, MaxActiveLights, MaxUserClipPlanes,
     // MaxVertexBlendMatrices, MaxVertexBlendMatrixIndex depend on parameters
     // supplied to CreateDevice and should be queried on the device itself.
@@ -90,9 +91,9 @@ auto create_info(IDirect3D9& factory) -> Info {
         adapterMode.Width, adapterMode.Height, adapterMode.RefreshRate});
     }
 
-    info.adapters.emplace_back(AdapterInfo {
-      string {adapterIdentifier.Description}, std::move(driverInfo),
-      std::move(adapterModes), adapter, capabilities});
+    info.adapters.emplace_back(
+      AdapterInfo {string {adapterIdentifier.Description},
+                   std::move(driverInfo), std::move(adapterModes), adapter});
   }
 
   return info;

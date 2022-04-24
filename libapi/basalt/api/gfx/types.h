@@ -14,6 +14,7 @@
 #include <gsl/span>
 
 #include <cstddef>
+#include <string>
 #include <vector>
 
 namespace basalt::gfx {
@@ -29,6 +30,27 @@ struct MaterialTag;
 
 using Mesh = Handle<detail::MeshTag>;
 using Material = Handle<detail::MaterialTag>;
+
+struct AdapterMode final {
+  u32 width {};
+  u32 height {};
+  u32 refreshRate {};
+};
+
+using AdapterModeList = std::vector<AdapterMode>;
+
+struct AdapterInfo final {
+  std::string displayName {};
+  std::string driverInfo {};
+  AdapterModeList adapterModes {};
+  u32 adapterIndex {0};
+};
+
+using AdapterList = std::vector<AdapterInfo>;
+
+struct Info final {
+  AdapterList adapters {};
+};
 
 struct MeshDescriptor final {
   gsl::span<const std::byte> vertexData;

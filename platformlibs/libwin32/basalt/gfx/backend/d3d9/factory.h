@@ -3,8 +3,9 @@
 #include <basalt/gfx/backend/d3d9/d3d9_custom.h>
 #include <basalt/gfx/backend/d3d9/types.h>
 
-#include <basalt/gfx/types.h>
 #include <basalt/gfx/backend/types.h>
+
+#include <basalt/api/gfx/types.h>
 
 #include <basalt/api/base/types.h>
 
