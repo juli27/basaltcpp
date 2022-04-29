@@ -8,6 +8,8 @@
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/log.h>
 
+#include <basalt/api/base/types.h>
+
 #include <fmt/format.h>
 
 #include <string>
@@ -97,7 +99,7 @@ auto query_info(IDirect3D9& factory) -> Info {
       string {adapterIdentifier.Description},
       std::move(driverInfo),
       std::move(adapterModes),
-      adapter,
+      Adapter {adapter},
     });
   }
 
@@ -203,27 +205,32 @@ auto D3D9Factory::info() const -> const Info& {
   return mInfo;
 }
 
-auto D3D9Factory::get_current_adapter_mode(const u32 adapterIndex) const
+auto D3D9Factory::get_current_adapter_mode(const Adapter adapter) const
   -> AdapterMode {
-  BASALT_ASSERT(adapterIndex < mInfo.adapters.size());
+  const u32 adapterOrdinal {adapter.value()};
+
+  BASALT_ASSERT(adapterOrdinal < mInfo.adapters.size());
 
   D3DDISPLAYMODE currentAdapterMode;
-  mInstance->GetAdapterDisplayMode(adapterIndex, &currentAdapterMode);
+  mInstance->GetAdapterDisplayMode(adapterOrdinal, &currentAdapterMode);
 
   return AdapterMode {currentAdapterMode.Width, currentAdapterMode.Height,
                       currentAdapterMode.RefreshRate};
 }
 
-auto D3D9Factory::get_adapter_monitor(const u32 adapterIndex) const
-  -> HMONITOR {
-  BASALT_ASSERT(adapterIndex < mInfo.adapters.size());
+auto D3D9Factory::get_adapter_monitor(const Adapter adapter) const -> HMONITOR {
+  const u32 adapterOrdinal {adapter.value()};
 
-  return mInstance->GetAdapterMonitor(adapterIndex);
+  BASALT_ASSERT(adapterOrdinal < mInfo.adapters.size());
+
+  return mInstance->GetAdapterMonitor(adapterOrdinal);
 }
 
 auto D3D9Factory::create_device_and_context(
   const HWND window, const DeviceAndContextDesc& desc) const -> ContextPtr {
-  BASALT_ASSERT(desc.adapterIndex < mInfo.adapters.size());
+  const u32 adapterOrdinal {desc.adapter.value()};
+
+  BASALT_ASSERT(adapterOrdinal < mInfo.adapters.size());
 
   D3DPRESENT_PARAMETERS pp {};
   pp.BackBufferCount = 1;
@@ -237,7 +244,7 @@ auto D3D9Factory::create_device_and_context(
 
   if (desc.exclusive) {
     D3DDISPLAYMODE displayMode {};
-    D3D9CALL(mInstance->GetAdapterDisplayMode(desc.adapterIndex, &displayMode));
+    D3D9CALL(mInstance->GetAdapterDisplayMode(adapterOrdinal, &displayMode));
 
     pp.BackBufferWidth = displayMode.Width;
     pp.BackBufferHeight = displayMode.Height;
@@ -249,8 +256,8 @@ auto D3D9Factory::create_device_and_context(
                          D3DCREATE_DISABLE_DRIVER_MANAGEMENT};
 
   ComPtr<IDirect3DDevice9> d3d9Device;
-  D3D9CALL(mInstance->CreateDevice(desc.adapterIndex, DEVICE_TYPE, window,
-                                   flags, &pp, &d3d9Device));
+  D3D9CALL(mInstance->CreateDevice(adapterOrdinal, DEVICE_TYPE, window, flags,
+                                   &pp, &d3d9Device));
 
   D3DCAPS9 caps {};
   D3D9CALL(d3d9Device->GetDeviceCaps(&caps));

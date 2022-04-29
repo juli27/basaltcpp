@@ -31,6 +31,14 @@ struct MaterialTag;
 using Mesh = Handle<detail::MeshTag>;
 using Material = Handle<detail::MaterialTag>;
 
+namespace detail {
+
+struct AdapterTag;
+
+}
+
+using Adapter = Handle<detail::AdapterTag>;
+
 // SERIALIZED
 enum class BackendApi : u8
 {
@@ -51,7 +59,7 @@ struct AdapterInfo final {
   std::string displayName {};
   std::string driverInfo {};
   AdapterModeList adapterModes {};
-  u32 adapterIndex {0};
+  Adapter handle;
 };
 
 using AdapterList = std::vector<AdapterInfo>;

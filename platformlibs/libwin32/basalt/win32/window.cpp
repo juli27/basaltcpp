@@ -288,8 +288,12 @@ auto Window::create(const HMODULE moduleHandle, const int showCommand,
 }
 
 void Window::init_gfx_context(const gfx::D3D9Factory& gfxFactory) {
+  const auto& gfxInfo {gfxFactory.info()};
+
   const gfx::D3D9Factory::DeviceAndContextDesc contextDesc {
-    0, mCurrentMode == WindowMode::FullscreenExclusive};
+    gfxInfo.adapters[0].handle,
+    mCurrentMode == WindowMode::FullscreenExclusive,
+  };
 
   mGfxContext = gfxFactory.create_device_and_context(mHandle, contextDesc);
 }

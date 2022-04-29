@@ -28,7 +28,7 @@ auto to_string(const gfx::BackendApi api) -> string_view {
 } // namespace
 
 auto DebugUi::show_gfx_info(const gfx::Info& gfxInfo) -> void {
-  const gfx::AdapterInfo& current {gfxInfo.adapters[mSelectedAdapter]};
+  const gfx::AdapterInfo& current {gfxInfo.adapters[mSelectedAdapterIndex]};
 
   ImGui::Text("Backend API: %s", to_string(gfxInfo.backendApi).data());
 
@@ -38,10 +38,11 @@ auto DebugUi::show_gfx_info(const gfx::Info& gfxInfo) -> void {
     for (const auto& adapter : gfxInfo.adapters) {
       ImGui::PushID(&adapter);
 
-      const bool isSelected {adapter.adapterIndex == mSelectedAdapter};
+      const u32 adapterIndex {adapter.handle.value()};
+      const bool isSelected {adapterIndex == mSelectedAdapterIndex};
 
       if (ImGui::Selectable(adapter.displayName.c_str(), isSelected)) {
-        mSelectedAdapter = adapter.adapterIndex;
+        mSelectedAdapterIndex = adapterIndex;
       }
 
       if (isSelected) {

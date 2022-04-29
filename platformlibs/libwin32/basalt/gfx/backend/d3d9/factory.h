@@ -7,8 +7,6 @@
 
 #include <basalt/api/gfx/types.h>
 
-#include <basalt/api/base/types.h>
-
 #include <wrl/client.h>
 
 namespace basalt::gfx {
@@ -22,7 +20,7 @@ private:
 
 public:
   struct DeviceAndContextDesc final {
-    u32 adapterIndex {0};
+    Adapter adapter;
     bool exclusive {false};
   };
 
@@ -41,9 +39,8 @@ public:
 
   [[nodiscard]] auto info() const -> const Info&;
 
-  [[nodiscard]] auto get_current_adapter_mode(u32 adapterIndex) const
-    -> AdapterMode;
-  [[nodiscard]] auto get_adapter_monitor(u32 adapterIndex) const -> HMONITOR;
+  [[nodiscard]] auto get_current_adapter_mode(Adapter) const -> AdapterMode;
+  [[nodiscard]] auto get_adapter_monitor(Adapter) const -> HMONITOR;
 
   auto create_device_and_context(HWND window, const DeviceAndContextDesc&) const
     -> ContextPtr;
