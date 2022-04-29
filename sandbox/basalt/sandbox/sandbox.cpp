@@ -14,7 +14,6 @@
 #include <basalt/sandbox/tribase/02-04_textures.h>
 
 #include <basalt/api/client_app.h>
-#include <basalt/api/debug_ui.h>
 #include <basalt/api/engine.h>
 #include <basalt/api/input_events.h>
 #include <basalt/api/prelude.h>
@@ -35,7 +34,6 @@ using namespace std::literals;
 
 using basalt::ClientApp;
 using basalt::Config;
-using basalt::DebugUi;
 using basalt::Engine;
 using basalt::InputEvent;
 using basalt::InputEventHandled;
@@ -185,7 +183,22 @@ void SandboxView::on_tick(Engine& engine) {
     ImGui::OpenPopup("Gfx Info");
   }
 
-  DebugUi::show_gfx_info(engine.gfx_info());
+  ImGui::SetNextWindowSize(ImVec2 {300.0f, 350.0f}, ImGuiCond_FirstUseEver);
+  if (ImGui::BeginPopupModal("Gfx Info", nullptr)) {
+    const f32 footerHeight {ImGui::GetFrameHeightWithSpacing()};
+
+    if (ImGui::BeginChild("##info", ImVec2 {0.0f, -footerHeight})) {
+      mDebugUi.show_gfx_info(engine.gfx_info());
+    }
+
+    ImGui::EndChild();
+
+    if (ImGui::Button("Close", ImVec2 {120.0f, 0.0f})) {
+      ImGui::CloseCurrentPopup();
+    }
+
+    ImGui::EndPopup();
+  }
 
   if (mShowDemo) {
     ImGui::ShowDemoWindow(&mShowDemo);

@@ -2,6 +2,8 @@
 
 #include <basalt/api/view.h>
 
+#include <basalt/api/debug_ui.h>
+
 #include <basalt/api/base/types.h>
 
 #include <vector>
@@ -14,6 +16,8 @@ private:
 
   std::vector<Example> mExamples;
   basalt::uSize mCurrentExampleIndex {9};
+
+  basalt::DebugUi mDebugUi {};
 
   bool mShowDemo {false};
   bool mShowMetrics {false};

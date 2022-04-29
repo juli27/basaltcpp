@@ -6,9 +6,10 @@ namespace basalt {
 
 class DebugUi final {
 public:
-  DebugUi() = delete;
+  auto show_gfx_info(const gfx::Info&) -> void;
 
-  static auto show_gfx_info(const gfx::Info&) -> void;
+private:
+  u32 mSelectedAdapter {};
 };
 
 } // namespace basalt

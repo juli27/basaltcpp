@@ -31,6 +31,14 @@ struct MaterialTag;
 using Mesh = Handle<detail::MeshTag>;
 using Material = Handle<detail::MaterialTag>;
 
+// SERIALIZED
+enum class BackendApi : u8
+{
+  Default = 0,
+  Direct3D9 = 1,
+};
+constexpr uSize BACKEND_API_COUNT {2u};
+
 struct AdapterMode final {
   u32 width {};
   u32 height {};
@@ -50,6 +58,7 @@ using AdapterList = std::vector<AdapterInfo>;
 
 struct Info final {
   AdapterList adapters {};
+  BackendApi backendApi {BackendApi::Default};
 };
 
 struct MeshDescriptor final {

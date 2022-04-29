@@ -2,55 +2,71 @@
 
 #include <basalt/gfx/utils.h>
 
-#include <fmt/format.h>
+#include <basalt/api/base/enum_array.h>
+
 #include <imgui/imgui.h>
+
+#include <string_view>
 
 namespace basalt {
 
+using namespace std::literals;
+using std::string_view;
+
+namespace {
+
+auto to_string(const gfx::BackendApi api) -> string_view {
+  static constexpr EnumArray<gfx::BackendApi, string_view, 2> TO_STRING {
+    {gfx::BackendApi::Default, "Default"sv},
+    {gfx::BackendApi::Direct3D9, "Direct3D 9"sv},
+  };
+  static_assert(gfx::BACKEND_API_COUNT == TO_STRING.size());
+
+  return TO_STRING[api];
+}
+
+} // namespace
+
 auto DebugUi::show_gfx_info(const gfx::Info& gfxInfo) -> void {
-  if (ImGui::BeginPopupModal("Gfx Info", nullptr,
-                             ImGuiWindowFlags_AlwaysAutoResize)) {
-    static u32 currentIndex {0};
-    const gfx::AdapterInfo& current {gfxInfo.adapters[currentIndex]};
-    if (ImGui::BeginCombo("GFX Adapter", current.displayName.c_str())) {
-      for (const auto& adapter : gfxInfo.adapters) {
-        const bool isSelected {adapter.adapterIndex == currentIndex};
-        if (ImGui::Selectable(
-              fmt::format("{} ##{}", adapter.displayName, adapter.adapterIndex)
-                .c_str(),
-              isSelected)) {
-          currentIndex = adapter.adapterIndex;
-        }
+  const gfx::AdapterInfo& current {gfxInfo.adapters[mSelectedAdapter]};
 
-        if (isSelected) {
-          ImGui::SetItemDefaultFocus();
-        }
+  ImGui::Text("Backend API: %s", to_string(gfxInfo.backendApi).data());
+
+  ImGui::Separator();
+
+  if (ImGui::BeginCombo("Adapter", current.displayName.c_str())) {
+    for (const auto& adapter : gfxInfo.adapters) {
+      ImGui::PushID(&adapter);
+
+      const bool isSelected {adapter.adapterIndex == mSelectedAdapter};
+
+      if (ImGui::Selectable(adapter.displayName.c_str(), isSelected)) {
+        mSelectedAdapter = adapter.adapterIndex;
       }
 
-      ImGui::EndCombo();
-    }
-
-    ImGui::Text("Driver: %s", current.driverInfo.c_str());
-
-    ImGui::Separator();
-
-    ImGui::TextUnformatted("Adapter Modes");
-
-    if (ImGui::BeginChild("modes", ImVec2 {0, 250})) {
-      for (const auto& mode : current.adapterModes) {
-        ImGui::Selectable(to_string(mode).c_str(), false,
-                          ImGuiSelectableFlags_DontClosePopups);
+      if (isSelected) {
+        ImGui::SetItemDefaultFocus();
       }
+
+      ImGui::PopID();
     }
 
-    ImGui::EndChild();
-
-    if (ImGui::Button("Close", ImVec2 {120.0f, 0.0f})) {
-      ImGui::CloseCurrentPopup();
-    }
-
-    ImGui::EndPopup();
+    ImGui::EndCombo();
   }
+
+  ImGui::Text("Driver: %s", current.driverInfo.c_str());
+
+  ImGui::Separator();
+
+  ImGui::TextUnformatted("Adapter Modes");
+
+  if (ImGui::BeginChild("modes")) {
+    for (const auto& mode : current.adapterModes) {
+      ImGui::TextUnformatted(to_string(mode).c_str());
+    }
+  }
+
+  ImGui::EndChild();
 }
 
 } // namespace basalt

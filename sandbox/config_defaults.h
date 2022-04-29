@@ -1,6 +1,7 @@
 #pragma once
 
-#include <basalt/api/shared/config.h>
+#include <basalt/api/gfx/types.h>
+
 #include <basalt/api/shared/types.h>
 
 #include <basalt/api/base/utils.h>
@@ -8,6 +9,7 @@
 #define BASALT_CONFIG_DEFAULTS                                                 \
   {"runtime.debugUI.enabled"s, true}, {"window.title"s, "Basalt Sandbox"s},    \
     {"window.resizeable"s, true},                                              \
-    {"window.mode"s, enum_cast(basalt::WindowMode::Windowed)},                 \
+    {"window.mode"s, ::basalt::enum_cast(::basalt::WindowMode::Windowed)},     \
     {"window.size.width"s, 0}, {"window.size.height"s, 0},                     \
-    {"gfx.backend.api"s, enum_cast(basalt::GfxBackendApi::Default)},
+    {"gfx.backend.api"s,                                                       \
+     ::basalt::enum_cast(::basalt::gfx::BackendApi::Default)},

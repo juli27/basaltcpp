@@ -1,7 +1,5 @@
 #pragma once
 
-#include <basalt/api/shared/asserts.h>
-
 #include <basalt/api/base/types.h>
 #include <basalt/api/base/utils.h>
 
@@ -12,24 +10,6 @@
 #include <variant>
 
 namespace basalt {
-
-// SERIALIZED
-enum class GfxBackendApi : u8 {
-  Default = 0,
-  Direct3D9 = 1,
-};
-
-constexpr i32 GFX_BACKEND_API_COUNT = 2u;
-
-constexpr auto to_gfx_backend_api(const i32 num) -> GfxBackendApi {
-  BASALT_ASSERT(num < GFX_BACKEND_API_COUNT);
-
-  if (num >= GFX_BACKEND_API_COUNT || num < 0) {
-    return GfxBackendApi::Default;
-  }
-
-  return GfxBackendApi {static_cast<u8>(num)};
-}
 
 struct Config final {
   using Value = std::variant<bool, i32, std::string>;

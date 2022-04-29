@@ -18,13 +18,18 @@ private:
   // disallow outside construction while enabling make_unique
   struct Token {};
 
+  using InstancePtr = Microsoft::WRL::ComPtr<IDirect3D9>;
+
 public:
   struct DeviceAndContextDesc final {
     u32 adapterIndex {0};
     bool exclusive {false};
   };
 
-  D3D9Factory(Token, Microsoft::WRL::ComPtr<IDirect3D9> factory, Info info);
+  // returns null on failure
+  static auto create() -> D3D9FactoryPtr;
+
+  D3D9Factory(Token, InstancePtr);
 
   D3D9Factory(const D3D9Factory&) = delete;
   D3D9Factory(D3D9Factory&&) = delete;
@@ -36,7 +41,6 @@ public:
 
   [[nodiscard]] auto info() const -> const Info&;
 
-  [[nodiscard]] auto get_adapter_count() const -> u32;
   [[nodiscard]] auto get_current_adapter_mode(u32 adapterIndex) const
     -> AdapterMode;
   [[nodiscard]] auto get_adapter_monitor(u32 adapterIndex) const -> HMONITOR;
@@ -45,12 +49,8 @@ public:
     -> ContextPtr;
 
 private:
-  Microsoft::WRL::ComPtr<IDirect3D9> mFactory;
-  Info mInfo {};
-
-public:
-  // returns null on failure
-  static auto create() -> D3D9FactoryPtr;
+  InstancePtr mInstance;
+  Info mInfo;
 };
 
 } // namespace basalt::gfx
