@@ -1,7 +1,5 @@
 #pragma once
 
-#include <basalt/gfx/types.h>
-
 #include <basalt/api/gfx/types.h>
 
 #include <string>
