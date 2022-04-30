@@ -36,8 +36,9 @@ auto to_string(const ImageFormat format) noexcept -> const char* {
 
 auto to_string(const AdapterMode& mode) noexcept -> std::string {
   const auto gcd {std::gcd(mode.width, mode.height)};
-  return fmt::format("{}x{} {}Hz ({}:{})", mode.width, mode.height,
-                     mode.refreshRate, mode.width / gcd, mode.height / gcd);
+  return fmt::format("{}x{} ({}:{}) {}Hz {}", mode.width, mode.height,
+                     mode.width / gcd, mode.height / gcd, mode.refreshRate,
+                     to_string(mode.format));
 }
 
 } // namespace basalt::gfx

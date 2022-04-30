@@ -10,6 +10,7 @@
 
 #include <fmt/format.h>
 
+#include <array>
 #include <string>
 #include <utility>
 
@@ -17,14 +18,19 @@ namespace basalt::gfx {
 
 using Microsoft::WRL::ComPtr;
 
+using std::array;
 using std::string;
 
 namespace {
 
 constexpr D3DDEVTYPE DEVICE_TYPE {D3DDEVTYPE_HAL};
 
-// D3D9 allows the following display/adapter formats:
-// D3DFMT_R5G6B5, D3DFMT_X1R5G5B5, D3DFMT_X8R8G8B8, D3DFMT_A2R10G10B10
+constexpr array<D3DFORMAT, 3> DISPLAY_FORMATS {
+  D3DFMT_R5G6B5, // implies D3DFMT_X1R5G5B5 and D3DFMT_A1R5G5B5
+  D3DFMT_X8R8G8B8, // implies D3DFMT_A8R8G8B8
+  D3DFMT_A2R10G10B10,
+};
+
 // D3D9 allows the following back buffer formats:
 // D3DFMT_R5G6B5, D3DFMT_X1R5G5B5, D3DFMT_A1R5G5B5,
 // D3DFMT_X8R8G8B8, D3DFMT_A8R8G8B8, D3DFMT_A2R10G10B10
@@ -60,6 +66,34 @@ auto query_info(IDirect3D9& factory) -> Info {
   adapters.reserve(adapterCount);
 
   for (u32 adapter {0}; adapter < adapterCount; ++adapter) {
+    AdapterModeList adapterModes {};
+    for (const D3DFORMAT displayFormat : DISPLAY_FORMATS) {
+      const u32 modeCount {factory.GetAdapterModeCount(adapter, displayFormat)};
+      adapterModes.reserve(adapterModes.size() + modeCount);
+
+      const ImageFormat format {to_image_format(displayFormat)};
+
+      for (u32 modeIndex {0}; modeIndex < modeCount; ++modeIndex) {
+        D3DDISPLAYMODE mode {};
+        D3D9CALL(
+          factory.EnumAdapterModes(adapter, displayFormat, modeIndex, &mode));
+
+        // EnumAdapterModes treats pixel formats 565 and 555 as equivalent, and
+        // returns the correct version
+        if (displayFormat != mode.Format) {
+          break;
+        }
+
+        // EnumAdapterModes returns the correct 16-bit format
+        adapterModes.emplace_back(AdapterMode {
+          mode.Width,
+          mode.Height,
+          mode.RefreshRate,
+          format,
+        });
+      }
+    }
+
     D3DADAPTER_IDENTIFIER9 adapterIdentifier {};
     D3D9CALL(factory.GetAdapterIdentifier(adapter, 0ul, &adapterIdentifier));
 
@@ -71,27 +105,6 @@ auto query_info(IDirect3D9& factory) -> Info {
     string driverInfo {fmt::format(FMT_STRING("{} ({}.{}.{}.{})"),
                                    adapterIdentifier.Driver, product, version,
                                    subVersion, build)};
-
-    // VertexProcessingCaps, MaxActiveLights, MaxUserClipPlanes,
-    // MaxVertexBlendMatrices, MaxVertexBlendMatrixIndex depend on parameters
-    // supplied to CreateDevice and should be queried on the device itself.
-    D3DCAPS9 d3d9Caps {};
-    D3D9CALL(factory.GetDeviceCaps(adapter, DEVICE_TYPE, &d3d9Caps));
-
-    const u32 count {factory.GetAdapterModeCount(adapter, D3DFMT_X8R8G8B8)};
-    BASALT_ASSERT(count);
-
-    AdapterModeList adapterModes {};
-    adapterModes.reserve(adapterModes.size() + count);
-
-    for (u32 mode {0}; mode < count; ++mode) {
-      D3DDISPLAYMODE adapterMode {};
-      D3D9CALL(
-        factory.EnumAdapterModes(adapter, D3DFMT_X8R8G8B8, mode, &adapterMode));
-
-      adapterModes.emplace_back(AdapterMode {
-        adapterMode.Width, adapterMode.Height, adapterMode.RefreshRate});
-    }
 
     adapters.emplace_back(AdapterInfo {
       string {adapterIdentifier.Description},
@@ -257,6 +270,9 @@ auto D3D9Factory::create_device_and_context(
   D3D9CALL(mInstance->CreateDevice(adapterOrdinal, DEVICE_TYPE, window, flags,
                                    &pp, &d3d9Device));
 
+  // VertexProcessingCaps, MaxActiveLights, MaxUserClipPlanes,
+  // MaxVertexBlendMatrices, MaxVertexBlendMatrixIndex depend on parameters
+  // supplied to CreateDevice and should be queried on the device itself.
   D3DCAPS9 caps {};
   D3D9CALL(d3d9Device->GetDeviceCaps(&caps));
 

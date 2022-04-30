@@ -68,6 +68,7 @@ struct AdapterMode final {
   u32 width {};
   u32 height {};
   u32 refreshRate {};
+  ImageFormat format {ImageFormat::Unknown};
 };
 
 using AdapterModeList = std::vector<AdapterMode>;
