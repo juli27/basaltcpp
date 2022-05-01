@@ -25,9 +25,10 @@ namespace {
 
 constexpr D3DDEVTYPE DEVICE_TYPE {D3DDEVTYPE_HAL};
 
-constexpr array<D3DFORMAT, 3> DISPLAY_FORMATS {
-  D3DFMT_R5G6B5, // implies D3DFMT_X1R5G5B5 and D3DFMT_A1R5G5B5
-  D3DFMT_X8R8G8B8, // implies D3DFMT_A8R8G8B8
+constexpr array<D3DFORMAT, 4> DISPLAY_FORMATS {
+  D3DFMT_X1R5G5B5,
+  D3DFMT_R5G6B5,
+  D3DFMT_X8R8G8B8,
   D3DFMT_A2R10G10B10,
 };
 
@@ -77,12 +78,6 @@ auto query_info(IDirect3D9& factory) -> Info {
         D3DDISPLAYMODE mode {};
         D3D9CALL(
           factory.EnumAdapterModes(adapter, displayFormat, modeIndex, &mode));
-
-        // EnumAdapterModes treats pixel formats 565 and 555 as equivalent, and
-        // returns the correct version
-        if (displayFormat != mode.Format) {
-          break;
-        }
 
         // EnumAdapterModes returns the correct 16-bit format
         adapterModes.emplace_back(AdapterMode {
