@@ -4,13 +4,17 @@
 
 #include <basalt/api/base/enum_array.h>
 
+#include <fmt/format.h>
 #include <imgui/imgui.h>
 
+#include <numeric>
+#include <string>
 #include <string_view>
 
 namespace basalt {
 
 using namespace std::literals;
+using std::string;
 using std::string_view;
 
 namespace {
@@ -23,6 +27,14 @@ auto to_string(const gfx::BackendApi api) -> string_view {
   static_assert(gfx::BACKEND_API_COUNT == TO_STRING.size());
 
   return TO_STRING[api];
+}
+
+auto to_string(const gfx::AdapterMode& mode) noexcept -> string {
+  const auto gcd {std::gcd(mode.width, mode.height)};
+
+  return fmt::format(FMT_STRING("{}x{} ({}:{}) {}Hz {}"), mode.width,
+                     mode.height, mode.width / gcd, mode.height / gcd,
+                     mode.refreshRate, to_string(mode.format));
 }
 
 } // namespace
