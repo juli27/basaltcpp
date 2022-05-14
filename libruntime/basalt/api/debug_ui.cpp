@@ -74,8 +74,16 @@ auto DebugUi::show_gfx_info(const gfx::Info& gfxInfo) -> void {
   ImGui::TextUnformatted("Adapter Modes");
 
   if (ImGui::BeginChild("modes")) {
-    for (const auto& mode : current.adapterModes) {
-      ImGui::TextUnformatted(to_string(mode).c_str());
+    for (uSize i {0}; i < current.adapterModes.size(); ++i) {
+      const auto& mode {current.adapterModes[i]};
+
+      if (i == current.displayModeIndex) {
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4 {1.0f, 1.0f, 0.0f, 1.0f});
+        ImGui::TextUnformatted(to_string(mode).c_str());
+        ImGui::PopStyleColor();
+      } else {
+        ImGui::TextUnformatted(to_string(mode).c_str());
+      }
     }
   }
 

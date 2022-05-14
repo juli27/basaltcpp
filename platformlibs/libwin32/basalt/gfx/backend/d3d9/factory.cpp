@@ -61,15 +61,20 @@ constexpr auto to_image_format(const D3DFORMAT format) noexcept -> ImageFormat {
   }
 }
 
-auto query_info(IDirect3D9& factory) -> Info {
-  const u32 adapterCount {factory.GetAdapterCount()};
+auto query_info(IDirect3D9& instance) -> Info {
+  const u32 adapterCount {instance.GetAdapterCount()};
   AdapterList adapters;
   adapters.reserve(adapterCount);
 
   for (u32 adapter {0}; adapter < adapterCount; ++adapter) {
+    D3DDISPLAYMODE currentMode {};
+    D3D9CALL(instance.GetAdapterDisplayMode(adapter, &currentMode));
+    uSize currentModeIndex {0};
+
     AdapterModeList adapterModes {};
     for (const D3DFORMAT displayFormat : DISPLAY_FORMATS) {
-      const u32 modeCount {factory.GetAdapterModeCount(adapter, displayFormat)};
+      const u32 modeCount {
+        instance.GetAdapterModeCount(adapter, displayFormat)};
       adapterModes.reserve(adapterModes.size() + modeCount);
 
       const ImageFormat format {to_image_format(displayFormat)};
@@ -77,7 +82,14 @@ auto query_info(IDirect3D9& factory) -> Info {
       for (u32 modeIndex {0}; modeIndex < modeCount; ++modeIndex) {
         D3DDISPLAYMODE mode {};
         D3D9CALL(
-          factory.EnumAdapterModes(adapter, displayFormat, modeIndex, &mode));
+          instance.EnumAdapterModes(adapter, displayFormat, modeIndex, &mode));
+
+        if (mode.Format == currentMode.Format &&
+            mode.Width == currentMode.Width &&
+            mode.Height == currentMode.Height &&
+            mode.RefreshRate == currentMode.RefreshRate) {
+          currentModeIndex = modeIndex;
+        }
 
         // EnumAdapterModes returns the correct 16-bit format
         adapterModes.emplace_back(AdapterMode {
@@ -90,7 +102,7 @@ auto query_info(IDirect3D9& factory) -> Info {
     }
 
     D3DADAPTER_IDENTIFIER9 adapterIdentifier {};
-    D3D9CALL(factory.GetAdapterIdentifier(adapter, 0ul, &adapterIdentifier));
+    D3D9CALL(instance.GetAdapterIdentifier(adapter, 0ul, &adapterIdentifier));
 
     u16 product {HIWORD(adapterIdentifier.DriverVersion.HighPart)};
     u16 version {LOWORD(adapterIdentifier.DriverVersion.HighPart)};
@@ -105,6 +117,7 @@ auto query_info(IDirect3D9& factory) -> Info {
       string {adapterIdentifier.Description},
       std::move(driverInfo),
       std::move(adapterModes),
+      currentModeIndex,
       Adapter {adapter},
     });
   }
@@ -209,19 +222,6 @@ D3D9Factory::D3D9Factory(Token, InstancePtr instance)
 
 auto D3D9Factory::info() const -> const Info& {
   return mInfo;
-}
-
-auto D3D9Factory::get_current_adapter_mode(const Adapter adapter) const
-  -> AdapterMode {
-  const u32 adapterOrdinal {adapter.value()};
-
-  BASALT_ASSERT(adapterOrdinal < mInfo.adapters.size());
-
-  D3DDISPLAYMODE currentAdapterMode;
-  mInstance->GetAdapterDisplayMode(adapterOrdinal, &currentAdapterMode);
-
-  return AdapterMode {currentAdapterMode.Width, currentAdapterMode.Height,
-                      currentAdapterMode.RefreshRate};
 }
 
 auto D3D9Factory::get_adapter_monitor(const Adapter adapter) const -> HMONITOR {

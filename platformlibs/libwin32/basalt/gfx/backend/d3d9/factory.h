@@ -39,7 +39,6 @@ public:
 
   [[nodiscard]] auto info() const -> const Info&;
 
-  [[nodiscard]] auto get_current_adapter_mode(Adapter) const -> AdapterMode;
   [[nodiscard]] auto get_adapter_monitor(Adapter) const -> HMONITOR;
 
   auto create_device_and_context(HWND window, const DeviceAndContextDesc&) const

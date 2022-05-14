@@ -77,6 +77,7 @@ struct AdapterInfo final {
   std::string displayName {};
   std::string driverInfo {};
   AdapterModeList adapterModes {};
+  uSize displayModeIndex {0};
   Adapter handle;
 };
 
