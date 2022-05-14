@@ -12,14 +12,17 @@
 
 #include <array>
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace basalt::gfx {
 
 using Microsoft::WRL::ComPtr;
 
+using namespace std::literals;
 using std::array;
 using std::string;
+using std::string_view;
 
 namespace {
 
@@ -91,7 +94,6 @@ auto query_info(IDirect3D9& instance) -> Info {
           currentModeIndex = modeIndex;
         }
 
-        // EnumAdapterModes returns the correct 16-bit format
         adapterModes.emplace_back(AdapterMode {
           mode.Width,
           mode.Height,
@@ -128,72 +130,88 @@ auto query_info(IDirect3D9& instance) -> Info {
   };
 }
 
+struct Cap final {
+  string_view name;
+  DWORD cap {};
+};
+
+#define MAKE_CAP(cap)                                                          \
+  Cap {                                                                        \
+#cap##sv, cap,                                                             \
+  }
+
+auto log_missing_cap(const Cap& cap) -> void {
+  BASALT_LOG_WARN("D3D9: missing cap: {}", cap.name);
+}
+
+auto log_forbidden_cap(const Cap& cap) -> void {
+  BASALT_LOG_WARN("D3D9: forbidden cap: {}", cap.name);
+}
+
+template <typename MinCaps>
+[[nodiscard]] auto verify_caps_present(const DWORD caps, const MinCaps& minCaps)
+  -> bool {
+  bool allCapsPresent {true};
+
+  for (const Cap& cap : minCaps) {
+    if (!(caps & cap.cap)) {
+      allCapsPresent = false;
+      log_missing_cap(cap);
+    }
+  }
+
+  return allCapsPresent;
+}
+
 auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
-  if (!(caps.TextureCaps & D3DPTEXTURECAPS_PERSPECTIVE)) {
-    return false;
+  bool allCapsPresent {true};
+
+  static constexpr array<Cap, 4> MIN_TEXTURE_CAPS {
+    MAKE_CAP(D3DPTEXTURECAPS_PERSPECTIVE),
+    MAKE_CAP(D3DPTEXTURECAPS_ALPHA),
+    MAKE_CAP(D3DPTEXTURECAPS_PROJECTED),
+    MAKE_CAP(D3DPTEXTURECAPS_MIPMAP),
+  };
+
+  allCapsPresent &= verify_caps_present(caps.TextureCaps, MIN_TEXTURE_CAPS);
+
+  static constexpr array<Cap, 1> FORBIDDEN_TEXTURE_CAPS {
+    MAKE_CAP(D3DPTEXTURECAPS_SQUAREONLY),
+  };
+
+  for (const Cap& cap : FORBIDDEN_TEXTURE_CAPS) {
+    if (caps.TextureCaps & cap.cap) {
+      allCapsPresent = false;
+      log_forbidden_cap(cap);
+    }
   }
 
-  if (!(caps.TextureCaps & D3DPTEXTURECAPS_ALPHA)) {
-    return false;
-  }
+  static constexpr array<Cap, 6> MIN_TEXTURE_FILTER_CAPS {
+    MAKE_CAP(D3DPTFILTERCAPS_MINFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MINFLINEAR),
+    MAKE_CAP(D3DPTFILTERCAPS_MIPFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MIPFLINEAR),
+    MAKE_CAP(D3DPTFILTERCAPS_MAGFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MAGFLINEAR),
+  };
 
-  if (caps.TextureCaps & D3DPTEXTURECAPS_SQUAREONLY) {
-    return false;
-  }
+  allCapsPresent &=
+    verify_caps_present(caps.TextureFilterCaps, MIN_TEXTURE_FILTER_CAPS);
 
-  if (!(caps.TextureCaps & D3DPTEXTURECAPS_PROJECTED)) {
-    return false;
-  }
+  static constexpr array<Cap, 4> MIN_TEXTURE_ADDRESS_CAPS {
+    MAKE_CAP(D3DPTADDRESSCAPS_WRAP),
+    MAKE_CAP(D3DPTADDRESSCAPS_MIRROR),
+    MAKE_CAP(D3DPTADDRESSCAPS_CLAMP),
+    MAKE_CAP(D3DPTADDRESSCAPS_INDEPENDENTUV),
+  };
 
-  if (!(caps.TextureCaps & D3DPTEXTURECAPS_MIPMAP)) {
-    return false;
-  }
+  allCapsPresent &=
+    verify_caps_present(caps.TextureAddressCaps, MIN_TEXTURE_ADDRESS_CAPS);
 
-  if (!(caps.TextureFilterCaps & D3DPTFILTERCAPS_MINFPOINT)) {
-    return false;
-  }
+  static constexpr array<Cap, 1> MIN_DEV_CAPS2 {
+    MAKE_CAP(D3DDEVCAPS2_STREAMOFFSET),
+  };
 
-  if (!(caps.TextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR)) {
-    return false;
-  }
+  allCapsPresent &= verify_caps_present(caps.DevCaps2, MIN_DEV_CAPS2);
 
-  if (!(caps.TextureFilterCaps & D3DPTFILTERCAPS_MIPFPOINT)) {
-    return false;
-  }
-
-  if (!(caps.TextureFilterCaps & D3DPTFILTERCAPS_MIPFLINEAR)) {
-    return false;
-  }
-
-  if (!(caps.TextureFilterCaps & D3DPTFILTERCAPS_MAGFPOINT)) {
-    return false;
-  }
-
-  if (!(caps.TextureFilterCaps & D3DPTFILTERCAPS_MAGFLINEAR)) {
-    return false;
-  }
-
-  if (!(caps.TextureAddressCaps & D3DPTADDRESSCAPS_WRAP)) {
-    return false;
-  }
-
-  if (!(caps.TextureAddressCaps & D3DPTADDRESSCAPS_MIRROR)) {
-    return false;
-  }
-
-  if (!(caps.TextureAddressCaps & D3DPTADDRESSCAPS_CLAMP)) {
-    return false;
-  }
-
-  if (!(caps.TextureAddressCaps & D3DPTADDRESSCAPS_INDEPENDENTUV)) {
-    return false;
-  }
-
-  if (!(caps.DevCaps2 & D3DDEVCAPS2_STREAMOFFSET)) {
-    return false;
-  }
-
-  return true;
+  return allCapsPresent;
 }
 
 } // namespace
