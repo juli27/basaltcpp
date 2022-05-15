@@ -3,7 +3,7 @@
 ### Prerequisites
 * A recent version of Windows 10 (x86-64)
 * Git
-* CMake 3.16 or newer
+* CMake 3.17 or newer
 * Visual Studio 2019
   * Desktop development with C++
   (`Microsoft.VisualStudio.Workload.NativeDesktop`)
@@ -22,10 +22,10 @@
 ## OS Support
 ### Windows
 * Windows 8.1
-* Windows 10 1909 19H2 November 2019 Update (Build 18363)
-* Windows 10 2004 20H1 May 2020 Update (Build 19041)
 * Windows 10 20H2 October 2020 Update (Build 19042)
 * Windows 10 21H1 May 2021 Update (Build 19043)
+* Windows 10 21H2 November 2021 Update (Build 19044)
+* Windows 11 21H2 (Build 22000)
 
 > The following Windows versions probably still work as features not available
 in these versions haven't been made mandatory yet:
@@ -45,8 +45,9 @@ in these versions haven't been made mandatory yet:
 > * Windows 10 1803 RS4 April 2018 Update (Build 17134)
 > * Windows 10 1809 RS5 October 2018 Update (Build 17763)
 > * Windows 10 1903 19H1 May 2019 Update (Build 18362)
+> * Windows 10 1909 19H2 November 2019 Update (Build 18363)
+> * Windows 10 2004 20H1 May 2020 Update (Build 19041)
 
 ## Hardware Support
 * CPU: x86-64
-* GPU: must still be supported by the manufacturer
-  * Direct3D 9.0c, Shader Model 3.0, WDDM, 32-bits-per-pixel
+* GPU: Direct3D 9.0c, Shader Model 2.0
