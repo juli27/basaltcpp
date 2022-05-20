@@ -81,6 +81,10 @@ auto DebugUi::show_gfx_info(const gfx::Info& gfxInfo) -> void {
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4 {1.0f, 1.0f, 0.0f, 1.0f});
         ImGui::TextUnformatted(to_string(mode).c_str());
         ImGui::PopStyleColor();
+
+        if (ImGui::IsWindowAppearing()) {
+          ImGui::SetScrollHereY();
+        }
       } else {
         ImGui::TextUnformatted(to_string(mode).c_str());
       }
