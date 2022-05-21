@@ -27,6 +27,8 @@ using std::string_view;
 namespace {
 
 constexpr D3DDEVTYPE DEVICE_TYPE {D3DDEVTYPE_HAL};
+constexpr DWORD DEVICE_CREATE_FLAGS {D3DCREATE_HARDWARE_VERTEXPROCESSING |
+                                     D3DCREATE_DISABLE_DRIVER_MANAGEMENT};
 
 constexpr array<D3DFORMAT, 4> DISPLAY_FORMATS {
   D3DFMT_X1R5G5B5,
@@ -64,21 +66,27 @@ constexpr auto to_image_format(const D3DFORMAT format) noexcept -> ImageFormat {
   }
 }
 
-auto query_info(IDirect3D9& instance) -> Info {
-  const u32 adapterCount {instance.GetAdapterCount()};
+auto enum_suitable_adapters(IDirect3D9& instance) -> AdapterList {
+  const UINT adapterCount {instance.GetAdapterCount()};
+
+  BASALT_LOG_INFO("d3d9: testing {} adapters for suitability", adapterCount);
+
   AdapterList adapters;
   adapters.reserve(adapterCount);
 
-  for (u32 adapter {0}; adapter < adapterCount; ++adapter) {
-    D3DDISPLAYMODE currentMode {};
-    D3D9CALL(instance.GetAdapterDisplayMode(adapter, &currentMode));
-    uSize currentModeIndex {0};
+  for (UINT adapter {0}; adapter < adapterCount; ++adapter) {
+    AdapterModeList adapterModes;
 
-    AdapterModeList adapterModes {};
     for (const D3DFORMAT displayFormat : DISPLAY_FORMATS) {
-      const u32 modeCount {
+      const UINT modeCount {
         instance.GetAdapterModeCount(adapter, displayFormat)};
-      adapterModes.reserve(adapterModes.size() + modeCount);
+
+      if (modeCount == 0) {
+        continue;
+      }
+
+      DisplayModeList displayModes;
+      displayModes.reserve(modeCount);
 
       const ImageFormat format {to_image_format(displayFormat)};
 
@@ -87,20 +95,17 @@ auto query_info(IDirect3D9& instance) -> Info {
         D3D9CALL(
           instance.EnumAdapterModes(adapter, displayFormat, modeIndex, &mode));
 
-        if (mode.Format == currentMode.Format &&
-            mode.Width == currentMode.Width &&
-            mode.Height == currentMode.Height &&
-            mode.RefreshRate == currentMode.RefreshRate) {
-          currentModeIndex = modeIndex;
-        }
-
-        adapterModes.emplace_back(AdapterMode {
+        displayModes.emplace_back(DisplayMode {
           mode.Width,
           mode.Height,
           mode.RefreshRate,
-          format,
         });
       }
+
+      adapterModes.emplace_back(AdapterModes {
+        std::move(displayModes),
+        format,
+      });
     }
 
     D3DADAPTER_IDENTIFIER9 adapterIdentifier {};
@@ -115,19 +120,24 @@ auto query_info(IDirect3D9& instance) -> Info {
                                    adapterIdentifier.Driver, product, version,
                                    subVersion, build)};
 
+    D3DDISPLAYMODE currentMode {};
+    D3D9CALL(instance.GetAdapterDisplayMode(adapter, &currentMode));
+
     adapters.emplace_back(AdapterInfo {
       string {adapterIdentifier.Description},
       std::move(driverInfo),
       std::move(adapterModes),
-      currentModeIndex,
+      DisplayMode {
+        currentMode.Width,
+        currentMode.Height,
+        currentMode.RefreshRate,
+      },
+      to_image_format(currentMode.Format),
       Adapter {adapter},
     });
   }
 
-  return Info {
-    std::move(adapters),
-    BackendApi::Direct3D9,
-  };
+  return adapters;
 }
 
 struct Cap final {
@@ -219,8 +229,16 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
 auto D3D9Factory::create() -> D3D9FactoryPtr {
   InstancePtr instance;
   instance.Attach(Direct3DCreate9(D3D_SDK_VERSION));
-  if (!instance || instance->GetAdapterCount() == 0) {
-    BASALT_LOG_WARN("Direct3D 9 not available");
+  if (!instance) {
+    BASALT_LOG_WARN("d3d9: not available");
+
+    return nullptr;
+  }
+
+  AdapterList adapters {enum_suitable_adapters(*instance.Get())};
+
+  if (adapters.empty()) {
+    BASALT_LOG_WARN("d3d9: no suitable adapter");
 
     return nullptr;
   }
@@ -231,11 +249,15 @@ auto D3D9Factory::create() -> D3D9FactoryPtr {
     return nullptr;
   }
 
-  return std::make_unique<D3D9Factory>(Token {}, std::move(instance));
+  return std::make_unique<D3D9Factory>(Token {}, std::move(instance),
+                                       Info {
+                                         std::move(adapters),
+                                         BackendApi::Direct3D9,
+                                       });
 }
 
-D3D9Factory::D3D9Factory(Token, InstancePtr instance)
-  : mInstance {std::move(instance)}, mInfo {query_info(*mInstance.Get())} {
+D3D9Factory::D3D9Factory(Token, InstancePtr instance, Info info)
+  : mInstance {std::move(instance)}, mInfo {std::move(info)} {
 }
 
 auto D3D9Factory::info() const -> const Info& {
@@ -276,12 +298,9 @@ auto D3D9Factory::create_device_and_context(
     pp.FullScreen_RefreshRateInHz = displayMode.RefreshRate;
   }
 
-  constexpr DWORD flags {D3DCREATE_HARDWARE_VERTEXPROCESSING |
-                         D3DCREATE_DISABLE_DRIVER_MANAGEMENT};
-
   ComPtr<IDirect3DDevice9> d3d9Device;
-  D3D9CALL(mInstance->CreateDevice(adapterOrdinal, DEVICE_TYPE, window, flags,
-                                   &pp, &d3d9Device));
+  D3D9CALL(mInstance->CreateDevice(adapterOrdinal, DEVICE_TYPE, window,
+                                   DEVICE_CREATE_FLAGS, &pp, &d3d9Device));
 
   // VertexProcessingCaps, MaxActiveLights, MaxUserClipPlanes,
   // MaxVertexBlendMatrices, MaxVertexBlendMatrixIndex depend on parameters

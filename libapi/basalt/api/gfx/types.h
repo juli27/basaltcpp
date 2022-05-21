@@ -64,20 +64,27 @@ enum class BackendApi : u8
 };
 constexpr uSize BACKEND_API_COUNT {2u};
 
-struct AdapterMode final {
+struct DisplayMode final {
   u32 width {};
   u32 height {};
   u32 refreshRate {};
-  ImageFormat format {ImageFormat::Unknown};
 };
 
-using AdapterModeList = std::vector<AdapterMode>;
+using DisplayModeList = std::vector<DisplayMode>;
+
+struct AdapterModes final {
+  DisplayModeList displayModes;
+  ImageFormat displayFormat {ImageFormat::Unknown};
+};
+
+using AdapterModeList = std::vector<AdapterModes>;
 
 struct AdapterInfo final {
   std::string displayName {};
   std::string driverInfo {};
   AdapterModeList adapterModes {};
-  uSize displayModeIndex {0};
+  DisplayMode displayMode;
+  ImageFormat displayFormat {ImageFormat::Unknown};
   Adapter handle;
 };
 

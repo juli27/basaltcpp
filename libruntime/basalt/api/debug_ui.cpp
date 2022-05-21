@@ -29,24 +29,26 @@ auto to_string(const gfx::BackendApi api) -> string_view {
   return TO_STRING[api];
 }
 
-auto to_string(const gfx::AdapterMode& mode) noexcept -> string {
+auto to_string(const gfx::DisplayMode& mode,
+               const gfx::ImageFormat format) noexcept -> string {
   const auto gcd {std::gcd(mode.width, mode.height)};
 
   return fmt::format(FMT_STRING("{}x{} ({}:{}) {}Hz {}"), mode.width,
                      mode.height, mode.width / gcd, mode.height / gcd,
-                     mode.refreshRate, to_string(mode.format));
+                     mode.refreshRate, to_string(format));
 }
 
 } // namespace
 
 auto DebugUi::show_gfx_info(const gfx::Info& gfxInfo) -> void {
-  const gfx::AdapterInfo& current {gfxInfo.adapters[mSelectedAdapterIndex]};
+  const gfx::AdapterInfo& selectedAdapter {
+    gfxInfo.adapters[mSelectedAdapterIndex]};
 
   ImGui::Text("Backend API: %s", to_string(gfxInfo.backendApi).data());
 
   ImGui::Separator();
 
-  if (ImGui::BeginCombo("Adapter", current.displayName.c_str())) {
+  if (ImGui::BeginCombo("Adapter", selectedAdapter.displayName.c_str())) {
     for (const auto& adapter : gfxInfo.adapters) {
       ImGui::PushID(&adapter);
 
@@ -67,26 +69,36 @@ auto DebugUi::show_gfx_info(const gfx::Info& gfxInfo) -> void {
     ImGui::EndCombo();
   }
 
-  ImGui::Text("Driver: %s", current.driverInfo.c_str());
+  ImGui::Text("Driver: %s", selectedAdapter.driverInfo.c_str());
 
   ImGui::Separator();
 
   ImGui::TextUnformatted("Adapter Modes");
 
   if (ImGui::BeginChild("modes")) {
-    for (uSize i {0}; i < current.adapterModes.size(); ++i) {
-      const auto& mode {current.adapterModes[i]};
+    const auto& adapterModes {selectedAdapter.adapterModes};
 
-      if (i == current.displayModeIndex) {
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4 {1.0f, 1.0f, 0.0f, 1.0f});
-        ImGui::TextUnformatted(to_string(mode).c_str());
-        ImGui::PopStyleColor();
+    for (uSize i {0}; i < adapterModes.size(); ++i) {
+      const auto& adapterMode {adapterModes[i]};
 
-        if (ImGui::IsWindowAppearing()) {
-          ImGui::SetScrollHereY();
+      for (const auto& displayMode : adapterMode.displayModes) {
+        if (adapterMode.displayFormat == selectedAdapter.displayFormat &&
+            displayMode.width == selectedAdapter.displayMode.width &&
+            displayMode.height == selectedAdapter.displayMode.height &&
+            displayMode.refreshRate ==
+              selectedAdapter.displayMode.refreshRate) {
+          ImGui::PushStyleColor(ImGuiCol_Text, ImVec4 {1.0f, 1.0f, 0.0f, 1.0f});
+          ImGui::TextUnformatted(
+            to_string(displayMode, adapterMode.displayFormat).c_str());
+          ImGui::PopStyleColor();
+
+          if (ImGui::IsWindowAppearing()) {
+            ImGui::SetScrollHereY();
+          }
+        } else {
+          ImGui::TextUnformatted(
+            to_string(displayMode, adapterMode.displayFormat).c_str());
         }
-      } else {
-        ImGui::TextUnformatted(to_string(mode).c_str());
       }
     }
   }

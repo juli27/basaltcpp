@@ -27,7 +27,7 @@ public:
   // returns null on failure
   static auto create() -> D3D9FactoryPtr;
 
-  D3D9Factory(Token, InstancePtr);
+  D3D9Factory(Token, InstancePtr, Info);
 
   D3D9Factory(const D3D9Factory&) = delete;
   D3D9Factory(D3D9Factory&&) = delete;
