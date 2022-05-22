@@ -17,8 +17,8 @@
 
 #define D3D9CALL(x)                                                            \
   do {                                                                         \
-    if (const HRESULT hr = (x); FAILED(hr)) {                                  \
-      DXTraceW(__FILE__, __LINE__, hr, L#x, TRUE);                             \
+    if (const HRESULT macroHr {x}; FAILED(macroHr)) {                          \
+      DXTraceW(__FILE__, __LINE__, macroHr, L#x, TRUE);                        \
     }                                                                          \
   } while (false)
 

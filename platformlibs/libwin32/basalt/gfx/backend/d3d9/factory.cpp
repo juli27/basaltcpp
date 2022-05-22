@@ -14,6 +14,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 namespace basalt::gfx {
 
@@ -23,6 +24,7 @@ using namespace std::literals;
 using std::array;
 using std::string;
 using std::string_view;
+using std::vector;
 
 namespace {
 
@@ -37,9 +39,10 @@ constexpr array<D3DFORMAT, 4> DISPLAY_FORMATS {
   D3DFMT_A2R10G10B10,
 };
 
-// D3D9 allows the following back buffer formats:
-// D3DFMT_R5G6B5, D3DFMT_X1R5G5B5, D3DFMT_A1R5G5B5,
-// D3DFMT_X8R8G8B8, D3DFMT_A8R8G8B8, D3DFMT_A2R10G10B10
+constexpr array<D3DFORMAT, 6> BACK_BUFFER_FORMATS {
+  D3DFMT_X1R5G5B5, D3DFMT_A1R5G5B5, D3DFMT_R5G6B5,
+  D3DFMT_X8R8G8B8, D3DFMT_A8R8G8B8, D3DFMT_A2R10G10B10,
+};
 
 constexpr auto to_image_format(const D3DFORMAT format) noexcept -> ImageFormat {
   switch (format) {
@@ -66,6 +69,87 @@ constexpr auto to_image_format(const D3DFORMAT format) noexcept -> ImageFormat {
   }
 }
 
+auto enum_display_modes(IDirect3D9& instance, const UINT adapter,
+                        const D3DFORMAT displayFormat) -> DisplayModeList {
+  DisplayModeList displayModes;
+
+  const UINT modeCount {instance.GetAdapterModeCount(adapter, displayFormat)};
+  displayModes.reserve(modeCount);
+
+  for (UINT modeIndex {0}; modeIndex < modeCount; ++modeIndex) {
+    D3DDISPLAYMODE mode {};
+    D3D9CALL(
+      instance.EnumAdapterModes(adapter, displayFormat, modeIndex, &mode));
+
+    displayModes.emplace_back(DisplayMode {
+      mode.Width,
+      mode.Height,
+      mode.RefreshRate,
+    });
+  }
+
+  return displayModes;
+}
+
+auto enum_back_buffer_formats(IDirect3D9& instance, const UINT adapter,
+                              const D3DFORMAT displayFormat,
+                              const BOOL windowed) -> vector<ImageFormat> {
+  vector<ImageFormat> backBufferFormats;
+  backBufferFormats.reserve(BACK_BUFFER_FORMATS.size());
+
+  for (const D3DFORMAT backBufferFormat : BACK_BUFFER_FORMATS) {
+    const HRESULT hr {instance.CheckDeviceType(
+      adapter, DEVICE_TYPE, displayFormat, backBufferFormat, windowed)};
+
+    if (hr == D3DERR_NOTAVAILABLE) {
+      continue;
+    }
+
+    // other errors codes are not expected
+    D3D9CALL(hr);
+
+    if (SUCCEEDED(hr)) {
+      backBufferFormats.emplace_back(to_image_format(backBufferFormat));
+    }
+  }
+
+  backBufferFormats.shrink_to_fit();
+
+  return backBufferFormats;
+}
+
+auto enum_suitable_adapter_modes(IDirect3D9& instance, const UINT adapter)
+  -> AdapterModeList {
+  AdapterModeList adapterModes;
+  adapterModes.reserve(DISPLAY_FORMATS.size());
+
+  for (const D3DFORMAT displayFormat : DISPLAY_FORMATS) {
+    auto backBufferFormats {
+      enum_back_buffer_formats(instance, adapter, displayFormat, FALSE)};
+
+    if (backBufferFormats.empty()) {
+      continue;
+    }
+
+    DisplayModeList displayModes {
+      enum_display_modes(instance, adapter, displayFormat)};
+
+    if (displayModes.empty()) {
+      continue;
+    }
+
+    adapterModes.emplace_back(AdapterModes {
+      std::move(backBufferFormats),
+      std::move(displayModes),
+      to_image_format(displayFormat),
+    });
+  }
+
+  adapterModes.shrink_to_fit();
+
+  return adapterModes;
+}
+
 auto enum_suitable_adapters(IDirect3D9& instance) -> AdapterList {
   const UINT adapterCount {instance.GetAdapterCount()};
 
@@ -75,46 +159,24 @@ auto enum_suitable_adapters(IDirect3D9& instance) -> AdapterList {
   adapters.reserve(adapterCount);
 
   for (UINT adapter {0}; adapter < adapterCount; ++adapter) {
-    AdapterModeList adapterModes;
+    // TODO: minimum caps
 
-    for (const D3DFORMAT displayFormat : DISPLAY_FORMATS) {
-      const UINT modeCount {
-        instance.GetAdapterModeCount(adapter, displayFormat)};
+    AdapterModeList adapterModes {
+      enum_suitable_adapter_modes(instance, adapter)};
 
-      if (modeCount == 0) {
-        continue;
-      }
+    if (adapterModes.empty()) {
+      BASALT_LOG_INFO("d3d9: adapter {} has no useable adapter mode", adapter);
 
-      DisplayModeList displayModes;
-      displayModes.reserve(modeCount);
-
-      const ImageFormat format {to_image_format(displayFormat)};
-
-      for (u32 modeIndex {0}; modeIndex < modeCount; ++modeIndex) {
-        D3DDISPLAYMODE mode {};
-        D3D9CALL(
-          instance.EnumAdapterModes(adapter, displayFormat, modeIndex, &mode));
-
-        displayModes.emplace_back(DisplayMode {
-          mode.Width,
-          mode.Height,
-          mode.RefreshRate,
-        });
-      }
-
-      adapterModes.emplace_back(AdapterModes {
-        std::move(displayModes),
-        format,
-      });
+      continue;
     }
 
     D3DADAPTER_IDENTIFIER9 adapterIdentifier {};
     D3D9CALL(instance.GetAdapterIdentifier(adapter, 0ul, &adapterIdentifier));
 
-    u16 product {HIWORD(adapterIdentifier.DriverVersion.HighPart)};
-    u16 version {LOWORD(adapterIdentifier.DriverVersion.HighPart)};
-    u16 subVersion {HIWORD(adapterIdentifier.DriverVersion.LowPart)};
-    u16 build {LOWORD(adapterIdentifier.DriverVersion.LowPart)};
+    const u16 product {HIWORD(adapterIdentifier.DriverVersion.HighPart)};
+    const u16 version {LOWORD(adapterIdentifier.DriverVersion.HighPart)};
+    const u16 subVersion {HIWORD(adapterIdentifier.DriverVersion.LowPart)};
+    const u16 build {LOWORD(adapterIdentifier.DriverVersion.LowPart)};
 
     string driverInfo {fmt::format(FMT_STRING("{} ({}.{}.{}.{})"),
                                    adapterIdentifier.Driver, product, version,
@@ -123,10 +185,20 @@ auto enum_suitable_adapters(IDirect3D9& instance) -> AdapterList {
     D3DDISPLAYMODE currentMode {};
     D3D9CALL(instance.GetAdapterDisplayMode(adapter, &currentMode));
 
+    auto backBufferFormats {
+      enum_back_buffer_formats(instance, adapter, currentMode.Format, TRUE)};
+
+    if (backBufferFormats.empty()) {
+      BASALT_LOG_INFO("d3d9: adapter {} has no back buffer formats", adapter);
+
+      continue;
+    }
+
     adapters.emplace_back(AdapterInfo {
       string {adapterIdentifier.Description},
       std::move(driverInfo),
       std::move(adapterModes),
+      std::move(backBufferFormats),
       DisplayMode {
         currentMode.Width,
         currentMode.Height,

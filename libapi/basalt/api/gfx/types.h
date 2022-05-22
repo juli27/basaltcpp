@@ -73,6 +73,7 @@ struct DisplayMode final {
 using DisplayModeList = std::vector<DisplayMode>;
 
 struct AdapterModes final {
+  std::vector<ImageFormat> backBufferFormats;
   DisplayModeList displayModes;
   ImageFormat displayFormat {ImageFormat::Unknown};
 };
@@ -83,6 +84,7 @@ struct AdapterInfo final {
   std::string displayName {};
   std::string driverInfo {};
   AdapterModeList adapterModes {};
+  std::vector<ImageFormat> backBufferFormats;
   DisplayMode displayMode;
   ImageFormat displayFormat {ImageFormat::Unknown};
   Adapter handle;
