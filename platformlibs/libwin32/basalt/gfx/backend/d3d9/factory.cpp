@@ -44,6 +44,114 @@ constexpr array<D3DFORMAT, 6> BACK_BUFFER_FORMATS {
   D3DFMT_X8R8G8B8, D3DFMT_A8R8G8B8, D3DFMT_A2R10G10B10,
 };
 
+struct Cap final {
+  string_view name;
+  DWORD cap {};
+};
+
+auto log_missing_cap(const Cap& cap) -> void {
+  BASALT_LOG_WARN("D3D9: missing cap: {}", cap.name);
+}
+
+auto log_forbidden_cap(const Cap& cap) -> void {
+  BASALT_LOG_WARN("D3D9: forbidden cap: {}", cap.name);
+}
+
+template <typename MinCaps>
+[[nodiscard]] auto verify_caps_present(const DWORD caps, const MinCaps& minCaps)
+  -> bool {
+  bool allCapsPresent {true};
+
+  for (const Cap& cap : minCaps) {
+    if (!(caps & cap.cap)) {
+      allCapsPresent = false;
+      log_missing_cap(cap);
+    }
+  }
+
+  return allCapsPresent;
+}
+
+#define MAKE_CAP(cap)                                                          \
+  Cap {                                                                        \
+#cap##sv, cap,                                                             \
+  }
+
+auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
+  bool allCapsPresent {true};
+
+  static constexpr array<Cap, 4> MIN_TEXTURE_CAPS {
+    MAKE_CAP(D3DPTEXTURECAPS_PERSPECTIVE),
+    MAKE_CAP(D3DPTEXTURECAPS_ALPHA),
+    MAKE_CAP(D3DPTEXTURECAPS_PROJECTED),
+    MAKE_CAP(D3DPTEXTURECAPS_MIPMAP),
+  };
+
+  allCapsPresent &= verify_caps_present(caps.TextureCaps, MIN_TEXTURE_CAPS);
+
+  static constexpr array<Cap, 1> FORBIDDEN_TEXTURE_CAPS {
+    MAKE_CAP(D3DPTEXTURECAPS_SQUAREONLY),
+  };
+
+  for (const Cap& cap : FORBIDDEN_TEXTURE_CAPS) {
+    if (caps.TextureCaps & cap.cap) {
+      allCapsPresent = false;
+      log_forbidden_cap(cap);
+    }
+  }
+
+  static constexpr array<Cap, 6> MIN_TEXTURE_FILTER_CAPS {
+    MAKE_CAP(D3DPTFILTERCAPS_MINFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MINFLINEAR),
+    MAKE_CAP(D3DPTFILTERCAPS_MIPFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MIPFLINEAR),
+    MAKE_CAP(D3DPTFILTERCAPS_MAGFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MAGFLINEAR),
+  };
+
+  allCapsPresent &=
+    verify_caps_present(caps.TextureFilterCaps, MIN_TEXTURE_FILTER_CAPS);
+
+  static constexpr array<Cap, 4> MIN_TEXTURE_ADDRESS_CAPS {
+    MAKE_CAP(D3DPTADDRESSCAPS_WRAP),
+    MAKE_CAP(D3DPTADDRESSCAPS_MIRROR),
+    MAKE_CAP(D3DPTADDRESSCAPS_CLAMP),
+    MAKE_CAP(D3DPTADDRESSCAPS_INDEPENDENTUV),
+  };
+
+  allCapsPresent &=
+    verify_caps_present(caps.TextureAddressCaps, MIN_TEXTURE_ADDRESS_CAPS);
+
+  static constexpr array<Cap, 1> MIN_DEV_CAPS2 {
+    MAKE_CAP(D3DDEVCAPS2_STREAMOFFSET),
+  };
+
+  allCapsPresent &= verify_caps_present(caps.DevCaps2, MIN_DEV_CAPS2);
+
+  return allCapsPresent;
+}
+
+#undef MAKE_CAP
+
+auto enum_display_modes(IDirect3D9& instance, const UINT adapter,
+                        const D3DFORMAT displayFormat) -> DisplayModeList {
+  DisplayModeList displayModes;
+
+  const UINT modeCount {instance.GetAdapterModeCount(adapter, displayFormat)};
+  displayModes.reserve(modeCount);
+
+  for (UINT modeIndex {0}; modeIndex < modeCount; ++modeIndex) {
+    D3DDISPLAYMODE mode {};
+    D3D9CALL(
+      instance.EnumAdapterModes(adapter, displayFormat, modeIndex, &mode));
+
+    displayModes.emplace_back(DisplayMode {
+      mode.Width,
+      mode.Height,
+      mode.RefreshRate,
+    });
+  }
+
+  return displayModes;
+}
+
 constexpr auto to_image_format(const D3DFORMAT format) noexcept -> ImageFormat {
   switch (format) {
   case D3DFMT_A8R8G8B8:
@@ -67,28 +175,6 @@ constexpr auto to_image_format(const D3DFORMAT format) noexcept -> ImageFormat {
   default:
     return ImageFormat::Unknown;
   }
-}
-
-auto enum_display_modes(IDirect3D9& instance, const UINT adapter,
-                        const D3DFORMAT displayFormat) -> DisplayModeList {
-  DisplayModeList displayModes;
-
-  const UINT modeCount {instance.GetAdapterModeCount(adapter, displayFormat)};
-  displayModes.reserve(modeCount);
-
-  for (UINT modeIndex {0}; modeIndex < modeCount; ++modeIndex) {
-    D3DDISPLAYMODE mode {};
-    D3D9CALL(
-      instance.EnumAdapterModes(adapter, displayFormat, modeIndex, &mode));
-
-    displayModes.emplace_back(DisplayMode {
-      mode.Width,
-      mode.Height,
-      mode.RefreshRate,
-    });
-  }
-
-  return displayModes;
 }
 
 auto enum_back_buffer_formats(IDirect3D9& instance, const UINT adapter,
@@ -159,7 +245,18 @@ auto enum_suitable_adapters(IDirect3D9& instance) -> AdapterList {
   adapters.reserve(adapterCount);
 
   for (UINT adapter {0}; adapter < adapterCount; ++adapter) {
-    // TODO: minimum caps
+    // VertexProcessingCaps, MaxActiveLights, MaxUserClipPlanes,
+    // MaxVertexBlendMatrices, MaxVertexBlendMatrixIndex depend on parameters
+    // supplied to CreateDevice and should be queried on the device itself.
+    D3DCAPS9 caps {};
+    D3D9CALL(instance.GetDeviceCaps(adapter, DEVICE_TYPE, &caps));
+
+    if (!verify_minimum_caps(caps)) {
+      BASALT_LOG_INFO("d3d9: adapter {} minimum device caps not present",
+                      adapter);
+
+      continue;
+    }
 
     AdapterModeList adapterModes {
       enum_suitable_adapter_modes(instance, adapter)};
@@ -210,90 +307,6 @@ auto enum_suitable_adapters(IDirect3D9& instance) -> AdapterList {
   }
 
   return adapters;
-}
-
-struct Cap final {
-  string_view name;
-  DWORD cap {};
-};
-
-#define MAKE_CAP(cap)                                                          \
-  Cap {                                                                        \
-#cap##sv, cap,                                                             \
-  }
-
-auto log_missing_cap(const Cap& cap) -> void {
-  BASALT_LOG_WARN("D3D9: missing cap: {}", cap.name);
-}
-
-auto log_forbidden_cap(const Cap& cap) -> void {
-  BASALT_LOG_WARN("D3D9: forbidden cap: {}", cap.name);
-}
-
-template <typename MinCaps>
-[[nodiscard]] auto verify_caps_present(const DWORD caps, const MinCaps& minCaps)
-  -> bool {
-  bool allCapsPresent {true};
-
-  for (const Cap& cap : minCaps) {
-    if (!(caps & cap.cap)) {
-      allCapsPresent = false;
-      log_missing_cap(cap);
-    }
-  }
-
-  return allCapsPresent;
-}
-
-auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
-  bool allCapsPresent {true};
-
-  static constexpr array<Cap, 4> MIN_TEXTURE_CAPS {
-    MAKE_CAP(D3DPTEXTURECAPS_PERSPECTIVE),
-    MAKE_CAP(D3DPTEXTURECAPS_ALPHA),
-    MAKE_CAP(D3DPTEXTURECAPS_PROJECTED),
-    MAKE_CAP(D3DPTEXTURECAPS_MIPMAP),
-  };
-
-  allCapsPresent &= verify_caps_present(caps.TextureCaps, MIN_TEXTURE_CAPS);
-
-  static constexpr array<Cap, 1> FORBIDDEN_TEXTURE_CAPS {
-    MAKE_CAP(D3DPTEXTURECAPS_SQUAREONLY),
-  };
-
-  for (const Cap& cap : FORBIDDEN_TEXTURE_CAPS) {
-    if (caps.TextureCaps & cap.cap) {
-      allCapsPresent = false;
-      log_forbidden_cap(cap);
-    }
-  }
-
-  static constexpr array<Cap, 6> MIN_TEXTURE_FILTER_CAPS {
-    MAKE_CAP(D3DPTFILTERCAPS_MINFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MINFLINEAR),
-    MAKE_CAP(D3DPTFILTERCAPS_MIPFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MIPFLINEAR),
-    MAKE_CAP(D3DPTFILTERCAPS_MAGFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MAGFLINEAR),
-  };
-
-  allCapsPresent &=
-    verify_caps_present(caps.TextureFilterCaps, MIN_TEXTURE_FILTER_CAPS);
-
-  static constexpr array<Cap, 4> MIN_TEXTURE_ADDRESS_CAPS {
-    MAKE_CAP(D3DPTADDRESSCAPS_WRAP),
-    MAKE_CAP(D3DPTADDRESSCAPS_MIRROR),
-    MAKE_CAP(D3DPTADDRESSCAPS_CLAMP),
-    MAKE_CAP(D3DPTADDRESSCAPS_INDEPENDENTUV),
-  };
-
-  allCapsPresent &=
-    verify_caps_present(caps.TextureAddressCaps, MIN_TEXTURE_ADDRESS_CAPS);
-
-  static constexpr array<Cap, 1> MIN_DEV_CAPS2 {
-    MAKE_CAP(D3DDEVCAPS2_STREAMOFFSET),
-  };
-
-  allCapsPresent &= verify_caps_present(caps.DevCaps2, MIN_DEV_CAPS2);
-
-  return allCapsPresent;
 }
 
 } // namespace
@@ -374,15 +387,7 @@ auto D3D9Factory::create_device_and_context(
   D3D9CALL(mInstance->CreateDevice(adapterOrdinal, DEVICE_TYPE, window,
                                    DEVICE_CREATE_FLAGS, &pp, &d3d9Device));
 
-  // VertexProcessingCaps, MaxActiveLights, MaxUserClipPlanes,
-  // MaxVertexBlendMatrices, MaxVertexBlendMatrixIndex depend on parameters
-  // supplied to CreateDevice and should be queried on the device itself.
-  D3DCAPS9 caps {};
-  D3D9CALL(d3d9Device->GetDeviceCaps(&caps));
-
-  if (!verify_minimum_caps(caps)) {
-    BASALT_LOG_ERROR("minimum device caps not satisfied");
-  }
+  // TODO: verify the five caps which differ?
 
   auto device = std::make_unique<D3D9Device>(std::move(d3d9Device));
 
