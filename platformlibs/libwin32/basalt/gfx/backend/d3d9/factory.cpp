@@ -6,6 +6,7 @@
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/log.h>
 
+#include <basalt/api/base/enum_array.h>
 #include <basalt/api/base/types.h>
 
 #include <fmt/format.h>
@@ -42,6 +43,14 @@ constexpr array<D3DFORMAT, 4> DISPLAY_FORMATS {
 constexpr array<D3DFORMAT, 6> BACK_BUFFER_FORMATS {
   D3DFMT_X1R5G5B5, D3DFMT_A1R5G5B5, D3DFMT_R5G6B5,
   D3DFMT_X8R8G8B8, D3DFMT_A8R8G8B8, D3DFMT_A2R10G10B10,
+};
+
+// unsupported formats: D3DFMT_D16_LOCKABLE, D3DFMT_D32, D3DFMT_D15S1,
+// D3DFMT_D24X4S4, D3DFMT_D32F_LOCKABLE, D3DFMT_D24FS8
+constexpr array<D3DFORMAT, 3> DEPTH_STENCIL_FORMATS {
+  D3DFMT_D16,
+  D3DFMT_D24X8,
+  D3DFMT_D24S8,
 };
 
 struct Cap final {
@@ -172,20 +181,78 @@ constexpr auto to_image_format(const D3DFORMAT format) noexcept -> ImageFormat {
   case D3DFMT_A2R10G10B10:
     return ImageFormat::B10G10R10A2;
 
+  case D3DFMT_D24S8:
+    return ImageFormat::D24S8;
+
+  case D3DFMT_D24X8:
+    return ImageFormat::D24X8;
+
+  case D3DFMT_D16:
+    return ImageFormat::D16;
+
+  case D3DFMT_UNKNOWN:
+  case D3DFMT_D16_LOCKABLE:
+  case D3DFMT_D32:
+  case D3DFMT_D15S1:
+  case D3DFMT_D24X4S4:
+  case D3DFMT_D32F_LOCKABLE:
+  case D3DFMT_D24FS8:
   default:
     return ImageFormat::Unknown;
   }
 }
 
+auto to_d3d(const ImageFormat format) -> D3DFORMAT {
+  static constexpr EnumArray<ImageFormat, D3DFORMAT, 10> TO_D3D {
+    {ImageFormat::Unknown, D3DFMT_UNKNOWN},
+    {ImageFormat::B5G6R5, D3DFMT_R5G6B5},
+    {ImageFormat::B5G5R5X1, D3DFMT_X1R5G5B5},
+    {ImageFormat::B5G5R5A1, D3DFMT_A1R5G5B5},
+    {ImageFormat::B8G8R8X8, D3DFMT_X8R8G8B8},
+    {ImageFormat::B8G8R8A8, D3DFMT_A8R8G8B8},
+    {ImageFormat::B10G10R10A2, D3DFMT_A2R10G10B10},
+    {ImageFormat::D16, D3DFMT_D16},
+    {ImageFormat::D24X8, D3DFMT_D24X8},
+    {ImageFormat::D24S8, D3DFMT_D24S8},
+  };
+  static_assert(TO_D3D.size() == IMAGE_FORMAT_COUNT);
+
+  return TO_D3D[format];
+}
+
+auto enum_depth_stencil_formats(IDirect3D9& instance, const UINT adapter,
+                                const D3DFORMAT displayFormat)
+  -> vector<ImageFormat> {
+  vector<ImageFormat> depthStencilFormats;
+
+  for (const D3DFORMAT depthStencilFormat : DEPTH_STENCIL_FORMATS) {
+    const HRESULT hr {instance.CheckDeviceFormat(
+      adapter, DEVICE_TYPE, displayFormat, D3DUSAGE_DEPTHSTENCIL,
+      D3DRTYPE_SURFACE, depthStencilFormat)};
+
+    if (hr == D3DERR_NOTAVAILABLE) {
+      continue;
+    }
+
+    D3D9CALL(hr);
+
+    if (SUCCEEDED(hr)) {
+      depthStencilFormats.emplace_back(to_image_format(depthStencilFormat));
+    }
+  }
+
+  return depthStencilFormats;
+}
+
 auto enum_back_buffer_formats(IDirect3D9& instance, const UINT adapter,
                               const D3DFORMAT displayFormat,
-                              const BOOL windowed) -> vector<ImageFormat> {
-  vector<ImageFormat> backBufferFormats;
+                              const BOOL windowed) -> vector<BackBufferFormat> {
+  vector<BackBufferFormat> backBufferFormats;
   backBufferFormats.reserve(BACK_BUFFER_FORMATS.size());
 
   for (const D3DFORMAT backBufferFormat : BACK_BUFFER_FORMATS) {
-    const HRESULT hr {instance.CheckDeviceType(
-      adapter, DEVICE_TYPE, displayFormat, backBufferFormat, windowed)};
+    HRESULT hr {instance.CheckDeviceType(adapter, DEVICE_TYPE, displayFormat,
+                                         backBufferFormat, windowed)};
 
     if (hr == D3DERR_NOTAVAILABLE) {
       continue;
@@ -193,9 +260,33 @@ auto enum_back_buffer_formats(IDirect3D9& instance, const UINT adapter,
 
     // other errors codes are not expected
     D3D9CALL(hr);
+    if (FAILED(hr)) {
+      continue;
+    }
 
-    if (SUCCEEDED(hr)) {
-      backBufferFormats.emplace_back(to_image_format(backBufferFormat));
+    const auto depthStencilFormats {
+      enum_depth_stencil_formats(instance, adapter, displayFormat)};
+
+    for (const ImageFormat depthStencilFormat : depthStencilFormats) {
+      const D3DFORMAT format {to_d3d(depthStencilFormat)};
+
+      hr = instance.CheckDepthStencilMatch(adapter, DEVICE_TYPE, displayFormat,
+                                           backBufferFormat, format);
+
+      if (hr == D3DERR_NOTAVAILABLE) {
+        continue;
+      }
+
+      // other errors codes are not expected
+      D3D9CALL(hr);
+      if (FAILED(hr)) {
+        continue;
+      }
+
+      backBufferFormats.emplace_back(BackBufferFormat {
+        to_image_format(backBufferFormat),
+        depthStencilFormat,
+      });
     }
   }
 
@@ -350,18 +441,16 @@ auto D3D9Factory::info() const -> const Info& {
 }
 
 auto D3D9Factory::get_adapter_monitor(const Adapter adapter) const -> HMONITOR {
-  const u32 adapterOrdinal {adapter.value()};
-
-  BASALT_ASSERT(adapterOrdinal < mInfo.adapters.size());
+  const UINT adapterOrdinal {adapter.value()};
+  BASALT_ASSERT(adapterOrdinal < mInstance->GetAdapterCount());
 
   return mInstance->GetAdapterMonitor(adapterOrdinal);
 }
 
 auto D3D9Factory::create_device_and_context(
   const HWND window, const DeviceAndContextDesc& desc) const -> ContextPtr {
-  const u32 adapterOrdinal {desc.adapter.value()};
-
-  BASALT_ASSERT(adapterOrdinal < mInfo.adapters.size());
+  const UINT adapterOrdinal {desc.adapter.value()};
+  BASALT_ASSERT(adapterOrdinal < mInstance->GetAdapterCount());
 
   D3DPRESENT_PARAMETERS pp {};
   pp.BackBufferCount = 1;

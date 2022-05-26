@@ -45,6 +45,7 @@ enum class ImageFormat : u8
 {
   Unknown,
 
+  // Color
   // 16-bit
   B5G6R5,
   B5G5R5X1,
@@ -54,7 +55,16 @@ enum class ImageFormat : u8
   B8G8R8X8,
   B8G8R8A8,
   B10G10R10A2,
+
+  // Depth-Stencil
+  // 16-bit
+  D16,
+
+  // 32-bit
+  D24X8,
+  D24S8,
 };
+constexpr u8 IMAGE_FORMAT_COUNT {10};
 
 // SERIALIZED
 enum class BackendApi : u8
@@ -63,6 +73,11 @@ enum class BackendApi : u8
   Direct3D9 = 1,
 };
 constexpr uSize BACKEND_API_COUNT {2u};
+
+struct BackBufferFormat final {
+  ImageFormat renderTargetFormat;
+  ImageFormat depthStencilFormat;
+};
 
 struct DisplayMode final {
   u32 width {};
@@ -73,7 +88,7 @@ struct DisplayMode final {
 using DisplayModeList = std::vector<DisplayMode>;
 
 struct AdapterModes final {
-  std::vector<ImageFormat> backBufferFormats;
+  std::vector<BackBufferFormat> backBufferFormats;
   DisplayModeList displayModes;
   ImageFormat displayFormat {ImageFormat::Unknown};
 };
@@ -84,7 +99,7 @@ struct AdapterInfo final {
   std::string displayName {};
   std::string driverInfo {};
   AdapterModeList adapterModes {};
-  std::vector<ImageFormat> backBufferFormats;
+  std::vector<BackBufferFormat> backBufferFormats;
   DisplayMode displayMode;
   ImageFormat displayFormat {ImageFormat::Unknown};
   Adapter handle;
