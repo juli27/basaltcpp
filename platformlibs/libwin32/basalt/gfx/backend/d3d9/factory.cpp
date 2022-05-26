@@ -53,6 +53,13 @@ constexpr array<D3DFORMAT, 3> DEPTH_STENCIL_FORMATS {
   D3DFMT_D24S8,
 };
 
+constexpr array<D3DMULTISAMPLE_TYPE, 4> MULTI_SAMPLE_TYPES {
+  D3DMULTISAMPLE_NONE,
+  D3DMULTISAMPLE_2_SAMPLES,
+  D3DMULTISAMPLE_4_SAMPLES,
+  D3DMULTISAMPLE_8_SAMPLES,
+};
+
 struct Cap final {
   string_view name;
   DWORD cap {};
@@ -220,6 +227,21 @@ auto to_d3d(const ImageFormat format) -> D3DFORMAT {
   return TO_D3D[format];
 }
 
+auto to_multi_sample_count(const D3DMULTISAMPLE_TYPE type) -> MultiSampleCount {
+  switch (type) {
+  case D3DMULTISAMPLE_NONE:
+    return MultiSampleCount::One;
+  case D3DMULTISAMPLE_2_SAMPLES:
+    return MultiSampleCount::Two;
+  case D3DMULTISAMPLE_4_SAMPLES:
+    return MultiSampleCount::Four;
+  case D3DMULTISAMPLE_8_SAMPLES:
+    return MultiSampleCount::Eight;
+  default:
+    BASALT_CRASH("unknown multisample type");
+  }
+}
+
 auto enum_depth_stencil_formats(IDirect3D9& instance, const UINT adapter,
                                 const D3DFORMAT displayFormat)
   -> vector<ImageFormat> {
@@ -242,6 +264,30 @@ auto enum_depth_stencil_formats(IDirect3D9& instance, const UINT adapter,
   }
 
   return depthStencilFormats;
+}
+
+auto enum_multi_sample_counts(IDirect3D9& instance, const UINT adapter,
+                              const D3DFORMAT format, const BOOL windowed)
+  -> MultiSampleCounts {
+  MultiSampleCounts counts {};
+
+  for (const auto type : MULTI_SAMPLE_TYPES) {
+    const HRESULT hr {instance.CheckDeviceMultiSampleType(
+      adapter, DEVICE_TYPE, format, windowed, type, nullptr)};
+
+    if (hr == D3DERR_NOTAVAILABLE) {
+      continue;
+    }
+
+    D3D9CALL(hr);
+    if (FAILED(hr)) {
+      continue;
+    }
+
+    counts.set(to_multi_sample_count(type));
+  }
+
+  return counts;
 }
 
 auto enum_back_buffer_formats(IDirect3D9& instance, const UINT adapter,
@@ -267,6 +313,9 @@ auto enum_back_buffer_formats(IDirect3D9& instance, const UINT adapter,
     const auto depthStencilFormats {
       enum_depth_stencil_formats(instance, adapter, displayFormat)};
 
+    MultiSampleCounts multiSampleCounts {
+      enum_multi_sample_counts(instance, adapter, backBufferFormat, windowed)};
+
     for (const ImageFormat depthStencilFormat : depthStencilFormats) {
       const D3DFORMAT format {to_d3d(depthStencilFormat)};
 
@@ -283,9 +332,17 @@ auto enum_back_buffer_formats(IDirect3D9& instance, const UINT adapter,
         continue;
       }
 
+      multiSampleCounts &=
+        enum_multi_sample_counts(instance, adapter, format, windowed);
+
+      if (!multiSampleCounts.has(MultiSampleCount::One)) {
+        continue;
+      }
+
       backBufferFormats.emplace_back(BackBufferFormat {
         to_image_format(backBufferFormat),
         depthStencilFormat,
+        multiSampleCounts,
       });
     }
   }

@@ -19,6 +19,12 @@ struct EnumSet final {
   explicit constexpr EnumSet(E e, Es... es) noexcept : mBits {bits(e, es...)} {
   }
 
+  constexpr auto operator&=(const EnumSet& rhs) -> EnumSet& {
+    mBits &= rhs.mBits;
+
+    return *this;
+  }
+
   [[nodiscard]] constexpr auto has(E e) const noexcept -> bool {
     return is_in_range(e) && mBits[to_index(e)];
   }

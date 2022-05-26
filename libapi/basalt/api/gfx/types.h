@@ -9,6 +9,7 @@
 #include <basalt/api/shared/handle.h>
 
 #include <basalt/api/base/enum_array.h>
+#include <basalt/api/base/enum_set.h>
 #include <basalt/api/base/types.h>
 
 #include <gsl/span>
@@ -74,9 +75,20 @@ enum class BackendApi : u8
 };
 constexpr uSize BACKEND_API_COUNT {2u};
 
+enum class MultiSampleCount : u8
+{
+  One,
+  Two,
+  Four,
+  Eight,
+};
+
+using MultiSampleCounts = EnumSet<MultiSampleCount, MultiSampleCount::Eight>;
+
 struct BackBufferFormat final {
-  ImageFormat renderTargetFormat;
-  ImageFormat depthStencilFormat;
+  ImageFormat renderTargetFormat {ImageFormat::Unknown};
+  ImageFormat depthStencilFormat {ImageFormat::Unknown};
+  MultiSampleCounts supportedSampleCounts;
 };
 
 struct DisplayMode final {
