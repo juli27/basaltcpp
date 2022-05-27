@@ -42,8 +42,7 @@ using Adapter = Handle<detail::AdapterTag>;
 
 // listed from left to right, in c-array order if power of 2 aligned,
 // lsb to msb otherwise
-enum class ImageFormat : u8
-{
+enum class ImageFormat : u8 {
   Unknown,
 
   // Color
@@ -68,15 +67,13 @@ enum class ImageFormat : u8
 constexpr u8 IMAGE_FORMAT_COUNT {10};
 
 // SERIALIZED
-enum class BackendApi : u8
-{
+enum class BackendApi : u8 {
   Default = 0,
   Direct3D9 = 1,
 };
 constexpr uSize BACKEND_API_COUNT {2u};
 
-enum class MultiSampleCount : u8
-{
+enum class MultiSampleCount : u8 {
   One,
   Two,
   Four,
