@@ -82,6 +82,7 @@ enum class MultiSampleCount : u8
   Four,
   Eight,
 };
+constexpr u8 MULTI_SAMPLE_COUNT_COUNT {4};
 
 using MultiSampleCounts = EnumSet<MultiSampleCount, MultiSampleCount::Eight>;
 

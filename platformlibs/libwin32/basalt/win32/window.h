@@ -12,6 +12,8 @@
 
 #include <basalt/api/types.h>
 
+#include <basalt/api/gfx/types.h>
+
 #include <basalt/api/shared/size2d.h>
 #include <basalt/api/shared/types.h>
 
@@ -33,7 +35,7 @@ public:
     bool resizeable {true};
   };
 
-  Window(Token, HMODULE, Size2Du16 clientAreaSize);
+  Window(Token, HMODULE, Size2Du16 clientAreaSize, const gfx::Info&);
 
   Window(const Window&) = delete;
   Window(Window&&) = delete;
@@ -68,6 +70,7 @@ private:
   // set during WM_CREATE in the window_proc
   HWND mHandle {};
 
+  const gfx::Info& mGfxInfo;
   gfx::ContextPtr mGfxContext {};
 
   InputManager mInputManager;
@@ -82,7 +85,7 @@ private:
 
   bool mIsInSizeMoveModalLoop {false};
 
-  void init_gfx_context(const gfx::D3D9Factory&);
+  auto init_gfx_context(const gfx::D3D9Factory&) -> void;
   void shutdown_gfx_context();
 
   [[nodiscard]] auto handle_message(UINT message, WPARAM, LPARAM) -> LRESULT;

@@ -1,5 +1,7 @@
 #include <basalt/gfx/backend/d3d9/context.h>
 
+#include <basalt/gfx/backend/d3d9/util.h>
+
 #include <basalt/gfx/backend/types.h>
 
 #include <basalt/api/gfx/backend/command_list.h>
@@ -53,31 +55,29 @@ auto D3D9Context::get_status() const noexcept -> ContextStatus {
   return to_context_status(mD3D9Device->TestCooperativeLevel());
 }
 
-void D3D9Context::reset() {
+auto D3D9Context::reset() -> void {
   D3DPRESENT_PARAMETERS pp {};
   D3D9CALL(mImplicitSwapChain->GetPresentParameters(&pp));
 
   mDevice->reset(pp);
 }
 
-void D3D9Context::reset(const ResetDesc& desc) {
+auto D3D9Context::reset(const ResetDesc& desc) -> void {
   D3DPRESENT_PARAMETERS pp {};
   D3D9CALL(mImplicitSwapChain->GetPresentParameters(&pp));
 
+  pp.BackBufferFormat = to_d3d(desc.renderTargetFormat);
+  pp.MultiSampleType = to_d3d(desc.sampleCount);
+  pp.MultiSampleQuality = 0;
   pp.Windowed = !desc.exclusive;
 
   if (desc.exclusive) {
-    D3DDISPLAYMODE dm {};
-    D3D9CALL(mImplicitSwapChain->GetDisplayMode(&dm));
-
-    pp.BackBufferWidth = dm.Width;
-    pp.BackBufferHeight = dm.Height;
-    pp.BackBufferFormat = dm.Format;
-    pp.FullScreen_RefreshRateInHz = dm.RefreshRate;
+    pp.BackBufferWidth = desc.exclusiveDisplayMode.width;
+    pp.BackBufferHeight = desc.exclusiveDisplayMode.height;
+    pp.FullScreen_RefreshRateInHz = desc.exclusiveDisplayMode.refreshRate;
   } else {
     pp.BackBufferWidth = desc.windowBackBufferSize.width();
     pp.BackBufferHeight = desc.windowBackBufferSize.height();
-    pp.BackBufferFormat = D3DFMT_UNKNOWN;
     pp.FullScreen_RefreshRateInHz = 0;
   }
 

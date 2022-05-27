@@ -21,6 +21,10 @@ private:
 public:
   struct DeviceAndContextDesc final {
     Adapter adapter;
+    DisplayMode exclusiveDisplayMode;
+    ImageFormat renderTargetFormat {ImageFormat::Unknown};
+    ImageFormat depthStencilFormat {ImageFormat::Unknown};
+    MultiSampleCount sampleCount {MultiSampleCount::One};
     bool exclusive {false};
   };
 

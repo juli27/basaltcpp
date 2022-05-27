@@ -2,6 +2,8 @@
 
 #include <basalt/gfx/backend/types.h>
 
+#include <basalt/api/gfx/types.h>
+
 #include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/shared/size2d.h>
@@ -24,16 +26,19 @@ struct Context {
 
   [[nodiscard]] virtual auto get_status() const noexcept -> ContextStatus = 0;
 
-  virtual void reset() = 0;
+  virtual auto reset() -> void = 0;
 
   struct ResetDesc final {
     // ignored when exclusive == true
     Size2Du16 windowBackBufferSize {};
-
+    // ignored when exclusive == false
+    DisplayMode exclusiveDisplayMode;
+    ImageFormat renderTargetFormat {ImageFormat::Unknown};
+    MultiSampleCount sampleCount {MultiSampleCount::One};
     bool exclusive {false};
   };
 
-  virtual void reset(const ResetDesc&) = 0;
+  virtual auto reset(const ResetDesc&) -> void = 0;
 
   [[nodiscard]] virtual auto device() const noexcept -> Device& = 0;
 

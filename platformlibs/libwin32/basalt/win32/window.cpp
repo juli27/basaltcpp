@@ -84,8 +84,10 @@ auto calc_window_rect(const int posX, const int posY, const DWORD style,
 } // namespace
 
 Window::Window(const Token, const HMODULE moduleHandle,
-               const Size2Du16 clientAreaSize)
-  : mModuleHandle {moduleHandle}, mClientAreaSize {clientAreaSize} {
+               const Size2Du16 clientAreaSize, const gfx::Info& gfxInfo)
+  : mModuleHandle {moduleHandle}
+  , mGfxInfo {gfxInfo}
+  , mClientAreaSize {clientAreaSize} {
   BASALT_ASSERT(mModuleHandle);
 
   auto loadCursor = [](const LPCWSTR name, const UINT flags) -> HCURSOR {
@@ -157,7 +159,11 @@ void Window::set_mode(const WindowMode windowMode) {
 
     mCurrentMode = windowMode;
 
+    const auto& adapterInfo {mGfxInfo.adapters[0]};
+
     gfx::Context::ResetDesc desc {};
+    desc.exclusiveDisplayMode = adapterInfo.displayMode;
+    desc.renderTargetFormat = adapterInfo.displayFormat;
     desc.exclusive = true;
     mGfxContext->reset(desc);
 
@@ -256,8 +262,8 @@ auto Window::create(const HMODULE moduleHandle, const int showCommand,
 
   const wstring windowTitle {create_wide_from_utf8(desc.title)};
 
-  auto window {std::make_unique<Window>(Token {}, moduleHandle,
-                                        desc.preferredClientAreaSize)};
+  auto window {std::make_unique<Window>(
+    Token {}, moduleHandle, desc.preferredClientAreaSize, gfxFactory.info())};
 
   const HWND handle {
     CreateWindowExW(styleEx, reinterpret_cast<LPCWSTR>(windowClass),
@@ -287,12 +293,13 @@ auto Window::create(const HMODULE moduleHandle, const int showCommand,
   return window;
 }
 
-void Window::init_gfx_context(const gfx::D3D9Factory& gfxFactory) {
-  const auto& gfxInfo {gfxFactory.info()};
+auto Window::init_gfx_context(const gfx::D3D9Factory& gfxFactory) -> void {
+  const auto& adapterInfo {mGfxInfo.adapters[0]};
 
   const gfx::D3D9Factory::DeviceAndContextDesc contextDesc {
-    gfxInfo.adapters[0].handle,
-    mCurrentMode == WindowMode::FullscreenExclusive,
+    adapterInfo.handle,         adapterInfo.displayMode,
+    adapterInfo.displayFormat,  gfx::ImageFormat::D16,
+    gfx::MultiSampleCount::One, mCurrentMode == WindowMode::FullscreenExclusive,
   };
 
   mGfxContext = gfxFactory.create_device_and_context(mHandle, contextDesc);

@@ -2,6 +2,7 @@
 
 #include <basalt/gfx/backend/d3d9/context.h>
 #include <basalt/gfx/backend/d3d9/device.h>
+#include <basalt/gfx/backend/d3d9/util.h>
 
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/log.h>
@@ -207,24 +208,6 @@ constexpr auto to_image_format(const D3DFORMAT format) noexcept -> ImageFormat {
   default:
     return ImageFormat::Unknown;
   }
-}
-
-auto to_d3d(const ImageFormat format) -> D3DFORMAT {
-  static constexpr EnumArray<ImageFormat, D3DFORMAT, 10> TO_D3D {
-    {ImageFormat::Unknown, D3DFMT_UNKNOWN},
-    {ImageFormat::B5G6R5, D3DFMT_R5G6B5},
-    {ImageFormat::B5G5R5X1, D3DFMT_X1R5G5B5},
-    {ImageFormat::B5G5R5A1, D3DFMT_A1R5G5B5},
-    {ImageFormat::B8G8R8X8, D3DFMT_X8R8G8B8},
-    {ImageFormat::B8G8R8A8, D3DFMT_A8R8G8B8},
-    {ImageFormat::B10G10R10A2, D3DFMT_A2R10G10B10},
-    {ImageFormat::D16, D3DFMT_D16},
-    {ImageFormat::D24X8, D3DFMT_D24X8},
-    {ImageFormat::D24S8, D3DFMT_D24S8},
-  };
-  static_assert(TO_D3D.size() == IMAGE_FORMAT_COUNT);
-
-  return TO_D3D[format];
 }
 
 auto to_multi_sample_count(const D3DMULTISAMPLE_TYPE type) -> MultiSampleCount {
@@ -510,23 +493,23 @@ auto D3D9Factory::create_device_and_context(
   BASALT_ASSERT(adapterOrdinal < mInstance->GetAdapterCount());
 
   D3DPRESENT_PARAMETERS pp {};
+  pp.BackBufferFormat = to_d3d(desc.renderTargetFormat);
   pp.BackBufferCount = 1;
+  pp.MultiSampleType = to_d3d(desc.sampleCount);
+  pp.MultiSampleQuality = 0;
   pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
   pp.hDeviceWindow = window;
   pp.Windowed = !desc.exclusive;
-  pp.EnableAutoDepthStencil = TRUE;
-  pp.AutoDepthStencilFormat = D3DFMT_D16;
-  pp.Flags = D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL;
+  pp.EnableAutoDepthStencil = desc.depthStencilFormat != ImageFormat::Unknown;
+  pp.AutoDepthStencilFormat = to_d3d(desc.depthStencilFormat);
+  pp.Flags =
+    pp.EnableAutoDepthStencil ? D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL : 0;
   pp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
 
   if (desc.exclusive) {
-    D3DDISPLAYMODE displayMode {};
-    D3D9CALL(mInstance->GetAdapterDisplayMode(adapterOrdinal, &displayMode));
-
-    pp.BackBufferWidth = displayMode.Width;
-    pp.BackBufferHeight = displayMode.Height;
-    pp.BackBufferFormat = displayMode.Format;
-    pp.FullScreen_RefreshRateInHz = displayMode.RefreshRate;
+    pp.BackBufferWidth = desc.exclusiveDisplayMode.width;
+    pp.BackBufferHeight = desc.exclusiveDisplayMode.height;
+    pp.FullScreen_RefreshRateInHz = desc.exclusiveDisplayMode.refreshRate;
   }
 
   ComPtr<IDirect3DDevice9> d3d9Device;
@@ -535,7 +518,7 @@ auto D3D9Factory::create_device_and_context(
 
   // TODO: verify the five caps which differ?
 
-  auto device = std::make_unique<D3D9Device>(std::move(d3d9Device));
+  auto device {std::make_unique<D3D9Device>(std::move(d3d9Device))};
 
   return std::make_unique<D3D9Context>(std::move(device));
 }
