@@ -2,10 +2,6 @@
 
 namespace basalt::gfx {
 
-auto RenderState::fill_mode(const FillMode mode) -> RenderState {
-  return RenderState {RenderStateType::FillMode, mode};
-}
-
 auto RenderState::shade_mode(const ShadeMode mode) -> RenderState {
   return RenderState {RenderStateType::ShadeMode, mode};
 }

@@ -7,7 +7,6 @@
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/types.h>
 
-#include <basalt/api/gfx/backend/render_state.h>
 #include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/scene/scene.h>
@@ -21,7 +20,6 @@
 
 #include <string>
 #include <utility>
-#include <variant>
 
 namespace basalt {
 
@@ -30,13 +28,10 @@ using namespace std::literals;
 using gfx::Attachment;
 using gfx::Attachments;
 using gfx::Camera;
-using gfx::FillMode;
 using gfx::FilteringCommandList;
 using gfx::Light;
 using gfx::MaterialData;
 using gfx::RenderComponent;
-using gfx::RenderState;
-using gfx::RenderStateType;
 using gfx::TransformState;
 
 namespace ext = gfx::ext;
@@ -44,9 +39,6 @@ namespace ext = gfx::ext;
 namespace {
 
 void record_material(FilteringCommandList& cmdList, const MaterialData& data) {
-  cmdList.set_render_state(RenderState::fill_mode(
-    std::get<FillMode>(data.renderStates[RenderStateType::FillMode])));
-
   cmdList.bind_pipeline(data.pipeline);
   cmdList.bind_texture(data.texture);
   cmdList.bind_sampler(data.sampler);

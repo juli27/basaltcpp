@@ -71,6 +71,7 @@ private:
     D3DPRIMITIVETYPE primitiveType {D3DPT_POINTLIST};
     BOOL lighting {FALSE};
     D3DCULL cullMode {D3DCULL_NONE};
+    D3DFILLMODE fillMode {D3DFILL_SOLID};
     D3DZBUFFERTYPE zEnabled {D3DZB_FALSE};
     D3DCMPFUNC zFunc {D3DCMP_ALWAYS};
     BOOL zWriteEnabled {FALSE};

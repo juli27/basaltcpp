@@ -141,6 +141,7 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
     desc.primitiveType,
     desc.lit,
     desc.cullBackFace ? CullMode::CounterClockwise : CullMode::None,
+    desc.solid ? FillMode::Solid : FillMode::Wireframe,
     DepthTestPass::IfLessEqual,
     true,
   })};
@@ -151,10 +152,6 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
     desc.sampledTexture.addressModeU, desc.sampledTexture.addressModeV})};
 
   return mMaterials.allocate(MaterialData {
-    MaterialData::RenderStates {
-      {RenderStateType::FillMode,
-       desc.solid ? FillMode::Solid : FillMode::Wireframe},
-    },
     desc.diffuse,
     desc.ambient,
     pipeline,

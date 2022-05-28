@@ -279,8 +279,7 @@ struct D3D9RenderState {
 };
 
 auto to_d3d(const RenderState& rs) -> D3D9RenderState {
-  static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 2> TO_D3D {
-    {RenderStateType::FillMode, D3DRS_FILLMODE},
+  static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 1> TO_D3D {
     {RenderStateType::ShadeMode, D3DRS_SHADEMODE},
   };
 
@@ -573,7 +572,6 @@ void D3D9Device::execute(const CommandList& cmdList) {
 
   mCurrentPrimitiveType = D3DPT_POINTLIST;
 
-  D3D9CHECK(mDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS));
@@ -623,10 +621,7 @@ void D3D9Device::execute(const CommandList& cmdList) {
 
   // reset render states
   // TODO: use state block
-  D3D9CHECK(mDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD));
-
-  // D3D9CHECK(mDevice->SetFVF(0));
 
   // unbind resources
   PIX_BEGIN_EVENT(D3DCOLOR_XRGB(128, 128, 128), L"unbind resources");
@@ -681,6 +676,7 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
     to_d3d(desc.primitiveType),
     to_d3d(desc.lighting),
     to_d3d(desc.cullMode),
+    to_d3d(desc.fillMode),
     desc.depthTest == DepthTestPass::Always && !desc.depthWriteEnable
       ? D3DZB_FALSE
       : D3DZB_TRUE,
@@ -879,6 +875,7 @@ auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
 
   D3D9CHECK(mDevice->SetRenderState(D3DRS_LIGHTING, data.lighting));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_CULLMODE, data.cullMode));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_FILLMODE, data.fillMode));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ZENABLE, data.zEnabled));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ZFUNC, data.zFunc));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, data.zWriteEnabled));

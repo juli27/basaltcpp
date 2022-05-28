@@ -68,7 +68,7 @@ enum class FillMode : u8 {
   Wireframe,
   Solid,
 };
-constexpr uSize FILL_MODE_COUNT = 3u;
+constexpr u8 FILL_MODE_COUNT {3};
 
 enum class PrimitiveType : u8 {
   PointList,
@@ -82,11 +82,10 @@ constexpr uSize PRIMITIVE_TYPE_COUNT = 6u;
 
 enum class RenderStateType : u8 {
   // pixel state
-  FillMode,
   // - fixed function only
   ShadeMode,
 };
-constexpr uSize RENDER_STATE_COUNT = 2u;
+constexpr u8 RENDER_STATE_COUNT {1};
 
 enum class ShadeMode : u8 {
   Flat,
@@ -192,7 +191,7 @@ struct CommandList;
 struct Device;
 
 struct RenderState;
-using RenderStateValue = std::variant<FillMode, ShadeMode>;
+using RenderStateValue = std::variant<ShadeMode>;
 
 struct Command {
   const CommandType type;
@@ -245,6 +244,7 @@ struct PipelineDescriptor final {
   PrimitiveType primitiveType {PrimitiveType::PointList};
   bool lighting {false};
   CullMode cullMode {CullMode::None};
+  FillMode fillMode {FillMode::Solid};
   DepthTestPass depthTest {DepthTestPass::Always};
   bool depthWriteEnable {false};
 };

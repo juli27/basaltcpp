@@ -32,10 +32,9 @@ private:
     Color emissive;
   };
 
-  using RenderStateArray = EnumArray<RenderStateType, RenderStateValue, 2>;
+  using RenderStateArray = EnumArray<RenderStateType, RenderStateValue, 1>;
 
   RenderStateArray mRenderStates {
-    {RenderStateType::FillMode, FillMode::Solid},
     {RenderStateType::ShadeMode, ShadeMode::Gouraud},
   };
 

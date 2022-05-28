@@ -8,7 +8,6 @@
 #include <basalt/api/shared/color.h>
 #include <basalt/api/shared/handle.h>
 
-#include <basalt/api/base/enum_array.h>
 #include <basalt/api/base/enum_set.h>
 #include <basalt/api/base/types.h>
 
@@ -175,11 +174,6 @@ struct MeshData final {
 };
 
 struct MaterialData final {
-  using RenderStates =
-    EnumArray<RenderStateType, RenderStateValue, RENDER_STATE_COUNT>;
-
-  RenderStates renderStates;
-
   Color diffuse;
   Color ambient;
 
@@ -187,8 +181,6 @@ struct MaterialData final {
   Texture texture;
   Sampler sampler;
 };
-
-static_assert(sizeof(MaterialData) == 48);
 
 struct XModelData final {
   std::vector<Material> materials;
