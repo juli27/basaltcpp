@@ -34,10 +34,10 @@ using basalt::Vector3f32;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
-using basalt::gfx::DepthTestPass;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::SamplerDescriptor;
+using basalt::gfx::TestOp;
 using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureCoordinateSource;
 using basalt::gfx::TextureTransformMode;
@@ -69,7 +69,7 @@ Textures::Textures(Engine& engine)
   pipelineDesc.vertexInputState = vertexLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
   pipelineDesc.textureStages = span {&textureBlendingStage, 1};
-  pipelineDesc.depthTest = DepthTestPass::IfLessEqual;
+  pipelineDesc.depthTest = TestOp::PassIfLessEqual;
   pipelineDesc.depthWriteEnable = true;
   mPipeline = mResourceCache.create_pipeline(pipelineDesc);
 

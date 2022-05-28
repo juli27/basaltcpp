@@ -50,15 +50,15 @@ enum class CullMode : u8 {
 };
 constexpr uSize CULL_MODE_COUNT = 3u;
 
-enum class DepthTestPass : u8 {
-  Never,
-  IfEqual,
-  IfNotEqual,
-  IfLess,
-  IfLessEqual,
-  IfGreater,
-  IfGreaterEqual,
-  Always,
+enum class TestOp : u8 {
+  PassNever,
+  PassIfEqual,
+  PassIfNotEqual,
+  PassIfLess,
+  PassIfLessEqual,
+  PassIfGreater,
+  PassIfGreaterEqual,
+  PassAlways,
 };
 constexpr uSize DEPTH_TEST_PASS_COUNT = 8u;
 
@@ -234,8 +234,9 @@ struct PipelineDescriptor final {
   ShadeMode shadeMode {ShadeMode::Gouraud};
   CullMode cullMode {CullMode::None};
   FillMode fillMode {FillMode::Solid};
-  DepthTestPass depthTest {DepthTestPass::Always};
+  TestOp depthTest {TestOp::PassAlways};
   bool depthWriteEnable {false};
+  bool dithering {false};
 };
 
 struct SamplerDescriptor final {

@@ -256,16 +256,16 @@ auto to_d3d(const TransformState state) -> D3DTRANSFORMSTATETYPE {
 
 // TODO: is there a benefit to turn off z testing when func = Never or func =
 // Always with writing disabled?
-auto to_d3d(const DepthTestPass function) -> D3DCMPFUNC {
-  static constexpr EnumArray<DepthTestPass, D3DCMPFUNC, 8> TO_D3D {
-    {DepthTestPass::Never, D3DCMP_NEVER},
-    {DepthTestPass::IfEqual, D3DCMP_EQUAL},
-    {DepthTestPass::IfNotEqual, D3DCMP_NOTEQUAL},
-    {DepthTestPass::IfLess, D3DCMP_LESS},
-    {DepthTestPass::IfLessEqual, D3DCMP_LESSEQUAL},
-    {DepthTestPass::IfGreater, D3DCMP_GREATER},
-    {DepthTestPass::IfGreaterEqual, D3DCMP_GREATEREQUAL},
-    {DepthTestPass::Always, D3DCMP_ALWAYS},
+auto to_d3d(const TestOp function) -> D3DCMPFUNC {
+  static constexpr EnumArray<TestOp, D3DCMPFUNC, 8> TO_D3D {
+    {TestOp::PassNever, D3DCMP_NEVER},
+    {TestOp::PassIfEqual, D3DCMP_EQUAL},
+    {TestOp::PassIfNotEqual, D3DCMP_NOTEQUAL},
+    {TestOp::PassIfLess, D3DCMP_LESS},
+    {TestOp::PassIfLessEqual, D3DCMP_LESSEQUAL},
+    {TestOp::PassIfGreater, D3DCMP_GREATER},
+    {TestOp::PassIfGreaterEqual, D3DCMP_GREATEREQUAL},
+    {TestOp::PassAlways, D3DCMP_ALWAYS},
   };
 
   static_assert(DEPTH_TEST_PASS_COUNT == TO_D3D.size());
@@ -554,11 +554,6 @@ void D3D9Device::execute(const CommandList& cmdList) {
 
   mCurrentPrimitiveType = D3DPT_POINTLIST;
 
-  D3D9CHECK(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-  D3D9CHECK(mDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE));
-  D3D9CHECK(mDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS));
-  D3D9CHECK(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
-
   D3D9CHECK(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
   D3D9CHECK(mDevice->SetTexture(0, nullptr));
 
@@ -656,11 +651,11 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
     to_d3d(desc.shadeMode),
     to_d3d(desc.cullMode),
     to_d3d(desc.fillMode),
-    desc.depthTest == DepthTestPass::Always && !desc.depthWriteEnable
-      ? D3DZB_FALSE
-      : D3DZB_TRUE,
+    desc.depthTest == TestOp::PassAlways && !desc.depthWriteEnable ? D3DZB_FALSE
+                                                                   : D3DZB_TRUE,
     to_d3d(desc.depthTest),
     to_d3d(desc.depthWriteEnable),
+    to_d3d(desc.dithering),
   });
 }
 
@@ -853,6 +848,7 @@ auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ZENABLE, data.zEnabled));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ZFUNC, data.zFunc));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, data.zWriteEnabled));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_DITHERENABLE, data.dithering));
 
   D3D9CHECK(
     mDevice->SetTextureStageState(0, D3DTSS_COLOROP, data.stage1ColorOp));

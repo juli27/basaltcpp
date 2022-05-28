@@ -138,16 +138,16 @@ constexpr auto to_string(const CullMode mode) noexcept -> const char* {
   return "(unknown)";
 }
 
-constexpr auto to_string(const DepthTestPass func) noexcept -> const char* {
+constexpr auto to_string(const TestOp func) noexcept -> const char* {
   switch (func) {
-    ENUM_TO_STRING(DepthTestPass::Never);
-    ENUM_TO_STRING(DepthTestPass::IfEqual);
-    ENUM_TO_STRING(DepthTestPass::IfNotEqual);
-    ENUM_TO_STRING(DepthTestPass::IfLess);
-    ENUM_TO_STRING(DepthTestPass::IfLessEqual);
-    ENUM_TO_STRING(DepthTestPass::IfGreater);
-    ENUM_TO_STRING(DepthTestPass::IfGreaterEqual);
-    ENUM_TO_STRING(DepthTestPass::Always);
+    ENUM_TO_STRING(TestOp::PassNever);
+    ENUM_TO_STRING(TestOp::PassIfEqual);
+    ENUM_TO_STRING(TestOp::PassIfNotEqual);
+    ENUM_TO_STRING(TestOp::PassIfLess);
+    ENUM_TO_STRING(TestOp::PassIfLessEqual);
+    ENUM_TO_STRING(TestOp::PassIfGreater);
+    ENUM_TO_STRING(TestOp::PassIfGreaterEqual);
+    ENUM_TO_STRING(TestOp::PassAlways);
   }
 
   return "(unknown)";

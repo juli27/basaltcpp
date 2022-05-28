@@ -97,6 +97,13 @@ template <typename MinCaps>
 auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
   bool allCapsPresent {true};
 
+  static constexpr array<Cap, 2> MIN_RASTER_CAPS {
+    MAKE_CAP(D3DPRASTERCAPS_DITHER),
+    MAKE_CAP(D3DPRASTERCAPS_ZTEST),
+  };
+
+  allCapsPresent &= verify_caps_present(caps.RasterCaps, MIN_RASTER_CAPS);
+
   static constexpr array<Cap, 4> MIN_TEXTURE_CAPS {
     MAKE_CAP(D3DPTEXTURECAPS_PERSPECTIVE),
     MAKE_CAP(D3DPTEXTURECAPS_ALPHA),

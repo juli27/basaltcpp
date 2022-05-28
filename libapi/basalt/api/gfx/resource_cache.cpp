@@ -143,7 +143,7 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
     ShadeMode::Gouraud,
     desc.cullBackFace ? CullMode::CounterClockwise : CullMode::None,
     desc.solid ? FillMode::Solid : FillMode::Wireframe,
-    DepthTestPass::IfLessEqual,
+    TestOp::PassIfLessEqual,
     true,
   })};
 

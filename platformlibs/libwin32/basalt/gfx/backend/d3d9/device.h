@@ -76,6 +76,7 @@ private:
     D3DZBUFFERTYPE zEnabled {D3DZB_FALSE};
     D3DCMPFUNC zFunc {D3DCMP_ALWAYS};
     BOOL zWriteEnabled {FALSE};
+    BOOL dithering {FALSE};
   };
 
   struct SamplerData final {
