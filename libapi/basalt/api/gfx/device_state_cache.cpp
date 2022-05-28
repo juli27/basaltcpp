@@ -1,18 +1,6 @@
 #include <basalt/api/gfx/device_state_cache.h>
 
-#include <basalt/api/gfx/backend/render_state.h>
-
 namespace basalt::gfx {
-
-auto DeviceStateCache::update(const RenderState& renderState) noexcept -> bool {
-  if (auto& currentValue = mRenderStates[renderState.type()];
-      currentValue != renderState.value()) {
-    currentValue = renderState.value();
-    return true;
-  }
-
-  return false;
-}
 
 auto DeviceStateCache::update(const Pipeline handle) noexcept -> bool {
   if (handle != mBoundPipeline) {

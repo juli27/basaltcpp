@@ -102,7 +102,6 @@ private:
   void execute(const Command&);
   void execute(const CommandClearAttachments&);
   void execute(const CommandDraw&);
-  void execute(const CommandSetRenderState&);
   auto execute(const CommandBindPipeline&) -> void;
   void execute(const CommandBindVertexBuffer&);
   void execute(const CommandBindSampler&);

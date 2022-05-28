@@ -27,7 +27,6 @@ using Attachments = EnumSet<Attachment, Attachment::StencilBuffer>;
 enum class CommandType : u8 {
   ClearAttachments,
   Draw,
-  SetRenderState,
   BindPipeline,
   BindVertexBuffer,
   BindSampler,
@@ -79,9 +78,6 @@ enum class PrimitiveType : u8 {
   TriangleFan,
 };
 constexpr uSize PRIMITIVE_TYPE_COUNT = 6u;
-
-enum class RenderStateType : u8 {};
-constexpr u8 RENDER_STATE_COUNT {0};
 
 enum class ShadeMode : u8 {
   Flat,
@@ -173,7 +169,6 @@ using VertexBuffer = Handle<detail::VertexBufferTag>;
 struct Command;
 struct CommandClearAttachments;
 struct CommandDraw;
-struct CommandSetRenderState;
 struct CommandBindPipeline;
 struct CommandBindVertexBuffer;
 struct CommandBindSampler;
@@ -185,9 +180,6 @@ struct CommandSetMaterial;
 
 struct CommandList;
 struct Device;
-
-struct RenderState;
-using RenderStateValue = std::variant<ShadeMode>;
 
 struct Command {
   const CommandType type;

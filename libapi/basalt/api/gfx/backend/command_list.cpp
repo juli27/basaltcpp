@@ -42,10 +42,6 @@ void CommandList::draw(const u32 firstVertex, const u32 vertexCount) {
   add<CommandDraw>(firstVertex, vertexCount);
 }
 
-void CommandList::set_render_state(const RenderState& renderState) {
-  add<CommandSetRenderState>(renderState);
-}
-
 void CommandList::bind_pipeline(const Pipeline handle) {
   add<CommandBindPipeline>(handle);
 }

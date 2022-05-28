@@ -1,6 +1,5 @@
 #pragma once
 
-#include <basalt/api/gfx/backend/render_state.h>
 #include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/math/matrix4x4.h>
@@ -40,16 +39,6 @@ struct CommandDraw final : CommandT<CommandType::Draw> {
 };
 
 static_assert(sizeof(CommandDraw) == 12);
-
-struct CommandSetRenderState final : CommandT<CommandType::SetRenderState> {
-  RenderState renderState;
-
-  constexpr explicit CommandSetRenderState(RenderState state) noexcept
-    : renderState {std::move(state)} {
-  }
-};
-
-static_assert(sizeof(CommandSetRenderState) == 4);
 
 struct CommandBindPipeline final : CommandT<CommandType::BindPipeline> {
   Pipeline handle;

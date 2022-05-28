@@ -1,6 +1,5 @@
 #pragma once
 
-#include <basalt/api/gfx/backend/render_state.h>
 #include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/shared/color.h>
@@ -15,7 +14,6 @@ namespace basalt::gfx {
 struct DeviceStateCache final {
   DeviceStateCache() noexcept = default;
 
-  auto update(const RenderState&) noexcept -> bool;
   auto update(Pipeline) noexcept -> bool;
   auto update(VertexBuffer, u64 offset) noexcept -> bool;
   auto update(Sampler) noexcept -> bool;
@@ -31,10 +29,6 @@ private:
     Color ambient;
     Color emissive;
   };
-
-  using RenderStateArray = EnumArray<RenderStateType, RenderStateValue, 0>;
-
-  RenderStateArray mRenderStates {};
 
   EnumArray<TransformState, Matrix4x4f32, TRANSFORM_STATE_COUNT> mTransforms {
     {TransformState::ViewToViewport, Matrix4x4f32::identity()},

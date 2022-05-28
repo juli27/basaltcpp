@@ -20,8 +20,7 @@
 #include <algorithm>
 #include <array>
 #include <string>
-#include <type_traits>
-#include <variant>
+#include <utility>
 
 using std::array;
 using std::string;
@@ -104,7 +103,6 @@ constexpr auto enumerator_to_string(const CommandType type) noexcept -> const
   switch (type) {
     ENUMERATOR_TO_STRING(CommandType, ClearAttachments);
     ENUMERATOR_TO_STRING(CommandType, Draw);
-    ENUMERATOR_TO_STRING(CommandType, SetRenderState);
     ENUMERATOR_TO_STRING(CommandType, BindPipeline);
     ENUMERATOR_TO_STRING(CommandType, BindVertexBuffer);
     ENUMERATOR_TO_STRING(CommandType, BindTexture);
@@ -176,10 +174,6 @@ constexpr auto to_string(const PrimitiveType primitiveType) noexcept -> const
     ENUM_TO_STRING(PrimitiveType::TriangleFan);
   }
 
-  return "(unknown)";
-}
-
-constexpr auto to_string(const RenderStateType) noexcept -> const char* {
   return "(unknown)";
 }
 
@@ -262,21 +256,6 @@ void display(const CommandClearAttachments& cmd) {
 void display(const CommandDraw& cmd) {
   ImGui::Text("firstVertex = %u", cmd.firstVertex);
   ImGui::Text("vertexCount = %u", cmd.vertexCount);
-}
-
-void display(const CommandSetRenderState& cmd) {
-  ImGui::Text("type = %s", to_string(cmd.renderState.type()));
-
-  std::visit(
-    [](auto&& value) {
-      using T = std::decay_t<decltype(value)>;
-      if constexpr (std::is_same_v<T, Color>) {
-        display_color4("color", value);
-      } else {
-        ImGui::TextUnformatted(to_string(value));
-      }
-    },
-    cmd.renderState.value());
 }
 
 void display(const CommandBindPipeline& cmd) {

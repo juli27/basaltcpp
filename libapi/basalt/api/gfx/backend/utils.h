@@ -33,7 +33,6 @@ void visit(const Command& cmd, Visitor&& visitor) {
   switch (cmd.type) {
     VISIT(CommandClearAttachments);
     VISIT(CommandDraw);
-    VISIT(CommandSetRenderState);
     VISIT(CommandBindPipeline);
     VISIT(CommandBindVertexBuffer);
     VISIT(CommandBindSampler);

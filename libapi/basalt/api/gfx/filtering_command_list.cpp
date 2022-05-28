@@ -16,12 +16,6 @@ void FilteringCommandList::draw(const u32 firstVertex, const u32 vertexCount) {
   mCommandList.draw(firstVertex, vertexCount);
 }
 
-void FilteringCommandList::set_render_state(const RenderState& renderState) {
-  if (mDeviceState.update(renderState)) {
-    mCommandList.set_render_state(renderState);
-  }
-}
-
 void FilteringCommandList::bind_pipeline(const Pipeline handle) {
   if (mDeviceState.update(handle)) {
     mCommandList.bind_pipeline(handle);

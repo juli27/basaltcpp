@@ -273,22 +273,6 @@ auto to_d3d(const DepthTestPass function) -> D3DCMPFUNC {
   return TO_D3D[function];
 }
 
-struct D3D9RenderState {
-  D3DRENDERSTATETYPE state;
-  DWORD value;
-};
-
-auto to_d3d(const RenderState& rs) -> D3D9RenderState {
-  static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 0> TO_D3D {};
-
-  static_assert(RENDER_STATE_COUNT == TO_D3D.size());
-
-  return D3D9RenderState {
-    TO_D3D[rs.type()],
-    std::visit([](auto&& value) -> DWORD { return to_d3d(value); }, rs.value()),
-  };
-}
-
 auto to_d3d(const TextureFilter filter) -> D3DTEXTUREFILTERTYPE {
   static constexpr EnumArray<TextureFilter, D3DTEXTUREFILTERTYPE, 3> TO_D3D {
     {TextureFilter::Point, D3DTEXF_POINT},
@@ -848,12 +832,6 @@ void D3D9Device::execute(const CommandDraw& cmd) {
   D3D9CHECK(mDevice->DrawPrimitive(
     mCurrentPrimitiveType, cmd.firstVertex,
     calculate_primitive_count(mCurrentPrimitiveType, cmd.vertexCount)));
-}
-
-void D3D9Device::execute(const CommandSetRenderState& cmd) {
-  const auto [state, value] {to_d3d(cmd.renderState)};
-
-  D3D9CHECK(mDevice->SetRenderState(state, value));
 }
 
 auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
