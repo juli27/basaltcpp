@@ -57,9 +57,16 @@ constexpr u32 VERTEX_COUNT {2u * 50u};
 Textures::Textures(Engine& engine)
   : mResourceCache {engine.gfx_resource_cache()}
   , mCamera {create_default_camera()} {
+  constexpr array<const VertexElement, 3> vertexLayout {
+    VertexElement::Position3F32,
+    VertexElement::ColorDiffuse1U32A8R8G8B8,
+    VertexElement::TextureCoords2F32,
+  };
+
   TextureBlendingStage textureBlendingStage {};
 
   PipelineDescriptor pipelineDesc {};
+  pipelineDesc.vertexInputState = vertexLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
   pipelineDesc.textureStages = span {&textureBlendingStage, 1};
   pipelineDesc.depthTest = DepthTestPass::IfLessEqual;

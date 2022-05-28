@@ -85,6 +85,7 @@ Dreieck::Dreieck(Engine& engine)
   mTriangleMesh = gfxResourceCache.create_mesh(meshDesc);
 
   MaterialDescriptor materialDesc;
+  materialDesc.vertexInputState = vertexLayout;
   materialDesc.primitiveType = PrimitiveType::TriangleList;
   materialDesc.cullBackFace = false;
   materialDesc.lit = false;
@@ -92,6 +93,7 @@ Dreieck::Dreieck(Engine& engine)
   mSolidMaterial = gfxResourceCache.create_material(materialDesc);
 
   materialDesc = MaterialDescriptor {};
+  materialDesc.vertexInputState = vertexLayout;
   materialDesc.primitiveType = PrimitiveType::TriangleList;
   materialDesc.cullBackFace = false;
   materialDesc.lit = false;
@@ -99,6 +101,7 @@ Dreieck::Dreieck(Engine& engine)
   mWireframeMaterial = gfxResourceCache.create_material(materialDesc);
 
   materialDesc = MaterialDescriptor {};
+  materialDesc.vertexInputState = vertexLayout;
   materialDesc.primitiveType = PrimitiveType::TriangleStrip;
   materialDesc.cullBackFace = false;
   materialDesc.lit = false;

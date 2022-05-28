@@ -240,6 +240,7 @@ struct TextureBlendingStage final {
 };
 
 struct PipelineDescriptor final {
+  gsl::span<const VertexElement> vertexInputState;
   gsl::span<const TextureBlendingStage> textureStages {};
   PrimitiveType primitiveType {PrimitiveType::PointList};
   bool lighting {false};

@@ -103,6 +103,7 @@ Textures::Textures(Engine& engine)
     engine.get_or_load<Texture>("data/tribase/Texture.bmp"_hs)};
 
   MaterialDescriptor materialDesc {};
+  materialDesc.vertexInputState = vertexLayout;
   materialDesc.sampledTexture.texture = texture;
   materialDesc.primitiveType = PrimitiveType::TriangleList;
   materialDesc.cullBackFace = false;

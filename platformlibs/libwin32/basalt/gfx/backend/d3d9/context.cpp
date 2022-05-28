@@ -39,13 +39,13 @@ D3D9Context::D3D9Context(unique_ptr<D3D9Device> device)
   BASALT_ASSERT(mDevice);
   BASALT_ASSERT(mD3D9Device);
 
-  D3D9CALL(mD3D9Device->GetSwapChain(0, mImplicitSwapChain.GetAddressOf()));
+  D3D9CHECK(mD3D9Device->GetSwapChain(0, mImplicitSwapChain.GetAddressOf()));
   BASALT_ASSERT(mImplicitSwapChain);
 }
 
 auto D3D9Context::surface_size() const noexcept -> Size2Du16 {
   D3DPRESENT_PARAMETERS pp {};
-  D3D9CALL(mImplicitSwapChain->GetPresentParameters(&pp));
+  D3D9CHECK(mImplicitSwapChain->GetPresentParameters(&pp));
 
   return Size2Du16 {static_cast<u16>(pp.BackBufferWidth),
                     static_cast<u16>(pp.BackBufferHeight)};
@@ -57,14 +57,14 @@ auto D3D9Context::get_status() const noexcept -> ContextStatus {
 
 auto D3D9Context::reset() -> void {
   D3DPRESENT_PARAMETERS pp {};
-  D3D9CALL(mImplicitSwapChain->GetPresentParameters(&pp));
+  D3D9CHECK(mImplicitSwapChain->GetPresentParameters(&pp));
 
   mDevice->reset(pp);
 }
 
 auto D3D9Context::reset(const ResetDesc& desc) -> void {
   D3DPRESENT_PARAMETERS pp {};
-  D3D9CALL(mImplicitSwapChain->GetPresentParameters(&pp));
+  D3D9CHECK(mImplicitSwapChain->GetPresentParameters(&pp));
 
   pp.BackBufferFormat = to_d3d(desc.renderTargetFormat);
   pp.MultiSampleType = to_d3d(desc.sampleCount);

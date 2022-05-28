@@ -15,10 +15,10 @@
 
 #if BASALT_DEBUG_BUILD
 
-#define D3D9CALL(x)                                                            \
+#define D3D9CHECK(x)                                                           \
   do {                                                                         \
     if (const HRESULT macroHr {x}; FAILED(macroHr)) {                          \
-      DXTraceW(__FILE__, __LINE__, macroHr, L#x, TRUE);                        \
+      DXTraceW(__FILE__, __LINE__, macroHr, nullptr, TRUE);                    \
     }                                                                          \
   } while (false)
 

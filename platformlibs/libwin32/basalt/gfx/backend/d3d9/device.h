@@ -61,6 +61,7 @@ private:
   using D3D9TexturePtr = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
 
   struct PipelineData final {
+    DWORD fvf {};
     DWORD stage1Tci {0 | D3DTSS_TCI_PASSTHRU};
     D3DTEXTURETRANSFORMFLAGS stage0Ttf {D3DTTFF_DISABLE};
     DWORD stage1Arg1 {D3DTA_DIFFUSE};
@@ -100,7 +101,7 @@ private:
   void execute(const CommandClearAttachments&);
   void execute(const CommandDraw&);
   void execute(const CommandSetRenderState&);
-  void execute(const CommandBindPipeline&);
+  auto execute(const CommandBindPipeline&) -> void;
   void execute(const CommandBindVertexBuffer&);
   void execute(const CommandBindSampler&);
   void execute(const CommandBindTexture&);

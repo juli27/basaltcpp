@@ -136,6 +136,7 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
   textureStage.texCoordinateProjected = desc.textureTransformProjected;
 
   const Pipeline pipeline {create_pipeline(PipelineDescriptor {
+    desc.vertexInputState,
     span {&textureStage, 1},
     desc.primitiveType,
     desc.lit,

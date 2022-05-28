@@ -81,16 +81,19 @@ SimpleScene::SimpleScene(Engine& engine)
     Vertex {0.0f, 1.0f, 0.0f, ColorEncoding::pack_a8r8g8b8_u32(255, 255, 255)},
   };
 
+  const VertexLayout vertexLayout {
+    VertexElement::Position3F32,
+    VertexElement::ColorDiffuse1U32A8R8G8B8,
+  };
+
   rc.mesh = mGfxResources.create_mesh(MeshDescriptor {
     as_bytes(span {vertices}),
     static_cast<u32>(vertices.size()),
-    VertexLayout {
-      VertexElement::Position3F32,
-      VertexElement::ColorDiffuse1U32A8R8G8B8,
-    },
+    vertexLayout,
   });
 
   MaterialDescriptor materialDescriptor {};
+  materialDescriptor.vertexInputState = vertexLayout;
   materialDescriptor.primitiveType = PrimitiveType::TriangleList;
   materialDescriptor.lit = false;
   materialDescriptor.cullBackFace = false;

@@ -31,7 +31,13 @@ namespace d3d9 {
 
 Vertices::Vertices(Engine& engine)
   : mResourceCache {engine.gfx_resource_cache()} {
+  constexpr array<const VertexElement, 2> vertexLayout {
+    VertexElement::PositionTransformed4F32,
+    VertexElement::ColorDiffuse1U32A8R8G8B8,
+  };
+
   PipelineDescriptor pipelineDesc {};
+  pipelineDesc.vertexInputState = vertexLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
   mPipeline = mResourceCache.create_pipeline(pipelineDesc);
 

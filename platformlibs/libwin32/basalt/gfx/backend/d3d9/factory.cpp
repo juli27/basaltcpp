@@ -156,7 +156,7 @@ auto enum_display_modes(IDirect3D9& instance, const UINT adapter,
 
   for (UINT modeIndex {0}; modeIndex < modeCount; ++modeIndex) {
     D3DDISPLAYMODE mode {};
-    D3D9CALL(
+    D3D9CHECK(
       instance.EnumAdapterModes(adapter, displayFormat, modeIndex, &mode));
 
     displayModes.emplace_back(DisplayMode {
@@ -239,7 +239,7 @@ auto enum_depth_stencil_formats(IDirect3D9& instance, const UINT adapter,
       continue;
     }
 
-    D3D9CALL(hr);
+    D3D9CHECK(hr);
 
     if (SUCCEEDED(hr)) {
       depthStencilFormats.emplace_back(to_image_format(depthStencilFormat));
@@ -262,7 +262,7 @@ auto enum_multi_sample_counts(IDirect3D9& instance, const UINT adapter,
       continue;
     }
 
-    D3D9CALL(hr);
+    D3D9CHECK(hr);
     if (FAILED(hr)) {
       continue;
     }
@@ -288,7 +288,7 @@ auto enum_back_buffer_formats(IDirect3D9& instance, const UINT adapter,
     }
 
     // other errors codes are not expected
-    D3D9CALL(hr);
+    D3D9CHECK(hr);
     if (FAILED(hr)) {
       continue;
     }
@@ -310,7 +310,7 @@ auto enum_back_buffer_formats(IDirect3D9& instance, const UINT adapter,
       }
 
       // other errors codes are not expected
-      D3D9CALL(hr);
+      D3D9CHECK(hr);
       if (FAILED(hr)) {
         continue;
       }
@@ -380,7 +380,7 @@ auto enum_suitable_adapters(IDirect3D9& instance) -> AdapterList {
     // MaxVertexBlendMatrices, MaxVertexBlendMatrixIndex depend on parameters
     // supplied to CreateDevice and should be queried on the device itself.
     D3DCAPS9 caps {};
-    D3D9CALL(instance.GetDeviceCaps(adapter, DEVICE_TYPE, &caps));
+    D3D9CHECK(instance.GetDeviceCaps(adapter, DEVICE_TYPE, &caps));
 
     if (!verify_minimum_caps(caps)) {
       BASALT_LOG_INFO("d3d9: adapter {} minimum device caps not present",
@@ -399,7 +399,7 @@ auto enum_suitable_adapters(IDirect3D9& instance) -> AdapterList {
     }
 
     D3DADAPTER_IDENTIFIER9 adapterIdentifier {};
-    D3D9CALL(instance.GetAdapterIdentifier(adapter, 0ul, &adapterIdentifier));
+    D3D9CHECK(instance.GetAdapterIdentifier(adapter, 0ul, &adapterIdentifier));
 
     const u16 product {HIWORD(adapterIdentifier.DriverVersion.HighPart)};
     const u16 version {LOWORD(adapterIdentifier.DriverVersion.HighPart)};
@@ -411,7 +411,7 @@ auto enum_suitable_adapters(IDirect3D9& instance) -> AdapterList {
                                    subVersion, build)};
 
     D3DDISPLAYMODE currentMode {};
-    D3D9CALL(instance.GetAdapterDisplayMode(adapter, &currentMode));
+    D3D9CHECK(instance.GetAdapterDisplayMode(adapter, &currentMode));
 
     auto backBufferFormats {
       enum_back_buffer_formats(instance, adapter, currentMode.Format, TRUE)};
@@ -513,8 +513,8 @@ auto D3D9Factory::create_device_and_context(
   }
 
   ComPtr<IDirect3DDevice9> d3d9Device;
-  D3D9CALL(mInstance->CreateDevice(adapterOrdinal, DEVICE_TYPE, window,
-                                   DEVICE_CREATE_FLAGS, &pp, &d3d9Device));
+  D3D9CHECK(mInstance->CreateDevice(adapterOrdinal, DEVICE_TYPE, window,
+                                    DEVICE_CREATE_FLAGS, &pp, &d3d9Device));
 
   // TODO: verify the five caps which differ?
 

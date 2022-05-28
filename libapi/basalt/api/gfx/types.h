@@ -142,6 +142,7 @@ struct SampledTextureDescriptor final {
 };
 
 struct MaterialDescriptor final {
+  gsl::span<const VertexElement> vertexInputState;
   Color diffuse;
   Color ambient;
 
@@ -158,8 +159,6 @@ struct MaterialDescriptor final {
   TextureTransformMode textureTransformMode {TextureTransformMode::Disabled};
   bool textureTransformProjected {false};
 };
-
-static_assert(sizeof(MaterialDescriptor) == 48);
 
 struct RenderComponent final {
   Mesh mesh {Mesh::null()};

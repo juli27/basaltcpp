@@ -16,6 +16,8 @@
 
 #include <basalt/api/base/enum_array.h>
 
+#include <gsl/span>
+
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_dx9.h>
 
@@ -36,6 +38,8 @@ using std::optional;
 using std::string_view;
 using std::vector;
 using std::filesystem::path;
+
+using gsl::span;
 
 using Microsoft::WRL::ComPtr;
 
@@ -65,7 +69,7 @@ constexpr auto to_d3d(const Vector3f32& vec) noexcept -> D3DVECTOR {
 }
 
 // TODO: needs some form of validation
-auto to_fvf(const VertexLayout& layout) -> DWORD {
+auto to_fvf(const span<const VertexElement> layout) -> DWORD {
   DWORD fvf {0ul};
 
   // TODO: values >= 8 invalidate the fvf
@@ -370,7 +374,7 @@ auto map_vertex_buffer(IDirect3DVertexBuffer9& vertexBuffer,
                        const uDeviceSize offset, uDeviceSize size)
   -> gsl::span<std::byte> {
   D3DVERTEXBUFFER_DESC desc {};
-  D3D9CALL(vertexBuffer.GetDesc(&desc));
+  D3D9CHECK(vertexBuffer.GetDesc(&desc));
 
   BASALT_ASSERT(offset < desc.Size);
   BASALT_ASSERT(offset + size <= desc.Size);
@@ -534,7 +538,7 @@ D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
     std::make_shared<D3D9XModelSupport>(mDevice);
 
   D3DCAPS9 d3d9Caps {};
-  D3D9CALL(mDevice->GetDeviceCaps(&d3d9Caps));
+  D3D9CHECK(mDevice->GetDeviceCaps(&d3d9Caps));
 
   mCaps.maxVertexBufferSizeInBytes = std::numeric_limits<UINT>::max();
   mCaps.maxLights = d3d9Caps.MaxActiveLights;
@@ -551,14 +555,14 @@ void D3D9Device::reset(D3DPRESENT_PARAMETERS& pp) const {
   ImGui_ImplDX9_InvalidateDeviceObjects();
 
   // TODO: test cooperative level (see D3D9Context::present)
-  D3D9CALL(mDevice->Reset(&pp));
+  D3D9CHECK(mDevice->Reset(&pp));
 
   ImGui_ImplDX9_CreateDeviceObjects();
 }
 
 void D3D9Device::begin_execution() const {
   // TODO: should this be a fatal error when failing?
-  D3D9CALL(mDevice->BeginScene());
+  D3D9CHECK(mDevice->BeginScene());
 }
 
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
@@ -569,37 +573,37 @@ void D3D9Device::execute(const CommandList& cmdList) {
 
   mCurrentPrimitiveType = D3DPT_POINTLIST;
 
-  D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
-  D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-  D3D9CALL(mDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE));
-  D3D9CALL(mDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS));
-  D3D9CALL(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
 
-  D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
-  D3D9CALL(mDevice->SetTexture(0, nullptr));
+  D3D9CHECK(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
+  D3D9CHECK(mDevice->SetTexture(0, nullptr));
 
   constexpr D3DMATRIX identity {to_d3d(Matrix4x4f32::identity())};
-  D3D9CALL(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
-  D3D9CALL(mDevice->SetTransform(D3DTS_VIEW, &identity));
-  D3D9CALL(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &identity));
-  D3D9CALL(mDevice->SetTransform(D3DTS_TEXTURE0, &identity));
+  D3D9CHECK(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
+  D3D9CHECK(mDevice->SetTransform(D3DTS_VIEW, &identity));
+  D3D9CHECK(mDevice->SetTransform(D3DTS_WORLDMATRIX(0), &identity));
+  D3D9CHECK(mDevice->SetTransform(D3DTS_TEXTURE0, &identity));
 
-  D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
 
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY, 1));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, D3DTADDRESS_WRAP));
+  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
+  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
+  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
+  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY, 1));
+  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP));
+  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP));
+  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, D3DTADDRESS_WRAP));
 
-  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_DISABLE));
-  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
-  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX,
-                                         0 | D3DTSS_TCI_PASSTHRU));
-  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
-                                         D3DTTFF_DISABLE));
+  D3D9CHECK(mDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_DISABLE));
+  D3D9CHECK(mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
+  D3D9CHECK(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX,
+                                          0 | D3DTSS_TCI_PASSTHRU));
+  D3D9CHECK(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
+                                          D3DTTFF_DISABLE));
 
   PIX_END_EVENT();
 
@@ -614,25 +618,25 @@ void D3D9Device::execute(const CommandList& cmdList) {
 
   // disable used lights
   for (u8 i = 0; i < mMaxLightsUsed; i++) {
-    D3D9CALL(mDevice->LightEnable(i, FALSE));
+    D3D9CHECK(mDevice->LightEnable(i, FALSE));
   }
 
   // reset render states
   // TODO: use state block
-  D3D9CALL(mDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
-  D3D9CALL(mDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD));
 
-  // D3D9CALL(mDevice->SetFVF(0));
+  // D3D9CHECK(mDevice->SetFVF(0));
 
   // unbind resources
   PIX_BEGIN_EVENT(D3DCOLOR_XRGB(128, 128, 128), L"unbind resources");
-  D3D9CALL(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
-  D3D9CALL(mDevice->SetTexture(0, nullptr));
+  D3D9CHECK(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
+  D3D9CHECK(mDevice->SetTexture(0, nullptr));
   PIX_END_EVENT();
 }
 
 void D3D9Device::end_execution() const {
-  D3D9CALL(mDevice->EndScene());
+  D3D9CHECK(mDevice->EndScene());
 }
 
 auto D3D9Device::capabilities() const -> const DeviceCaps& {
@@ -663,7 +667,11 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
     stage1AlphaOp = to_d3d(stage.alphaOp);
   }
 
+  const DWORD fvf {to_fvf(desc.vertexInputState)};
+  BASALT_ASSERT(verify_fvf(fvf), "invalid fvf. Consult the log for details");
+
   return mPipelines.allocate(PipelineData {
+    fvf,
     stage1Tci,
     stage0Ttf,
     stage1Arg1,
@@ -729,7 +737,7 @@ auto D3D9Device::create_vertex_buffer(
                   std::min(initialData.size(), uSize {size}),
                   vertexBufferData.begin());
 
-      D3D9CALL(vertexBuffer->Unlock());
+      D3D9CHECK(vertexBuffer->Unlock());
     }
   }
 
@@ -762,7 +770,7 @@ void D3D9Device::unmap(const VertexBuffer handle) noexcept {
 
   const D3D9VertexBufferPtr& vertexBuffer {mVertexBuffers[handle]};
 
-  D3D9CALL(vertexBuffer->Unlock());
+  D3D9CHECK(vertexBuffer->Unlock());
 }
 
 auto D3D9Device::load_texture(const path& filePath) -> Texture {
@@ -841,12 +849,12 @@ void D3D9Device::execute(const CommandClearAttachments& cmd) {
     return f;
   }()};
 
-  D3D9CALL(
+  D3D9CHECK(
     mDevice->Clear(0u, nullptr, flags, to_d3d(cmd.color), cmd.z, cmd.stencil));
 }
 
 void D3D9Device::execute(const CommandDraw& cmd) {
-  D3D9CALL(mDevice->DrawPrimitive(
+  D3D9CHECK(mDevice->DrawPrimitive(
     mCurrentPrimitiveType, cmd.firstVertex,
     calculate_primitive_count(mCurrentPrimitiveType, cmd.vertexCount)));
 }
@@ -854,10 +862,10 @@ void D3D9Device::execute(const CommandDraw& cmd) {
 void D3D9Device::execute(const CommandSetRenderState& cmd) {
   const auto [state, value] {to_d3d(cmd.renderState)};
 
-  D3D9CALL(mDevice->SetRenderState(state, value));
+  D3D9CHECK(mDevice->SetRenderState(state, value));
 }
 
-void D3D9Device::execute(const CommandBindPipeline& cmd) {
+auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
   BASALT_ASSERT(mPipelines.is_valid(cmd.handle));
 
   if (!mPipelines.is_valid(cmd.handle)) {
@@ -867,27 +875,33 @@ void D3D9Device::execute(const CommandBindPipeline& cmd) {
   const PipelineData& data {mPipelines[cmd.handle]};
   mCurrentPrimitiveType = data.primitiveType;
 
-  D3D9CALL(mDevice->SetRenderState(D3DRS_LIGHTING, data.lighting));
-  D3D9CALL(mDevice->SetRenderState(D3DRS_CULLMODE, data.cullMode));
-  D3D9CALL(mDevice->SetRenderState(D3DRS_ZENABLE, data.zEnabled));
-  D3D9CALL(mDevice->SetRenderState(D3DRS_ZFUNC, data.zFunc));
-  D3D9CALL(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, data.zWriteEnabled));
+  D3D9CHECK(mDevice->SetFVF(data.fvf));
 
-  D3D9CALL(
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_LIGHTING, data.lighting));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_CULLMODE, data.cullMode));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_ZENABLE, data.zEnabled));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_ZFUNC, data.zFunc));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, data.zWriteEnabled));
+
+  D3D9CHECK(
     mDevice->SetTextureStageState(0, D3DTSS_COLOROP, data.stage1ColorOp));
-  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_COLORARG1, data.stage1Arg1));
-  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_COLORARG2, data.stage1Arg2));
-  D3D9CALL(
+  D3D9CHECK(
+    mDevice->SetTextureStageState(0, D3DTSS_COLORARG1, data.stage1Arg1));
+  D3D9CHECK(
+    mDevice->SetTextureStageState(0, D3DTSS_COLORARG2, data.stage1Arg2));
+  D3D9CHECK(
     mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, data.stage1AlphaOp));
-  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, data.stage1Arg1));
-  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, data.stage1Arg2));
-  D3D9CALL(
+  D3D9CHECK(
+    mDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, data.stage1Arg1));
+  D3D9CHECK(
+    mDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, data.stage1Arg2));
+  D3D9CHECK(
     mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, data.stage1Tci));
-  D3D9CALL(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
-                                         data.stage0Ttf));
+  D3D9CHECK(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
+                                          data.stage0Ttf));
 
-  D3D9CALL(mDevice->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE));
-  D3D9CALL(mDevice->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
+  D3D9CHECK(mDevice->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE));
+  D3D9CHECK(mDevice->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
 }
 
 void D3D9Device::execute(const CommandBindVertexBuffer& cmd) {
@@ -900,9 +914,7 @@ void D3D9Device::execute(const CommandBindVertexBuffer& cmd) {
   const D3D9VertexBufferPtr& buffer {mVertexBuffers[cmd.handle]};
 
   D3DVERTEXBUFFER_DESC desc {};
-  D3D9CALL(buffer->GetDesc(&desc));
-
-  D3D9CALL(mDevice->SetFVF(desc.FVF));
+  D3D9CHECK(buffer->GetDesc(&desc));
 
   const UINT fvfStride {D3DXGetFVFVertexSize(desc.FVF)};
   const UINT maxOffset {desc.Size - fvfStride};
@@ -910,25 +922,25 @@ void D3D9Device::execute(const CommandBindVertexBuffer& cmd) {
 
   const UINT offset {std::min(maxOffset, static_cast<UINT>(cmd.offset))};
 
-  D3D9CALL(mDevice->SetStreamSource(0u, buffer.Get(), offset, fvfStride));
+  D3D9CHECK(mDevice->SetStreamSource(0u, buffer.Get(), offset, fvfStride));
 }
 
 void D3D9Device::execute(const CommandBindSampler& cmd) {
   const auto& data {mSamplers[cmd.sampler]};
 
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, data.filter));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, data.filter));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, data.mipFilter));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY,
-                                    mCaps.maxTextureAnisotropy));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, data.addressModeU));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, data.addressModeV));
-  D3D9CALL(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, data.addressModeW));
+  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, data.filter));
+  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, data.filter));
+  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, data.mipFilter));
+  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY,
+                                     mCaps.maxTextureAnisotropy));
+  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, data.addressModeU));
+  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, data.addressModeV));
+  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, data.addressModeW));
 }
 
 void D3D9Device::execute(const CommandBindTexture& cmd) {
   const D3D9TexturePtr& texture {mTextures[cmd.texture]};
-  D3D9CALL(mDevice->SetTexture(0, texture.Get()));
+  D3D9CHECK(mDevice->SetTexture(0, texture.Get()));
 }
 
 void D3D9Device::execute(const CommandSetTransform& cmd) {
@@ -939,11 +951,11 @@ void D3D9Device::execute(const CommandSetTransform& cmd) {
   const D3DTRANSFORMSTATETYPE state {to_d3d(cmd.state)};
   const auto transform {to_d3d(cmd.transform)};
 
-  D3D9CALL(mDevice->SetTransform(state, &transform));
+  D3D9CHECK(mDevice->SetTransform(state, &transform));
 }
 
 void D3D9Device::execute(const CommandSetAmbientLight& cmd) {
-  D3D9CALL(mDevice->SetRenderState(D3DRS_AMBIENT, to_d3d(cmd.ambientColor)));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_AMBIENT, to_d3d(cmd.ambientColor)));
 }
 
 void D3D9Device::execute(const CommandSetLights& cmd) {
@@ -957,8 +969,8 @@ void D3D9Device::execute(const CommandSetLights& cmd) {
   for (const auto& l : lights) {
     D3DLIGHT9 d3dLight {visit([](auto&& light) { return to_d3d(light); }, l)};
 
-    D3D9CALL(mDevice->SetLight(lightIndex, &d3dLight));
-    D3D9CALL(mDevice->LightEnable(lightIndex, TRUE));
+    D3D9CHECK(mDevice->SetLight(lightIndex, &d3dLight));
+    D3D9CHECK(mDevice->LightEnable(lightIndex, TRUE));
     lightIndex++;
   }
 }
@@ -972,7 +984,7 @@ void D3D9Device::execute(const CommandSetMaterial& cmd) {
     0.0f,
   };
 
-  D3D9CALL(mDevice->SetMaterial(&material));
+  D3D9CHECK(mDevice->SetMaterial(&material));
 }
 
 } // namespace basalt::gfx

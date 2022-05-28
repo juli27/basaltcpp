@@ -65,7 +65,11 @@ Textures::Textures(Engine& engine)
 
   auto& gfxResourceCache {engine.gfx_resource_cache()};
 
+  const VertexLayout vertexLayout {VertexElement::Position3F32,
+                                   VertexElement::TextureCoords2F32};
+
   MaterialDescriptor material {};
+  material.vertexInputState = vertexLayout;
   material.primitiveType = PrimitiveType::TriangleStrip;
   material.cullBackFace = false;
   material.lit = false;
@@ -94,9 +98,6 @@ Textures::Textures(Engine& engine)
     f32 u;
     f32 v;
   };
-
-  const VertexLayout vertexLayout {VertexElement::Position3F32,
-                                   VertexElement::TextureCoords2F32};
 
   array<Vertex, 4> vertices {
     Vertex {-1.0f, 1.0f, 0.0f, 0.0f, 0.0f},

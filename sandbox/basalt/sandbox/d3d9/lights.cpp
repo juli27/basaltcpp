@@ -54,7 +54,13 @@ constexpr u32 VERTEX_COUNT {2u * 50u};
 Lights::Lights(Engine& engine)
   : mResourceCache {engine.gfx_resource_cache()}
   , mCamera {create_default_camera()} {
+  constexpr array<const VertexElement, 2> vertexLayout {
+    VertexElement::Position3F32,
+    VertexElement::Normal3F32,
+  };
+
   PipelineDescriptor pipelineDesc {};
+  pipelineDesc.vertexInputState = vertexLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
   pipelineDesc.lighting = true;
   pipelineDesc.depthTest = DepthTestPass::IfLessEqual;
