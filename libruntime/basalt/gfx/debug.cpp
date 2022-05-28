@@ -179,9 +179,7 @@ constexpr auto to_string(const PrimitiveType primitiveType) noexcept -> const
   return "(unknown)";
 }
 
-constexpr auto to_string(const RenderStateType state) noexcept -> const char* {
-  switch (state) { ENUM_TO_STRING(RenderStateType::ShadeMode); }
-
+constexpr auto to_string(const RenderStateType) noexcept -> const char* {
   return "(unknown)";
 }
 

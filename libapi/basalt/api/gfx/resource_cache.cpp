@@ -140,6 +140,7 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
     span {&textureStage, 1},
     desc.primitiveType,
     desc.lit,
+    ShadeMode::Gouraud,
     desc.cullBackFace ? CullMode::CounterClockwise : CullMode::None,
     desc.solid ? FillMode::Solid : FillMode::Wireframe,
     DepthTestPass::IfLessEqual,

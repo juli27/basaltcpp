@@ -80,18 +80,14 @@ enum class PrimitiveType : u8 {
 };
 constexpr uSize PRIMITIVE_TYPE_COUNT = 6u;
 
-enum class RenderStateType : u8 {
-  // pixel state
-  // - fixed function only
-  ShadeMode,
-};
-constexpr u8 RENDER_STATE_COUNT {1};
+enum class RenderStateType : u8 {};
+constexpr u8 RENDER_STATE_COUNT {0};
 
 enum class ShadeMode : u8 {
   Flat,
   Gouraud,
 };
-constexpr uSize SHADE_MODE_COUNT = 2u;
+constexpr u8 SHADE_MODE_COUNT {2};
 
 // TODO: support border and custom border color (no/partial support in Vulkan
 // and OpenGL ES)
@@ -243,6 +239,7 @@ struct PipelineDescriptor final {
   gsl::span<const TextureBlendingStage> textureStages {};
   PrimitiveType primitiveType {PrimitiveType::PointList};
   bool lighting {false};
+  ShadeMode shadeMode {ShadeMode::Gouraud};
   CullMode cullMode {CullMode::None};
   FillMode fillMode {FillMode::Solid};
   DepthTestPass depthTest {DepthTestPass::Always};

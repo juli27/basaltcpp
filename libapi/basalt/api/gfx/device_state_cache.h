@@ -32,11 +32,9 @@ private:
     Color emissive;
   };
 
-  using RenderStateArray = EnumArray<RenderStateType, RenderStateValue, 1>;
+  using RenderStateArray = EnumArray<RenderStateType, RenderStateValue, 0>;
 
-  RenderStateArray mRenderStates {
-    {RenderStateType::ShadeMode, ShadeMode::Gouraud},
-  };
+  RenderStateArray mRenderStates {};
 
   EnumArray<TransformState, Matrix4x4f32, TRANSFORM_STATE_COUNT> mTransforms {
     {TransformState::ViewToViewport, Matrix4x4f32::identity()},

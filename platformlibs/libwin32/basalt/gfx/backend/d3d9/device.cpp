@@ -279,9 +279,7 @@ struct D3D9RenderState {
 };
 
 auto to_d3d(const RenderState& rs) -> D3D9RenderState {
-  static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 1> TO_D3D {
-    {RenderStateType::ShadeMode, D3DRS_SHADEMODE},
-  };
+  static constexpr EnumArray<RenderStateType, D3DRENDERSTATETYPE, 0> TO_D3D {};
 
   static_assert(RENDER_STATE_COUNT == TO_D3D.size());
 
@@ -619,10 +617,6 @@ void D3D9Device::execute(const CommandList& cmdList) {
     D3D9CHECK(mDevice->LightEnable(i, FALSE));
   }
 
-  // reset render states
-  // TODO: use state block
-  D3D9CHECK(mDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD));
-
   // unbind resources
   PIX_BEGIN_EVENT(D3DCOLOR_XRGB(128, 128, 128), L"unbind resources");
   D3D9CHECK(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
@@ -675,6 +669,7 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
     stage1AlphaOp,
     to_d3d(desc.primitiveType),
     to_d3d(desc.lighting),
+    to_d3d(desc.shadeMode),
     to_d3d(desc.cullMode),
     to_d3d(desc.fillMode),
     desc.depthTest == DepthTestPass::Always && !desc.depthWriteEnable
@@ -874,6 +869,7 @@ auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
   D3D9CHECK(mDevice->SetFVF(data.fvf));
 
   D3D9CHECK(mDevice->SetRenderState(D3DRS_LIGHTING, data.lighting));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_SHADEMODE, data.shadeMode));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_CULLMODE, data.cullMode));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_FILLMODE, data.fillMode));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ZENABLE, data.zEnabled));

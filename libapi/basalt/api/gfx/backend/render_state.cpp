@@ -2,10 +2,6 @@
 
 namespace basalt::gfx {
 
-auto RenderState::shade_mode(const ShadeMode mode) -> RenderState {
-  return RenderState {RenderStateType::ShadeMode, mode};
-}
-
 auto RenderState::type() const noexcept -> RenderStateType {
   return mType;
 }

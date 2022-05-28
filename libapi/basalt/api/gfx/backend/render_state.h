@@ -17,8 +17,6 @@ struct RenderState {
   constexpr auto operator=(const RenderState&) -> RenderState& = delete;
   constexpr auto operator=(RenderState&&) noexcept -> RenderState& = delete;
 
-  [[nodiscard]] static auto shade_mode(ShadeMode) -> RenderState;
-
   [[nodiscard]] auto type() const noexcept -> RenderStateType;
   [[nodiscard]] auto value() const noexcept -> Value;
 
