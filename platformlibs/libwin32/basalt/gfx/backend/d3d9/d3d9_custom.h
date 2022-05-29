@@ -24,7 +24,7 @@
 
 #else // BASALT_DEBUG_BUILD
 
-#define D3D9CALL(x) (x)
+#define D3D9CHECK(x) (x)
 
 #endif // !BASALT_DEBUG_BUILD
 
