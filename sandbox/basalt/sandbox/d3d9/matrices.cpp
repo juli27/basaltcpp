@@ -89,8 +89,8 @@ Matrices::~Matrices() noexcept {
 auto Matrices::on_draw(const DrawContext& context) -> void {
   CommandList cmdList {};
 
-  cmdList.clear_attachments(Attachments {Attachment::Color}, Colors::BLACK,
-                            1.0f, 0);
+  cmdList.clear_attachments(Attachments {Attachment::RenderTarget},
+                            Colors::BLACK, 1.0f, 0);
 
   cmdList.bind_pipeline(mPipeline);
 

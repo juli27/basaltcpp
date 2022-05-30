@@ -20,9 +20,9 @@ struct D3D9Device final : Device {
 
   void reset(D3DPRESENT_PARAMETERS&) const;
 
-  void begin_execution() const;
-  void execute(const CommandList&);
-  void end_execution() const;
+  auto begin_execution() const -> void;
+  auto execute(const CommandList&) -> void;
+  auto end_execution() const -> void;
 
   [[nodiscard]] auto capabilities() const -> const DeviceCaps& override;
 
@@ -101,13 +101,13 @@ private:
   u8 mMaxLightsUsed {};
 
   void execute(const Command&);
-  void execute(const CommandClearAttachments&);
-  void execute(const CommandDraw&);
+  auto execute(const CommandClearAttachments&) -> void;
+  auto execute(const CommandDraw&) -> void;
   auto execute(const CommandBindPipeline&) -> void;
-  void execute(const CommandBindVertexBuffer&);
+  auto execute(const CommandBindVertexBuffer&) -> void;
   void execute(const CommandBindSampler&);
   void execute(const CommandBindTexture&);
-  void execute(const CommandSetTransform&);
+  auto execute(const CommandSetTransform&) -> void;
   void execute(const CommandSetAmbientLight&);
   void execute(const CommandSetLights&);
   void execute(const CommandSetMaterial&);

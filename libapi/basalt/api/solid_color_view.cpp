@@ -16,7 +16,8 @@ SolidColorView::SolidColorView(const Color& color) : mColor {color} {
 
 auto SolidColorView::on_draw(const DrawContext& context) -> void {
   CommandList cmdList {};
-  cmdList.clear_attachments(Attachments {Attachment::Color}, mColor, 1.0f, 0);
+  cmdList.clear_attachments(Attachments {Attachment::RenderTarget}, mColor,
+                            1.0f, 0);
 
   context.commandLists.push_back(std::move(cmdList));
 }

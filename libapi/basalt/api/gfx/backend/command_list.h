@@ -39,7 +39,7 @@ public:
   [[nodiscard]] auto begin() const -> const_iterator;
   [[nodiscard]] auto end() const -> const_iterator;
 
-  void clear_attachments(Attachments, const Color&, f32 z, u32 stencil);
+  void clear_attachments(Attachments, const Color&, f32 depth, u32 stencil);
   void draw(u32 firstVertex, u32 vertexCount);
   void bind_pipeline(Pipeline);
   void bind_vertex_buffer(VertexBuffer, u64 offset);

@@ -17,13 +17,17 @@ namespace basalt::gfx {
 struct CommandClearAttachments final : CommandT<CommandType::ClearAttachments> {
   Attachments attachments;
   Color color;
-  f32 z;
+  f32 depth;
   u32 stencil;
 
   constexpr explicit CommandClearAttachments(const Attachments aAttachments,
-                                             const Color& aColor, const f32 aZ,
+                                             const Color& aColor,
+                                             const f32 aDepth,
                                              const u32 aStencil) noexcept
-    : attachments {aAttachments}, color {aColor}, z {aZ}, stencil {aStencil} {
+    : attachments {aAttachments}
+    , color {aColor}
+    , depth {aDepth}
+    , stencil {aStencil} {
   }
 };
 

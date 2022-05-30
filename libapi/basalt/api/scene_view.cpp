@@ -59,8 +59,8 @@ auto SceneView::camera() const noexcept -> const Camera& {
 auto SceneView::on_draw(const DrawContext& context) -> void {
   FilteringCommandList cmdList {};
   cmdList.clear_attachments(
-    Attachments {Attachment::Color, Attachment::ZBuffer}, mScene->background(),
-    1.0f, 0);
+    Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
+    mScene->background(), 1.0f, 0);
 
   cmdList.set_transform(TransformState::ViewToViewport,
                         mCamera.view_to_viewport(context.viewport));

@@ -33,9 +33,9 @@ auto CommandList::end() const -> const_iterator {
 }
 
 void CommandList::clear_attachments(const Attachments attachments,
-                                    const Color& color, const f32 z,
+                                    const Color& color, const f32 depth,
                                     const u32 stencil) {
-  add<CommandClearAttachments>(attachments, color, z, stencil);
+  add<CommandClearAttachments>(attachments, color, depth, stencil);
 }
 
 void CommandList::draw(const u32 firstVertex, const u32 vertexCount) {

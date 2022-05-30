@@ -18,8 +18,8 @@
 namespace basalt::gfx {
 
 enum class Attachment : u8 {
-  Color,
-  ZBuffer,
+  RenderTarget,
+  DepthBuffer,
   StencilBuffer,
 };
 using Attachments = EnumSet<Attachment, Attachment::StencilBuffer>;

@@ -7,9 +7,10 @@ using gsl::span;
 namespace basalt::gfx {
 
 void FilteringCommandList::clear_attachments(const Attachments attachments,
-                                             const Color& color, const f32 z,
+                                             const Color& color,
+                                             const f32 depth,
                                              const u32 stencil) {
-  mCommandList.clear_attachments(attachments, color, z, stencil);
+  mCommandList.clear_attachments(attachments, color, depth, stencil);
 }
 
 void FilteringCommandList::draw(const u32 firstVertex, const u32 vertexCount) {

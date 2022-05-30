@@ -4,32 +4,38 @@
 #include <basalt/api/view.h>
 
 #include <basalt/api/gfx/types.h>
+#include <basalt/api/gfx/backend/types.h>
 
-#include <basalt/api/scene/types.h>
+#include <basalt/api/math/angle.h>
 
-#include <entt/entity/handle.hpp>
+#include <basalt/api/base/types.h>
 
 namespace tribase {
 
-// TODO: Exercise 2.5.6-1 requires dynamic vertex buffer
-// TODO: Figure out what to do about the FillMode RenderState for
-// Exercise 2.5.6-3
 struct Dreieck final : basalt::View {
   explicit Dreieck(basalt::Engine&);
+  Dreieck(const Dreieck&) = delete;
+  Dreieck(Dreieck&&) = delete;
+
+  ~Dreieck() noexcept override;
+
+  auto operator=(const Dreieck&) -> Dreieck& = delete;
+  auto operator=(Dreieck&&) -> Dreieck& = delete;
 
 private:
-  basalt::ScenePtr mScene;
-  basalt::SceneViewPtr mSceneView;
-  entt::handle mEntity;
-  basalt::gfx::Mesh mTriangleMesh;
-  basalt::gfx::Mesh mQuadMesh;
-  basalt::gfx::Material mSolidMaterial;
-  basalt::gfx::Material mWireframeMaterial;
-  basalt::gfx::Material mQuadMaterial;
   basalt::f64 mTimeAccum {};
+  basalt::gfx::ResourceCache& mResourceCache;
+  basalt::gfx::Pipeline mPipeline;
+  basalt::gfx::Pipeline mQuadPipeline;
+  basalt::gfx::Pipeline mWireframePipeline;
+  basalt::gfx::VertexBuffer mVertexBuffer;
+  basalt::Angle mRotationY;
+  basalt::f32 mScale {1.0f};
   basalt::i32 mCurrentExercise {};
 
-  void on_tick(basalt::Engine&) override;
+  auto on_draw(const DrawContext&) -> void override;
+
+  auto on_tick(basalt::Engine&) -> void override;
 };
 
 } // namespace tribase

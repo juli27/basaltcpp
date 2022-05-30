@@ -79,8 +79,8 @@ Vertices::~Vertices() noexcept {
 auto Vertices::on_draw(const DrawContext& context) -> void {
   CommandList cmdList {};
 
-  cmdList.clear_attachments(Attachments {Attachment::Color}, Colors::BLUE, 1.0f,
-                            0);
+  cmdList.clear_attachments(Attachments {Attachment::RenderTarget},
+                            Colors::BLUE, 1.0f, 0);
 
   cmdList.bind_pipeline(mPipeline);
   cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);

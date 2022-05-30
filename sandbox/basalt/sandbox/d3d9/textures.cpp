@@ -143,8 +143,8 @@ auto Textures::on_draw(const DrawContext& context) -> void {
   CommandList cmdList {};
 
   cmdList.clear_attachments(
-    Attachments {Attachment::Color, Attachment::ZBuffer}, Colors::BLUE, 1.0f,
-    0);
+    Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
+    Colors::BLUE, 1.0f, 0);
 
   cmdList.bind_pipeline(mShowTci ? mPipelineTci : mPipeline);
 

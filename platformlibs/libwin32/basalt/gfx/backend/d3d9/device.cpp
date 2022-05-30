@@ -541,13 +541,13 @@ void D3D9Device::reset(D3DPRESENT_PARAMETERS& pp) const {
   ImGui_ImplDX9_CreateDeviceObjects();
 }
 
-void D3D9Device::begin_execution() const {
+auto D3D9Device::begin_execution() const -> void {
   // TODO: should this be a fatal error when failing?
   D3D9CHECK(mDevice->BeginScene());
 }
 
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
-void D3D9Device::execute(const CommandList& cmdList) {
+auto D3D9Device::execute(const CommandList& cmdList) -> void {
   // set device state to what the command list expects as default
   // TODO: use state block
   PIX_BEGIN_EVENT(D3DCOLOR_XRGB(128, 128, 128), L"set default state");
@@ -603,7 +603,7 @@ void D3D9Device::execute(const CommandList& cmdList) {
   PIX_END_EVENT();
 }
 
-void D3D9Device::end_execution() const {
+auto D3D9Device::end_execution() const -> void {
   D3D9CHECK(mDevice->EndScene());
 }
 
@@ -800,15 +800,18 @@ void D3D9Device::execute(const Command& cmd) {
   }
 }
 
-void D3D9Device::execute(const CommandClearAttachments& cmd) {
+auto D3D9Device::execute(const CommandClearAttachments& cmd) -> void {
+  BASALT_ASSERT_IF(cmd.attachments.has(Attachment::DepthBuffer),
+                   cmd.depth >= 0.0f && cmd.depth <= 1.0f);
+
   const DWORD flags {[&] {
     DWORD f {0};
 
-    if (cmd.attachments.has(Attachment::Color)) {
+    if (cmd.attachments.has(Attachment::RenderTarget)) {
       f |= D3DCLEAR_TARGET;
     }
 
-    if (cmd.attachments.has(Attachment::ZBuffer)) {
+    if (cmd.attachments.has(Attachment::DepthBuffer)) {
       f |= D3DCLEAR_ZBUFFER;
     }
 
@@ -819,11 +822,11 @@ void D3D9Device::execute(const CommandClearAttachments& cmd) {
     return f;
   }()};
 
-  D3D9CHECK(
-    mDevice->Clear(0u, nullptr, flags, to_d3d(cmd.color), cmd.z, cmd.stencil));
+  D3D9CHECK(mDevice->Clear(0u, nullptr, flags, to_d3d(cmd.color), cmd.depth,
+                           cmd.stencil));
 }
 
-void D3D9Device::execute(const CommandDraw& cmd) {
+auto D3D9Device::execute(const CommandDraw& cmd) -> void {
   D3D9CHECK(mDevice->DrawPrimitive(
     mCurrentPrimitiveType, cmd.firstVertex,
     calculate_primitive_count(mCurrentPrimitiveType, cmd.vertexCount)));
@@ -871,7 +874,7 @@ auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
   D3D9CHECK(mDevice->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
 }
 
-void D3D9Device::execute(const CommandBindVertexBuffer& cmd) {
+auto D3D9Device::execute(const CommandBindVertexBuffer& cmd) -> void {
   BASALT_ASSERT(mVertexBuffers.is_valid(cmd.handle));
 
   if (!mVertexBuffers.is_valid(cmd.handle)) {
@@ -910,7 +913,7 @@ void D3D9Device::execute(const CommandBindTexture& cmd) {
   D3D9CHECK(mDevice->SetTexture(0, texture.Get()));
 }
 
-void D3D9Device::execute(const CommandSetTransform& cmd) {
+auto D3D9Device::execute(const CommandSetTransform& cmd) -> void {
   BASALT_ASSERT_IF(cmd.state == TransformState::ViewToViewport,
                    cmd.transform.m34 >= 0,
                    "(3,4) can't be negative in a projection matrix");

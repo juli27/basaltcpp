@@ -120,8 +120,8 @@ constexpr auto enumerator_to_string(const CommandType type) noexcept -> const
 
 constexpr auto to_string(const Attachment attachment) noexcept -> const char* {
   switch (attachment) {
-    ENUM_TO_STRING(Attachment::Color);
-    ENUM_TO_STRING(Attachment::ZBuffer);
+    ENUM_TO_STRING(Attachment::RenderTarget);
+    ENUM_TO_STRING(Attachment::DepthBuffer);
     ENUM_TO_STRING(Attachment::StencilBuffer);
   }
 
@@ -237,14 +237,14 @@ void display_color4(const char* label, const Color& color) {
 }
 
 void display(const CommandClearAttachments& cmd) {
-  if (cmd.attachments.has(Attachment::Color)) {
-    ImGui::TextUnformatted(to_string(Attachment::Color));
+  if (cmd.attachments.has(Attachment::RenderTarget)) {
+    ImGui::TextUnformatted(to_string(Attachment::RenderTarget));
     display_color4("color", cmd.color);
   }
 
-  if (cmd.attachments.has(Attachment::ZBuffer)) {
-    ImGui::TextUnformatted(to_string(Attachment::ZBuffer));
-    ImGui::Text("z = %#g", static_cast<f64>(cmd.z));
+  if (cmd.attachments.has(Attachment::DepthBuffer)) {
+    ImGui::TextUnformatted(to_string(Attachment::DepthBuffer));
+    ImGui::Text("depth = %#g", static_cast<f64>(cmd.depth));
   }
 
   if (cmd.attachments.has(Attachment::StencilBuffer)) {

@@ -42,8 +42,8 @@ void Meshes::on_draw(const DrawContext& context) {
   CommandList cmdList {};
 
   cmdList.clear_attachments(
-    Attachments {Attachment::Color, Attachment::ZBuffer}, Colors::BLUE, 1.0f,
-    0);
+    Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
+    Colors::BLUE, 1.0f, 0);
 
   cmdList.set_ambient_light(Colors::WHITE);
 
