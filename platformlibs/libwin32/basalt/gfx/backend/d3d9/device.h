@@ -86,6 +86,7 @@ private:
     D3DTEXTUREADDRESS addressModeU {D3DTADDRESS_WRAP};
     D3DTEXTUREADDRESS addressModeV {D3DTADDRESS_WRAP};
     D3DTEXTUREADDRESS addressModeW {D3DTADDRESS_WRAP};
+    D3DCOLOR borderColor {0};
   };
 
   D3D9DevicePtr mDevice;

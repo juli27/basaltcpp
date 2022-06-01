@@ -146,6 +146,23 @@ constexpr auto to_d3d(const bool b) noexcept -> BOOL {
   return b;
 }
 
+auto to_d3d(const BorderColor borderColor, const Color& custom) -> D3DCOLOR {
+  if (borderColor == BorderColor::Custom) {
+    return gfx::to_d3d(custom);
+  }
+
+  static constexpr EnumArray<BorderColor, D3DCOLOR, 3> TO_D3D {
+    {BorderColor::BlackTransparent, D3DCOLOR_ARGB(0, 0, 0, 0)},
+    {BorderColor::BlackOpaque, D3DCOLOR_ARGB(255, 0, 0, 0)},
+    {BorderColor::WhiteOpaque, D3DCOLOR_ARGB(255, 255, 255, 255)},
+  };
+
+  // don't count Custom
+  static_assert(BORDER_COLOR_COUNT - 1 == TO_D3D.size());
+
+  return TO_D3D[borderColor];
+}
+
 auto to_d3d(const CullMode mode) -> D3DCULL {
   static constexpr EnumArray<CullMode, D3DCULL, 3> TO_D3D {
     {CullMode::None, D3DCULL_NONE},
@@ -298,10 +315,11 @@ auto to_d3d(const TextureMipFilter filter) -> D3DTEXTUREFILTERTYPE {
 }
 
 auto to_d3d(const TextureAddressMode mode) -> D3DTEXTUREADDRESS {
-  static constexpr EnumArray<TextureAddressMode, D3DTEXTUREADDRESS, 3> TO_D3D {
+  static constexpr EnumArray<TextureAddressMode, D3DTEXTUREADDRESS, 4> TO_D3D {
     {TextureAddressMode::Repeat, D3DTADDRESS_WRAP},
     {TextureAddressMode::Mirror, D3DTADDRESS_MIRROR},
     {TextureAddressMode::ClampToEdge, D3DTADDRESS_CLAMP},
+    {TextureAddressMode::ClampToBorder, D3DTADDRESS_BORDER},
   };
 
   static_assert(TEXTURE_ADDRESS_MODE_COUNT == TO_D3D.size());
@@ -526,6 +544,9 @@ D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
   mCaps.maxTextureBlendStages = d3d9Caps.MaxTextureBlendStages;
   mCaps.maxBoundSampledTextures = d3d9Caps.MaxSimultaneousTextures;
   mCaps.maxTextureAnisotropy = d3d9Caps.MaxAnisotropy;
+  mCaps.samplerClampToBorder =
+    d3d9Caps.TextureAddressCaps & D3DPTADDRESSCAPS_BORDER;
+  mCaps.samplerCustomBorderColor = mCaps.samplerClampToBorder;
 }
 
 auto D3D9Device::device() const -> ComPtr<IDirect3DDevice9> {
@@ -768,6 +789,7 @@ auto D3D9Device::create_sampler(const SamplerDescriptor& desc) -> Sampler {
     to_d3d(desc.addressModeU),
     to_d3d(desc.addressModeV),
     to_d3d(desc.addressModeW),
+    to_d3d(desc.borderColor, desc.customBorderColor),
   });
 }
 
@@ -913,6 +935,7 @@ auto D3D9Device::execute(const CommandBindSampler& cmd) -> void {
   D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, data.addressModeU));
   D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, data.addressModeV));
   D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, data.addressModeW));
+  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_BORDERCOLOR, data.borderColor));
 }
 
 auto D3D9Device::execute(const CommandBindTexture& cmd) -> void {

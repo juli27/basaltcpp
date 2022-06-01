@@ -24,6 +24,16 @@ enum class Attachment : u8 {
 };
 using Attachments = EnumSet<Attachment, Attachment::StencilBuffer>;
 
+enum class BorderColor : u8 {
+  BlackTransparent,
+  BlackOpaque,
+  WhiteOpaque,
+
+  // DeviceCaps.samplerCustomBorderColor
+  Custom,
+};
+constexpr u8 BORDER_COLOR_COUNT {4u};
+
 enum class CommandType : u8 {
   ClearAttachments,
   Draw,
@@ -92,8 +102,11 @@ enum class TextureAddressMode : u8 {
   Repeat,
   Mirror,
   ClampToEdge,
+
+  // DeviceCaps.samplerClampToBorder
+  ClampToBorder,
 };
-constexpr uSize TEXTURE_ADDRESS_MODE_COUNT {3u};
+constexpr uSize TEXTURE_ADDRESS_MODE_COUNT {4u};
 
 enum class TextureCoordinateSource : u8 {
   Vertex,
@@ -213,6 +226,8 @@ struct DeviceCaps final {
   u32 maxTextureBlendStages {1};
   u32 maxBoundSampledTextures {1};
   u32 maxTextureAnisotropy {1};
+  bool samplerClampToBorder {false};
+  bool samplerCustomBorderColor {false};
 };
 
 struct TextureBlendingStage final {
@@ -246,6 +261,11 @@ struct SamplerDescriptor final {
   TextureAddressMode addressModeU {TextureAddressMode::Repeat};
   TextureAddressMode addressModeV {TextureAddressMode::Repeat};
   TextureAddressMode addressModeW {TextureAddressMode::Repeat};
+
+  // DeviceCaps.samplerClampToBorder
+  BorderColor borderColor {BorderColor::BlackTransparent};
+  // DeviceCaps.samplerCustomBorderColor
+  Color customBorderColor;
 };
 
 struct VertexBufferDescriptor final {

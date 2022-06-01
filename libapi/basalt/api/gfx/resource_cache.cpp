@@ -148,10 +148,18 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
   })};
 
   // TODO: cache samplers
-  const Sampler sampler {create_sampler(SamplerDescriptor {
-    desc.sampledTexture.filter, desc.sampledTexture.filter,
-    desc.sampledTexture.mipFilter, desc.sampledTexture.addressModeU,
-    desc.sampledTexture.addressModeV})};
+  const Sampler sampler {
+    create_sampler(SamplerDescriptor {
+      desc.sampledTexture.filter,
+      desc.sampledTexture.filter,
+      desc.sampledTexture.mipFilter,
+      desc.sampledTexture.addressModeU,
+      desc.sampledTexture.addressModeV,
+      TextureAddressMode::Repeat,
+      BorderColor::BlackTransparent,
+      Color {},
+    }),
+  };
 
   return mMaterials.allocate(MaterialData {
     desc.diffuse,
