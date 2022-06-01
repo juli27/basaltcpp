@@ -240,7 +240,8 @@ struct PipelineDescriptor final {
 };
 
 struct SamplerDescriptor final {
-  TextureFilter filter {TextureFilter::Point};
+  TextureFilter magFilter {TextureFilter::Point};
+  TextureFilter minFilter {TextureFilter::Point};
   TextureMipFilter mipFilter {TextureMipFilter::None};
   TextureAddressMode addressModeU {TextureAddressMode::Repeat};
   TextureAddressMode addressModeV {TextureAddressMode::Repeat};

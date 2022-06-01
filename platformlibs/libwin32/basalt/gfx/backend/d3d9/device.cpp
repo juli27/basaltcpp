@@ -762,7 +762,8 @@ void D3D9Device::destroy(const Texture handle) noexcept {
 
 auto D3D9Device::create_sampler(const SamplerDescriptor& desc) -> Sampler {
   return mSamplers.allocate(SamplerData {
-    to_d3d(desc.filter),
+    to_d3d(desc.magFilter),
+    to_d3d(desc.minFilter),
     to_d3d(desc.mipFilter),
     to_d3d(desc.addressModeU),
     to_d3d(desc.addressModeV),
@@ -904,8 +905,8 @@ auto D3D9Device::execute(const CommandBindSampler& cmd) -> void {
 
   const auto& data {mSamplers[cmd.sampler]};
 
-  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, data.filter));
-  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, data.filter));
+  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, data.minFilter));
+  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, data.magFilter));
   D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, data.mipFilter));
   D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY,
                                      mCaps.maxTextureAnisotropy));
