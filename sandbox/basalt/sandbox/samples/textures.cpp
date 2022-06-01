@@ -78,8 +78,8 @@ Textures::Textures(Engine& engine)
 
   u32 i {0};
 
-  for (const auto filter : {TextureFilter::Point, TextureFilter::Linear,
-                            TextureFilter::LinearAnisotropic}) {
+  for (const auto filter : {TextureFilter::Point, TextureFilter::Bilinear,
+                            TextureFilter::Anisotropic}) {
     material.sampledTexture.filter = filter;
 
     for (const auto mipFilter :
@@ -131,9 +131,9 @@ void Textures::on_tick(Engine&) {
     ImGui::PushID("Filter");
     ImGui::RadioButton("Point", &minFilter, 0);
     ImGui::SameLine();
-    ImGui::RadioButton("Linear", &minFilter, 1);
+    ImGui::RadioButton("Bilinear", &minFilter, 1);
     ImGui::SameLine();
-    ImGui::RadioButton("Linear (anisotropic)", &minFilter, 2);
+    ImGui::RadioButton("Anisotropic", &minFilter, 2);
     ImGui::PopID();
 
     ImGui::TextUnformatted("MIP Filter");

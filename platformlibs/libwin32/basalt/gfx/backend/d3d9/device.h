@@ -18,7 +18,7 @@ struct D3D9Device final : Device {
 
   [[nodiscard]] auto device() const -> Microsoft::WRL::ComPtr<IDirect3DDevice9>;
 
-  void reset(D3DPRESENT_PARAMETERS&) const;
+  auto reset(D3DPRESENT_PARAMETERS&) const -> void;
 
   auto begin_execution() const -> void;
   auto execute(const CommandList&) -> void;
@@ -29,7 +29,7 @@ struct D3D9Device final : Device {
   [[nodiscard]] auto create_pipeline(const PipelineDescriptor&)
     -> Pipeline override;
 
-  void destroy(Pipeline) noexcept override;
+  auto destroy(Pipeline) noexcept -> void override;
 
   [[nodiscard]] auto
   create_vertex_buffer(const VertexBufferDescriptor&,
@@ -49,7 +49,7 @@ struct D3D9Device final : Device {
   [[nodiscard]] auto create_sampler(const SamplerDescriptor&)
     -> Sampler override;
 
-  void destroy(Sampler) noexcept override;
+  auto destroy(Sampler) noexcept -> void override;
 
   auto query_extension(ext::ExtensionId)
     -> std::optional<ext::ExtensionPtr> override;
@@ -100,13 +100,13 @@ private:
   D3DPRIMITIVETYPE mCurrentPrimitiveType {D3DPT_POINTLIST};
   u8 mMaxLightsUsed {};
 
-  void execute(const Command&);
+  auto execute(const Command&) -> void;
   auto execute(const CommandClearAttachments&) -> void;
   auto execute(const CommandDraw&) -> void;
   auto execute(const CommandBindPipeline&) -> void;
   auto execute(const CommandBindVertexBuffer&) -> void;
-  void execute(const CommandBindSampler&);
-  void execute(const CommandBindTexture&);
+  auto execute(const CommandBindSampler&) -> void;
+  auto execute(const CommandBindTexture&) -> void;
   auto execute(const CommandSetTransform&) -> void;
   void execute(const CommandSetAmbientLight&);
   void execute(const CommandSetLights&);

@@ -25,7 +25,7 @@ struct Device {
   [[nodiscard]] virtual auto create_pipeline(const PipelineDescriptor&)
     -> Pipeline = 0;
 
-  virtual void destroy(Pipeline) noexcept = 0;
+  virtual auto destroy(Pipeline) noexcept -> void = 0;
 
   // TODO: noexcept method to validate the layout for the device requirements
   //       bool Device::ValidateVertexLayout(const VertexLayout&)
@@ -64,7 +64,7 @@ struct Device {
   [[nodiscard]] virtual auto create_sampler(const SamplerDescriptor&)
     -> Sampler = 0;
 
-  virtual void destroy(Sampler) noexcept = 0;
+  virtual auto destroy(Sampler) noexcept -> void = 0;
 
   virtual auto query_extension(ext::ExtensionId)
     -> std::optional<ext::ExtensionPtr> = 0;

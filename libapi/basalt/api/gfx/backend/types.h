@@ -89,9 +89,9 @@ constexpr u8 SHADE_MODE_COUNT {2};
 // and OpenGL ES)
 // TODO: support MirrorOnce
 enum class TextureAddressMode : u8 {
-  WrapRepeat,
-  MirrorRepeat,
-  ClampEdge,
+  Repeat,
+  Mirror,
+  ClampToEdge,
 };
 constexpr uSize TEXTURE_ADDRESS_MODE_COUNT {3u};
 
@@ -103,8 +103,8 @@ constexpr uSize TEXTURE_COORDINATE_SOURCE_COUNT {2u};
 
 enum class TextureFilter : u8 {
   Point,
-  Linear,
-  LinearAnisotropic, // TODO: check for support and set level
+  Bilinear,
+  Anisotropic, // TODO: check for support and set level
 };
 constexpr uSize TEXTURE_FILTER_COUNT {3u};
 
@@ -242,9 +242,9 @@ struct PipelineDescriptor final {
 struct SamplerDescriptor final {
   TextureFilter filter {TextureFilter::Point};
   TextureMipFilter mipFilter {TextureMipFilter::None};
-  TextureAddressMode addressModeU {TextureAddressMode::WrapRepeat};
-  TextureAddressMode addressModeV {TextureAddressMode::WrapRepeat};
-  TextureAddressMode addressModeW {TextureAddressMode::WrapRepeat};
+  TextureAddressMode addressModeU {TextureAddressMode::Repeat};
+  TextureAddressMode addressModeV {TextureAddressMode::Repeat};
+  TextureAddressMode addressModeW {TextureAddressMode::Repeat};
 };
 
 struct VertexBufferDescriptor final {

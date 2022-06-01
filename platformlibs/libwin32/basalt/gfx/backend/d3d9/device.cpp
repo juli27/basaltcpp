@@ -276,8 +276,8 @@ auto to_d3d(const TestOp function) -> D3DCMPFUNC {
 auto to_d3d(const TextureFilter filter) -> D3DTEXTUREFILTERTYPE {
   static constexpr EnumArray<TextureFilter, D3DTEXTUREFILTERTYPE, 3> TO_D3D {
     {TextureFilter::Point, D3DTEXF_POINT},
-    {TextureFilter::Linear, D3DTEXF_LINEAR},
-    {TextureFilter::LinearAnisotropic, D3DTEXF_ANISOTROPIC},
+    {TextureFilter::Bilinear, D3DTEXF_LINEAR},
+    {TextureFilter::Anisotropic, D3DTEXF_ANISOTROPIC},
   };
 
   static_assert(TEXTURE_FILTER_COUNT == TO_D3D.size());
@@ -299,9 +299,9 @@ auto to_d3d(const TextureMipFilter filter) -> D3DTEXTUREFILTERTYPE {
 
 auto to_d3d(const TextureAddressMode mode) -> D3DTEXTUREADDRESS {
   static constexpr EnumArray<TextureAddressMode, D3DTEXTUREADDRESS, 3> TO_D3D {
-    {TextureAddressMode::WrapRepeat, D3DTADDRESS_WRAP},
-    {TextureAddressMode::MirrorRepeat, D3DTADDRESS_MIRROR},
-    {TextureAddressMode::ClampEdge, D3DTADDRESS_CLAMP},
+    {TextureAddressMode::Repeat, D3DTADDRESS_WRAP},
+    {TextureAddressMode::Mirror, D3DTADDRESS_MIRROR},
+    {TextureAddressMode::ClampToEdge, D3DTADDRESS_CLAMP},
   };
 
   static_assert(TEXTURE_ADDRESS_MODE_COUNT == TO_D3D.size());
@@ -416,7 +416,7 @@ struct D3D9ImGuiRenderer final : ext::DearImGuiRenderer {
     : mDevice {std::move(device)} {
   }
 
-  static void execute(const ext::CommandRenderDearImGui&) {
+  static auto execute(const ext::CommandRenderDearImGui&) -> void {
     ImGui::Render();
     if (auto* drawData {ImGui::GetDrawData()}) {
       ImGui_ImplDX9_RenderDrawData(drawData);
@@ -532,7 +532,7 @@ auto D3D9Device::device() const -> ComPtr<IDirect3DDevice9> {
   return mDevice;
 }
 
-void D3D9Device::reset(D3DPRESENT_PARAMETERS& pp) const {
+auto D3D9Device::reset(D3DPRESENT_PARAMETERS& pp) const -> void {
   ImGui_ImplDX9_InvalidateDeviceObjects();
 
   // TODO: test cooperative level (see D3D9Context::present)
@@ -659,7 +659,7 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
   });
 }
 
-void D3D9Device::destroy(const Pipeline handle) noexcept {
+auto D3D9Device::destroy(const Pipeline handle) noexcept -> void {
   mPipelines.deallocate(handle);
 }
 
@@ -770,7 +770,7 @@ auto D3D9Device::create_sampler(const SamplerDescriptor& desc) -> Sampler {
   });
 }
 
-void D3D9Device::destroy(const Sampler handle) noexcept {
+auto D3D9Device::destroy(const Sampler handle) noexcept -> void {
   mSamplers.deallocate(handle);
 }
 
@@ -783,7 +783,7 @@ auto D3D9Device::query_extension(const ext::ExtensionId id)
   return std::nullopt;
 }
 
-void D3D9Device::execute(const Command& cmd) {
+auto D3D9Device::execute(const Command& cmd) -> void {
   switch (cmd.type) {
   case CommandType::ExtDrawXMesh:
     std::static_pointer_cast<const D3D9XModelSupport>(
@@ -895,7 +895,13 @@ auto D3D9Device::execute(const CommandBindVertexBuffer& cmd) -> void {
   D3D9CHECK(mDevice->SetStreamSource(0u, buffer.Get(), offset, fvfStride));
 }
 
-void D3D9Device::execute(const CommandBindSampler& cmd) {
+auto D3D9Device::execute(const CommandBindSampler& cmd) -> void {
+  BASALT_ASSERT(mSamplers.is_valid(cmd.sampler));
+
+  if (!mSamplers.is_valid(cmd.sampler)) {
+    return;
+  }
+
   const auto& data {mSamplers[cmd.sampler]};
 
   D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, data.filter));
@@ -908,8 +914,15 @@ void D3D9Device::execute(const CommandBindSampler& cmd) {
   D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, data.addressModeW));
 }
 
-void D3D9Device::execute(const CommandBindTexture& cmd) {
+auto D3D9Device::execute(const CommandBindTexture& cmd) -> void {
+  BASALT_ASSERT(mTextures.is_valid(cmd.texture));
+
+  if (!mTextures.is_valid(cmd.texture)) {
+    return;
+  }
+
   const D3D9TexturePtr& texture {mTextures[cmd.texture]};
+
   D3D9CHECK(mDevice->SetTexture(0, texture.Get()));
 }
 

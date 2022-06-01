@@ -136,8 +136,8 @@ struct SampledTextureDescriptor final {
   Texture texture {Texture::null()};
   TextureFilter filter {TextureFilter::Point};
   TextureMipFilter mipFilter {TextureMipFilter::None};
-  TextureAddressMode addressModeU {TextureAddressMode::WrapRepeat};
-  TextureAddressMode addressModeV {TextureAddressMode::WrapRepeat};
+  TextureAddressMode addressModeU {TextureAddressMode::Repeat};
+  TextureAddressMode addressModeV {TextureAddressMode::Repeat};
 };
 
 struct MaterialDescriptor final {

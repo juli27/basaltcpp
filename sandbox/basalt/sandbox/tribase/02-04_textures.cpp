@@ -112,11 +112,11 @@ Textures::Textures(Engine& engine)
   auto& gfxResources {engine.gfx_resource_cache()};
   mPointSampler = gfxResources.create_material(materialDesc);
 
-  materialDesc.sampledTexture.filter = TextureFilter::Linear;
+  materialDesc.sampledTexture.filter = TextureFilter::Bilinear;
   materialDesc.sampledTexture.mipFilter = TextureMipFilter::Linear;
   mLinearSamplerWithMip = gfxResources.create_material(materialDesc);
 
-  materialDesc.sampledTexture.filter = TextureFilter::LinearAnisotropic;
+  materialDesc.sampledTexture.filter = TextureFilter::Anisotropic;
   materialDesc.sampledTexture.mipFilter = TextureMipFilter::None;
   mAnisotropicSampler = gfxResources.create_material(materialDesc);
 
