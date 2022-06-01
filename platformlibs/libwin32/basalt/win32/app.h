@@ -10,7 +10,7 @@ struct App final : Engine {
   static void run(Config&, HMODULE, int showCommand);
 
 private:
-  App(Config&, const gfx::Info&, gfx::Device&);
+  App(Config&, gfx::Info, gfx::Device&);
 };
 
 } // namespace basalt

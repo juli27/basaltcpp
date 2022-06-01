@@ -84,9 +84,9 @@ auto calc_window_rect(const int posX, const int posY, const DWORD style,
 } // namespace
 
 Window::Window(const Token, const HMODULE moduleHandle,
-               const Size2Du16 clientAreaSize, const gfx::Info& gfxInfo)
+               const Size2Du16 clientAreaSize, const gfx::AdapterList& adapters)
   : mModuleHandle {moduleHandle}
-  , mGfxInfo {gfxInfo}
+  , mAdapters {adapters}
   , mClientAreaSize {clientAreaSize} {
   BASALT_ASSERT(mModuleHandle);
 
@@ -159,7 +159,7 @@ void Window::set_mode(const WindowMode windowMode) {
 
     mCurrentMode = windowMode;
 
-    const auto& adapterInfo {mGfxInfo.adapters[0]};
+    const auto& adapterInfo {mAdapters[0]};
 
     gfx::Context::ResetDesc desc {};
     desc.exclusiveDisplayMode = adapterInfo.displayMode;
@@ -262,8 +262,9 @@ auto Window::create(const HMODULE moduleHandle, const int showCommand,
 
   const wstring windowTitle {create_wide_from_utf8(desc.title)};
 
-  auto window {std::make_unique<Window>(
-    Token {}, moduleHandle, desc.preferredClientAreaSize, gfxFactory.info())};
+  auto window {std::make_unique<Window>(Token {}, moduleHandle,
+                                        desc.preferredClientAreaSize,
+                                        gfxFactory.adapters())};
 
   const HWND handle {
     CreateWindowExW(styleEx, reinterpret_cast<LPCWSTR>(windowClass),
@@ -294,7 +295,7 @@ auto Window::create(const HMODULE moduleHandle, const int showCommand,
 }
 
 auto Window::init_gfx_context(const gfx::D3D9Factory& gfxFactory) -> void {
-  const auto& adapterInfo {mGfxInfo.adapters[0]};
+  const auto& adapterInfo {mAdapters[0]};
 
   const gfx::D3D9Factory::DeviceAndContextDesc contextDesc {
     adapterInfo.handle,         adapterInfo.displayMode,
@@ -303,6 +304,9 @@ auto Window::init_gfx_context(const gfx::D3D9Factory& gfxFactory) -> void {
   };
 
   mGfxContext = gfxFactory.create_device_and_context(mHandle, contextDesc);
+
+  BASALT_LOG_INFO("Direct3D9 context created: adapter={}, driver={}",
+                  adapterInfo.displayName, adapterInfo.driverInfo);
 }
 
 void Window::shutdown_gfx_context() {

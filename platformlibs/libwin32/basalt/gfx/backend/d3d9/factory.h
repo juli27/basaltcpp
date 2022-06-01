@@ -31,7 +31,7 @@ public:
   // returns null on failure
   static auto create() -> D3D9FactoryPtr;
 
-  D3D9Factory(Token, InstancePtr, Info);
+  D3D9Factory(Token, InstancePtr, AdapterList);
 
   D3D9Factory(const D3D9Factory&) = delete;
   D3D9Factory(D3D9Factory&&) = delete;
@@ -41,7 +41,7 @@ public:
   auto operator=(const D3D9Factory&) -> D3D9Factory& = delete;
   auto operator=(D3D9Factory&&) -> D3D9Factory& = delete;
 
-  [[nodiscard]] auto info() const -> const Info&;
+  [[nodiscard]] auto adapters() const -> const AdapterList&;
 
   [[nodiscard]] auto get_adapter_monitor(Adapter) const -> HMONITOR;
 
@@ -50,7 +50,7 @@ public:
 
 private:
   InstancePtr mInstance;
-  Info mInfo;
+  AdapterList mAdapters;
 };
 
 } // namespace basalt::gfx

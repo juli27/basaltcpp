@@ -117,6 +117,8 @@ struct AdapterInfo final {
 using AdapterList = std::vector<AdapterInfo>;
 
 struct Info final {
+  // HACK: caps for the current device only
+  DeviceCaps currentDeviceCaps;
   AdapterList adapters {};
   BackendApi backendApi {BackendApi::Default};
 };

@@ -551,18 +551,15 @@ auto D3D9Factory::create() -> D3D9FactoryPtr {
   }
 
   return std::make_unique<D3D9Factory>(Token {}, std::move(instance),
-                                       Info {
-                                         std::move(adapters),
-                                         BackendApi::Direct3D9,
-                                       });
+                                       std::move(adapters));
 }
 
-D3D9Factory::D3D9Factory(Token, InstancePtr instance, Info info)
-  : mInstance {std::move(instance)}, mInfo {std::move(info)} {
+D3D9Factory::D3D9Factory(Token, InstancePtr instance, AdapterList adapters)
+  : mInstance {std::move(instance)}, mAdapters {std::move(adapters)} {
 }
 
-auto D3D9Factory::info() const -> const Info& {
-  return mInfo;
+auto D3D9Factory::adapters() const -> const AdapterList& {
+  return mAdapters;
 }
 
 auto D3D9Factory::get_adapter_monitor(const Adapter adapter) const -> HMONITOR {

@@ -47,10 +47,10 @@ void Engine::set_window_mode(const WindowMode windowMode) noexcept {
   mIsDirty = true;
 }
 
-Engine::Engine(Config& config, const gfx::Info& gfxInfo,
+Engine::Engine(Config& config, gfx::Info gfxInfo,
                gfx::Device& gfxDevice) noexcept
   : mConfig {config}
-  , mGfxInfo {gfxInfo}
+  , mGfxInfo {std::move(gfxInfo)}
   , mResourceRegistry {std::make_shared<ResourceRegistry>()}
   , mGfxResourceCache {gfxDevice} {
 }

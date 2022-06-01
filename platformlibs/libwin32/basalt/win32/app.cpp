@@ -32,6 +32,7 @@
 #include <chrono>
 #include <string>
 #include <string_view>
+#include <utility>
 
 using namespace std::literals;
 
@@ -150,19 +151,19 @@ void App::run(Config& config, const HMODULE moduleHandle,
 
   gfx::Context& gfxContext {window->gfx_context()};
 
-  const gfx::Info& gfxInfo {gfxFactory->info()};
-
-  BASALT_LOG_INFO("Direct3D9 context created: adapter={}, driver={}",
-                  gfxInfo.adapters[0].displayName,
-                  gfxInfo.adapters[0].driverInfo);
-
   const auto dearImGui {std::make_shared<DearImGui>(gfxContext.device())};
   ImGuiIO& io {ImGui::GetIO()};
   io.ImeWindowHandle = window->handle();
 
   window->input_manager().set_overlay(dearImGui);
 
-  App app {config, gfxInfo, gfxContext.device()};
+  App app {config,
+           gfx::Info {
+             gfxContext.device().capabilities(),
+             gfxFactory->adapters(),
+             gfx::BackendApi::Direct3D9,
+           },
+           gfxContext.device()};
 
   ClientApp::bootstrap(app);
 
@@ -221,8 +222,8 @@ void App::run(Config& config, const HMODULE moduleHandle,
   }
 }
 
-App::App(Config& config, const gfx::Info& gfxInfo, gfx::Device& gfxDevice)
-  : Engine {config, gfxInfo, gfxDevice} {
+App::App(Config& config, gfx::Info gfxInfo, gfx::Device& gfxDevice)
+  : Engine {config, std::move(gfxInfo), gfxDevice} {
 }
 
 // namespace {

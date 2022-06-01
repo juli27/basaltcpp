@@ -35,7 +35,7 @@ public:
     bool resizeable {true};
   };
 
-  Window(Token, HMODULE, Size2Du16 clientAreaSize, const gfx::Info&);
+  Window(Token, HMODULE, Size2Du16 clientAreaSize, const gfx::AdapterList&);
 
   Window(const Window&) = delete;
   Window(Window&&) = delete;
@@ -70,7 +70,7 @@ private:
   // set during WM_CREATE in the window_proc
   HWND mHandle {};
 
-  const gfx::Info& mGfxInfo;
+  const gfx::AdapterList& mAdapters;
   gfx::ContextPtr mGfxContext {};
 
   InputManager mInputManager;

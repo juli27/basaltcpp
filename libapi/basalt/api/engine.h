@@ -46,7 +46,7 @@ struct Engine {
 protected:
   Config& mConfig;
 
-  const gfx::Info& mGfxInfo;
+  gfx::Info mGfxInfo;
 
   ResourceRegistryPtr mResourceRegistry {};
 
@@ -62,7 +62,7 @@ protected:
   MouseCursor mMouseCursor {MouseCursor::Arrow};
   bool mIsDirty {false};
 
-  Engine(Config&, const gfx::Info&, gfx::Device&) noexcept;
+  Engine(Config&, gfx::Info, gfx::Device&) noexcept;
 
   ~Engine() noexcept = default;
 
