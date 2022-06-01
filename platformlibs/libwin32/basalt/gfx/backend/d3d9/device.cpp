@@ -315,11 +315,12 @@ auto to_d3d(const TextureMipFilter filter) -> D3DTEXTUREFILTERTYPE {
 }
 
 auto to_d3d(const TextureAddressMode mode) -> D3DTEXTUREADDRESS {
-  static constexpr EnumArray<TextureAddressMode, D3DTEXTUREADDRESS, 4> TO_D3D {
+  static constexpr EnumArray<TextureAddressMode, D3DTEXTUREADDRESS, 5> TO_D3D {
     {TextureAddressMode::Repeat, D3DTADDRESS_WRAP},
     {TextureAddressMode::Mirror, D3DTADDRESS_MIRROR},
     {TextureAddressMode::ClampToEdge, D3DTADDRESS_CLAMP},
     {TextureAddressMode::ClampToBorder, D3DTADDRESS_BORDER},
+    {TextureAddressMode::MirrorOnceClampToEdge, D3DTADDRESS_MIRRORONCE},
   };
 
   static_assert(TEXTURE_ADDRESS_MODE_COUNT == TO_D3D.size());
@@ -547,6 +548,8 @@ D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
   mCaps.samplerClampToBorder =
     d3d9Caps.TextureAddressCaps & D3DPTADDRESSCAPS_BORDER;
   mCaps.samplerCustomBorderColor = mCaps.samplerClampToBorder;
+  mCaps.samplerMirrorOnceClampToEdge =
+    d3d9Caps.TextureAddressCaps & D3DPTADDRESSCAPS_MIRRORONCE;
 }
 
 auto D3D9Device::device() const -> ComPtr<IDirect3DDevice9> {

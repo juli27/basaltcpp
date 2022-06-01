@@ -105,8 +105,10 @@ enum class TextureAddressMode : u8 {
 
   // DeviceCaps.samplerClampToBorder
   ClampToBorder,
+  // DeviceCaps.samplerMirrorOnceClampToEdge
+  MirrorOnceClampToEdge,
 };
-constexpr uSize TEXTURE_ADDRESS_MODE_COUNT {4u};
+constexpr u8 TEXTURE_ADDRESS_MODE_COUNT {5u};
 
 enum class TextureCoordinateSource : u8 {
   Vertex,
@@ -119,7 +121,7 @@ enum class TextureFilter : u8 {
   Bilinear,
   Anisotropic, // TODO: check for support and set level
 };
-constexpr uSize TEXTURE_FILTER_COUNT {3u};
+constexpr u8 TEXTURE_FILTER_COUNT {3u};
 
 enum class TextureMipFilter : u8 {
   None,
@@ -228,6 +230,7 @@ struct DeviceCaps final {
   u32 maxTextureAnisotropy {1};
   bool samplerClampToBorder {false};
   bool samplerCustomBorderColor {false};
+  bool samplerMirrorOnceClampToEdge {false};
 };
 
 struct TextureBlendingStage final {
