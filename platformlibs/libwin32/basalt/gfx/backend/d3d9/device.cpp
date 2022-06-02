@@ -15,6 +15,7 @@
 #include <basalt/api/shared/log.h>
 
 #include <basalt/api/base/enum_array.h>
+#include <basalt/api/base/utils.h>
 
 #include <gsl/span>
 
@@ -34,6 +35,7 @@
 using namespace std::literals;
 
 using std::bad_alloc;
+using std::numeric_limits;
 using std::optional;
 using std::string_view;
 using std::vector;
@@ -540,16 +542,22 @@ D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
   D3DCAPS9 d3d9Caps {};
   D3D9CHECK(mDevice->GetDeviceCaps(&d3d9Caps));
 
-  mCaps.maxVertexBufferSizeInBytes = std::numeric_limits<UINT>::max();
+  mCaps.maxVertexBufferSizeInBytes = numeric_limits<UINT>::max();
   mCaps.maxLights = d3d9Caps.MaxActiveLights;
   mCaps.maxTextureBlendStages = d3d9Caps.MaxTextureBlendStages;
   mCaps.maxBoundSampledTextures = d3d9Caps.MaxSimultaneousTextures;
-  mCaps.maxTextureAnisotropy = d3d9Caps.MaxAnisotropy;
+
   mCaps.samplerClampToBorder =
     d3d9Caps.TextureAddressCaps & D3DPTADDRESSCAPS_BORDER;
   mCaps.samplerCustomBorderColor = mCaps.samplerClampToBorder;
   mCaps.samplerMirrorOnceClampToEdge =
     d3d9Caps.TextureAddressCaps & D3DPTADDRESSCAPS_MIRRORONCE;
+
+  mCaps.samplerMinFilterAnisotropic =
+    d3d9Caps.TextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC;
+  mCaps.samplerMagFilterAnisotropic =
+    d3d9Caps.TextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC;
+  mCaps.samplerMaxAnisotropy = saturated_cast<u8>(d3d9Caps.MaxAnisotropy);
 }
 
 auto D3D9Device::device() const -> ComPtr<IDirect3DDevice9> {
@@ -588,14 +596,6 @@ auto D3D9Device::execute(const CommandList& cmdList) -> void {
   D3D9CHECK(mDevice->SetTransform(D3DTS_TEXTURE0, &identity));
 
   D3D9CHECK(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
-
-  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
-  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
-  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
-  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY, 1));
-  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP));
-  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP));
-  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, D3DTADDRESS_WRAP));
 
   D3D9CHECK(mDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_DISABLE));
   D3D9CHECK(mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
@@ -793,6 +793,7 @@ auto D3D9Device::create_sampler(const SamplerDescriptor& desc) -> Sampler {
     to_d3d(desc.addressModeV),
     to_d3d(desc.addressModeW),
     to_d3d(desc.borderColor, desc.customBorderColor),
+    desc.maxAnisotropy,
   });
 }
 
@@ -933,8 +934,8 @@ auto D3D9Device::execute(const CommandBindSampler& cmd) -> void {
   D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, data.minFilter));
   D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, data.magFilter));
   D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, data.mipFilter));
-  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY,
-                                     mCaps.maxTextureAnisotropy));
+  D3D9CHECK(
+    mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY, data.maxAnisotropy));
   D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, data.addressModeU));
   D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, data.addressModeV));
   D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, data.addressModeW));

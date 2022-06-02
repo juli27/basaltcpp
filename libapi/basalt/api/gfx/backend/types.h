@@ -58,7 +58,7 @@ enum class CullMode : u8 {
   Clockwise,
   CounterClockwise,
 };
-constexpr uSize CULL_MODE_COUNT = 3u;
+constexpr u8 CULL_MODE_COUNT {3u};
 
 enum class TestOp : u8 {
   PassNever,
@@ -70,7 +70,7 @@ enum class TestOp : u8 {
   PassIfGreaterEqual,
   PassAlways,
 };
-constexpr uSize DEPTH_TEST_PASS_COUNT = 8u;
+constexpr u8 DEPTH_TEST_PASS_COUNT {8u};
 
 enum class FillMode : u8 {
   Point,
@@ -87,7 +87,7 @@ enum class PrimitiveType : u8 {
   TriangleStrip,
   TriangleFan,
 };
-constexpr uSize PRIMITIVE_TYPE_COUNT = 6u;
+constexpr u8 PRIMITIVE_TYPE_COUNT {6u};
 
 enum class ShadeMode : u8 {
   Flat,
@@ -95,9 +95,6 @@ enum class ShadeMode : u8 {
 };
 constexpr u8 SHADE_MODE_COUNT {2};
 
-// TODO: support border and custom border color (no/partial support in Vulkan
-// and OpenGL ES)
-// TODO: support MirrorOnce
 enum class TextureAddressMode : u8 {
   Repeat,
   Mirror,
@@ -119,7 +116,10 @@ constexpr uSize TEXTURE_COORDINATE_SOURCE_COUNT {2u};
 enum class TextureFilter : u8 {
   Point,
   Bilinear,
-  Anisotropic, // TODO: check for support and set level
+
+  // DeviceCaps.samplerMinFilterAnisotropic
+  // DeviceCaps.samplerMagFilterAnisotropic
+  Anisotropic,
 };
 constexpr u8 TEXTURE_FILTER_COUNT {3u};
 
@@ -128,7 +128,7 @@ enum class TextureMipFilter : u8 {
   Point,
   Linear,
 };
-constexpr uSize TEXTURE_MIP_FILTER_COUNT {3u};
+constexpr u8 TEXTURE_MIP_FILTER_COUNT {3u};
 
 enum class TextureOp : u8 {
   SelectArg1,
@@ -154,7 +154,7 @@ enum class TransformState : u8 {
   ModelToWorld,
   Texture,
 };
-constexpr uSize TRANSFORM_STATE_COUNT = 4u;
+constexpr u8 TRANSFORM_STATE_COUNT {4u};
 
 enum class VertexElement : u8 {
   Position3F32,
@@ -227,10 +227,12 @@ struct DeviceCaps final {
   u32 maxLights {1};
   u32 maxTextureBlendStages {1};
   u32 maxBoundSampledTextures {1};
-  u32 maxTextureAnisotropy {1};
   bool samplerClampToBorder {false};
   bool samplerCustomBorderColor {false};
   bool samplerMirrorOnceClampToEdge {false};
+  bool samplerMinFilterAnisotropic {false};
+  bool samplerMagFilterAnisotropic {false};
+  u8 samplerMaxAnisotropy {1};
 };
 
 struct TextureBlendingStage final {
@@ -269,6 +271,8 @@ struct SamplerDescriptor final {
   BorderColor borderColor {BorderColor::BlackTransparent};
   // DeviceCaps.samplerCustomBorderColor
   Color customBorderColor;
+  // DeviceCaps.samplerMaxAnisotropy
+  u8 maxAnisotropy {1};
 };
 
 struct VertexBufferDescriptor final {

@@ -87,6 +87,7 @@ private:
     D3DTEXTUREADDRESS addressModeV {D3DTADDRESS_WRAP};
     D3DTEXTUREADDRESS addressModeW {D3DTADDRESS_WRAP};
     D3DCOLOR borderColor {0};
+    DWORD maxAnisotropy {1};
   };
 
   D3D9DevicePtr mDevice;

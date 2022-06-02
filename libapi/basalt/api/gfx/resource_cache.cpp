@@ -3,6 +3,8 @@
 #include <basalt/api/gfx/backend/utils.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
+#include <basalt/api/base/types.h>
+
 #include <utility>
 #include <vector>
 
@@ -147,6 +149,12 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
     true,
   })};
 
+  const u8 maxAnisotropy {
+    desc.sampledTexture.filter == TextureFilter::Anisotropic
+      ? mDevice.capabilities().samplerMaxAnisotropy
+      : u8 {1},
+  };
+
   // TODO: cache samplers
   const Sampler sampler {
     create_sampler(SamplerDescriptor {
@@ -158,6 +166,7 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
       TextureAddressMode::Repeat,
       BorderColor::BlackTransparent,
       Color {},
+      maxAnisotropy,
     }),
   };
 
