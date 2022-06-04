@@ -587,7 +587,6 @@ auto D3D9Device::execute(const CommandList& cmdList) -> void {
   mCurrentPrimitiveType = D3DPT_POINTLIST;
 
   D3D9CHECK(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
-  D3D9CHECK(mDevice->SetTexture(0, nullptr));
 
   constexpr D3DMATRIX identity {to_d3d(Matrix4x4f32::identity())};
   D3D9CHECK(mDevice->SetTransform(D3DTS_PROJECTION, &identity));
@@ -780,7 +779,7 @@ auto D3D9Device::load_texture(const path& filePath) -> Texture {
   return mTextures.allocate(std::move(texture));
 }
 
-void D3D9Device::destroy(const Texture handle) noexcept {
+auto D3D9Device::destroy(const Texture handle) noexcept -> void {
   mTextures.deallocate(handle);
 }
 

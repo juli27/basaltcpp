@@ -44,7 +44,8 @@ struct D3D9Device final : Device {
 
   [[nodiscard]] auto load_texture(const std::filesystem::path&)
     -> Texture override;
-  void destroy(Texture) noexcept override;
+
+  auto destroy(Texture) noexcept -> void override;
 
   [[nodiscard]] auto create_sampler(const SamplerDescriptor&)
     -> Sampler override;
