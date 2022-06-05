@@ -141,6 +141,7 @@ enum class TextureStageArgument : u8 {
   Diffuse,
   SampledTexture,
 };
+constexpr u8 TEXTURE_STAGE_ARGUMENT_COUNT {2};
 
 enum class TextureTransformMode : u8 {
   Disabled,

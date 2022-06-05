@@ -14,7 +14,6 @@
 #include <basalt/api/shared/color.h>
 #include <basalt/api/shared/log.h>
 
-#include <basalt/api/base/enum_array.h>
 #include <basalt/api/base/utils.h>
 
 #include <gsl/span>
@@ -50,24 +49,6 @@ namespace {
 
 constexpr auto to_color(const D3DCOLORVALUE& color) -> Color {
   return Color::from_non_linear(color.r, color.g, color.b, color.a);
-}
-
-constexpr auto to_d3d_color_value(const Color& color) noexcept
-  -> D3DCOLORVALUE {
-  return D3DCOLORVALUE {color.r(), color.g(), color.b(), color.a()};
-}
-
-constexpr auto to_d3d(const Matrix4x4f32& mat) noexcept -> D3DMATRIX {
-  // clang-format off
-  return D3DMATRIX {mat.m11, mat.m12, mat.m13, mat.m14,
-                    mat.m21, mat.m22, mat.m23, mat.m24,
-                    mat.m31, mat.m32, mat.m33, mat.m34,
-                    mat.m41, mat.m42, mat.m43, mat.m44};
-  // clang-format on
-}
-
-constexpr auto to_d3d(const Vector3f32& vec) noexcept -> D3DVECTOR {
-  return D3DVECTOR {vec.x(), vec.y(), vec.z()};
 }
 
 // TODO: needs some form of validation
@@ -144,237 +125,9 @@ auto verify_fvf(const DWORD fvf) -> bool {
 
 #endif
 
-constexpr auto to_d3d(const bool b) noexcept -> BOOL {
-  return b;
-}
-
-auto to_d3d(const BorderColor borderColor, const Color& custom) -> D3DCOLOR {
-  if (borderColor == BorderColor::Custom) {
-    return gfx::to_d3d(custom);
-  }
-
-  static constexpr EnumArray<BorderColor, D3DCOLOR, 3> TO_D3D {
-    {BorderColor::BlackTransparent, D3DCOLOR_ARGB(0, 0, 0, 0)},
-    {BorderColor::BlackOpaque, D3DCOLOR_ARGB(255, 0, 0, 0)},
-    {BorderColor::WhiteOpaque, D3DCOLOR_ARGB(255, 255, 255, 255)},
-  };
-
-  // don't count Custom
-  static_assert(BORDER_COLOR_COUNT - 1 == TO_D3D.size());
-
-  return TO_D3D[borderColor];
-}
-
-auto to_d3d(const CullMode mode) -> D3DCULL {
-  static constexpr EnumArray<CullMode, D3DCULL, 3> TO_D3D {
-    {CullMode::None, D3DCULL_NONE},
-    {CullMode::Clockwise, D3DCULL_CW},
-    {CullMode::CounterClockwise, D3DCULL_CCW},
-  };
-
-  static_assert(CULL_MODE_COUNT == TO_D3D.size());
-
-  return TO_D3D[mode];
-}
-
-auto to_d3d(const FillMode mode) -> D3DFILLMODE {
-  static constexpr EnumArray<FillMode, D3DFILLMODE, 3> TO_D3D {
-    {FillMode::Point, D3DFILL_POINT},
-    {FillMode::Wireframe, D3DFILL_WIREFRAME},
-    {FillMode::Solid, D3DFILL_SOLID},
-  };
-
-  static_assert(FILL_MODE_COUNT == TO_D3D.size());
-
-  return TO_D3D[mode];
-}
-
-auto to_d3d(const PrimitiveType primitiveType) -> D3DPRIMITIVETYPE {
-  static constexpr EnumArray<PrimitiveType, D3DPRIMITIVETYPE, 6> TO_D3D {
-    {PrimitiveType::PointList, D3DPT_POINTLIST},
-    {PrimitiveType::LineList, D3DPT_LINELIST},
-    {PrimitiveType::LineStrip, D3DPT_LINESTRIP},
-    {PrimitiveType::TriangleList, D3DPT_TRIANGLELIST},
-    {PrimitiveType::TriangleStrip, D3DPT_TRIANGLESTRIP},
-    {PrimitiveType::TriangleFan, D3DPT_TRIANGLEFAN},
-  };
-  static_assert(PRIMITIVE_TYPE_COUNT == TO_D3D.size());
-
-  return TO_D3D[primitiveType];
-}
-
-auto to_d3d(const ShadeMode mode) -> D3DSHADEMODE {
-  static constexpr EnumArray<ShadeMode, D3DSHADEMODE, 2> TO_D3D {
-    {ShadeMode::Flat, D3DSHADE_FLAT},
-    {ShadeMode::Gouraud, D3DSHADE_GOURAUD},
-  };
-
-  static_assert(SHADE_MODE_COUNT == TO_D3D.size());
-
-  return TO_D3D[mode];
-}
-
-auto to_d3d(const TextureOp op) -> D3DTEXTUREOP {
-  static constexpr EnumArray<TextureOp, D3DTEXTUREOP, 3> TO_D3D {
-    {TextureOp::SelectArg1, D3DTOP_SELECTARG1},
-    {TextureOp::SelectArg2, D3DTOP_SELECTARG2},
-    {TextureOp::Modulate, D3DTOP_MODULATE},
-  };
-  static_assert(TEXTURE_OP_COUNT == TO_D3D.size());
-
-  return TO_D3D[op];
-}
-
-auto to_d3d(const TextureCoordinateSource src) -> DWORD {
-  static constexpr EnumArray<TextureCoordinateSource, DWORD, 2> TO_D3D {
-    {TextureCoordinateSource::Vertex, D3DTSS_TCI_PASSTHRU},
-    {TextureCoordinateSource::VertexPositionInView,
-     D3DTSS_TCI_CAMERASPACEPOSITION},
-  };
-  static_assert(TEXTURE_COORDINATE_SOURCE_COUNT == TO_D3D.size());
-
-  return TO_D3D[src];
-}
-
-auto to_d3d(const TextureStageArgument arg) -> DWORD {
-  switch (arg) {
-  case TextureStageArgument::Diffuse:
-    return D3DTA_DIFFUSE;
-
-  case TextureStageArgument::SampledTexture:
-    return D3DTA_TEXTURE;
-  }
-
-  return 0u;
-}
-
-auto to_d3d(const TextureTransformMode mode) -> D3DTEXTURETRANSFORMFLAGS {
-  static constexpr EnumArray<TextureTransformMode, D3DTEXTURETRANSFORMFLAGS, 2>
-    TO_D3D {
-      {TextureTransformMode::Disabled, D3DTTFF_DISABLE},
-      {TextureTransformMode::Count4, D3DTTFF_COUNT4},
-    };
-
-  static_assert(TEXTURE_TRANSFORM_MODE_COUNT == TO_D3D.size());
-
-  return TO_D3D[mode];
-}
-
-auto to_d3d(const TransformState state) -> D3DTRANSFORMSTATETYPE {
-  static constexpr EnumArray<TransformState, D3DTRANSFORMSTATETYPE, 4> TO_D3D {
-    {TransformState::ViewToViewport, D3DTS_PROJECTION},
-    {TransformState::WorldToView, D3DTS_VIEW},
-    {TransformState::ModelToWorld, D3DTS_WORLDMATRIX(0)},
-    {TransformState::Texture, D3DTS_TEXTURE0},
-  };
-
-  static_assert(TRANSFORM_STATE_COUNT == TO_D3D.size());
-
-  return TO_D3D[state];
-}
-
-// TODO: is there a benefit to turn off z testing when func = Never or func =
-// Always with writing disabled?
-auto to_d3d(const TestOp function) -> D3DCMPFUNC {
-  static constexpr EnumArray<TestOp, D3DCMPFUNC, 8> TO_D3D {
-    {TestOp::PassNever, D3DCMP_NEVER},
-    {TestOp::PassIfEqual, D3DCMP_EQUAL},
-    {TestOp::PassIfNotEqual, D3DCMP_NOTEQUAL},
-    {TestOp::PassIfLess, D3DCMP_LESS},
-    {TestOp::PassIfLessEqual, D3DCMP_LESSEQUAL},
-    {TestOp::PassIfGreater, D3DCMP_GREATER},
-    {TestOp::PassIfGreaterEqual, D3DCMP_GREATEREQUAL},
-    {TestOp::PassAlways, D3DCMP_ALWAYS},
-  };
-
-  static_assert(DEPTH_TEST_PASS_COUNT == TO_D3D.size());
-
-  return TO_D3D[function];
-}
-
-auto to_d3d(const TextureFilter filter) -> D3DTEXTUREFILTERTYPE {
-  static constexpr EnumArray<TextureFilter, D3DTEXTUREFILTERTYPE, 3> TO_D3D {
-    {TextureFilter::Point, D3DTEXF_POINT},
-    {TextureFilter::Bilinear, D3DTEXF_LINEAR},
-    {TextureFilter::Anisotropic, D3DTEXF_ANISOTROPIC},
-  };
-
-  static_assert(TEXTURE_FILTER_COUNT == TO_D3D.size());
-
-  return TO_D3D[filter];
-}
-
-auto to_d3d(const TextureMipFilter filter) -> D3DTEXTUREFILTERTYPE {
-  static constexpr EnumArray<TextureMipFilter, D3DTEXTUREFILTERTYPE, 3> TO_D3D {
-    {TextureMipFilter::None, D3DTEXF_NONE},
-    {TextureMipFilter::Point, D3DTEXF_POINT},
-    {TextureMipFilter::Linear, D3DTEXF_LINEAR},
-  };
-
-  static_assert(TEXTURE_MIP_FILTER_COUNT == TO_D3D.size());
-
-  return TO_D3D[filter];
-}
-
-auto to_d3d(const TextureAddressMode mode) -> D3DTEXTUREADDRESS {
-  static constexpr EnumArray<TextureAddressMode, D3DTEXTUREADDRESS, 5> TO_D3D {
-    {TextureAddressMode::Repeat, D3DTADDRESS_WRAP},
-    {TextureAddressMode::Mirror, D3DTADDRESS_MIRROR},
-    {TextureAddressMode::ClampToEdge, D3DTADDRESS_CLAMP},
-    {TextureAddressMode::ClampToBorder, D3DTADDRESS_BORDER},
-    {TextureAddressMode::MirrorOnceClampToEdge, D3DTADDRESS_MIRRORONCE},
-  };
-
-  static_assert(TEXTURE_ADDRESS_MODE_COUNT == TO_D3D.size());
-
-  return TO_D3D[mode];
-}
-
-auto to_d3d(const PointLight& light) -> D3DLIGHT9 {
-  D3DLIGHT9 d3dLight {};
-  d3dLight.Type = D3DLIGHT_POINT;
-  d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
-  d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
-  d3dLight.Position = to_d3d(light.positionInWorld);
-  d3dLight.Range = light.rangeInWorld;
-  d3dLight.Attenuation0 = light.attenuation0;
-  d3dLight.Attenuation1 = light.attenuation1;
-  d3dLight.Attenuation2 = light.attenuation2;
-
-  return d3dLight;
-}
-
-auto to_d3d(const SpotLight& light) -> D3DLIGHT9 {
-  D3DLIGHT9 d3dLight {};
-  d3dLight.Type = D3DLIGHT_SPOT;
-  d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
-  d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
-  d3dLight.Position = to_d3d(light.positionInWorld);
-  d3dLight.Direction = to_d3d(light.directionInWorld);
-  d3dLight.Range = light.rangeInWorld;
-  d3dLight.Falloff = light.falloff;
-  d3dLight.Attenuation0 = light.attenuation0;
-  d3dLight.Attenuation1 = light.attenuation1;
-  d3dLight.Attenuation2 = light.attenuation2;
-  d3dLight.Theta = light.theta;
-  d3dLight.Phi = light.phi;
-
-  return d3dLight;
-}
-
-auto to_d3d(const DirectionalLight& light) -> D3DLIGHT9 {
-  D3DLIGHT9 d3dLight {};
-  d3dLight.Type = D3DLIGHT_DIRECTIONAL;
-  d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
-  d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
-  d3dLight.Direction = to_d3d(light.direction);
-
-  return d3dLight;
-}
-
 auto map_vertex_buffer(IDirect3DVertexBuffer9& vertexBuffer,
                        const uDeviceSize offset, uDeviceSize size)
-  -> gsl::span<std::byte> {
+  -> span<std::byte> {
   D3DVERTEXBUFFER_DESC desc {};
   D3D9CHECK(vertexBuffer.GetDesc(&desc));
 
@@ -661,6 +414,9 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
   const DWORD fvf {to_fvf(desc.vertexInputState)};
   BASALT_ASSERT(verify_fvf(fvf), "invalid fvf. Consult the log for details");
 
+  // TODO: is there a benefit to turn off z testing when func = Always
+  // and with writing disabled?
+
   return mPipelines.allocate(PipelineData {
     fvf,
     stage1Tci,
@@ -688,9 +444,9 @@ auto D3D9Device::destroy(const Pipeline handle) noexcept -> void {
 
 // throws std::bad_alloc when requested size is too large and when d3d9
 // allocation fails
-auto D3D9Device::create_vertex_buffer(
-  const VertexBufferDescriptor& desc,
-  const gsl::span<const std::byte> initialData) -> VertexBuffer {
+auto D3D9Device::create_vertex_buffer(const VertexBufferDescriptor& desc,
+                                      const span<const std::byte> initialData)
+  -> VertexBuffer {
   BASALT_ASSERT(!desc.layout.empty());
   BASALT_ASSERT(initialData.size() <= desc.sizeInBytes);
 
@@ -723,7 +479,7 @@ auto D3D9Device::create_vertex_buffer(
   if (!initialData.empty()) {
     // TODO: should initialData.size() > size be an error?
     // TODO: should failing to upload initial data be an error?
-    if (const gsl::span vertexBufferData {
+    if (const span vertexBufferData {
           map_vertex_buffer(*vertexBuffer.Get(), 0, 0)};
         !vertexBufferData.empty()) {
       std::copy_n(initialData.begin(),
@@ -742,7 +498,7 @@ void D3D9Device::destroy(const VertexBuffer handle) noexcept {
 }
 
 auto D3D9Device::map(const VertexBuffer handle, const uDeviceSize offset,
-                     const uDeviceSize size) -> gsl::span<std::byte> {
+                     const uDeviceSize size) -> span<std::byte> {
   BASALT_ASSERT(mVertexBuffers.is_valid(handle));
 
   if (!mVertexBuffers.is_valid(handle)) {
