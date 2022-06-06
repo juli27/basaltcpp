@@ -1,6 +1,5 @@
 #pragma once
 
-#include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/color.h>
 #include <basalt/api/shared/handle.h>
 
@@ -11,7 +10,6 @@
 
 #include <gsl/span>
 
-#include <memory>
 #include <variant>
 #include <vector>
 
@@ -33,25 +31,6 @@ enum class BorderColor : u8 {
   Custom,
 };
 constexpr u8 BORDER_COLOR_COUNT {4u};
-
-enum class CommandType : u8 {
-  ClearAttachments,
-  Draw,
-  BindPipeline,
-  BindVertexBuffer,
-  BindSampler,
-  BindTexture,
-
-  // fixed function only
-  SetTransform,
-  SetAmbientLight,
-  SetLights,
-  SetMaterial,
-
-  // built-in extensions
-  ExtDrawXMesh,
-  ExtRenderDearImGui,
-};
 
 enum class CullMode : u8 {
   None,
@@ -183,43 +162,8 @@ using Texture = Handle<detail::TextureTag>;
 using VertexBuffer = Handle<detail::VertexBufferTag>;
 
 struct Command;
-struct CommandClearAttachments;
-struct CommandDraw;
-struct CommandBindPipeline;
-struct CommandBindVertexBuffer;
-struct CommandBindSampler;
-struct CommandBindTexture;
-struct CommandSetTransform;
-struct CommandSetAmbientLight;
-struct CommandSetLights;
-struct CommandSetMaterial;
-
 struct CommandList;
 struct Device;
-
-struct Command {
-  const CommandType type;
-
-  template <typename T>
-  auto as() const -> const T& {
-    BASALT_ASSERT(type == T::TYPE, "invalid command cast");
-    return *static_cast<const T*>(this);
-  }
-
-protected:
-  constexpr explicit Command(const CommandType t) noexcept : type {t} {
-  }
-};
-
-using CommandPtr = std::unique_ptr<Command>;
-
-template <CommandType Type>
-struct CommandT : Command {
-  static constexpr CommandType TYPE {Type};
-
-  constexpr CommandT() noexcept : Command {TYPE} {
-  }
-};
 
 using uDeviceSize = u64;
 

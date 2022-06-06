@@ -3,8 +3,6 @@
 #include <basalt/api/gfx/backend/ext/extension.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 
-#include <basalt/api/gfx/backend/types.h>
-
 #include <basalt/api/shared/color.h>
 
 #include <gsl/span>
@@ -39,17 +37,5 @@ struct XModelSupport : ExtensionT<ExtensionId::XModelSupport> {
 
   virtual auto destroy(XMesh) noexcept -> void = 0;
 };
-
-struct CommandDrawXMesh final : CommandT<CommandType::ExtDrawXMesh> {
-  XMesh handle;
-  u32 subset;
-
-  constexpr CommandDrawXMesh(const XMesh meshHandle,
-                             const u32 subsetIndex) noexcept
-    : handle {meshHandle}, subset {subsetIndex} {
-  }
-};
-
-static_assert(sizeof(CommandDrawXMesh) == 12);
 
 } // namespace basalt::gfx::ext

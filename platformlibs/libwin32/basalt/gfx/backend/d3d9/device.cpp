@@ -2,9 +2,10 @@
 
 #include <basalt/gfx/backend/d3d9/conversions.h>
 
-#include <basalt/api/gfx/backend/commands.h>
+#include <basalt/gfx/backend/commands.h>
+#include <basalt/gfx/backend/utils.h>
+
 #include <basalt/api/gfx/backend/command_list.h>
-#include <basalt/api/gfx/backend/utils.h>
 #include <basalt/api/gfx/backend/ext/dear_imgui_renderer.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 

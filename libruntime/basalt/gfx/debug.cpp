@@ -2,9 +2,11 @@
 
 #include <basalt/gfx/utils.h>
 
+#include <basalt/gfx/backend/commands.h>
+#include <basalt/gfx/backend/types.h>
+#include <basalt/gfx/backend/utils.h>
+
 #include <basalt/api/gfx/backend/command_list.h>
-#include <basalt/api/gfx/backend/commands.h>
-#include <basalt/api/gfx/backend/utils.h>
 
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 

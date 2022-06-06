@@ -1,18 +1,42 @@
 #pragma once
 
+#include <basalt/gfx/backend/types.h>
+
 #include <basalt/api/gfx/backend/types.h>
+#include <basalt/api/gfx/backend/ext/types.h>
 
 #include <basalt/api/math/matrix4x4.h>
 
+#include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/color.h>
 
 #include <basalt/api/base/types.h>
 
 #include <gsl/span>
 
-#include <utility>
-
 namespace basalt::gfx {
+
+struct Command {
+  const CommandType type;
+
+  template <typename T>
+  auto as() const -> const T& {
+    BASALT_ASSERT(type == T::TYPE, "invalid command cast");
+    return *static_cast<const T*>(this);
+  }
+
+protected:
+  constexpr explicit Command(const CommandType t) noexcept : type {t} {
+  }
+};
+
+template <CommandType Type>
+struct CommandT : Command {
+  static constexpr CommandType TYPE {Type};
+
+  constexpr CommandT() noexcept : Command {TYPE} {
+  }
+};
 
 struct CommandClearAttachments final : CommandT<CommandType::ClearAttachments> {
   Attachments attachments;
@@ -127,5 +151,26 @@ struct CommandSetMaterial final : CommandT<CommandType::SetMaterial> {
 };
 
 static_assert(sizeof(CommandSetMaterial) == 52);
+
+namespace ext {
+
+struct CommandDrawXMesh final : CommandT<CommandType::ExtDrawXMesh> {
+  XMesh handle;
+  u32 subset;
+
+  constexpr CommandDrawXMesh(const XMesh meshHandle,
+                             const u32 subsetIndex) noexcept
+    : handle {meshHandle}, subset {subsetIndex} {
+  }
+};
+
+static_assert(sizeof(CommandDrawXMesh) == 12);
+
+struct CommandRenderDearImGui final
+  : CommandT<CommandType::ExtRenderDearImGui> {};
+
+static_assert(sizeof(CommandRenderDearImGui) == 1);
+
+} // namespace ext
 
 } // namespace basalt::gfx

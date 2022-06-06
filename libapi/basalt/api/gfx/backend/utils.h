@@ -1,7 +1,6 @@
 #pragma once
 
 #include <basalt/api/gfx/backend/device.h>
-#include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 
 #include <memory>
@@ -22,31 +21,5 @@ auto query_device_extension(Device& device)
 
   return std::static_pointer_cast<T>(maybeExt.value());
 }
-
-#define VISIT(cmdStruct)                                                       \
-  case cmdStruct::TYPE:                                                        \
-    visitor(cmd.as<cmdStruct>());                                              \
-    break
-
-template <typename Visitor>
-void visit(const Command& cmd, Visitor&& visitor) {
-  switch (cmd.type) {
-    VISIT(CommandClearAttachments);
-    VISIT(CommandDraw);
-    VISIT(CommandBindPipeline);
-    VISIT(CommandBindVertexBuffer);
-    VISIT(CommandBindSampler);
-    VISIT(CommandBindTexture);
-    VISIT(CommandSetTransform);
-    VISIT(CommandSetAmbientLight);
-    VISIT(CommandSetLights);
-    VISIT(CommandSetMaterial);
-  default:
-    visitor(cmd);
-    break;
-  }
-}
-
-#undef VISIT
 
 } // namespace basalt::gfx

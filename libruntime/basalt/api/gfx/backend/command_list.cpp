@@ -1,9 +1,6 @@
 #include <basalt/api/gfx/backend/command_list.h>
 
-#include <basalt/api/gfx/backend/commands.h>
-
-#include <basalt/api/gfx/backend/ext/dear_imgui_renderer.h>
-#include <basalt/api/gfx/backend/ext/x_model_support.h>
+#include <basalt/gfx/backend/commands.h>
 
 using gsl::span;
 
@@ -30,6 +27,15 @@ auto CommandList::begin() const -> const_iterator {
 
 auto CommandList::end() const -> const_iterator {
   return mCommands.end();
+}
+
+template <typename T, typename... Args>
+auto CommandList::add(Args&&... args) -> void {
+  static_assert(std::is_base_of_v<Command, T>,
+                "CommandList only accepts commands derived from Command");
+
+  mCommands.emplace_back(new (allocate<T>().data())
+                           T(std::forward<Args>(args)...));
 }
 
 void CommandList::clear_attachments(const Attachments attachments,

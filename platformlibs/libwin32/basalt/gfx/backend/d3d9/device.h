@@ -4,6 +4,10 @@
 
 #include <basalt/gfx/backend/d3d9/d3d9_custom.h>
 
+#include <basalt/gfx/backend/types.h>
+
+#include <basalt/api/gfx/backend/types.h>
+
 #include <basalt/api/shared/handle_pool.h>
 
 #include <wrl/client.h>

@@ -2,8 +2,6 @@
 
 #include <basalt/api/gfx/backend/ext/extension.h>
 
-#include <basalt/api/gfx/backend/types.h>
-
 namespace basalt::gfx::ext {
 
 struct DearImGuiRenderer : ExtensionT<ExtensionId::DearImGuiRenderer> {
@@ -11,10 +9,5 @@ struct DearImGuiRenderer : ExtensionT<ExtensionId::DearImGuiRenderer> {
   virtual void shutdown() = 0;
   virtual void new_frame() = 0;
 };
-
-struct CommandRenderDearImGui final
-  : CommandT<CommandType::ExtRenderDearImGui> {};
-
-static_assert(sizeof(CommandRenderDearImGui) == 1);
 
 } // namespace basalt::gfx::ext

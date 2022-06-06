@@ -5,6 +5,7 @@
 #include <basalt/api/gfx/backend/ext/types.h>
 
 #include <basalt/api/math/types.h>
+
 #include <basalt/api/base/types.h>
 
 #include <gsl/span>
@@ -70,13 +71,7 @@ private:
   }
 
   template <typename T, typename... Args>
-  void add(Args&&... args) {
-    static_assert(std::is_base_of_v<Command, T>,
-                  "CommandList only accepts commands derived from Command");
-
-    mCommands.emplace_back(new (allocate<T>().data())
-                             T(std::forward<Args>(args)...));
-  }
+  auto add(Args&&...) -> void;
 };
 
 } // namespace basalt::gfx

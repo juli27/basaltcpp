@@ -21,7 +21,6 @@ namespace basalt {
 
 using gfx::CommandList;
 using gfx::Device;
-using gfx::ext::CommandRenderDearImGui;
 using gfx::ext::DearImGuiRenderer;
 
 DearImGui::DearImGui(Device& gfxDevice) {
