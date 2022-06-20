@@ -1,6 +1,6 @@
 #include <basalt/api/scene_view.h>
 
-#include <basalt/api/debug.h>
+#include <basalt/api/debug_ui.h>
 #include <basalt/api/engine.h>
 
 #include <basalt/api/gfx/filtering_command_list.h>
@@ -123,8 +123,13 @@ auto SceneView::on_draw(const DrawContext& context) -> void {
 }
 
 auto SceneView::on_tick(Engine& engine) -> void {
-  if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
-    Debug::update(*mScene);
+  auto& config {engine.config()};
+
+  if (bool sceneInspectorEnabled {
+        config.get_bool("debug.scene_inspector.enabled"s)}) {
+    DebugUi::show_scene_inspector(*mScene, sceneInspectorEnabled);
+
+    config.set_bool("debug.scene_inspector.enabled"s, sceneInspectorEnabled);
   }
 }
 

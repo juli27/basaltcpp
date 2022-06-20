@@ -13,6 +13,10 @@ auto Engine::config() const noexcept -> const Config& {
   return mConfig;
 }
 
+auto Engine::config() noexcept -> Config& {
+  return mConfig;
+}
+
 auto Engine::gfx_info() const noexcept -> const gfx::Info& {
   return mGfxInfo;
 }

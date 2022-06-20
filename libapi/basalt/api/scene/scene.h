@@ -44,7 +44,7 @@ struct Scene final {
   void clear_directional_lights();
 
 private:
-  friend struct Debug;
+  friend class DebugUi;
 
   entt::registry mEntityRegistry;
   std::vector<gfx::DirectionalLight> mDirectionalLights;

@@ -2,11 +2,24 @@
 
 #include <basalt/gfx/utils.h>
 
+#include <basalt/api/scene/scene.h>
+#include <basalt/api/scene/transform.h>
+
+#include <basalt/api/gfx/backend/ext/types.h>
+
+#include <basalt/api/shared/color.h>
+
+#include <basalt/api/math/constants.h>
+#include <basalt/api/math/vector3.h>
+
 #include <basalt/api/base/enum_array.h>
 
+#include <entt/entity/entity.hpp>
+#include <entt/entity/registry.hpp>
 #include <fmt/format.h>
 #include <imgui/imgui.h>
 
+#include <array>
 #include <numeric>
 #include <string>
 #include <string_view>
@@ -14,8 +27,12 @@
 namespace basalt {
 
 using namespace std::literals;
+using std::array;
 using std::string;
 using std::string_view;
+
+using entt::entity;
+using entt::registry;
 
 namespace {
 
@@ -104,6 +121,119 @@ auto DebugUi::show_gfx_info(const gfx::Info& gfxInfo) -> void {
   }
 
   ImGui::EndChild();
+}
+
+auto DebugUi::show_scene_inspector(Scene& scene, bool& isOpen) -> void {
+  ImGui::SetNextWindowSize(ImVec2 {400.0f, 600.0f}, ImGuiCond_FirstUseEver);
+  if (!ImGui::Begin("Scene Inspector", &isOpen)) {
+    ImGui::End();
+    return;
+  }
+
+  edit_scene(scene);
+
+  ImGui::End();
+}
+
+auto DebugUi::edit_scene(Scene& scene) -> void {
+  edit_color3("Background Color", scene.mBackgroundColor);
+
+  ImGui::Separator();
+
+  edit_color4("Ambient Light", scene.mAmbientLightColor);
+
+  if (!scene.mDirectionalLights.empty()) {
+    ImGui::PushID("Directional Lights");
+    for (uSize i {0}; i < scene.mDirectionalLights.size(); i++) {
+      ImGui::PushID(static_cast<i32>(i));
+      if (ImGui::TreeNode("Directional Light")) {
+        edit_directional_light(scene.mDirectionalLights[i]);
+
+        ImGui::TreePop();
+      }
+
+      ImGui::PopID();
+    }
+
+    ImGui::PopID();
+  }
+
+  ImGui::Separator();
+
+  edit_ecs(scene.ecs());
+}
+
+auto DebugUi::edit_ecs(registry& ecs) -> void {
+  ecs.each([&](const entity entity) -> void {
+    ImGui::PushID(to_integral(entity));
+
+    if (ImGui::TreeNode("Entity", "Entity %d", to_integral(entity))) {
+      if (auto* const transform {ecs.try_get<Transform>(entity)}) {
+        if (ImGui::TreeNode("Transform")) {
+          edit_transform(*transform);
+
+          ImGui::TreePop();
+        }
+      }
+
+      if (const auto* const rc {ecs.try_get<gfx::RenderComponent>(entity)}) {
+        if (ImGui::TreeNode("Render Component")) {
+          ImGui::Text("Mesh: %#x", rc->mesh.value());
+          ImGui::Text("Material: %#x", rc->material.value());
+
+          ImGui::TreePop();
+        }
+      }
+
+      if (const auto* const gfxXModel {ecs.try_get<gfx::ext::XModel>(entity)}) {
+        if (ImGui::TreeNode("Gfx Model")) {
+          ImGui::Text("handle = %d", gfxXModel->value());
+
+          ImGui::TreePop();
+        }
+      }
+
+      ImGui::TreePop();
+    }
+
+    ImGui::PopID();
+  });
+}
+
+auto DebugUi::edit_transform(Transform& transform) -> void {
+  ImGui::DragFloat3("Position", transform.position.elements.data(), 0.1f);
+
+  ImGui::DragFloat3("Rotation", transform.rotation.elements.data(), 0.01f, -PI,
+                    PI);
+
+  ImGui::DragFloat3("Scale", transform.scale.elements.data(), 0.1f, 0.0f);
+}
+
+auto DebugUi::edit_directional_light(gfx::DirectionalLight& light) -> void {
+  edit_color4("Diffuse", light.diffuseColor);
+  edit_color4("Ambient", light.ambientColor);
+
+  ImGui::DragFloat3("Direction", light.direction.elements.data(), 0.1f);
+  light.direction = Vector3f32::normalize(light.direction);
+}
+
+auto DebugUi::edit_color3(const char* label, Color& color) -> void {
+  array colorArray {color.r(), color.g(), color.b()};
+
+  ImGui::ColorEdit3(label, colorArray.data(), ImGuiColorEditFlags_Float);
+
+  color = Color::from_non_linear(
+    std::get<0>(colorArray), std::get<1>(colorArray), std::get<2>(colorArray));
+}
+
+auto DebugUi::edit_color4(const char* label, Color& color) -> void {
+  array colorArray {color.r(), color.g(), color.b(), color.a()};
+
+  ImGui::ColorEdit4(label, colorArray.data(), ImGuiColorEditFlags_Float);
+
+  color =
+    Color::from_non_linear(std::get<0>(colorArray), std::get<1>(colorArray),
+                           std::get<2>(colorArray), std::get<3>(colorArray));
 }
 
 } // namespace basalt

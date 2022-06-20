@@ -101,11 +101,7 @@ SandboxView::SandboxView(Engine& engine) {
 
 void SandboxView::on_tick(Engine& engine) {
   // https://github.com/ocornut/imgui/issues/331
-  enum class OpenPopup : u8
-  {
-    None,
-    GfxInfo
-  };
+  enum class OpenPopup : u8 { None, GfxInfo };
   OpenPopup shouldOpenPopup {OpenPopup::None};
 
   if (ImGui::BeginMainMenuBar()) {
@@ -137,7 +133,7 @@ void SandboxView::on_tick(Engine& engine) {
     }
 
     if (ImGui::BeginMenu("View")) {
-      const Config& config = engine.config();
+      Config& config {engine.config()};
       const auto currentMode =
         config.get_enum("window.mode"s, basalt::to_window_mode);
       if (ImGui::MenuItem("Windowed", nullptr,
@@ -161,6 +157,13 @@ void SandboxView::on_tick(Engine& engine) {
       if (ImGui::MenuItem("GFX Info...")) {
         shouldOpenPopup = OpenPopup::GfxInfo;
       }
+
+      bool sceneInspectorEnabled {
+        config.get_bool("debug.scene_inspector.enabled"s)};
+
+      ImGui::MenuItem("Scene Inspector", nullptr, &sceneInspectorEnabled);
+
+      config.set_bool("debug.scene_inspector.enabled"s, sceneInspectorEnabled);
 
       if (config.get_bool("runtime.debugUI.enabled"s)) {
         ImGui::Separator();

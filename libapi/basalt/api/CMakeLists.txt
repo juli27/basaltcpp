@@ -1,7 +1,5 @@
 target_sources(${CURRENT_TARGET} PRIVATE
   "client_app.h"
-  "debug.cpp"
-  "debug.h"
   "debug_ui.h"
   "engine.h"
   "input_events.h"

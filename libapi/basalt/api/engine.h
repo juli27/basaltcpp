@@ -25,6 +25,7 @@ struct Engine {
   auto operator=(Engine&&) -> Engine& = delete;
 
   [[nodiscard]] auto config() const noexcept -> const Config&;
+  [[nodiscard]] auto config() noexcept -> Config&;
 
   [[nodiscard]] auto gfx_info() const noexcept -> const gfx::Info&;
 
