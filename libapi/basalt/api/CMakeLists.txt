@@ -8,8 +8,6 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "prelude.h"
   "scene_view.cpp"
   "scene_view.h"
-  "solid_color_view.cpp"
-  "solid_color_view.h"
   "types.h"
   "view.cpp"
   "view.h"
