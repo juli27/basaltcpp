@@ -17,6 +17,7 @@ namespace basalt {
 class DebugUi final {
 public:
   auto show_gfx_info(const gfx::Info&) -> void;
+  auto show_performance_overlay(bool& isOpen) -> void;
 
   static auto show_scene_inspector(Scene&, bool& isOpen) -> void;
   static auto edit_scene(Scene&) -> void;
@@ -28,6 +29,7 @@ public:
 
 private:
   u32 mSelectedAdapterIndex {0};
+  u8 mOverlayCorner {2u};
 };
 
 } // namespace basalt

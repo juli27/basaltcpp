@@ -32,65 +32,7 @@ namespace basalt::gfx {
 
 namespace {
 
-bool sShowPerformanceOverlay {true};
 bool sShowCompositeDebugUi {false};
-
-void draw_overlay() {
-  static i8 corner {2};
-
-  constexpr f32 distanceToEdge {8.0f};
-  const ImGuiViewport& vp {*ImGui::GetMainViewport()};
-
-  const f32 windowPosX {corner & 0x1
-                          ? vp.WorkPos.x + vp.WorkSize.x - distanceToEdge
-                          : vp.WorkPos.x + distanceToEdge};
-
-  const f32 windowPosY {corner & 0x2
-                          ? vp.WorkPos.y + vp.WorkSize.y - distanceToEdge
-                          : vp.WorkPos.y + distanceToEdge};
-
-  const ImVec2 windowPosPivot {corner & 0x1 ? 1.0f : 0.0f,
-                               corner & 0x2 ? 1.0f : 0.0f};
-
-  ImGui::SetNextWindowPos(ImVec2 {windowPosX, windowPosY}, ImGuiCond_Always,
-                          windowPosPivot);
-  ImGui::SetNextWindowBgAlpha(0.35f);
-
-  constexpr ImGuiWindowFlags flags {
-    ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration |
-    ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings |
-    ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav};
-
-  if (ImGui::Begin("Overlay", &sShowPerformanceOverlay, flags)) {
-    const ImGuiIO& io {ImGui::GetIO()};
-
-    const f64 fps {io.Framerate};
-
-    ImGui::Text("%.3f ms/frame (%.1f fps)", 1000.0 / fps, fps);
-
-    if (ImGui::BeginPopupContextWindow()) {
-      if (ImGui::MenuItem("Top-left", nullptr, corner == 0, corner != 0)) {
-        corner = 0;
-      }
-      if (ImGui::MenuItem("Top-right", nullptr, corner == 1, corner != 1)) {
-        corner = 1;
-      }
-      if (ImGui::MenuItem("Bottom-left", nullptr, corner == 2, corner != 2)) {
-        corner = 2;
-      }
-      if (ImGui::MenuItem("Bottom-right", nullptr, corner == 3, corner != 3)) {
-        corner = 3;
-      }
-      if (ImGui::MenuItem("Hide")) {
-        sShowPerformanceOverlay = false;
-      }
-
-      ImGui::EndPopup();
-    }
-  }
-
-  ImGui::End();
-}
 
 #define ENUM_TO_STRING(e)                                                      \
   case e:                                                                      \
@@ -429,7 +371,6 @@ void draw_composite_inspector(const Composite& composite) {
 void Debug::update(const Composite& composite) {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("View")) {
-      ImGui::MenuItem("Performance Overlay", nullptr, &sShowPerformanceOverlay);
       ImGui::MenuItem("Composite Inspector", nullptr, &sShowCompositeDebugUi);
 
       ImGui::EndMenu();
@@ -440,10 +381,6 @@ void Debug::update(const Composite& composite) {
 
   if (sShowCompositeDebugUi) {
     draw_composite_inspector(composite);
-  }
-
-  if (sShowPerformanceOverlay) {
-    draw_overlay();
   }
 }
 

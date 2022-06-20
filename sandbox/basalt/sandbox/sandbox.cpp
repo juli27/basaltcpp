@@ -165,6 +165,8 @@ void SandboxView::on_tick(Engine& engine) {
 
       config.set_bool("debug.scene_inspector.enabled"s, sceneInspectorEnabled);
 
+      ImGui::MenuItem("Performance Overlay", nullptr, &mShowOverlay);
+
       if (config.get_bool("runtime.debugUI.enabled"s)) {
         ImGui::Separator();
       }
@@ -201,6 +203,10 @@ void SandboxView::on_tick(Engine& engine) {
     }
 
     ImGui::EndPopup();
+  }
+
+  if (mShowOverlay) {
+    mDebugUi.show_performance_overlay(mShowOverlay);
   }
 
   if (mShowDemo) {

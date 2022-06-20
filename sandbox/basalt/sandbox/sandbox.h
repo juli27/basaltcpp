@@ -22,6 +22,7 @@ private:
   bool mShowDemo {false};
   bool mShowMetrics {false};
   bool mShowAbout {false};
+  bool mShowOverlay {true};
 
   void next_scene() noexcept;
   void prev_scene() noexcept;
