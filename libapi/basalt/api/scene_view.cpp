@@ -18,12 +18,13 @@
 
 #include <entt/entity/registry.hpp>
 
-#include <string>
 #include <utility>
+#include <vector>
 
 namespace basalt {
 
 using namespace std::literals;
+using std::vector;
 
 using gfx::Attachment;
 using gfx::Attachments;
@@ -38,7 +39,8 @@ namespace ext = gfx::ext;
 
 namespace {
 
-void record_material(FilteringCommandList& cmdList, const MaterialData& data) {
+auto record_material(FilteringCommandList& cmdList, const MaterialData& data)
+  -> void {
   cmdList.bind_pipeline(data.pipeline);
   cmdList.bind_texture(data.texture);
   cmdList.bind_sampler(data.sampler);
@@ -70,8 +72,8 @@ auto SceneView::on_draw(const DrawContext& context) -> void {
 
   const auto& directionalLights {mScene->directional_lights()};
   if (!directionalLights.empty()) {
-    const std::vector<Light> lights {directionalLights.begin(),
-                                     directionalLights.end()};
+    const vector<Light> lights {directionalLights.begin(),
+                                directionalLights.end()};
     cmdList.set_lights(lights);
   }
 
@@ -120,7 +122,7 @@ auto SceneView::on_draw(const DrawContext& context) -> void {
   context.commandLists.push_back(cmdList.take_cmd_list());
 }
 
-void SceneView::on_tick(Engine& engine) {
+auto SceneView::on_tick(Engine& engine) -> void {
   if (engine.config().get_bool("runtime.debugUI.enabled"s)) {
     Debug::update(*mScene);
   }

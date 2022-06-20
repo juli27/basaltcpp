@@ -23,20 +23,20 @@ auto View::is_key_down(const Key key) const -> bool {
   return mKeysDown[enum_cast(key)];
 }
 
-void View::add_child_top(ViewPtr view) {
+auto View::add_child_top(ViewPtr view) -> void {
   mChildren.emplace(mChildren.begin(), std::move(view));
 }
 
-void View::add_child_bottom(ViewPtr view) {
+auto View::add_child_bottom(ViewPtr view) -> void {
   mChildren.emplace_back(std::move(view));
 }
 
-void View::add_child_above(ViewPtr view, const ViewPtr& before) {
+auto View::add_child_above(ViewPtr view, const ViewPtr& before) -> void {
   mChildren.emplace(std::find(mChildren.begin(), mChildren.end(), before),
                     std::move(view));
 }
 
-void View::add_child_below(ViewPtr view, const ViewPtr& after) {
+auto View::add_child_below(ViewPtr view, const ViewPtr& after) -> void {
   auto it {std::find(mChildren.begin(), mChildren.end(), after)};
 
   if (it != mChildren.end()) {
@@ -46,12 +46,12 @@ void View::add_child_below(ViewPtr view, const ViewPtr& after) {
   mChildren.emplace(it, std::move(view));
 }
 
-void View::remove_child(const ViewPtr& view) {
+auto View::remove_child(const ViewPtr& view) -> void {
   mChildren.erase(std::remove(mChildren.begin(), mChildren.end(), view),
                   mChildren.end());
 }
 
-void View::draw(const DrawContext& context) {
+auto View::draw(const DrawContext& context) -> void {
   on_draw(context);
 
   std::for_each(mChildren.begin(), mChildren.end(),
@@ -72,7 +72,7 @@ auto View::handle_input(const InputEvent& e) -> bool {
   });
 }
 
-void View::tick(Engine& engine) {
+auto View::tick(Engine& engine) -> void {
   on_tick(engine);
 
   const vector views {mChildren};
@@ -82,7 +82,17 @@ void View::tick(Engine& engine) {
   }
 }
 
-void View::update(const InputEvent& e) {
+auto View::on_draw(const DrawContext&) -> void {
+}
+
+auto View::on_tick(Engine&) -> void {
+}
+
+auto View::on_input(const InputEvent&) -> InputEventHandled {
+  return InputEventHandled::No;
+}
+
+auto View::update(const InputEvent& e) -> void {
   switch (e.type) {
   case InputEventType::MouseMoved:
     mPointerPos = e.as<MouseMoved>().position;

@@ -6,8 +6,6 @@
 
 #include <basalt/api/scene/types.h>
 
-#include <memory>
-
 namespace basalt {
 
 struct SceneView final : View {
@@ -28,7 +26,7 @@ private:
   gfx::Camera mCamera;
 
   auto on_draw(const DrawContext&) -> void override;
-  void on_tick(Engine&) override;
+  auto on_tick(Engine&) -> void override;
 };
 
 } // namespace basalt

@@ -23,6 +23,8 @@
 
 #include <basalt/api/gfx/types.h>
 
+#include <basalt/api/gfx/backend/command_list.h>
+
 #include <basalt/api/shared/config.h>
 #include <basalt/api/shared/log.h>
 #include <basalt/api/shared/size2d.h>

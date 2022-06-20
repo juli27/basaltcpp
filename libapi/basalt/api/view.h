@@ -3,7 +3,7 @@
 #include <basalt/api/types.h>
 
 #include <basalt/api/gfx/types.h>
-#include <basalt/api/gfx/backend/command_list.h>
+#include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/shared/size2d.h>
 #include <basalt/api/shared/types.h>
@@ -26,11 +26,11 @@ struct View {
   [[nodiscard]] auto is_mouse_button_down(MouseButton) const -> bool;
   [[nodiscard]] auto is_key_down(Key) const -> bool;
 
-  void add_child_top(ViewPtr);
-  void add_child_bottom(ViewPtr);
-  void add_child_above(ViewPtr, const ViewPtr& before);
-  void add_child_below(ViewPtr, const ViewPtr& after);
-  void remove_child(const ViewPtr&);
+  auto add_child_top(ViewPtr) -> void;
+  auto add_child_bottom(ViewPtr) -> void;
+  auto add_child_above(ViewPtr, const ViewPtr& before) -> void;
+  auto add_child_below(ViewPtr, const ViewPtr& after) -> void;
+  auto remove_child(const ViewPtr&) -> void;
 
   struct DrawContext final {
     std::vector<gfx::CommandList>& commandLists;
@@ -38,24 +38,20 @@ struct View {
     Size2Du16 viewport;
   };
 
-  void draw(const DrawContext& context);
+  auto draw(const DrawContext& context) -> void;
 
   [[nodiscard]] auto handle_input(const InputEvent&) -> bool;
 
-  void tick(Engine&);
+  auto tick(Engine&) -> void;
 
 protected:
   View() noexcept = default;
 
-  virtual void on_draw(const DrawContext&) {
-  }
+  virtual auto on_draw(const DrawContext&) -> void;
 
-  virtual void on_tick(Engine&) {
-  }
+  virtual auto on_tick(Engine&) -> void;
 
-  virtual auto on_input(const InputEvent&) -> InputEventHandled {
-    return InputEventHandled::No;
-  }
+  [[nodiscard]] virtual auto on_input(const InputEvent&) -> InputEventHandled;
 
 private:
   // top to bottom order
@@ -65,7 +61,7 @@ private:
   std::bitset<MOUSE_BUTTON_COUNT> mMouseButtonsDown;
   std::bitset<KEY_COUNT> mKeysDown;
 
-  void update(const InputEvent&);
+  auto update(const InputEvent&) -> void;
 };
 
 } // namespace basalt
