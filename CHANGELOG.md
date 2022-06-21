@@ -4,45 +4,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.0] - *Unreleased*
 ### Added
-- Colors
-- Engine object to query and configure runtime behaviour
-  - Engine.mouseCursor to get or set the current mouse cursor
-  - load resources
-- Support for Windowed, Fullscreen, and Fullscreen (Exclusive) window modes
-- **/types.h includes to prelude.h
-- Dear ImGui clipboard support
-- Dear ImGui IME support
-- Gfx: `Surface`
-- Gfx: `Drawable`
-  - `SceneView`: draws a scene through the specified camera
-  - `SolidColorView` fills its own area with a single color
-- Gfx: `Model` component
-- Gfx: `CommandList`, `CommandListRecorder`, `DeviceStateCache`
-- Gfx: Commands
-  - `SetDirectionalLights`, `SetTransform`, `SetRenderState`,
-    `SetTextureStageState`, `SetTexture`, `SetMaterial`, `Draw`, `Clear`
-- Gfx: device extensions
-  - `ext_dear_imgui_renderer`
-  - `ext_x_model_support`
-- Gfx: Materials
-- BASALT_CRASH
+- Too many things to list
+- external: GSL (d9fc52e)
 
 ### Changed
-- Renamed and moved various public fields, methods and functions
-- Restructured the project
-  - libapi: public API
-  - libruntime: platform independent runtime
-  - platformlibs/libwin32: win32 runtime
-  - launchers/win32: win32 bootstrapping
-  - sandbox: sample application
-- The ClientApp::update method now receives the Engine object instead of only
-  the delta time
-- Input: refactored input routing
-  - replaced global Input object with InputLayers
-- Input: all mouse buttons capture the mouse
-- Scene: every entity is now created with a transform component
-- Collapsed BASALT_ASSERT_MSG into BASALT_ASSERT
-- Refactored Config into a generic key-value store
+- Too much to list
+
+#### external
 - Updated Dear ImGui (v1.72b -> v1.86)
 - Updated EnTT (19ef290 -> v3.9.0)
 - Updated fmt (5.3.0 -> 8.1.1)
@@ -52,13 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 ### Removed
-- gfx: `View`
-- Super key
-  - the super key is not supported on Windows. It will be added again on other
-    platforms once the need arises
-- free standing input functions
-  - an input layer must be registered with the engine object
-- platform events
+- everything?
 
 ### Fixed
 
