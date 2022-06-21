@@ -18,7 +18,6 @@ target_link_libraries(${CURRENT_TARGET}
   PRIVATE
     ControlFlowGuard
     CommonPrivate
-    WarningsAsErrors
     "d3d9"
     DirectXSDK::d3dx9
     DirectXSDK::dxerr

@@ -17,3 +17,9 @@ target_compile_options(CommonPrivate INTERFACE
   "$<$<CONFIG:RelWithDebInfo>:/Ob2>"
   "$<$<CONFIG:Release>:/Zi>"
 )
+
+option(BASALT_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
+
+if (BASALT_WARNINGS_AS_ERRORS)
+  target_link_libraries(CommonPrivate INTERFACE WarningsAsErrors)
+endif()

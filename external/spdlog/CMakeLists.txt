@@ -15,8 +15,6 @@ if (NOT spdlog_POPULATED)
       CommonPrivate
       Cpp17_Strict
       ControlFlowGuard
-      # v1.8.5 fails with warning C4702: unreachable code
-      # WarningsAsErrors
   )
 
   target_include_directories(${CURRENT_TARGET} PUBLIC

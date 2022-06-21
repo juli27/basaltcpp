@@ -12,7 +12,6 @@ target_link_libraries(${CURRENT_TARGET}
   PRIVATE
     CommonPrivate
     ControlFlowGuard
-    WarningsAsErrors
 )
 
 target_include_directories(${CURRENT_TARGET} PUBLIC

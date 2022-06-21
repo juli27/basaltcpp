@@ -11,7 +11,6 @@ if (NOT fmt_POPULATED)
       CommonPrivate
       Cpp17_Strict
       ControlFlowGuard
-      WarningsAsErrors
   )
 
   target_include_directories(${CURRENT_TARGET}

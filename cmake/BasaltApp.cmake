@@ -15,7 +15,6 @@ function(basalt_add_app APP_NAME)
   target_link_libraries(${CURRENT_TARGET} PRIVATE
     ControlFlowGuard
     CommonPrivate
-    WarningsAsErrors
     ${APP_NAME}
     Basalt::LibAPI
     Basalt::LibRuntime

@@ -46,7 +46,7 @@ jobs:
         }
 
     - name: Configure
-      run: cmake -Wdev -Werror=dev -S . -B ./_build -G "Visual Studio 16 2019" -T v142 -A x64 -D CMAKE_SYSTEM_VERSION=8.1 -D FETCHCONTENT_BASE_DIR=${{ env.FETCH_CONTENT_DIR }}
+      run: cmake -Wdev -Werror=dev -S . -B ./_build -G "Visual Studio 16 2019" -T v142 -A x64 -D CMAKE_SYSTEM_VERSION=8.1 -D FETCHCONTENT_BASE_DIR=${{ env.FETCH_CONTENT_DIR }} -D BASALT_WARNINGS_AS_ERRORS=ON
 
     - name: Build
       run: cmake --build ./_build --config ${{ matrix.configuration }} --parallel
