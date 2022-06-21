@@ -43,10 +43,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Scene: every entity is now created with a transform component
 - Collapsed BASALT_ASSERT_MSG into BASALT_ASSERT
 - Refactored Config into a generic key-value store
-- Updated Dear ImGui (v1.72b -> v1.82)
-- Updated EnTT (19ef290 -> v3.7.1)
-- Updated fmt (5.3.0 -> 7.1.3)
-- Updated spdlog (1.3.1 -> 1.8.5)
+- Updated Dear ImGui (v1.72b -> v1.86)
+- Updated EnTT (19ef290 -> v3.9.0)
+- Updated fmt (5.3.0 -> 8.1.1)
+- Updated spdlog (v1.3.1 -> v1.9.2)
   - now compiled as a static library
 
 ### Deprecated
