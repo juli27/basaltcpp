@@ -28,6 +28,11 @@ public:
     bool exclusive {false};
   };
 
+  struct DeviceAndContext final {
+    DevicePtr device;
+    ContextPtr context;
+  };
+
   // returns null on failure
   static auto create() -> D3D9FactoryPtr;
 
@@ -46,7 +51,7 @@ public:
   [[nodiscard]] auto get_adapter_monitor(Adapter) const -> HMONITOR;
 
   auto create_device_and_context(HWND window, const DeviceAndContextDesc&) const
-    -> ContextPtr;
+    -> DeviceAndContext;
 
 private:
   InstancePtr mInstance;

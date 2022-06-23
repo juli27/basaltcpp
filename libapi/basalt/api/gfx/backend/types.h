@@ -10,6 +10,7 @@
 
 #include <gsl/span>
 
+#include <memory>
 #include <variant>
 #include <vector>
 
@@ -163,7 +164,9 @@ using VertexBuffer = Handle<detail::VertexBufferTag>;
 
 struct Command;
 struct CommandList;
+
 struct Device;
+using DevicePtr = std::shared_ptr<Device>;
 
 using uDeviceSize = u64;
 

@@ -303,7 +303,11 @@ auto Window::init_gfx_context(const gfx::D3D9Factory& gfxFactory) -> void {
     gfx::MultiSampleCount::One, mCurrentMode == WindowMode::FullscreenExclusive,
   };
 
-  mGfxContext = gfxFactory.create_device_and_context(mHandle, contextDesc);
+  auto [device, context] {
+    gfxFactory.create_device_and_context(mHandle, contextDesc),
+  };
+
+  mGfxContext = std::move(context);
 
   BASALT_LOG_INFO("Direct3D9 context created: adapter={}, driver={}",
                   adapterInfo.displayName, adapterInfo.driverInfo);

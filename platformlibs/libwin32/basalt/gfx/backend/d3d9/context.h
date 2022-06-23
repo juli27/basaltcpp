@@ -4,16 +4,15 @@
 
 #include <basalt/gfx/backend/d3d9/d3d9_custom.h>
 #include <basalt/gfx/backend/d3d9/device.h>
+#include <basalt/gfx/backend/d3d9/types.h>
 
 #include <wrl/client.h>
-
-#include <memory>
 
 namespace basalt::gfx {
 
 // the implicit swap chain of the device
 struct D3D9Context final : Context {
-  explicit D3D9Context(std::unique_ptr<D3D9Device>);
+  explicit D3D9Context(D3D9DevicePtr);
 
   [[nodiscard]] auto surface_size() const noexcept -> Size2Du16 override;
 
@@ -28,7 +27,7 @@ struct D3D9Context final : Context {
   auto present() -> PresentResult override;
 
 private:
-  std::unique_ptr<D3D9Device> mDevice {};
+  D3D9DevicePtr mDevice;
   Microsoft::WRL::ComPtr<IDirect3DDevice9> mD3D9Device {};
   Microsoft::WRL::ComPtr<IDirect3DSwapChain9> mImplicitSwapChain {};
 };

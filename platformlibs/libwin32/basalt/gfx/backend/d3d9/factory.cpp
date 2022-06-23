@@ -13,6 +13,7 @@
 #include <fmt/format.h>
 
 #include <array>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -570,7 +571,8 @@ auto D3D9Factory::get_adapter_monitor(const Adapter adapter) const -> HMONITOR {
 }
 
 auto D3D9Factory::create_device_and_context(
-  const HWND window, const DeviceAndContextDesc& desc) const -> ContextPtr {
+  const HWND window, const DeviceAndContextDesc& desc) const
+  -> DeviceAndContext {
   const UINT adapterOrdinal {desc.adapter.value()};
   BASALT_ASSERT(adapterOrdinal < mInstance->GetAdapterCount());
 
@@ -600,9 +602,11 @@ auto D3D9Factory::create_device_and_context(
 
   // TODO: verify the five caps which differ?
 
-  auto device {std::make_unique<D3D9Device>(std::move(d3d9Device))};
+  auto device {std::make_shared<D3D9Device>(std::move(d3d9Device))};
 
-  return std::make_unique<D3D9Context>(std::move(device));
+  auto context {std::make_unique<D3D9Context>(device)};
+
+  return DeviceAndContext {std::move(device), std::move(context)};
 }
 
 } // namespace basalt::gfx
