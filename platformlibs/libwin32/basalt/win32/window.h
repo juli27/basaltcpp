@@ -46,7 +46,7 @@ public:
   auto operator=(Window&&) -> Window& = delete;
 
   [[nodiscard]] auto handle() const noexcept -> HWND;
-  [[nodiscard]] auto gfx_context() const noexcept -> gfx::Context&;
+  [[nodiscard]] auto gfx_context() const noexcept -> const gfx::ContextPtr&;
   [[nodiscard]] auto input_manager() noexcept -> InputManager&;
   [[nodiscard]] auto client_area_size() const noexcept -> Size2Du16;
   [[nodiscard]] auto mode() const noexcept -> WindowMode;

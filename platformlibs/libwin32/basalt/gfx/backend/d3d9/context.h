@@ -21,7 +21,7 @@ struct D3D9Context final : Context {
   auto reset() -> void override;
   auto reset(const ResetDesc&) -> void override;
 
-  [[nodiscard]] auto device() const noexcept -> Device& override;
+  [[nodiscard]] auto device() const noexcept -> DevicePtr override;
 
   void submit(const Composite&) override;
   auto present() -> PresentResult override;

@@ -82,8 +82,8 @@ auto D3D9Context::reset(const ResetDesc& desc) -> void {
   mDevice->reset(pp);
 }
 
-auto D3D9Context::device() const noexcept -> Device& {
-  return *mDevice;
+auto D3D9Context::device() const noexcept -> DevicePtr {
+  return mDevice;
 }
 
 void D3D9Context::submit(const Composite& composite) {

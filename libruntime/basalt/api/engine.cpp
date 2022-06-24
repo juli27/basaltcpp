@@ -33,7 +33,11 @@ auto Engine::delta_time() const noexcept -> f64 {
   return mDeltaTime;
 }
 
-void Engine::set_root(ViewPtr view) {
+auto Engine::root() const -> const ViewPtr& {
+  return mRoot;
+}
+
+auto Engine::set_root(ViewPtr view) -> void {
   mRoot = std::move(view);
 }
 
@@ -52,11 +56,11 @@ void Engine::set_window_mode(const WindowMode windowMode) noexcept {
 }
 
 Engine::Engine(Config& config, gfx::Info gfxInfo,
-               gfx::Device& gfxDevice) noexcept
+               gfx::DevicePtr gfxDevice) noexcept
   : mConfig {config}
   , mGfxInfo {std::move(gfxInfo)}
   , mResourceRegistry {std::make_shared<ResourceRegistry>()}
-  , mGfxResourceCache {gfxDevice} {
+  , mGfxResourceCache {std::move(gfxDevice)} {
 }
 
 auto Engine::is_loaded(const ResourceId id) const -> bool {

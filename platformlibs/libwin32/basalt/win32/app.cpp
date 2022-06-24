@@ -11,19 +11,12 @@
 
 #include <basalt/dear_imgui.h>
 
-#include <basalt/gfx/debug.h>
-
 #include <basalt/gfx/backend/d3d9/factory.h>
 
 #include <basalt/gfx/backend/context.h>
 #include <basalt/gfx/backend/types.h>
 
-#include <basalt/api/client_app.h>
-#include <basalt/api/view.h>
-
 #include <basalt/api/gfx/types.h>
-
-#include <basalt/api/gfx/backend/command_list.h>
 
 #include <basalt/api/shared/config.h>
 #include <basalt/api/shared/log.h>
@@ -151,23 +144,25 @@ void App::run(Config& config, const HMODULE moduleHandle,
     return;
   }
 
-  gfx::Context& gfxContext {window->gfx_context()};
+  const gfx::ContextPtr& gfxContext {window->gfx_context()};
+  const gfx::DevicePtr gfxDevice {gfxContext->device()};
 
-  const auto dearImGui {std::make_shared<DearImGui>(gfxContext.device())};
+  const auto dearImGui {std::make_shared<DearImGui>(*gfxDevice)};
   ImGuiIO& io {ImGui::GetIO()};
   io.ImeWindowHandle = window->handle();
 
   window->input_manager().set_overlay(dearImGui);
 
-  App app {config,
-           gfx::Info {
-             gfxContext.device().capabilities(),
-             gfxFactory->adapters(),
-             gfx::BackendApi::Direct3D9,
-           },
-           gfxContext.device()};
-
-  ClientApp::bootstrap(app);
+  App app {
+    config,
+    gfx::Info {
+      gfxDevice->capabilities(),
+      gfxFactory->adapters(),
+      gfx::BackendApi::Direct3D9,
+    },
+    gfxContext,
+    dearImGui,
+  };
 
   using Clock = std::chrono::high_resolution_clock;
   static_assert(Clock::is_steady);
@@ -180,37 +175,24 @@ void App::run(Config& config, const HMODULE moduleHandle,
       window->set_mode(mode);
     }
 
-    window->input_manager().dispatch_pending(app.mRoot);
+    const ViewPtr& rootView {app.root()};
 
-    dearImGui->new_frame(app, gfxContext.surface_size());
-    app.mRoot->tick(app);
+    window->input_manager().dispatch_pending(rootView);
+
+    app.tick();
 
     if (app.mIsDirty) {
       app.mIsDirty = false;
       window->set_cursor(app.mMouseCursor);
     }
 
-    gfx::Composite composite {};
-    const View::DrawContext drawContext {composite, app.mGfxResourceCache,
-                                         gfxContext.surface_size()};
+    app.render();
 
-    app.mRoot->draw(drawContext);
-
-    // The DearImGui view doesn't actually cause the UI to render during drawing
-    // but is currently being done at execution of the ExtRenderDearImGui
-    // command instead.
-    dearImGui->draw(drawContext);
-
-    if (config.get_bool("runtime.debugUI.enabled"s)) {
-      gfx::Debug::update(composite);
-    }
-
-    gfxContext.submit(composite);
-    switch (gfxContext.present()) {
+    switch (gfxContext->present()) {
     case gfx::PresentResult::Ok:
       break;
     case gfx::PresentResult::DeviceLost:
-      if (!run_lost_device_loop(gfxContext)) {
+      if (!run_lost_device_loop(*gfxContext)) {
         quit();
       }
 
@@ -224,8 +206,10 @@ void App::run(Config& config, const HMODULE moduleHandle,
   }
 }
 
-App::App(Config& config, gfx::Info gfxInfo, gfx::Device& gfxDevice)
-  : Engine {config, std::move(gfxInfo), gfxDevice} {
+App::App(Config& config, gfx::Info gfxInfo, gfx::ContextPtr gfxContext,
+         DearImGuiPtr dearImGui)
+  : Runtime {config, std::move(gfxInfo), std::move(gfxContext),
+             std::move(dearImGui)} {
 }
 
 // namespace {

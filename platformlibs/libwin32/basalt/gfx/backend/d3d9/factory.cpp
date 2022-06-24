@@ -604,7 +604,7 @@ auto D3D9Factory::create_device_and_context(
 
   auto device {std::make_shared<D3D9Device>(std::move(d3d9Device))};
 
-  auto context {std::make_unique<D3D9Context>(device)};
+  auto context {std::make_shared<D3D9Context>(device)};
 
   return DeviceAndContext {std::move(device), std::move(context)};
 }

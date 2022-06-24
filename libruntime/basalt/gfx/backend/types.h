@@ -12,7 +12,7 @@ namespace basalt::gfx {
 using Composite = std::vector<CommandList>;
 
 struct Context;
-using ContextPtr = std::unique_ptr<Context>;
+using ContextPtr = std::shared_ptr<Context>;
 
 struct CommandClearAttachments;
 struct CommandDraw;

@@ -16,48 +16,48 @@ using gsl::span;
 
 namespace basalt::gfx {
 
-ResourceCache::ResourceCache(Device& device) : mDevice {device} {
+ResourceCache::ResourceCache(DevicePtr device) : mDevice {std::move(device)} {
 }
 
 auto ResourceCache::create_pipeline(const PipelineDescriptor& desc) const
   -> Pipeline {
-  return mDevice.create_pipeline(desc);
+  return mDevice->create_pipeline(desc);
 }
 
 auto ResourceCache::destroy(const Pipeline handle) const noexcept -> void {
-  mDevice.destroy(handle);
+  mDevice->destroy(handle);
 }
 
 auto ResourceCache::create_vertex_buffer(
   const VertexBufferDescriptor& desc, const span<const byte> initialData) const
   -> VertexBuffer {
-  return mDevice.create_vertex_buffer(desc, initialData);
+  return mDevice->create_vertex_buffer(desc, initialData);
 }
 
 auto ResourceCache::destroy(const VertexBuffer handle) const noexcept -> void {
-  mDevice.destroy(handle);
+  mDevice->destroy(handle);
 }
 
 auto ResourceCache::create_sampler(const SamplerDescriptor& desc) const
   -> Sampler {
-  return mDevice.create_sampler(desc);
+  return mDevice->create_sampler(desc);
 }
 
 auto ResourceCache::destroy(const Sampler handle) const noexcept -> void {
-  mDevice.destroy(handle);
+  mDevice->destroy(handle);
 }
 
 auto ResourceCache::load_texture(const path& path) const -> Texture {
-  return mDevice.load_texture(path);
+  return mDevice->load_texture(path);
 }
 
 auto ResourceCache::destroy(const Texture handle) const noexcept -> void {
-  mDevice.destroy(handle);
+  mDevice->destroy(handle);
 }
 
 auto ResourceCache::load_x_model(const path& path) -> ext::XModel {
   const auto modelExt {
-    *gfx::query_device_extension<ext::XModelSupport>(mDevice)};
+    *gfx::query_device_extension<ext::XModelSupport>(*mDevice)};
   BASALT_ASSERT(modelExt, "X model files not supported");
 
   const ext::XModelData xModel {modelExt->load(path)};
@@ -95,7 +95,7 @@ auto ResourceCache::destroy(const ext::XModel handle) noexcept -> void {
     }
 
     const auto modelExt {
-      *gfx::query_device_extension<ext::XModelSupport>(mDevice)};
+      *gfx::query_device_extension<ext::XModelSupport>(*mDevice)};
     modelExt->destroy(data.mesh);
   }
 
@@ -151,7 +151,7 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
 
   const u8 maxAnisotropy {
     desc.sampledTexture.filter == TextureFilter::Anisotropic
-      ? mDevice.capabilities().samplerMaxAnisotropy
+      ? mDevice->capabilities().samplerMaxAnisotropy
       : u8 {1},
   };
 

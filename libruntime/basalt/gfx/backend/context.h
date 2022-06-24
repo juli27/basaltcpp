@@ -40,7 +40,7 @@ struct Context {
 
   virtual auto reset(const ResetDesc&) -> void = 0;
 
-  [[nodiscard]] virtual auto device() const noexcept -> Device& = 0;
+  [[nodiscard]] virtual auto device() const noexcept -> DevicePtr = 0;
 
   virtual void submit(const Composite&) = 0;
   [[nodiscard]] virtual auto present() -> PresentResult = 0;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <basalt/api/gfx/types.h>
+
 #include <basalt/api/gfx/backend/device.h>
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/types.h>
@@ -16,7 +17,7 @@
 namespace basalt::gfx {
 
 struct ResourceCache {
-  explicit ResourceCache(Device&);
+  explicit ResourceCache(DevicePtr);
 
   [[nodiscard]] auto create_pipeline(const PipelineDescriptor&) const
     -> Pipeline;
@@ -43,9 +44,9 @@ struct ResourceCache {
                        const uDeviceSize size, F&& func) -> void {
     // TODO: how should this handle map failure? right now its passing the empty
     // span to the function
-    func(mDevice.map(handle, offset, size));
+    func(mDevice->map(handle, offset, size));
 
-    mDevice.unmap(handle);
+    mDevice->unmap(handle);
   }
 
   auto destroy(VertexBuffer) const noexcept -> void;
@@ -70,7 +71,7 @@ struct ResourceCache {
   auto destroy(Material) noexcept -> void;
 
 private:
-  Device& mDevice;
+  DevicePtr mDevice;
   HandlePool<MeshData, Mesh> mMeshes;
   HandlePool<MaterialData, Material> mMaterials;
   HandlePool<XModelData, ext::XModel> mXModels;

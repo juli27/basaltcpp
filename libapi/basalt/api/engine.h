@@ -34,7 +34,8 @@ struct Engine {
 
   [[nodiscard]] auto delta_time() const noexcept -> f64;
 
-  void set_root(ViewPtr);
+  [[nodiscard]] auto root() const -> const ViewPtr&;
+  auto set_root(ViewPtr) -> void;
 
   [[nodiscard]] auto mouse_cursor() const noexcept -> MouseCursor;
   void set_mouse_cursor(MouseCursor) noexcept;
@@ -43,10 +44,8 @@ struct Engine {
 
   template <typename T>
   auto get_or_load(Resource) -> T;
-
+  
 protected:
-  Config& mConfig;
-
   gfx::Info mGfxInfo;
 
   ResourceRegistryPtr mResourceRegistry {};
@@ -56,18 +55,19 @@ protected:
   std::unordered_map<ResourceId, gfx::Texture> mTextures {};
   std::unordered_map<ResourceId, gfx::ext::XModel> mXModels {};
 
-  ViewPtr mRoot;
-
   f64 mDeltaTime {};
 
   MouseCursor mMouseCursor {MouseCursor::Arrow};
   bool mIsDirty {false};
 
-  Engine(Config&, gfx::Info, gfx::Device&) noexcept;
+  Engine(Config&, gfx::Info, gfx::DevicePtr) noexcept;
 
   ~Engine() noexcept = default;
 
 private:
+  Config& mConfig;
+  ViewPtr mRoot;
+
   [[nodiscard]] auto is_loaded(ResourceId) const -> bool;
 };
 

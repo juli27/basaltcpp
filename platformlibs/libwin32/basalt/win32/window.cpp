@@ -133,8 +133,8 @@ auto Window::handle() const noexcept -> HWND {
   return mHandle;
 }
 
-auto Window::gfx_context() const noexcept -> gfx::Context& {
-  return *mGfxContext;
+auto Window::gfx_context() const noexcept -> const gfx::ContextPtr& {
+  return mGfxContext;
 }
 
 auto Window::input_manager() noexcept -> InputManager& {

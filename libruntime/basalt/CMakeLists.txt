@@ -7,4 +7,7 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "dear_imgui.h"
   "input_manager.cpp"
   "input_manager.h"
+  "runtime.cpp"
+  "runtime.h"
+  "types.h"
 )
