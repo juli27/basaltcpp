@@ -26,6 +26,24 @@ function(basalt_add_app APP_NAME)
     "$<$<CONFIG:Debug>:BASALT_DEBUG_BUILD>"
   )
 
+  target_compile_features(${CURRENT_TARGET} PRIVATE cxx_std_17)
+  target_compile_options(${CURRENT_TARGET}
+    PRIVATE
+      "/w44062;/w14165;/w34191;/w44242"
+      "/Zc:__cplusplus"
+      "/Zc:externC"
+      "/Zc:externConstexpr"
+      "/Zc:hiddenFriend"
+      "/Zc:inline"
+      "/Zc:lambda"
+      "/Zc:preprocessor-"
+      "/Zc:referenceBinding"
+      "/Zc:rvalueCast"
+      "/Zc:strictStrings"
+      "/Zc:ternary"
+      "/Zc:throwingNew"
+  )
+
   # TODO: /LTCG:incremental with ninja
   target_link_options(${CURRENT_TARGET} PRIVATE
     "/WX"

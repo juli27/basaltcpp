@@ -8,8 +8,8 @@ if (NOT fmt_POPULATED)
 
   target_link_libraries(${CURRENT_TARGET}
     PRIVATE
+      Cpp17Strict
       CommonPrivate
-      Cpp17_Strict
       ControlFlowGuard
   )
 

@@ -10,6 +10,7 @@ target_link_libraries(${CURRENT_TARGET}
     fmt::fmt
     spdlog::spdlog
   PRIVATE
+    Cpp17Strict
     CommonPrivate
     ControlFlowGuard
 )
@@ -24,9 +25,9 @@ target_compile_definitions(${CURRENT_TARGET} PRIVATE
   "$<$<CONFIG:Debug>:BASALT_DEBUG_BUILD>"
 )
 
-target_compile_features(${CURRENT_TARGET} PUBLIC cxx_std_17)
+target_compile_features(${CURRENT_TARGET} INTERFACE cxx_std_17)
 target_compile_options(${CURRENT_TARGET} PRIVATE
-  "/w44062" "/w14165" "/w34191" "/w44242" "/Zc:inline" "/Zc:rvalueCast"
+  "/w44062" "/w14165" "/w34191" "/w44242"
 )
 
 set_target_properties(${CURRENT_TARGET} PROPERTIES

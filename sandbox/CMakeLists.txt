@@ -4,6 +4,7 @@ basalt_add_app(Sandbox)
 add_library(Basalt::Sandbox ALIAS Sandbox)
 
 target_link_libraries(${CURRENT_TARGET} PRIVATE
+  Cpp17Strict
   CommonPrivate
   ControlFlowGuard
 )
@@ -19,7 +20,7 @@ target_compile_definitions(${CURRENT_TARGET} PRIVATE
 
 target_compile_features(${CURRENT_TARGET} PRIVATE cxx_std_17)
 target_compile_options(${CURRENT_TARGET} PRIVATE
-  "/w44062;/w14165;/w34191;/w44242" "/Zc:inline" "/Zc:rvalueCast"
+  "/w44062;/w14165;/w34191;/w44242"
 )
 
 set_target_properties(${CURRENT_TARGET} PROPERTIES

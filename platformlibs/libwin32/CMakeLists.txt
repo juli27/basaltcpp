@@ -28,15 +28,28 @@ target_include_directories(${CURRENT_TARGET} PUBLIC
   "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
-target_compile_features(${CURRENT_TARGET} PRIVATE cxx_std_17)
+target_compile_features(${CURRENT_TARGET} PUBLIC cxx_std_17)
 target_compile_definitions(${CURRENT_TARGET} PRIVATE
   "BASALT_BUILD"
   "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:BASALT_DEV_BUILD>"
   "$<$<CONFIG:Debug>:BASALT_DEBUG_BUILD>"
 )
 
-target_compile_options(${CURRENT_TARGET} PRIVATE
-  "/w44062;/w14165;/w34191;/w44242" "/Zc:inline" "/Zc:rvalueCast"
+target_compile_options(${CURRENT_TARGET}
+  PRIVATE
+    "/w44062;/w14165;/w34191;/w44242"
+    "/Zc:__cplusplus"
+    "/Zc:externC"
+    "/Zc:externConstexpr"
+    "/Zc:hiddenFriend"
+    "/Zc:inline"
+    "/Zc:lambda"
+    "/Zc:preprocessor-"
+    "/Zc:referenceBinding"
+    "/Zc:rvalueCast"
+    "/Zc:strictStrings"
+    "/Zc:ternary"
+    "/Zc:throwingNew"
 )
 
 set_target_properties(${CURRENT_TARGET} PROPERTIES

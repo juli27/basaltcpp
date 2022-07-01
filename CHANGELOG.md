@@ -4,11 +4,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.0] - *Unreleased*
 ### Added
-- Too many things to list
+- Too many to list
 - external: GSL (d9fc52e)
 
 ### Changed
-- Too much to list
+- Too many to list
 
 #### external
 - Updated Dear ImGui (v1.72b -> v1.86)
@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 ### Removed
-- everything?
+- Too many to list
 
 ### Fixed
 
