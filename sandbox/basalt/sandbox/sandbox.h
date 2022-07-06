@@ -3,6 +3,7 @@
 #include <basalt/api/view.h>
 
 #include <basalt/api/debug_ui.h>
+#include <basalt/api/types.h>
 
 #include <basalt/api/base/types.h>
 
@@ -16,6 +17,7 @@ private:
 
   std::vector<Example> mExamples;
   basalt::uSize mCurrentExampleIndex {9};
+  basalt::ViewPtr mCurrentExampleView;
 
   basalt::DebugUi mDebugUi {};
 
@@ -23,13 +25,14 @@ private:
   bool mShowMetrics {false};
   bool mShowAbout {false};
   bool mShowOverlay {true};
+  bool dirtyInput {false};
 
-  void next_scene() noexcept;
-  void prev_scene() noexcept;
-  void switch_scene(basalt::uSize index) noexcept;
+  auto next_scene(basalt::Engine&) noexcept -> void;
+  auto prev_scene(basalt::Engine&) noexcept -> void;
+  auto switch_scene(basalt::uSize index, basalt::Engine&) noexcept -> void;
 
   auto on_input(const basalt::InputEvent&)
     -> basalt::InputEventHandled override;
 
-  void on_tick(basalt::Engine&) override;
+  auto on_tick(basalt::Engine&) -> void override;
 };

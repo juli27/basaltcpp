@@ -6,13 +6,17 @@
 
 #include <utility>
 
+using basalt::Engine;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
 
 namespace d3d9 {
 
-void Device::on_draw(const DrawContext& context) {
+Device::Device(Engine&) noexcept {
+}
+
+auto Device::on_draw(const DrawContext& context) -> void {
   CommandList cmdList {};
   cmdList.clear_attachments(Attachments {Attachment::RenderTarget},
                             Colors::BLUE, 1.0f, 0);

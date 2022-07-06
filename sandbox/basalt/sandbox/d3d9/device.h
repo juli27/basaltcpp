@@ -2,13 +2,15 @@
 
 #include <basalt/api/view.h>
 
+#include <basalt/api/types.h>
+
 namespace d3d9 {
 
 struct Device final : basalt::View {
-  Device() noexcept = default;
+  explicit Device(basalt::Engine&) noexcept;
 
 private:
-  void on_draw(const DrawContext&) override;
+  auto on_draw(const DrawContext&) -> void override;
 };
 
 } // namespace d3d9

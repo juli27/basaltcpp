@@ -25,9 +25,11 @@
 
 #include <imgui/imgui.h>
 
+#include <functional>
 #include <memory>
 #include <string>
 
+using std::function;
 using std::shared_ptr;
 using std::string;
 using namespace std::literals;
@@ -44,62 +46,71 @@ using basalt::KeyUp;
 using basalt::ViewPtr;
 using basalt::WindowMode;
 
-void ClientApp::bootstrap(Engine& engine) {
+namespace {
+
+template <typename T>
+auto create_example(Engine& engine) -> ViewPtr {
+  return std::make_shared<T>(engine);
+}
+
+} // namespace
+
+auto ClientApp::bootstrap(Engine& engine) -> void {
   engine.set_root(std::make_shared<SandboxView>(engine));
 }
 
 struct SandboxView::Example final {
-  ViewPtr view;
   string name;
+  function<ViewPtr(Engine&)> factory;
 };
 
 SandboxView::SandboxView(Engine& engine) {
   mExamples.reserve(10u);
   mExamples.emplace_back(Example {
-    std::make_shared<d3d9::Device>(),
     "Tutorial 1: Creating a Device"s,
+    &create_example<d3d9::Device>,
   });
   mExamples.emplace_back(Example {
-    std::make_shared<d3d9::Vertices>(engine),
     "Tutorial 2: Rendering Vertices"s,
+    &create_example<d3d9::Vertices>,
   });
   mExamples.emplace_back(Example {
-    std::make_shared<d3d9::Matrices>(engine),
     "Tutorial 3: Using Matrices"s,
+    &create_example<d3d9::Matrices>,
   });
   mExamples.emplace_back(Example {
-    std::make_shared<d3d9::Lights>(engine),
     "Tutorial 4: Creating and Using Lights"s,
+    &create_example<d3d9::Lights>,
   });
   mExamples.emplace_back(Example {
-    std::make_shared<d3d9::Textures>(engine),
     "Tutorial 5: Using Texture Maps"s,
+    &create_example<d3d9::Textures>,
   });
   mExamples.emplace_back(Example {
-    std::make_shared<d3d9::Meshes>(engine),
     "Tutorial 6: Using Meshes"s,
+    &create_example<d3d9::Meshes>,
   });
   mExamples.emplace_back(Example {
-    std::make_shared<tribase::Dreieck>(engine),
     "Bsp. 02-03: Das erste Dreieck"s,
+    &create_example<tribase::Dreieck>,
   });
   mExamples.emplace_back(Example {
-    std::make_shared<tribase::Textures>(engine),
     "Bsp. 02-03: Texturen"s,
+    &create_example<tribase::Textures>,
   });
   mExamples.emplace_back(Example {
-    std::make_shared<samples::Textures>(engine),
     "Textures"s,
+    &create_example<samples::Textures>,
   });
   mExamples.emplace_back(Example {
-    std::make_shared<samples::SimpleScene>(engine),
     "Simple Scene"s,
+    &create_example<samples::SimpleScene>,
   });
 
-  add_child_bottom(mExamples[mCurrentExampleIndex].view);
+  switch_scene(mCurrentExampleIndex, engine);
 }
 
-void SandboxView::on_tick(Engine& engine) {
+auto SandboxView::on_tick(Engine& engine) -> void {
   // https://github.com/ocornut/imgui/issues/331
   enum class OpenPopup : u8 { None, GfxInfo };
   OpenPopup shouldOpenPopup {OpenPopup::None};
@@ -110,17 +121,17 @@ void SandboxView::on_tick(Engine& engine) {
         const bool isCurrent {mCurrentExampleIndex == i};
         if (ImGui::MenuItem(mExamples[i].name.data(), nullptr, isCurrent,
                             !isCurrent)) {
-          switch_scene(i);
+          switch_scene(i, engine);
         }
       }
 
       ImGui::Separator();
 
       if (ImGui::MenuItem("Next Scene", "PgDn")) {
-        next_scene();
+        next_scene(engine);
       }
       if (ImGui::MenuItem("Prev Scene", "PgUp")) {
-        prev_scene();
+        prev_scene(engine);
       }
 
       ImGui::Separator();
@@ -218,19 +229,25 @@ void SandboxView::on_tick(Engine& engine) {
   if (mShowAbout) {
     ImGui::ShowAboutWindow(&mShowAbout);
   }
+
+  if (dirtyInput) {
+    dirtyInput = false;
+
+    if (is_key_down(Key::PageDown)) {
+      next_scene(engine);
+    } else if (is_key_down(Key::PageUp)) {
+      prev_scene(engine);
+    }
+  }
 }
 
 auto SandboxView::on_input(const InputEvent& event) -> InputEventHandled {
   switch (event.type) {
-  case InputEventType::KeyDown: {
+  case InputEventType::KeyDown:
     switch (event.as<KeyDown>().key) {
     case Key::PageDown:
-      next_scene();
-
-      return InputEventHandled::Yes;
-
     case Key::PageUp:
-      prev_scene();
+      dirtyInput = true;
 
       return InputEventHandled::Yes;
 
@@ -239,9 +256,8 @@ auto SandboxView::on_input(const InputEvent& event) -> InputEventHandled {
     }
 
     break;
-  }
 
-  case InputEventType::KeyUp: {
+  case InputEventType::KeyUp:
     switch (event.as<KeyUp>().key) {
     case Key::PageDown:
     case Key::PageUp:
@@ -252,7 +268,6 @@ auto SandboxView::on_input(const InputEvent& event) -> InputEventHandled {
     }
 
     break;
-  }
 
   default:
     break;
@@ -261,16 +276,16 @@ auto SandboxView::on_input(const InputEvent& event) -> InputEventHandled {
   return InputEventHandled::No;
 }
 
-void SandboxView::next_scene() noexcept {
+auto SandboxView::next_scene(Engine& engine) noexcept -> void {
   uSize nextSceneIndex {mCurrentExampleIndex + 1};
   if (nextSceneIndex >= mExamples.size()) {
     nextSceneIndex = 0;
   }
 
-  switch_scene(nextSceneIndex);
+  switch_scene(nextSceneIndex, engine);
 }
 
-void SandboxView::prev_scene() noexcept {
+auto SandboxView::prev_scene(Engine& engine) noexcept -> void {
   const uSize prevSceneIndex {[this] {
     if (mCurrentExampleIndex == 0) {
       return mExamples.size() - 1;
@@ -279,19 +294,24 @@ void SandboxView::prev_scene() noexcept {
     return mCurrentExampleIndex - 1;
   }()};
 
-  switch_scene(prevSceneIndex);
+  switch_scene(prevSceneIndex, engine);
 }
 
-void SandboxView::switch_scene(const uSize index) noexcept {
+auto SandboxView::switch_scene(const uSize index, Engine& engine) noexcept
+  -> void {
+  BASALT_ASSERT(index < mExamples.size());
+
   if (mExamples.empty()) {
     return;
   }
 
-  BASALT_ASSERT(index < mExamples.size());
-
-  remove_child(mExamples[mCurrentExampleIndex].view);
+  remove_child(mCurrentExampleView);
 
   mCurrentExampleIndex = index;
 
-  add_child_bottom(mExamples[mCurrentExampleIndex].view);
+  // destroy prev example before creating the next
+  mCurrentExampleView = nullptr;
+  mCurrentExampleView = mExamples[mCurrentExampleIndex].factory(engine);
+
+  add_child_bottom(mCurrentExampleView);
 }
