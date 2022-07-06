@@ -1,8 +1,8 @@
 #pragma once
 
 #include <basalt/gfx/backend/commands.h>
+#include <basalt/gfx/backend/device.h>
 
-#include <basalt/api/gfx/backend/device.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 
 #include <memory>

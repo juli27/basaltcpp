@@ -1,8 +1,8 @@
 #include <basalt/api/gfx/resource_cache.h>
 
+#include <basalt/gfx/backend/device.h>
 #include <basalt/gfx/backend/utils.h>
 
-#include <basalt/api/gfx/backend/device.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/base/types.h>
