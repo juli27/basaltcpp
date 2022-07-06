@@ -12,8 +12,9 @@
 
 namespace basalt {
 
-struct App final : Runtime {
-  static void run(Config&, HMODULE, int showCommand);
+class App final : public Runtime {
+public:
+  static auto run(Config&, HMODULE, int showCommand) -> void;
 
 private:
   App(Config&, gfx::Info, gfx::ContextPtr, DearImGuiPtr);

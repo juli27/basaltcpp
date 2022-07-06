@@ -1,5 +1,7 @@
 #pragma once
 
+#include <basalt/types.h>
+
 #include <basalt/api/types.h>
 #include <basalt/api/view.h>
 
@@ -11,8 +13,9 @@
 
 namespace basalt {
 
-struct DearImGui final : View {
-  explicit DearImGui(gfx::Device&);
+class DearImGui final : public View {
+public:
+  static auto create(gfx::Device&, void* imeWindowHandle) -> DearImGuiPtr;
 
   DearImGui(const DearImGui&) = delete;
   DearImGui(DearImGui&&) = delete;
@@ -24,10 +27,15 @@ struct DearImGui final : View {
 
   auto new_frame(Engine&, Size2Du16 displaySize) const -> void;
 
+  // do not call directly. use the static create function instead
+  DearImGui(std::shared_ptr<gfx::ext::DearImGuiRenderer>,
+            void* imeWindowHandle);
+
 private:
+  // can be null
   std::shared_ptr<gfx::ext::DearImGuiRenderer> mRenderer;
 
-  void on_draw(const DrawContext&) override;
+  auto on_draw(const DrawContext&) -> void override;
 
   auto on_input(const InputEvent&) -> InputEventHandled override;
 };

@@ -20,6 +20,10 @@ namespace basalt {
 
 using namespace std::literals;
 
+auto Runtime::dear_imgui() const -> const DearImGuiPtr& {
+  return mDearImGui;
+}
+
 auto Runtime::tick() -> void {
   mDearImGui->new_frame(*this, mGfxContext->surface_size());
 

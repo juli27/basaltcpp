@@ -14,6 +14,8 @@ namespace basalt {
 
 class Runtime : public Engine {
 public:
+  [[nodiscard]] auto dear_imgui() const -> const DearImGuiPtr&;
+
   auto tick() -> void;
 
   auto render() -> void;

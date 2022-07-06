@@ -200,6 +200,7 @@ struct D3D9ImGuiRenderer final : ext::DearImGuiRenderer {
 
   void init() override {
     ImGui_ImplDX9_Init(mDevice.Get());
+    ImGui_ImplDX9_CreateDeviceObjects();
   }
 
   void shutdown() override {

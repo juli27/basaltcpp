@@ -4,7 +4,7 @@
 
 namespace basalt {
 
-struct DearImGui;
+class DearImGui;
 using DearImGuiPtr = std::shared_ptr<DearImGui>;
 
 struct InputManager;

@@ -23,8 +23,6 @@
 #include <basalt/api/shared/log.h>
 #include <basalt/api/shared/size2d.h>
 
-#include <imgui/imgui.h>
-
 #include <chrono>
 #include <string>
 #include <string_view>
@@ -117,8 +115,8 @@ auto run_lost_device_loop(gfx::Context& gfxContext) -> bool {
 
 } // namespace
 
-void App::run(Config& config, const HMODULE moduleHandle,
-              const int showCommand) {
+auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
+  -> void {
   dump_config(config);
 
   const gfx::D3D9FactoryPtr gfxFactory {gfx::D3D9Factory::create()};
@@ -148,12 +146,6 @@ void App::run(Config& config, const HMODULE moduleHandle,
   const gfx::ContextPtr& gfxContext {window->gfx_context()};
   const gfx::DevicePtr gfxDevice {gfxContext->device()};
 
-  const auto dearImGui {std::make_shared<DearImGui>(*gfxDevice)};
-  ImGuiIO& io {ImGui::GetIO()};
-  io.ImeWindowHandle = window->handle();
-
-  window->input_manager().set_overlay(dearImGui);
-
   App app {
     config,
     gfx::Info {
@@ -162,8 +154,10 @@ void App::run(Config& config, const HMODULE moduleHandle,
       gfx::BackendApi::Direct3D9,
     },
     gfxContext,
-    dearImGui,
+    DearImGui::create(*gfxDevice, window->handle()),
   };
+
+  window->input_manager().set_overlay(app.dear_imgui());
 
   using Clock = std::chrono::high_resolution_clock;
   static_assert(Clock::is_steady);
