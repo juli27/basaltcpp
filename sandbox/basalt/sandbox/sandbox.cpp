@@ -15,13 +15,14 @@
 
 #include <basalt/api/client_app.h>
 #include <basalt/api/engine.h>
-#include <basalt/api/input_events.h>
 #include <basalt/api/prelude.h>
 #include <basalt/api/types.h>
 
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/config.h>
 #include <basalt/api/shared/types.h>
+
+#include <basalt/api/base/utils.h>
 
 #include <imgui/imgui.h>
 
@@ -37,12 +38,7 @@ using namespace std::literals;
 using basalt::ClientApp;
 using basalt::Config;
 using basalt::Engine;
-using basalt::InputEvent;
-using basalt::InputEventHandled;
-using basalt::InputEventType;
 using basalt::Key;
-using basalt::KeyDown;
-using basalt::KeyUp;
 using basalt::ViewPtr;
 using basalt::WindowMode;
 
@@ -230,50 +226,11 @@ auto SandboxView::on_tick(Engine& engine) -> void {
     ImGui::ShowAboutWindow(&mShowAbout);
   }
 
-  if (dirtyInput) {
-    dirtyInput = false;
-
-    if (is_key_down(Key::PageDown)) {
-      next_scene(engine);
-    } else if (is_key_down(Key::PageUp)) {
-      prev_scene(engine);
-    }
+  if (ImGui::IsKeyPressed(enum_cast(Key::PageDown), false)) {
+    next_scene(engine);
+  } else if (ImGui::IsKeyPressed(enum_cast(Key::PageUp), false)) {
+    prev_scene(engine);
   }
-}
-
-auto SandboxView::on_input(const InputEvent& event) -> InputEventHandled {
-  switch (event.type) {
-  case InputEventType::KeyDown:
-    switch (event.as<KeyDown>().key) {
-    case Key::PageDown:
-    case Key::PageUp:
-      dirtyInput = true;
-
-      return InputEventHandled::Yes;
-
-    default:
-      break;
-    }
-
-    break;
-
-  case InputEventType::KeyUp:
-    switch (event.as<KeyUp>().key) {
-    case Key::PageDown:
-    case Key::PageUp:
-      return InputEventHandled::Yes;
-
-    default:
-      break;
-    }
-
-    break;
-
-  default:
-    break;
-  }
-
-  return InputEventHandled::No;
 }
 
 auto SandboxView::next_scene(Engine& engine) noexcept -> void {

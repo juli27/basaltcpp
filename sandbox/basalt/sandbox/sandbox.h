@@ -25,14 +25,10 @@ private:
   bool mShowMetrics {false};
   bool mShowAbout {false};
   bool mShowOverlay {true};
-  bool dirtyInput {false};
 
   auto next_scene(basalt::Engine&) noexcept -> void;
   auto prev_scene(basalt::Engine&) noexcept -> void;
   auto switch_scene(basalt::uSize index, basalt::Engine&) noexcept -> void;
-
-  auto on_input(const basalt::InputEvent&)
-    -> basalt::InputEventHandled override;
 
   auto on_tick(basalt::Engine&) -> void override;
 };
