@@ -5,7 +5,6 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "device_state_cache.h"
   "filtering_command_list.cpp"
   "filtering_command_list.h"
-  "resource_cache.cpp"
   "resource_cache.h"
   "types.h"
 )

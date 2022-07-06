@@ -2,7 +2,6 @@
 
 #include <basalt/api/gfx/types.h>
 
-#include <basalt/api/gfx/backend/device.h>
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 
@@ -44,9 +43,9 @@ struct ResourceCache {
                        const uDeviceSize size, F&& func) -> void {
     // TODO: how should this handle map failure? right now its passing the empty
     // span to the function
-    func(mDevice->map(handle, offset, size));
+    func(map(handle, offset, size));
 
-    mDevice->unmap(handle);
+    unmap(handle);
   }
 
   auto destroy(VertexBuffer) const noexcept -> void;
@@ -75,6 +74,10 @@ private:
   HandlePool<MeshData, Mesh> mMeshes;
   HandlePool<MaterialData, Material> mMaterials;
   HandlePool<XModelData, ext::XModel> mXModels;
+
+  [[nodiscard]] auto map(VertexBuffer, uDeviceSize offset = 0,
+                         uDeviceSize size = 0) const -> gsl::span<std::byte>;
+  auto unmap(VertexBuffer) const -> void;
 };
 
 } // namespace basalt::gfx

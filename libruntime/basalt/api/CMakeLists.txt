@@ -1,4 +1,4 @@
-add_subdirectory("gfx/backend")
+add_subdirectory("gfx")
 
 target_sources(${CURRENT_TARGET} PRIVATE
   "debug_ui.cpp"

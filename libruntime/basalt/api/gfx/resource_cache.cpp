@@ -1,5 +1,6 @@
 #include <basalt/api/gfx/resource_cache.h>
 
+#include <basalt/api/gfx/backend/device.h>
 #include <basalt/api/gfx/backend/utils.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
@@ -192,6 +193,15 @@ auto ResourceCache::destroy(const Material handle) noexcept -> void {
   }
 
   mMaterials.deallocate(handle);
+}
+
+auto ResourceCache::map(const VertexBuffer vb, const uDeviceSize offset,
+                        const uDeviceSize size) const -> span<std::byte> {
+  return mDevice->map(vb, offset, size);
+}
+
+auto ResourceCache::unmap(const VertexBuffer vb) const -> void {
+  mDevice->unmap(vb);
 }
 
 } // namespace basalt::gfx
