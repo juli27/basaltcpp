@@ -1,28 +1,21 @@
 # Basalt Engine
 ## Developing on Windows 10
 ### Prerequisites
-* A recent version of Windows 10 (x86-64)
+* A recent version of Windows 10 or 11 (x86-64)
 * Git
 * CMake 3.17 or newer
-* Visual Studio 2019
-  * Desktop development with C++
-  (`Microsoft.VisualStudio.Workload.NativeDesktop`)
-    * MSVC v142 - VS 2019 C++ x64/x86 build tools (v14.28)
-    (`Microsoft.VisualStudio.Component.VC.Tools.x86.x64`)
-* Visual Studio 2017
-  * Windows 8.1 SDK or newer (`Microsoft.VisualStudio.Component.Windows81SDK`)
-* [DirectX SDK](https://www.microsoft.com/en-us/download/details.aspx?id=6812)
+* MSVC v142 v14.29 or newer
+* Windows 8.1 SDK or newer
+* [DirectX SDK June 2010](https://www.microsoft.com/en-us/download/details.aspx?id=6812)
 
 ### Generating the Visual Studio Solution
     git clone https://github.com/juli27/basaltcpp.git
     cd basaltcpp
-    mkdir _vs && cd _vs
-    cmake -G "Visual Studio 16 2019" ..
+    cmake -S . -B ./_vs
 
 ## OS Support
 ### Windows
 * Windows 8.1
-* Windows 10 20H2 October 2020 Update (Build 19042)
 * Windows 10 21H1 May 2021 Update (Build 19043)
 * Windows 10 21H2 November 2021 Update (Build 19044)
 * Windows 11 21H2 (Build 22000)
@@ -47,6 +40,7 @@ in these versions haven't been made mandatory yet:
 > * Windows 10 1903 19H1 May 2019 Update (Build 18362)
 > * Windows 10 1909 19H2 November 2019 Update (Build 18363)
 > * Windows 10 2004 20H1 May 2020 Update (Build 19041)
+> * Windows 10 20H2 October 2020 Update (Build 19042)
 
 ## Hardware Support
 * CPU: x86-64
