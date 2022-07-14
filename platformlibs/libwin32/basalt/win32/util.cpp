@@ -1,9 +1,15 @@
 #include <basalt/win32/util.h>
 
+#include <basalt/api/shared/asserts.h>
+#include <basalt/api/shared/log.h>
+
+#include <basalt/api/base/platform.h>
 #include <basalt/api/base/types.h>
 
 #include <limits>
 #include <string>
+
+using namespace std::literals;
 
 using std::numeric_limits;
 using std::string;
@@ -33,29 +39,28 @@ auto create_utf8_from_wide(const wstring_view src) noexcept -> string {
 
   // WideCharToMultiByte fails when size is 0
   if (src.empty()) {
-    return {};
+    return string {};
   }
 
   // use the size of the string view because the input string
   // can be non null-terminated
   if (src.size() > static_cast<uSize>(numeric_limits<int>::max())) {
-    return u8"create_utf8_from_wide: string to convert is too large";
+    return u8"create_utf8_from_wide: string to convert is too large"s;
   }
 
-  const auto srcSize = static_cast<int>(src.size());
-  auto dstSize = ::WideCharToMultiByte(CP_UTF8, 0u, src.data(), srcSize,
-                                       nullptr, 0, nullptr, nullptr);
+  const auto srcSize {static_cast<int>(src.size())};
+  int dstSize {WideCharToMultiByte(CP_UTF8, 0u, src.data(), srcSize, nullptr, 0,
+                                   nullptr, nullptr)};
 
   if (dstSize == 0) {
-    return "WideCharToMultiByte returned 0";
+    return u8"WideCharToMultiByte returned 0"s;
   }
 
   string dst(dstSize, '\0');
-  dstSize =
-    ::WideCharToMultiByte(CP_UTF8, 0u, src.data(), srcSize, dst.data(),
-                          static_cast<int>(dst.size()), nullptr, nullptr);
+  dstSize = WideCharToMultiByte(CP_UTF8, 0u, src.data(), srcSize, dst.data(),
+                                static_cast<int>(dst.size()), nullptr, nullptr);
   if (dstSize == 0) {
-    return "WideCharToMultiByte returned 0";
+    return u8"WideCharToMultiByte returned 0"s;
   }
 
   return dst;
@@ -68,22 +73,52 @@ auto create_utf8_from_wide(const wstring_view src) noexcept -> string {
  * \return description string of the error.
  */
 auto create_win32_error_message(const DWORD errorCode) noexcept -> string {
-  WCHAR* buffer = nullptr;
-  const auto numChars = ::FormatMessageW(
+  WCHAR* buffer {nullptr};
+  const DWORD numChars {FormatMessageW(
     FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
       FORMAT_MESSAGE_IGNORE_INSERTS,
-    nullptr, errorCode, 0u, reinterpret_cast<WCHAR*>(&buffer), 0u, nullptr);
+    nullptr, errorCode, 0u, reinterpret_cast<WCHAR*>(&buffer), 0u, nullptr)};
 
   if (numChars == 0u) {
-    return "FormatMessageW failed";
+    return u8"FormatMessageW failed"s;
   }
 
   // use numChars because the buffer is NOT null terminated
-  const auto message = create_utf8_from_wide({buffer, numChars});
+  string message {create_utf8_from_wide({buffer, numChars})};
 
-  ::LocalFree(buffer);
+  LocalFree(buffer);
 
   return message;
 }
+
+auto load_system_cursor(const WORD id, const int width, const int height,
+                        const UINT flags) noexcept -> HCURSOR {
+  constexpr UINT commonFlags {LR_SHARED};
+
+  return static_cast<HCURSOR>(LoadImageW(nullptr, MAKEINTRESOURCEW(id),
+                                         IMAGE_CURSOR, width, height,
+                                         commonFlags | flags));
+}
+
+#if BASALT_DEV_BUILD
+
+namespace detail {
+
+auto verify_win32_bool(const BOOL result) -> BOOL {
+  if (!result) {
+    BASALT_LOG_ERROR("win32 error: {}",
+                     create_win32_error_message(GetLastError()));
+
+    if (Platform::is_debugger_attached()) {
+      BASALT_BREAK_DEBUGGER();
+    }
+  }
+
+  return result;
+}
+
+} // namespace detail
+
+#endif
 
 } // namespace basalt

@@ -83,50 +83,64 @@ auto calc_window_rect(const int posX, const int posY, const DWORD style,
 
 } // namespace
 
-Window::Window(const Token, const HMODULE moduleHandle,
-               const Size2Du16 clientAreaSize, const gfx::AdapterList& adapters)
-  : mModuleHandle {moduleHandle}
-  , mAdapters {adapters}
-  , mClientAreaSize {clientAreaSize} {
-  BASALT_ASSERT(mModuleHandle);
+auto Window::create(const HMODULE moduleHandle, const CreateInfo& info,
+                    const gfx::D3D9Factory& gfxFactory) -> WindowPtr {
+  const ATOM windowClass {register_class(moduleHandle)};
+  if (!windowClass) {
+    throw system_error {static_cast<int>(GetLastError()),
+                        std::system_category(),
+                        "Failed to register window class"s};
+  }
 
-  auto loadCursor = [](const LPCWSTR name, const UINT flags) -> HCURSOR {
-    return static_cast<HCURSOR>(
-      LoadImageW(nullptr, name, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | flags));
-  };
+  // WS_CLIPSIBLINGS is added automatically (tested on Windows 10)
+  DWORD style {WS_OVERLAPPEDWINDOW};
+  if (!info.resizeable) {
+    style &= ~(WS_MAXIMIZEBOX | WS_SIZEBOX);
+  }
 
-  std::get<enum_cast(MouseCursor::Arrow)>(mLoadedCursors) =
-    loadCursor(MAKEINTRESOURCEW(OCR_NORMAL), LR_SHARED);
-  std::get<enum_cast(MouseCursor::TextInput)>(mLoadedCursors) =
-    loadCursor(MAKEINTRESOURCEW(OCR_IBEAM), LR_SHARED);
-  std::get<enum_cast(MouseCursor::ResizeAll)>(mLoadedCursors) =
-    loadCursor(MAKEINTRESOURCEW(OCR_SIZEALL), LR_SHARED);
-  std::get<enum_cast(MouseCursor::ResizeNS)>(mLoadedCursors) =
-    loadCursor(MAKEINTRESOURCEW(OCR_SIZENS), LR_SHARED);
-  std::get<enum_cast(MouseCursor::ResizeEW)>(mLoadedCursors) =
-    loadCursor(MAKEINTRESOURCEW(OCR_SIZEWE), LR_SHARED);
-  std::get<enum_cast(MouseCursor::ResizeNESW)>(mLoadedCursors) =
-    loadCursor(MAKEINTRESOURCEW(OCR_SIZENESW), LR_SHARED);
-  std::get<enum_cast(MouseCursor::ResizeNWSE)>(mLoadedCursors) =
-    loadCursor(MAKEINTRESOURCEW(OCR_SIZENWSE), LR_SHARED);
-  std::get<enum_cast(MouseCursor::Hand)>(mLoadedCursors) =
-    loadCursor(MAKEINTRESOURCEW(OCR_HAND), LR_SHARED);
-  std::get<enum_cast(MouseCursor::NotAllowed)>(mLoadedCursors) =
-    loadCursor(MAKEINTRESOURCEW(OCR_NO), LR_SHARED);
+  // WS_EX_WINDOWEDGE is added automatically (tested on Windows 10)
+  constexpr DWORD styleEx {};
+
+  const wstring windowTitle {create_wide_from_utf8(info.title)};
+
+  auto window {std::make_unique<Window>(moduleHandle, windowClass,
+                                        info.preferredClientAreaSize,
+                                        gfxFactory.adapters())};
+
+  const HWND handle {
+    CreateWindowExW(styleEx, reinterpret_cast<LPCWSTR>(windowClass),
+                    windowTitle.c_str(), style, CW_USEDEFAULT, 0, CW_USEDEFAULT,
+                    0, nullptr, nullptr, moduleHandle, window.get())};
+  if (!handle) {
+    BASALT_LOG_ERROR("failed to create window");
+
+    return nullptr;
+  }
+
+  // this pointer gets removed when the OS window data is destroyed by the
+  // Window objects destructor
+  SetWindowLongPtrW(handle, GWLP_USERDATA,
+                    reinterpret_cast<LONG_PTR>(window.get()));
+
+  ShowWindow(handle, info.showCommand);
+
+  // required to be after ShowWindow because otherwise the application icon
+  // would not appear in the titlebar if the application launches with
+  // fullscreen and switches to windowed
+  // TODO: find a better workaround
+  window->set_mode(info.mode);
+
+  window->init_gfx_context(gfxFactory);
+
+  return window;
 }
 
 Window::~Window() {
   shutdown_gfx_context();
 
-  if (!DestroyWindow(mHandle)) {
-    BASALT_LOG_ERROR("DestroyWindow failed: {}",
-                     create_win32_error_message(GetLastError()));
-  }
-
-  if (!UnregisterClassW(CLASS_NAME, mModuleHandle)) {
-    BASALT_LOG_ERROR("UnregisterClassW failed: {}",
-                     create_win32_error_message(::GetLastError()));
-  }
+  VERIFY_WIN32_BOOL(DestroyWindow(mHandle));
+  VERIFY_WIN32_BOOL(UnregisterClassW(reinterpret_cast<const WCHAR*>(mClassAtom),
+                                     mModuleHandle));
 }
 
 auto Window::handle() const noexcept -> HWND {
@@ -149,7 +163,7 @@ auto Window::mode() const noexcept -> WindowMode {
   return mCurrentMode;
 }
 
-void Window::set_mode(const WindowMode windowMode) {
+auto Window::set_mode(const WindowMode windowMode) -> void {
   if (mCurrentMode == windowMode) {
     return;
   }
@@ -236,62 +250,40 @@ void Window::set_mode(const WindowMode windowMode) {
 //   input queue -> the rest of the app gets the ability to set the
 //   cursor only in the next frame -> the new cursor is only set at the
 //   next WM_MOUSEMOVE/WM_SETCURSOR
-void Window::set_cursor(const MouseCursor cursor) noexcept {
+auto Window::set_cursor(const MouseCursor cursor) noexcept -> void {
   mCurrentCursor = cursor;
   SetCursor(mLoadedCursors[enum_cast(mCurrentCursor)]);
 }
 
-auto Window::create(const HMODULE moduleHandle, const int showCommand,
-                    const Desc& desc, const gfx::D3D9Factory& gfxFactory)
-  -> WindowPtr {
-  const ATOM windowClass {register_class(moduleHandle)};
-  if (!windowClass) {
-    throw system_error {static_cast<int>(GetLastError()),
-                        std::system_category(),
-                        "Failed to register window class"s};
-  }
+Window::Window(const HMODULE moduleHandle, const ATOM classAtom,
+               const Size2Du16 clientAreaSize, const gfx::AdapterList& adapters)
+  : mModuleHandle {moduleHandle}
+  , mClassAtom {classAtom}
+  , mAdapters {adapters}
+  , mClientAreaSize {clientAreaSize} {
+  BASALT_ASSERT(mModuleHandle);
 
-  // WS_CLIPSIBLINGS is added automatically (tested on Windows 10)
-  DWORD style {WS_OVERLAPPEDWINDOW};
-  if (!desc.resizeable) {
-    style &= ~(WS_MAXIMIZEBOX | WS_SIZEBOX);
-  }
+  auto loadCursor {[](const WORD id) -> HCURSOR {
+    return load_system_cursor(id, 0, 0, LR_DEFAULTSIZE);
+  }};
 
-  // WS_EX_WINDOWEDGE is added automatically (tested on Windows 10)
-  const DWORD styleEx {};
-
-  const wstring windowTitle {create_wide_from_utf8(desc.title)};
-
-  auto window {std::make_unique<Window>(Token {}, moduleHandle,
-                                        desc.preferredClientAreaSize,
-                                        gfxFactory.adapters())};
-
-  const HWND handle {
-    CreateWindowExW(styleEx, reinterpret_cast<LPCWSTR>(windowClass),
-                    windowTitle.c_str(), style, CW_USEDEFAULT, 0, CW_USEDEFAULT,
-                    0, nullptr, nullptr, moduleHandle, window.get())};
-  if (!handle) {
-    BASALT_LOG_ERROR("failed to create window");
-
-    return nullptr;
-  }
-
-  // this pointer gets removed when the OS window data is destroyed by the
-  // Window objects destructor
-  SetWindowLongPtrW(handle, GWLP_USERDATA,
-                    reinterpret_cast<LONG_PTR>(window.get()));
-
-  ShowWindow(handle, showCommand);
-
-  // required to be after ShowWindow because otherwise the application icon
-  // would not appear in the titlebar if the application launches with
-  // fullscreen and switches to windowed
-  // TODO: find a better workaround
-  window->set_mode(desc.mode);
-
-  window->init_gfx_context(gfxFactory);
-
-  return window;
+  std::get<enum_cast(MouseCursor::Arrow)>(mLoadedCursors) =
+    loadCursor(OCR_NORMAL);
+  std::get<enum_cast(MouseCursor::TextInput)>(mLoadedCursors) =
+    loadCursor(OCR_IBEAM);
+  std::get<enum_cast(MouseCursor::ResizeAll)>(mLoadedCursors) =
+    loadCursor(OCR_SIZEALL);
+  std::get<enum_cast(MouseCursor::ResizeNS)>(mLoadedCursors) =
+    loadCursor(OCR_SIZENS);
+  std::get<enum_cast(MouseCursor::ResizeEW)>(mLoadedCursors) =
+    loadCursor(OCR_SIZEWE);
+  std::get<enum_cast(MouseCursor::ResizeNESW)>(mLoadedCursors) =
+    loadCursor(OCR_SIZENESW);
+  std::get<enum_cast(MouseCursor::ResizeNWSE)>(mLoadedCursors) =
+    loadCursor(OCR_SIZENWSE);
+  std::get<enum_cast(MouseCursor::Hand)>(mLoadedCursors) = loadCursor(OCR_HAND);
+  std::get<enum_cast(MouseCursor::NotAllowed)>(mLoadedCursors) =
+    loadCursor(OCR_NO);
 }
 
 auto Window::init_gfx_context(const gfx::D3D9Factory& gfxFactory) -> void {
@@ -313,7 +305,7 @@ auto Window::init_gfx_context(const gfx::D3D9Factory& gfxFactory) -> void {
                   adapterInfo.displayName, adapterInfo.driverInfo);
 }
 
-void Window::shutdown_gfx_context() {
+auto Window::shutdown_gfx_context() -> void {
   mGfxContext.reset();
 }
 
@@ -489,7 +481,7 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
   return DefWindowProcW(mHandle, message, wParam, lParam);
 }
 
-void Window::on_create(const CREATESTRUCTW& cs) const {
+auto Window::on_create(const CREATESTRUCTW& cs) const -> void {
   MONITORINFO mi {};
   mi.cbSize = sizeof(MONITORINFO);
   GetMonitorInfoW(MonitorFromWindow(mHandle, MONITOR_DEFAULTTONEAREST), &mi);
@@ -512,7 +504,7 @@ void Window::on_create(const CREATESTRUCTW& cs) const {
                rect.bottom - rect.top, SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
-void Window::on_resize(const Size2Du16 newClientAreaSize) {
+auto Window::on_resize(const Size2Du16 newClientAreaSize) -> void {
   if (mClientAreaSize == newClientAreaSize || mIsInSizeMoveModalLoop) {
     return;
   }
@@ -529,7 +521,7 @@ void Window::on_resize(const Size2Du16 newClientAreaSize) {
   }
 }
 
-void Window::process_mouse_message_states(const WPARAM wParam) {
+auto Window::process_mouse_message_states(const WPARAM wParam) -> void {
   if (wParam & MK_SHIFT) {
     mInputManager.key_down(Key::Shift);
   } else {
@@ -568,34 +560,22 @@ void Window::process_mouse_message_states(const WPARAM wParam) {
 }
 
 auto Window::register_class(const HMODULE moduleHandle) -> ATOM {
-  auto* const icon = static_cast<HICON>(
-    LoadImageW(nullptr, MAKEINTRESOURCEW(OIC_SAMPLE), IMAGE_ICON, 0, 0,
-               LR_DEFAULTSIZE | LR_SHARED));
-  if (!icon) {
-    BASALT_LOG_ERROR("failed to load icon");
-  }
+  constexpr const WCHAR* className {L"BasaltWindow"};
 
-  const int smallIconSizeX = GetSystemMetrics(SM_CXSMICON);
-  const int smallIconSizeY = GetSystemMetrics(SM_CYSMICON);
-  auto* const smallIcon = static_cast<HICON>(
-    LoadImageW(nullptr, MAKEINTRESOURCEW(OIC_SAMPLE), IMAGE_ICON,
-               smallIconSizeX, smallIconSizeY, LR_SHARED));
-  if (!smallIcon) {
-    BASALT_LOG_ERROR("failed to load small icon");
-  }
-
-  WNDCLASSEXW windowClass {sizeof(WNDCLASSEXW),
-                           0, // style
-                           &Window::window_proc,
-                           0, // cbClsExtra
-                           0, // cbWndExtra
-                           moduleHandle,
-                           icon,
-                           nullptr,
-                           reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1),
-                           nullptr, // lpszMenuName
-                           CLASS_NAME,
-                           smallIcon};
+  const WNDCLASSEXW windowClass {
+    sizeof(WNDCLASSEXW),
+    0, // style
+    &Window::window_proc,
+    0, // cbClsExtra
+    0, // cbWndExtra
+    moduleHandle,
+    nullptr, // hIcon
+    nullptr, // hCursor
+    GetSysColorBrush(COLOR_WINDOW), // TODO: is the background brush needed?
+    nullptr, // lpszMenuName
+    className,
+    nullptr, // hIconSm
+  };
 
   return RegisterClassExW(&windowClass);
 }

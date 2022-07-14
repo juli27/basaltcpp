@@ -22,20 +22,19 @@
 
 namespace basalt {
 
-struct Window final {
-private:
-  // disallow outside construction while enabling make_unique
-  struct Token {};
-
+class Window final {
 public:
-  struct Desc {
-    std::string title {};
+  struct CreateInfo final {
+    std::string title;
+    int showCommand;
     Size2Du16 preferredClientAreaSize {Size2Du16::dont_care()};
     WindowMode mode {WindowMode::Windowed};
     bool resizeable {true};
   };
 
-  Window(Token, HMODULE, Size2Du16 clientAreaSize, const gfx::AdapterList&);
+  // throws std::system_error, return null on failure
+  [[nodiscard]] static auto create(HMODULE, const CreateInfo&,
+                                   const gfx::D3D9Factory&) -> WindowPtr;
 
   Window(const Window&) = delete;
   Window(Window&&) = delete;
@@ -51,12 +50,12 @@ public:
   [[nodiscard]] auto client_area_size() const noexcept -> Size2Du16;
   [[nodiscard]] auto mode() const noexcept -> WindowMode;
 
-  void set_mode(WindowMode);
-  void set_cursor(MouseCursor) noexcept;
+  auto set_mode(WindowMode) -> void;
+  auto set_cursor(MouseCursor) noexcept -> void;
 
-  // return null on failure
-  [[nodiscard]] static auto create(HMODULE, int showCommand, const Desc&,
-                                   const gfx::D3D9Factory&) -> WindowPtr;
+  // don't call directly. Use the create function instead
+  Window(HMODULE, ATOM classAtom, Size2Du16 clientAreaSize,
+         const gfx::AdapterList&);
 
 private:
   struct SavedWindowInfo final {
@@ -64,37 +63,32 @@ private:
     RECT windowRect {}; // in screen coordinates
   };
 
-  static constexpr auto CLASS_NAME = L"BasaltWindow";
-
   HMODULE mModuleHandle {};
+  ATOM mClassAtom {};
+
   // set during WM_CREATE in the window_proc
   HWND mHandle {};
 
   const gfx::AdapterList& mAdapters;
-  gfx::ContextPtr mGfxContext {};
-
+  gfx::ContextPtr mGfxContext;
   InputManager mInputManager;
-
   SavedWindowInfo mSavedWindowInfo;
   Size2Du16 mClientAreaSize {Size2Du16::dont_care()};
-
   WindowMode mCurrentMode {WindowMode::Windowed};
   MouseCursor mCurrentCursor {MouseCursor::Arrow};
-
   std::array<HCURSOR, MOUSE_CURSOR_COUNT> mLoadedCursors {};
-
   bool mIsInSizeMoveModalLoop {false};
 
   auto init_gfx_context(const gfx::D3D9Factory&) -> void;
-  void shutdown_gfx_context();
+  auto shutdown_gfx_context() -> void;
 
   [[nodiscard]] auto handle_message(UINT message, WPARAM, LPARAM) -> LRESULT;
-  void on_create(const CREATESTRUCTW&) const;
-  void on_resize(Size2Du16 newClientAreaSize);
+  auto on_create(const CREATESTRUCTW&) const -> void;
+  auto on_resize(Size2Du16 newClientAreaSize) -> void;
 
-  void process_mouse_message_states(WPARAM);
+  auto process_mouse_message_states(WPARAM) -> void;
 
-  static ATOM register_class(HMODULE);
+  static auto register_class(HMODULE) -> ATOM;
 
   static auto CALLBACK window_proc(HWND, UINT message, WPARAM, LPARAM)
     -> LRESULT;

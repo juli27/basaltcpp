@@ -126,17 +126,22 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
     return;
   }
 
-  const Size2Du16 windowedSurfaceSize {
-    static_cast<u16>(config.get_i32("window.size.width"s)),
-    static_cast<u16>(config.get_i32("window.size.height"s))};
-  const Window::Desc windowDesc {
-    config.get_string("window.title"s),
-    windowedSurfaceSize,
-    config.get_enum("window.mode"s, to_window_mode),
-    config.get_bool("window.resizeable"s),
-  };
-  const WindowPtr window {
-    Window::create(moduleHandle, showCommand, windowDesc, *gfxFactory)};
+  const WindowPtr window {[&] {
+    const Size2Du16 windowedSurfaceSize {
+      static_cast<u16>(config.get_i32("window.size.width"s)),
+      static_cast<u16>(config.get_i32("window.size.height"s)),
+    };
+    const Window::CreateInfo windowInfo {
+      config.get_string("window.title"s),
+      showCommand,
+      windowedSurfaceSize,
+      config.get_enum("window.mode"s, to_window_mode),
+      config.get_bool("window.resizeable"s),
+    };
+
+    return Window::create(moduleHandle, windowInfo, *gfxFactory);
+  }()};
+
   if (!window) {
     BASALT_LOG_FATAL("failed to create window");
 

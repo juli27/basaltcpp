@@ -4,7 +4,7 @@
 
 namespace basalt {
 
-struct Window;
+class Window;
 using WindowPtr = std::unique_ptr<Window>;
 
 } // namespace basalt
