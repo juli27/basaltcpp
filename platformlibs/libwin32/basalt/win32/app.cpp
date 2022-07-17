@@ -34,7 +34,7 @@ namespace basalt {
 
 namespace {
 
-void dump_config(const Config& config) {
+auto dump_config(const Config& config) -> void {
   BASALT_LOG_INFO("config"sv);
   BASALT_LOG_INFO("\truntime.debugUI.enabled = {}"sv,
                   config.get_bool("runtime.debugUI.enabled"s));
@@ -141,12 +141,6 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
 
     return Window::create(moduleHandle, windowInfo, *gfxFactory);
   }()};
-
-  if (!window) {
-    BASALT_LOG_FATAL("failed to create window");
-
-    return;
-  }
 
   const gfx::ContextPtr& gfxContext {window->gfx_context()};
   const gfx::DevicePtr gfxDevice {gfxContext->device()};

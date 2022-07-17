@@ -264,6 +264,7 @@ constexpr std::array<Key, 256> VK_TO_KEY_MAP = {
   /* VK_NONAME              */ Key::Unknown,
   /* VK_PA1                 */ Key::Unknown,
   /* VK_OEM_CLEAR           */ Key::Unknown,
-  /* reserved               */ Key::Unknown};
+  /* reserved               */ Key::Unknown,
+};
 
 } // namespace basalt

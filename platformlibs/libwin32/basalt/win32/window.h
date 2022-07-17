@@ -32,7 +32,7 @@ public:
     bool resizeable {true};
   };
 
-  // throws std::system_error, return null on failure
+  // throws std::system_error on failure
   [[nodiscard]] static auto create(HMODULE, const CreateInfo&,
                                    const gfx::D3D9Factory&) -> WindowPtr;
 
@@ -54,7 +54,7 @@ public:
   auto set_cursor(MouseCursor) noexcept -> void;
 
   // don't call directly. Use the create function instead
-  Window(HMODULE, ATOM classAtom, Size2Du16 clientAreaSize,
+  Window(HMODULE, ATOM classAtom, HWND, Size2Du16 clientAreaSize,
          const gfx::AdapterList&);
 
 private:
@@ -65,10 +65,7 @@ private:
 
   HMODULE mModuleHandle {};
   ATOM mClassAtom {};
-
-  // set during WM_CREATE in the window_proc
   HWND mHandle {};
-
   const gfx::AdapterList& mAdapters;
   gfx::ContextPtr mGfxContext;
   InputManager mInputManager;
@@ -82,13 +79,24 @@ private:
   auto init_gfx_context(const gfx::D3D9Factory&) -> void;
   auto shutdown_gfx_context() -> void;
 
+  auto resize(Size2Du16 newClientAreaSize) -> void;
+
   [[nodiscard]] auto handle_message(UINT message, WPARAM, LPARAM) -> LRESULT;
-  auto on_create(const CREATESTRUCTW&) const -> void;
-  auto on_resize(Size2Du16 newClientAreaSize) -> void;
+  auto on_size(WPARAM resizeType, Size2Du16 newClientAreaSize) -> void;
+  [[nodiscard]] auto on_close() -> LRESULT;
+  [[nodiscard]] auto on_set_cursor(HWND windowUnderCursor, SHORT hitTestResult,
+                                   USHORT triggerMessage) -> LRESULT;
+  [[nodiscard]] auto on_key(WPARAM virtualKeyCode, WORD repeatCount, WORD info)
+    -> LRESULT;
+  [[nodiscard]] auto on_char(WPARAM characterCode, WORD repeatCount, WORD info)
+    -> LRESULT;
+  [[nodiscard]] auto on_mouse_move(WPARAM, PointerPosition) -> LRESULT;
+  [[nodiscard]] auto on_mouse_button(UINT message, WPARAM, PointerPosition)
+    -> LRESULT;
+  [[nodiscard]] auto on_mouse_wheel(SHORT delta, WPARAM states, PointerPosition)
+    -> LRESULT;
 
   auto process_mouse_message_states(WPARAM) -> void;
-
-  static auto register_class(HMODULE) -> ATOM;
 
   static auto CALLBACK window_proc(HWND, UINT message, WPARAM, LPARAM)
     -> LRESULT;
