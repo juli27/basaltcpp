@@ -12,6 +12,7 @@
 
 #include <basalt/sandbox/tribase/02-03_dreieck.h>
 #include <basalt/sandbox/tribase/02-04_textures.h>
+#include <basalt/sandbox/tribase/02-04_textures_ex1.h>
 
 #include <basalt/api/client_app.h>
 #include <basalt/api/engine.h>
@@ -61,7 +62,7 @@ struct SandboxView::Example final {
 };
 
 SandboxView::SandboxView(Engine& engine) {
-  mExamples.reserve(10u);
+  mExamples.reserve(11u);
   mExamples.emplace_back(Example {
     "Tutorial 1: Creating a Device"s,
     &create_example<d3d9::Device>,
@@ -93,6 +94,10 @@ SandboxView::SandboxView(Engine& engine) {
   mExamples.emplace_back(Example {
     "Bsp. 02-03: Texturen"s,
     &create_example<tribase::Textures>,
+  });
+  mExamples.emplace_back(Example {
+    "Bsp. 02-03: Texturen - Aufgabe 1"s,
+    &create_example<tribase::TexturesEx1>,
   });
   mExamples.emplace_back(Example {
     "Textures"s,
