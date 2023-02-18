@@ -68,6 +68,16 @@ struct MouseButtonUp final : InputEventT<InputEventType::MouseButtonUp> {
   }
 };
 
+struct KeyboardFocusGained final
+  : InputEventT<InputEventType::KeyboardFocusGained> {
+  constexpr KeyboardFocusGained() noexcept = default;
+};
+
+struct KeyboardFocusLost final
+  : InputEventT<InputEventType::KeyboardFocusLost> {
+  constexpr KeyboardFocusLost() noexcept = default;
+};
+
 struct KeyDown final : InputEventT<InputEventType::KeyDown> {
   Key key;
 

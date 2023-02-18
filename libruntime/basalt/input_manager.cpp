@@ -53,6 +53,23 @@ void InputManager::mouse_button_up(const MouseButton button) {
   }
 }
 
+auto InputManager::keyboard_focus_gained() -> void {
+  if (!hasKeyboardFocus) {
+    hasKeyboardFocus = true;
+
+    mEvents.emplace_back(std::make_unique<KeyboardFocusGained>());
+  }
+}
+
+auto InputManager::keyboard_focus_lost() -> void {
+  if (hasKeyboardFocus) {
+    hasKeyboardFocus = false;
+
+    mEvents.emplace_back(std::make_unique<KeyboardFocusLost>());
+  }
+}
+
+
 void InputManager::key_down(const Key key) {
   if (const auto index = enum_cast(key); !mKeysDown[index]) {
     mKeysDown[index] = true;

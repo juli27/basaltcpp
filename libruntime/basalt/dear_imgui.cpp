@@ -157,6 +157,13 @@ auto DearImGui::on_input(const InputEvent& e) -> InputEventHandled {
 
     return io.WantCaptureMouse ? InputEventHandled::Yes : InputEventHandled::No;
 
+  case InputEventType::KeyboardFocusGained:
+  case InputEventType::KeyboardFocusLost:
+    io.AddFocusEvent(e.type == InputEventType::KeyboardFocusGained);
+
+    return io.WantCaptureKeyboard ? InputEventHandled::Yes
+                                  : InputEventHandled::No;
+
   case InputEventType::KeyDown:
     io.KeysDown[enum_cast(e.as<KeyDown>().key)] = true;
 

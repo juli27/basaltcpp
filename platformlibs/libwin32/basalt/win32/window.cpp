@@ -401,6 +401,10 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
 
     break;
 
+  case WM_SETFOCUS:
+  case WM_KILLFOCUS:
+    return on_keyboard_focus(message, reinterpret_cast<HWND>(wParam));
+
   case WM_CLOSE:
     return on_close();
 
@@ -485,6 +489,16 @@ auto Window::on_size(const WPARAM resizeType, const Size2Du16 newClientAreaSize)
   default:
     break;
   }
+}
+
+auto Window::on_keyboard_focus(const UINT message, HWND) -> LRESULT {
+  if (message == WM_KILLFOCUS) {
+    mInputManager.keyboard_focus_lost();
+  } else {
+    mInputManager.keyboard_focus_gained();
+  }
+
+  return 0;
 }
 
 auto Window::on_close() -> LRESULT {

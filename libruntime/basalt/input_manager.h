@@ -25,6 +25,8 @@ struct InputManager final {
   void mouse_button_down(MouseButton);
   void mouse_button_up(MouseButton);
 
+  auto keyboard_focus_gained() -> void;
+  auto keyboard_focus_lost() -> void;
   void key_down(Key);
   void key_up(Key);
 
@@ -36,6 +38,7 @@ private:
   PointerPosition mPointerPos;
   std::bitset<MOUSE_BUTTON_COUNT> mMouseButtonsDown;
   std::bitset<KEY_COUNT> mKeysDown;
+  bool hasKeyboardFocus {false};
 };
 
 } // namespace basalt

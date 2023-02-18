@@ -27,6 +27,8 @@ enum class InputEventType : u8 {
   MouseWheel,
   MouseButtonDown,
   MouseButtonUp,
+  KeyboardFocusGained,
+  KeyboardFocusLost,
   KeyDown,
   KeyUp,
   CharacterTyped

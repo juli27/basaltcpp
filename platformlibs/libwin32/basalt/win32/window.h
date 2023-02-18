@@ -83,6 +83,7 @@ private:
 
   [[nodiscard]] auto handle_message(UINT message, WPARAM, LPARAM) -> LRESULT;
   auto on_size(WPARAM resizeType, Size2Du16 newClientAreaSize) -> void;
+  [[nodiscard]] auto on_keyboard_focus(UINT message, HWND other) -> LRESULT;
   [[nodiscard]] auto on_close() -> LRESULT;
   [[nodiscard]] auto on_set_cursor(HWND windowUnderCursor, SHORT hitTestResult,
                                    USHORT triggerMessage) -> LRESULT;
