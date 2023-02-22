@@ -2,8 +2,6 @@ FetchContent_GetProperties(DearImGui)
 if (NOT dearimgui_POPULATED)
   FetchContent_Populate(DearImGui)
 
-  file(COPY "imconfig.h" DESTINATION "${dearimgui_SOURCE_DIR}")
-
   add_library(DearImGui STATIC)
   set(CURRENT_TARGET DearImGui)
 
@@ -16,7 +14,13 @@ if (NOT dearimgui_POPULATED)
 
   target_include_directories(${CURRENT_TARGET}
     PRIVATE "${dearimgui_SOURCE_DIR}"
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}"
     INTERFACE "${dearimgui_BINARY_DIR}"
+  )
+
+  target_compile_definitions(${CURRENT_TARGET}
+    PUBLIC
+      "IMGUI_USER_CONFIG=\"basalt_imconfig.h\""
   )
 
   target_compile_features(${CURRENT_TARGET} PRIVATE cxx_std_17)
@@ -57,4 +61,8 @@ if (NOT dearimgui_POPULATED)
 
   get_target_property(TARGET_SOURCES ${CURRENT_TARGET} SOURCES)
   source_group(TREE "${dearimgui_SOURCE_DIR}" FILES ${TARGET_SOURCES})
+
+  target_sources(${CURRENT_TARGET} PRIVATE
+    "basalt_imconfig.h"
+  )
 endif()

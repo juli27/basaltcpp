@@ -15,7 +15,7 @@ namespace basalt {
 
 class DearImGui final : public View {
 public:
-  static auto create(gfx::Device&, void* imeWindowHandle) -> DearImGuiPtr;
+  static auto create(gfx::Device&, void* rawWindowHandle) -> DearImGuiPtr;
 
   DearImGui(const DearImGui&) = delete;
   DearImGui(DearImGui&&) = delete;
@@ -28,8 +28,7 @@ public:
   auto new_frame(Engine&, Size2Du16 displaySize) const -> void;
 
   // do not call directly. use the static create function instead
-  DearImGui(std::shared_ptr<gfx::ext::DearImGuiRenderer>,
-            void* imeWindowHandle);
+  explicit DearImGui(std::shared_ptr<gfx::ext::DearImGuiRenderer>);
 
 private:
   // can be null

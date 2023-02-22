@@ -23,8 +23,6 @@
 #include <basalt/api/shared/config.h>
 #include <basalt/api/shared/types.h>
 
-#include <basalt/api/base/utils.h>
-
 #include <imgui/imgui.h>
 
 #include <functional>
@@ -32,14 +30,12 @@
 #include <string>
 
 using std::function;
-using std::shared_ptr;
 using std::string;
 using namespace std::literals;
 
 using basalt::ClientApp;
 using basalt::Config;
 using basalt::Engine;
-using basalt::Key;
 using basalt::ViewPtr;
 using basalt::WindowMode;
 
@@ -231,9 +227,9 @@ auto SandboxView::on_tick(Engine& engine) -> void {
     ImGui::ShowAboutWindow(&mShowAbout);
   }
 
-  if (ImGui::IsKeyPressed(enum_cast(Key::PageDown), false)) {
+  if (ImGui::IsKeyPressed(ImGuiKey_PageDown)) {
     next_scene(engine);
-  } else if (ImGui::IsKeyPressed(enum_cast(Key::PageUp), false)) {
+  } else if (ImGui::IsKeyPressed(ImGuiKey_PageUp)) {
     prev_scene(engine);
   }
 }
