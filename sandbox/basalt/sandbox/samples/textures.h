@@ -11,6 +11,7 @@
 #include <basalt/api/base/types.h>
 
 #include <entt/entity/handle.hpp>
+#include <entt/entity/registry.hpp>
 
 #include <array>
 

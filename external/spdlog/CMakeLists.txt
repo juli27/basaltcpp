@@ -2,8 +2,6 @@ FetchContent_GetProperties(spdlog)
 if (NOT spdlog_POPULATED)
   FetchContent_Populate(spdlog)
 
-  file(COPY "tweakme.h" DESTINATION "${spdlog_SOURCE_DIR}/include/spdlog")
-
   add_library(spdlog STATIC)
   add_library(spdlog::spdlog ALIAS spdlog)
   set(CURRENT_TARGET spdlog)
@@ -18,6 +16,7 @@ if (NOT spdlog_POPULATED)
   )
 
   target_include_directories(${CURRENT_TARGET} PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}/include" # override tweakme.h
     "${spdlog_SOURCE_DIR}/include"
   )
 
@@ -39,4 +38,8 @@ if (NOT spdlog_POPULATED)
 
   get_target_property(TARGET_SOURCES ${CURRENT_TARGET} SOURCES)
   source_group(TREE "${spdlog_SOURCE_DIR}" FILES ${TARGET_SOURCES})
+
+  target_sources(${CURRENT_TARGET} PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/spdlog/tweakme.h"
+  )
 endif()

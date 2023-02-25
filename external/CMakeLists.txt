@@ -2,27 +2,27 @@ include(FetchContent)
 
 FetchContent_Declare(DearImGui
   GIT_REPOSITORY https://github.com/ocornut/imgui.git
-  GIT_TAG        c71a50deb5ddf1ea386b91e60fa2e4a26d080074 # v1.87
+  GIT_TAG        9aae45eb4a05a5a1f96be1ef37eb503a12ceb889 # v1.88
 )
 FetchContent_Declare(EnTT
   GIT_REPOSITORY https://github.com/skypjack/entt.git
-  GIT_TAG        8e0747fd505beb6861939a141ec0962c376d36f2 # v3.9.0
+  GIT_TAG        76298bc26ae7d47e5e75baeb9da1bd5bf17bdadc # v3.11
 )
 FetchContent_Declare(fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG        b6f4ceaed0a0a24ccf575fab6c56dd50ccf6f1a9 # 8.1.1
+  GIT_TAG        a33701196adfad74917046096bf5a2aa0ab0bb50 # v9.1
 )
 FetchContent_Declare(GSL
   GIT_REPOSITORY https://github.com/microsoft/GSL.git
-  GIT_TAG        d9fc52e20e32fcc804502480a781120b210afd41
+  GIT_TAG        517ed29228d18cf2c5004d10826090108e06f049
 )
 FetchContent_Declare(spdlog
   GIT_REPOSITORY https://github.com/gabime/spdlog.git
-  GIT_TAG        eb3220622e73a4889eee355ffa37972b3cac3df5 # v1.9.2
+  GIT_TAG        ad0e89cbfb4d0c1ce4d097e134eb7be67baebb36 # v1.11
 )
 
 add_subdirectory("DearImGui")
-add_subdirectory("EnTT")
+FetchContent_MakeAvailable(EnTT)
 add_subdirectory("fmt")
 FetchContent_MakeAvailable(GSL)
 add_subdirectory("spdlog")
