@@ -258,11 +258,11 @@ auto DearImGui::on_input(const InputEvent& e) -> InputEventHandled {
     const ImGuiKey imguiKey {to_imgui_key(key)};
 
     if (key == Key::Shift) {
-      io.AddKeyEvent(ImGuiKey_ModShift, true);
+      io.AddKeyEvent(ImGuiMod_Shift, true);
     } else if (key == Key::Control) {
-      io.AddKeyEvent(ImGuiKey_ModCtrl, true);
+      io.AddKeyEvent(ImGuiMod_Ctrl, true);
     } else if (key == Key::Alt) {
-      io.AddKeyEvent(ImGuiKey_ModAlt, true);
+      io.AddKeyEvent(ImGuiMod_Alt, true);
     }
 
     io.AddKeyEvent(imguiKey, true);
@@ -277,11 +277,11 @@ auto DearImGui::on_input(const InputEvent& e) -> InputEventHandled {
     const ImGuiKey imguiKey {to_imgui_key(key)};
 
     if (key == Key::Shift) {
-      io.AddKeyEvent(ImGuiKey_ModShift, false);
+      io.AddKeyEvent(ImGuiMod_Shift, false);
     } else if (key == Key::Control) {
-      io.AddKeyEvent(ImGuiKey_ModCtrl, false);
+      io.AddKeyEvent(ImGuiMod_Ctrl, false);
     } else if (key == Key::Alt) {
-      io.AddKeyEvent(ImGuiKey_ModAlt, false);
+      io.AddKeyEvent(ImGuiMod_Alt, false);
     }
 
     io.AddKeyEvent(imguiKey, false);
