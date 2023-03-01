@@ -5,14 +5,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.0] - *Unreleased*
 ### Added
 - Too many to list
-- external: GSL (517ed29)
+- external: GSL (9f85e4e)
 
 ### Changed
 - Too many to list
 
 #### external
-- Updated Dear ImGui (v1.72b -> v1.89.1+1 (6af38b1))
-- Updated EnTT (19ef290 -> v3.11)
+- Updated Dear ImGui (v1.72b -> v1.89.3)
+- Updated EnTT (19ef290 -> v3.11.1)
 - Updated fmt (5.3.0 -> v9.1)
 - Updated spdlog (v1.3.1 -> v1.11)
   - now compiled as a static library
