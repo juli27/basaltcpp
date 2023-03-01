@@ -1,4 +1,4 @@
-#include <basalt/api/gfx/filtering_command_list.h>
+#include <basalt/gfx/filtering_command_list.h>
 
 #include <utility>
 

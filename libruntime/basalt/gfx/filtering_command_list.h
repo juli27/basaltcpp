@@ -1,6 +1,6 @@
 #pragma once
 
-#include <basalt/api/gfx/device_state_cache.h>
+#include <basalt/gfx/device_state_cache.h>
 
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/types.h>
