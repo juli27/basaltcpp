@@ -7,7 +7,7 @@ if (NOT dearimgui_POPULATED)
 
   target_link_libraries(${CURRENT_TARGET}
     PRIVATE
-      Cpp17Strict
+      Cpp17Conformance
       CommonPrivate
       ControlFlowGuard
   )

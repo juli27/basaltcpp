@@ -6,7 +6,7 @@ target_link_libraries(${CURRENT_TARGET}
   PUBLIC
     Basalt::LibAPI
   PRIVATE
-    Cpp17Strict
+    Cpp17Conformance
     ControlFlowGuard
     CommonPrivate
 )

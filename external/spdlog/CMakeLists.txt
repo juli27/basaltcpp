@@ -10,7 +10,7 @@ if (NOT spdlog_POPULATED)
     PUBLIC
       fmt::fmt
     PRIVATE
-      Cpp17Strict
+      Cpp17Conformance
       CommonPrivate
       ControlFlowGuard
   )

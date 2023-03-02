@@ -10,7 +10,7 @@ target_link_libraries(${CURRENT_TARGET}
     fmt::fmt
     spdlog::spdlog
   PRIVATE
-    Cpp17Strict
+    Cpp17Conformance
     CommonPrivate
     ControlFlowGuard
 )

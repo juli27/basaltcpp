@@ -4,7 +4,7 @@ basalt_add_app(Sandbox)
 add_library(Basalt::Sandbox ALIAS Sandbox)
 
 target_link_libraries(${CURRENT_TARGET} PRIVATE
-  Cpp17Strict
+  Cpp17Conformance
   CommonPrivate
   ControlFlowGuard
 )

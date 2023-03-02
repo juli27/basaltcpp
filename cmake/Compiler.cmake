@@ -2,9 +2,9 @@ add_library(ControlFlowGuard INTERFACE)
 target_compile_options(ControlFlowGuard INTERFACE "/guard:cf")
 target_link_options(ControlFlowGuard INTERFACE "/GUARD:CF")
 
-add_library(Cpp17Strict INTERFACE)
-target_compile_features(Cpp17Strict INTERFACE cxx_std_17)
-target_compile_options(Cpp17Strict
+add_library(Cpp17Conformance INTERFACE)
+target_compile_features(Cpp17Conformance INTERFACE cxx_std_17)
+target_compile_options(Cpp17Conformance
   INTERFACE
     "/permissive-"
     "/Zc:__cplusplus"
