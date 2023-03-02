@@ -1,11 +1,6 @@
 #include <basalt/sandbox/sandbox.h>
 
-#include <basalt/sandbox/d3d9/device.h>
-#include <basalt/sandbox/d3d9/lights.h>
-#include <basalt/sandbox/d3d9/matrices.h>
-#include <basalt/sandbox/d3d9/meshes.h>
-#include <basalt/sandbox/d3d9/textures.h>
-#include <basalt/sandbox/d3d9/vertices.h>
+#include <basalt/sandbox/d3d9_tutorials.h>
 
 #include <basalt/sandbox/samples/simple_scene.h>
 #include <basalt/sandbox/samples/textures.h>
@@ -61,27 +56,27 @@ SandboxView::SandboxView(Engine& engine) {
   mExamples.reserve(11u);
   mExamples.emplace_back(Example {
     "Tutorial 1: Creating a Device"s,
-    &create_example<d3d9::Device>,
+    &D3D9Tutorials::new_device_tutorial,
   });
   mExamples.emplace_back(Example {
     "Tutorial 2: Rendering Vertices"s,
-    &create_example<d3d9::Vertices>,
+    &D3D9Tutorials::new_vertices_tutorial,
   });
   mExamples.emplace_back(Example {
     "Tutorial 3: Using Matrices"s,
-    &create_example<d3d9::Matrices>,
+    &D3D9Tutorials::new_matrices_tutorial,
   });
   mExamples.emplace_back(Example {
     "Tutorial 4: Creating and Using Lights"s,
-    &create_example<d3d9::Lights>,
+    &D3D9Tutorials::new_lights_tutorial,
   });
   mExamples.emplace_back(Example {
     "Tutorial 5: Using Texture Maps"s,
-    &create_example<d3d9::Textures>,
+    &D3D9Tutorials::new_textures_tutorial,
   });
   mExamples.emplace_back(Example {
     "Tutorial 6: Using Meshes"s,
-    &create_example<d3d9::Meshes>,
+    &D3D9Tutorials::new_meshes_tutorial,
   });
   mExamples.emplace_back(Example {
     "Bsp. 02-03: Das erste Dreieck"s,
