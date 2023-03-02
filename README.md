@@ -4,7 +4,7 @@
 * A recent version of Windows 10 or 11 (x86-64)
 * Git
 * CMake 3.17 or newer
-* MSVC v142 v14.29 or newer
+* MSVC v143 v14.33 or newer
 * Windows 8.1 SDK or newer
 * [DirectX SDK June 2010](https://www.microsoft.com/en-us/download/details.aspx?id=6812)
 
@@ -16,9 +16,10 @@
 ## OS Support
 ### Windows
 * Windows 8.1
-* Windows 10 21H1 May 2021 Update (Build 19043)
 * Windows 10 21H2 November 2021 Update (Build 19044)
+* Windows 10 22H2 2022 Update (Build 19045)
 * Windows 11 21H2 (Build 22000)
+* Windows 11 22H2 2022 Update (Build 22621)
 
 > The following Windows versions probably still work as features not available
 in these versions haven't been made mandatory yet:
@@ -41,6 +42,7 @@ in these versions haven't been made mandatory yet:
 > * Windows 10 1909 19H2 November 2019 Update (Build 18363)
 > * Windows 10 2004 20H1 May 2020 Update (Build 19041)
 > * Windows 10 20H2 October 2020 Update (Build 19042)
+> * Windows 10 21H1 May 2021 Update (Build 19043)
 
 ## Hardware Support
 * CPU: x86-64
