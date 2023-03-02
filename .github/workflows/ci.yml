@@ -7,14 +7,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2019]
+        os: [windows-2022]
         configuration: [Debug, RelWithDebInfo, Release]
         include:
-          - os: windows-2019
-            generator: Visual Studio 16 2019
           - os: windows-2022
             generator: Visual Studio 17 2022
-            configuration: RelWithDebInfo
 
     runs-on: ${{ matrix.os }}
 
