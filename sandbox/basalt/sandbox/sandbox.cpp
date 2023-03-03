@@ -2,12 +2,8 @@
 
 #include <basalt/sandbox/d3d9_tutorials.h>
 
-#include <basalt/sandbox/samples/simple_scene.h>
-#include <basalt/sandbox/samples/textures.h>
-
-#include <basalt/sandbox/tribase/02-03_dreieck.h>
-#include <basalt/sandbox/tribase/02-04_textures.h>
-#include <basalt/sandbox/tribase/02-04_textures_ex1.h>
+#include <basalt/sandbox/samples/samples.h>
+#include <basalt/sandbox/tribase/tribase_examples.h>
 
 #include <basalt/api/client_app.h>
 #include <basalt/api/engine.h>
@@ -33,15 +29,6 @@ using basalt::Config;
 using basalt::Engine;
 using basalt::ViewPtr;
 using basalt::WindowMode;
-
-namespace {
-
-template <typename T>
-auto create_example(Engine& engine) -> ViewPtr {
-  return std::make_shared<T>(engine);
-}
-
-} // namespace
 
 auto ClientApp::bootstrap(Engine& engine) -> void {
   engine.set_root(std::make_shared<SandboxView>(engine));
@@ -80,23 +67,23 @@ SandboxView::SandboxView(Engine& engine) {
   });
   mExamples.emplace_back(Example {
     "Bsp. 02-03: Das erste Dreieck"s,
-    &create_example<tribase::Dreieck>,
+    &TribaseExamples::new_first_triangle_example,
   });
   mExamples.emplace_back(Example {
     "Bsp. 02-03: Texturen"s,
-    &create_example<tribase::Textures>,
+    &TribaseExamples::new_02_04_textures_example,
   });
   mExamples.emplace_back(Example {
     "Bsp. 02-03: Texturen - Aufgabe 1"s,
-    &create_example<tribase::TexturesEx1>,
+    &TribaseExamples::new_02_04_textures_exercise1,
   });
   mExamples.emplace_back(Example {
     "Textures"s,
-    &create_example<samples::Textures>,
+    &Samples::new_textures_sample,
   });
   mExamples.emplace_back(Example {
     "Simple Scene"s,
-    &create_example<samples::SimpleScene>,
+    &Samples::new_simple_scene_sample,
   });
 
   switch_scene(mCurrentExampleIndex, engine);

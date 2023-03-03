@@ -14,7 +14,8 @@
 
 namespace tribase {
 
-struct Textures final : basalt::View {
+class Textures final : public basalt::View {
+public:
   explicit Textures(basalt::Engine&);
 
   Textures(const Textures&) = delete;

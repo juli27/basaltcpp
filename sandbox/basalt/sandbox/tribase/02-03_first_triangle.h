@@ -12,15 +12,16 @@
 
 namespace tribase {
 
-struct Dreieck final : basalt::View {
-  explicit Dreieck(basalt::Engine&);
-  Dreieck(const Dreieck&) = delete;
-  Dreieck(Dreieck&&) = delete;
+class FirstTriangle final : public basalt::View {
+public:
+  explicit FirstTriangle(basalt::Engine&);
+  FirstTriangle(const FirstTriangle&) = delete;
+  FirstTriangle(FirstTriangle&&) = delete;
 
-  ~Dreieck() noexcept override;
+  ~FirstTriangle() noexcept override;
 
-  auto operator=(const Dreieck&) -> Dreieck& = delete;
-  auto operator=(Dreieck&&) -> Dreieck& = delete;
+  auto operator=(const FirstTriangle&) -> FirstTriangle& = delete;
+  auto operator=(FirstTriangle&&) -> FirstTriangle& = delete;
 
 private:
   basalt::f64 mTimeAccum {};

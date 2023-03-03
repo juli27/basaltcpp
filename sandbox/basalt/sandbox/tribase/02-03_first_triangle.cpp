@@ -1,4 +1,4 @@
-#include <basalt/sandbox/tribase/02-03_dreieck.h>
+#include <basalt/sandbox/tribase/02-03_first_triangle.h>
 
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
@@ -69,7 +69,7 @@ constexpr array<Vertex, 4> QUAD_VERTICES {
 
 } // namespace
 
-Dreieck::Dreieck(Engine& engine)
+FirstTriangle::FirstTriangle(Engine& engine)
   : mResourceCache {engine.gfx_resource_cache()} {
   const VertexLayout vertexLayout {VertexElement::Position3F32,
                                    VertexElement::ColorDiffuse1U32A8R8G8B8};
@@ -96,14 +96,14 @@ Dreieck::Dreieck(Engine& engine)
   mVertexBuffer = mResourceCache.create_vertex_buffer(vbDesc, vertexData);
 }
 
-Dreieck::~Dreieck() noexcept {
+FirstTriangle::~FirstTriangle() noexcept {
   mResourceCache.destroy(mVertexBuffer);
   mResourceCache.destroy(mWireframePipeline);
   mResourceCache.destroy(mQuadPipeline);
   mResourceCache.destroy(mPipeline);
 }
 
-auto Dreieck::on_draw(const DrawContext& drawContext) -> void {
+auto FirstTriangle::on_draw(const DrawContext& drawContext) -> void {
   CommandList cmdList;
 
   cmdList.clear_attachments(
@@ -144,7 +144,7 @@ auto Dreieck::on_draw(const DrawContext& drawContext) -> void {
   drawContext.commandLists.emplace_back(std::move(cmdList));
 }
 
-auto Dreieck::on_tick(Engine& engine) -> void {
+auto FirstTriangle::on_tick(Engine& engine) -> void {
   const auto dt {static_cast<f32>(engine.delta_time())};
 
   // 90° per second
