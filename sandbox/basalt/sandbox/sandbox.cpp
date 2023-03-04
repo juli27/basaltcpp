@@ -74,8 +74,8 @@ SandboxView::SandboxView(Engine& engine) {
     &TribaseExamples::new_02_04_textures_example,
   });
   mExamples.emplace_back(Example {
-    "Bsp. 02-03: Texturen - Aufgabe 1"s,
-    &TribaseExamples::new_02_04_textures_exercise1,
+    "Bsp. 02-03: Texturen - Aufgabe 1-3"s,
+    &TribaseExamples::new_02_04_textures_exercises,
   });
   mExamples.emplace_back(Example {
     "Textures"s,
