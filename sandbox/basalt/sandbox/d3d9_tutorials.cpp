@@ -18,7 +18,6 @@
 
 #include <imgui/imgui.h>
 
-#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <memory>
@@ -62,7 +61,6 @@ using basalt::gfx::TransformState;
 using basalt::gfx::VertexBuffer;
 using basalt::gfx::VertexBufferDescriptor;
 using basalt::gfx::VertexElement;
-using basalt::gfx::VertexLayout;
 using basalt::gfx::ext::XModel;
 
 namespace {
@@ -92,7 +90,7 @@ class Vertices final : public View {
 public:
   explicit Vertices(Engine& engine)
     : mResourceCache {engine.gfx_resource_cache()} {
-    constexpr array<const VertexElement, 2> vertexLayout {
+    constexpr array vertexLayout {
       VertexElement::PositionTransformed4F32,
       VertexElement::ColorDiffuse1U32A8R8G8B8,
     };
@@ -120,18 +118,12 @@ public:
 
     const auto vertexData {as_bytes(span {vertices})};
 
-    const VertexBufferDescriptor vertexBufferDesc {
-      vertexData.size_bytes(),
-      VertexLayout {
-        VertexElement::PositionTransformed4F32,
-        VertexElement::ColorDiffuse1U32A8R8G8B8,
+    mVertexBuffer = mResourceCache.create_vertex_buffer(
+      VertexBufferDescriptor {
+        vertexData.size_bytes(),
+        vertexLayout,
       },
-    };
-    mVertexBuffer = mResourceCache.create_vertex_buffer(vertexBufferDesc);
-    mResourceCache.with_mapping_of(
-      mVertexBuffer, [&](const span<byte> mapping) {
-        std::copy_n(vertexData.begin(), mapping.size_bytes(), mapping.begin());
-      });
+      vertexData);
   }
 
   Vertices(const Vertices&) = delete;
@@ -169,7 +161,7 @@ public:
   explicit Matrices(Engine& engine)
     : mResourceCache {engine.gfx_resource_cache()}
     , mCamera {create_default_camera()} {
-    constexpr array<const VertexElement, 2> vertexLayout {
+    constexpr array vertexLayout {
       VertexElement::Position3F32,
       VertexElement::ColorDiffuse1U32A8R8G8B8,
     };
@@ -195,18 +187,12 @@ public:
 
     const auto vertexData {as_bytes(span {vertices})};
 
-    const VertexBufferDescriptor vertexBufferDesc {
-      vertexData.size_bytes(),
-      VertexLayout {
-        VertexElement::Position3F32,
-        VertexElement::ColorDiffuse1U32A8R8G8B8,
+    mVertexBuffer = mResourceCache.create_vertex_buffer(
+      VertexBufferDescriptor {
+        vertexData.size_bytes(),
+        vertexLayout,
       },
-    };
-    mVertexBuffer = mResourceCache.create_vertex_buffer(vertexBufferDesc);
-    mResourceCache.with_mapping_of(
-      mVertexBuffer, [&](const span<byte> mapping) {
-        std::copy_n(vertexData.begin(), mapping.size_bytes(), mapping.begin());
-      });
+      vertexData);
   }
 
   Matrices(const Matrices&) = delete;
@@ -267,7 +253,7 @@ public:
   explicit Lights(Engine& engine)
     : mResourceCache {engine.gfx_resource_cache()}
     , mCamera {create_default_camera()} {
-    constexpr array<const VertexElement, 2> vertexLayout {
+    constexpr array vertexLayout {
       VertexElement::Position3F32,
       VertexElement::Normal3F32,
     };
@@ -312,18 +298,12 @@ public:
 
     const auto vertexData {as_bytes(span {vertices})};
 
-    const VertexBufferDescriptor vertexBufferDesc {
-      vertexData.size_bytes(),
-      VertexLayout {
-        VertexElement::Position3F32,
-        VertexElement::Normal3F32,
+    mVertexBuffer = mResourceCache.create_vertex_buffer(
+      VertexBufferDescriptor {
+        vertexData.size_bytes(),
+        vertexLayout,
       },
-    };
-    mVertexBuffer = mResourceCache.create_vertex_buffer(vertexBufferDesc);
-    mResourceCache.with_mapping_of(
-      mVertexBuffer, [&](const span<byte> mapping) {
-        std::copy_n(vertexData.begin(), mapping.size_bytes(), mapping.begin());
-      });
+      vertexData);
   }
 
   Lights(const Lights&) = delete;
@@ -407,7 +387,7 @@ public:
   explicit Textures(Engine& engine)
     : mResourceCache {engine.gfx_resource_cache()}
     , mCamera {create_default_camera()} {
-    constexpr array<const VertexElement, 3> vertexLayout {
+    constexpr array vertexLayout {
       VertexElement::Position3F32,
       VertexElement::ColorDiffuse1U32A8R8G8B8,
       VertexElement::TextureCoords2F32,
@@ -465,19 +445,12 @@ public:
 
     const auto vertexData {as_bytes(span {vertices})};
 
-    const VertexBufferDescriptor vertexBufferDesc {
-      vertexData.size_bytes(),
-      VertexLayout {
-        VertexElement::Position3F32,
-        VertexElement::ColorDiffuse1U32A8R8G8B8,
-        VertexElement::TextureCoords2F32,
+    mVertexBuffer = mResourceCache.create_vertex_buffer(
+      VertexBufferDescriptor {
+        vertexData.size_bytes(),
+        vertexLayout,
       },
-    };
-    mVertexBuffer = mResourceCache.create_vertex_buffer(vertexBufferDesc);
-    mResourceCache.with_mapping_of(
-      mVertexBuffer, [&](const span<byte> mapping) {
-        copy(vertexData.begin(), vertexData.end(), mapping.begin());
-      });
+      vertexData);
 
     mSampler = mResourceCache.create_sampler(SamplerDescriptor {});
     mTexture = mResourceCache.load_texture("data/banana.bmp");

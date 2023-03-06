@@ -9,6 +9,8 @@
 #include <basalt/api/base/enum_array.h>
 #include <basalt/api/base/types.h>
 
+#include <optional>
+
 namespace basalt::gfx {
 
 struct DeviceStateCache final {
@@ -16,6 +18,7 @@ struct DeviceStateCache final {
 
   auto update(Pipeline) noexcept -> bool;
   auto update(VertexBuffer, u64 offset) noexcept -> bool;
+  auto update(IndexBuffer) noexcept -> bool;
   auto update(Sampler) noexcept -> bool;
   auto update(Texture) noexcept -> bool;
   auto update(TransformState, const Matrix4x4f32&) noexcept -> bool;
@@ -30,17 +33,20 @@ private:
     Color emissive;
   };
 
-  EnumArray<TransformState, Matrix4x4f32, TRANSFORM_STATE_COUNT> mTransforms {
-    {TransformState::ViewToViewport, Matrix4x4f32::identity()},
-    {TransformState::WorldToView, Matrix4x4f32::identity()},
-    {TransformState::ModelToWorld, Matrix4x4f32::identity()},
-    {TransformState::Texture, Matrix4x4f32::identity()},
+  using MaybeMatrix = std::optional<Matrix4x4f32>;
+
+  EnumArray<TransformState, MaybeMatrix, TRANSFORM_STATE_COUNT> mTransforms {
+    {TransformState::ViewToViewport, std::nullopt},
+    {TransformState::WorldToView, std::nullopt},
+    {TransformState::ModelToWorld, std::nullopt},
+    {TransformState::Texture, std::nullopt},
   };
   Color mAmbientLight;
   Material mMaterial;
   Pipeline mBoundPipeline {Pipeline::null()};
   VertexBuffer mBoundVertexBuffer {VertexBuffer::null()};
   u64 mVertexBufferOffset {0ull};
+  IndexBuffer mBoundIndexBuffer {IndexBuffer::null()};
   Sampler mBoundSampler {Sampler::null()};
   Texture mBoundTexture {Texture::null()};
 };

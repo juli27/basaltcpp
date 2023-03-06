@@ -16,8 +16,10 @@ using ContextPtr = std::shared_ptr<Context>;
 
 struct CommandClearAttachments;
 struct CommandDraw;
+struct CommandDrawIndexed;
 struct CommandBindPipeline;
 struct CommandBindVertexBuffer;
+struct CommandBindIndexBuffer;
 struct CommandBindSampler;
 struct CommandBindTexture;
 struct CommandSetTransform;
@@ -28,8 +30,10 @@ struct CommandSetMaterial;
 enum class CommandType : u8 {
   ClearAttachments,
   Draw,
+  DrawIndexed,
   BindPipeline,
   BindVertexBuffer,
+  BindIndexBuffer,
   BindSampler,
   BindTexture,
 

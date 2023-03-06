@@ -4,7 +4,7 @@
 
 namespace basalt::gfx {
 
-struct D3D9Device;
+class D3D9Device;
 using D3D9DevicePtr = std::shared_ptr<D3D9Device>;
 
 struct D3D9Factory;

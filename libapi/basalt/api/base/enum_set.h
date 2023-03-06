@@ -25,7 +25,11 @@ struct EnumSet final {
     return *this;
   }
 
-  [[nodiscard]] constexpr auto has(E e) const noexcept -> bool {
+  [[nodiscard]] constexpr auto operator[](const E e) const noexcept -> bool {
+    return has(e);
+  }
+
+  [[nodiscard]] constexpr auto has(const E e) const noexcept -> bool {
     return is_in_range(e) && mBits[to_index(e)];
   }
 

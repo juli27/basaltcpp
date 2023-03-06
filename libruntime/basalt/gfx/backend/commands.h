@@ -68,6 +68,24 @@ struct CommandDraw final : CommandT<CommandType::Draw> {
 
 static_assert(sizeof(CommandDraw) == 12);
 
+struct CommandDrawIndexed final : CommandT<CommandType::DrawIndexed> {
+  i32 vertexOffset {};
+  u32 minIndex {};
+  u32 numVertices {};
+  u32 firstIndex {};
+  u32 indexCount {};
+
+  constexpr CommandDrawIndexed(const i32 aVertexOffset, const u32 aMinIndex,
+                               const u32 aNumVertices, const u32 aFirstIndex,
+                               const u32 aPrimitiveCount) noexcept
+    : vertexOffset {aVertexOffset}
+    , minIndex {aMinIndex}
+    , numVertices {aNumVertices}
+    , firstIndex {aFirstIndex}
+    , indexCount {aPrimitiveCount} {
+  }
+};
+
 struct CommandBindPipeline final : CommandT<CommandType::BindPipeline> {
   Pipeline handle;
 
@@ -80,15 +98,23 @@ static_assert(sizeof(CommandBindPipeline) == 8);
 
 struct CommandBindVertexBuffer final : CommandT<CommandType::BindVertexBuffer> {
   VertexBuffer handle;
-  u64 offset;
+  uDeviceSize offset;
 
   constexpr explicit CommandBindVertexBuffer(const VertexBuffer vb,
-                                             const u64 aOffset) noexcept
+                                             const uDeviceSize aOffset) noexcept
     : handle {vb}, offset {aOffset} {
   }
 };
 
 static_assert(sizeof(CommandBindVertexBuffer) == 16);
+
+struct CommandBindIndexBuffer final : CommandT<CommandType::BindIndexBuffer> {
+  IndexBuffer handle;
+
+  constexpr explicit CommandBindIndexBuffer(const IndexBuffer vb) noexcept
+    : handle {vb} {
+  }
+};
 
 struct CommandBindSampler final : CommandT<CommandType::BindSampler> {
   Sampler sampler {Sampler::null()};

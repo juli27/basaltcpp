@@ -40,7 +40,7 @@ struct SandboxView::Example final {
 };
 
 SandboxView::SandboxView(Engine& engine) {
-  mExamples.reserve(11u);
+  mExamples.reserve(12u);
   mExamples.emplace_back(Example {
     "Tutorial 1: Creating a Device"s,
     &D3D9Tutorials::new_device_tutorial,
@@ -70,12 +70,16 @@ SandboxView::SandboxView(Engine& engine) {
     &TribaseExamples::new_first_triangle_example,
   });
   mExamples.emplace_back(Example {
-    "Bsp. 02-03: Texturen"s,
+    "Bsp. 02-04: Texturen"s,
     &TribaseExamples::new_02_04_textures_example,
   });
   mExamples.emplace_back(Example {
-    "Bsp. 02-03: Texturen - Aufgabe 1-3"s,
+    "Bsp. 02-04: Texturen - Aufgabe 1-3"s,
     &TribaseExamples::new_02_04_textures_exercises,
+  });
+  mExamples.emplace_back(Example {
+    "Bsp. 02-05: Vertex- und Index-Buffer"s,
+    &TribaseExamples::new_02_05_buffers_example,
   });
   mExamples.emplace_back(Example {
     "Textures"s,

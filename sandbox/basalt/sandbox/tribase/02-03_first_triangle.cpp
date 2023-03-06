@@ -36,7 +36,6 @@ using basalt::gfx::PrimitiveType;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexBufferDescriptor;
 using basalt::gfx::VertexElement;
-using basalt::gfx::VertexLayout;
 
 using gsl::span;
 
@@ -71,8 +70,10 @@ constexpr array<Vertex, 4> QUAD_VERTICES {
 
 FirstTriangle::FirstTriangle(Engine& engine)
   : mResourceCache {engine.gfx_resource_cache()} {
-  const VertexLayout vertexLayout {VertexElement::Position3F32,
-                                   VertexElement::ColorDiffuse1U32A8R8G8B8};
+  const array vertexLayout {
+    VertexElement::Position3F32,
+    VertexElement::ColorDiffuse1U32A8R8G8B8,
+  };
 
   PipelineDescriptor pipelineDesc;
   pipelineDesc.vertexInputState = vertexLayout;

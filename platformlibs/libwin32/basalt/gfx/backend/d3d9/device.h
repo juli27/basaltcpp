@@ -17,7 +17,8 @@
 
 namespace basalt::gfx {
 
-struct D3D9Device final : Device {
+class D3D9Device final : public Device {
+public:
   explicit D3D9Device(Microsoft::WRL::ComPtr<IDirect3DDevice9> device);
 
   [[nodiscard]] auto device() const -> Microsoft::WRL::ComPtr<IDirect3DDevice9>;
@@ -40,11 +41,23 @@ struct D3D9Device final : Device {
                        gsl::span<const std::byte> initialData)
     -> VertexBuffer override;
 
-  void destroy(VertexBuffer) noexcept override;
+  auto destroy(VertexBuffer) noexcept -> void override;
 
   [[nodiscard]] auto map(VertexBuffer, uDeviceSize offset, uDeviceSize size)
     -> gsl::span<std::byte> override;
-  void unmap(VertexBuffer) noexcept override;
+  auto unmap(VertexBuffer) noexcept -> void override;
+
+  [[nodiscard]] auto create_index_buffer(const IndexBufferDescriptor&,
+                                         gsl::span<const std::byte> initialData)
+    -> IndexBuffer override;
+
+  auto destroy(IndexBuffer) noexcept -> void override;
+
+  [[nodiscard]] auto map(IndexBuffer, uDeviceSize offsetInBytes,
+                         uDeviceSize sizeInBytes)
+    -> gsl::span<std::byte> override;
+
+  auto unmap(IndexBuffer) noexcept -> void override;
 
   [[nodiscard]] auto load_texture(const std::filesystem::path&)
     -> Texture override;
@@ -63,6 +76,7 @@ private:
   using D3D9DevicePtr = Microsoft::WRL::ComPtr<IDirect3DDevice9>;
   using ExtensionMap = std::unordered_map<ext::ExtensionId, ext::ExtensionPtr>;
   using D3D9VertexBufferPtr = Microsoft::WRL::ComPtr<IDirect3DVertexBuffer9>;
+  using D3D9IndexBufferPtr = Microsoft::WRL::ComPtr<IDirect3DIndexBuffer9>;
   using D3D9TexturePtr = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
 
   struct PipelineData final {
@@ -101,6 +115,7 @@ private:
 
   HandlePool<PipelineData, Pipeline> mPipelines {};
   HandlePool<D3D9VertexBufferPtr, VertexBuffer> mVertexBuffers {};
+  HandlePool<D3D9IndexBufferPtr, IndexBuffer> mIndexBuffers {};
   HandlePool<D3D9TexturePtr, Texture> mTextures {};
   HandlePool<SamplerData, Sampler> mSamplers {};
 
@@ -111,14 +126,16 @@ private:
   auto execute(const Command&) -> void;
   auto execute(const CommandClearAttachments&) -> void;
   auto execute(const CommandDraw&) -> void;
+  auto execute(const CommandDrawIndexed&) -> void;
   auto execute(const CommandBindPipeline&) -> void;
   auto execute(const CommandBindVertexBuffer&) -> void;
+  auto execute(const CommandBindIndexBuffer&) -> void;
   auto execute(const CommandBindSampler&) -> void;
   auto execute(const CommandBindTexture&) -> void;
   auto execute(const CommandSetTransform&) -> void;
-  void execute(const CommandSetAmbientLight&);
-  void execute(const CommandSetLights&);
-  void execute(const CommandSetMaterial&);
+  auto execute(const CommandSetAmbientLight&) -> void;
+  auto execute(const CommandSetLights&) -> void;
+  auto execute(const CommandSetMaterial&) -> void;
 };
 
 } // namespace basalt::gfx

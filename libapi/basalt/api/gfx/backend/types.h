@@ -12,7 +12,6 @@
 
 #include <memory>
 #include <variant>
-#include <vector>
 
 namespace basalt::gfx {
 
@@ -149,29 +148,41 @@ enum class VertexElement : u8 {
   TextureCoords3F32,
   TextureCoords4F32,
 };
-using VertexLayout = std::vector<VertexElement>;
+using VertexLayout = gsl::span<const VertexElement>;
+
+enum class IndexType : u8 {
+  U16,
+  U32,
+};
+constexpr u8 INDEX_TYPE_COUNT {2u};
+
+using IndexTypes = EnumSet<IndexType, IndexType::U32>;
 
 namespace detail {
 struct PipelineTag;
 struct SamplerTag;
 struct TextureTag;
 struct VertexBufferTag;
+struct IndexBufferTag;
 } // namespace detail
 using Pipeline = Handle<detail::PipelineTag>;
 using Sampler = Handle<detail::SamplerTag>;
 using Texture = Handle<detail::TextureTag>;
 using VertexBuffer = Handle<detail::VertexBufferTag>;
+using IndexBuffer = Handle<detail::IndexBufferTag>;
 
 struct Command;
-struct CommandList;
+class CommandList;
 
-struct Device;
+class Device;
 using DevicePtr = std::shared_ptr<Device>;
 
 using uDeviceSize = u64;
 
 struct DeviceCaps final {
   uDeviceSize maxVertexBufferSizeInBytes {};
+  uDeviceSize maxIndexBufferSizeInBytes {};
+  IndexTypes supportedIndexTypes {IndexType::U16};
   u32 maxLights {1};
   u32 maxTextureBlendStages {1};
   u32 maxBoundSampledTextures {1};
@@ -195,7 +206,7 @@ struct TextureBlendingStage final {
 };
 
 struct PipelineDescriptor final {
-  gsl::span<const VertexElement> vertexInputState;
+  VertexLayout vertexInputState;
   gsl::span<const TextureBlendingStage> textureStages {};
   PrimitiveType primitiveType {PrimitiveType::PointList};
   bool lighting {false};
@@ -226,6 +237,11 @@ struct SamplerDescriptor final {
 struct VertexBufferDescriptor final {
   uDeviceSize sizeInBytes {};
   VertexLayout layout {};
+};
+
+struct IndexBufferDescriptor final {
+  uDeviceSize sizeInBytes {};
+  IndexType type {IndexType::U16};
 };
 
 struct DirectionalLight final {

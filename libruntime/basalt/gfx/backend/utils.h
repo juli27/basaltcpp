@@ -21,8 +21,10 @@ auto visit(const Command& cmd, Visitor&& visitor) -> void {
   switch (cmd.type) {
     VISIT(CommandClearAttachments);
     VISIT(CommandDraw);
+    VISIT(CommandDrawIndexed);
     VISIT(CommandBindPipeline);
     VISIT(CommandBindVertexBuffer);
+    VISIT(CommandBindIndexBuffer);
     VISIT(CommandBindSampler);
     VISIT(CommandBindTexture);
     VISIT(CommandSetTransform);

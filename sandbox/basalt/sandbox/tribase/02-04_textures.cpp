@@ -17,9 +17,11 @@
 #include <gsl/span>
 #include <imgui/imgui.h>
 
+#include <array>
 #include <random>
 #include <utility>
 
+using std::array;
 using std::default_random_engine;
 using std::random_device;
 using std::uniform_real_distribution;
@@ -51,7 +53,6 @@ using basalt::gfx::TextureStageArgument;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexBufferDescriptor;
 using basalt::gfx::VertexElement;
-using basalt::gfx::VertexLayout;
 
 namespace tribase {
 
@@ -82,9 +83,11 @@ struct Textures::TriangleData final {
 
 Textures::Textures(Engine& engine)
   : mTriangles {NUM_TRIANGLES}, mResourceCache {engine.gfx_resource_cache()} {
-  const VertexLayout vertexLayout {VertexElement::Position3F32,
-                                   VertexElement::ColorDiffuse1U32A8R8G8B8,
-                                   VertexElement::TextureCoords2F32};
+  const array vertexLayout {
+    VertexElement::Position3F32,
+    VertexElement::ColorDiffuse1U32A8R8G8B8,
+    VertexElement::TextureCoords2F32,
+  };
 
   TextureBlendingStage textureStage;
   textureStage.arg1 = TextureStageArgument::SampledTexture;

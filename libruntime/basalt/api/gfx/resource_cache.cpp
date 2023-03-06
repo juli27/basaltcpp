@@ -39,6 +39,15 @@ auto ResourceCache::create_vertex_buffer(
 auto ResourceCache::destroy(const VertexBuffer handle) const noexcept -> void {
   mDevice->destroy(handle);
 }
+auto ResourceCache::create_index_buffer(
+  const IndexBufferDescriptor& desc,
+  const span<const std::byte> initialData) const -> IndexBuffer {
+  return mDevice->create_index_buffer(desc, initialData);
+}
+
+auto ResourceCache::destroy(const IndexBuffer ib) const noexcept -> void {
+  mDevice->destroy(ib);
+}
 
 auto ResourceCache::create_sampler(const SamplerDescriptor& desc) const
   -> Sampler {
@@ -203,6 +212,16 @@ auto ResourceCache::map(const VertexBuffer vb, const uDeviceSize offset,
 
 auto ResourceCache::unmap(const VertexBuffer vb) const -> void {
   mDevice->unmap(vb);
+}
+
+auto ResourceCache::map(const IndexBuffer ib, const uDeviceSize offsetInBytes,
+                        const uDeviceSize sizeInBytes) const
+  -> span<std::byte> {
+  return mDevice->map(ib, offsetInBytes, sizeInBytes);
+}
+
+auto ResourceCache::unmap(const IndexBuffer ib) const -> void {
+  mDevice->unmap(ib);
 }
 
 } // namespace basalt::gfx

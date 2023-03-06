@@ -23,6 +23,14 @@ auto DeviceStateCache::update(const VertexBuffer buffer,
 
   return false;
 }
+auto DeviceStateCache::update(const IndexBuffer handle) noexcept -> bool {
+  if (handle != mBoundIndexBuffer) {
+    mBoundIndexBuffer = handle;
+    return true;
+  }
+
+  return false;
+}
 
 auto DeviceStateCache::update(const Sampler sampler) noexcept -> bool {
   if (sampler != mBoundSampler) {

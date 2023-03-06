@@ -78,8 +78,18 @@ inline namespace literals {
   return Angle::radians(static_cast<f32>(rad));
 }
 
+[[nodiscard]] constexpr auto
+operator"" _rad(const unsigned long long rad) noexcept -> Angle {
+  return Angle::radians(static_cast<f32>(rad));
+}
+
 [[nodiscard]] constexpr auto operator"" _deg(const long double deg) noexcept
   -> Angle {
+  return Angle::degrees(static_cast<f32>(deg));
+}
+
+[[nodiscard]] constexpr auto
+operator"" _deg(const unsigned long long deg) noexcept -> Angle {
   return Angle::degrees(static_cast<f32>(deg));
 }
 

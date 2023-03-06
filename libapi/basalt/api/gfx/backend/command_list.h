@@ -18,8 +18,7 @@
 namespace basalt::gfx {
 
 // serialized commands which the gfx device should execute
-struct CommandList final {
-private:
+class CommandList final {
   using ListType = std::vector<const Command*>;
 
 public:
@@ -40,20 +39,24 @@ public:
   [[nodiscard]] auto begin() const -> const_iterator;
   [[nodiscard]] auto end() const -> const_iterator;
 
-  void clear_attachments(Attachments, const Color&, f32 depth, u32 stencil);
-  void draw(u32 firstVertex, u32 vertexCount);
-  void bind_pipeline(Pipeline);
-  void bind_vertex_buffer(VertexBuffer, u64 offset);
-  void bind_sampler(Sampler);
-  void bind_texture(Texture);
-  void set_transform(TransformState, const Matrix4x4f32&);
-  void set_ambient_light(const Color&);
-  void set_lights(gsl::span<const Light>);
-  void set_material(const Color& diffuse, const Color& ambient,
-                    const Color& emissive);
+  auto clear_attachments(Attachments, const Color&, f32 depth, u32 stencil)
+    -> void;
+  auto draw(u32 firstVertex, u32 vertexCount) -> void;
+  auto draw_indexed(i32 vertexOffset, u32 minIndex, u32 numVertices,
+                    u32 firstIndex, u32 indexCount) -> void;
+  auto bind_pipeline(Pipeline) -> void;
+  auto bind_vertex_buffer(VertexBuffer, uDeviceSize offset) -> void;
+  auto bind_index_buffer(IndexBuffer) -> void;
+  auto bind_sampler(Sampler) -> void;
+  auto bind_texture(Texture) -> void;
+  auto set_transform(TransformState, const Matrix4x4f32&) -> void;
+  auto set_ambient_light(const Color&) -> void;
+  auto set_lights(gsl::span<const Light>) -> void;
+  auto set_material(const Color& diffuse, const Color& ambient,
+                    const Color& emissive) -> void;
 
-  void ext_draw_x_mesh(ext::XMesh, u32 subsetIndex);
-  void ext_render_dear_imgui();
+  auto ext_draw_x_mesh(ext::XMesh, u32 subsetIndex) -> void;
+  auto ext_render_dear_imgui() -> void;
 
 private:
   using CommandBuffer = std::pmr::monotonic_buffer_resource;

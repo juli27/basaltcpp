@@ -39,7 +39,6 @@ using basalt::gfx::Texture;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
 using basalt::gfx::VertexElement;
-using basalt::gfx::VertexLayout;
 
 namespace samples {
 
@@ -65,8 +64,10 @@ Textures::Textures(Engine& engine)
 
   auto& gfxResourceCache {engine.gfx_resource_cache()};
 
-  const VertexLayout vertexLayout {VertexElement::Position3F32,
-                                   VertexElement::TextureCoords2F32};
+  const array vertexLayout {
+    VertexElement::Position3F32,
+    VertexElement::TextureCoords2F32,
+  };
 
   MaterialDescriptor material {};
   material.vertexInputState = vertexLayout;

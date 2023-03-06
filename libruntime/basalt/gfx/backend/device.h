@@ -11,7 +11,8 @@
 
 namespace basalt::gfx {
 
-struct Device {
+class Device {
+public:
   Device(const Device&) = delete;
   Device(Device&&) = delete;
 
@@ -43,7 +44,7 @@ struct Device {
                        gsl::span<const std::byte> initialData = {})
     -> VertexBuffer = 0;
 
-  virtual void destroy(VertexBuffer) noexcept = 0;
+  virtual auto destroy(VertexBuffer) noexcept -> void = 0;
 
   // offset = 0 && size = 0 maps entire buffer
   // size = 0 maps from offset until the end of the buffer
@@ -53,7 +54,25 @@ struct Device {
                                  uDeviceSize size = 0)
     -> gsl::span<std::byte> = 0;
 
-  virtual void unmap(VertexBuffer) noexcept = 0;
+  virtual auto unmap(VertexBuffer) noexcept -> void = 0;
+
+  // throws std::bad_alloc
+  [[nodiscard]] virtual auto
+  create_index_buffer(const IndexBufferDescriptor&,
+                      gsl::span<const std::byte> initialData = {})
+    -> IndexBuffer = 0;
+
+  virtual auto destroy(IndexBuffer) noexcept -> void = 0;
+
+  // offsetInBytes = 0 && sizeInBytes = 0 maps entire buffer
+  // sizeInBytes = 0 maps from offsetInBytes until the end of the buffer
+  // can return empty span
+  // TODO: come up with a safer API
+  [[nodiscard]] virtual auto map(IndexBuffer, uDeviceSize offsetInBytes = 0,
+                                 uDeviceSize sizeInBytes = 0)
+    -> gsl::span<std::byte> = 0;
+
+  virtual auto unmap(IndexBuffer) noexcept -> void = 0;
 
   // TODO: load file somewhere else
   // throws std::runtime_error when failing

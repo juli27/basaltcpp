@@ -40,7 +40,6 @@ using basalt::gfx::MeshDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::VertexElement;
-using basalt::gfx::VertexLayout;
 
 namespace {
 
@@ -81,7 +80,7 @@ SimpleScene::SimpleScene(Engine& engine)
     Vertex {0.0f, 1.0f, 0.0f, ColorEncoding::pack_a8r8g8b8_u32(255, 255, 255)},
   };
 
-  const VertexLayout vertexLayout {
+  const array vertexLayout {
     VertexElement::Position3F32,
     VertexElement::ColorDiffuse1U32A8R8G8B8,
   };

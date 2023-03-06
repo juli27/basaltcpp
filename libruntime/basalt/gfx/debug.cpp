@@ -47,8 +47,10 @@ constexpr auto enumerator_to_string(const CommandType type) noexcept -> const
   switch (type) {
     ENUMERATOR_TO_STRING(CommandType, ClearAttachments);
     ENUMERATOR_TO_STRING(CommandType, Draw);
+    ENUMERATOR_TO_STRING(CommandType, DrawIndexed);
     ENUMERATOR_TO_STRING(CommandType, BindPipeline);
     ENUMERATOR_TO_STRING(CommandType, BindVertexBuffer);
+    ENUMERATOR_TO_STRING(CommandType, BindIndexBuffer);
     ENUMERATOR_TO_STRING(CommandType, BindTexture);
     ENUMERATOR_TO_STRING(CommandType, BindSampler);
     ENUMERATOR_TO_STRING(CommandType, SetLights);
@@ -202,6 +204,14 @@ void display(const CommandDraw& cmd) {
   ImGui::Text("vertexCount = %u", cmd.vertexCount);
 }
 
+void display(const CommandDrawIndexed& cmd) {
+  ImGui::Text("vertexOffset = %i", cmd.vertexOffset);
+  ImGui::Text("minIndex = %u", cmd.minIndex);
+  ImGui::Text("numVertices = %u", cmd.numVertices);
+  ImGui::Text("firstIndex = %u", cmd.firstIndex);
+  ImGui::Text("indexCount = %u", cmd.indexCount);
+}
+
 void display(const CommandBindPipeline& cmd) {
   ImGui::Text("handle = %#x", cmd.handle.value());
 }
@@ -209,6 +219,10 @@ void display(const CommandBindPipeline& cmd) {
 void display(const CommandBindVertexBuffer& cmd) {
   ImGui::Text("handle = %#x", cmd.handle.value());
   ImGui::Text("offset = %llu", cmd.offset);
+}
+
+void display(const CommandBindIndexBuffer& cmd) {
+  ImGui::Text("handle = %#x", cmd.handle.value());
 }
 
 void display(const CommandBindSampler& cmd) {

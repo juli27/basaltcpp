@@ -82,6 +82,16 @@ inline auto to_d3d(const ImageFormat format) -> D3DFORMAT {
   return TO_D3D[format];
 }
 
+inline auto to_d3d(const IndexType type) -> D3DFORMAT {
+  static constexpr EnumArray<IndexType, D3DFORMAT, 2> TO_D3D {
+    {IndexType::U16, D3DFMT_INDEX16},
+    {IndexType::U32, D3DFMT_INDEX32},
+  };
+  static_assert(TO_D3D.size() == INDEX_TYPE_COUNT);
+
+  return TO_D3D[type];
+}
+
 inline auto to_d3d(const MultiSampleCount sampleCount) -> D3DMULTISAMPLE_TYPE {
   static constexpr EnumArray<MultiSampleCount, D3DMULTISAMPLE_TYPE, 4> TO_D3D {
     {MultiSampleCount::One, D3DMULTISAMPLE_NONE},

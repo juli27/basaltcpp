@@ -66,12 +66,16 @@ constexpr array TRIANGLE_VERTICES {
 TexturesExercises::TexturesExercises(Engine& engine)
   : mGfxCache {engine.gfx_resource_cache()}
   , mTexture {mGfxCache.load_texture("data/banana.bmp"sv)} {
+  constexpr array vertexLayout {
+    VertexElement::Position3F32,
+    VertexElement::TextureCoords2F32,
+  };
   const span vertexData {as_bytes(span {TRIANGLE_VERTICES})};
 
   mVertexBuffer = mGfxCache.create_vertex_buffer(
     {
       vertexData.size(),
-      {VertexElement::Position3F32, VertexElement::TextureCoords2F32},
+      vertexLayout,
     },
     vertexData);
 

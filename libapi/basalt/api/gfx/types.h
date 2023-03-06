@@ -128,11 +128,6 @@ struct MeshDescriptor final {
   u32 vertexCount {};
   VertexLayout layout;
 };
-#if _DEBUG
-static_assert(sizeof(MeshDescriptor) == 56);
-#else
-static_assert(sizeof(MeshDescriptor) == 48);
-#endif
 
 struct SampledTextureDescriptor final {
   Texture texture {Texture::null()};
