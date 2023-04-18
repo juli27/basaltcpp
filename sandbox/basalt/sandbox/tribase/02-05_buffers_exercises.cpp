@@ -1,4 +1,4 @@
-#include <basalt/sandbox/tribase/02-05_buffers.h>
+#include <basalt/sandbox/tribase/02-05_buffers_exercises.h>
 
 #include <basalt/api/engine.h>
 #include <basalt/api/input_events.h>
@@ -10,9 +10,12 @@
 #include <basalt/api/math/matrix4x4.h>
 
 #include <gsl/span>
+#include <imgui/imgui.h>
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
+#include <iterator>
 #include <random>
 #include <utility>
 
@@ -53,6 +56,11 @@ using std::uniform_real_distribution;
 
 namespace tribase {
 
+struct BuffersExercises::CubeData final {
+  Vector3f32 position;
+  Vector3f32 velocity;
+};
+
 namespace {
 
 using Distribution = uniform_real_distribution<float>;
@@ -75,16 +83,29 @@ static_assert(NUM_CUBES * NUM_VERTICES_PER_CUBE <= 0xffff,
 auto fill_buffers(const span<Vertex> vb, const span<u16> ib) {
   default_random_engine randomEngine {random_device {}()};
   Distribution rng1 {-1.0f, 1.0f};
-  Distribution rng2 {20.0f, 250.f};
-  Distribution rng3 {0.0f, 1.0f};
+  Distribution rng2 {0.0f, 1.0f};
 
-  const auto normalizedRandomVector {[&] {
-    return Vector3f32::normalize(Vector3f32 {
-      rng1(randomEngine),
-      rng1(randomEngine),
-      rng1(randomEngine),
-    });
-  }};
+  vb[0].pos = Vector3f32 {-1.0f, 1.0f, -1.0f};
+  vb[1].pos = Vector3f32 {-1.0f, 1.0f, 1.0f};
+  vb[2].pos = Vector3f32 {1.0f, 1.0f, 1.0f};
+  vb[3].pos = Vector3f32 {1.0f, 1.0f, -1.0f};
+  vb[4].pos = Vector3f32 {-1.0f, -1.0f, -1.0f};
+  vb[5].pos = Vector3f32 {-1.0f, -1.0f, 1.0f};
+  vb[6].pos = Vector3f32 {1.0f, -1.0f, 1.0f};
+  vb[7].pos = Vector3f32 {1.0f, -1.0f, -1.0f};
+
+  for (u16 iVertex {0}; iVertex < NUM_VERTICES_PER_CUBE; iVertex++) {
+    Vertex& vertex {vb[iVertex]};
+
+    const Color vertexColor {Color::from_non_linear(rng2(randomEngine),
+                                                    rng2(randomEngine),
+                                                    rng2(randomEngine)) *
+                             2.0f};
+    vertex.diffuse = vertexColor.to_argb();
+
+    vertex.u = rng1(randomEngine);
+    vertex.v = rng1(randomEngine);
+  }
 
   const array<u16, NUM_INDICES_PER_CUBE> cubeIndices {
     0, 3, 7, 0, 7, 4, // front
@@ -94,44 +115,36 @@ auto fill_buffers(const span<Vertex> vb, const span<u16> ib) {
     0, 1, 2, 0, 2, 3, // top
     6, 5, 4, 6, 4, 7}; // bottom
 
-  for (u32 iCube {0}; iCube < NUM_CUBES; iCube++) {
-    const Vector3f32 pos {normalizedRandomVector() * rng2(randomEngine)};
-
-    const u16 startVertex {static_cast<u16>(NUM_VERTICES_PER_CUBE * iCube)};
-
-    vb[startVertex + 0].pos = pos + Vector3f32 {-1.0f, 1.0f, -1.0f};
-    vb[startVertex + 1].pos = pos + Vector3f32 {-1.0f, 1.0f, 1.0f};
-    vb[startVertex + 2].pos = pos + Vector3f32 {1.0f, 1.0f, 1.0f};
-    vb[startVertex + 3].pos = pos + Vector3f32 {1.0f, 1.0f, -1.0f};
-    vb[startVertex + 4].pos = pos + Vector3f32 {-1.0f, -1.0f, -1.0f};
-    vb[startVertex + 5].pos = pos + Vector3f32 {-1.0f, -1.0f, 1.0f};
-    vb[startVertex + 6].pos = pos + Vector3f32 {1.0f, -1.0f, 1.0f};
-    vb[startVertex + 7].pos = pos + Vector3f32 {1.0f, -1.0f, -1.0f};
-
-    for (Vertex& vertex : vb.subspan(startVertex, NUM_VERTICES_PER_CUBE)) {
-      const Color vertexColor {Color::from_non_linear(rng3(randomEngine),
-                                                      rng3(randomEngine),
-                                                      rng3(randomEngine)) *
-                               2.0f};
-      vertex.diffuse = vertexColor.to_argb();
-
-      vertex.u = rng1(randomEngine);
-      vertex.v = rng1(randomEngine);
-    }
-
-    const u32 startIndex {NUM_INDICES_PER_CUBE * iCube};
-
-    for (u32 iIndex {0}; iIndex < NUM_INDICES_PER_CUBE; iIndex++) {
-      // add startIndex as offset to every index
-      ib[startIndex + iIndex] = cubeIndices[iIndex] + startVertex;
-    }
-  }
+  std::copy(cubeIndices.begin(), cubeIndices.end(), ib.begin());
 }
 
 } // namespace
 
-Buffers::Buffers(Engine& engine)
+BuffersExercises::BuffersExercises(Engine& engine)
   : mResourceCache {engine.gfx_resource_cache()}, mFov {90_deg} {
+  {
+    default_random_engine randomEngine {random_device {}()};
+    Distribution rng1 {-1.0f, 1.0f};
+    Distribution rng2 {20.0f, 250.f};
+    Distribution rng3 {0.1f, 5.0f};
+
+    const auto normalizedRandomVector {[&] {
+      return Vector3f32::normalize(Vector3f32 {
+        rng1(randomEngine),
+        rng1(randomEngine),
+        rng1(randomEngine),
+      });
+    }};
+
+    mCubes.reserve(NUM_CUBES);
+    std::generate_n(std::back_inserter(mCubes), NUM_CUBES, [&] {
+      const Vector3f32 position {normalizedRandomVector() * rng2(randomEngine)};
+      const Vector3f32 velocity {normalizedRandomVector() * rng3(randomEngine)};
+
+      return CubeData {position, velocity};
+    });
+  }
+
   constexpr array vertexLayout {
     VertexElement::Position3F32,
     VertexElement::ColorDiffuse1U32A8R8G8B8,
@@ -155,11 +168,11 @@ Buffers::Buffers(Engine& engine)
 
   VertexBufferDescriptor vbDesc;
   vbDesc.layout = vertexLayout;
-  vbDesc.sizeInBytes = NUM_VERTICES_PER_CUBE * sizeof(Vertex) * NUM_CUBES;
+  vbDesc.sizeInBytes = NUM_VERTICES_PER_CUBE * sizeof(Vertex);
   mVertexBuffer = mResourceCache.create_vertex_buffer(vbDesc);
 
   IndexBufferDescriptor ibDesc;
-  ibDesc.sizeInBytes = NUM_INDICES_PER_CUBE * sizeof(u16) * NUM_CUBES;
+  ibDesc.sizeInBytes = NUM_INDICES_PER_CUBE * sizeof(u16);
   mIndexBuffer = mResourceCache.create_index_buffer(ibDesc);
 
   mResourceCache.with_mapping_of(mVertexBuffer, [this](
@@ -183,7 +196,7 @@ Buffers::Buffers(Engine& engine)
   mTexture = mResourceCache.load_texture("data/tribase/Texture2.bmp");
 }
 
-Buffers::~Buffers() noexcept {
+BuffersExercises::~BuffersExercises() noexcept {
   mResourceCache.destroy(mTexture);
   mResourceCache.destroy(mSampler);
   mResourceCache.destroy(mIndexBuffer);
@@ -191,7 +204,25 @@ Buffers::~Buffers() noexcept {
   mResourceCache.destroy(mPipeline);
 }
 
-auto Buffers::on_draw(const DrawContext& drawContext) -> void {
+auto BuffersExercises::regenerate_velocities() -> void {
+  default_random_engine randomEngine {random_device {}()};
+  Distribution rng1 {-1.0f, 1.0f};
+  Distribution rng2 {0.1f, 5.0f};
+
+  const auto normalizedRandomVector {[&] {
+    return Vector3f32::normalize(Vector3f32 {
+      rng1(randomEngine),
+      rng1(randomEngine),
+      rng1(randomEngine),
+    });
+  }};
+
+  std::for_each(mCubes.begin(), mCubes.end(), [&](CubeData& cube) {
+    cube.velocity = normalizedRandomVector() * rng2(randomEngine);
+  });
+}
+
+auto BuffersExercises::on_draw(const DrawContext& drawContext) -> void {
   CommandList cmdList;
 
   cmdList.clear_attachments(
@@ -216,19 +247,49 @@ auto Buffers::on_draw(const DrawContext& drawContext) -> void {
   const auto view {
     Matrix4x4f32::look_at_lh(mCameraPos, lookAt, Vector3f32::up())};
   cmdList.set_transform(TransformState::WorldToView, view);
-  cmdList.set_transform(TransformState::ModelToWorld, Matrix4x4f32::identity());
 
   cmdList.bind_vertex_buffer(mVertexBuffer, 0);
   cmdList.bind_index_buffer(mIndexBuffer);
 
-  cmdList.draw_indexed(0, 0, NUM_CUBES * NUM_VERTICES_PER_CUBE, 0,
-                       NUM_CUBES * NUM_INDICES_PER_CUBE);
+  for (const auto& cube : mCubes) {
+    const Matrix4x4f32 transform {Matrix4x4f32::translation(cube.position)};
+    cmdList.set_transform(TransformState::ModelToWorld, transform);
+
+    cmdList.draw_indexed(0, 0, NUM_VERTICES_PER_CUBE, 0, NUM_INDICES_PER_CUBE);
+  }
 
   drawContext.commandLists.emplace_back(std::move(cmdList));
 }
 
-auto Buffers::on_tick(Engine& engine) -> void {
+auto BuffersExercises::on_tick(Engine& engine) -> void {
+  if (ImGui::Begin("Settings##TribaseTexturesEx")) {
+    if (ImGui::RadioButton("Exercise 1", &mCurrentExercise, 0)) {
+      regenerate_velocities();
+    }
+
+    ImGui::RadioButton("Exercise 2", &mCurrentExercise, 1);
+  }
+
+  ImGui::End();
+
   const auto dt {static_cast<f32>(engine.delta_time())};
+
+  if (mCurrentExercise == 1) {
+    std::for_each(mCubes.begin(), mCubes.end(), [this, dt](CubeData& cube) {
+      const Vector3f32 toCamera {mCameraPos - cube.position};
+      cube.velocity += toCamera * (0.01f * dt);
+    });
+  }
+
+  if (!is_key_down(Key::Space)) {
+    for (auto& cube : mCubes) {
+      cube.position += cube.velocity * dt;
+
+      if (cube.position.length() > 250) {
+        cube.velocity *= -1.0f;
+      }
+    }
+  }
 
   if (is_key_down(Key::LeftArrow)) {
     mCameraAngleY -= Angle::degrees(45.0f * dt);
@@ -269,7 +330,7 @@ auto Buffers::on_tick(Engine& engine) -> void {
   }
 }
 
-auto Buffers::on_input(const InputEvent&) -> InputEventHandled {
+auto BuffersExercises::on_input(const InputEvent&) -> InputEventHandled {
   return InputEventHandled::Yes;
 }
 

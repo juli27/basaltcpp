@@ -82,6 +82,10 @@ SandboxView::SandboxView(Engine& engine) {
     &TribaseExamples::new_02_05_buffers_example,
   });
   mExamples.emplace_back(Example {
+    "Bsp. 02-05: Vertex- und Index-Buffer - Aufgabe 1"s,
+    &TribaseExamples::new_02_05_buffers_exercises,
+  });
+  mExamples.emplace_back(Example {
     "Textures"s,
     &Samples::new_textures_sample,
   });

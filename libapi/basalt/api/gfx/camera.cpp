@@ -18,15 +18,7 @@ Camera::Camera(const Vector3f32& position, const Vector3f32& lookAt,
 }
 
 auto Camera::world_to_view() const noexcept -> Matrix4x4f32 {
-  const auto zAxis {Vector3f32::normalize(mLookAt - mPosition)};
-  const auto xAxis {Vector3f32::normalize(Vector3f32::cross(mUp, zAxis))};
-  const auto yAxis {Vector3f32::normalize(Vector3f32::cross(zAxis, xAxis))};
-
-  return Matrix4x4f32::translation(-mPosition) *
-         Matrix4x4f32 {xAxis.x(), yAxis.x(), zAxis.x(), 0.0f,
-                       xAxis.y(), yAxis.y(), zAxis.y(), 0.0f,
-                       xAxis.z(), yAxis.z(), zAxis.z(), 0.0f,
-                       0.0f,      0.0f,      0.0f,      1.0f};
+  return Matrix4x4f32::look_at_lh(mPosition, mLookAt, mUp);
 }
 
 auto Camera::view_to_viewport(const Size2Du16 viewport) const noexcept

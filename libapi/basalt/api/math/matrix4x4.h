@@ -135,6 +135,10 @@ struct Matrix4x4f32 final {
     // clang-format on
   }
 
+  [[nodiscard]] static auto look_at_lh(const Vector3f32& position,
+                                       const Vector3f32& lookAt,
+                                       const Vector3f32& up) -> Matrix4x4f32;
+
   [[nodiscard]] static auto perspective_projection(Angle fov, f32 aspectRatio,
                                                    f32 nearPlaneZ,
                                                    f32 farPlaneZ) noexcept
