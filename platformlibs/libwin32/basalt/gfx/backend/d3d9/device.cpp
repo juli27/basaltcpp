@@ -110,38 +110,17 @@ auto to_fvf(const span<const VertexElement> layout) -> DWORD {
   return fvf;
 }
 
-#if BASALT_DEV_BUILD
-
-auto verify_fvf(const DWORD fvf) -> bool {
-  if (fvf & D3DFVF_XYZRHW && (fvf & D3DFVF_XYZ || fvf & D3DFVF_NORMAL)) {
-    BASALT_LOG_ERROR("can't use transformed positions with untransformed"
-                     "positions or normals");
-    return false;
-  }
-
-  return true;
-}
-
-#endif
-
 auto map_impl(IDirect3DVertexBuffer9& vertexBuffer,
               const uDeviceSize offset = 0, uDeviceSize size = 0)
   -> span<std::byte> {
   D3DVERTEXBUFFER_DESC desc {};
   D3D9CHECK(vertexBuffer.GetDesc(&desc));
 
-  BASALT_ASSERT(offset < desc.Size);
-  BASALT_ASSERT(offset + size <= desc.Size);
-
   if (size == 0) {
     size = desc.Size - offset;
   }
 
   if (offset >= desc.Size || size + offset > desc.Size) {
-    BASALT_LOG_ERROR(
-      "invalid map params: offset = {} size = {} (bufferSize = {})", offset,
-      size, desc.Size);
-
     return {};
   }
 
@@ -163,18 +142,11 @@ auto map_impl(IDirect3DIndexBuffer9& indexBuffer,
   D3DINDEXBUFFER_DESC desc {};
   D3D9CHECK(indexBuffer.GetDesc(&desc));
 
-  BASALT_ASSERT(offsetInBytes < desc.Size);
-  BASALT_ASSERT(offsetInBytes + sizeInBytes <= desc.Size);
-
   if (sizeInBytes == 0) {
     sizeInBytes = desc.Size - offsetInBytes;
   }
 
   if (offsetInBytes >= desc.Size || sizeInBytes + offsetInBytes > desc.Size) {
-    BASALT_LOG_ERROR("invalid map params: offsetInBytes = {} sizeInBytes = {} "
-                     "(bufferSize = {})",
-                     offsetInBytes, sizeInBytes, desc.Size);
-
     return {};
   }
 
@@ -410,8 +382,6 @@ auto D3D9Device::capabilities() const -> const DeviceCaps& {
 }
 
 auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
-  BASALT_ASSERT(desc.textureStages.size() <= 1u);
-
   DWORD stage1Tci {0 | D3DTSS_TCI_PASSTHRU};
   D3DTEXTURETRANSFORMFLAGS stage0Ttf {D3DTTFF_DISABLE};
   DWORD stage1Arg1 {};
@@ -433,14 +403,15 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
     stage1AlphaOp = to_d3d(stage.alphaOp);
   }
 
-  const DWORD fvf {to_fvf(desc.vertexInputState)};
-  BASALT_ASSERT(verify_fvf(fvf), "invalid fvf. Consult the log for details");
-
   // TODO: is there a benefit to turn off z testing when func = Always
   // and with writing disabled?
+  const D3DZBUFFERTYPE zEnabled {desc.depthTest == TestOp::PassAlways &&
+                                     !desc.depthWriteEnable
+                                   ? D3DZB_FALSE
+                                   : D3DZB_TRUE};
 
   return mPipelines.allocate(PipelineData {
-    fvf,
+    to_fvf(desc.vertexInputState),
     stage1Tci,
     stage0Ttf,
     stage1Arg1,
@@ -452,8 +423,7 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
     to_d3d(desc.shadeMode),
     to_d3d(desc.cullMode),
     to_d3d(desc.fillMode),
-    desc.depthTest == TestOp::PassAlways && !desc.depthWriteEnable ? D3DZB_FALSE
-                                                                   : D3DZB_TRUE,
+    zEnabled,
     to_d3d(desc.depthTest),
     to_d3d(desc.depthWriteEnable),
     to_d3d(desc.dithering),
@@ -469,26 +439,12 @@ auto D3D9Device::destroy(const Pipeline handle) noexcept -> void {
 auto D3D9Device::create_vertex_buffer(const VertexBufferDescriptor& desc,
                                       const span<const std::byte> initialData)
   -> VertexBuffer {
-  BASALT_ASSERT(!desc.layout.empty());
-  BASALT_ASSERT(initialData.size() <= desc.sizeInBytes);
-
   if (desc.sizeInBytes > mCaps.maxVertexBufferSizeInBytes) {
-    BASALT_LOG_ERROR("requested vertex buffer size ({}) too large",
-                     desc.sizeInBytes);
-
     throw bad_alloc {};
   }
 
   const DWORD fvf {to_fvf(desc.layout)};
-  BASALT_ASSERT(verify_fvf(fvf), "invalid fvf. Consult the log for details");
-
-  // FVF vertex buffers must be large enough to contain at least one vertex, but
-  // it need not be a multiple of the vertex size
-  const UINT minSize {D3DXGetFVFVertexSize(fvf)};
-  BASALT_ASSERT(desc.sizeInBytes >= minSize,
-                "vertex buffer must contain at least one vertex");
-
-  const UINT size {std::max(minSize, static_cast<UINT>(desc.sizeInBytes))};
+  const UINT size {static_cast<UINT>(desc.sizeInBytes)};
 
   D3D9VertexBufferPtr vertexBuffer {};
   if (FAILED(mDevice->CreateVertexBuffer(size, 0ul, fvf, D3DPOOL_MANAGED,
@@ -520,8 +476,6 @@ auto D3D9Device::destroy(const VertexBuffer handle) noexcept -> void {
 
 auto D3D9Device::map(const VertexBuffer handle, const uDeviceSize offset,
                      const uDeviceSize size) -> span<std::byte> {
-  BASALT_ASSERT(mVertexBuffers.is_valid(handle));
-
   if (!mVertexBuffers.is_valid(handle)) {
     return {};
   }
@@ -532,8 +486,6 @@ auto D3D9Device::map(const VertexBuffer handle, const uDeviceSize offset,
 }
 
 auto D3D9Device::unmap(const VertexBuffer handle) noexcept -> void {
-  BASALT_ASSERT(mVertexBuffers.is_valid(handle));
-
   if (!mVertexBuffers.is_valid(handle)) {
     return;
   }
@@ -545,16 +497,9 @@ auto D3D9Device::unmap(const VertexBuffer handle) noexcept -> void {
 auto D3D9Device::create_index_buffer(const IndexBufferDescriptor& desc,
                                      const span<const std::byte> initialData)
   -> IndexBuffer {
-  BASALT_ASSERT(initialData.size() <= desc.sizeInBytes);
-
   if (desc.sizeInBytes > mCaps.maxIndexBufferSizeInBytes) {
-    BASALT_LOG_ERROR("requested index buffer size ({}) too large",
-                     desc.sizeInBytes);
-
     throw bad_alloc {};
   }
-
-  BASALT_ASSERT(mCaps.supportedIndexTypes[desc.type]);
 
   const UINT size {static_cast<UINT>(desc.sizeInBytes)};
   const D3DFORMAT type {to_d3d(desc.type)};
@@ -587,8 +532,6 @@ auto D3D9Device::destroy(const IndexBuffer handle) noexcept -> void {
 }
 auto D3D9Device::map(const IndexBuffer handle, const uDeviceSize offsetInBytes,
                      const uDeviceSize sizeInBytes) -> span<std::byte> {
-  BASALT_ASSERT(mIndexBuffers.is_valid(handle));
-
   if (!mIndexBuffers.is_valid(handle)) {
     return {};
   }
@@ -599,8 +542,6 @@ auto D3D9Device::map(const IndexBuffer handle, const uDeviceSize offsetInBytes,
 }
 
 auto D3D9Device::unmap(const IndexBuffer handle) noexcept -> void {
-  BASALT_ASSERT(mIndexBuffers.is_valid(handle));
-
   if (!mIndexBuffers.is_valid(handle)) {
     return;
   }
@@ -671,9 +612,6 @@ auto D3D9Device::execute(const Command& cmd) -> void {
 }
 
 auto D3D9Device::execute(const CommandClearAttachments& cmd) -> void {
-  BASALT_ASSERT_IF(cmd.attachments.has(Attachment::DepthBuffer),
-                   cmd.depth >= 0.0f && cmd.depth <= 1.0f);
-
   const DWORD flags {[&] {
     DWORD f {0};
 
@@ -704,8 +642,6 @@ auto D3D9Device::execute(const CommandDraw& cmd) -> void {
                                    primitiveCount));
 }
 auto D3D9Device::execute(const CommandDrawIndexed& cmd) -> void {
-  BASALT_ASSERT(mCurrentPrimitiveType != D3DPT_POINTLIST);
-
   const UINT primitiveCount {
     calculate_primitive_count(mCurrentPrimitiveType, cmd.indexCount)};
 
@@ -715,8 +651,6 @@ auto D3D9Device::execute(const CommandDrawIndexed& cmd) -> void {
 }
 
 auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
-  BASALT_ASSERT(mPipelines.is_valid(cmd.handle));
-
   if (!mPipelines.is_valid(cmd.handle)) {
     return;
   }
@@ -757,8 +691,6 @@ auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
 }
 
 auto D3D9Device::execute(const CommandBindVertexBuffer& cmd) -> void {
-  BASALT_ASSERT(mVertexBuffers.is_valid(cmd.handle));
-
   if (!mVertexBuffers.is_valid(cmd.handle)) {
     return;
   }
@@ -769,16 +701,11 @@ auto D3D9Device::execute(const CommandBindVertexBuffer& cmd) -> void {
   D3D9CHECK(buffer->GetDesc(&desc));
 
   const UINT fvfStride {D3DXGetFVFVertexSize(desc.FVF)};
-  const UINT maxOffset {desc.Size - fvfStride};
-  BASALT_ASSERT(cmd.offset < maxOffset);
-
-  const UINT offset {std::min(maxOffset, static_cast<UINT>(cmd.offset))};
+  const UINT offset {static_cast<UINT>(cmd.offset)};
 
   D3D9CHECK(mDevice->SetStreamSource(0u, buffer.Get(), offset, fvfStride));
 }
 auto D3D9Device::execute(const CommandBindIndexBuffer& cmd) -> void {
-  BASALT_ASSERT(mIndexBuffers.is_valid(cmd.handle));
-
   if (!mIndexBuffers.is_valid(cmd.handle)) {
     return;
   }
@@ -789,8 +716,6 @@ auto D3D9Device::execute(const CommandBindIndexBuffer& cmd) -> void {
 }
 
 auto D3D9Device::execute(const CommandBindSampler& cmd) -> void {
-  BASALT_ASSERT(mSamplers.is_valid(cmd.sampler));
-
   if (!mSamplers.is_valid(cmd.sampler)) {
     return;
   }
@@ -809,8 +734,6 @@ auto D3D9Device::execute(const CommandBindSampler& cmd) -> void {
 }
 
 auto D3D9Device::execute(const CommandBindTexture& cmd) -> void {
-  BASALT_ASSERT(mTextures.is_valid(cmd.texture));
-
   if (!mTextures.is_valid(cmd.texture)) {
     return;
   }
@@ -821,10 +744,6 @@ auto D3D9Device::execute(const CommandBindTexture& cmd) -> void {
 }
 
 auto D3D9Device::execute(const CommandSetTransform& cmd) -> void {
-  BASALT_ASSERT_IF(cmd.state == TransformState::ViewToViewport,
-                   cmd.transform.m34 >= 0,
-                   "(3,4) can't be negative in a projection matrix");
-
   const D3DTRANSFORMSTATETYPE state {to_d3d(cmd.state)};
   const auto transform {to_d3d(cmd.transform)};
 
@@ -837,9 +756,6 @@ auto D3D9Device::execute(const CommandSetAmbientLight& cmd) -> void {
 
 auto D3D9Device::execute(const CommandSetLights& cmd) -> void {
   const auto& lights {cmd.lights};
-  BASALT_ASSERT(lights.size() <= mCaps.maxLights,
-                "the renderer doesn't support that many lights");
-
   mMaxLightsUsed = std::max(mMaxLightsUsed, static_cast<u8>(lights.size()));
 
   DWORD lightIndex {0ul};

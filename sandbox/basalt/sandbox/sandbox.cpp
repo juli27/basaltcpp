@@ -224,7 +224,7 @@ auto SandboxView::on_tick(Engine& engine) -> void {
   }
 }
 
-auto SandboxView::next_scene(Engine& engine) noexcept -> void {
+auto SandboxView::next_scene(Engine& engine) -> void {
   uSize nextSceneIndex {mCurrentExampleIndex + 1};
   if (nextSceneIndex >= mExamples.size()) {
     nextSceneIndex = 0;
@@ -233,7 +233,7 @@ auto SandboxView::next_scene(Engine& engine) noexcept -> void {
   switch_scene(nextSceneIndex, engine);
 }
 
-auto SandboxView::prev_scene(Engine& engine) noexcept -> void {
+auto SandboxView::prev_scene(Engine& engine) -> void {
   const uSize prevSceneIndex {[this] {
     if (mCurrentExampleIndex == 0) {
       return mExamples.size() - 1;
@@ -245,8 +245,7 @@ auto SandboxView::prev_scene(Engine& engine) noexcept -> void {
   switch_scene(prevSceneIndex, engine);
 }
 
-auto SandboxView::switch_scene(const uSize index, Engine& engine) noexcept
-  -> void {
+auto SandboxView::switch_scene(const uSize index, Engine& engine) -> void {
   BASALT_ASSERT(index < mExamples.size());
 
   if (mExamples.empty()) {

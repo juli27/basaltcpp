@@ -148,6 +148,7 @@ enum class VertexElement : u8 {
   TextureCoords3F32,
   TextureCoords4F32,
 };
+constexpr u8 VERTEX_ELEMENT_COUNT {10u};
 using VertexLayout = gsl::span<const VertexElement>;
 
 enum class IndexType : u8 {

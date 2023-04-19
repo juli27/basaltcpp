@@ -2,11 +2,10 @@
 
 #include <basalt/win32/types.h>
 
+#include <basalt/win32/shared/types.h>
 #include <basalt/win32/shared/Windows_custom.h>
 
 #include <basalt/input_manager.h>
-
-#include <basalt/gfx/backend/d3d9/types.h>
 
 #include <basalt/gfx/backend/types.h>
 
@@ -34,7 +33,7 @@ public:
 
   // throws std::system_error on failure
   [[nodiscard]] static auto create(HMODULE, const CreateInfo&,
-                                   const gfx::D3D9Factory&) -> WindowPtr;
+                                   const gfx::Win32GfxFactory&) -> WindowPtr;
 
   Window(const Window&) = delete;
   Window(Window&&) = delete;
@@ -76,7 +75,7 @@ private:
   std::array<HCURSOR, MOUSE_CURSOR_COUNT> mLoadedCursors {};
   bool mIsInSizeMoveModalLoop {false};
 
-  auto init_gfx_context(const gfx::D3D9Factory&) -> void;
+  auto init_gfx_context(const gfx::Win32GfxFactory&) -> void;
   auto shutdown_gfx_context() -> void;
 
   auto resize(Size2Du16 newClientAreaSize) -> void;

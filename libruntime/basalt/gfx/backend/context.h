@@ -13,7 +13,8 @@ namespace basalt::gfx {
 
 // A gfx context is directly tied to a window. If another gfx context is
 // required (e.g. change of rendering API), the window must be recreated.
-struct Context {
+class Context {
+public:
   Context(const Context&) = delete;
   Context(Context&&) = delete;
 
@@ -42,7 +43,7 @@ struct Context {
 
   [[nodiscard]] virtual auto device() const noexcept -> DevicePtr = 0;
 
-  virtual void submit(const Composite&) = 0;
+  virtual auto submit(const Composite&) -> void = 0;
   [[nodiscard]] virtual auto present() -> PresentResult = 0;
 
 protected:

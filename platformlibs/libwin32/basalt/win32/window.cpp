@@ -9,8 +9,7 @@
 #endif // BASALT_TRACE_WINDOWS_MESSAGES
 
 #include <basalt/win32/shared/utils.h>
-
-#include <basalt/gfx/backend/d3d9/factory.h>
+#include <basalt/win32/shared/win32_gfx_factory.h>
 
 #include <basalt/gfx/backend/context.h>
 
@@ -146,7 +145,7 @@ auto register_class(const HMODULE moduleHandle) -> ATOM {
 } // namespace
 
 auto Window::create(const HMODULE moduleHandle, const CreateInfo& info,
-                    const gfx::D3D9Factory& gfxFactory) -> WindowPtr {
+                    const gfx::Win32GfxFactory& gfxFactory) -> WindowPtr {
   const ATOM windowClass {register_class(moduleHandle)};
   if (!windowClass) {
     throw system_error {static_cast<int>(GetLastError()),
@@ -353,10 +352,10 @@ Window::Window(const HMODULE moduleHandle, const ATOM classAtom,
     loadCursor(OCR_NO);
 }
 
-auto Window::init_gfx_context(const gfx::D3D9Factory& gfxFactory) -> void {
+auto Window::init_gfx_context(const gfx::Win32GfxFactory& gfxFactory) -> void {
   const auto& adapterInfo {mAdapters[0]};
 
-  const gfx::D3D9Factory::DeviceAndContextDesc contextDesc {
+  const gfx::Win32GfxFactory::DeviceAndContextDesc contextDesc {
     adapterInfo.handle,         adapterInfo.displayMode,
     adapterInfo.displayFormat,  gfx::ImageFormat::D16,
     gfx::MultiSampleCount::One, mCurrentMode == WindowMode::FullscreenExclusive,

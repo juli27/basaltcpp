@@ -11,8 +11,14 @@ namespace basalt::gfx {
 
 using Composite = std::vector<CommandList>;
 
-struct Context;
+class Context;
 using ContextPtr = std::shared_ptr<Context>;
+
+class ValidatingContext;
+using ValidatingContextPtr = std::shared_ptr<ValidatingContext>;
+
+class ValidatingDevice;
+using ValidatingDevicePtr = std::shared_ptr<ValidatingDevice>;
 
 struct CommandClearAttachments;
 struct CommandDraw;

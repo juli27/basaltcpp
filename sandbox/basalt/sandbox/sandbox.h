@@ -26,9 +26,9 @@ private:
   bool mShowAbout {false};
   bool mShowOverlay {true};
 
-  auto next_scene(basalt::Engine&) noexcept -> void;
-  auto prev_scene(basalt::Engine&) noexcept -> void;
-  auto switch_scene(basalt::uSize index, basalt::Engine&) noexcept -> void;
+  auto next_scene(basalt::Engine&) -> void;
+  auto prev_scene(basalt::Engine&) -> void;
+  auto switch_scene(basalt::uSize index, basalt::Engine&) -> void;
 
   auto on_tick(basalt::Engine&) -> void override;
 };

@@ -222,6 +222,17 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
   allCapsPresent &=
     verify_caps_present(caps.TextureAddressCaps, MIN_TEXTURE_ADDRESS_CAPS);
 
+  {
+    constexpr u8 minNumTexCoords {1};
+    const WORD numTexCoords {
+      static_cast<WORD>(caps.FVFCaps & D3DFVFCAPS_TEXCOORDCOUNTMASK)};
+    if (numTexCoords < minNumTexCoords) {
+      BASALT_LOG_WARN("D3D9: only {} sets of texture coordinates supported",
+                      minNumTexCoords);
+      allCapsPresent = false;
+    }
+  }
+
   static constexpr array<Cap, 1> MIN_DEV_CAPS2 {
     MAKE_CAP(D3DDEVCAPS2_STREAMOFFSET),
   };
@@ -570,7 +581,7 @@ auto D3D9Factory::get_adapter_monitor(const Adapter adapter) const -> HMONITOR {
   return mInstance->GetAdapterMonitor(adapterOrdinal);
 }
 
-auto D3D9Factory::create_device_and_context(
+auto D3D9Factory::do_create_device_and_context(
   const HWND window, const DeviceAndContextDesc& desc) const
   -> DeviceAndContext {
   const UINT adapterOrdinal {desc.adapter.value()};

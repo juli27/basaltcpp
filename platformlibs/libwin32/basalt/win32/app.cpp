@@ -9,9 +9,12 @@
 #include <basalt/win32/debug.h>
 #endif // BASALT_TRACE_WINDOWS_MESSAGES
 
-#include <basalt/dear_imgui.h>
-
 #include <basalt/gfx/backend/d3d9/factory.h>
+
+#include <basalt/win32/shared/types.h>
+#include <basalt/win32/shared/win32_gfx_factory.h>
+
+#include <basalt/dear_imgui.h>
 
 #include <basalt/gfx/backend/context.h>
 #include <basalt/gfx/backend/device.h>
@@ -119,7 +122,7 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
   -> void {
   dump_config(config);
 
-  const gfx::D3D9FactoryPtr gfxFactory {gfx::D3D9Factory::create()};
+  const gfx::Win32GfxFactoryPtr gfxFactory {gfx::D3D9Factory::create()};
   if (!gfxFactory) {
     BASALT_LOG_FATAL("couldn't create any gfx factory");
 
