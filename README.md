@@ -4,7 +4,7 @@
 * A recent version of Windows 10 or 11 (x86-64)
 * Git
 * CMake 3.18 or newer
-* MSVC v143 v14.33 or newer
+* MSVC v143 v14.34 or newer
 * Windows 8.1 SDK or newer
 * [DirectX SDK June 2010](https://www.microsoft.com/en-us/download/details.aspx?id=6812)
 

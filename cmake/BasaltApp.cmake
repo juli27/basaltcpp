@@ -36,6 +36,7 @@ function(basalt_add_app APP_NAME)
       "/Zc:hiddenFriend"
       "/Zc:inline"
       "/Zc:lambda"
+      "/Zc:nrvo"
       "/Zc:preprocessor-"
       "/Zc:referenceBinding"
       "/Zc:rvalueCast"

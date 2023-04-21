@@ -44,6 +44,7 @@ target_compile_options(${CURRENT_TARGET}
     "/Zc:hiddenFriend"
     "/Zc:inline"
     "/Zc:lambda"
+    "/Zc:nrvo"
     "/Zc:preprocessor-"
     "/Zc:referenceBinding"
     "/Zc:rvalueCast"
