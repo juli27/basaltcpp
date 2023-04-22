@@ -350,39 +350,40 @@ auto ValidatingDevice::validate(const CommandDrawIndexed&) -> void {
 }
 
 auto ValidatingDevice::validate(const CommandBindPipeline& cmd) -> void {
-  if (!check("valid pipeline id", mPipelines.is_valid(cmd.handle))) {
+  if (!check("valid pipeline id", mPipelines.is_valid(cmd.pipelineId))) {
     return;
   }
 
-  const PipelineData& data {mPipelines[cmd.handle]};
+  const PipelineData& data {mPipelines[cmd.pipelineId]};
   mCurrentPrimitiveType = data.primitiveType;
 }
 
 auto ValidatingDevice::validate(const CommandBindVertexBuffer& cmd) -> void {
-  if (!check("valid vertex buffer id", mVertexBuffers.is_valid(cmd.handle))) {
+  if (!check("valid vertex buffer id",
+             mVertexBuffers.is_valid(cmd.vertexBufferId))) {
     return;
   }
 
-  const auto& data {mVertexBuffers[cmd.handle]};
+  const auto& data {mVertexBuffers[cmd.vertexBufferId]};
   const uDeviceSize vertexSize {get_vertex_size(data.layout)};
   const uDeviceSize maxOffset {data.sizeInBytes - vertexSize};
-  check("max offset", cmd.offset < maxOffset);
+  check("max offset", cmd.offsetInBytes < maxOffset);
 }
 
 auto ValidatingDevice::validate(const CommandBindIndexBuffer& cmd) -> void {
-  check("valid index buffer id", mIndexBuffers.is_valid(cmd.handle));
+  check("valid index buffer id", mIndexBuffers.is_valid(cmd.indexBufferId));
 }
 
 auto ValidatingDevice::validate(const CommandBindSampler& cmd) -> void {
-  check("valid sampler id", mSamplers.is_valid(cmd.sampler));
+  check("valid sampler id", mSamplers.is_valid(cmd.samplerId));
 }
 
 auto ValidatingDevice::validate(const CommandBindTexture& cmd) -> void {
-  check("valid texture id", mTextures.is_valid(cmd.texture));
+  check("valid texture id", mTextures.is_valid(cmd.textureId));
 }
 
 auto ValidatingDevice::validate(const CommandSetTransform& cmd) -> void {
-  if (cmd.state == TransformState::ViewToViewport) {
+  if (cmd.transformState == TransformState::ViewToViewport) {
     check("(3,4) can't be negative in a projection matrix",
           cmd.transform.m34 >= 0);
   }
@@ -403,7 +404,7 @@ auto ValidatingDevice::patch(CommandList& cmdList, const Command& cmd) -> void {
   switch (cmd.type) {
   case CommandType::ExtDrawXMesh: {
     const auto& drawCmd {cmd.as<ext::CommandDrawXMesh>()};
-    cmdList.ext_draw_x_mesh(drawCmd.handle, drawCmd.subset);
+    cmdList.ext_draw_x_mesh(drawCmd.xMeshId, drawCmd.subset);
 
     break;
   }
@@ -435,62 +436,62 @@ auto ValidatingDevice::patch(CommandList& cmdList,
 
 auto ValidatingDevice::patch(CommandList& cmdList,
                              const CommandBindPipeline& cmd) -> void {
-  if (!mPipelines.is_valid(cmd.handle)) {
+  if (!mPipelines.is_valid(cmd.pipelineId)) {
     return;
   }
 
-  const Pipeline originalId {mPipelines[cmd.handle].originalId};
+  const Pipeline originalId {mPipelines[cmd.pipelineId].originalId};
 
   cmdList.bind_pipeline(originalId);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
                              const CommandBindVertexBuffer& cmd) -> void {
-  if (!mVertexBuffers.is_valid(cmd.handle)) {
+  if (!mVertexBuffers.is_valid(cmd.vertexBufferId)) {
     return;
   }
 
-  const VertexBuffer originalId {mVertexBuffers[cmd.handle].originalId};
+  const VertexBuffer originalId {mVertexBuffers[cmd.vertexBufferId].originalId};
 
-  cmdList.bind_vertex_buffer(originalId, cmd.offset);
+  cmdList.bind_vertex_buffer(originalId, cmd.offsetInBytes);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
                              const CommandBindIndexBuffer& cmd) -> void {
-  if (!mIndexBuffers.is_valid(cmd.handle)) {
+  if (!mIndexBuffers.is_valid(cmd.indexBufferId)) {
     return;
   }
 
-  const IndexBuffer originalId {mIndexBuffers[cmd.handle].originalId};
+  const IndexBuffer originalId {mIndexBuffers[cmd.indexBufferId].originalId};
 
   cmdList.bind_index_buffer(originalId);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
                              const CommandBindSampler& cmd) -> void {
-  if (!mSamplers.is_valid(cmd.sampler)) {
+  if (!mSamplers.is_valid(cmd.samplerId)) {
     return;
   }
 
-  const Sampler originalId {mSamplers[cmd.sampler].originalId};
+  const Sampler originalId {mSamplers[cmd.samplerId].originalId};
 
   cmdList.bind_sampler(originalId);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
                              const CommandBindTexture& cmd) -> void {
-  if (!mTextures.is_valid(cmd.texture)) {
+  if (!mTextures.is_valid(cmd.textureId)) {
     return;
   }
 
-  const Texture originalId {mTextures[cmd.texture].originalId};
+  const Texture originalId {mTextures[cmd.textureId].originalId};
 
   cmdList.bind_texture(originalId);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
                              const CommandSetTransform& cmd) -> void {
-  cmdList.set_transform(cmd.state, cmd.transform);
+  cmdList.set_transform(cmd.transformState, cmd.transform);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,

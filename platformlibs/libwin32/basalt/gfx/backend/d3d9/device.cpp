@@ -224,7 +224,7 @@ struct D3D9XModelSupport final : ext::XModelSupport {
   }
 
   void execute(const ext::CommandDrawXMesh& cmd) const {
-    const auto& mesh {mMeshes[cmd.handle]};
+    const auto& mesh {mMeshes[cmd.xMeshId]};
 
     mesh->DrawSubset(cmd.subset);
   }
@@ -651,11 +651,11 @@ auto D3D9Device::execute(const CommandDrawIndexed& cmd) -> void {
 }
 
 auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
-  if (!mPipelines.is_valid(cmd.handle)) {
+  if (!mPipelines.is_valid(cmd.pipelineId)) {
     return;
   }
 
-  const PipelineData& data {mPipelines[cmd.handle]};
+  const PipelineData& data {mPipelines[cmd.pipelineId]};
   mCurrentPrimitiveType = data.primitiveType;
 
   D3D9CHECK(mDevice->SetFVF(data.fvf));
@@ -691,36 +691,36 @@ auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
 }
 
 auto D3D9Device::execute(const CommandBindVertexBuffer& cmd) -> void {
-  if (!mVertexBuffers.is_valid(cmd.handle)) {
+  if (!mVertexBuffers.is_valid(cmd.vertexBufferId)) {
     return;
   }
 
-  const D3D9VertexBufferPtr& buffer {mVertexBuffers[cmd.handle]};
+  const D3D9VertexBufferPtr& buffer {mVertexBuffers[cmd.vertexBufferId]};
 
   D3DVERTEXBUFFER_DESC desc {};
   D3D9CHECK(buffer->GetDesc(&desc));
 
   const UINT fvfStride {D3DXGetFVFVertexSize(desc.FVF)};
-  const UINT offset {static_cast<UINT>(cmd.offset)};
+  const UINT offset {static_cast<UINT>(cmd.offsetInBytes)};
 
   D3D9CHECK(mDevice->SetStreamSource(0u, buffer.Get(), offset, fvfStride));
 }
 auto D3D9Device::execute(const CommandBindIndexBuffer& cmd) -> void {
-  if (!mIndexBuffers.is_valid(cmd.handle)) {
+  if (!mIndexBuffers.is_valid(cmd.indexBufferId)) {
     return;
   }
 
-  const D3D9IndexBufferPtr& buffer {mIndexBuffers[cmd.handle]};
+  const D3D9IndexBufferPtr& buffer {mIndexBuffers[cmd.indexBufferId]};
 
   D3D9CHECK(mDevice->SetIndices(buffer.Get()));
 }
 
 auto D3D9Device::execute(const CommandBindSampler& cmd) -> void {
-  if (!mSamplers.is_valid(cmd.sampler)) {
+  if (!mSamplers.is_valid(cmd.samplerId)) {
     return;
   }
 
-  const auto& data {mSamplers[cmd.sampler]};
+  const auto& data {mSamplers[cmd.samplerId]};
 
   D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, data.minFilter));
   D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, data.magFilter));
@@ -734,17 +734,17 @@ auto D3D9Device::execute(const CommandBindSampler& cmd) -> void {
 }
 
 auto D3D9Device::execute(const CommandBindTexture& cmd) -> void {
-  if (!mTextures.is_valid(cmd.texture)) {
+  if (!mTextures.is_valid(cmd.textureId)) {
     return;
   }
 
-  const D3D9TexturePtr& texture {mTextures[cmd.texture]};
+  const D3D9TexturePtr& texture {mTextures[cmd.textureId]};
 
   D3D9CHECK(mDevice->SetTexture(0, texture.Get()));
 }
 
 auto D3D9Device::execute(const CommandSetTransform& cmd) -> void {
-  const D3DTRANSFORMSTATETYPE state {to_d3d(cmd.state)};
+  const D3DTRANSFORMSTATETYPE state {to_d3d(cmd.transformState)};
   const auto transform {to_d3d(cmd.transform)};
 
   D3D9CHECK(mDevice->SetTransform(state, &transform));

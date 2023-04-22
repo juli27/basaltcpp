@@ -55,33 +55,33 @@ auto CommandList::draw_indexed(const i32 vertexOffset, const u32 minIndex,
                           indexCount);
 }
 
-auto CommandList::bind_pipeline(const Pipeline handle) -> void {
-  add<CommandBindPipeline>(handle);
+auto CommandList::bind_pipeline(const Pipeline pipelineId) -> void {
+  add<CommandBindPipeline>(pipelineId);
 }
 
-auto CommandList::bind_vertex_buffer(const VertexBuffer buffer,
-                                     const u64 offset) -> void {
-  add<CommandBindVertexBuffer>(buffer, offset);
+auto CommandList::bind_vertex_buffer(const VertexBuffer vertexBufferId,
+                                     const u64 offsetInBytes) -> void {
+  add<CommandBindVertexBuffer>(vertexBufferId, offsetInBytes);
 }
-auto CommandList::bind_index_buffer(const IndexBuffer handle) -> void {
-  add<CommandBindIndexBuffer>(handle);
-}
-
-auto CommandList::bind_sampler(const Sampler sampler) -> void {
-  add<CommandBindSampler>(sampler);
+auto CommandList::bind_index_buffer(const IndexBuffer indexBufferId) -> void {
+  add<CommandBindIndexBuffer>(indexBufferId);
 }
 
-auto CommandList::bind_texture(const Texture texture) -> void {
-  add<CommandBindTexture>(texture);
+auto CommandList::bind_sampler(const Sampler samplerId) -> void {
+  add<CommandBindSampler>(samplerId);
 }
 
-auto CommandList::set_transform(const TransformState state,
+auto CommandList::bind_texture(const Texture textureId) -> void {
+  add<CommandBindTexture>(textureId);
+}
+
+auto CommandList::set_transform(const TransformState transformState,
                                 const Matrix4x4f32& transform) -> void {
-  add<CommandSetTransform>(state, transform);
+  add<CommandSetTransform>(transformState, transform);
 }
 
-auto CommandList::set_ambient_light(const Color& c) -> void {
-  add<CommandSetAmbientLight>(c);
+auto CommandList::set_ambient_light(const Color& ambientColor) -> void {
+  add<CommandSetAmbientLight>(ambientColor);
 }
 
 auto CommandList::set_lights(const span<const Light> lights) -> void {

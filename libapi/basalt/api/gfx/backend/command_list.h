@@ -45,7 +45,7 @@ public:
   auto draw_indexed(i32 vertexOffset, u32 minIndex, u32 numVertices,
                     u32 firstIndex, u32 indexCount) -> void;
   auto bind_pipeline(Pipeline) -> void;
-  auto bind_vertex_buffer(VertexBuffer, uDeviceSize offset) -> void;
+  auto bind_vertex_buffer(VertexBuffer, uDeviceSize offsetInBytes) -> void;
   auto bind_index_buffer(IndexBuffer) -> void;
   auto bind_sampler(Sampler) -> void;
   auto bind_texture(Texture) -> void;

@@ -213,24 +213,24 @@ void display(const CommandDrawIndexed& cmd) {
 }
 
 void display(const CommandBindPipeline& cmd) {
-  ImGui::Text("handle = %#x", cmd.handle.value());
+  ImGui::Text("pipelineId = %#x", cmd.pipelineId.value());
 }
 
 void display(const CommandBindVertexBuffer& cmd) {
-  ImGui::Text("handle = %#x", cmd.handle.value());
-  ImGui::Text("offset = %llu", cmd.offset);
+  ImGui::Text("vertexBufferId = %#x", cmd.vertexBufferId.value());
+  ImGui::Text("offsetInBytes = %llu", cmd.offsetInBytes);
 }
 
 void display(const CommandBindIndexBuffer& cmd) {
-  ImGui::Text("handle = %#x", cmd.handle.value());
+  ImGui::Text("indexBufferId = %#x", cmd.indexBufferId.value());
 }
 
 void display(const CommandBindSampler& cmd) {
-  ImGui::Text("handle = %#x", cmd.sampler.value());
+  ImGui::Text("samplerId = %#x", cmd.samplerId.value());
 }
 
 void display(const CommandBindTexture& cmd) {
-  ImGui::Text("handle = %#x", cmd.texture.value());
+  ImGui::Text("textureId = %#x", cmd.textureId.value());
 }
 
 void display(const PointLight& light) {
@@ -296,7 +296,7 @@ void display(const CommandSetAmbientLight& cmd) {
 }
 
 void display(const CommandSetTransform& cmd) {
-  ImGui::Text("state = %s", to_string(cmd.state));
+  ImGui::Text("transformState = %s", to_string(cmd.transformState));
   display_mat4("##transform", cmd.transform);
 }
 
@@ -307,7 +307,7 @@ void display(const CommandSetMaterial& cmd) {
 }
 
 void display(const ext::CommandDrawXMesh& cmd) {
-  ImGui::Text("mesh = %#x", cmd.handle.value());
+  ImGui::Text("mesh = %#x", cmd.xMeshId.value());
   ImGui::Text("subsetIndex = %#x", cmd.subset);
 }
 
