@@ -182,6 +182,36 @@ struct CommandSetMaterial final : CommandT<CommandType::SetMaterial> {
 
 static_assert(sizeof(CommandSetMaterial) == 52);
 
+#define VISIT(cmdStruct)                                                       \
+  case cmdStruct::TYPE:                                                        \
+    visitor(cmd.as<cmdStruct>());                                              \
+    return
+
+template <typename Visitor>
+auto visit(const Command& cmd, Visitor&& visitor) -> void {
+  switch (cmd.type) {
+    VISIT(CommandClearAttachments);
+    VISIT(CommandDraw);
+    VISIT(CommandDrawIndexed);
+    VISIT(CommandBindPipeline);
+    VISIT(CommandBindVertexBuffer);
+    VISIT(CommandBindIndexBuffer);
+    VISIT(CommandBindSampler);
+    VISIT(CommandBindTexture);
+    VISIT(CommandSetTransform);
+    VISIT(CommandSetAmbientLight);
+    VISIT(CommandSetLights);
+    VISIT(CommandSetMaterial);
+
+  default:
+    break;
+  }
+
+  visitor(cmd);
+}
+
+#undef VISIT
+
 namespace ext {
 
 struct CommandDrawXMesh final : CommandT<CommandType::ExtDrawXMesh> {

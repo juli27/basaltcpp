@@ -1,7 +1,6 @@
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/gfx/backend/device.h>
-#include <basalt/gfx/backend/utils.h>
 
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
@@ -67,9 +66,8 @@ auto ResourceCache::destroy(const Texture handle) const noexcept -> void {
 }
 
 auto ResourceCache::load_x_model(const path& path) -> ext::XModel {
-  const auto modelExt {
-    *gfx::query_device_extension<ext::XModelSupport>(*mDevice)};
-  BASALT_ASSERT(modelExt, "X model files not supported");
+  // throws std::bad_optional_access if extension not present
+  const auto modelExt {mDevice->query_extension<ext::XModelSupport>().value()};
 
   const ext::XModelData xModel {modelExt->load(path)};
 
@@ -105,8 +103,9 @@ auto ResourceCache::destroy(const ext::XModel handle) noexcept -> void {
       destroy(material);
     }
 
+    // throws std::bad_optional_access if extension not present
     const auto modelExt {
-      *gfx::query_device_extension<ext::XModelSupport>(*mDevice)};
+      mDevice->query_extension<ext::XModelSupport>().value()};
     modelExt->destroy(data.mesh);
   }
 

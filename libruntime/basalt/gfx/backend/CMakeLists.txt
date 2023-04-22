@@ -3,7 +3,6 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "context.h"
   "device.h"
   "types.h"
-  "utils.h"
   "validating_context.cpp"
   "validating_context.h"
   "validating_device.cpp"

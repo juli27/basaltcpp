@@ -3,7 +3,7 @@
 #include <basalt/api/engine.h>
 #include <basalt/api/input_events.h>
 
-#include <basalt/gfx/backend/utils.h>
+#include <basalt/gfx/backend/device.h>
 
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/ext/dear_imgui_renderer.h>
@@ -150,8 +150,7 @@ auto DearImGui::create(Device& gfxDevice, void* const rawWindowHandle)
   ImGui::GetMainViewport()->PlatformHandleRaw = rawWindowHandle;
 
   auto renderer {
-    gfx::query_device_extension<DearImGuiRenderer>(gfxDevice).value_or(
-      nullptr)};
+    gfxDevice.query_extension<DearImGuiRenderer>().value_or(nullptr)};
 
   return std::make_shared<DearImGui>(std::move(renderer));
 }
@@ -213,6 +212,12 @@ DearImGui::DearImGui(std::shared_ptr<DearImGuiRenderer> renderer)
 }
 
 auto DearImGui::on_draw(const DrawContext& context) -> void {
+  // Device doesn't support builtin imgui rendering. Don't bother recording the
+  // command
+  if (!mRenderer) {
+    return;
+  }
+
   CommandList commandList {};
   commandList.ext_render_dear_imgui();
 

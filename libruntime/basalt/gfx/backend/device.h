@@ -7,7 +7,9 @@
 
 #include <cstddef>
 #include <filesystem>
+#include <memory>
 #include <optional>
+#include <type_traits>
 
 namespace basalt::gfx {
 
@@ -88,6 +90,18 @@ public:
 
   virtual auto query_extension(ext::ExtensionId)
     -> std::optional<ext::ExtensionPtr> = 0;
+
+  template <typename T>
+  [[nodiscard]] auto query_extension() -> std::optional<std::shared_ptr<T>> {
+    static_assert(std::is_base_of_v<ext::Extension, T>);
+
+    auto maybeExt {query_extension(T::ID)};
+    if (!maybeExt) {
+      return std::nullopt;
+    }
+
+    return std::static_pointer_cast<T>(maybeExt.value());
+  }
 
 protected:
   Device() noexcept = default;
