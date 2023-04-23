@@ -1,7 +1,8 @@
 #pragma once
 
+#include <basalt/gfx/backend/ext/types.h>
+
 #include <basalt/api/gfx/backend/types.h>
-#include <basalt/api/gfx/backend/ext/types.h>
 
 #include <gsl/span>
 

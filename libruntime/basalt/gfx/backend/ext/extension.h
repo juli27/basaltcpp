@@ -1,6 +1,6 @@
 #pragma once
 
-#include <basalt/api/gfx/backend/ext/types.h>
+#include <basalt/gfx/backend/ext/types.h>
 
 namespace basalt::gfx::ext {
 
@@ -11,14 +11,15 @@ struct Extension {
   virtual ~Extension() noexcept = default;
 
   auto operator=(const Extension&) -> Extension& = delete;
-  auto operator=(Extension &&) -> Extension& = delete;
+  auto operator=(Extension&&) -> Extension& = delete;
 
 protected:
   Extension() noexcept = default;
 };
 
 template <ExtensionId Id>
-struct ExtensionT : Extension {
+class ExtensionT : public Extension {
+public:
   static constexpr ExtensionId ID = Id;
 };
 

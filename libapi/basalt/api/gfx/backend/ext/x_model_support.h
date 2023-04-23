@@ -1,6 +1,5 @@
 #pragma once
 
-#include <basalt/api/gfx/backend/ext/extension.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 
 #include <basalt/api/shared/color.h>
@@ -29,13 +28,6 @@ public:
 private:
   std::vector<Material> mMaterials;
   XMesh mMesh;
-};
-
-struct XModelSupport : ExtensionT<ExtensionId::XModelSupport> {
-  [[nodiscard]] virtual auto load(const std::filesystem::path&)
-    -> XModelData = 0;
-
-  virtual auto destroy(XMesh) noexcept -> void = 0;
 };
 
 } // namespace basalt::gfx::ext

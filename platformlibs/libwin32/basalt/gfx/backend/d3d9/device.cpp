@@ -3,10 +3,10 @@
 #include <basalt/gfx/backend/d3d9/conversions.h>
 
 #include <basalt/gfx/backend/commands.h>
+#include <basalt/gfx/backend/ext/dear_imgui_renderer.h>
+#include <basalt/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/gfx/backend/command_list.h>
-#include <basalt/api/gfx/backend/ext/dear_imgui_renderer.h>
-#include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/color.h>
@@ -187,7 +187,8 @@ auto calculate_primitive_count(const D3DPRIMITIVETYPE type,
   return 0;
 }
 
-struct D3D9ImGuiRenderer final : ext::DearImGuiRenderer {
+class D3D9ImGuiRenderer final : public ext::DearImGuiRenderer {
+public:
   explicit D3D9ImGuiRenderer(ComPtr<IDirect3DDevice9> device)
     : mDevice {std::move(device)} {
   }
@@ -199,16 +200,16 @@ struct D3D9ImGuiRenderer final : ext::DearImGuiRenderer {
     }
   }
 
-  void init() override {
+  auto init() -> void override {
     ImGui_ImplDX9_Init(mDevice.Get());
     ImGui_ImplDX9_CreateDeviceObjects();
   }
 
-  void shutdown() override {
+  auto shutdown() -> void override {
     ImGui_ImplDX9_Shutdown();
   }
 
-  void new_frame() override {
+  auto new_frame() -> void override {
     ImGui_ImplDX9_NewFrame();
   }
 
@@ -216,13 +217,14 @@ private:
   ComPtr<IDirect3DDevice9> mDevice;
 };
 
-struct D3D9XModelSupport final : ext::XModelSupport {
+class D3D9XModelSupport final : public ext::XModelSupport {
   using DevicePtr = ComPtr<IDirect3DDevice9>;
 
+public:
   explicit D3D9XModelSupport(DevicePtr device) : mDevice {std::move(device)} {
   }
 
-  void execute(const ext::CommandDrawXMesh& cmd) const {
+  auto execute(const ext::CommandDrawXMesh& cmd) const -> void {
     const auto& mesh {mMeshes[cmd.xMeshId]};
 
     mesh->DrawSubset(cmd.subset);

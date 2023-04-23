@@ -1,8 +1,7 @@
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/gfx/backend/device.h>
-
-#include <basalt/api/gfx/backend/ext/x_model_support.h>
+#include <basalt/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/base/types.h>
 
@@ -149,7 +148,7 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
 
   const Pipeline pipeline {create_pipeline(PipelineDescriptor {
     desc.vertexInputState,
-    span {&textureStage, 1},
+    span<TextureBlendingStage> {&textureStage, 1},
     desc.primitiveType,
     desc.lit,
     ShadeMode::Gouraud,

@@ -5,7 +5,7 @@
 #include <basalt/api/types.h>
 #include <basalt/api/view.h>
 
-#include <basalt/api/gfx/backend/ext/types.h>
+#include <basalt/gfx/backend/ext/types.h>
 
 #include <basalt/api/shared/types.h>
 

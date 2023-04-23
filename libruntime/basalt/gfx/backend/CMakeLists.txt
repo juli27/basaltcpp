@@ -9,3 +9,5 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "validating_device.cpp"
   "validating_device.h"
 )
+
+add_subdirectory("ext")
