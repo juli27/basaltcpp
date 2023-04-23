@@ -1,4 +1,5 @@
 target_sources(${CURRENT_TARGET} PRIVATE
+  "commands.cpp"
   "commands.h"
   "context.h"
   "device.h"

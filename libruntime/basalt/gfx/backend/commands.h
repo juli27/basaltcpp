@@ -54,8 +54,6 @@ struct CommandClearAttachments final : CommandT<CommandType::ClearAttachments> {
   }
 };
 
-static_assert(sizeof(CommandClearAttachments) == 32);
-
 struct CommandDraw final : CommandT<CommandType::Draw> {
   u32 firstVertex;
   u32 vertexCount;
@@ -64,8 +62,6 @@ struct CommandDraw final : CommandT<CommandType::Draw> {
     : firstVertex {aFirstVertex}, vertexCount {aVertexCount} {
   }
 };
-
-static_assert(sizeof(CommandDraw) == 12);
 
 struct CommandDrawIndexed final : CommandT<CommandType::DrawIndexed> {
   i32 vertexOffset;
@@ -93,8 +89,6 @@ struct CommandBindPipeline final : CommandT<CommandType::BindPipeline> {
   }
 };
 
-static_assert(sizeof(CommandBindPipeline) == 8);
-
 struct CommandBindVertexBuffer final : CommandT<CommandType::BindVertexBuffer> {
   VertexBuffer vertexBufferId;
   uDeviceSize offsetInBytes;
@@ -104,8 +98,6 @@ struct CommandBindVertexBuffer final : CommandT<CommandType::BindVertexBuffer> {
     : vertexBufferId {aVertexBufferId}, offsetInBytes {aOffsetInBytes} {
   }
 };
-
-static_assert(sizeof(CommandBindVertexBuffer) == 16);
 
 struct CommandBindIndexBuffer final : CommandT<CommandType::BindIndexBuffer> {
   IndexBuffer indexBufferId;
@@ -124,8 +116,6 @@ struct CommandBindSampler final : CommandT<CommandType::BindSampler> {
   }
 };
 
-static_assert(sizeof(CommandBindSampler) == 8);
-
 struct CommandBindTexture final : CommandT<CommandType::BindTexture> {
   Texture textureId;
 
@@ -133,8 +123,6 @@ struct CommandBindTexture final : CommandT<CommandType::BindTexture> {
     : textureId {aTextureId} {
   }
 };
-
-static_assert(sizeof(CommandBindTexture) == 8);
 
 struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
   TransformState transformState;
@@ -146,8 +134,6 @@ struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
   }
 };
 
-static_assert(sizeof(CommandSetTransform) == 68);
-
 struct CommandSetAmbientLight final : CommandT<CommandType::SetAmbientLight> {
   Color ambientColor;
 
@@ -155,8 +141,6 @@ struct CommandSetAmbientLight final : CommandT<CommandType::SetAmbientLight> {
     : ambientColor {aAmbientColor} {
   }
 };
-
-static_assert(sizeof(CommandSetAmbientLight) == 20);
 
 struct CommandSetLights final : CommandT<CommandType::SetLights> {
   gsl::span<const Light> lights;
@@ -166,8 +150,6 @@ struct CommandSetLights final : CommandT<CommandType::SetLights> {
     : lights {aLights} {
   }
 };
-
-static_assert(sizeof(CommandSetLights) == 24);
 
 struct CommandSetMaterial final : CommandT<CommandType::SetMaterial> {
   Color diffuse;
@@ -179,8 +161,6 @@ struct CommandSetMaterial final : CommandT<CommandType::SetMaterial> {
     : diffuse {aDiffuse}, ambient {aAmbient}, emissive {aEmissive} {
   }
 };
-
-static_assert(sizeof(CommandSetMaterial) == 52);
 
 #define VISIT(cmdStruct)                                                       \
   case cmdStruct::TYPE:                                                        \
@@ -223,12 +203,8 @@ struct CommandDrawXMesh final : CommandT<CommandType::ExtDrawXMesh> {
   }
 };
 
-static_assert(sizeof(CommandDrawXMesh) == 12);
-
 struct CommandRenderDearImGui final
   : CommandT<CommandType::ExtRenderDearImGui> {};
-
-static_assert(sizeof(CommandRenderDearImGui) == 1);
 
 } // namespace ext
 
