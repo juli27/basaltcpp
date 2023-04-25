@@ -1,6 +1,7 @@
 #include <basalt/api/gfx/backend/command_list.h>
 
 #include <basalt/gfx/backend/commands.h>
+#include <basalt/gfx/backend/command_list.h>
 
 using gsl::span;
 
@@ -27,15 +28,6 @@ auto CommandList::begin() const -> const_iterator {
 
 auto CommandList::end() const -> const_iterator {
   return mCommands.end();
-}
-
-template <typename T, typename... Args>
-auto CommandList::add(Args&&... args) -> void {
-  static_assert(std::is_base_of_v<Command, T>,
-                "CommandList only accepts commands derived from Command");
-
-  mCommands.emplace_back(new (allocate<T>().data())
-                           T(std::forward<Args>(args)...));
 }
 
 auto CommandList::clear_attachments(const Attachments attachments,
@@ -94,15 +86,6 @@ auto CommandList::set_lights(const span<const Light> lights) -> void {
 auto CommandList::set_material(const Color& diffuse, const Color& ambient,
                                const Color& emissive) -> void {
   add<CommandSetMaterial>(diffuse, ambient, emissive);
-}
-
-auto CommandList::ext_draw_x_mesh(const ext::XMesh handle,
-                                  const u32 subsetIndex) -> void {
-  add<ext::CommandDrawXMesh>(handle, subsetIndex);
-}
-
-auto CommandList::ext_render_dear_imgui() -> void {
-  add<ext::CommandRenderDearImGui>();
 }
 
 } // namespace basalt::gfx

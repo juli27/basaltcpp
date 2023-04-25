@@ -83,13 +83,9 @@ auto FilteringCommandList::set_material(const Color& diffuse,
   }
 }
 
-auto FilteringCommandList::ext_draw_x_mesh(const ext::XMesh handle,
-                                           const u32 subsetIndex) -> void {
-  mCommandList.ext_draw_x_mesh(handle, subsetIndex);
-}
-
-auto FilteringCommandList::ext_render_dear_imgui() -> void {
-  mCommandList.ext_render_dear_imgui();
+// TODO: Remove hack
+auto FilteringCommandList::cmd_list() -> CommandList& {
+  return mCommandList;
 }
 
 auto FilteringCommandList::take_cmd_list() -> CommandList {

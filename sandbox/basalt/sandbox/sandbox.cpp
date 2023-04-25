@@ -40,7 +40,7 @@ struct SandboxView::Example final {
 };
 
 SandboxView::SandboxView(Engine& engine) {
-  mExamples.reserve(12u);
+  mExamples.reserve(13u);
   mExamples.emplace_back(Example {
     "Tutorial 1: Creating a Device"s,
     &D3D9Tutorials::new_device_tutorial,

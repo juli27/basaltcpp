@@ -4,7 +4,6 @@
 
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/types.h>
-#include <basalt/api/gfx/backend/ext/types.h>
 
 #include <basalt/api/shared/types.h>
 #include <basalt/api/math/types.h>
@@ -33,8 +32,7 @@ public:
   auto set_material(const Color& diffuse, const Color& ambient,
                     const Color& emissive) -> void;
 
-  auto ext_draw_x_mesh(ext::XMesh, u32 subsetIndex) -> void;
-  auto ext_render_dear_imgui() -> void;
+  auto cmd_list() -> CommandList&;
 
   [[nodiscard]] auto take_cmd_list() -> CommandList;
 

@@ -9,6 +9,7 @@
 #include <basalt/api/gfx/types.h>
 
 #include <basalt/api/gfx/backend/types.h>
+#include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/scene/scene.h>
 #include <basalt/api/scene/transform.h>
@@ -97,7 +98,8 @@ auto SceneView::on_draw(const DrawContext& context) -> void {
         const auto& materialData {cache.get(modelData.materials[i])};
         record_material(cmdList, materialData);
 
-        cmdList.ext_draw_x_mesh(modelData.mesh, i);
+        ext::XMeshCommandEncoder::draw_x_mesh(cmdList.cmd_list(),
+                                              modelData.mesh, i);
       }
     });
 

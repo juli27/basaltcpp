@@ -1,7 +1,5 @@
 #pragma once
 
-#include <basalt/gfx/backend/types.h>
-
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 
@@ -15,6 +13,27 @@
 #include <gsl/span>
 
 namespace basalt::gfx {
+
+enum class CommandType : u8 {
+  ClearAttachments,
+  Draw,
+  DrawIndexed,
+  BindPipeline,
+  BindVertexBuffer,
+  BindIndexBuffer,
+  BindSampler,
+  BindTexture,
+
+  // fixed function only
+  SetTransform,
+  SetAmbientLight,
+  SetLights,
+  SetMaterial,
+
+  // built-in extensions
+  ExtDrawXMesh,
+  ExtRenderDearImGui,
+};
 
 struct Command {
   const CommandType type;

@@ -33,26 +33,7 @@ struct CommandSetAmbientLight;
 struct CommandSetLights;
 struct CommandSetMaterial;
 
-enum class CommandType : u8 {
-  ClearAttachments,
-  Draw,
-  DrawIndexed,
-  BindPipeline,
-  BindVertexBuffer,
-  BindIndexBuffer,
-  BindSampler,
-  BindTexture,
-
-  // fixed function only
-  SetTransform,
-  SetAmbientLight,
-  SetLights,
-  SetMaterial,
-
-  // built-in extensions
-  ExtDrawXMesh,
-  ExtRenderDearImGui,
-};
+enum class CommandType : u8;
 
 enum class ContextStatus : u8 {
   Ok,

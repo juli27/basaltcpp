@@ -1,5 +1,6 @@
 #pragma once
 
+#include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 
 #include <basalt/api/shared/color.h>
@@ -28,6 +29,11 @@ public:
 private:
   std::vector<Material> mMaterials;
   XMesh mMesh;
+};
+
+class XMeshCommandEncoder final {
+public:
+  static auto draw_x_mesh(CommandList&, XMesh, u32 subset) -> void;
 };
 
 } // namespace basalt::gfx::ext

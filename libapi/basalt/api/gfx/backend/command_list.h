@@ -2,8 +2,6 @@
 
 #include <basalt/api/gfx/backend/types.h>
 
-#include <basalt/api/gfx/backend/ext/types.h>
-
 #include <basalt/api/math/types.h>
 
 #include <basalt/api/base/types.h>
@@ -12,7 +10,6 @@
 
 #include <memory>
 #include <memory_resource>
-#include <type_traits>
 #include <vector>
 
 namespace basalt::gfx {
@@ -55,26 +52,19 @@ public:
   auto set_material(const Color& diffuse, const Color& ambient,
                     const Color& emissive) -> void;
 
-  auto ext_draw_x_mesh(ext::XMesh, u32 subsetIndex) -> void;
-  auto ext_render_dear_imgui() -> void;
+  // the following function templates are engine private (implementation is in
+  // libRuntime: basalt/gfx/backend/command_list.h)
+  template <typename T>
+  [[nodiscard]] auto allocate(uSize count = 1) const -> gsl::span<T>;
+
+  template <typename T, typename... Args>
+  auto add(Args&&...) -> void;
 
 private:
   using CommandBuffer = std::pmr::monotonic_buffer_resource;
 
   std::unique_ptr<CommandBuffer> mBuffer;
   ListType mCommands;
-
-  template <typename T>
-  [[nodiscard]] auto allocate(const uSize count = 1) const -> gsl::span<T> {
-    static_assert(std::is_trivially_destructible_v<T>);
-
-    // TODO: overflow protection
-    return {static_cast<T*>(mBuffer->allocate(sizeof(T) * count, alignof(T))),
-            count};
-  }
-
-  template <typename T, typename... Args>
-  auto add(Args&&...) -> void;
 };
 
 } // namespace basalt::gfx

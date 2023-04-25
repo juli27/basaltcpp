@@ -8,6 +8,7 @@
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/ext/types.h>
+#include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/math/angle.h>
 #include <basalt/api/math/constants.h>
@@ -27,7 +28,6 @@
 using namespace std::literals;
 
 using std::array;
-using std::byte;
 
 using gsl::span;
 
@@ -61,6 +61,7 @@ using basalt::gfx::TransformState;
 using basalt::gfx::VertexBuffer;
 using basalt::gfx::VertexBufferDescriptor;
 using basalt::gfx::VertexElement;
+using basalt::gfx::ext::XMeshCommandEncoder;
 using basalt::gfx::ext::XModel;
 
 namespace {
@@ -583,7 +584,7 @@ private:
       cmdList.set_transform(TransformState::ModelToWorld,
                             Matrix4x4f32::rotation_y(mRotationY));
 
-      cmdList.ext_draw_x_mesh(modelData.mesh, i);
+      XMeshCommandEncoder::draw_x_mesh(cmdList, modelData.mesh, i);
     }
 
     context.commandLists.push_back(std::move(cmdList));

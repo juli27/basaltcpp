@@ -23,6 +23,7 @@ namespace basalt {
 
 using gfx::CommandList;
 using gfx::Device;
+using gfx::ext::DearImGuiCommandEncoder;
 using gfx::ext::DearImGuiRenderer;
 
 namespace {
@@ -219,7 +220,7 @@ auto DearImGui::on_draw(const DrawContext& context) -> void {
   }
 
   CommandList commandList {};
-  commandList.ext_render_dear_imgui();
+  DearImGuiCommandEncoder::render_dear_imgui(commandList);
 
   context.commandLists.push_back(std::move(commandList));
 }

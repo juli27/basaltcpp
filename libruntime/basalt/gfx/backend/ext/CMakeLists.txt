@@ -1,4 +1,5 @@
 target_sources(${CURRENT_TARGET} PRIVATE
+  "dear_imgui_renderer.cpp"
   "dear_imgui_renderer.h"
   "extension.h"
   "types.h"

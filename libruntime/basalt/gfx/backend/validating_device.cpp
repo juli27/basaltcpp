@@ -1,9 +1,11 @@
 #include <basalt/gfx/backend/validating_device.h>
 
 #include <basalt/gfx/backend/commands.h>
+#include <basalt/gfx/backend/ext/dear_imgui_renderer.h>
 
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/types.h>
+#include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/log.h>
@@ -403,13 +405,15 @@ auto ValidatingDevice::patch(CommandList& cmdList, const Command& cmd) -> void {
   switch (cmd.type) {
   case CommandType::ExtDrawXMesh: {
     const auto& drawCmd {cmd.as<ext::CommandDrawXMesh>()};
-    cmdList.ext_draw_x_mesh(drawCmd.xMeshId, drawCmd.subset);
+    ext::XMeshCommandEncoder::draw_x_mesh(cmdList, drawCmd.xMeshId,
+                                          drawCmd.subset);
 
     break;
   }
 
   case CommandType::ExtRenderDearImGui:
-    cmdList.ext_render_dear_imgui();
+    ext::DearImGuiCommandEncoder::render_dear_imgui(cmdList);
+
     break;
 
   default:
