@@ -1,6 +1,7 @@
 #include <basalt/api/scene/scene.h>
 
 #include <basalt/api/scene/transform.h>
+#include <basalt/api/scene/transform_system.h>
 
 #include <memory>
 
@@ -11,7 +12,10 @@ namespace basalt {
 using gfx::DirectionalLight;
 
 auto Scene::create() -> ScenePtr {
-  return std::make_shared<Scene>();
+  auto scene {std::make_shared<Scene>()};
+  scene->create_system<TransformSystem>();
+
+  return scene;
 }
 
 auto Scene::entity_registry() -> EntityRegistry& {
@@ -36,10 +40,10 @@ auto Scene::destroy_system(const SystemId id) -> void {
 }
 
 auto Scene::on_update(const SceneContext& ctx) -> void {
-  for (const auto& [handle, system] : mSystems) {
+  for (const SystemId systemId : mSystems) {
     const SystemContext context {ctx.deltaTimeSeconds, *this};
 
-    (*system)->on_update(context);
+    mSystems[systemId]->on_update(context);
   }
 }
 

@@ -4,13 +4,14 @@
 
 #include <basalt/gfx/backend/commands.h>
 
+#include <basalt/api/debug_ui.h>
+
 #include <basalt/api/gfx/backend/command_list.h>
 
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/shared/color.h>
 
-#include <basalt/api/math/matrix4x4.h>
 #include <basalt/api/math/vector3.h>
 
 #include <basalt/api/base/types.h>
@@ -151,26 +152,6 @@ void display_vec3(const char* label, const Vector3f32& vec) {
                      ImGuiInputTextFlags_ReadOnly);
 }
 
-void display_mat4(const char* label, const Matrix4x4f32& mat) {
-  const string labelString {label};
-
-  array<f32, 4> firstRow {mat.m11, mat.m12, mat.m13, mat.m14};
-  ImGui::InputFloat4((labelString + " Row 1"s).c_str(), firstRow.data(), "%.3f",
-                     ImGuiInputTextFlags_ReadOnly);
-
-  array<f32, 4> secondRow {mat.m21, mat.m22, mat.m23, mat.m24};
-  ImGui::InputFloat4((labelString + " Row 2"s).c_str(), secondRow.data(),
-                     "%.3f", ImGuiInputTextFlags_ReadOnly);
-
-  array<f32, 4> thirdRow {mat.m31, mat.m32, mat.m33, mat.m34};
-  ImGui::InputFloat4((labelString + " Row 3"s).c_str(), thirdRow.data(), "%.3f",
-                     ImGuiInputTextFlags_ReadOnly);
-
-  array<f32, 4> forthRow {mat.m41, mat.m42, mat.m43, mat.m44};
-  ImGui::InputFloat4((labelString + " Row 4"s).c_str(), forthRow.data(), "%.3f",
-                     ImGuiInputTextFlags_ReadOnly);
-}
-
 void display_color4(const char* label, const Color& color) {
   array<float, 4> colorArray {color.r(), color.g(), color.b(), color.a()};
 
@@ -295,7 +276,7 @@ void display(const CommandSetAmbientLight& cmd) {
 
 void display(const CommandSetTransform& cmd) {
   ImGui::Text("transformState = %s", to_string(cmd.transformState));
-  display_mat4("##transform", cmd.transform);
+  DebugUi::display_mat4("##transform", cmd.transform);
 }
 
 void display(const CommandSetMaterial& cmd) {

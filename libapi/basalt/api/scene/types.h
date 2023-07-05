@@ -24,5 +24,7 @@ using SystemPtr = std::unique_ptr<System>;
 struct SystemContext;
 
 struct Transform;
+struct LocalToWorld;
+class TransformSystem;
 
 } // namespace basalt

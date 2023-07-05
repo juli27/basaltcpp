@@ -7,6 +7,8 @@
 
 #include <basalt/api/shared/types.h>
 
+#include <basalt/api/math/types.h>
+
 #include <basalt/api/base/types.h>
 
 namespace basalt {
@@ -20,9 +22,11 @@ public:
   static auto edit_scene(Scene&) -> void;
   static auto edit_ecs(EntityRegistry&) -> void;
   static auto edit_transform(Transform&) -> void;
+  static auto display_local_to_world(const LocalToWorld&) -> void;
   static auto edit_directional_light(gfx::DirectionalLight&) -> void;
   static auto edit_color3(const char* label, Color&) -> void;
   static auto edit_color4(const char* label, Color&) -> void;
+  static auto display_mat4(const char* label, const Matrix4x4f32&) -> void;
 
 private:
   u32 mSelectedAdapterIndex {0};

@@ -17,8 +17,6 @@
 
 #include <basalt/api/shared/config.h>
 
-#include <basalt/api/math/matrix4x4.h>
-
 #include <memory>
 #include <utility>
 #include <vector>
@@ -86,13 +84,9 @@ auto SceneView::on_draw(const DrawContext& context) -> void {
   const auto& cache {context.cache};
   const auto& ecs {mScene->entity_registry()};
 
-  ecs.view<const Transform, const ext::XModel>().each(
-    [&](const Transform& transform, const ext::XModel& model) {
-      const auto objToWorldMatrix {
-        Matrix4x4f32::scaling(transform.scale) *
-        Matrix4x4f32::rotation(transform.rotation) *
-        Matrix4x4f32::translation(transform.position)};
-      cmdList.set_transform(TransformState::ModelToWorld, objToWorldMatrix);
+  ecs.view<const LocalToWorld, const ext::XModel>().each(
+    [&](const LocalToWorld& localToWorld, const ext::XModel& model) {
+      cmdList.set_transform(TransformState::ModelToWorld, localToWorld.value);
 
       const auto& modelData {cache.get(model)};
 
@@ -107,19 +101,15 @@ auto SceneView::on_draw(const DrawContext& context) -> void {
       }
     });
 
-  ecs.view<const Transform, const RenderComponent>().each(
-    [&](const Transform& transform, const RenderComponent& renderComponent) {
+  ecs.view<const LocalToWorld, const RenderComponent>().each(
+    [&](const LocalToWorld& localToWorld,
+        const RenderComponent& renderComponent) {
       const MaterialData& materialData {cache.get(renderComponent.material)};
       record_material(cmdList, materialData);
 
       cmdList.set_transform(TransformState::Texture,
                             renderComponent.texTransform);
-
-      const auto objToWorldMatrix {
-        Matrix4x4f32::scaling(transform.scale) *
-        Matrix4x4f32::rotation(transform.rotation) *
-        Matrix4x4f32::translation(transform.position)};
-      cmdList.set_transform(TransformState::ModelToWorld, objToWorldMatrix);
+      cmdList.set_transform(TransformState::ModelToWorld, localToWorld.value);
 
       const auto& meshData = cache.get(renderComponent.mesh);
       cmdList.bind_vertex_buffer(meshData.vertexBuffer, 0ull);

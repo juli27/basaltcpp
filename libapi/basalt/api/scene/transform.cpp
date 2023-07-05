@@ -4,13 +4,13 @@
 
 namespace basalt {
 
-void Transform::move(const f32 offsetX, const f32 offsetY,
-                     const f32 offsetZ) noexcept {
+auto Transform::move(const f32 offsetX, const f32 offsetY,
+                     const f32 offsetZ) noexcept -> void {
   position += Vector3f32 {offsetX, offsetY, offsetZ};
 }
 
-void Transform::rotate(const Angle offsetX, const Angle offsetY,
-                       const Angle offsetZ) noexcept {
+auto Transform::rotate(const Angle offsetX, const Angle offsetY,
+                       const Angle offsetZ) noexcept -> void {
   rotation +=
     Vector3f32 {offsetX.radians(), offsetY.radians(), offsetZ.radians()};
 
@@ -33,6 +33,10 @@ void Transform::rotate(const Angle offsetX, const Angle offsetY,
   if (rotation.z() > PI) {
     rotation.z() -= twoPi;
   }
+}
+
+auto Transform::rotate_y(const Angle offsetY) noexcept -> void {
+  rotate(0_rad, offsetY, 0_rad);
 }
 
 } // namespace basalt

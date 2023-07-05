@@ -59,9 +59,8 @@ public:
 
     ctx.scene.entity_registry().view<Transform, const RotationSpeed>().each(
       [&](Transform& t, const RotationSpeed& rotationSpeed) {
-        t.rotate(0.0_rad,
-                 Angle::degrees(rotationSpeed.rotationPerSecond.degrees() * dt),
-                 0.0_rad);
+        t.rotate_y(
+          Angle::degrees(rotationSpeed.rotationPerSecond.degrees() * dt));
       });
   }
 };

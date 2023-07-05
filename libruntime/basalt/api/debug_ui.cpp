@@ -11,6 +11,7 @@
 #include <basalt/api/shared/color.h>
 
 #include <basalt/api/math/constants.h>
+#include <basalt/api/math/matrix4x4.h>
 #include <basalt/api/math/vector3.h>
 
 #include <basalt/api/base/enum_array.h>
@@ -230,6 +231,14 @@ auto DebugUi::edit_ecs(EntityRegistry& ecs) -> void {
           ImGui::TreePop();
         }
       }
+      if (const auto* const localToWorld {
+            ecs.try_get<const LocalToWorld>(entity)}) {
+        if (ImGui::TreeNode("LocalToWorld")) {
+          display_local_to_world(*localToWorld);
+
+          ImGui::TreePop();
+        }
+      }
 
       if (const auto* const rc {ecs.try_get<gfx::RenderComponent>(entity)}) {
         if (ImGui::TreeNode("Render Component")) {
@@ -264,6 +273,10 @@ auto DebugUi::edit_transform(Transform& transform) -> void {
   ImGui::DragFloat3("Scale", transform.scale.elements.data(), 0.1f, 0.0f);
 }
 
+auto DebugUi::display_local_to_world(const LocalToWorld& localToWorld) -> void {
+  display_mat4("##value", localToWorld.value);
+}
+
 auto DebugUi::edit_directional_light(gfx::DirectionalLight& light) -> void {
   edit_color4("Diffuse", light.diffuseColor);
   edit_color4("Ambient", light.ambientColor);
@@ -289,6 +302,30 @@ auto DebugUi::edit_color4(const char* label, Color& color) -> void {
   color =
     Color::from_non_linear(std::get<0>(colorArray), std::get<1>(colorArray),
                            std::get<2>(colorArray), std::get<3>(colorArray));
+}
+
+auto DebugUi::display_mat4(const char* label, const Matrix4x4f32& mat) -> void {
+  const string labelString {label};
+
+  ImGui::BeginDisabled();
+
+  array<f32, 4> firstRow {mat.m11, mat.m12, mat.m13, mat.m14};
+  ImGui::InputFloat4((labelString + " Row 1"s).c_str(), firstRow.data(), "%.3f",
+                     ImGuiInputTextFlags_ReadOnly);
+
+  array<f32, 4> secondRow {mat.m21, mat.m22, mat.m23, mat.m24};
+  ImGui::InputFloat4((labelString + " Row 2"s).c_str(), secondRow.data(),
+                     "%.3f", ImGuiInputTextFlags_ReadOnly);
+
+  array<f32, 4> thirdRow {mat.m31, mat.m32, mat.m33, mat.m34};
+  ImGui::InputFloat4((labelString + " Row 3"s).c_str(), thirdRow.data(), "%.3f",
+                     ImGuiInputTextFlags_ReadOnly);
+
+  array<f32, 4> forthRow {mat.m41, mat.m42, mat.m43, mat.m44};
+  ImGui::InputFloat4((labelString + " Row 4"s).c_str(), forthRow.data(), "%.3f",
+                     ImGuiInputTextFlags_ReadOnly);
+
+  ImGui::EndDisabled();
 }
 
 } // namespace basalt

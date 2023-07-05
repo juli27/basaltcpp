@@ -5,5 +5,6 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "system.h"
   "transform.cpp"
   "transform.h"
+  "transform_system.h"
   "types.h"
 )
