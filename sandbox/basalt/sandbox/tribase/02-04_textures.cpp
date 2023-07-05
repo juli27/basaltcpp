@@ -198,7 +198,26 @@ Textures::~Textures() noexcept {
   mResourceCache.destroy(mPipeline);
 }
 
-auto Textures::on_draw(const DrawContext& drawContext) -> void {
+auto Textures::on_update(UpdateContext& ctx) -> void {
+  const Engine& engine {ctx.engine};
+
+  mTimeAccum += engine.delta_time();
+
+  if (!is_key_down(Key::Space)) {
+    for (uSize i {0}; i < NUM_TRIANGLES; ++i) {
+      const f32 deltaTime {static_cast<f32>(engine.delta_time())};
+
+      auto& triangle {mTriangles[i]};
+
+      triangle.position += triangle.velocity * deltaTime;
+      triangle.rotation += triangle.rotationVelocity * deltaTime;
+
+      if (triangle.position.length() > 100.0f) {
+        triangle.velocity *= -1.0f;
+      }
+    }
+  }
+
   CommandList cmdList;
 
   cmdList.clear_attachments(
@@ -232,8 +251,9 @@ auto Textures::on_draw(const DrawContext& drawContext) -> void {
 
   cmdList.bind_texture(mTexture);
 
-  const f32 aspectRatio {static_cast<f32>(drawContext.viewport.width()) /
-                         static_cast<f32>(drawContext.viewport.height())};
+  const DrawContext& drawCtx {ctx.drawCtx};
+  const f32 aspectRatio {static_cast<f32>(drawCtx.viewport.width()) /
+                         static_cast<f32>(drawCtx.viewport.height())};
 
   cmdList.set_transform(
     TransformState::ViewToViewport,
@@ -257,26 +277,7 @@ auto Textures::on_draw(const DrawContext& drawContext) -> void {
     cmdList.draw(3 * i, 3);
   }
 
-  drawContext.commandLists.emplace_back(std::move(cmdList));
-}
-
-auto Textures::on_tick(Engine& engine) -> void {
-  mTimeAccum += engine.delta_time();
-
-  if (!is_key_down(Key::Space)) {
-    for (uSize i {0}; i < NUM_TRIANGLES; ++i) {
-      const f32 deltaTime {static_cast<f32>(engine.delta_time())};
-
-      auto& triangle {mTriangles[i]};
-
-      triangle.position += triangle.velocity * deltaTime;
-      triangle.rotation += triangle.rotationVelocity * deltaTime;
-
-      if (triangle.position.length() > 100.0f) {
-        triangle.velocity *= -1.0f;
-      }
-    }
-  }
+  drawCtx.commandLists.emplace_back(std::move(cmdList));
 }
 
 auto Textures::on_input(const InputEvent&) -> InputEventHandled {

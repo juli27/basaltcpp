@@ -97,7 +97,9 @@ SandboxView::SandboxView(Engine& engine) {
   switch_scene(mCurrentExampleIndex, engine);
 }
 
-auto SandboxView::on_tick(Engine& engine) -> void {
+auto SandboxView::on_update(UpdateContext& ctx) -> void {
+  Engine& engine {ctx.engine};
+
   // https://github.com/ocornut/imgui/issues/331
   enum class OpenPopup : u8 { None, GfxInfo };
   OpenPopup shouldOpenPopup {OpenPopup::None};

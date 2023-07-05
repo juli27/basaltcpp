@@ -62,14 +62,30 @@ auto SceneView::camera() const noexcept -> const Camera& {
   return mCamera;
 }
 
-auto SceneView::on_draw(const DrawContext& context) -> void {
+auto SceneView::on_update(UpdateContext& updateContext) -> void {
+  Engine& engine {updateContext.engine};
+
+  const SceneContext sceneCtx {engine.delta_time()};
+  mScene->on_update(sceneCtx);
+
+  auto& config {engine.config()};
+
+  if (bool sceneInspectorEnabled {
+        config.get_bool("debug.scene_inspector.enabled"s)}) {
+    DebugUi::show_scene_inspector(*mScene, sceneInspectorEnabled);
+
+    config.set_bool("debug.scene_inspector.enabled"s, sceneInspectorEnabled);
+  }
+
+  const DrawContext& drawCtx {updateContext.drawCtx};
+
   FilteringCommandList cmdList {};
   cmdList.clear_attachments(
     Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
     mScene->background(), 1.0f, 0);
 
   cmdList.set_transform(TransformState::ViewToViewport,
-                        mCamera.view_to_viewport(context.viewport));
+                        mCamera.view_to_viewport(drawCtx.viewport));
   cmdList.set_transform(TransformState::WorldToView, mCamera.world_to_view());
 
   cmdList.set_ambient_light(mScene->ambient_light());
@@ -81,7 +97,7 @@ auto SceneView::on_draw(const DrawContext& context) -> void {
     cmdList.set_lights(lights);
   }
 
-  const auto& cache {context.cache};
+  const auto& cache {drawCtx.cache};
   const auto& ecs {mScene->entity_registry()};
 
   ecs.view<const LocalToWorld, const ext::XModel>().each(
@@ -116,21 +132,7 @@ auto SceneView::on_draw(const DrawContext& context) -> void {
       cmdList.draw(meshData.startVertex, meshData.vertexCount);
     });
 
-  context.commandLists.push_back(cmdList.take_cmd_list());
-}
-
-auto SceneView::on_tick(Engine& engine) -> void {
-  const SceneContext sceneCtx {engine.delta_time()};
-  mScene->on_update(sceneCtx);
-
-  auto& config {engine.config()};
-
-  if (bool sceneInspectorEnabled {
-        config.get_bool("debug.scene_inspector.enabled"s)}) {
-    DebugUi::show_scene_inspector(*mScene, sceneInspectorEnabled);
-
-    config.set_bool("debug.scene_inspector.enabled"s, sceneInspectorEnabled);
-  }
+  drawCtx.commandLists.push_back(cmdList.take_cmd_list());
 }
 
 } // namespace basalt

@@ -34,7 +34,7 @@ private:
   // can be null
   std::shared_ptr<gfx::ext::DearImGuiRenderer> mRenderer;
 
-  auto on_draw(const DrawContext&) -> void override;
+  auto on_update(UpdateContext&) -> void override;
 
   auto on_input(const InputEvent&) -> InputEventHandled override;
 };

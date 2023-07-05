@@ -103,34 +103,9 @@ TexturesExercises::~TexturesExercises() noexcept {
   mGfxCache.destroy(mTexture);
 }
 
-auto TexturesExercises::on_draw(const DrawContext& drawContext) -> void {
-  CommandList cmdList;
-  cmdList.clear_attachments(Attachments {Attachment::RenderTarget},
-                            Color::from_non_linear(0.103f, 0.103f, 0.103f),
-                            1.0f, 0u);
+auto TexturesExercises::on_update(UpdateContext& ctx) -> void {
+  const Engine& engine {ctx.engine};
 
-  cmdList.bind_pipeline(mPipeline);
-  cmdList.bind_vertex_buffer(mVertexBuffer, 0);
-
-  const f32 aspectRatio {static_cast<f32>(drawContext.viewport.width()) /
-                         static_cast<f32>(drawContext.viewport.height())};
-  cmdList.set_transform(
-    TransformState::ViewToViewport,
-    Matrix4x4f32::perspective_projection(90.0_deg, aspectRatio, 0.1f, 100.0f));
-  cmdList.set_transform(TransformState::WorldToView, Matrix4x4f32::identity());
-  cmdList.set_transform(
-    TransformState::ModelToWorld,
-    Matrix4x4f32::translation(Vector3f32 {0.0f, 0.0f, 1.0f}));
-
-  cmdList.bind_sampler(mSampler);
-  cmdList.bind_texture(mTexture);
-
-  cmdList.draw(0, 3);
-
-  drawContext.commandLists.emplace_back(std::move(cmdList));
-}
-
-auto TexturesExercises::on_tick(Engine& engine) -> void {
   if (ImGui::Begin("Settings##TribaseTexturesEx")) {
     auto uploadTriangle {[this] {
       mGfxCache.with_mapping_of(mVertexBuffer, [](const span<byte> vbData) {
@@ -188,6 +163,32 @@ auto TexturesExercises::on_tick(Engine& engine) -> void {
       }
     });
   }
+
+  CommandList cmdList;
+  cmdList.clear_attachments(Attachments {Attachment::RenderTarget},
+                            Color::from_non_linear(0.103f, 0.103f, 0.103f),
+                            1.0f, 0u);
+
+  cmdList.bind_pipeline(mPipeline);
+  cmdList.bind_vertex_buffer(mVertexBuffer, 0);
+
+  const DrawContext& drawCtx {ctx.drawCtx};
+  const f32 aspectRatio {static_cast<f32>(drawCtx.viewport.width()) /
+                         static_cast<f32>(drawCtx.viewport.height())};
+  cmdList.set_transform(
+    TransformState::ViewToViewport,
+    Matrix4x4f32::perspective_projection(90.0_deg, aspectRatio, 0.1f, 100.0f));
+  cmdList.set_transform(TransformState::WorldToView, Matrix4x4f32::identity());
+  cmdList.set_transform(
+    TransformState::ModelToWorld,
+    Matrix4x4f32::translation(Vector3f32 {0.0f, 0.0f, 1.0f}));
+
+  cmdList.bind_sampler(mSampler);
+  cmdList.bind_texture(mTexture);
+
+  cmdList.draw(0, 3);
+
+  drawCtx.commandLists.emplace_back(std::move(cmdList));
 }
 
 } // namespace tribase

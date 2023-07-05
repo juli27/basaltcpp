@@ -43,8 +43,7 @@ private:
 
   auto regenerate_velocities() -> void;
 
-  auto on_draw(const DrawContext&) -> void override;
-  auto on_tick(basalt::Engine&) -> void override;
+  auto on_update(UpdateContext&) -> void override;
   auto on_input(const basalt::InputEvent&)
     -> basalt::InputEventHandled override;
 };

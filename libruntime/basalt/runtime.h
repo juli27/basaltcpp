@@ -16,9 +16,7 @@ class Runtime : public Engine {
 public:
   [[nodiscard]] auto dear_imgui() const -> const DearImGuiPtr&;
 
-  auto tick() -> void;
-
-  auto render() -> void;
+  auto update() -> void;
 
 protected:
   Runtime(Config&, gfx::Info, gfx::ContextPtr, DearImGuiPtr);
@@ -26,8 +24,6 @@ protected:
 private:
   gfx::ContextPtr mGfxContext;
   DearImGuiPtr mDearImGui;
-
-  [[nodiscard]] auto draw() -> gfx::Composite;
 };
 
 } // namespace basalt

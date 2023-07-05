@@ -191,43 +191,8 @@ Buffers::~Buffers() noexcept {
   mResourceCache.destroy(mPipeline);
 }
 
-auto Buffers::on_draw(const DrawContext& drawContext) -> void {
-  CommandList cmdList;
-
-  cmdList.clear_attachments(
-    Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
-    Colors::BLACK, 1.0f, 0);
-
-  cmdList.bind_pipeline(mPipeline);
-
-  cmdList.bind_sampler(mSampler);
-  cmdList.bind_texture(mTexture);
-
-  const f32 aspectRatio {static_cast<f32>(drawContext.viewport.width()) /
-                         static_cast<f32>(drawContext.viewport.height())};
-  const auto projection {
-    Matrix4x4f32::perspective_projection(mFov, aspectRatio, 0.1f, 250.0f)};
-
-  cmdList.set_transform(TransformState::ViewToViewport, projection);
-
-  const Vector3f32 lookAt {
-    mCameraPos + Vector3f32 {mCameraAngleY.sin(), 0.0f, mCameraAngleY.cos()}};
-
-  const auto view {
-    Matrix4x4f32::look_at_lh(mCameraPos, lookAt, Vector3f32::up())};
-  cmdList.set_transform(TransformState::WorldToView, view);
-  cmdList.set_transform(TransformState::ModelToWorld, Matrix4x4f32::identity());
-
-  cmdList.bind_vertex_buffer(mVertexBuffer, 0);
-  cmdList.bind_index_buffer(mIndexBuffer);
-
-  cmdList.draw_indexed(0, 0, NUM_CUBES * NUM_VERTICES_PER_CUBE, 0,
-                       NUM_CUBES * NUM_INDICES_PER_CUBE);
-
-  drawContext.commandLists.emplace_back(std::move(cmdList));
-}
-
-auto Buffers::on_tick(Engine& engine) -> void {
+auto Buffers::on_update(UpdateContext& ctx) -> void {
+  const Engine& engine {ctx.engine};
   const auto dt {static_cast<f32>(engine.delta_time())};
 
   if (is_key_down(Key::LeftArrow)) {
@@ -267,6 +232,41 @@ auto Buffers::on_tick(Engine& engine) -> void {
   if (mFov.degrees() >= 180) {
     mFov = 179.9_deg;
   }
+
+  CommandList cmdList;
+
+  cmdList.clear_attachments(
+    Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
+    Colors::BLACK, 1.0f, 0);
+
+  cmdList.bind_pipeline(mPipeline);
+
+  cmdList.bind_sampler(mSampler);
+  cmdList.bind_texture(mTexture);
+
+  const DrawContext drawCtx {ctx.drawCtx};
+  const f32 aspectRatio {static_cast<f32>(drawCtx.viewport.width()) /
+                         static_cast<f32>(drawCtx.viewport.height())};
+  const auto projection {
+    Matrix4x4f32::perspective_projection(mFov, aspectRatio, 0.1f, 250.0f)};
+
+  cmdList.set_transform(TransformState::ViewToViewport, projection);
+
+  const Vector3f32 lookAt {
+    mCameraPos + Vector3f32 {mCameraAngleY.sin(), 0.0f, mCameraAngleY.cos()}};
+
+  const auto view {
+    Matrix4x4f32::look_at_lh(mCameraPos, lookAt, Vector3f32::up())};
+  cmdList.set_transform(TransformState::WorldToView, view);
+  cmdList.set_transform(TransformState::ModelToWorld, Matrix4x4f32::identity());
+
+  cmdList.bind_vertex_buffer(mVertexBuffer, 0);
+  cmdList.bind_index_buffer(mIndexBuffer);
+
+  cmdList.draw_indexed(0, 0, NUM_CUBES * NUM_VERTICES_PER_CUBE, 0,
+                       NUM_CUBES * NUM_INDICES_PER_CUBE);
+
+  drawCtx.commandLists.emplace_back(std::move(cmdList));
 }
 
 auto Buffers::on_input(const InputEvent&) -> InputEventHandled {

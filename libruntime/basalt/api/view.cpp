@@ -51,13 +51,6 @@ auto View::remove_child(const ViewPtr& view) -> void {
                   mChildren.end());
 }
 
-auto View::draw(const DrawContext& context) -> void {
-  on_draw(context);
-
-  std::for_each(mChildren.begin(), mChildren.end(),
-                [&](const ViewPtr& view) { view->draw(context); });
-}
-
 auto View::handle_input(const InputEvent& e) -> bool {
   if (on_input(e) == InputEventHandled::Yes) {
     update(e);
@@ -72,20 +65,17 @@ auto View::handle_input(const InputEvent& e) -> bool {
   });
 }
 
-auto View::tick(Engine& engine) -> void {
-  on_tick(engine);
+auto View::update(UpdateContext& ctx) -> void {
+  on_update(ctx);
 
   const vector views {mChildren};
 
   for (const ViewPtr& view : views) {
-    view->tick(engine);
+    view->update(ctx);
   }
 }
 
-auto View::on_draw(const DrawContext&) -> void {
-}
-
-auto View::on_tick(Engine&) -> void {
+auto View::on_update(UpdateContext&) -> void {
 }
 
 auto View::on_input(const InputEvent&) -> InputEventHandled {

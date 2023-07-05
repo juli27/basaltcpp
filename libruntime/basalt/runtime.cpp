@@ -24,14 +24,23 @@ auto Runtime::dear_imgui() const -> const DearImGuiPtr& {
   return mDearImGui;
 }
 
-auto Runtime::tick() -> void {
+auto Runtime::update() -> void {
   mDearImGui->new_frame(*this, mGfxContext->surface_size());
 
-  root()->tick(*this);
-}
+  gfx::Composite composite;
+  const View::DrawContext drawCtx {
+    composite,
+    mGfxResourceCache,
+    mGfxContext->surface_size(),
+  };
+  View::UpdateContext updateCtx {*this, drawCtx};
 
-auto Runtime::render() -> void {
-  const gfx::Composite composite {draw()};
+  root()->update(updateCtx);
+
+  // The DearImGui view doesn't actually cause the UI to render during drawing
+  // but is currently being done at execution of the ExtRenderDearImGui
+  // command instead.
+  mDearImGui->update(updateCtx);
 
   if (config().get_bool("runtime.debugUI.enabled"s)) {
     gfx::Debug::update(composite);
@@ -46,24 +55,6 @@ Runtime::Runtime(Config& config, gfx::Info gfxInfo, gfx::ContextPtr gfxContext,
   , mGfxContext {std::move(gfxContext)}
   , mDearImGui {std::move(dearImGui)} {
   ClientApp::bootstrap(*this);
-}
-
-auto Runtime::draw() -> gfx::Composite {
-  gfx::Composite composite;
-  const View::DrawContext drawContext {
-    composite,
-    mGfxResourceCache,
-    mGfxContext->surface_size(),
-  };
-
-  root()->draw(drawContext);
-
-  // The DearImGui view doesn't actually cause the UI to render during drawing
-  // but is currently being done at execution of the ExtRenderDearImGui
-  // command instead.
-  mDearImGui->draw(drawContext);
-
-  return composite;
 }
 
 } // namespace basalt

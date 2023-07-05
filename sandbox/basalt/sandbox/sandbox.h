@@ -12,6 +12,9 @@
 struct SandboxView final : basalt::View {
   explicit SandboxView(basalt::Engine&);
 
+protected:
+  auto on_update(UpdateContext&) -> void override;
+
 private:
   struct Example;
 
@@ -29,6 +32,4 @@ private:
   auto next_scene(basalt::Engine&) -> void;
   auto prev_scene(basalt::Engine&) -> void;
   auto switch_scene(basalt::uSize index, basalt::Engine&) -> void;
-
-  auto on_tick(basalt::Engine&) -> void override;
 };

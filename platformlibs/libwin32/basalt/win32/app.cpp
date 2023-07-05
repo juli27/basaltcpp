@@ -176,14 +176,12 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
 
     window->input_manager().dispatch_pending(rootView);
 
-    app.tick();
+    app.update();
 
     if (app.mIsDirty) {
       app.mIsDirty = false;
       window->set_cursor(app.mMouseCursor);
     }
-
-    app.render();
 
     switch (gfxContext->present()) {
     case gfx::PresentResult::Ok:

@@ -32,24 +32,25 @@ struct View {
   auto add_child_below(ViewPtr, const ViewPtr& after) -> void;
   auto remove_child(const ViewPtr&) -> void;
 
+  [[nodiscard]] auto handle_input(const InputEvent&) -> bool;
+
   struct DrawContext final {
     std::vector<gfx::CommandList>& commandLists;
     gfx::ResourceCache& cache;
     Size2Du16 viewport;
   };
 
-  auto draw(const DrawContext& context) -> void;
+  struct UpdateContext final {
+    Engine& engine;
+    const DrawContext& drawCtx;
+  };
 
-  [[nodiscard]] auto handle_input(const InputEvent&) -> bool;
-
-  auto tick(Engine&) -> void;
+  auto update(UpdateContext&) -> void;
 
 protected:
   View() noexcept = default;
 
-  virtual auto on_draw(const DrawContext&) -> void;
-
-  virtual auto on_tick(Engine&) -> void;
+  virtual auto on_update(UpdateContext&) -> void;
 
   [[nodiscard]] virtual auto on_input(const InputEvent&) -> InputEventHandled;
 

@@ -77,13 +77,13 @@ class Device final : public View {
 public:
   Device() noexcept = default;
 
-private:
-  auto on_draw(const DrawContext& context) -> void override {
+protected:
+  auto on_update(UpdateContext& ctx) -> void override {
     CommandList cmdList {};
     cmdList.clear_attachments(Attachments {Attachment::RenderTarget},
                               Colors::BLUE, 1.0f, 0);
 
-    context.commandLists.push_back(std::move(cmdList));
+    ctx.drawCtx.commandLists.push_back(std::move(cmdList));
   }
 };
 
@@ -138,12 +138,8 @@ public:
   auto operator=(const Vertices&) -> Vertices& = delete;
   auto operator=(Vertices&&) -> Vertices& = delete;
 
-private:
-  ResourceCache& mResourceCache;
-  Pipeline mPipeline {Pipeline::null()};
-  VertexBuffer mVertexBuffer {VertexBuffer::null()};
-
-  auto on_draw(const DrawContext& context) -> void override {
+protected:
+  auto on_update(UpdateContext& ctx) -> void override {
     CommandList cmdList {};
 
     cmdList.clear_attachments(Attachments {Attachment::RenderTarget},
@@ -153,8 +149,13 @@ private:
     cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
     cmdList.draw(0, 3);
 
-    context.commandLists.push_back(std::move(cmdList));
+    ctx.drawCtx.commandLists.push_back(std::move(cmdList));
   }
+
+private:
+  ResourceCache& mResourceCache;
+  Pipeline mPipeline {Pipeline::null()};
+  VertexBuffer mVertexBuffer {VertexBuffer::null()};
 };
 
 class Matrices final : public View {
@@ -207,14 +208,17 @@ public:
   auto operator=(const Matrices&) -> Matrices& = delete;
   auto operator=(Matrices&&) -> Matrices& = delete;
 
-private:
-  ResourceCache& mResourceCache;
-  Pipeline mPipeline {Pipeline::null()};
-  VertexBuffer mVertexBuffer {VertexBuffer::null()};
-  Camera mCamera;
-  Angle mRotationY;
+protected:
+  auto on_update(UpdateContext& ctx) -> void override {
+    const auto dt {static_cast<f32>(ctx.engine.delta_time())};
 
-  auto on_draw(const DrawContext& context) -> void override {
+    constexpr f32 twoPi {PI * 2.0f};
+    // 1 full rotation per second
+    mRotationY += Angle::radians(twoPi * dt);
+    while (mRotationY.radians() > PI) {
+      mRotationY -= Angle::radians(twoPi);
+    }
+
     CommandList cmdList;
 
     cmdList.clear_attachments(Attachments {Attachment::RenderTarget},
@@ -226,25 +230,21 @@ private:
                           Matrix4x4f32::rotation_y(mRotationY));
     cmdList.set_transform(TransformState::WorldToView, mCamera.world_to_view());
     cmdList.set_transform(TransformState::ViewToViewport,
-                          mCamera.view_to_viewport(context.viewport));
+                          mCamera.view_to_viewport(ctx.drawCtx.viewport));
 
     cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
 
     cmdList.draw(0, 3);
 
-    context.commandLists.push_back(std::move(cmdList));
+    ctx.drawCtx.commandLists.push_back(std::move(cmdList));
   }
 
-  auto on_tick(Engine& engine) -> void override {
-    const auto dt {static_cast<f32>(engine.delta_time())};
-
-    constexpr f32 twoPi {PI * 2.0f};
-    // 1 full rotation per second
-    mRotationY += Angle::radians(twoPi * dt);
-    while (mRotationY.radians() > PI) {
-      mRotationY -= Angle::radians(twoPi);
-    }
-  }
+private:
+  ResourceCache& mResourceCache;
+  Pipeline mPipeline {Pipeline::null()};
+  VertexBuffer mVertexBuffer {VertexBuffer::null()};
+  Camera mCamera;
+  Angle mRotationY;
 };
 
 class Lights final : public View {
@@ -326,7 +326,22 @@ private:
   Angle mRotationX;
   Angle mLightRotation;
 
-  auto on_draw(const DrawContext& context) -> void override {
+  auto on_update(UpdateContext& ctx) -> void override {
+    const auto dt {static_cast<f32>(ctx.engine.delta_time())};
+
+    constexpr f32 twoPi {2.0f * PI};
+
+    mRotationX += Angle::radians(2.0f * dt);
+    while (mRotationX.radians() > PI) {
+      mRotationX -= Angle::radians(twoPi);
+    }
+
+    mLightRotation += Angle::radians(20.0f / 7.0f * dt);
+    // reset to -180° when rotated more than 180°
+    while (mLightRotation.radians() > PI) {
+      mLightRotation -= Angle::radians(twoPi);
+    }
+
     CommandList cmdList;
 
     cmdList.clear_attachments(
@@ -336,7 +351,7 @@ private:
     cmdList.bind_pipeline(mPipeline);
 
     cmdList.set_transform(TransformState::ViewToViewport,
-                          mCamera.view_to_viewport(context.viewport));
+                          mCamera.view_to_viewport(ctx.drawCtx.viewport));
 
     cmdList.set_transform(TransformState::WorldToView, mCamera.world_to_view());
 
@@ -360,24 +375,7 @@ private:
 
     cmdList.draw(0, VERTEX_COUNT);
 
-    context.commandLists.push_back(std::move(cmdList));
-  }
-
-  auto on_tick(Engine& engine) -> void override {
-    const auto dt {static_cast<f32>(engine.delta_time())};
-
-    constexpr f32 twoPi {2.0f * PI};
-
-    mRotationX += Angle::radians(2.0f * dt);
-    while (mRotationX.radians() > PI) {
-      mRotationX -= Angle::radians(twoPi);
-    }
-
-    mLightRotation += Angle::radians(20.0f / 7.0f * dt);
-    // reset to -180° when rotated more than 180°
-    while (mLightRotation.radians() > PI) {
-      mLightRotation -= Angle::radians(twoPi);
-    }
+    ctx.drawCtx.commandLists.push_back(std::move(cmdList));
   }
 };
 
@@ -482,7 +480,20 @@ private:
   Angle mRotationX {};
   bool mShowTci {false};
 
-  auto on_draw(const DrawContext& context) -> void override {
+  auto on_update(UpdateContext& ctx) -> void override {
+    const auto dt {static_cast<f32>(ctx.engine.delta_time())};
+
+    mRotationX += Angle::radians(dt);
+    while (mRotationX.radians() > PI) {
+      mRotationX -= Angle::radians(PI * 2.0f);
+    }
+
+    if (ImGui::Begin("Settings##D3D9")) {
+      ImGui::Checkbox("Show TCI", &mShowTci);
+    }
+
+    ImGui::End();
+
     CommandList cmdList;
 
     cmdList.clear_attachments(
@@ -492,7 +503,7 @@ private:
     cmdList.bind_pipeline(mShowTci ? mPipelineTci : mPipeline);
 
     const Matrix4x4f32 viewToViewport {
-      mCamera.view_to_viewport(context.viewport)};
+      mCamera.view_to_viewport(ctx.drawCtx.viewport)};
     cmdList.set_transform(TransformState::ViewToViewport, viewToViewport);
     cmdList.set_transform(TransformState::WorldToView, mCamera.world_to_view());
 
@@ -512,22 +523,7 @@ private:
 
     cmdList.draw(0, VERTEX_COUNT);
 
-    context.commandLists.push_back(std::move(cmdList));
-  }
-
-  auto on_tick(Engine& engine) -> void override {
-    const auto dt {static_cast<f32>(engine.delta_time())};
-
-    mRotationX += Angle::radians(dt);
-    while (mRotationX.radians() > PI) {
-      mRotationX -= Angle::radians(PI * 2.0f);
-    }
-
-    if (ImGui::Begin("Settings##D3D9")) {
-      ImGui::Checkbox("Show TCI", &mShowTci);
-    }
-
-    ImGui::End();
+    ctx.drawCtx.commandLists.push_back(std::move(cmdList));
   }
 };
 
@@ -555,7 +551,14 @@ private:
   Camera mCamera;
   Angle mRotationY;
 
-  auto on_draw(const DrawContext& context) -> void override {
+  auto on_update(UpdateContext& ctx) -> void override {
+    const auto dt {static_cast<f32>(ctx.engine.delta_time())};
+
+    mRotationY += Angle::radians(dt);
+    while (mRotationY.radians() > PI) {
+      mRotationY -= Angle::radians(PI * 2.0f);
+    }
+
     CommandList cmdList;
 
     cmdList.clear_attachments(
@@ -565,7 +568,7 @@ private:
     cmdList.set_ambient_light(Colors::WHITE);
 
     cmdList.set_transform(TransformState::ViewToViewport,
-                          mCamera.view_to_viewport(context.viewport));
+                          mCamera.view_to_viewport(ctx.drawCtx.viewport));
     cmdList.set_transform(TransformState::WorldToView, mCamera.world_to_view());
 
     const auto& modelData {mResourceCache.get(mModel)};
@@ -587,16 +590,7 @@ private:
       XMeshCommandEncoder::draw_x_mesh(cmdList, modelData.mesh, i);
     }
 
-    context.commandLists.push_back(std::move(cmdList));
-  }
-
-  auto on_tick(Engine& engine) -> void override {
-    const auto dt {static_cast<f32>(engine.delta_time())};
-
-    mRotationY += Angle::radians(dt);
-    while (mRotationY.radians() > PI) {
-      mRotationY -= Angle::radians(PI * 2.0f);
-    }
+    ctx.drawCtx.commandLists.push_back(std::move(cmdList));
   }
 };
 

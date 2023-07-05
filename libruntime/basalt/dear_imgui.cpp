@@ -212,7 +212,7 @@ DearImGui::DearImGui(std::shared_ptr<DearImGuiRenderer> renderer)
   }
 }
 
-auto DearImGui::on_draw(const DrawContext& context) -> void {
+auto DearImGui::on_update(UpdateContext& ctx) -> void {
   // Device doesn't support builtin imgui rendering. Don't bother recording the
   // command
   if (!mRenderer) {
@@ -222,7 +222,7 @@ auto DearImGui::on_draw(const DrawContext& context) -> void {
   CommandList commandList {};
   DearImGuiCommandEncoder::render_dear_imgui(commandList);
 
-  context.commandLists.push_back(std::move(commandList));
+  ctx.drawCtx.commandLists.push_back(std::move(commandList));
 }
 
 auto DearImGui::on_input(const InputEvent& e) -> InputEventHandled {

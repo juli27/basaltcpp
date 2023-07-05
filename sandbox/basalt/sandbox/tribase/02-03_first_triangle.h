@@ -34,9 +34,7 @@ private:
   basalt::f32 mScale {1.0f};
   basalt::i32 mCurrentExercise {};
 
-  auto on_draw(const DrawContext&) -> void override;
-
-  auto on_tick(basalt::Engine&) -> void override;
+  auto on_update(UpdateContext&) -> void override;
 };
 
 } // namespace tribase

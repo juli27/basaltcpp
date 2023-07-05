@@ -104,48 +104,8 @@ FirstTriangle::~FirstTriangle() noexcept {
   mResourceCache.destroy(mPipeline);
 }
 
-auto FirstTriangle::on_draw(const DrawContext& drawContext) -> void {
-  CommandList cmdList;
-
-  cmdList.clear_attachments(
-    Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
-    Color::from_non_linear_rgba8(0, 0, 63), 1.0f, 0);
-
-  const Pipeline pipeline {[this] {
-    if (mCurrentExercise == 2) {
-      return mQuadPipeline;
-    }
-    if (mCurrentExercise == 3) {
-      return mWireframePipeline;
-    }
-
-    return mPipeline;
-  }()};
-
-  cmdList.bind_pipeline(pipeline);
-
-  const f32 aspectRatio {static_cast<f32>(drawContext.viewport.width()) /
-                         static_cast<f32>(drawContext.viewport.height())};
-
-  cmdList.set_transform(
-    TransformState::ViewToViewport,
-    Matrix4x4f32::perspective_projection(90.0_deg, aspectRatio, 0.1f, 100.0f));
-  cmdList.set_transform(TransformState::WorldToView, Matrix4x4f32::identity());
-  cmdList.set_transform(
-    TransformState::ModelToWorld,
-    Matrix4x4f32::scaling(mScale) * Matrix4x4f32::rotation_y(mRotationY) *
-      Matrix4x4f32::translation(Vector3f32 {0.0f, 0.0f, 2.0f}));
-
-  cmdList.bind_vertex_buffer(mVertexBuffer, 0);
-
-  const u32 vertexCount {
-    [this]() -> u32 { return mCurrentExercise == 2 ? 4 : 3; }()};
-  cmdList.draw(0, vertexCount);
-
-  drawContext.commandLists.emplace_back(std::move(cmdList));
-}
-
-auto FirstTriangle::on_tick(Engine& engine) -> void {
+auto FirstTriangle::on_update(UpdateContext& ctx) -> void {
+  const Engine& engine {ctx.engine};
   const auto dt {static_cast<f32>(engine.delta_time())};
 
   // 90° per second
@@ -233,6 +193,46 @@ auto FirstTriangle::on_tick(Engine& engine) -> void {
   }
 
   ImGui::End();
+
+  CommandList cmdList;
+
+  cmdList.clear_attachments(
+    Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
+    Color::from_non_linear_rgba8(0, 0, 63), 1.0f, 0);
+
+  const Pipeline pipeline {[this] {
+    if (mCurrentExercise == 2) {
+      return mQuadPipeline;
+    }
+    if (mCurrentExercise == 3) {
+      return mWireframePipeline;
+    }
+
+    return mPipeline;
+  }()};
+
+  cmdList.bind_pipeline(pipeline);
+
+  const DrawContext& drawCtx {ctx.drawCtx};
+  const f32 aspectRatio {static_cast<f32>(drawCtx.viewport.width()) /
+                         static_cast<f32>(drawCtx.viewport.height())};
+
+  cmdList.set_transform(
+    TransformState::ViewToViewport,
+    Matrix4x4f32::perspective_projection(90.0_deg, aspectRatio, 0.1f, 100.0f));
+  cmdList.set_transform(TransformState::WorldToView, Matrix4x4f32::identity());
+  cmdList.set_transform(
+    TransformState::ModelToWorld,
+    Matrix4x4f32::scaling(mScale) * Matrix4x4f32::rotation_y(mRotationY) *
+      Matrix4x4f32::translation(Vector3f32 {0.0f, 0.0f, 2.0f}));
+
+  cmdList.bind_vertex_buffer(mVertexBuffer, 0);
+
+  const u32 vertexCount {
+    [this]() -> u32 { return mCurrentExercise == 2 ? 4 : 3; }()};
+  cmdList.draw(0, vertexCount);
+
+  drawCtx.commandLists.emplace_back(std::move(cmdList));
 }
 
 } // namespace tribase

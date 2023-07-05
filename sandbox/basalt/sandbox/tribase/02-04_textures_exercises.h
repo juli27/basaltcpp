@@ -32,8 +32,7 @@ private:
   basalt::gfx::Sampler mSampler;
   basalt::i32 mCurrentExercise {0};
 
-  auto on_draw(const DrawContext&) -> void override;
-  auto on_tick(basalt::Engine&) -> void override;
+  auto on_update(UpdateContext&) -> void override;
 };
 
 } // namespace tribase
