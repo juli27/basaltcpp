@@ -2,14 +2,9 @@
 
 #include <basalt/api/scene/transform.h>
 
-#include <entt/entity/handle.hpp>
-
 #include <memory>
 
 using std::vector;
-
-using entt::entity;
-using entt::registry;
 
 namespace basalt {
 
@@ -19,21 +14,21 @@ auto Scene::create() -> ScenePtr {
   return std::make_shared<Scene>();
 }
 
-auto Scene::ecs() -> registry& {
+auto Scene::entity_registry() -> EntityRegistry& {
   return mEntityRegistry;
 }
 
 auto Scene::create_entity(const Vector3f32& position,
                           const Vector3f32& rotation, const Vector3f32& scale)
-  -> entt::handle {
-  const entity id = mEntityRegistry.create();
+  -> Entity {
+  const EntityId id {mEntityRegistry.create()};
   mEntityRegistry.emplace<Transform>(id, position, rotation, scale);
 
-  return entt::handle {mEntityRegistry, id};
+  return Entity {mEntityRegistry, id};
 }
 
-auto Scene::get_handle(const entity entity) -> entt::handle {
-  return entt::handle {mEntityRegistry, entity};
+auto Scene::get_handle(const EntityId entity) -> Entity {
+  return Entity {mEntityRegistry, entity};
 }
 
 auto Scene::destroy_system(const SystemId id) -> void {

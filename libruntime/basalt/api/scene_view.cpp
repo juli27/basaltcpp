@@ -11,14 +11,13 @@
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
+#include <basalt/api/scene/ecs.h>
 #include <basalt/api/scene/scene.h>
 #include <basalt/api/scene/transform.h>
 
 #include <basalt/api/shared/config.h>
 
 #include <basalt/api/math/matrix4x4.h>
-
-#include <entt/entity/registry.hpp>
 
 #include <memory>
 #include <utility>
@@ -85,7 +84,7 @@ auto SceneView::on_draw(const DrawContext& context) -> void {
   }
 
   const auto& cache {context.cache};
-  const auto& ecs {mScene->ecs()};
+  const auto& ecs {mScene->entity_registry()};
 
   ecs.view<const Transform, const ext::XModel>().each(
     [&](const Transform& transform, const ext::XModel& model) {

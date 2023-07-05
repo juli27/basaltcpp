@@ -2,6 +2,7 @@
 
 #include <basalt/api/gfx/backend/types.h>
 
+#include <basalt/api/scene/ecs.h>
 #include <basalt/api/scene/system.h>
 #include <basalt/api/scene/types.h>
 
@@ -11,9 +12,6 @@
 #include <basalt/api/math/vector3.h>
 
 #include <basalt/api/base/types.h>
-
-#include <entt/entity/fwd.hpp>
-#include <entt/entity/registry.hpp>
 
 #include <utility>
 #include <vector>
@@ -34,13 +32,13 @@ public:
   auto operator=(const Scene&) -> Scene& = delete;
   auto operator=(Scene&&) -> Scene& = delete;
 
-  auto ecs() -> entt::registry&;
+  auto entity_registry() -> EntityRegistry&;
 
   [[nodiscard]] auto
   create_entity(const Vector3f32& position = Vector3f32 {0.0f},
                 const Vector3f32& rotation = Vector3f32 {0.0f},
-                const Vector3f32& scale = Vector3f32 {1.0f}) -> entt::handle;
-  [[nodiscard]] auto get_handle(entt::entity) -> entt::handle;
+                const Vector3f32& scale = Vector3f32 {1.0f}) -> Entity;
+  [[nodiscard]] auto get_handle(EntityId) -> Entity;
 
   template <typename T, typename... Args>
   auto create_system(Args&&... args) -> SystemId {
@@ -67,7 +65,7 @@ public:
 private:
   friend class DebugUi;
 
-  entt::registry mEntityRegistry;
+  EntityRegistry mEntityRegistry;
   HandlePool<SystemPtr, SystemId> mSystems;
   std::vector<gfx::DirectionalLight> mDirectionalLights;
   Color mBackgroundColor {Colors::BLACK};

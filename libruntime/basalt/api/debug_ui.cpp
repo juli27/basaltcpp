@@ -2,6 +2,7 @@
 
 #include <basalt/gfx/utils.h>
 
+#include <basalt/api/scene/ecs.h>
 #include <basalt/api/scene/scene.h>
 #include <basalt/api/scene/transform.h>
 
@@ -14,8 +15,6 @@
 
 #include <basalt/api/base/enum_array.h>
 
-#include <entt/entity/entity.hpp>
-#include <entt/entity/registry.hpp>
 #include <fmt/format.h>
 #include <imgui/imgui.h>
 
@@ -30,9 +29,6 @@ using namespace std::literals;
 using std::array;
 using std::string;
 using std::string_view;
-
-using entt::entity;
-using entt::registry;
 
 namespace {
 
@@ -219,11 +215,11 @@ auto DebugUi::edit_scene(Scene& scene) -> void {
 
   ImGui::Separator();
 
-  edit_ecs(scene.ecs());
+  edit_ecs(scene.entity_registry());
 }
 
-auto DebugUi::edit_ecs(registry& ecs) -> void {
-  ecs.each([&](const entity entity) -> void {
+auto DebugUi::edit_ecs(EntityRegistry& ecs) -> void {
+  ecs.each([&](const EntityId entity) -> void {
     ImGui::PushID(to_integral(entity));
 
     if (ImGui::TreeNode("Entity", "Entity %d", to_integral(entity))) {

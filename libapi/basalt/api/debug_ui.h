@@ -1,16 +1,13 @@
 #pragma once
 
-#include <basalt/api/scene/types.h>
-
 #include <basalt/api/gfx/types.h>
-
 #include <basalt/api/gfx/backend/types.h>
+
+#include <basalt/api/scene/types.h>
 
 #include <basalt/api/shared/types.h>
 
 #include <basalt/api/base/types.h>
-
-#include <entt/entity/fwd.hpp>
 
 namespace basalt {
 
@@ -21,7 +18,7 @@ public:
 
   static auto show_scene_inspector(Scene&, bool& isOpen) -> void;
   static auto edit_scene(Scene&) -> void;
-  static auto edit_ecs(entt::registry&) -> void;
+  static auto edit_ecs(EntityRegistry&) -> void;
   static auto edit_transform(Transform&) -> void;
   static auto edit_directional_light(gfx::DirectionalLight&) -> void;
   static auto edit_color3(const char* label, Color&) -> void;

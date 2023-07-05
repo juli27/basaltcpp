@@ -7,6 +7,7 @@
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/resource_cache.h>
 
+#include <basalt/api/scene/ecs.h>
 #include <basalt/api/scene/scene.h>
 #include <basalt/api/scene/system.h>
 
@@ -15,9 +16,6 @@
 #include <basalt/api/math/angle.h>
 #include <basalt/api/math/vector3.h>
 
-#include <entt/entity/entity.hpp>
-#include <entt/entity/handle.hpp>
-#include <entt/entity/registry.hpp>
 #include <gsl/span>
 #include <imgui/imgui.h>
 
@@ -25,12 +23,13 @@
 
 using std::array;
 
-using entt::handle;
 using gsl::span;
 
 using namespace basalt::literals;
 
 using basalt::Engine;
+using basalt::Entity;
+using basalt::EntityId;
 using basalt::Scene;
 using basalt::ScenePtr;
 using basalt::SceneView;
@@ -69,8 +68,8 @@ public:
 
     bool firstEntity {true};
 
-    ctx.scene.ecs().view<RenderComponent, SamplerSettings>().each(
-      [&](const entt::entity entity, RenderComponent& renderComponent,
+    ctx.scene.entity_registry().view<RenderComponent, SamplerSettings>().each(
+      [&](const EntityId entity, RenderComponent& renderComponent,
           SamplerSettings& samplerSettings) {
         constexpr u8 filterMask {0x3};
         constexpr u8 mipFilterShift {0};
@@ -193,7 +192,7 @@ Textures::Textures(Engine& engine)
                              static_cast<u32>(vertices.size()), vertexLayout};
   mMesh = mGfxResources.create_mesh(mesh);
 
-  const entt::handle quad {scene->create_entity(Vector3f32 {0.0f, 0.0f, 1.5f})};
+  const Entity quad {scene->create_entity(Vector3f32 {0.0f, 0.0f, 1.5f})};
   quad.emplace<RenderComponent>(mMesh, std::get<0>(mMaterials));
   quad.emplace<SamplerSettings>(mMaterials, 0u);
 }

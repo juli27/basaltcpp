@@ -7,14 +7,13 @@
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/resource_cache.h>
 
+#include <basalt/api/scene/ecs.h>
 #include <basalt/api/scene/scene.h>
 #include <basalt/api/scene/system.h>
 #include <basalt/api/scene/transform.h>
 
 #include <basalt/api/math/angle.h>
 #include <basalt/api/math/vector3.h>
-
-#include <entt/entity/handle.hpp>
 
 #include <gsl/span>
 
@@ -24,13 +23,13 @@ namespace samples {
 
 using std::array;
 
-using entt::handle;
 using gsl::span;
 
 using namespace basalt::literals;
 
 using basalt::Angle;
 using basalt::Engine;
+using basalt::Entity;
 using basalt::Scene;
 using basalt::ScenePtr;
 using basalt::SceneView;
@@ -58,7 +57,7 @@ public:
   auto on_update(const SystemContext& ctx) -> void override {
     const auto dt {static_cast<f32>(ctx.deltaTimeSeconds)};
 
-    ctx.scene.ecs().view<Transform, const RotationSpeed>().each(
+    ctx.scene.entity_registry().view<Transform, const RotationSpeed>().each(
       [&](Transform& t, const RotationSpeed& rotationSpeed) {
         t.rotate(0.0_rad,
                  Angle::degrees(rotationSpeed.rotationPerSecond.degrees() * dt),
@@ -89,7 +88,7 @@ SimpleScene::SimpleScene(Engine& engine)
 
   scene->set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
 
-  const handle triangle {scene->create_entity(Vector3f32::forward() * 2.5f)};
+  const Entity triangle {scene->create_entity(Vector3f32::forward() * 2.5f)};
 
   triangle.emplace<RotationSpeed>(360_deg);
 
