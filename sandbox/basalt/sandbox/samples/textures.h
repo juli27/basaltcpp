@@ -5,13 +5,7 @@
 #include <basalt/api/types.h>
 
 #include <basalt/api/gfx/types.h>
-
-#include <basalt/api/scene/types.h>
-
-#include <basalt/api/base/types.h>
-
-#include <entt/entity/handle.hpp>
-#include <entt/entity/registry.hpp>
+#include <basalt/api/gfx/backend/types.h>
 
 #include <array>
 
@@ -19,17 +13,23 @@ namespace samples {
 
 // TODO: when supporting dynamic buffers: texture coordinate modification and
 // address mode demo
-struct Textures final : basalt::View {
+class Textures final : public basalt::View {
+public:
   explicit Textures(basalt::Engine&);
 
-private:
-  basalt::ScenePtr mScene;
-  basalt::SceneViewPtr mSceneView;
-  entt::handle mQuad;
-  basalt::u32 mChosenMaterial {0};
-  std::array<basalt::gfx::Material, 9> mMaterials {};
+  Textures(const Textures&) = delete;
+  Textures(Textures&&) = delete;
 
-  void on_tick(basalt::Engine&) override;
+  ~Textures() noexcept override;
+
+  auto operator=(const Textures&) -> Textures& = delete;
+  auto operator=(Textures&&) -> Textures& = delete;
+
+private:
+  basalt::gfx::ResourceCache& mGfxResources;
+  basalt::gfx::Mesh mMesh;
+  basalt::gfx::Texture mTexture;
+  std::array<basalt::gfx::Material, 9> mMaterials {};
 };
 
 } // namespace samples

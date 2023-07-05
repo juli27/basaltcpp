@@ -2,18 +2,28 @@
 
 #include <basalt/api/gfx/backend/types.h>
 
+#include <basalt/api/scene/system.h>
+#include <basalt/api/scene/types.h>
+
 #include <basalt/api/shared/color.h>
+#include <basalt/api/shared/handle_pool.h>
 
 #include <basalt/api/math/vector3.h>
+
+#include <basalt/api/base/types.h>
 
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
 
+#include <utility>
 #include <vector>
 
 namespace basalt {
 
-struct Scene final {
+class Scene final {
+public:
+  static auto create() -> ScenePtr;
+
   Scene() = default;
 
   Scene(const Scene&) = delete;
@@ -32,24 +42,40 @@ struct Scene final {
                 const Vector3f32& scale = Vector3f32 {1.0f}) -> entt::handle;
   [[nodiscard]] auto get_handle(entt::entity) -> entt::handle;
 
+  template <typename T, typename... Args>
+  auto create_system(Args&&... args) -> SystemId {
+    SystemPtr system {std::make_unique<T>(std::forward<Args>(args)...)};
+
+    return mSystems.allocate(std::move(system));
+  }
+
+  auto destroy_system(SystemId) -> void;
+
+  auto on_update(const SceneContext&) -> void;
+
   [[nodiscard]] auto background() const -> const Color&;
-  void set_background(const Color&);
+  auto set_background(const Color&) -> void;
 
   [[nodiscard]] auto ambient_light() const -> const Color&;
-  void set_ambient_light(const Color&);
+  auto set_ambient_light(const Color&) -> void;
 
   [[nodiscard]] auto directional_lights() const
     -> const std::vector<gfx::DirectionalLight>&;
-  void add_directional_light(const Vector3f32& direction, const Color&);
-  void clear_directional_lights();
+  auto add_directional_light(const Vector3f32& direction, const Color&) -> void;
+  auto clear_directional_lights() -> void;
 
 private:
   friend class DebugUi;
 
   entt::registry mEntityRegistry;
+  HandlePool<SystemPtr, SystemId> mSystems;
   std::vector<gfx::DirectionalLight> mDirectionalLights;
   Color mBackgroundColor {Colors::BLACK};
   Color mAmbientLightColor;
+};
+
+struct SceneContext final {
+  f64 deltaTimeSeconds;
 };
 
 } // namespace basalt

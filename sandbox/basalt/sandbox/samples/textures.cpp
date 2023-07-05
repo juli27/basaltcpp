@@ -8,26 +8,34 @@
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/api/scene/scene.h>
+#include <basalt/api/scene/system.h>
 
 #include <basalt/api/shared/log.h>
 
 #include <basalt/api/math/angle.h>
 #include <basalt/api/math/vector3.h>
 
+#include <entt/entity/entity.hpp>
+#include <entt/entity/handle.hpp>
+#include <entt/entity/registry.hpp>
 #include <gsl/span>
 #include <imgui/imgui.h>
 
+#include <utility>
+
 using std::array;
 
-using namespace entt::literals;
+using entt::handle;
 using gsl::span;
 
 using namespace basalt::literals;
 
-using basalt::Color;
 using basalt::Engine;
 using basalt::Scene;
+using basalt::ScenePtr;
 using basalt::SceneView;
+using basalt::System;
+using basalt::SystemContext;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::Material;
@@ -35,7 +43,6 @@ using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::MeshDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
-using basalt::gfx::Texture;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
 using basalt::gfx::VertexElement;
@@ -43,6 +50,80 @@ using basalt::gfx::VertexElement;
 namespace samples {
 
 namespace {
+
+struct SamplerSettings final {
+  array<Material, 9> materials {};
+  u32 chosenMaterial {0};
+};
+
+class SamplerSettingsSystem final : public System {
+public:
+  SamplerSettingsSystem() noexcept = default;
+
+  auto on_update(const SystemContext& ctx) -> void override {
+    if (!ImGui::Begin("Sampler Settings")) {
+      ImGui::End();
+
+      return;
+    }
+
+    bool firstEntity {true};
+
+    ctx.scene.ecs().view<RenderComponent, SamplerSettings>().each(
+      [&](const entt::entity entity, RenderComponent& renderComponent,
+          SamplerSettings& samplerSettings) {
+        constexpr u8 filterMask {0x3};
+        constexpr u8 mipFilterShift {0};
+        constexpr u8 minFilterShift {2};
+
+        i32 minFilter {static_cast<i32>(
+          samplerSettings.chosenMaterial >> minFilterShift & filterMask)};
+
+        i32 mipFilter {static_cast<i32>(
+          samplerSettings.chosenMaterial >> mipFilterShift & filterMask)};
+
+        ImGui::PushID(static_cast<int>(to_integral(entity)));
+
+        if (firstEntity) {
+          firstEntity = false;
+          ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        }
+
+        if (ImGui::TreeNode("Entity", "Entity %d", to_integral(entity))) {
+          ImGui::TextUnformatted("Filter");
+          ImGui::PushID("Filter");
+          ImGui::RadioButton("Point", &minFilter, 0);
+          ImGui::SameLine();
+          ImGui::RadioButton("Bilinear", &minFilter, 1);
+          ImGui::SameLine();
+          ImGui::RadioButton("Anisotropic", &minFilter, 2);
+          ImGui::PopID();
+
+          ImGui::TextUnformatted("MIP Filter");
+          ImGui::PushID("Mip");
+          ImGui::RadioButton("None", &mipFilter, 0);
+          ImGui::SameLine();
+          ImGui::RadioButton("Point", &mipFilter, 1);
+          ImGui::SameLine();
+          ImGui::RadioButton("Linear", &mipFilter, 2);
+          ImGui::PopID();
+
+          ImGui::TreePop();
+        }
+
+        ImGui::PopID();
+
+        samplerSettings.chosenMaterial =
+          static_cast<u32>(minFilter) << minFilterShift |
+          static_cast<u32>(mipFilter) << mipFilterShift;
+
+        renderComponent.material =
+          samplerSettings.materials[minFilter * 3 + mipFilter];
+      });
+
+    ImGui::End();
+  }
+};
 
 auto create_camera() -> Camera {
   return Camera {Vector3f32 {0.0f},
@@ -56,26 +137,27 @@ auto create_camera() -> Camera {
 } // namespace
 
 Textures::Textures(Engine& engine)
-  : mScene {std::make_shared<Scene>()}
-  , mSceneView {std::make_shared<SceneView>(mScene, create_camera())} {
-  add_child_top(mSceneView);
+  : mGfxResources {engine.gfx_resource_cache()} {
+  const ScenePtr scene {Scene::create()};
+  scene->create_system<SamplerSettingsSystem>();
 
-  mScene->set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
+  add_child_top(SceneView::create(scene, create_camera()));
 
-  auto& gfxResourceCache {engine.gfx_resource_cache()};
+  scene->set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
 
   const array vertexLayout {
     VertexElement::Position3F32,
     VertexElement::TextureCoords2F32,
   };
 
+  mTexture = mGfxResources.load_texture("data/Tiger.bmp");
+
   MaterialDescriptor material {};
   material.vertexInputState = vertexLayout;
   material.primitiveType = PrimitiveType::TriangleStrip;
   material.cullBackFace = false;
   material.lit = false;
-  material.sampledTexture.texture =
-    engine.get_or_load<Texture>("data/Tiger.bmp"_hs);
+  material.sampledTexture.texture = mTexture;
 
   u32 i {0};
 
@@ -87,7 +169,7 @@ Textures::Textures(Engine& engine)
          {TextureMipFilter::None, TextureMipFilter::Point,
           TextureMipFilter::Linear}) {
       material.sampledTexture.mipFilter = mipFilter;
-      mMaterials[i] = gfxResourceCache.create_material(material);
+      mMaterials[i] = mGfxResources.create_material(material);
       ++i;
     }
   }
@@ -109,51 +191,19 @@ Textures::Textures(Engine& engine)
 
   const MeshDescriptor mesh {as_bytes(span {vertices}),
                              static_cast<u32>(vertices.size()), vertexLayout};
+  mMesh = mGfxResources.create_mesh(mesh);
 
-  mQuad = mScene->create_entity(Vector3f32 {0.0f, 0.0f, 1.5f});
-  auto& rc {mQuad.emplace<RenderComponent>()};
-  rc.mesh = engine.gfx_resource_cache().create_mesh(mesh);
-  rc.material = std::get<0>(mMaterials);
+  const entt::handle quad {scene->create_entity(Vector3f32 {0.0f, 0.0f, 1.5f})};
+  quad.emplace<RenderComponent>(mMesh, std::get<0>(mMaterials));
+  quad.emplace<SamplerSettings>(mMaterials, 0u);
 }
-
-void Textures::on_tick(Engine&) {
-  constexpr u8 filterMask {0x3};
-  constexpr u8 mipFilterShift {0};
-  constexpr u8 minFilterShift {2};
-
-  i32 minFilter {
-    static_cast<i32>(mChosenMaterial >> minFilterShift & filterMask)};
-
-  i32 mipFilter {
-    static_cast<i32>(mChosenMaterial >> mipFilterShift & filterMask)};
-
-  if (ImGui::Begin("Settings##SamplesTextures")) {
-    ImGui::TextUnformatted("Filter");
-    ImGui::PushID("Filter");
-    ImGui::RadioButton("Point", &minFilter, 0);
-    ImGui::SameLine();
-    ImGui::RadioButton("Bilinear", &minFilter, 1);
-    ImGui::SameLine();
-    ImGui::RadioButton("Anisotropic", &minFilter, 2);
-    ImGui::PopID();
-
-    ImGui::TextUnformatted("MIP Filter");
-    ImGui::PushID("Mip");
-    ImGui::RadioButton("None", &mipFilter, 0);
-    ImGui::SameLine();
-    ImGui::RadioButton("Point", &mipFilter, 1);
-    ImGui::SameLine();
-    ImGui::RadioButton("Linear", &mipFilter, 2);
-    ImGui::PopID();
+Textures::~Textures() noexcept {
+  for (const Material materialId : mMaterials) {
+    mGfxResources.destroy(materialId);
   }
 
-  mChosenMaterial = static_cast<u32>(minFilter) << minFilterShift |
-                    static_cast<u32>(mipFilter) << mipFilterShift;
-
-  ImGui::End();
-
-  auto& rc {mQuad.get<RenderComponent>()};
-  rc.material = mMaterials[minFilter * 3 + mipFilter];
+  mGfxResources.destroy(mTexture);
+  mGfxResources.destroy(mMesh);
 }
 
 } // namespace samples

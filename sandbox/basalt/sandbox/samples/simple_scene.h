@@ -2,13 +2,9 @@
 
 #include <basalt/api/view.h>
 
-#include <basalt/api/scene/types.h>
-
-#include <basalt/api/gfx/types.h>
-
 #include <basalt/api/types.h>
 
-#include <entt/entity/fwd.hpp>
+#include <basalt/api/gfx/types.h>
 
 namespace samples {
 
@@ -26,10 +22,8 @@ public:
 
 private:
   basalt::gfx::ResourceCache& mGfxResources;
-  basalt::ScenePtr mScene;
-  entt::entity mTriangle {};
-
-  auto on_tick(basalt::Engine&) -> void override;
+  basalt::gfx::Mesh mMesh;
+  basalt::gfx::Material mMaterial;
 };
 
 } // namespace samples

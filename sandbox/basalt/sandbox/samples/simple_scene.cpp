@@ -8,6 +8,7 @@
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/api/scene/scene.h>
+#include <basalt/api/scene/system.h>
 #include <basalt/api/scene/transform.h>
 
 #include <basalt/api/math/angle.h>
@@ -18,12 +19,12 @@
 #include <gsl/span>
 
 #include <array>
-#include <memory>
 
 namespace samples {
 
 using std::array;
 
+using entt::handle;
 using gsl::span;
 
 using namespace basalt::literals;
@@ -31,7 +32,10 @@ using namespace basalt::literals;
 using basalt::Angle;
 using basalt::Engine;
 using basalt::Scene;
+using basalt::ScenePtr;
 using basalt::SceneView;
+using basalt::System;
+using basalt::SystemContext;
 using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
@@ -42,6 +46,26 @@ using basalt::gfx::RenderComponent;
 using basalt::gfx::VertexElement;
 
 namespace {
+
+struct RotationSpeed final {
+  Angle rotationPerSecond;
+};
+
+class RotationSpeedSystem final : public System {
+public:
+  RotationSpeedSystem() noexcept = default;
+
+  auto on_update(const SystemContext& ctx) -> void override {
+    const auto dt {static_cast<f32>(ctx.deltaTimeSeconds)};
+
+    ctx.scene.ecs().view<Transform, const RotationSpeed>().each(
+      [&](Transform& t, const RotationSpeed& rotationSpeed) {
+        t.rotate(0.0_rad,
+                 Angle::degrees(rotationSpeed.rotationPerSecond.degrees() * dt),
+                 0.0_rad);
+      });
+  }
+};
 
 auto create_camera() -> Camera {
   return Camera {
@@ -57,15 +81,17 @@ auto create_camera() -> Camera {
 } // namespace
 
 SimpleScene::SimpleScene(Engine& engine)
-  : mGfxResources {engine.gfx_resource_cache()}
-  , mScene {std::make_shared<Scene>()} {
-  add_child_top(std::make_shared<SceneView>(mScene, create_camera()));
+  : mGfxResources {engine.gfx_resource_cache()} {
+  const ScenePtr scene {Scene::create()};
+  scene->create_system<RotationSpeedSystem>();
 
-  mScene->set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
+  add_child_top(SceneView::create(scene, create_camera()));
 
-  const entt::handle entity {
-    mScene->create_entity(Vector3f32::forward() * 2.5f)};
-  auto& rc {entity.emplace<RenderComponent>()};
+  scene->set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
+
+  const handle triangle {scene->create_entity(Vector3f32::forward() * 2.5f)};
+
+  triangle.emplace<RotationSpeed>(360_deg);
 
   struct Vertex final {
     f32 x;
@@ -85,7 +111,7 @@ SimpleScene::SimpleScene(Engine& engine)
     VertexElement::ColorDiffuse1U32A8R8G8B8,
   };
 
-  rc.mesh = mGfxResources.create_mesh(MeshDescriptor {
+  mMesh = mGfxResources.create_mesh(MeshDescriptor {
     as_bytes(span {vertices}),
     static_cast<u32>(vertices.size()),
     vertexLayout,
@@ -96,22 +122,16 @@ SimpleScene::SimpleScene(Engine& engine)
   materialDescriptor.primitiveType = PrimitiveType::TriangleList;
   materialDescriptor.lit = false;
   materialDescriptor.cullBackFace = false;
-  rc.material = mGfxResources.create_material(materialDescriptor);
+  mMaterial = mGfxResources.create_material(materialDescriptor);
 
-  mTriangle = entity.entity();
+  auto& rc {triangle.emplace<RenderComponent>()};
+  rc.mesh = mMesh;
+  rc.material = mMaterial;
 }
 
 SimpleScene::~SimpleScene() noexcept {
-  const auto& rc {mScene->get_handle(mTriangle).get<RenderComponent>()};
-  mGfxResources.destroy(rc.material);
-  mGfxResources.destroy(rc.mesh);
-}
-
-auto SimpleScene::on_tick(Engine& engine) -> void {
-  const auto dt {static_cast<f32>(engine.delta_time())};
-
-  mScene->get_handle(mTriangle).get<Transform>().rotate(
-    0.0_rad, Angle::degrees(360 * dt), 0.0_rad);
+  mGfxResources.destroy(mMaterial);
+  mGfxResources.destroy(mMesh);
 }
 
 } // namespace samples

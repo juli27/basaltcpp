@@ -4,6 +4,7 @@
 
 #include <basalt/api/base/types.h>
 
+#include <algorithm>
 #include <limits>
 #include <memory>
 #include <type_traits>
@@ -14,6 +15,12 @@ namespace basalt {
 
 template <typename T, typename Handle>
 struct HandlePool final {
+private:
+  using ActiveSlotsList = std::vector<Handle>;
+
+public:
+  using iterator = typename ActiveSlotsList::iterator;
+
   static_assert(std::is_base_of_v<detail::HandleBase, Handle>);
 
 private:
@@ -70,6 +77,8 @@ public:
       Handle {},
     })};
 
+    mActiveSlots.emplace_back(slot.handle);
+
     return slot.handle;
   }
 
@@ -78,6 +87,11 @@ public:
     if (!is_valid(handle)) {
       return;
     }
+
+    mActiveSlots.erase(
+      std::remove_if(mActiveSlots.begin(), mActiveSlots.end(),
+                     [handle](const Handle& h) { return h == handle; }),
+      mActiveSlots.end());
 
     const auto index {handle.value()};
 
@@ -95,6 +109,14 @@ public:
     mFreeSlot = handle;
   }
 
+  auto begin() -> iterator {
+    return mActiveSlots.begin();
+  }
+
+  auto end() -> iterator {
+    return mActiveSlots.end();
+  }
+
 private:
   struct SlotData final {
     T data {};
@@ -103,6 +125,7 @@ private:
   };
 
   std::vector<SlotData> mStorage;
+  ActiveSlotsList mActiveSlots;
   Handle mFreeSlot;
 };
 

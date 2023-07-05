@@ -20,6 +20,7 @@
 
 #include <entt/entity/registry.hpp>
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -51,6 +52,10 @@ auto record_material(FilteringCommandList& cmdList, const MaterialData& data)
 }
 
 } // namespace
+
+auto SceneView::create(ScenePtr scene, const Camera& camera) -> SceneViewPtr {
+  return std::make_shared<SceneView>(std::move(scene), camera);
+}
 
 SceneView::SceneView(ScenePtr scene, const Camera& camera)
   : mScene {std::move(scene)}, mCamera {camera} {
@@ -126,6 +131,9 @@ auto SceneView::on_draw(const DrawContext& context) -> void {
 }
 
 auto SceneView::on_tick(Engine& engine) -> void {
+  const SceneContext sceneCtx {engine.delta_time()};
+  mScene->on_update(sceneCtx);
+
   auto& config {engine.config()};
 
   if (bool sceneInspectorEnabled {

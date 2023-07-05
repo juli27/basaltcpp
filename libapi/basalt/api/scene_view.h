@@ -2,14 +2,19 @@
 
 #include <basalt/api/view.h>
 
+#include <basalt/api/types.h>
+
 #include <basalt/api/gfx/camera.h>
 
 #include <basalt/api/scene/types.h>
 
 namespace basalt {
 
-struct SceneView final : View {
-  SceneView(ScenePtr scene, const gfx::Camera& camera);
+class SceneView final : public View {
+public:
+  static auto create(ScenePtr, const gfx::Camera&) -> SceneViewPtr;
+
+  SceneView(ScenePtr, const gfx::Camera&);
 
   SceneView(const SceneView&) = delete;
   SceneView(SceneView&&) noexcept = default;

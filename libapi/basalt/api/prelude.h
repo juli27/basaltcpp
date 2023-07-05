@@ -1,13 +1,19 @@
 #pragma once
 
-#include "types.h"
-#include "gfx/types.h"
-#include "gfx/backend/types.h"
+#include <basalt/api/types.h>
 
-#include "shared/color.h"
-#include "shared/data.h"
+#include <basalt/api/gfx/types.h>
+#include <basalt/api/gfx/backend/types.h>
 
-#include "base/types.h"
+#include <basalt/api/scene/types.h>
+
+#include <basalt/api/shared/color.h>
+#include <basalt/api/shared/data.h>
+#include <basalt/api/shared/types.h>
+
+#include <basalt/api/math/types.h>
+
+#include <basalt/api/base/types.h>
 
 using basalt::f32;
 using basalt::f64;

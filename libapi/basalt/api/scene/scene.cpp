@@ -4,6 +4,8 @@
 
 #include <entt/entity/handle.hpp>
 
+#include <memory>
+
 using std::vector;
 
 using entt::entity;
@@ -12,6 +14,10 @@ using entt::registry;
 namespace basalt {
 
 using gfx::DirectionalLight;
+
+auto Scene::create() -> ScenePtr {
+  return std::make_shared<Scene>();
+}
 
 auto Scene::ecs() -> registry& {
   return mEntityRegistry;
@@ -30,15 +36,27 @@ auto Scene::get_handle(const entity entity) -> entt::handle {
   return entt::handle {mEntityRegistry, entity};
 }
 
+auto Scene::destroy_system(const SystemId id) -> void {
+  mSystems.deallocate(id);
+}
+
+auto Scene::on_update(const SceneContext& ctx) -> void {
+  for (const auto& [handle, system] : mSystems) {
+    const SystemContext context {ctx.deltaTimeSeconds, *this};
+
+    (*system)->on_update(context);
+  }
+}
+
 auto Scene::background() const -> const Color& {
   return mBackgroundColor;
 }
 
-void Scene::set_background(const Color& background) {
+auto Scene::set_background(const Color& background) -> void {
   mBackgroundColor = background;
 }
 
-void Scene::set_ambient_light(const Color& color) {
+auto Scene::set_ambient_light(const Color& color) -> void {
   mAmbientLightColor = color;
 }
 
@@ -51,13 +69,13 @@ auto Scene::directional_lights() const -> const vector<DirectionalLight>& {
 }
 
 // TODO: ambient color support
-void Scene::add_directional_light(const Vector3f32& direction,
-                                  const Color& color) {
+auto Scene::add_directional_light(const Vector3f32& direction,
+                                  const Color& color) -> void {
   mDirectionalLights.emplace_back(
     DirectionalLight {direction, color, Color {}});
 }
 
-void Scene::clear_directional_lights() {
+auto Scene::clear_directional_lights() -> void {
   mDirectionalLights.clear();
 }
 
