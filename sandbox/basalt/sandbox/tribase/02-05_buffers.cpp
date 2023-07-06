@@ -192,8 +192,7 @@ Buffers::~Buffers() noexcept {
 }
 
 auto Buffers::on_update(UpdateContext& ctx) -> void {
-  const Engine& engine {ctx.engine};
-  const auto dt {static_cast<f32>(engine.delta_time())};
+  const f32 dt {ctx.deltaTime.count()};
 
   if (is_key_down(Key::LeftArrow)) {
     mCameraAngleY -= Angle::degrees(45.0f * dt);

@@ -199,18 +199,15 @@ Textures::~Textures() noexcept {
 }
 
 auto Textures::on_update(UpdateContext& ctx) -> void {
-  const Engine& engine {ctx.engine};
-
-  mTimeAccum += engine.delta_time();
+  const f32 dt {ctx.deltaTime.count()};
+  mTimeAccum += dt;
 
   if (!is_key_down(Key::Space)) {
     for (uSize i {0}; i < NUM_TRIANGLES; ++i) {
-      const f32 deltaTime {static_cast<f32>(engine.delta_time())};
-
       auto& triangle {mTriangles[i]};
 
-      triangle.position += triangle.velocity * deltaTime;
-      triangle.rotation += triangle.rotationVelocity * deltaTime;
+      triangle.position += triangle.velocity * dt;
+      triangle.rotation += triangle.rotationVelocity * dt;
 
       if (triangle.position.length() > 100.0f) {
         triangle.velocity *= -1.0f;

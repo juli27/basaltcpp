@@ -25,7 +25,7 @@ public:
   auto operator=(const DearImGui&) -> DearImGui& = delete;
   auto operator=(DearImGui&&) -> DearImGui& = delete;
 
-  auto new_frame(Engine&, Size2Du16 displaySize) const -> void;
+  auto new_frame(const UpdateContext&) const -> void;
 
   // do not call directly. use the static create function instead
   explicit DearImGui(std::shared_ptr<gfx::ext::DearImGuiRenderer>);

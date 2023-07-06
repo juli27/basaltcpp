@@ -17,7 +17,7 @@ using InputEventPtr = std::unique_ptr<InputEvent>;
 class SceneView;
 using SceneViewPtr = std::shared_ptr<SceneView>;
 
-struct View;
+class View;
 using ViewPtr = std::shared_ptr<View>;
 
 enum class InputEventHandled : u8 { No, Yes };

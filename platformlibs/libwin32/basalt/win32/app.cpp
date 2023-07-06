@@ -32,6 +32,9 @@
 #include <utility>
 
 using namespace std::literals;
+using std::chrono::duration;
+using std::chrono::steady_clock;
+using std::chrono::time_point;
 
 namespace basalt {
 
@@ -161,10 +164,9 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
 
   window->input_manager().set_overlay(app.dear_imgui());
 
-  using Clock = std::chrono::high_resolution_clock;
-  static_assert(Clock::is_steady);
-
-  auto startTime {Clock::now()};
+  using Clock = steady_clock;
+  time_point startTime {Clock::now()};
+  SecondsF32 deltaTime {0s};
 
   while (poll_messages()) {
     if (const WindowMode mode {config.get_enum("window.mode"s, to_window_mode)};
@@ -176,7 +178,8 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
 
     window->input_manager().dispatch_pending(rootView);
 
-    app.update();
+    const UpdateContext runtimeCtx {deltaTime};
+    app.update(runtimeCtx);
 
     if (app.mIsDirty) {
       app.mIsDirty = false;
@@ -194,9 +197,8 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
       continue;
     }
 
-    const auto endTime {Clock::now()};
-    app.mDeltaTime = static_cast<f64>((endTime - startTime).count()) /
-                     (Clock::period::den * Clock::period::num);
+    const time_point endTime {Clock::now()};
+    deltaTime = endTime - startTime;
     startTime = endTime;
   }
 }

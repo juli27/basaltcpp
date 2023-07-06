@@ -2,7 +2,7 @@
 
 #include <basalt/api/scene/types.h>
 
-#include <basalt/api/base/types.h>
+#include <basalt/api/shared/types.h>
 
 namespace basalt {
 
@@ -17,7 +17,7 @@ public:
   auto operator=(System&&) -> System& = delete;
 
   struct UpdateContext final {
-    f64 deltaTimeSeconds;
+    SecondsF32 deltaTime;
     Scene& scene;
   };
 

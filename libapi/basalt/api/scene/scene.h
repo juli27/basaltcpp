@@ -8,6 +8,7 @@
 
 #include <basalt/api/shared/color.h>
 #include <basalt/api/shared/handle_pool.h>
+#include <basalt/api/shared/types.h>
 
 #include <basalt/api/math/vector3.h>
 
@@ -50,7 +51,7 @@ public:
   auto destroy_system(SystemId) -> void;
 
   struct UpdateContext final {
-    f64 deltaTimeSeconds;
+    SecondsF32 deltaTime;
   };
   auto on_update(const UpdateContext&) -> void;
 

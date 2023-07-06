@@ -13,7 +13,8 @@
 
 namespace basalt {
 
-struct View {
+class View {
+public:
   View(const View&) = delete;
   View(View&&) noexcept = default;
 
@@ -43,6 +44,7 @@ struct View {
   struct UpdateContext final {
     Engine& engine;
     const DrawContext& drawCtx;
+    SecondsF32 deltaTime;
   };
 
   auto update(UpdateContext&) -> void;

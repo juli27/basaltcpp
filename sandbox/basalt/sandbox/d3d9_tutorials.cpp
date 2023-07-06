@@ -210,7 +210,7 @@ public:
 
 protected:
   auto on_update(UpdateContext& ctx) -> void override {
-    const auto dt {static_cast<f32>(ctx.engine.delta_time())};
+    const f32 dt {ctx.deltaTime.count()};
 
     constexpr f32 twoPi {PI * 2.0f};
     // 1 full rotation per second
@@ -327,7 +327,7 @@ private:
   Angle mLightRotation;
 
   auto on_update(UpdateContext& ctx) -> void override {
-    const auto dt {static_cast<f32>(ctx.engine.delta_time())};
+    const f32 dt {ctx.deltaTime.count()};
 
     constexpr f32 twoPi {2.0f * PI};
 
@@ -481,7 +481,7 @@ private:
   bool mShowTci {false};
 
   auto on_update(UpdateContext& ctx) -> void override {
-    const auto dt {static_cast<f32>(ctx.engine.delta_time())};
+    const f32 dt {ctx.deltaTime.count()};
 
     mRotationX += Angle::radians(dt);
     while (mRotationX.radians() > PI) {
@@ -552,7 +552,7 @@ private:
   Angle mRotationY;
 
   auto on_update(UpdateContext& ctx) -> void override {
-    const auto dt {static_cast<f32>(ctx.engine.delta_time())};
+    const f32 dt {ctx.deltaTime.count()};
 
     mRotationY += Angle::radians(dt);
     while (mRotationY.radians() > PI) {

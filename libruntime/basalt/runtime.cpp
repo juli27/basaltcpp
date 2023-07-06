@@ -24,17 +24,16 @@ auto Runtime::dear_imgui() const -> const DearImGuiPtr& {
   return mDearImGui;
 }
 
-auto Runtime::update() -> void {
-  mDearImGui->new_frame(*this, mGfxContext->surface_size());
-
+auto Runtime::update(const UpdateContext& ctx) -> void {
   gfx::Composite composite;
   const View::DrawContext drawCtx {
     composite,
     mGfxResourceCache,
     mGfxContext->surface_size(),
   };
-  View::UpdateContext updateCtx {*this, drawCtx};
+  View::UpdateContext updateCtx {*this, drawCtx, ctx.deltaTime};
 
+  mDearImGui->new_frame(updateCtx);
   root()->update(updateCtx);
 
   // The DearImGui view doesn't actually cause the UI to render during drawing

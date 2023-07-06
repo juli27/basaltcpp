@@ -41,7 +41,7 @@ auto Scene::destroy_system(const SystemId id) -> void {
 
 auto Scene::on_update(const UpdateContext& ctx) -> void {
   for (const SystemId systemId : mSystems) {
-    const System::UpdateContext systemCtx {ctx.deltaTimeSeconds, *this};
+    const System::UpdateContext systemCtx {ctx.deltaTime, *this};
 
     mSystems[systemId]->on_update(systemCtx);
   }

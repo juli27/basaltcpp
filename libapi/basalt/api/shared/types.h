@@ -4,6 +4,7 @@
 
 #include <entt/core/hashed_string.hpp>
 
+#include <chrono>
 #include <memory>
 
 namespace basalt {
@@ -14,6 +15,8 @@ struct Config;
 template <typename T>
 struct Size2D;
 using Size2Du16 = Size2D<u16>;
+
+using SecondsF32 = std::chrono::duration<f32>;
 
 // SERIALIZED
 enum class WindowMode : u8 {

@@ -164,8 +164,7 @@ DearImGui::~DearImGui() noexcept {
   ImGui::DestroyContext();
 }
 
-auto DearImGui::new_frame(Engine& engine, const Size2Du16 displaySize) const
-  -> void {
+auto DearImGui::new_frame(const UpdateContext& ctx) const -> void {
   static_assert(ImGuiMouseButton_COUNT == MOUSE_BUTTON_COUNT);
   static_assert(KEY_COUNT <= 512);
 
@@ -175,9 +174,12 @@ auto DearImGui::new_frame(Engine& engine, const Size2Du16 displaySize) const
 
   ImGuiIO& io {ImGui::GetIO()};
 
+  const Size2Du16 displaySize {ctx.drawCtx.viewport};
   io.DisplaySize.x = static_cast<float>(displaySize.width());
   io.DisplaySize.y = static_cast<float>(displaySize.height());
-  io.DeltaTime = static_cast<float>(engine.delta_time());
+  io.DeltaTime = ctx.deltaTime.count();
+
+  Engine& engine {ctx.engine};
 
   static_assert(ImGuiMouseCursor_COUNT == 9);
   if (!(io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)) {

@@ -45,7 +45,7 @@ auto SceneView::on_update(UpdateContext& ctx) -> void {
     entityRegistry.ctx().insert_or_assign(&mCamera);
   }
 
-  const Scene::UpdateContext sceneCtx {engine.delta_time()};
+  const Scene::UpdateContext sceneCtx {ctx.deltaTime};
   mScene->on_update(sceneCtx);
 
   auto& config {engine.config()};

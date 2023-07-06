@@ -104,8 +104,6 @@ TexturesExercises::~TexturesExercises() noexcept {
 }
 
 auto TexturesExercises::on_update(UpdateContext& ctx) -> void {
-  const Engine& engine {ctx.engine};
-
   if (ImGui::Begin("Settings##TribaseTexturesEx")) {
     auto uploadTriangle {[this] {
       mGfxCache.with_mapping_of(mVertexBuffer, [](const span<byte> vbData) {
@@ -132,7 +130,7 @@ auto TexturesExercises::on_update(UpdateContext& ctx) -> void {
 
   ImGui::End();
 
-  const f32 deltaTime {static_cast<f32>(engine.delta_time())};
+  const f32 dt {ctx.deltaTime.count()};
 
   if (mCurrentExercise == 1) {
     mGfxCache.with_mapping_of(mVertexBuffer, [&](const span<byte> vbData) {
@@ -141,7 +139,7 @@ auto TexturesExercises::on_update(UpdateContext& ctx) -> void {
 
       // READING from the vertex buffer!
       for (Vertex& vertex : vertexData) {
-        vertex.u += 0.25f * deltaTime;
+        vertex.u += 0.25f * dt;
       }
     });
   }
@@ -152,7 +150,7 @@ auto TexturesExercises::on_update(UpdateContext& ctx) -> void {
                                      vbData.size() / sizeof(Vertex)};
 
       const Matrix4x4f32 rotation {
-        Matrix4x4f32::rotation_z(Angle::degrees(45.0f * deltaTime))};
+        Matrix4x4f32::rotation_z(Angle::degrees(45.0f * dt))};
       // READING from the vertex buffer!
       for (Vertex& vertex : vertexData) {
         Vector3f32 uv {vertex.u, vertex.v, 0.0f};

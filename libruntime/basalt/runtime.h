@@ -16,7 +16,10 @@ class Runtime : public Engine {
 public:
   [[nodiscard]] auto dear_imgui() const -> const DearImGuiPtr&;
 
-  auto update() -> void;
+  struct UpdateContext final {
+    SecondsF32 deltaTime;
+  };
+  auto update(const UpdateContext&) -> void;
 
 protected:
   Runtime(Config&, gfx::Info, gfx::ContextPtr, DearImGuiPtr);

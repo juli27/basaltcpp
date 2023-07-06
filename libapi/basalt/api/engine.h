@@ -10,8 +10,6 @@
 
 #include <basalt/api/shared/types.h>
 
-#include <basalt/api/base/types.h>
-
 #include <memory>
 #include <unordered_map>
 
@@ -31,8 +29,6 @@ struct Engine {
 
   [[nodiscard]] auto resource_registry() const noexcept -> ResourceRegistry&;
   [[nodiscard]] auto gfx_resource_cache() noexcept -> gfx::ResourceCache&;
-
-  [[nodiscard]] auto delta_time() const noexcept -> f64;
 
   [[nodiscard]] auto root() const -> const ViewPtr&;
   auto set_root(ViewPtr) -> void;
@@ -54,8 +50,6 @@ protected:
 
   std::unordered_map<ResourceId, gfx::Texture> mTextures {};
   std::unordered_map<ResourceId, gfx::ext::XModel> mXModels {};
-
-  f64 mDeltaTime {};
 
   MouseCursor mMouseCursor {MouseCursor::Arrow};
   bool mIsDirty {false};

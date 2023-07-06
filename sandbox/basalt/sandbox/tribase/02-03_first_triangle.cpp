@@ -105,8 +105,7 @@ FirstTriangle::~FirstTriangle() noexcept {
 }
 
 auto FirstTriangle::on_update(UpdateContext& ctx) -> void {
-  const Engine& engine {ctx.engine};
-  const auto dt {static_cast<f32>(engine.delta_time())};
+  const f32 dt {ctx.deltaTime.count()};
 
   // 90° per second
   mRotationY += Angle::degrees(90.0f * dt);
@@ -161,7 +160,7 @@ auto FirstTriangle::on_update(UpdateContext& ctx) -> void {
     }
 
     if (mCurrentExercise == 1) {
-      mTimeAccum += engine.delta_time();
+      mTimeAccum += dt;
 
       const f32 time {static_cast<f32>(mTimeAccum * 2.0)};
 
@@ -186,7 +185,7 @@ auto FirstTriangle::on_update(UpdateContext& ctx) -> void {
     }
 
     if (mCurrentExercise == 4) {
-      mTimeAccum += engine.delta_time();
+      mTimeAccum += dt;
 
       mScale = 1.0f + std::sin(PI / 2.0f * static_cast<f32>(mTimeAccum)) / 2.0f;
     }

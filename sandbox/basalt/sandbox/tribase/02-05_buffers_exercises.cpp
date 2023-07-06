@@ -232,7 +232,7 @@ auto BuffersExercises::on_update(UpdateContext& ctx) -> void {
 
   ImGui::End();
 
-  const auto dt {static_cast<f32>(ctx.engine.delta_time())};
+  const f32 dt {ctx.deltaTime.count()};
 
   if (mCurrentExercise == 1) {
     std::for_each(mCubes.begin(), mCubes.end(), [this, dt](CubeData& cube) {

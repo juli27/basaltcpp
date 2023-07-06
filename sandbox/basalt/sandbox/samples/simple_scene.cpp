@@ -54,7 +54,7 @@ public:
   RotationSpeedSystem() noexcept = default;
 
   auto on_update(const UpdateContext& ctx) -> void override {
-    const auto dt {static_cast<f32>(ctx.deltaTimeSeconds)};
+    const auto dt {ctx.deltaTime.count()};
 
     ctx.scene.entity_registry().view<Transform, const RotationSpeed>().each(
       [&](Transform& t, const RotationSpeed& rotationSpeed) {
