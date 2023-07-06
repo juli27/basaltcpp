@@ -39,11 +39,11 @@ auto Scene::destroy_system(const SystemId id) -> void {
   mSystems.deallocate(id);
 }
 
-auto Scene::on_update(const SceneContext& ctx) -> void {
+auto Scene::on_update(const UpdateContext& ctx) -> void {
   for (const SystemId systemId : mSystems) {
-    const SystemContext context {ctx.deltaTimeSeconds, *this};
+    const System::UpdateContext systemCtx {ctx.deltaTimeSeconds, *this};
 
-    mSystems[systemId]->on_update(context);
+    mSystems[systemId]->on_update(systemCtx);
   }
 }
 

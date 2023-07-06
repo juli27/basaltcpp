@@ -8,7 +8,7 @@
 
 namespace basalt {
 
-auto TransformSystem::on_update(const SystemContext& ctx) -> void {
+auto TransformSystem::on_update(const UpdateContext& ctx) -> void {
   EntityRegistry& entityRegistry {ctx.scene.entity_registry()};
 
   entityRegistry.view<const Transform>().each(

@@ -16,15 +16,15 @@ public:
   auto operator=(const System&) -> System& = delete;
   auto operator=(System&&) -> System& = delete;
 
-  virtual auto on_update(const SystemContext&) -> void = 0;
+  struct UpdateContext final {
+    f64 deltaTimeSeconds;
+    Scene& scene;
+  };
+
+  virtual auto on_update(const UpdateContext&) -> void = 0;
 
 protected:
   System() noexcept = default;
-};
-
-struct SystemContext final {
-  f64 deltaTimeSeconds;
-  Scene& scene;
 };
 
 } // namespace basalt

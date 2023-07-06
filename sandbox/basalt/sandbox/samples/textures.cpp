@@ -34,7 +34,6 @@ using basalt::Scene;
 using basalt::ScenePtr;
 using basalt::SceneView;
 using basalt::System;
-using basalt::SystemContext;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::Material;
@@ -59,7 +58,7 @@ class SamplerSettingsSystem final : public System {
 public:
   SamplerSettingsSystem() noexcept = default;
 
-  auto on_update(const SystemContext& ctx) -> void override {
+  auto on_update(const UpdateContext& ctx) -> void override {
     if (!ImGui::Begin("Sampler Settings")) {
       ImGui::End();
 

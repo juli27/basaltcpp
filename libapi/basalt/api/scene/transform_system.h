@@ -10,7 +10,7 @@ class TransformSystem final : public System {
 public:
   TransformSystem() noexcept = default;
 
-  auto on_update(const SystemContext&) -> void override;
+  auto on_update(const UpdateContext&) -> void override;
 };
 
 } // namespace basalt

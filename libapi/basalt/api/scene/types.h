@@ -21,8 +21,6 @@ class System;
 using SystemId = Handle<System>;
 using SystemPtr = std::unique_ptr<System>;
 
-struct SystemContext;
-
 struct Transform;
 struct LocalToWorld;
 class TransformSystem;

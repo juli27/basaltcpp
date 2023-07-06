@@ -49,7 +49,10 @@ public:
 
   auto destroy_system(SystemId) -> void;
 
-  auto on_update(const SceneContext&) -> void;
+  struct UpdateContext final {
+    f64 deltaTimeSeconds;
+  };
+  auto on_update(const UpdateContext&) -> void;
 
   [[nodiscard]] auto background() const -> const Color&;
   auto set_background(const Color&) -> void;
@@ -70,10 +73,6 @@ private:
   std::vector<gfx::DirectionalLight> mDirectionalLights;
   Color mBackgroundColor {Colors::BLACK};
   Color mAmbientLightColor;
-};
-
-struct SceneContext final {
-  f64 deltaTimeSeconds;
 };
 
 } // namespace basalt

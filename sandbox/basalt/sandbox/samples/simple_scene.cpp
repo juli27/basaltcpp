@@ -34,7 +34,6 @@ using basalt::Scene;
 using basalt::ScenePtr;
 using basalt::SceneView;
 using basalt::System;
-using basalt::SystemContext;
 using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
@@ -54,7 +53,7 @@ class RotationSpeedSystem final : public System {
 public:
   RotationSpeedSystem() noexcept = default;
 
-  auto on_update(const SystemContext& ctx) -> void override {
+  auto on_update(const UpdateContext& ctx) -> void override {
     const auto dt {static_cast<f32>(ctx.deltaTimeSeconds)};
 
     ctx.scene.entity_registry().view<Transform, const RotationSpeed>().each(
