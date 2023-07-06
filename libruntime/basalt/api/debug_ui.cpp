@@ -220,7 +220,7 @@ auto DebugUi::edit_scene(Scene& scene) -> void {
 }
 
 auto DebugUi::edit_ecs(EntityRegistry& ecs) -> void {
-  ecs.each([&](const EntityId entity) -> void {
+  ecs.view<EntityId>().each([&](const EntityId entity) -> void {
     ImGui::PushID(to_integral(entity));
 
     if (ImGui::TreeNode("Entity", "Entity %d", to_integral(entity))) {
