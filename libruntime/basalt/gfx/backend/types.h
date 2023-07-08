@@ -32,6 +32,7 @@ struct CommandSetTransform;
 struct CommandSetAmbientLight;
 struct CommandSetLights;
 struct CommandSetMaterial;
+struct CommandSetFogParameters;
 
 enum class CommandType : u8;
 

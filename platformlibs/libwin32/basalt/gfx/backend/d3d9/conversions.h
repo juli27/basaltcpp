@@ -64,6 +64,17 @@ inline auto to_d3d(const FillMode mode) -> D3DFILLMODE {
   return TO_D3D[mode];
 }
 
+inline auto to_d3d(const FogMode mode) -> D3DFOGMODE {
+  static constexpr EnumArray<FogMode, D3DFOGMODE, 3> TO_D3D {
+    {FogMode::Linear, D3DFOG_LINEAR},
+    {FogMode::Exponential, D3DFOG_EXP},
+    {FogMode::ExponentialSquared, D3DFOG_EXP2},
+  };
+  static_assert(FOG_MODE_COUNT == TO_D3D.size());
+
+  return TO_D3D[mode];
+}
+
 inline auto to_d3d(const ImageFormat format) -> D3DFORMAT {
   static constexpr EnumArray<ImageFormat, D3DFORMAT, 10> TO_D3D {
     {ImageFormat::Unknown, D3DFMT_UNKNOWN},

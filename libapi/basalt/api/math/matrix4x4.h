@@ -28,16 +28,22 @@ struct Matrix4x4f32 final {
     // clang-format on
   }
 
-  [[nodiscard]] static constexpr auto translation(const Vector3f32& t) noexcept
+  [[nodiscard]] static constexpr auto translation(const f32 x, const f32 y,
+                                                  const f32 z) noexcept
     -> Matrix4x4f32 {
     // clang-format off
     return Matrix4x4f32 {
-      1.0f,  0.0f,  0.0f,  0.0f,
-      0.0f,  1.0f,  0.0f,  0.0f,
-      0.0f,  0.0f,  1.0f,  0.0f,
-      t.x(), t.y(), t.z(), 1.0f,
+      1.0f, 0.0f, 0.0f, 0.0f,
+      0.0f, 1.0f, 0.0f, 0.0f,
+      0.0f, 0.0f, 1.0f, 0.0f,
+         x,    y,    z, 1.0f,
     };
     // clang-format on
+  }
+
+  [[nodiscard]] static constexpr auto translation(const Vector3f32& t) noexcept
+    -> Matrix4x4f32 {
+    return translation(t.x(), t.y(), t.z());
   }
 
   [[nodiscard]] static auto rotation_x(Angle) noexcept -> Matrix4x4f32;

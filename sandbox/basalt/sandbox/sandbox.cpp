@@ -40,7 +40,7 @@ struct SandboxView::Example final {
 };
 
 SandboxView::SandboxView(Engine& engine) {
-  mExamples.reserve(13u);
+  mExamples.reserve(14u);
   mExamples.emplace_back(Example {
     "Tutorial 1: Creating a Device"s,
     &D3D9Tutorials::new_device_tutorial,
@@ -84,6 +84,10 @@ SandboxView::SandboxView(Engine& engine) {
   mExamples.emplace_back(Example {
     "Bsp. 02-05: Vertex- und Index-Buffer - Aufgabe 1-2"s,
     &TribaseExamples::new_02_05_buffers_exercises,
+  });
+  mExamples.emplace_back(Example {
+    "Bsp. 02-06: Nebel"s,
+    &TribaseExamples::new_02_06_fog_example,
   });
   mExamples.emplace_back(Example {
     "Textures"s,

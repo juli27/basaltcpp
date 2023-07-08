@@ -74,6 +74,21 @@ enum class ShadeMode : u8 {
 };
 constexpr u8 SHADE_MODE_COUNT {2};
 
+enum class FogMode : u8 {
+  Linear,
+  Exponential,
+  ExponentialSquared,
+};
+constexpr u8 FOG_MODE_COUNT {3};
+
+enum class FogType : u8 {
+  None,
+  Vertex,
+  VertexRangeBased,
+  Fragment,
+};
+constexpr u8 FOG_TYPE_COUNT {4};
+
 enum class TextureAddressMode : u8 {
   Repeat,
   Mirror,
@@ -217,6 +232,8 @@ struct PipelineDescriptor final {
   TestOp depthTest {TestOp::PassAlways};
   bool depthWriteEnable {false};
   bool dithering {false};
+  FogType fogType {FogType::None};
+  FogMode fogMode {FogMode::Linear};
 };
 
 struct SamplerDescriptor final {

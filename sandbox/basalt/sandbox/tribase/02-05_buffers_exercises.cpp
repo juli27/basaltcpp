@@ -332,4 +332,14 @@ auto BuffersExercises::on_input(const InputEvent&) -> InputEventHandled {
   return InputEventHandled::Yes;
 }
 
+namespace {
+
+// TODO: exercise 3 + demo
+// auto transform_vertex_positions(const span<byte> vertexData,
+//                                const VertexLayout layout,
+//                                const Matrix4x4f32& transform) -> void {
+//}
+
+} // namespace
+
 } // namespace tribase

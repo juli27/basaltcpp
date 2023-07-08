@@ -401,6 +401,9 @@ auto ValidatingDevice::validate(const CommandSetLights& cmd) -> void {
 auto ValidatingDevice::validate(const CommandSetMaterial&) -> void {
 }
 
+auto ValidatingDevice::validate(const CommandSetFogParameters&) -> void {
+}
+
 auto ValidatingDevice::patch(CommandList& cmdList, const Command& cmd) -> void {
   switch (cmd.type) {
   case CommandType::ExtDrawXMesh: {
@@ -510,6 +513,12 @@ auto ValidatingDevice::patch(CommandList& cmdList, const CommandSetLights& cmd)
 auto ValidatingDevice::patch(CommandList& cmdList,
                              const CommandSetMaterial& cmd) -> void {
   cmdList.set_material(cmd.diffuse, cmd.ambient, cmd.emissive);
+}
+
+auto ValidatingDevice::patch(CommandList& cmdList,
+                             const CommandSetFogParameters& cmd) -> void {
+  cmdList.set_fog_parameters(cmd.color, cmd.start, cmd.end,
+                             cmd.density);
 }
 
 } // namespace basalt::gfx

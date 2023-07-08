@@ -14,6 +14,7 @@ static_assert(sizeof(CommandSetTransform) == 68);
 static_assert(sizeof(CommandSetAmbientLight) == 20);
 static_assert(sizeof(CommandSetLights) == 24);
 static_assert(sizeof(CommandSetMaterial) == 52);
+static_assert(sizeof(CommandSetFogParameters) == 32);
 
 namespace ext {
 

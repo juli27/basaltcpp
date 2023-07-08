@@ -156,6 +156,9 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
     desc.solid ? FillMode::Solid : FillMode::Wireframe,
     TestOp::PassIfLessEqual,
     true,
+    false,
+    FogType::None,
+    FogMode::Linear,
   })};
 
   const u8 maxAnisotropy {

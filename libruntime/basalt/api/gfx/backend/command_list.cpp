@@ -88,4 +88,9 @@ auto CommandList::set_material(const Color& diffuse, const Color& ambient,
   add<CommandSetMaterial>(diffuse, ambient, emissive);
 }
 
+auto CommandList::set_fog_parameters(const Color& color, f32 start,
+                                     f32 end, f32 density) -> void {
+  add<CommandSetFogParameters>(color, start, end, density);
+}
+
 } // namespace basalt::gfx

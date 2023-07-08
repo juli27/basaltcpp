@@ -411,6 +411,24 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
                                    ? D3DZB_FALSE
                                    : D3DZB_TRUE};
 
+  auto toVertexFogMode {
+    [](const FogMode mode, const FogType type) -> D3DFOGMODE {
+      if (type == FogType::None || type == FogType::Fragment) {
+        return D3DFOG_NONE;
+      }
+
+      return to_d3d(mode);
+    }};
+
+  auto toTableFogMode {
+    [](const FogMode mode, const FogType type) -> D3DFOGMODE {
+      if (type == FogType::Fragment) {
+        return to_d3d(mode);
+      }
+
+      return D3DFOG_NONE;
+    }};
+
   return mPipelines.allocate(PipelineData {
     to_fvf(desc.vertexInputState),
     stage1Tci,
@@ -428,6 +446,10 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
     to_d3d(desc.depthTest),
     to_d3d(desc.depthWriteEnable),
     to_d3d(desc.dithering),
+    desc.fogType != FogType::None,
+    toVertexFogMode(desc.fogMode, desc.fogType),
+    desc.fogType == FogType::VertexRangeBased,
+    toTableFogMode(desc.fogMode, desc.fogType),
   });
 }
 
@@ -656,6 +678,8 @@ auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
     return;
   }
 
+  PIX_BEGIN_EVENT(0, L"CommandBindPipeline");
+
   const PipelineData& data {mPipelines[cmd.pipelineId]};
   mCurrentPrimitiveType = data.primitiveType;
 
@@ -669,6 +693,11 @@ auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ZFUNC, data.zFunc));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, data.zWriteEnabled));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_DITHERENABLE, data.dithering));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGENABLE, data.fogEnabled));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGVERTEXMODE, data.vertexFogMode));
+  D3D9CHECK(
+    mDevice->SetRenderState(D3DRS_RANGEFOGENABLE, data.vertexFogRanged));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGTABLEMODE, data.tableFogMode));
 
   D3D9CHECK(
     mDevice->SetTextureStageState(0, D3DTSS_COLOROP, data.stage1ColorOp));
@@ -689,6 +718,8 @@ auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
 
   D3D9CHECK(mDevice->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE));
   D3D9CHECK(mDevice->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
+
+  PIX_END_EVENT();
 }
 
 auto D3D9Device::execute(const CommandBindVertexBuffer& cmd) -> void {
@@ -779,6 +810,20 @@ auto D3D9Device::execute(const CommandSetMaterial& cmd) -> void {
   };
 
   D3D9CHECK(mDevice->SetMaterial(&material));
+}
+
+auto D3D9Device::execute(const CommandSetFogParameters& cmd) -> void {
+  PIX_BEGIN_EVENT(0, L"CommandSetFogParameters");
+
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGCOLOR, to_d3d(cmd.color)));
+  D3D9CHECK(mDevice->SetRenderState(
+    D3DRS_FOGSTART, *reinterpret_cast<const DWORD*>(&cmd.start)));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGEND,
+                                    *reinterpret_cast<const DWORD*>(&cmd.end)));
+  D3D9CHECK(mDevice->SetRenderState(
+    D3DRS_FOGDENSITY, *reinterpret_cast<const DWORD*>(&cmd.density)));
+
+  PIX_END_EVENT();
 }
 
 } // namespace basalt::gfx

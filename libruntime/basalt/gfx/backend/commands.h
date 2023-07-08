@@ -29,6 +29,7 @@ enum class CommandType : u8 {
   SetAmbientLight,
   SetLights,
   SetMaterial,
+  SetFogParameters,
 
   // built-in extensions
   ExtDrawXMesh,
@@ -181,6 +182,18 @@ struct CommandSetMaterial final : CommandT<CommandType::SetMaterial> {
   }
 };
 
+struct CommandSetFogParameters final : CommandT<CommandType::SetFogParameters> {
+  Color color;
+  f32 start;
+  f32 end;
+  f32 density;
+
+  constexpr CommandSetFogParameters(const Color& aColor, const f32 aStart,
+                                    const f32 aEnd, const f32 aDensity) noexcept
+    : color {aColor}, start {aStart}, end {aEnd}, density {aDensity} {
+  }
+};
+
 #define VISIT(cmdStruct)                                                       \
   case cmdStruct::TYPE:                                                        \
     visitor(cmd.as<cmdStruct>());                                              \
@@ -201,6 +214,7 @@ auto visit(const Command& cmd, Visitor&& visitor) -> void {
     VISIT(CommandSetAmbientLight);
     VISIT(CommandSetLights);
     VISIT(CommandSetMaterial);
+    VISIT(CommandSetFogParameters);
 
   default:
     break;

@@ -81,7 +81,7 @@ private:
 
   struct PipelineData final {
     DWORD fvf {};
-    DWORD stage1Tci {0 | D3DTSS_TCI_PASSTHRU};
+    DWORD stage1Tci {D3DTSS_TCI_PASSTHRU};
     D3DTEXTURETRANSFORMFLAGS stage0Ttf {D3DTTFF_DISABLE};
     DWORD stage1Arg1 {D3DTA_DIFFUSE};
     DWORD stage1Arg2 {D3DTA_TEXTURE};
@@ -96,6 +96,10 @@ private:
     D3DCMPFUNC zFunc {D3DCMP_ALWAYS};
     BOOL zWriteEnabled {FALSE};
     BOOL dithering {FALSE};
+    BOOL fogEnabled {FALSE};
+    D3DFOGMODE vertexFogMode {D3DFOG_NONE};
+    BOOL vertexFogRanged {FALSE};
+    D3DFOGMODE tableFogMode {D3DFOG_NONE};
   };
 
   struct SamplerData final {
@@ -136,6 +140,7 @@ private:
   auto execute(const CommandSetAmbientLight&) -> void;
   auto execute(const CommandSetLights&) -> void;
   auto execute(const CommandSetMaterial&) -> void;
+  auto execute(const CommandSetFogParameters&) -> void;
 };
 
 } // namespace basalt::gfx

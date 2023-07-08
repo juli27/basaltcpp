@@ -9,6 +9,8 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "02-05_buffers.h"
   "02-05_buffers_exercises.cpp"
   "02-05_buffers_exercises.h"
+  "02-06_fog.cpp"
+  "02-06_fog.h"
   "tribase_examples.cpp"
   "tribase_examples.h"
 )

@@ -56,6 +56,7 @@ constexpr auto enumerator_to_string(const CommandType type) noexcept -> const
     ENUMERATOR_TO_STRING(CommandType, SetTransform);
     ENUMERATOR_TO_STRING(CommandType, SetAmbientLight);
     ENUMERATOR_TO_STRING(CommandType, SetMaterial);
+    ENUMERATOR_TO_STRING(CommandType, SetFogParameters);
     ENUMERATOR_TO_STRING(CommandType, ExtDrawXMesh);
     ENUMERATOR_TO_STRING(CommandType, ExtRenderDearImGui);
   }
@@ -285,6 +286,16 @@ void display(const CommandSetMaterial& cmd) {
   display_color4("emissiveColor", cmd.emissive);
 }
 
+auto display(const CommandSetFogParameters& cmd) -> void {
+  display_color4("color", cmd.color);
+  float f {cmd.start};
+  ImGui::InputFloat("start", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+  f = cmd.end;
+  ImGui::InputFloat("end", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+  f = cmd.density;
+  ImGui::InputFloat("density", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+}
+
 void display(const ext::CommandDrawXMesh& cmd) {
   ImGui::Text("mesh = %#x", cmd.xMeshId.value());
   ImGui::Text("subsetIndex = %#x", cmd.subset);
@@ -300,8 +311,7 @@ void display(const Command& cmd) {
     break;
 
   default:
-    ImGui::TextUnformatted("(Unknown)");
-    break;
+    BASALT_CRASH("debug can't handle this command");
   }
 }
 

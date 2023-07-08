@@ -120,19 +120,22 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
 
   allCapsPresent &= verify_caps_present(caps.DevCaps, MIN_DEV_CAPS);
 
-  static constexpr array<Cap, 4> MIN_PRIMITIVE_MISC_CAPS {
+  static constexpr array<Cap, 5> MIN_PRIMITIVE_MISC_CAPS {
     MAKE_CAP(D3DPMISCCAPS_MASKZ),
     MAKE_CAP(D3DPMISCCAPS_CULLNONE),
     MAKE_CAP(D3DPMISCCAPS_CULLCW),
     MAKE_CAP(D3DPMISCCAPS_CULLCCW),
+    MAKE_CAP(D3DPMISCCAPS_FOGANDSPECULARALPHA),
   };
 
   allCapsPresent &=
     verify_caps_present(caps.PrimitiveMiscCaps, MIN_PRIMITIVE_MISC_CAPS);
 
-  static constexpr array<Cap, 2> MIN_RASTER_CAPS {
-    MAKE_CAP(D3DPRASTERCAPS_DITHER),
-    MAKE_CAP(D3DPRASTERCAPS_ZTEST),
+  static constexpr array<Cap, 7> MIN_RASTER_CAPS {
+    MAKE_CAP(D3DPRASTERCAPS_DITHER),    MAKE_CAP(D3DPRASTERCAPS_ZTEST),
+    MAKE_CAP(D3DPRASTERCAPS_FOGVERTEX), MAKE_CAP(D3DPRASTERCAPS_FOGTABLE),
+    MAKE_CAP(D3DPRASTERCAPS_FOGRANGE),  MAKE_CAP(D3DPRASTERCAPS_WFOG),
+    MAKE_CAP(D3DPRASTERCAPS_ZFOG),
   };
 
   allCapsPresent &= verify_caps_present(caps.RasterCaps, MIN_RASTER_CAPS);

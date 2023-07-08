@@ -51,6 +51,8 @@ public:
   auto set_lights(gsl::span<const Light>) -> void;
   auto set_material(const Color& diffuse, const Color& ambient,
                     const Color& emissive) -> void;
+  auto set_fog_parameters(const Color& color, f32 start, f32 end, f32 density)
+    -> void;
 
   // the following function templates are engine private (implementation is in
   // libRuntime: basalt/gfx/backend/command_list.h)

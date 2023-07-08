@@ -113,6 +113,7 @@ private:
   auto validate(const CommandSetAmbientLight&) -> void;
   auto validate(const CommandSetLights&) -> void;
   auto validate(const CommandSetMaterial&) -> void;
+  auto validate(const CommandSetFogParameters&) -> void;
 
   auto patch(CommandList&, const Command&) -> void;
   auto patch(CommandList&, const CommandClearAttachments&) -> void;
@@ -127,6 +128,7 @@ private:
   auto patch(CommandList&, const CommandSetAmbientLight&) -> void;
   auto patch(CommandList&, const CommandSetLights&) -> void;
   auto patch(CommandList&, const CommandSetMaterial&) -> void;
+  auto patch(CommandList&, const CommandSetFogParameters&) -> void;
 };
 
 } // namespace basalt::gfx
