@@ -31,14 +31,12 @@ using basalt::Engine;
 using basalt::Entity;
 using basalt::EntityId;
 using basalt::Scene;
-using basalt::ScenePtr;
 using basalt::SceneView;
 using basalt::System;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::Material;
 using basalt::gfx::MaterialDescriptor;
-using basalt::gfx::MeshDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::TextureFilter;
@@ -48,6 +46,14 @@ using basalt::gfx::VertexElement;
 namespace samples {
 
 namespace {
+
+struct Vertex final {
+  array<f32, 3> pos {};
+  array<f32, 2> uv {};
+
+  static constexpr array sLayout {VertexElement::Position3F32,
+                                  VertexElement::TextureCoords2F32};
+};
 
 struct SamplerSettings final {
   array<Material, 9> materials {};
@@ -124,34 +130,18 @@ public:
 };
 
 auto create_camera() -> Camera {
-  return Camera {Vector3f32 {0.0f},
-                 Vector3f32::forward(),
-                 Vector3f32::up(),
-                 90.0_deg,
-                 0.1f,
-                 100.0f};
+  return Camera {
+    Vector3f32 {}, Vector3f32::forward(), Vector3f32::up(), 90_deg, 0.1f,
+    100.0f};
 }
 
 } // namespace
 
 Textures::Textures(Engine& engine)
-  : mGfxResources {engine.gfx_resource_cache()} {
-  const ScenePtr scene {Scene::create()};
-  scene->create_system<SamplerSettingsSystem>();
-
-  add_child_top(SceneView::create(scene, create_camera()));
-
-  scene->set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
-
-  const array vertexLayout {
-    VertexElement::Position3F32,
-    VertexElement::TextureCoords2F32,
-  };
-
-  mTexture = mGfxResources.load_texture("data/Tiger.bmp");
-
-  MaterialDescriptor material {};
-  material.vertexInputState = vertexLayout;
+  : mGfxCache {engine.gfx_resource_cache()}
+  , mTexture {mGfxCache.load_texture("data/Tiger.bmp")} {
+  MaterialDescriptor material;
+  material.vertexInputState = Vertex::sLayout;
   material.primitiveType = PrimitiveType::TriangleStrip;
   material.cullBackFace = false;
   material.lit = false;
@@ -167,41 +157,38 @@ Textures::Textures(Engine& engine)
          {TextureMipFilter::None, TextureMipFilter::Point,
           TextureMipFilter::Linear}) {
       material.sampledTexture.mipFilter = mipFilter;
-      mMaterials[i] = mGfxResources.create_material(material);
+      mMaterials[i] = mGfxCache.create_material(material);
       ++i;
     }
   }
 
-  struct Vertex final {
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 u;
-    f32 v;
-  };
+  array vertices {Vertex {{-1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+                  Vertex {{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+                  Vertex {{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},
+                  Vertex {{1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}}};
+  mMesh = mGfxCache.create_mesh({
+    as_bytes(span {vertices}),
+    static_cast<u32>(vertices.size()),
+    Vertex::sLayout,
+  });
 
-  array<Vertex, 4> vertices {
-    Vertex {-1.0f, 1.0f, 0.0f, 0.0f, 0.0f},
-    Vertex {1.0f, 1.0f, 0.0f, 1.0f, 0.0f},
-    Vertex {-1.0f, -1.0f, 0.0f, 0.0f, 1.0f},
-    Vertex {1.0f, -1.0f, 0.0f, 1.0f, 1.0f},
-  };
+  const auto scene {Scene::create()};
+  scene->set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
 
-  const MeshDescriptor mesh {as_bytes(span {vertices}),
-                             static_cast<u32>(vertices.size()), vertexLayout};
-  mMesh = mGfxResources.create_mesh(mesh);
-
-  const Entity quad {scene->create_entity(Vector3f32 {0.0f, 0.0f, 1.5f})};
+  const Entity quad {scene->create_entity({0.0f, 0.0f, 1.5f})};
   quad.emplace<RenderComponent>(mMesh, std::get<0>(mMaterials));
   quad.emplace<SamplerSettings>(mMaterials, 0u);
+
+  scene->create_system<SamplerSettingsSystem>();
+  add_child_top(SceneView::create(scene, create_camera()));
 }
 Textures::~Textures() noexcept {
   for (const Material materialId : mMaterials) {
-    mGfxResources.destroy(materialId);
+    mGfxCache.destroy(materialId);
   }
 
-  mGfxResources.destroy(mTexture);
-  mGfxResources.destroy(mMesh);
+  mGfxCache.destroy(mTexture);
+  mGfxCache.destroy(mMesh);
 }
 
 } // namespace samples

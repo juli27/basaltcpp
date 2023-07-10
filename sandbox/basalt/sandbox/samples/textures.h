@@ -26,7 +26,7 @@ public:
   auto operator=(Textures&&) -> Textures& = delete;
 
 private:
-  basalt::gfx::ResourceCache& mGfxResources;
+  basalt::gfx::ResourceCache& mGfxCache;
   basalt::gfx::Mesh mMesh;
   basalt::gfx::Texture mTexture;
   std::array<basalt::gfx::Material, 9> mMaterials {};

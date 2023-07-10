@@ -17,7 +17,7 @@ struct Camera final {
 
   [[nodiscard]] auto world_to_view() const noexcept -> Matrix4x4f32;
 
-  [[nodiscard]] auto view_to_viewport(Size2Du16 viewport) const noexcept
+  [[nodiscard]] auto view_to_clip(Size2Du16 viewport) const noexcept
     -> Matrix4x4f32;
 
 private:

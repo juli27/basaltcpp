@@ -13,7 +13,7 @@ struct Color;
 struct Config;
 
 template <typename T>
-struct Size2D;
+class Size2D;
 using Size2Du16 = Size2D<u16>;
 
 using SecondsF32 = std::chrono::duration<f32>;

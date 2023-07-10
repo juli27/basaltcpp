@@ -23,7 +23,7 @@ public:
   auto operator=(Buffers&&) -> Buffers& = delete;
 
 private:
-  basalt::gfx::ResourceCache& mResourceCache;
+  basalt::gfx::ResourceCache& mGfxCache;
   basalt::gfx::Pipeline mPipeline;
   basalt::gfx::VertexBuffer mVertexBuffer;
   basalt::gfx::IndexBuffer mIndexBuffer;

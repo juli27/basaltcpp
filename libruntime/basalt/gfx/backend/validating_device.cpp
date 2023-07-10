@@ -384,7 +384,7 @@ auto ValidatingDevice::validate(const CommandBindTexture& cmd) -> void {
 }
 
 auto ValidatingDevice::validate(const CommandSetTransform& cmd) -> void {
-  if (cmd.transformState == TransformState::ViewToViewport) {
+  if (cmd.transformState == TransformState::ViewToClip) {
     check("(3,4) can't be negative in a projection matrix",
           cmd.transform.m34 >= 0);
   }

@@ -21,7 +21,7 @@ public:
   auto operator=(SimpleScene&&) -> SimpleScene& = delete;
 
 private:
-  basalt::gfx::ResourceCache& mGfxResources;
+  basalt::gfx::ResourceCache& mGfxCache;
   basalt::gfx::Mesh mMesh;
   basalt::gfx::Material mMaterial;
 };

@@ -30,7 +30,7 @@ private:
   struct TriangleData;
 
   std::vector<TriangleData> mTriangles;
-  basalt::gfx::ResourceCache& mResourceCache;
+  basalt::gfx::ResourceCache& mGfxCache;
   basalt::gfx::Pipeline mPipeline;
   basalt::gfx::VertexBuffer mVertexBuffer;
   basalt::gfx::Texture mTexture;

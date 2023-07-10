@@ -14,6 +14,11 @@ auto Vector3f32::length() const noexcept -> f32 {
   return std::sqrt(length_squared()); // TODO: std::hypot() ?
 }
 
+auto Vector3f32::normalize(const f32 x, const f32 y, const f32 z)
+  -> Vector3f32 {
+  return normalize(Vector3f32 {x, y, z});
+}
+
 auto Vector3f32::normalize(const Vector3f32& v) -> Vector3f32 {
   return v / v.length();
 }

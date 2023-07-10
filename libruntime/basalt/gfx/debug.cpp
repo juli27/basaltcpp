@@ -84,16 +84,16 @@ constexpr auto to_string(const CullMode mode) noexcept -> const char* {
   return "(unknown)";
 }
 
-constexpr auto to_string(const TestOp func) noexcept -> const char* {
+constexpr auto to_string(const TestPassCond func) noexcept -> const char* {
   switch (func) {
-    ENUM_TO_STRING(TestOp::PassNever);
-    ENUM_TO_STRING(TestOp::PassIfEqual);
-    ENUM_TO_STRING(TestOp::PassIfNotEqual);
-    ENUM_TO_STRING(TestOp::PassIfLess);
-    ENUM_TO_STRING(TestOp::PassIfLessEqual);
-    ENUM_TO_STRING(TestOp::PassIfGreater);
-    ENUM_TO_STRING(TestOp::PassIfGreaterEqual);
-    ENUM_TO_STRING(TestOp::PassAlways);
+    ENUM_TO_STRING(TestPassCond::Never);
+    ENUM_TO_STRING(TestPassCond::IfEqual);
+    ENUM_TO_STRING(TestPassCond::IfNotEqual);
+    ENUM_TO_STRING(TestPassCond::IfLess);
+    ENUM_TO_STRING(TestPassCond::IfLessEqual);
+    ENUM_TO_STRING(TestPassCond::IfGreater);
+    ENUM_TO_STRING(TestPassCond::IfGreaterEqual);
+    ENUM_TO_STRING(TestPassCond::Always);
   }
 
   return "(unknown)";
@@ -134,9 +134,9 @@ constexpr auto to_string(const ShadeMode mode) noexcept -> const char* {
 
 constexpr auto to_string(const TransformState state) noexcept -> const char* {
   switch (state) {
-    ENUM_TO_STRING(TransformState::ViewToViewport);
+    ENUM_TO_STRING(TransformState::ViewToClip);
     ENUM_TO_STRING(TransformState::WorldToView);
-    ENUM_TO_STRING(TransformState::ModelToWorld);
+    ENUM_TO_STRING(TransformState::LocalToWorld);
     ENUM_TO_STRING(TransformState::Texture);
   }
 

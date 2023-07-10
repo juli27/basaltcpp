@@ -154,7 +154,7 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
     ShadeMode::Gouraud,
     desc.cullBackFace ? CullMode::CounterClockwise : CullMode::None,
     desc.solid ? FillMode::Solid : FillMode::Wireframe,
-    TestOp::PassIfLessEqual,
+    TestPassCond::IfLessEqual,
     true,
     false,
     FogType::None,

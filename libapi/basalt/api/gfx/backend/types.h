@@ -39,17 +39,17 @@ enum class CullMode : u8 {
 };
 constexpr u8 CULL_MODE_COUNT {3u};
 
-enum class TestOp : u8 {
-  PassNever,
-  PassIfEqual,
-  PassIfNotEqual,
-  PassIfLess,
-  PassIfLessEqual,
-  PassIfGreater,
-  PassIfGreaterEqual,
-  PassAlways,
+enum class TestPassCond : u8 {
+  Never,
+  IfEqual,
+  IfNotEqual,
+  IfLess,
+  IfLessEqual,
+  IfGreater,
+  IfGreaterEqual,
+  Always,
 };
-constexpr u8 DEPTH_TEST_PASS_COUNT {8u};
+constexpr u8 TEST_PASS_COND_COUNT {8u};
 
 enum class FillMode : u8 {
   Point,
@@ -144,9 +144,9 @@ enum class TextureTransformMode : u8 {
 constexpr uSize TEXTURE_TRANSFORM_MODE_COUNT {2u};
 
 enum class TransformState : u8 {
-  ViewToViewport,
+  ViewToClip,
   WorldToView,
-  ModelToWorld,
+  LocalToWorld,
   Texture,
 };
 constexpr u8 TRANSFORM_STATE_COUNT {4u};
@@ -229,7 +229,7 @@ struct PipelineDescriptor final {
   ShadeMode shadeMode {ShadeMode::Gouraud};
   CullMode cullMode {CullMode::None};
   FillMode fillMode {FillMode::Solid};
-  TestOp depthTest {TestOp::PassAlways};
+  TestPassCond depthTest {TestPassCond::Always};
   bool depthWriteEnable {false};
   bool dithering {false};
   FogType fogType {FogType::None};

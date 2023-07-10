@@ -34,9 +34,9 @@ auto FilteringCommandList::bind_pipeline(const Pipeline handle) -> void {
 }
 
 auto FilteringCommandList::bind_vertex_buffer(const VertexBuffer buffer,
-                                              const u64 offset) -> void {
-  if (mDeviceState.update(buffer, offset)) {
-    mCommandList.bind_vertex_buffer(buffer, offset);
+                                              const u64 offsetInBytes) -> void {
+  if (mDeviceState.update(buffer, offsetInBytes)) {
+    mCommandList.bind_vertex_buffer(buffer, offsetInBytes);
   }
 }
 auto FilteringCommandList::bind_index_buffer(const IndexBuffer handle) -> void {

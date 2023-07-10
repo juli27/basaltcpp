@@ -21,10 +21,9 @@ auto Camera::world_to_view() const noexcept -> Matrix4x4f32 {
   return Matrix4x4f32::look_at_lh(mPosition, mLookAt, mUp);
 }
 
-auto Camera::view_to_viewport(const Size2Du16 viewport) const noexcept
+auto Camera::view_to_clip(const Size2Du16 viewport) const noexcept
   -> Matrix4x4f32 {
-  const auto aspectRatio {static_cast<f32>(viewport.width()) /
-                          static_cast<f32>(viewport.height())};
+  const f32 aspectRatio {viewport.aspect_ratio()};
 
   return Matrix4x4f32::perspective_projection(mFov, aspectRatio, mNearPlane,
                                               mFarPlane);

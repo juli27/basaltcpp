@@ -7,7 +7,8 @@
 namespace basalt {
 
 template <typename T>
-struct Size2D final : vec<Size2D<T>, T, 2> {
+class Size2D final : public vec<Size2D<T>, T, 2> {
+public:
   constexpr Size2D() noexcept = default;
 
   constexpr Size2D(const T width, const T height) noexcept
@@ -37,6 +38,11 @@ struct Size2D final : vec<Size2D<T>, T, 2> {
 
   [[nodiscard]] constexpr auto to_rectangle() const noexcept -> Rectangle<T> {
     return Rectangle<T> {0, 0, width(), height()};
+  }
+
+  // x : 1 (width : height)
+  [[nodiscard]] constexpr auto aspect_ratio() const noexcept -> f32 {
+    return static_cast<f32>(width()) / static_cast<f32>(height());
   }
 
   [[nodiscard]] static constexpr auto dont_care() noexcept -> Size2D {

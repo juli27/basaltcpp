@@ -5,10 +5,10 @@
 
 namespace basalt {
 
-struct ColorEncoding final {
+class ColorEncoding final {
+public:
   // logical order (big-endian: a r g b, little-endian: b g r a)
-  enum class A8R8G8B8 : u32
-  {};
+  enum class A8R8G8B8 : u32 {};
 
   struct RGBA final {
     u8 r {};
@@ -39,5 +39,15 @@ struct ColorEncoding final {
     return RGBA {r, g, b, a};
   }
 };
+
+inline namespace literals {
+
+[[nodiscard]] constexpr auto
+operator"" _a8r8g8b8(const unsigned long long color) noexcept
+  -> ColorEncoding::A8R8G8B8 {
+  return ColorEncoding::A8R8G8B8 {static_cast<u32>(color)};
+}
+
+} // namespace literals
 
 } // namespace basalt

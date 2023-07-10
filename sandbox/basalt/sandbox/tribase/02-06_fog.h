@@ -26,7 +26,7 @@ public:
 private:
   static constexpr basalt::u8 sNumTextures {6};
 
-  basalt::gfx::ResourceCache& mResourceCache;
+  basalt::gfx::ResourceCache& mGfxCache;
   basalt::gfx::Pipeline mPipeline;
   basalt::gfx::VertexBuffer mVertexBuffer;
   basalt::gfx::Sampler mSampler;

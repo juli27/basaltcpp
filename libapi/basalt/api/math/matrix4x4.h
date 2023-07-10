@@ -66,16 +66,22 @@ struct Matrix4x4f32 final {
     return scaling(Vector3f32 {s});
   }
 
-  [[nodiscard]] static constexpr auto scaling(const Vector3f32& s) noexcept
+  [[nodiscard]] static constexpr auto scaling(const f32 x, const f32 y,
+                                              const f32 z) noexcept
     -> Matrix4x4f32 {
     // clang-format off
     return Matrix4x4f32 {
-      s.x(), 0.0f,  0.0f,  0.0f,
-      0.0f,  s.y(), 0.0f,  0.0f,
-      0.0f,  0.0f,  s.z(), 0.0f,
-      0.0f,  0.0f,  0.0f,  1.0f,
+         x, 0.0f, 0.0f, 0.0f,
+      0.0f,    y, 0.0f, 0.0f,
+      0.0f, 0.0f,    z, 0.0f,
+      0.0f, 0.0f, 0.0f, 1.0f,
     };
     // clang-format on
+  }
+
+  [[nodiscard]] static constexpr auto scaling(const Vector3f32& s) noexcept
+    -> Matrix4x4f32 {
+    return scaling(s.x(), s.y(), s.z());
   }
 
   [[nodiscard]] static constexpr auto

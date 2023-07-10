@@ -30,7 +30,7 @@ private:
   struct CubeData;
 
   std::vector<CubeData> mCubes;
-  basalt::gfx::ResourceCache& mResourceCache;
+  basalt::gfx::ResourceCache& mGfxCache;
   basalt::gfx::Pipeline mPipeline;
   basalt::gfx::VertexBuffer mVertexBuffer;
   basalt::gfx::IndexBuffer mIndexBuffer;

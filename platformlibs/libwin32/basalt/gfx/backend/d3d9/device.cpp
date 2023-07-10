@@ -413,7 +413,7 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
 
   // TODO: is there a benefit to turn off z testing when func = Always
   // and with writing disabled?
-  const D3DZBUFFERTYPE zEnabled {desc.depthTest == TestOp::PassAlways &&
+  const D3DZBUFFERTYPE zEnabled {desc.depthTest == TestPassCond::Always &&
                                      !desc.depthWriteEnable
                                    ? D3DZB_FALSE
                                    : D3DZB_TRUE};

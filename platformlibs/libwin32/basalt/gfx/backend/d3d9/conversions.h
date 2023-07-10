@@ -139,18 +139,18 @@ inline auto to_d3d(const ShadeMode mode) -> D3DSHADEMODE {
   return TO_D3D[mode];
 }
 
-inline auto to_d3d(const TestOp function) -> D3DCMPFUNC {
-  static constexpr EnumArray<TestOp, D3DCMPFUNC, 8> TO_D3D {
-    {TestOp::PassNever, D3DCMP_NEVER},
-    {TestOp::PassIfEqual, D3DCMP_EQUAL},
-    {TestOp::PassIfNotEqual, D3DCMP_NOTEQUAL},
-    {TestOp::PassIfLess, D3DCMP_LESS},
-    {TestOp::PassIfLessEqual, D3DCMP_LESSEQUAL},
-    {TestOp::PassIfGreater, D3DCMP_GREATER},
-    {TestOp::PassIfGreaterEqual, D3DCMP_GREATEREQUAL},
-    {TestOp::PassAlways, D3DCMP_ALWAYS},
+inline auto to_d3d(const TestPassCond function) -> D3DCMPFUNC {
+  static constexpr EnumArray<TestPassCond, D3DCMPFUNC, 8> TO_D3D {
+    {TestPassCond::Never, D3DCMP_NEVER},
+    {TestPassCond::IfEqual, D3DCMP_EQUAL},
+    {TestPassCond::IfNotEqual, D3DCMP_NOTEQUAL},
+    {TestPassCond::IfLess, D3DCMP_LESS},
+    {TestPassCond::IfLessEqual, D3DCMP_LESSEQUAL},
+    {TestPassCond::IfGreater, D3DCMP_GREATER},
+    {TestPassCond::IfGreaterEqual, D3DCMP_GREATEREQUAL},
+    {TestPassCond::Always, D3DCMP_ALWAYS},
   };
-  static_assert(DEPTH_TEST_PASS_COUNT == TO_D3D.size());
+  static_assert(TEST_PASS_COND_COUNT == TO_D3D.size());
 
   return TO_D3D[function];
 }
@@ -236,9 +236,9 @@ inline auto to_d3d(const TextureTransformMode mode)
 
 inline auto to_d3d(const TransformState state) -> D3DTRANSFORMSTATETYPE {
   static constexpr EnumArray<TransformState, D3DTRANSFORMSTATETYPE, 4> TO_D3D {
-    {TransformState::ViewToViewport, D3DTS_PROJECTION},
+    {TransformState::ViewToClip, D3DTS_PROJECTION},
     {TransformState::WorldToView, D3DTS_VIEW},
-    {TransformState::ModelToWorld, D3DTS_WORLDMATRIX(0)},
+    {TransformState::LocalToWorld, D3DTS_WORLDMATRIX(0)},
     {TransformState::Texture, D3DTS_TEXTURE0},
   };
   static_assert(TRANSFORM_STATE_COUNT == TO_D3D.size());

@@ -29,7 +29,7 @@ auto record_material(FilteringCommandList& cmdList, const MaterialData& data)
   cmdList.bind_texture(data.texture);
   cmdList.bind_sampler(data.sampler);
 
-  cmdList.set_material(data.diffuse, data.ambient, Color {});
+  cmdList.set_material(data.diffuse, data.ambient);
 }
 
 } // namespace
@@ -44,11 +44,11 @@ auto GfxSystem::on_update(const UpdateContext& ctx) -> void {
   FilteringCommandList cmdList {};
   cmdList.clear_attachments(
     Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
-    scene.background(), 1.0f, 0);
+    scene.background(), 1.0f);
 
   const Camera& camera {*entities.ctx().get<Camera*>()};
-  cmdList.set_transform(TransformState::ViewToViewport,
-                        camera.view_to_viewport(drawCtx.viewport));
+  cmdList.set_transform(TransformState::ViewToClip,
+                        camera.view_to_clip(drawCtx.viewport));
   cmdList.set_transform(TransformState::WorldToView, camera.world_to_view());
 
   cmdList.set_ambient_light(scene.ambient_light());
@@ -64,7 +64,7 @@ auto GfxSystem::on_update(const UpdateContext& ctx) -> void {
 
   entities.view<const LocalToWorld, const ext::XModel>().each(
     [&](const LocalToWorld& localToWorld, const ext::XModel& model) {
-      cmdList.set_transform(TransformState::ModelToWorld, localToWorld.value);
+      cmdList.set_transform(TransformState::LocalToWorld, localToWorld.value);
 
       const auto& modelData {cache.get(model)};
 
@@ -87,10 +87,10 @@ auto GfxSystem::on_update(const UpdateContext& ctx) -> void {
 
       cmdList.set_transform(TransformState::Texture,
                             renderComponent.texTransform);
-      cmdList.set_transform(TransformState::ModelToWorld, localToWorld.value);
+      cmdList.set_transform(TransformState::LocalToWorld, localToWorld.value);
 
       const auto& meshData = cache.get(renderComponent.mesh);
-      cmdList.bind_vertex_buffer(meshData.vertexBuffer, 0ull);
+      cmdList.bind_vertex_buffer(meshData.vertexBuffer);
       cmdList.draw(meshData.startVertex, meshData.vertexCount);
     });
 

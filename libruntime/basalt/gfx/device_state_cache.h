@@ -36,9 +36,9 @@ private:
   using MaybeMatrix = std::optional<Matrix4x4f32>;
 
   EnumArray<TransformState, MaybeMatrix, TRANSFORM_STATE_COUNT> mTransforms {
-    {TransformState::ViewToViewport, std::nullopt},
+    {TransformState::ViewToClip, std::nullopt},
     {TransformState::WorldToView, std::nullopt},
-    {TransformState::ModelToWorld, std::nullopt},
+    {TransformState::LocalToWorld, std::nullopt},
     {TransformState::Texture, std::nullopt},
   };
   Color mAmbientLight;

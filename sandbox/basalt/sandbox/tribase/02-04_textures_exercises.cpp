@@ -48,52 +48,35 @@ namespace tribase {
 namespace {
 
 struct Vertex final {
-  f32 x;
-  f32 y;
-  f32 z;
-  f32 u;
-  f32 v;
+  array<f32, 3> pos {};
+  array<f32, 2> uv {};
+
+  static constexpr array sLayout {VertexElement::Position3F32,
+                                  VertexElement::TextureCoords2F32};
 };
 
 constexpr array TRIANGLE_VERTICES {
-  Vertex {0.0f, 0.5f, 0.0f, 0.5f, 0.0f},
-  Vertex {0.5f, -0.5f, 0.0f, 1.0f, 1.0f},
-  Vertex {-0.5f, -0.5f, 0.0f, 0.0f, 1.0f},
+  Vertex {{0.0f, 0.5f, 0.0f}, {0.5f, 0.0f}},
+  Vertex {{0.5f, -0.5f, 0.0f}, {1.0f, 1.0f}},
+  Vertex {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f}},
 };
 
 } // namespace
 
 TexturesExercises::TexturesExercises(Engine& engine)
   : mGfxCache {engine.gfx_resource_cache()}
-  , mTexture {mGfxCache.load_texture("data/banana.bmp"sv)} {
-  constexpr array vertexLayout {
-    VertexElement::Position3F32,
-    VertexElement::TextureCoords2F32,
-  };
+  , mTexture {mGfxCache.load_texture("data/banana.bmp"sv)}
+  , mSampler {mGfxCache.create_sampler({})} {
   const span vertexData {as_bytes(span {TRIANGLE_VERTICES})};
-
   mVertexBuffer = mGfxCache.create_vertex_buffer(
-    {
-      vertexData.size(),
-      vertexLayout,
-    },
-    vertexData);
-
-  array vertexInputState {
-    VertexElement::Position3F32,
-    VertexElement::TextureCoords2F32,
-  };
+    {vertexData.size(), Vertex::sLayout}, vertexData);
 
   TextureBlendingStage textureStage {};
-
   PipelineDescriptor pipelineDesc;
-  pipelineDesc.vertexInputState = vertexInputState;
+  pipelineDesc.vertexInputState = Vertex::sLayout;
   pipelineDesc.textureStages = span {&textureStage, 1};
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
-
   mPipeline = mGfxCache.create_pipeline(pipelineDesc);
-
-  mSampler = mGfxCache.create_sampler({});
 }
 
 TexturesExercises::~TexturesExercises() noexcept {
@@ -139,7 +122,7 @@ auto TexturesExercises::on_update(UpdateContext& ctx) -> void {
 
       // READING from the vertex buffer!
       for (Vertex& vertex : vertexData) {
-        vertex.u += 0.25f * dt;
+        std::get<0>(vertex.uv) += 0.25f * dt;
       }
     });
   }
@@ -153,11 +136,10 @@ auto TexturesExercises::on_update(UpdateContext& ctx) -> void {
         Matrix4x4f32::rotation_z(Angle::degrees(45.0f * dt))};
       // READING from the vertex buffer!
       for (Vertex& vertex : vertexData) {
-        Vector3f32 uv {vertex.u, vertex.v, 0.0f};
-        vertex.u =
-          Vector3f32::dot(uv, Vector3f32 {rotation.m11, rotation.m21, 0});
-        vertex.v =
-          Vector3f32::dot(uv, Vector3f32 {rotation.m12, rotation.m22, 0});
+        Vector3f32 uv {std::get<0>(vertex.uv), std::get<1>(vertex.uv), 0.0f};
+        vertex.uv = {
+          Vector3f32::dot(uv, Vector3f32 {rotation.m11, rotation.m21, 0}),
+          Vector3f32::dot(uv, Vector3f32 {rotation.m12, rotation.m22, 0})};
       }
     });
   }
@@ -165,24 +147,22 @@ auto TexturesExercises::on_update(UpdateContext& ctx) -> void {
   CommandList cmdList;
   cmdList.clear_attachments(Attachments {Attachment::RenderTarget},
                             Color::from_non_linear(0.103f, 0.103f, 0.103f),
-                            1.0f, 0u);
-
+                            1.0f);
   cmdList.bind_pipeline(mPipeline);
-  cmdList.bind_vertex_buffer(mVertexBuffer, 0);
-
-  const DrawContext& drawCtx {ctx.drawCtx};
-  const f32 aspectRatio {static_cast<f32>(drawCtx.viewport.width()) /
-                         static_cast<f32>(drawCtx.viewport.height())};
-  cmdList.set_transform(
-    TransformState::ViewToViewport,
-    Matrix4x4f32::perspective_projection(90.0_deg, aspectRatio, 0.1f, 100.0f));
-  cmdList.set_transform(TransformState::WorldToView, Matrix4x4f32::identity());
-  cmdList.set_transform(
-    TransformState::ModelToWorld,
-    Matrix4x4f32::translation(Vector3f32 {0.0f, 0.0f, 1.0f}));
-
+  cmdList.bind_vertex_buffer(mVertexBuffer);
   cmdList.bind_sampler(mSampler);
   cmdList.bind_texture(mTexture);
+
+  const DrawContext& drawCtx {ctx.drawCtx};
+  const f32 aspectRatio {drawCtx.viewport.aspect_ratio()};
+
+  const auto viewToClip {
+    Matrix4x4f32::perspective_projection(90_deg, aspectRatio, 0.1f, 100.0f)};
+  cmdList.set_transform(TransformState::ViewToClip, viewToClip);
+  cmdList.set_transform(TransformState::WorldToView, Matrix4x4f32::identity());
+
+  constexpr auto localToWorld {Matrix4x4f32::translation(0.0f, 0.0f, 1.0f)};
+  cmdList.set_transform(TransformState::LocalToWorld, localToWorld);
 
   cmdList.draw(0, 3);
 

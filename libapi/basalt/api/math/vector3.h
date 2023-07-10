@@ -35,7 +35,7 @@ struct Vector3f32 final : vec<Vector3f32, f32, 3> {
     return Vector3f32 {0.0f, 0.0f, -1.0f};
   }
 
-  constexpr explicit Vector3f32(const f32 value) noexcept
+  constexpr explicit Vector3f32(const f32 value = 0.0f) noexcept
     : vec {value, value, value} {
   }
 
@@ -84,6 +84,7 @@ struct Vector3f32 final : vec<Vector3f32, f32, 3> {
   }
 
   // length = 0 -> undefined
+  [[nodiscard]] static auto normalize(f32 x, f32 y, f32 z) -> Vector3f32;
   [[nodiscard]] static auto normalize(const Vector3f32&) -> Vector3f32;
 
   [[nodiscard]] static constexpr auto cross(const Vector3f32& l,

@@ -4,11 +4,12 @@
 #include <basalt/api/prelude.h>
 #include <basalt/api/view.h>
 
-#include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
+
+#include <basalt/api/shared/size2d.h>
 
 #include <basalt/api/math/angle.h>
 #include <basalt/api/math/constants.h>
@@ -42,7 +43,6 @@ using basalt::View;
 using basalt::ViewPtr;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
-using basalt::gfx::Camera;
 using basalt::gfx::CommandList;
 using basalt::gfx::DirectionalLight;
 using basalt::gfx::Light;
@@ -51,26 +51,68 @@ using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::ResourceCache;
 using basalt::gfx::Sampler;
-using basalt::gfx::SamplerDescriptor;
-using basalt::gfx::TestOp;
+using basalt::gfx::TestPassCond;
 using basalt::gfx::Texture;
 using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureCoordinateSource;
 using basalt::gfx::TextureTransformMode;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexBuffer;
-using basalt::gfx::VertexBufferDescriptor;
 using basalt::gfx::VertexElement;
 using basalt::gfx::ext::XMeshCommandEncoder;
 using basalt::gfx::ext::XModel;
 
 namespace {
 
-auto create_default_camera() noexcept -> Camera {
-  constexpr Vector3f32 cameraPos {0.0f, 3.0f, -5.0f};
+struct Vertex1 final {
+  array<f32, 4> pos {};
+  ColorEncoding::A8R8G8B8 color {};
+
+  static constexpr array sLayout {VertexElement::PositionTransformed4F32,
+                                  VertexElement::ColorDiffuse1U32A8R8G8B8};
+};
+
+struct Vertex2 final {
+  array<f32, 3> pos {};
+  ColorEncoding::A8R8G8B8 color {};
+
+  static constexpr array sLayout {VertexElement::Position3F32,
+                                  VertexElement::ColorDiffuse1U32A8R8G8B8};
+};
+
+struct Vertex3 final {
+  array<f32, 3> pos {};
+  array<f32, 3> normal {};
+
+  static constexpr array sLayout {VertexElement::Position3F32,
+                                  VertexElement::Normal3F32};
+};
+
+struct Vertex4 final {
+  array<f32, 3> pos {};
+  ColorEncoding::A8R8G8B8 color {};
+  array<f32, 2> uv {};
+
+  static constexpr array sLayout {VertexElement::Position3F32,
+                                  VertexElement::ColorDiffuse1U32A8R8G8B8,
+                                  VertexElement::TextureCoords2F32};
+};
+
+[[nodiscard]] auto create_default_world_to_view_transform() noexcept
+  -> Matrix4x4f32 {
+  constexpr Vector3f32 pos {0.0f, 3.0f, -5.0f};
   constexpr Vector3f32 lookAt {0.0f};
 
-  return Camera {cameraPos, lookAt, Vector3f32::up(), 45.0_deg, 1.0f, 100.0f};
+  return Matrix4x4f32::look_at_lh(pos, lookAt, Vector3f32::up());
+}
+
+[[nodiscard]] auto
+create_default_view_to_clip_transform(const basalt::Size2Du16 viewport) noexcept
+  -> Matrix4x4f32 {
+  constexpr auto fov {45_deg};
+  const f32 aspectRatio {viewport.aspect_ratio()};
+
+  return Matrix4x4f32::perspective_projection(fov, aspectRatio, 1.0f, 100.0f);
 }
 
 class Device final : public View {
@@ -79,9 +121,9 @@ public:
 
 protected:
   auto on_update(UpdateContext& ctx) -> void override {
-    CommandList cmdList {};
+    CommandList cmdList;
     cmdList.clear_attachments(Attachments {Attachment::RenderTarget},
-                              Colors::BLUE, 1.0f, 0);
+                              Colors::BLUE);
 
     ctx.drawCtx.commandLists.push_back(std::move(cmdList));
   }
@@ -89,50 +131,29 @@ protected:
 
 class Vertices final : public View {
 public:
-  explicit Vertices(Engine& engine)
-    : mResourceCache {engine.gfx_resource_cache()} {
-    constexpr array vertexLayout {
-      VertexElement::PositionTransformed4F32,
-      VertexElement::ColorDiffuse1U32A8R8G8B8,
-    };
-
-    PipelineDescriptor pipelineDesc {};
-    pipelineDesc.vertexInputState = vertexLayout;
-    pipelineDesc.primitiveType = PrimitiveType::TriangleList;
-    mPipeline = mResourceCache.create_pipeline(pipelineDesc);
-
-    struct Vertex final {
-      f32 x;
-      f32 y;
-      f32 z;
-      f32 rhw;
-      ColorEncoding::A8R8G8B8 color;
-    };
-
+  explicit Vertices(Engine& engine) : mGfxCache {engine.gfx_resource_cache()} {
     const array vertices {
-      Vertex {150.0f, 50.0f, 0.5f, 1.0f,
-              ColorEncoding::pack_a8r8g8b8_u32(255, 0, 0)},
-      Vertex {250.0f, 250.0f, 0.5f, 1.0f,
-              ColorEncoding::pack_a8r8g8b8_u32(0, 255, 0)},
-      Vertex {50.0f, 250.0f, 0.5f, 1.0f,
-              ColorEncoding::pack_a8r8g8b8_u32(0, 255, 255)}};
+      Vertex1 {{150.0f, 50.0f, 0.5f, 1.0f}, 0xffff0000_a8r8g8b8},
+      Vertex1 {{250.0f, 250.0f, 0.5f, 1.0f}, 0xff00ff00_a8r8g8b8},
+      Vertex1 {{50.0f, 250.0f, 0.5f, 1.0f}, 0xff00ffff_a8r8g8b8}};
+    using Vertex = decltype(vertices)::value_type;
 
     const auto vertexData {as_bytes(span {vertices})};
+    mVertexBuffer = mGfxCache.create_vertex_buffer(
+      {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
 
-    mVertexBuffer = mResourceCache.create_vertex_buffer(
-      VertexBufferDescriptor {
-        vertexData.size_bytes(),
-        vertexLayout,
-      },
-      vertexData);
+    PipelineDescriptor pipelineDesc;
+    pipelineDesc.vertexInputState = Vertex::sLayout;
+    pipelineDesc.primitiveType = PrimitiveType::TriangleList;
+    mPipeline = mGfxCache.create_pipeline(pipelineDesc);
   }
 
   Vertices(const Vertices&) = delete;
   Vertices(Vertices&&) = delete;
 
   ~Vertices() noexcept override {
-    mResourceCache.destroy(mVertexBuffer);
-    mResourceCache.destroy(mPipeline);
+    mGfxCache.destroy(mPipeline);
+    mGfxCache.destroy(mVertexBuffer);
   }
 
   auto operator=(const Vertices&) -> Vertices& = delete;
@@ -140,69 +161,48 @@ public:
 
 protected:
   auto on_update(UpdateContext& ctx) -> void override {
-    CommandList cmdList {};
-
+    CommandList cmdList;
     cmdList.clear_attachments(Attachments {Attachment::RenderTarget},
-                              Colors::BLUE, 1.0f, 0);
-
+                              Colors::BLUE);
     cmdList.bind_pipeline(mPipeline);
-    cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
+    cmdList.bind_vertex_buffer(mVertexBuffer);
     cmdList.draw(0, 3);
 
     ctx.drawCtx.commandLists.push_back(std::move(cmdList));
   }
 
 private:
-  ResourceCache& mResourceCache;
-  Pipeline mPipeline {Pipeline::null()};
-  VertexBuffer mVertexBuffer {VertexBuffer::null()};
+  ResourceCache& mGfxCache;
+  VertexBuffer mVertexBuffer;
+  Pipeline mPipeline;
 };
 
 class Matrices final : public View {
 public:
-  explicit Matrices(Engine& engine)
-    : mResourceCache {engine.gfx_resource_cache()}
-    , mCamera {create_default_camera()} {
-    constexpr array vertexLayout {
-      VertexElement::Position3F32,
-      VertexElement::ColorDiffuse1U32A8R8G8B8,
-    };
-
-    PipelineDescriptor pipelineDesc {};
-    pipelineDesc.vertexInputState = vertexLayout;
-    pipelineDesc.primitiveType = PrimitiveType::TriangleList;
-    mPipeline = mResourceCache.create_pipeline(pipelineDesc);
-
-    struct Vertex final {
-      f32 x;
-      f32 y;
-      f32 z;
-      ColorEncoding::A8R8G8B8 color;
-    };
-
+  explicit Matrices(Engine& engine) : mGfxCache {engine.gfx_resource_cache()} {
     const array vertices {
-      Vertex {-1.0f, -1.0f, 0.0f, ColorEncoding::pack_a8r8g8b8_u32(255, 0, 0)},
-      Vertex {1.0f, -1.0f, 0.0f, ColorEncoding::pack_a8r8g8b8_u32(0, 0, 255)},
-      Vertex {0.0f, 1.0f, 0.0f,
-              ColorEncoding::pack_a8r8g8b8_u32(255, 255, 255)},
+      Vertex2 {{-1.0f, -1.0f, 0.0f}, 0xffff0000_a8r8g8b8},
+      Vertex2 {{1.0f, -1.0f, 0.0f}, 0xff0000ff_a8r8g8b8},
+      Vertex2 {{0.0f, 1.0f, 0.0f}, 0xffffffff_a8r8g8b8},
     };
+    using Vertex = decltype(vertices)::value_type;
 
     const auto vertexData {as_bytes(span {vertices})};
+    mVertexBuffer = mGfxCache.create_vertex_buffer(
+      {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
 
-    mVertexBuffer = mResourceCache.create_vertex_buffer(
-      VertexBufferDescriptor {
-        vertexData.size_bytes(),
-        vertexLayout,
-      },
-      vertexData);
+    PipelineDescriptor pipelineDesc;
+    pipelineDesc.vertexInputState = Vertex::sLayout;
+    pipelineDesc.primitiveType = PrimitiveType::TriangleList;
+    mPipeline = mGfxCache.create_pipeline(pipelineDesc);
   }
 
   Matrices(const Matrices&) = delete;
   Matrices(Matrices&&) = delete;
 
   ~Matrices() noexcept override {
-    mResourceCache.destroy(mVertexBuffer);
-    mResourceCache.destroy(mPipeline);
+    mGfxCache.destroy(mPipeline);
+    mGfxCache.destroy(mVertexBuffer);
   }
 
   auto operator=(const Matrices&) -> Matrices& = delete;
@@ -220,19 +220,19 @@ protected:
     }
 
     CommandList cmdList;
-
-    cmdList.clear_attachments(Attachments {Attachment::RenderTarget},
-                              Colors::BLACK, 1.0f, 0);
-
+    cmdList.clear_attachments(Attachments {Attachment::RenderTarget});
     cmdList.bind_pipeline(mPipeline);
+    cmdList.bind_vertex_buffer(mVertexBuffer);
 
-    cmdList.set_transform(TransformState::ModelToWorld,
+    cmdList.set_transform(TransformState::LocalToWorld,
                           Matrix4x4f32::rotation_y(mRotationY));
-    cmdList.set_transform(TransformState::WorldToView, mCamera.world_to_view());
-    cmdList.set_transform(TransformState::ViewToViewport,
-                          mCamera.view_to_viewport(ctx.drawCtx.viewport));
 
-    cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
+    const Matrix4x4f32 worldToView {create_default_world_to_view_transform()};
+    cmdList.set_transform(TransformState::WorldToView, worldToView);
+
+    const Matrix4x4f32 viewToClip {
+      create_default_view_to_clip_transform(ctx.drawCtx.viewport)};
+    cmdList.set_transform(TransformState::ViewToClip, viewToClip);
 
     cmdList.draw(0, 3);
 
@@ -240,89 +240,62 @@ protected:
   }
 
 private:
-  ResourceCache& mResourceCache;
-  Pipeline mPipeline {Pipeline::null()};
-  VertexBuffer mVertexBuffer {VertexBuffer::null()};
-  Camera mCamera;
+  ResourceCache& mGfxCache;
+  VertexBuffer mVertexBuffer;
+  Pipeline mPipeline;
   Angle mRotationY;
 };
 
 class Lights final : public View {
-  static constexpr u32 VERTEX_COUNT {2u * 50u};
+  static constexpr u32 sVertexCount {2 * 50};
 
 public:
-  explicit Lights(Engine& engine)
-    : mResourceCache {engine.gfx_resource_cache()}
-    , mCamera {create_default_camera()} {
-    constexpr array vertexLayout {
-      VertexElement::Position3F32,
-      VertexElement::Normal3F32,
-    };
-
-    PipelineDescriptor pipelineDesc {};
-    pipelineDesc.vertexInputState = vertexLayout;
-    pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
-    pipelineDesc.lighting = true;
-    pipelineDesc.depthTest = TestOp::PassIfLessEqual;
-    pipelineDesc.depthWriteEnable = true;
-    mPipeline = mResourceCache.create_pipeline(pipelineDesc);
-
-    struct Vertex final {
-      f32 x {};
-      f32 y {};
-      f32 z {};
-      f32 nx {};
-      f32 ny {};
-      f32 nz {};
-    };
-
-    array<Vertex, VERTEX_COUNT> vertices {};
-    for (uSize i = 0u; i < 50u; i++) {
-      const Angle theta {Angle::radians(2.0f * PI * i / (50 - 1))};
+  explicit Lights(Engine& engine) : mGfxCache {engine.gfx_resource_cache()} {
+    array<Vertex3, sVertexCount> vertices {};
+    for (uSize i {0}; i < 50; i++) {
+      const Angle theta {
+        Angle::radians(2.0f * PI * static_cast<f32>(i) / (50 - 1))};
       const f32 sinTheta {theta.sin()};
       const f32 cosTheta {theta.cos()};
 
-      auto& vertex1 = vertices[2 * i];
-      vertex1.x = sinTheta;
-      vertex1.y = -1.0f;
-      vertex1.z = cosTheta;
-      vertex1.nx = sinTheta;
-      vertex1.nz = cosTheta;
+      auto& vertex1 {vertices[2 * i]};
+      vertex1.pos = {sinTheta, -1.0f, cosTheta};
+      vertex1.normal = {sinTheta, 0.0f, cosTheta};
 
-      auto& vertex2 = vertices[2 * i + 1];
-      vertex2.x = sinTheta;
-      vertex2.y = 1.0f;
-      vertex2.z = cosTheta;
-      vertex2.nx = sinTheta;
-      vertex2.nz = cosTheta;
+      auto& vertex2 {vertices[2 * i + 1]};
+      vertex2.pos = {sinTheta, 1.0f, cosTheta};
+      vertex2.normal = {sinTheta, 0.0f, cosTheta};
     }
+    using Vertex = decltype(vertices)::value_type;
 
     const auto vertexData {as_bytes(span {vertices})};
+    mVertexBuffer = mGfxCache.create_vertex_buffer(
+      {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
 
-    mVertexBuffer = mResourceCache.create_vertex_buffer(
-      VertexBufferDescriptor {
-        vertexData.size_bytes(),
-        vertexLayout,
-      },
-      vertexData);
+    PipelineDescriptor pipelineDesc;
+    pipelineDesc.vertexInputState = Vertex::sLayout;
+    pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
+    pipelineDesc.lighting = true;
+    pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+    pipelineDesc.depthWriteEnable = true;
+    mPipeline = mGfxCache.create_pipeline(pipelineDesc);
   }
 
   Lights(const Lights&) = delete;
   Lights(Lights&&) = delete;
 
   ~Lights() noexcept override {
-    mResourceCache.destroy(mPipeline);
-    mResourceCache.destroy(mVertexBuffer);
+    mGfxCache.destroy(mPipeline);
+    mGfxCache.destroy(mVertexBuffer);
   }
 
   auto operator=(const Lights&) -> Lights& = delete;
   auto operator=(Lights&&) -> Lights& = delete;
 
 private:
-  ResourceCache& mResourceCache;
-  Pipeline mPipeline {Pipeline::null()};
-  VertexBuffer mVertexBuffer {VertexBuffer::null()};
-  Camera mCamera;
+  ResourceCache& mGfxCache;
+  VertexBuffer mVertexBuffer;
+  Pipeline mPipeline;
   Angle mRotationX;
   Angle mLightRotation;
 
@@ -337,148 +310,121 @@ private:
     }
 
     mLightRotation += Angle::radians(20.0f / 7.0f * dt);
-    // reset to -180° when rotated more than 180°
     while (mLightRotation.radians() > PI) {
       mLightRotation -= Angle::radians(twoPi);
     }
 
     CommandList cmdList;
-
     cmdList.clear_attachments(
       Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
-      Colors::BLUE, 1.0f, 0);
+      Colors::BLUE, 1.0f);
 
     cmdList.bind_pipeline(mPipeline);
+    cmdList.bind_vertex_buffer(mVertexBuffer);
 
-    cmdList.set_transform(TransformState::ViewToViewport,
-                          mCamera.view_to_viewport(ctx.drawCtx.viewport));
+    const auto viewToClip {
+      create_default_view_to_clip_transform(ctx.drawCtx.viewport)};
+    cmdList.set_transform(TransformState::ViewToClip, viewToClip);
 
-    cmdList.set_transform(TransformState::WorldToView, mCamera.world_to_view());
+    const auto worldToView {create_default_world_to_view_transform()};
+    cmdList.set_transform(TransformState::WorldToView, worldToView);
+
+    cmdList.set_transform(TransformState::LocalToWorld,
+                          Matrix4x4f32::rotation_x(mRotationX));
 
     const Light light {DirectionalLight {
-      Vector3f32::normalize(
-        Vector3f32 {mLightRotation.cos(), 1.0f, mLightRotation.sin()}),
+      Vector3f32::normalize(mLightRotation.cos(), 1.0f, mLightRotation.sin()),
       Color::from_non_linear(1.0f, 1.0f, 1.0f, 0.0f),
-      Color {},
+      {},
     }};
 
     cmdList.set_lights(span {&light, 1});
+    cmdList.set_ambient_light(Color::from(0x00202020_a8r8g8b8));
+    cmdList.set_material(Colors::YELLOW, Colors::YELLOW);
 
-    cmdList.set_ambient_light(
-      Color::from_non_linear_rgba8(0x20, 0x20, 0x20, 0));
-
-    cmdList.set_material(Colors::YELLOW, Colors::YELLOW, Color {});
-    cmdList.set_transform(TransformState::ModelToWorld,
-                          Matrix4x4f32::rotation_x(mRotationX));
-
-    cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
-
-    cmdList.draw(0, VERTEX_COUNT);
+    cmdList.draw(0, sVertexCount);
 
     ctx.drawCtx.commandLists.push_back(std::move(cmdList));
   }
 };
 
 class Textures final : public View {
-  static constexpr u32 VERTEX_COUNT {2u * 50u};
+  static constexpr u32 sVertexCount {2 * 50};
 
 public:
   explicit Textures(Engine& engine)
-    : mResourceCache {engine.gfx_resource_cache()}
-    , mCamera {create_default_camera()} {
-    constexpr array vertexLayout {
-      VertexElement::Position3F32,
-      VertexElement::ColorDiffuse1U32A8R8G8B8,
-      VertexElement::TextureCoords2F32,
-    };
+    : mGfxCache {engine.gfx_resource_cache()}
+    , mSampler {mGfxCache.create_sampler({})}
+    , mTexture {mGfxCache.load_texture("data/banana.bmp")} {
+    array<Vertex4, sVertexCount> vertices {};
+    for (uSize i {0}; i < 50; i++) {
+      const Angle theta {
+        Angle::radians(2.0f * PI * static_cast<f32>(i) / (50 - 1))};
+      const f32 sinTheta {theta.sin()};
+      const f32 cosTheta {theta.cos()};
 
-    TextureBlendingStage textureBlendingStage {};
+      Vertex4& vertex1 {vertices[2 * i]};
+      vertex1.pos = {sinTheta, -1.0f, cosTheta};
+      vertex1.color = Colors::WHITE.to_argb();
+      vertex1.uv = {
+        static_cast<f32>(i) / (50.0f - 1.0f),
+        1.0f,
+      };
 
-    PipelineDescriptor pipelineDesc {};
-    pipelineDesc.vertexInputState = vertexLayout;
+      Vertex4& vertex2 {vertices[2 * i + 1]};
+      vertex2.pos = {sinTheta, 1.0f, cosTheta};
+      vertex2.color = 0xff808080_a8r8g8b8;
+      vertex2.uv = {
+        std::get<0>(vertex1.uv),
+        0.0f,
+      };
+    }
+    using Vertex = decltype(vertices)::value_type;
+
+    const auto vertexData {as_bytes(span {vertices})};
+    mVertexBuffer = mGfxCache.create_vertex_buffer(
+      {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
+
+    TextureBlendingStage textureBlendingStage;
+    PipelineDescriptor pipelineDesc;
+    pipelineDesc.vertexInputState = Vertex::sLayout;
     pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
     pipelineDesc.textureStages = span {&textureBlendingStage, 1};
-    pipelineDesc.depthTest = TestOp::PassIfLessEqual;
+    pipelineDesc.depthTest = TestPassCond::IfLessEqual;
     pipelineDesc.depthWriteEnable = true;
-    mPipeline = mResourceCache.create_pipeline(pipelineDesc);
+    mPipeline = mGfxCache.create_pipeline(pipelineDesc);
 
     textureBlendingStage.texCoordinateSrc =
       TextureCoordinateSource::VertexPositionInView;
     textureBlendingStage.texCoordinateTransformMode =
       TextureTransformMode::Count4;
     textureBlendingStage.texCoordinateProjected = true;
-
-    mPipelineTci = mResourceCache.create_pipeline(pipelineDesc);
-
-    struct Vertex final {
-      f32 x {};
-      f32 y {};
-      f32 z {};
-      ColorEncoding::A8R8G8B8 color {};
-      f32 tu {};
-      f32 tv {};
-    };
-
-    array<Vertex, VERTEX_COUNT> vertices {};
-    for (uSize i {0u}; i < 50u; i++) {
-      const Angle theta {Angle::radians(2.0f * PI * i / (50 - 1))};
-      const f32 sinTheta {theta.sin()};
-      const f32 cosTheta {theta.cos()};
-
-      Vertex& vertex1 {vertices[2 * i]};
-      vertex1.x = sinTheta;
-      vertex1.y = -1.0f;
-      vertex1.z = cosTheta;
-      vertex1.color = Colors::WHITE.to_argb();
-      vertex1.tu = static_cast<f32>(i) / (50.0f - 1.0f);
-      vertex1.tv = 1.0f;
-
-      Vertex& vertex2 {vertices[2 * i + 1]};
-      vertex2.x = sinTheta;
-      vertex2.y = 1.0f;
-      vertex2.z = cosTheta;
-      vertex2.color = ColorEncoding::pack_a8r8g8b8_u32(0x80, 0x80, 0x80);
-      vertex2.tu = vertex1.tu;
-      vertex2.tv = 0.0f;
-    }
-
-    const auto vertexData {as_bytes(span {vertices})};
-
-    mVertexBuffer = mResourceCache.create_vertex_buffer(
-      VertexBufferDescriptor {
-        vertexData.size_bytes(),
-        vertexLayout,
-      },
-      vertexData);
-
-    mSampler = mResourceCache.create_sampler(SamplerDescriptor {});
-    mTexture = mResourceCache.load_texture("data/banana.bmp");
+    mPipelineTci = mGfxCache.create_pipeline(pipelineDesc);
   }
 
   Textures(const Textures&) = delete;
   Textures(Textures&&) = delete;
 
   ~Textures() noexcept override {
-    mResourceCache.destroy(mTexture);
-    mResourceCache.destroy(mSampler);
-    mResourceCache.destroy(mVertexBuffer);
-    mResourceCache.destroy(mPipelineTci);
-    mResourceCache.destroy(mPipeline);
+    mGfxCache.destroy(mPipelineTci);
+    mGfxCache.destroy(mPipeline);
+    mGfxCache.destroy(mTexture);
+    mGfxCache.destroy(mSampler);
+    mGfxCache.destroy(mVertexBuffer);
   }
 
   auto operator=(const Textures&) -> Textures& = delete;
   auto operator=(Textures&&) -> Textures& = delete;
 
 private:
-  ResourceCache& mResourceCache;
-  Pipeline mPipeline;
-  Pipeline mPipelineTci;
+  ResourceCache& mGfxCache;
   VertexBuffer mVertexBuffer;
   Sampler mSampler;
   Texture mTexture;
-  Camera mCamera;
-  Angle mRotationX {};
-  bool mShowTci {false};
+  Pipeline mPipeline;
+  Pipeline mPipelineTci;
+  Angle mRotationX;
+  bool mShowTci {};
 
   auto on_update(UpdateContext& ctx) -> void override {
     const f32 dt {ctx.deltaTime.count()};
@@ -488,40 +434,40 @@ private:
       mRotationX -= Angle::radians(PI * 2.0f);
     }
 
-    if (ImGui::Begin("Settings##D3D9")) {
+    if (ImGui::Begin("Settings##D3D9Textures")) {
       ImGui::Checkbox("Show TCI", &mShowTci);
     }
 
     ImGui::End();
 
     CommandList cmdList;
-
     cmdList.clear_attachments(
       Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
-      Colors::BLUE, 1.0f, 0);
+      Colors::BLUE, 1.0f);
 
     cmdList.bind_pipeline(mShowTci ? mPipelineTci : mPipeline);
+    cmdList.bind_sampler(mSampler);
+    cmdList.bind_texture(mTexture);
+    cmdList.bind_vertex_buffer(mVertexBuffer);
 
-    const Matrix4x4f32 viewToViewport {
-      mCamera.view_to_viewport(ctx.drawCtx.viewport)};
-    cmdList.set_transform(TransformState::ViewToViewport, viewToViewport);
-    cmdList.set_transform(TransformState::WorldToView, mCamera.world_to_view());
+    const auto viewToClip {
+      create_default_view_to_clip_transform(ctx.drawCtx.viewport)};
+    cmdList.set_transform(TransformState::ViewToClip, viewToClip);
 
-    cmdList.set_transform(TransformState::ModelToWorld,
+    const auto worldToView {create_default_world_to_view_transform()};
+    cmdList.set_transform(TransformState::WorldToView, worldToView);
+
+    cmdList.set_transform(TransformState::LocalToWorld,
                           Matrix4x4f32::rotation_x(mRotationX));
 
     if (mShowTci) {
-      const Matrix4x4f32 texTransform {
-        viewToViewport * Matrix4x4f32::scaling(Vector3f32 {0.5f, -0.5f, 1.0f}) *
-        Matrix4x4f32::translation(Vector3f32 {0.5f, 0.5f, 0.0f})};
+      const auto texTransform {viewToClip *
+                               Matrix4x4f32::scaling(0.5f, -0.5f, 1.0f) *
+                               Matrix4x4f32::translation(0.5f, 0.5f, 0.0f)};
       cmdList.set_transform(TransformState::Texture, texTransform);
     }
 
-    cmdList.bind_sampler(mSampler);
-    cmdList.bind_texture(mTexture);
-    cmdList.bind_vertex_buffer(mVertexBuffer, 0ull);
-
-    cmdList.draw(0, VERTEX_COUNT);
+    cmdList.draw(0, sVertexCount);
 
     ctx.drawCtx.commandLists.push_back(std::move(cmdList));
   }
@@ -530,25 +476,23 @@ private:
 class Meshes final : public View {
 public:
   explicit Meshes(Engine& engine)
-    : mResourceCache {engine.gfx_resource_cache()}
-    , mModel {mResourceCache.load_x_model("data/Tiger.x"sv)}
-    , mCamera {create_default_camera()} {
+    : mGfxCache {engine.gfx_resource_cache()}
+    , mModel {mGfxCache.load_x_model("data/Tiger.x"sv)} {
   }
 
   Meshes(const Meshes&) = delete;
   Meshes(const Meshes&&) = delete;
 
   ~Meshes() noexcept override {
-    mResourceCache.destroy(mModel);
+    mGfxCache.destroy(mModel);
   }
 
   auto operator=(const Meshes&) -> Meshes& = delete;
   auto operator=(const Meshes&&) -> Meshes& = delete;
 
 private:
-  ResourceCache& mResourceCache;
+  ResourceCache& mGfxCache;
   XModel mModel;
-  Camera mCamera;
   Angle mRotationY;
 
   auto on_update(UpdateContext& ctx) -> void override {
@@ -560,31 +504,32 @@ private:
     }
 
     CommandList cmdList;
-
     cmdList.clear_attachments(
       Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
-      Colors::BLUE, 1.0f, 0);
+      Colors::BLUE, 1.0f);
 
     cmdList.set_ambient_light(Colors::WHITE);
 
-    cmdList.set_transform(TransformState::ViewToViewport,
-                          mCamera.view_to_viewport(ctx.drawCtx.viewport));
-    cmdList.set_transform(TransformState::WorldToView, mCamera.world_to_view());
+    const auto viewToClip {
+      create_default_view_to_clip_transform(ctx.drawCtx.viewport)};
+    cmdList.set_transform(TransformState::ViewToClip, viewToClip);
 
-    const auto& modelData {mResourceCache.get(mModel)};
+    const auto worldToView {create_default_world_to_view_transform()};
+    cmdList.set_transform(TransformState::WorldToView, worldToView);
+
+    const auto& modelData {mGfxCache.get(mModel)};
 
     const u32 numMaterials {static_cast<u32>(modelData.materials.size())};
     for (u32 i {0}; i < numMaterials; ++i) {
-      const auto& materialData {mResourceCache.get(modelData.materials[i])};
+      const auto& materialData {mGfxCache.get(modelData.materials[i])};
 
       cmdList.bind_pipeline(materialData.pipeline);
 
       cmdList.bind_sampler(materialData.sampler);
       cmdList.bind_texture(materialData.texture);
-      cmdList.set_material(materialData.diffuse, materialData.ambient,
-                           Color {});
+      cmdList.set_material(materialData.diffuse, materialData.ambient);
 
-      cmdList.set_transform(TransformState::ModelToWorld,
+      cmdList.set_transform(TransformState::LocalToWorld,
                             Matrix4x4f32::rotation_y(mRotationY));
 
       XMeshCommandEncoder::draw_x_mesh(cmdList, modelData.mesh, i);
