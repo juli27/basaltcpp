@@ -81,7 +81,7 @@ private:
 
   struct PipelineData final {
     DWORD fvf {};
-    DWORD stage1Tci {D3DTSS_TCI_PASSTHRU};
+    DWORD stage1Tci {0 | D3DTSS_TCI_PASSTHRU};
     D3DTEXTURETRANSFORMFLAGS stage0Ttf {D3DTTFF_DISABLE};
     DWORD stage1Arg1 {D3DTA_DIFFUSE};
     DWORD stage1Arg2 {D3DTA_TEXTURE};

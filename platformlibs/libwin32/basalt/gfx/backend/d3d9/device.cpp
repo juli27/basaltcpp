@@ -193,9 +193,16 @@ public:
     : mDevice {std::move(device)} {
   }
 
-  static auto execute(const ext::CommandRenderDearImGui&) -> void {
+  auto execute(const ext::CommandRenderDearImGui&) const -> void {
     ImGui::Render();
     if (auto* drawData {ImGui::GetDrawData()}) {
+      // the imgui d3d9 renderer doesn't set its coordinate source
+      // and texture coords transform flags
+      D3D9CHECK(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX,
+                                              0 | D3DTSS_TCI_PASSTHRU));
+      D3D9CHECK(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
+                                              D3DTTFF_DISABLE));
+
       ImGui_ImplDX9_RenderDrawData(drawData);
     }
   }
@@ -626,7 +633,9 @@ auto D3D9Device::execute(const Command& cmd) -> void {
     break;
 
   case CommandType::ExtRenderDearImGui:
-    D3D9ImGuiRenderer::execute(cmd.as<ext::CommandRenderDearImGui>());
+    std::static_pointer_cast<const D3D9ImGuiRenderer>(
+      mExtensions[ext::ExtensionId::DearImGuiRenderer])
+      ->execute(cmd.as<ext::CommandRenderDearImGui>());
     break;
 
   default:
