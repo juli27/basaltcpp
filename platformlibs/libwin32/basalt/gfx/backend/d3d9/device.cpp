@@ -1,42 +1,33 @@
 #include <basalt/gfx/backend/d3d9/device.h>
 
 #include <basalt/gfx/backend/d3d9/conversions.h>
+#include <basalt/gfx/backend/d3d9/dear_imgui_renderer.h>
+#include <basalt/gfx/backend/d3d9/x_model_support.h>
 
 #include <basalt/gfx/backend/commands.h>
-#include <basalt/gfx/backend/ext/dear_imgui_renderer.h>
-#include <basalt/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/gfx/backend/command_list.h>
 
 #include <basalt/api/shared/asserts.h>
-#include <basalt/api/shared/color.h>
 #include <basalt/api/shared/log.h>
 
 #include <basalt/api/base/utils.h>
 
 #include <gsl/span>
 
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_dx9.h>
-
 #include <algorithm>
 #include <cstddef>
 #include <limits>
 #include <new>
 #include <stdexcept>
-#include <string_view>
-#include <type_traits>
 #include <utility>
 #include <variant>
-#include <vector>
 
 using namespace std::literals;
 
 using std::bad_alloc;
 using std::numeric_limits;
 using std::optional;
-using std::string_view;
-using std::vector;
 using std::filesystem::path;
 
 using gsl::span;
@@ -45,10 +36,6 @@ using Microsoft::WRL::ComPtr;
 
 namespace basalt::gfx {
 namespace {
-
-constexpr auto to_color(const D3DCOLORVALUE& color) -> Color {
-  return Color::from_non_linear(color.r, color.g, color.b, color.a);
-}
 
 // TODO: needs some form of validation
 auto to_fvf(const span<const VertexElement> layout) -> DWORD {
@@ -188,111 +175,6 @@ auto calculate_primitive_count(const D3DPRIMITIVETYPE type,
   return 0;
 }
 
-class D3D9ImGuiRenderer final : public ext::DearImGuiRenderer {
-public:
-  explicit D3D9ImGuiRenderer(ComPtr<IDirect3DDevice9> device)
-    : mDevice {std::move(device)} {
-  }
-
-  auto execute(const ext::CommandRenderDearImGui&) const -> void {
-    ImGui::Render();
-    if (auto* drawData {ImGui::GetDrawData()}) {
-      // the imgui d3d9 renderer doesn't set its coordinate source
-      // and texture coords transform flags
-      D3D9CHECK(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX,
-                                              0 | D3DTSS_TCI_PASSTHRU));
-      D3D9CHECK(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
-                                              D3DTTFF_DISABLE));
-
-      ImGui_ImplDX9_RenderDrawData(drawData);
-    }
-  }
-
-  auto init() -> void override {
-    ImGui_ImplDX9_Init(mDevice.Get());
-    ImGui_ImplDX9_CreateDeviceObjects();
-  }
-
-  auto shutdown() -> void override {
-    ImGui_ImplDX9_Shutdown();
-  }
-
-  auto new_frame() -> void override {
-    ImGui_ImplDX9_NewFrame();
-  }
-
-private:
-  ComPtr<IDirect3DDevice9> mDevice;
-};
-
-class D3D9XModelSupport final : public ext::XModelSupport {
-  using DevicePtr = ComPtr<IDirect3DDevice9>;
-
-public:
-  explicit D3D9XModelSupport(DevicePtr device) : mDevice {std::move(device)} {
-  }
-
-  auto execute(const ext::CommandDrawXMesh& cmd) const -> void {
-    const auto& mesh {mMeshes[cmd.xMeshId]};
-
-    mesh->DrawSubset(cmd.subset);
-  }
-
-  [[nodiscard]] auto load(const path& filepath) -> ext::XModelData override {
-    XMeshPtr mesh;
-
-    ComPtr<ID3DXBuffer> materialBuffer;
-    DWORD numMaterials {};
-    if (FAILED(D3DXLoadMeshFromXW(filepath.c_str(), D3DXMESH_MANAGED,
-                                  mDevice.Get(), nullptr, &materialBuffer,
-                                  nullptr, &numMaterials, &mesh))) {
-      throw std::runtime_error {"loading mesh file failed"};
-    }
-
-    vector<ext::XModelData::Material> materials {};
-
-    materials.reserve(numMaterials);
-    const auto* const d3dMaterials {
-      static_cast<const D3DXMATERIAL*>(materialBuffer->GetBufferPointer())};
-
-    for (DWORD i {0}; i < numMaterials; i++) {
-      const auto& d3dMaterial {d3dMaterials[i].MatD3D};
-
-      const Color diffuse {to_color(d3dMaterial.Diffuse)};
-      auto& material {materials.emplace_back(ext::XModelData::Material {
-        diffuse,
-        diffuse, // d3dx doesn't set the ambient color
-      })};
-
-      if (!d3dMaterials[i].pTextureFilename) {
-        continue;
-      }
-
-      const string_view texFileName {d3dMaterials[i].pTextureFilename};
-      if (texFileName.empty()) {
-        continue;
-      }
-
-      path texPath {"data"sv};
-      texPath /= texFileName;
-      material.textureFile = std::move(texPath);
-    }
-
-    const ext::XMesh meshHandle {mMeshes.allocate(std::move(mesh))};
-    return ext::XModelData {meshHandle, std::move(materials)};
-  }
-
-  auto destroy(const ext::XMesh handle) noexcept -> void override {
-    mMeshes.deallocate(handle);
-  }
-
-private:
-  using XMeshPtr = ComPtr<ID3DXMesh>;
-
-  DevicePtr mDevice;
-  HandlePool<XMeshPtr, ext::XMesh> mMeshes;
-};
-
 } // namespace
 
 D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
@@ -300,10 +182,10 @@ D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
   BASALT_ASSERT(mDevice);
 
   mExtensions[ext::ExtensionId::DearImGuiRenderer] =
-    std::make_shared<D3D9ImGuiRenderer>(mDevice);
+    ext::D3D9ImGuiRenderer::create(mDevice);
 
   mExtensions[ext::ExtensionId::XModelSupport] =
-    std::make_shared<D3D9XModelSupport>(mDevice);
+    ext::D3D9XModelSupport::create(mDevice);
 
   D3DCAPS9 d3d9Caps {};
   D3D9CHECK(mDevice->GetDeviceCaps(&d3d9Caps));
@@ -337,12 +219,15 @@ auto D3D9Device::device() const -> ComPtr<IDirect3DDevice9> {
 }
 
 auto D3D9Device::reset(D3DPRESENT_PARAMETERS& pp) const -> void {
-  ImGui_ImplDX9_InvalidateDeviceObjects();
+  const ext::D3D9ImGuiRendererPtr imguiRenderer {
+    get_extension<ext::D3D9ImGuiRenderer>()};
+
+  imguiRenderer->invalidate_device_objects();
 
   // TODO: test cooperative level (see D3D9Context::present)
   D3D9CHECK(mDevice->Reset(&pp));
 
-  ImGui_ImplDX9_CreateDeviceObjects();
+  imguiRenderer->create_device_objects();
 }
 
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
@@ -631,15 +516,13 @@ auto D3D9Device::query_extension(const ext::ExtensionId id)
 auto D3D9Device::execute(const Command& cmd) -> void {
   switch (cmd.type) {
   case CommandType::ExtDrawXMesh:
-    std::static_pointer_cast<const D3D9XModelSupport>(
-      mExtensions[ext::ExtensionId::XModelSupport])
-      ->execute(cmd.as<ext::CommandDrawXMesh>());
+    get_extension<const ext::D3D9XModelSupport>()->execute(
+      cmd.as<ext::CommandDrawXMesh>());
     break;
 
   case CommandType::ExtRenderDearImGui:
-    std::static_pointer_cast<const D3D9ImGuiRenderer>(
-      mExtensions[ext::ExtensionId::DearImGuiRenderer])
-      ->execute(cmd.as<ext::CommandRenderDearImGui>());
+    get_extension<const ext::D3D9ImGuiRenderer>()->execute(
+      cmd.as<ext::CommandRenderDearImGui>());
     break;
 
   default:

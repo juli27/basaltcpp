@@ -13,4 +13,14 @@ using D3D9DevicePtr = std::shared_ptr<D3D9Device>;
 class D3D9Factory;
 using D3D9FactoryPtr = std::unique_ptr<D3D9Factory>;
 
+namespace ext {
+
+class D3D9ImGuiRenderer;
+using D3D9ImGuiRendererPtr = std::shared_ptr<D3D9ImGuiRenderer>;
+
+class D3D9XModelSupport;
+using D3D9XModelSupportPtr = std::shared_ptr<D3D9XModelSupport>;
+
+} // namespace ext
+
 } // namespace basalt::gfx

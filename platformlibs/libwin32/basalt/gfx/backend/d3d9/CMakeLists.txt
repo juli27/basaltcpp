@@ -3,9 +3,13 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "context.h"
   "conversions.h"
   "d3d9_custom.h"
+  "dear_imgui_renderer.cpp"
+  "dear_imgui_renderer.h"
   "device.cpp"
   "device.h"
   "factory.cpp"
   "factory.h"
   "types.h"
+  "x_model_support.cpp"
+  "x_model_support.h"
 )

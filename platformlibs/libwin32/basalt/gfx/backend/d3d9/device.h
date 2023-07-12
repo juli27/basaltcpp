@@ -13,6 +13,7 @@
 #include <wrl/client.h>
 
 #include <filesystem>
+#include <memory>
 #include <unordered_map>
 
 namespace basalt::gfx {
@@ -141,6 +142,11 @@ private:
   auto execute(const CommandSetLights&) -> void;
   auto execute(const CommandSetMaterial&) -> void;
   auto execute(const CommandSetFogParameters&) -> void;
+
+  template <typename T>
+  [[nodiscard]] auto get_extension() const -> std::shared_ptr<T> {
+    return std::static_pointer_cast<T>(mExtensions.at(T::ID));
+  }
 };
 
 } // namespace basalt::gfx
