@@ -20,6 +20,7 @@
 #include <imgui/imgui_impl_dx9.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <limits>
 #include <new>
 #include <stdexcept>
@@ -344,11 +345,6 @@ auto D3D9Device::reset(D3DPRESENT_PARAMETERS& pp) const -> void {
   ImGui_ImplDX9_CreateDeviceObjects();
 }
 
-auto D3D9Device::begin_execution() const -> void {
-  // TODO: should this be a fatal error when failing?
-  D3D9CHECK(mDevice->BeginScene());
-}
-
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
 auto D3D9Device::execute(const CommandList& cmdList) -> void {
   // set device state to what the command list expects as default
@@ -365,24 +361,9 @@ auto D3D9Device::execute(const CommandList& cmdList) -> void {
   auto visitor {
     [&](auto&& cmd) { this->execute(std::forward<decltype(cmd)>(cmd)); }};
 
-  std::for_each(cmdList.begin(), cmdList.end(),
-                [&](const Command* cmd) { visit(*cmd, visitor); });
-
-  // disable used lights
-  for (u8 i = 0; i < mMaxLightsUsed; i++) {
-    D3D9CHECK(mDevice->LightEnable(i, FALSE));
+  for (const auto* cmd : cmdList) {
+    visit(*cmd, visitor);
   }
-
-  // unbind resources
-  PIX_BEGIN_EVENT(D3DCOLOR_XRGB(128, 128, 128), L"unbind resources");
-  D3D9CHECK(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
-  D3D9CHECK(mDevice->SetIndices(nullptr));
-  D3D9CHECK(mDevice->SetTexture(0, nullptr));
-  PIX_END_EVENT();
-}
-
-auto D3D9Device::end_execution() const -> void {
-  D3D9CHECK(mDevice->EndScene());
 }
 
 auto D3D9Device::capabilities() const -> const DeviceCaps& {
@@ -615,6 +596,29 @@ auto D3D9Device::destroy(const Sampler handle) noexcept -> void {
   mSamplers.deallocate(handle);
 }
 
+auto D3D9Device::submit(const span<CommandList> commandLists) -> void {
+  // TODO: should we make all rendering code dependent
+  // on the success of BeginScene? -> Log error and/or throw exception
+  D3D9CHECK(mDevice->BeginScene());
+
+  for (const auto& commandList : commandLists) {
+    PIX_BEGIN_EVENT(0, L"command list");
+
+    execute(commandList);
+
+    PIX_END_EVENT();
+  }
+
+  // unbind resources
+  PIX_BEGIN_EVENT(D3DCOLOR_XRGB(128, 128, 128), L"unbind resources");
+  D3D9CHECK(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
+  D3D9CHECK(mDevice->SetIndices(nullptr));
+  D3D9CHECK(mDevice->SetTexture(0, nullptr));
+  PIX_END_EVENT();
+
+  D3D9CHECK(mDevice->EndScene());
+}
+
 auto D3D9Device::query_extension(const ext::ExtensionId id)
   -> optional<ext::ExtensionPtr> {
   if (const auto entry = mExtensions.find(id); entry != mExtensions.end()) {
@@ -797,7 +801,6 @@ auto D3D9Device::execute(const CommandSetAmbientLight& cmd) -> void {
 
 auto D3D9Device::execute(const CommandSetLights& cmd) -> void {
   const auto& lights {cmd.lights};
-  mMaxLightsUsed = std::max(mMaxLightsUsed, static_cast<u8>(lights.size()));
 
   DWORD lightIndex {0ul};
   for (const auto& l : lights) {
@@ -807,6 +810,13 @@ auto D3D9Device::execute(const CommandSetLights& cmd) -> void {
     D3D9CHECK(mDevice->LightEnable(lightIndex, TRUE));
     lightIndex++;
   }
+
+  // disable previously enabled lights
+  for (DWORD i {lightIndex}; i < mNumLightsUsed; i++) {
+    D3D9CHECK(mDevice->LightEnable(i, FALSE));
+  }
+
+  mNumLightsUsed = static_cast<u8>(lights.size());
 }
 
 auto D3D9Device::execute(const CommandSetMaterial& cmd) -> void {

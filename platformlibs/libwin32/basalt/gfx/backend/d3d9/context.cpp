@@ -86,22 +86,6 @@ auto D3D9Context::device() const noexcept -> DevicePtr {
   return mDevice;
 }
 
-void D3D9Context::submit(const Composite& composite) {
-  // TODO: should we make all rendering code dependent
-  // on the success of BeginScene? -> Log error and/or throw exception
-  mDevice->begin_execution();
-
-  for (const auto& commandList : composite) {
-    PIX_BEGIN_EVENT(0, L"command list");
-
-    mDevice->execute(commandList);
-
-    PIX_END_EVENT();
-  }
-
-  mDevice->end_execution();
-}
-
 auto D3D9Context::present() -> PresentResult {
   if (const HRESULT hr =
         mImplicitSwapChain->Present(nullptr, nullptr, nullptr, nullptr, 0ul);

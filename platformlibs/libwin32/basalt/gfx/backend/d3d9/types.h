@@ -4,6 +4,9 @@
 
 namespace basalt::gfx {
 
+class D3D9Context;
+using D3D9ContextPtr = std::shared_ptr<D3D9Context>;
+
 class D3D9Device;
 using D3D9DevicePtr = std::shared_ptr<D3D9Device>;
 

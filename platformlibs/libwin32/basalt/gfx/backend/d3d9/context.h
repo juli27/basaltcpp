@@ -11,7 +11,8 @@
 namespace basalt::gfx {
 
 // the implicit swap chain of the device
-struct D3D9Context final : Context {
+class D3D9Context final : public Context {
+public:
   explicit D3D9Context(D3D9DevicePtr);
 
   [[nodiscard]] auto surface_size() const noexcept -> Size2Du16 override;
@@ -23,7 +24,6 @@ struct D3D9Context final : Context {
 
   [[nodiscard]] auto device() const noexcept -> DevicePtr override;
 
-  void submit(const Composite&) override;
   auto present() -> PresentResult override;
 
 private:

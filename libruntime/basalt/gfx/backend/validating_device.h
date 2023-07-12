@@ -19,8 +19,6 @@ public:
   // don't use directly
   explicit ValidatingDevice(DevicePtr);
 
-  auto validate(const CommandList&) -> CommandList;
-
   [[nodiscard]] auto capabilities() const -> const DeviceCaps& override;
 
   [[nodiscard]] auto create_pipeline(const PipelineDescriptor&)
@@ -62,6 +60,8 @@ public:
 
   auto destroy(Sampler) noexcept -> void override;
 
+  auto submit(gsl::span<CommandList>) -> void override;
+
   auto query_extension(ext::ExtensionId)
     -> std::optional<ext::ExtensionPtr> override;
 
@@ -100,6 +100,7 @@ private:
 
   PrimitiveType mCurrentPrimitiveType {PrimitiveType::PointList};
 
+  auto validate(const CommandList&) -> CommandList;
   auto validate(const Command&) -> void;
   auto validate(const CommandClearAttachments&) -> void;
   auto validate(const CommandDraw&) -> void;

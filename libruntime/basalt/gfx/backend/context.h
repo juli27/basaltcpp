@@ -43,7 +43,6 @@ public:
 
   [[nodiscard]] virtual auto device() const noexcept -> DevicePtr = 0;
 
-  virtual auto submit(const Composite&) -> void = 0;
   [[nodiscard]] virtual auto present() -> PresentResult = 0;
 
 protected:

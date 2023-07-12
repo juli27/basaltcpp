@@ -23,8 +23,6 @@ public:
 
   [[nodiscard]] auto device() const noexcept -> DevicePtr override;
 
-  auto submit(const Composite&) -> void override;
-
   [[nodiscard]] auto present() -> PresentResult override;
 
 private:

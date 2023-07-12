@@ -113,20 +113,6 @@ ValidatingDevice::ValidatingDevice(DevicePtr device)
   : mDevice {std::move(device)} {
 }
 
-auto ValidatingDevice::validate(const CommandList& cmdList) -> CommandList {
-  CommandList patched;
-
-  auto visitor {[&](auto&& cmd) {
-    this->validate(std::forward<decltype(cmd)>(cmd));
-    this->patch(patched, std::forward<decltype(cmd)>(cmd));
-  }};
-
-  std::for_each(cmdList.begin(), cmdList.end(),
-                [&](const Command* cmd) { visit(*cmd, visitor); });
-
-  return patched;
-}
-
 auto ValidatingDevice::capabilities() const -> const DeviceCaps& {
   return mDevice->capabilities();
 }
@@ -328,9 +314,32 @@ auto ValidatingDevice::destroy(const Sampler id) noexcept -> void {
   mSamplers.deallocate(id);
 }
 
+auto ValidatingDevice::submit(const span<CommandList> commandLists) -> void {
+  Composite patchedComposite;
+  for (const CommandList& cmdList : commandLists) {
+    patchedComposite.emplace_back(validate(cmdList));
+  }
+
+  mDevice->submit(patchedComposite);
+}
+
 auto ValidatingDevice::query_extension(const ext::ExtensionId id)
   -> optional<ext::ExtensionPtr> {
   return mDevice->query_extension(id);
+}
+
+auto ValidatingDevice::validate(const CommandList& cmdList) -> CommandList {
+  CommandList patched;
+
+  auto visitor {[&](auto&& cmd) {
+    this->validate(std::forward<decltype(cmd)>(cmd));
+    this->patch(patched, std::forward<decltype(cmd)>(cmd));
+  }};
+
+  std::for_each(cmdList.begin(), cmdList.end(),
+                [&](const Command* cmd) { visit(*cmd, visitor); });
+
+  return patched;
 }
 
 auto ValidatingDevice::validate(const Command&) -> void {
@@ -517,8 +526,7 @@ auto ValidatingDevice::patch(CommandList& cmdList,
 
 auto ValidatingDevice::patch(CommandList& cmdList,
                              const CommandSetFogParameters& cmd) -> void {
-  cmdList.set_fog_parameters(cmd.color, cmd.start, cmd.end,
-                             cmd.density);
+  cmdList.set_fog_parameters(cmd.color, cmd.start, cmd.end, cmd.density);
 }
 
 } // namespace basalt::gfx

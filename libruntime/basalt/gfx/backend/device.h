@@ -89,6 +89,8 @@ public:
 
   virtual auto destroy(Sampler) noexcept -> void = 0;
 
+  virtual auto submit(gsl::span<CommandList>) -> void = 0;
+
   virtual auto query_extension(ext::ExtensionId)
     -> std::optional<ext::ExtensionPtr> = 0;
 

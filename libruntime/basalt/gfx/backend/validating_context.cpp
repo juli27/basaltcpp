@@ -2,8 +2,6 @@
 
 #include <basalt/gfx/backend/validating_device.h>
 
-#include <basalt/api/gfx/backend/command_list.h>
-
 #include <utility>
 
 namespace basalt::gfx {
@@ -35,15 +33,6 @@ auto ValidatingContext::reset(const ResetDesc& desc) -> void {
 
 auto ValidatingContext::device() const noexcept -> DevicePtr {
   return mDebugDevice;
-}
-
-auto ValidatingContext::submit(const Composite& composite) -> void {
-  Composite patchedComposite;
-  for (const CommandList& cmdList : composite) {
-    patchedComposite.emplace_back(mDebugDevice->validate(cmdList));
-  }
-
-  mContext->submit(patchedComposite);
 }
 
 auto ValidatingContext::present() -> PresentResult {

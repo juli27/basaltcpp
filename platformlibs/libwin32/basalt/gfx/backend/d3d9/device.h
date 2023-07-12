@@ -25,9 +25,7 @@ public:
 
   auto reset(D3DPRESENT_PARAMETERS&) const -> void;
 
-  auto begin_execution() const -> void;
   auto execute(const CommandList&) -> void;
-  auto end_execution() const -> void;
 
   [[nodiscard]] auto capabilities() const -> const DeviceCaps& override;
 
@@ -68,6 +66,8 @@ public:
     -> Sampler override;
 
   auto destroy(Sampler) noexcept -> void override;
+
+  auto submit(gsl::span<CommandList>) -> void override;
 
   auto query_extension(ext::ExtensionId)
     -> std::optional<ext::ExtensionPtr> override;
@@ -125,7 +125,7 @@ private:
 
   DeviceCaps mCaps {};
   D3DPRIMITIVETYPE mCurrentPrimitiveType {D3DPT_POINTLIST};
-  u8 mMaxLightsUsed {};
+  u8 mNumLightsUsed {};
 
   auto execute(const Command&) -> void;
   auto execute(const CommandClearAttachments&) -> void;

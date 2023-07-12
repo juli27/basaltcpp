@@ -5,6 +5,7 @@
 #include <basalt/gfx/debug.h>
 
 #include <basalt/gfx/backend/context.h>
+#include <basalt/gfx/backend/device.h>
 
 #include <basalt/api/client_app.h>
 #include <basalt/api/view.h>
@@ -45,7 +46,7 @@ auto Runtime::update(const UpdateContext& ctx) -> void {
     gfx::Debug::update(composite);
   }
 
-  mGfxContext->submit(composite);
+  mGfxContext->device()->submit(composite);
 }
 
 Runtime::Runtime(Config& config, gfx::Info gfxInfo, gfx::ContextPtr gfxContext,
