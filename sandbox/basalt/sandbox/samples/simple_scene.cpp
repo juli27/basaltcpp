@@ -70,10 +70,12 @@ public:
   }
 };
 
-auto create_camera() -> Camera {
-  return Camera {
-    Vector3f32 {}, Vector3f32::forward(), Vector3f32::up(), 90_deg, 0.1f,
-    100.0f};
+auto add_camera(Scene& scene) -> Entity {
+  const Entity camera {scene.create_entity()};
+  camera.emplace<Camera>(Vector3f32::forward(), Vector3f32::up(), 90_deg, 0.1f,
+                         100.0f);
+
+  return camera;
 }
 
 } // namespace
@@ -104,8 +106,10 @@ SimpleScene::SimpleScene(Engine& engine)
   triangle.emplace<RotationSpeed>(360_deg);
   triangle.emplace<RenderComponent>(mMesh, mMaterial);
 
+  const Entity camera {add_camera(*scene)};
+
   scene->create_system<RotationSpeedSystem>();
-  add_child_top(SceneView::create(scene, create_camera()));
+  add_child_top(SceneView::create(scene, camera.entity()));
 }
 
 SimpleScene::~SimpleScene() noexcept {

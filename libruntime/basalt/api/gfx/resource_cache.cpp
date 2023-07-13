@@ -113,13 +113,15 @@ auto ResourceCache::destroy(const ext::XModel handle) noexcept -> void {
 
 auto ResourceCache::create_mesh(const MeshDescriptor& desc) -> Mesh {
   const VertexBuffer vb {create_vertex_buffer(
-    VertexBufferDescriptor {
-      desc.vertexData.size_bytes(),
-      desc.layout,
-    },
-    desc.vertexData)};
+    {desc.vertexData.size_bytes(), desc.layout}, desc.vertexData)};
+  const IndexBuffer ib {
+    !desc.indexData.empty()
+      ? create_index_buffer({desc.indexData.size_bytes(), desc.indexType},
+                            desc.indexData)
+      : IndexBuffer::null()};
 
-  return mMeshes.allocate(vb, 0u, desc.vertexCount);
+  return mMeshes.allocate(
+    MeshData {vb, 0u, desc.vertexCount, ib, desc.indexCount});
 }
 
 auto ResourceCache::get(const Mesh handle) const -> const MeshData& {
@@ -134,6 +136,7 @@ auto ResourceCache::destroy(const Mesh handle) noexcept -> void {
   {
     auto& data {get(handle)};
     destroy(data.vertexBuffer);
+    destroy(data.indexBuffer);
   }
 
   mMeshes.deallocate(handle);

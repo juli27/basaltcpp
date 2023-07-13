@@ -1,32 +1,47 @@
 #include <basalt/api/gfx/camera.h>
 
-#include <basalt/api/math/matrix4x4.h>
+#include <basalt/api/scene/transform.h>
 
-#include <basalt/api/shared/size2d.h>
+#include <basalt/api/math/matrix4x4.h>
 
 namespace basalt::gfx {
 
-Camera::Camera(const Vector3f32& position, const Vector3f32& lookAt,
-               const Vector3f32& up, const Angle fov, const f32 nearPlane,
-               const f32 farPlane) noexcept
-  : mPosition {position}
-  , mLookAt {lookAt}
-  , mUp {up}
-  , mFov {fov}
-  , mNearPlane {nearPlane}
-  , mFarPlane {farPlane} {
+Camera::Camera(const Vector3f32& lookAt, const Vector3f32& up, const Angle fov,
+               const f32 nearPlane, const f32 farPlane) noexcept
+  : lookAt {lookAt}
+  , up {up}
+  , fov {fov}
+  , nearPlane {nearPlane}
+  , farPlane {farPlane} {
 }
 
-auto Camera::world_to_view() const noexcept -> Matrix4x4f32 {
-  return Matrix4x4f32::look_at_lh(mPosition, mLookAt, mUp);
+CameraEntity::CameraEntity(const Entity entity) : mEntity {entity} {
 }
 
-auto Camera::view_to_clip(const Size2Du16 viewport) const noexcept
-  -> Matrix4x4f32 {
-  const f32 aspectRatio {viewport.aspect_ratio()};
+auto CameraEntity::entity() const noexcept -> Entity {
+  return mEntity;
+}
 
-  return Matrix4x4f32::perspective_projection(mFov, aspectRatio, mNearPlane,
-                                              mFarPlane);
+auto CameraEntity::get_transform() const noexcept -> Transform& {
+  return mEntity.get<Transform>();
+}
+
+auto CameraEntity::get_camera() const noexcept -> Camera& {
+  return mEntity.get<Camera>();
+}
+
+auto CameraEntity::world_to_view() const noexcept -> Matrix4x4f32 {
+  const Transform& transform {get_transform()};
+  const Camera& camera {get_camera()};
+
+  return Matrix4x4f32::look_at_lh(transform.position, camera.lookAt, camera.up);
+}
+
+auto CameraEntity::view_to_clip() const noexcept -> Matrix4x4f32 {
+  const Camera& camera {get_camera()};
+
+  return Matrix4x4f32::perspective_projection(
+    camera.fov, camera.aspectRatio, camera.nearPlane, camera.farPlane);
 }
 
 } // namespace basalt::gfx

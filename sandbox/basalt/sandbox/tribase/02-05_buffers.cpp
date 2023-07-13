@@ -37,8 +37,6 @@ using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
-using basalt::gfx::TextureOp;
-using basalt::gfx::TextureStageArgument;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexElement;
 
@@ -133,11 +131,6 @@ Buffers::Buffers(Engine& engine)
   , mTexture {mGfxCache.load_texture("data/tribase/Texture2.bmp")}
   , mFov {90_deg} {
   TextureBlendingStage textureStage;
-  textureStage.arg1 = TextureStageArgument::SampledTexture;
-  textureStage.arg2 = TextureStageArgument::Diffuse;
-  textureStage.colorOp = TextureOp::Modulate;
-  textureStage.alphaOp = TextureOp::SelectArg1;
-
   PipelineDescriptor pipelineDesc;
   pipelineDesc.vertexInputState = Vertex::sLayout;
   pipelineDesc.textureStages = span {&textureStage, 1};

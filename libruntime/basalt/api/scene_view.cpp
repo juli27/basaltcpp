@@ -2,6 +2,7 @@
 
 #include <basalt/api/debug_ui.h>
 #include <basalt/api/engine.h>
+#include <basalt/api/input.h>
 
 #include <basalt/api/gfx/gfx_system.h>
 
@@ -10,6 +11,8 @@
 
 #include <basalt/api/shared/config.h>
 
+#include <entt/core/hashed_string.hpp>
+
 #include <memory>
 #include <utility>
 
@@ -17,33 +20,36 @@ namespace basalt {
 
 using namespace std::literals;
 
-using gfx::Camera;
+using namespace entt::literals;
 
-auto SceneView::create(ScenePtr scene, const Camera& camera) -> SceneViewPtr {
+auto SceneView::create(ScenePtr scene, const EntityId cameraEntity)
+  -> SceneViewPtr {
   scene->create_system<gfx::GfxSystem>();
 
-  return std::make_shared<SceneView>(std::move(scene), camera);
+  auto& ctx {scene->entity_registry().ctx()};
+  ctx.emplace_as<EntityId>(gfx::GfxSystem::sMainCamera, cameraEntity);
+
+  return std::make_shared<SceneView>(std::move(scene));
 }
 
-SceneView::SceneView(ScenePtr scene, const Camera& camera)
-  : mScene {std::move(scene)}, mCamera {camera} {
+SceneView::SceneView(ScenePtr scene) : mScene {std::move(scene)} {
+  auto& ctx {mScene->entity_registry().ctx()};
+  ctx.emplace<const InputState&>(input_state());
 }
 
-auto SceneView::camera() const noexcept -> const Camera& {
-  return mCamera;
+auto SceneView::on_input(const InputEvent&) -> InputEventHandled {
+  return InputEventHandled::Yes;
 }
 
 auto SceneView::on_update(UpdateContext& ctx) -> void {
   Engine& engine {ctx.engine};
 
-  auto& entityRegistry {mScene->entity_registry()};
-  entityRegistry.ctx().insert_or_assign(&ctx.drawCtx);
-  if (!entityRegistry.ctx().contains<gfx::ResourceCache*>()) {
-    entityRegistry.ctx().insert_or_assign(&engine.gfx_resource_cache());
-  }
-  if (!entityRegistry.ctx().contains<Camera*>()) {
-    entityRegistry.ctx().insert_or_assign(&mCamera);
-  }
+  auto& ecsCtx {mScene->entity_registry().ctx()};
+  // emplace does nothing if already exists
+  // TODO: move to SceneView creation
+  ecsCtx.emplace<gfx::ResourceCache&>(engine.gfx_resource_cache());
+
+  ecsCtx.insert_or_assign<const DrawContext&>(ctx.drawCtx);
 
   const Scene::UpdateContext sceneCtx {ctx.deltaTime};
   mScene->on_update(sceneCtx);

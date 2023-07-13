@@ -1,5 +1,6 @@
 #pragma once
 
+#include <basalt/api/input.h>
 #include <basalt/api/types.h>
 
 #include <basalt/api/gfx/types.h>
@@ -8,7 +9,6 @@
 #include <basalt/api/shared/size2d.h>
 #include <basalt/api/shared/types.h>
 
-#include <bitset>
 #include <vector>
 
 namespace basalt {
@@ -23,6 +23,7 @@ public:
   auto operator=(const View&) -> View& = delete;
   auto operator=(View&&) noexcept -> View& = default;
 
+  [[nodiscard]] auto input_state() const noexcept -> const InputState&;
   [[nodiscard]] auto pointer_position() const noexcept -> PointerPosition;
   [[nodiscard]] auto is_mouse_button_down(MouseButton) const -> bool;
   [[nodiscard]] auto is_key_down(Key) const -> bool;
@@ -59,12 +60,7 @@ protected:
 private:
   // top to bottom order
   std::vector<ViewPtr> mChildren;
-
-  PointerPosition mPointerPos;
-  std::bitset<MOUSE_BUTTON_COUNT> mMouseButtonsDown;
-  std::bitset<KEY_COUNT> mKeysDown;
-
-  auto update(const InputEvent&) -> void;
+  InputState mInputState;
 };
 
 } // namespace basalt

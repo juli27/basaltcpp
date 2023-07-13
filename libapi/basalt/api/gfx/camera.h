@@ -1,6 +1,7 @@
 #pragma once
 
-#include <basalt/api/shared/types.h>
+#include <basalt/api/scene/ecs.h>
+#include <basalt/api/scene/types.h>
 
 #include <basalt/api/math/angle.h>
 #include <basalt/api/math/types.h>
@@ -12,21 +13,30 @@ namespace basalt::gfx {
 
 // perspective camera
 struct Camera final {
-  Camera(const Vector3f32& position, const Vector3f32& lookAt,
-         const Vector3f32& up, Angle fov, f32 nearPlane, f32 farPlane) noexcept;
+  Camera(const Vector3f32& lookAt, const Vector3f32& up, Angle fov,
+         f32 nearPlane, f32 farPlane) noexcept;
+
+  Vector3f32 lookAt;
+  Vector3f32 up;
+  Angle fov;
+  f32 aspectRatio {};
+  f32 nearPlane {};
+  f32 farPlane {};
+};
+
+class CameraEntity final {
+public:
+  explicit CameraEntity(Entity entity);
+
+  [[nodiscard]] auto entity() const noexcept -> Entity;
+  [[nodiscard]] auto get_transform() const noexcept -> Transform&;
+  [[nodiscard]] auto get_camera() const noexcept -> Camera&;
 
   [[nodiscard]] auto world_to_view() const noexcept -> Matrix4x4f32;
-
-  [[nodiscard]] auto view_to_clip(Size2Du16 viewport) const noexcept
-    -> Matrix4x4f32;
+  [[nodiscard]] auto view_to_clip() const noexcept -> Matrix4x4f32;
 
 private:
-  Vector3f32 mPosition;
-  Vector3f32 mLookAt;
-  Vector3f32 mUp;
-  Angle mFov;
-  f32 mNearPlane {};
-  f32 mFarPlane {};
+  Entity mEntity;
 };
 
 } // namespace basalt::gfx

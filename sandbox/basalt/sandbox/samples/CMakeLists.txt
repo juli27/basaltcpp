@@ -1,4 +1,6 @@
 target_sources(${CURRENT_TARGET} PRIVATE
+  "cubes.cpp"
+  "cubes.h"
   "samples.cpp"
   "samples.h"
   "simple_scene.cpp"

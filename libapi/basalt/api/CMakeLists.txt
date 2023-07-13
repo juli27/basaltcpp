@@ -2,6 +2,7 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "client_app.h"
   "debug_ui.h"
   "engine.h"
+  "input.h"
   "input_events.h"
   "prelude.h"
   "scene_view.h"

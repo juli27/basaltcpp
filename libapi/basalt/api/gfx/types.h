@@ -127,6 +127,9 @@ struct MeshDescriptor final {
   gsl::span<const std::byte> vertexData;
   u32 vertexCount {};
   VertexLayout layout;
+  gsl::span<const std::byte> indexData;
+  u32 indexCount {};
+  IndexType indexType {IndexType::U16};
 };
 
 struct SampledTextureDescriptor final {
@@ -168,6 +171,8 @@ struct MeshData final {
   VertexBuffer vertexBuffer;
   u32 startVertex {};
   u32 vertexCount {};
+  IndexBuffer indexBuffer;
+  u32 indexCount {};
 };
 
 struct MaterialData final {

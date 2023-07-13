@@ -4,17 +4,13 @@
 
 #include <basalt/api/types.h>
 
-#include <basalt/api/gfx/camera.h>
-
 #include <basalt/api/scene/types.h>
 
 namespace basalt {
 
 class SceneView final : public View {
 public:
-  static auto create(ScenePtr, const gfx::Camera&) -> SceneViewPtr;
-
-  SceneView(ScenePtr, const gfx::Camera&);
+  static auto create(ScenePtr, EntityId cameraEntity) -> SceneViewPtr;
 
   SceneView(const SceneView&) = delete;
   SceneView(SceneView&&) noexcept = default;
@@ -24,12 +20,12 @@ public:
   auto operator=(const SceneView&) -> SceneView& = delete;
   auto operator=(SceneView&&) noexcept -> SceneView& = default;
 
-  [[nodiscard]] auto camera() const noexcept -> const gfx::Camera&;
+  explicit SceneView(ScenePtr);
 
 private:
   ScenePtr mScene;
-  gfx::Camera mCamera;
 
+  auto on_input(const InputEvent&) -> InputEventHandled override;
   auto on_update(UpdateContext&) -> void override;
 };
 

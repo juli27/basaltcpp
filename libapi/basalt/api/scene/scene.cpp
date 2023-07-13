@@ -18,6 +18,10 @@ auto Scene::create() -> ScenePtr {
   return scene;
 }
 
+auto Scene::entity_registry() const -> const EntityRegistry& {
+  return mEntityRegistry;
+}
+
 auto Scene::entity_registry() -> EntityRegistry& {
   return mEntityRegistry;
 }

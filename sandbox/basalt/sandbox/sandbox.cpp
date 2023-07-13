@@ -40,7 +40,7 @@ struct SandboxView::Example final {
 };
 
 SandboxView::SandboxView(Engine& engine) {
-  mExamples.reserve(14u);
+  mExamples.reserve(15u);
   mExamples.emplace_back(Example {
     "Tutorial 1: Creating a Device"s,
     &D3D9Tutorials::new_device_tutorial,
@@ -96,6 +96,10 @@ SandboxView::SandboxView(Engine& engine) {
   mExamples.emplace_back(Example {
     "Simple Scene"s,
     &Samples::new_simple_scene_sample,
+  });
+  mExamples.emplace_back(Example {
+    "Cubes"s,
+    &Samples::new_cubes_sample,
   });
 
   switch_scene(mCurrentExampleIndex, engine);

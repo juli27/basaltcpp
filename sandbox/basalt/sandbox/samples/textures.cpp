@@ -129,10 +129,12 @@ public:
   }
 };
 
-auto create_camera() -> Camera {
-  return Camera {
-    Vector3f32 {}, Vector3f32::forward(), Vector3f32::up(), 90_deg, 0.1f,
-    100.0f};
+auto add_camera(Scene& scene) -> Entity {
+  const Entity camera {scene.create_entity()};
+  camera.emplace<Camera>(Vector3f32::forward(), Vector3f32::up(), 90_deg, 0.1f,
+                         100.0f);
+
+  return camera;
 }
 
 } // namespace
@@ -179,8 +181,10 @@ Textures::Textures(Engine& engine)
   quad.emplace<RenderComponent>(mMesh, std::get<0>(mMaterials));
   quad.emplace<SamplerSettings>(mMaterials, 0u);
 
+  const Entity camera {add_camera(*scene)};
+
   scene->create_system<SamplerSettingsSystem>();
-  add_child_top(SceneView::create(scene, create_camera()));
+  add_child_top(SceneView::create(scene, camera.entity()));
 }
 Textures::~Textures() noexcept {
   for (const Material materialId : mMaterials) {

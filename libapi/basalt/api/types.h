@@ -14,6 +14,8 @@ struct Engine;
 struct InputEvent;
 using InputEventPtr = std::unique_ptr<InputEvent>;
 
+struct InputState;
+
 class SceneView;
 using SceneViewPtr = std::shared_ptr<SceneView>;
 

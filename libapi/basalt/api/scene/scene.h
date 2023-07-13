@@ -12,8 +12,6 @@
 
 #include <basalt/api/math/vector3.h>
 
-#include <basalt/api/base/types.h>
-
 #include <utility>
 #include <vector>
 
@@ -33,7 +31,8 @@ public:
   auto operator=(const Scene&) -> Scene& = delete;
   auto operator=(Scene&&) -> Scene& = delete;
 
-  auto entity_registry() -> EntityRegistry&;
+  [[nodiscard]] auto entity_registry() const -> const EntityRegistry&;
+  [[nodiscard]] auto entity_registry() -> EntityRegistry&;
 
   [[nodiscard]] auto
   create_entity(const Vector3f32& position = Vector3f32 {0.0f},

@@ -23,8 +23,24 @@ namespace basalt::gfx {
 
 namespace {
 
-auto record_material(FilteringCommandList& cmdList, const MaterialData& data)
-  -> void {
+auto record_camera(FilteringCommandList& cmdList, Scene& scene,
+                   const f32 aspectRatio) -> void {
+  EntityRegistry& entities {scene.entity_registry()};
+  const CameraEntity cameraEntity {
+    scene.get_handle(entities.ctx().get<EntityId>(GfxSystem::sMainCamera))};
+
+  cameraEntity.get_camera().aspectRatio = aspectRatio;
+
+  cmdList.set_transform(TransformState::ViewToClip,
+                        cameraEntity.view_to_clip());
+  cmdList.set_transform(TransformState::WorldToView,
+                        cameraEntity.world_to_view());
+}
+
+auto record_material(FilteringCommandList& cmdList, const ResourceCache& cache,
+                     const Material id) -> void {
+  const MaterialData& data {cache.get(id)};
+
   cmdList.bind_pipeline(data.pipeline);
   cmdList.bind_texture(data.texture);
   cmdList.bind_sampler(data.sampler);
@@ -32,24 +48,43 @@ auto record_material(FilteringCommandList& cmdList, const MaterialData& data)
   cmdList.set_material(data.diffuse, data.ambient);
 }
 
+auto record_render_component(FilteringCommandList& cmdList,
+                             const ResourceCache& cache,
+                             const LocalToWorld& localToWorld,
+                             const RenderComponent& renderComponent) {
+  record_material(cmdList, cache, renderComponent.material);
+
+  cmdList.set_transform(TransformState::Texture, renderComponent.texTransform);
+  cmdList.set_transform(TransformState::LocalToWorld, localToWorld.value);
+
+  const auto& meshData = cache.get(renderComponent.mesh);
+  cmdList.bind_vertex_buffer(meshData.vertexBuffer);
+
+  if (meshData.indexBuffer) {
+    cmdList.bind_index_buffer(meshData.indexBuffer);
+    cmdList.draw_indexed(0, 0, meshData.vertexCount, 0, meshData.indexCount);
+  } else {
+    cmdList.draw(meshData.startVertex, meshData.vertexCount);
+  }
+}
+
 } // namespace
 
 auto GfxSystem::on_update(const UpdateContext& ctx) -> void {
   Scene& scene {ctx.scene};
   EntityRegistry& entities {scene.entity_registry()};
+  const auto& ecsCtx {entities.ctx()};
 
-  const View::DrawContext& drawCtx {
-    *entities.ctx().get<const View::DrawContext*>()};
+  const auto& drawCtx {ecsCtx.get<const View::DrawContext>()};
+  const auto& cache {ecsCtx.get<const ResourceCache>()};
 
-  FilteringCommandList cmdList {};
+  FilteringCommandList cmdList;
   cmdList.clear_attachments(
     Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
     scene.background(), 1.0f);
 
-  const Camera& camera {*entities.ctx().get<Camera*>()};
-  cmdList.set_transform(TransformState::ViewToClip,
-                        camera.view_to_clip(drawCtx.viewport));
-  cmdList.set_transform(TransformState::WorldToView, camera.world_to_view());
+  const f32 aspectRatio {drawCtx.viewport.aspect_ratio()};
+  record_camera(cmdList, scene, aspectRatio);
 
   cmdList.set_ambient_light(scene.ambient_light());
 
@@ -60,8 +95,6 @@ auto GfxSystem::on_update(const UpdateContext& ctx) -> void {
     cmdList.set_lights(lights);
   }
 
-  const auto& cache {drawCtx.cache};
-
   entities.view<const LocalToWorld, const ext::XModel>().each(
     [&](const LocalToWorld& localToWorld, const ext::XModel& model) {
       cmdList.set_transform(TransformState::LocalToWorld, localToWorld.value);
@@ -71,8 +104,7 @@ auto GfxSystem::on_update(const UpdateContext& ctx) -> void {
       const auto numMaterials {static_cast<u32>(modelData.materials.size())};
 
       for (u32 i {0}; i < numMaterials; ++i) {
-        const auto& materialData {cache.get(modelData.materials[i])};
-        record_material(cmdList, materialData);
+        record_material(cmdList, cache, modelData.materials[i]);
 
         ext::XMeshCommandEncoder::draw_x_mesh(cmdList.cmd_list(),
                                               modelData.mesh, i);
@@ -82,16 +114,7 @@ auto GfxSystem::on_update(const UpdateContext& ctx) -> void {
   entities.view<const LocalToWorld, const RenderComponent>().each(
     [&](const LocalToWorld& localToWorld,
         const RenderComponent& renderComponent) {
-      const MaterialData& materialData {cache.get(renderComponent.material)};
-      record_material(cmdList, materialData);
-
-      cmdList.set_transform(TransformState::Texture,
-                            renderComponent.texTransform);
-      cmdList.set_transform(TransformState::LocalToWorld, localToWorld.value);
-
-      const auto& meshData = cache.get(renderComponent.mesh);
-      cmdList.bind_vertex_buffer(meshData.vertexBuffer);
-      cmdList.draw(meshData.startVertex, meshData.vertexCount);
+      record_render_component(cmdList, cache, localToWorld, renderComponent);
     });
 
   drawCtx.commandLists.push_back(cmdList.take_cmd_list());
