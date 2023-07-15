@@ -1,12 +1,14 @@
 #pragma once
 
 #include <basalt/api/shared/asserts.h>
+#include <basalt/api/shared/handle.h>
 
 #include <basalt/api/base/types.h>
 
 #include <algorithm>
 #include <limits>
 #include <memory>
+#include <memory_resource>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -14,19 +16,21 @@
 namespace basalt {
 
 template <typename T, typename Handle>
-struct HandlePool final {
-private:
+class HandlePool final {
+  static_assert(std::is_base_of_v<detail::HandleBase, Handle>);
+
   using ActiveSlotsList = std::vector<Handle>;
+  using IndexType = typename Handle::ValueType;
+  static constexpr IndexType sInvalidIndex =
+    std::numeric_limits<IndexType>::max();
+
+  using Allocator = std::pmr::polymorphic_allocator<T>;
+  using AllocatorTraits = std::allocator_traits<Allocator>;
+  using Pointer = typename AllocatorTraits::pointer;
 
 public:
   using iterator = typename ActiveSlotsList::iterator;
 
-  static_assert(std::is_base_of_v<detail::HandleBase, Handle>);
-
-private:
-  using IndexType = typename Handle::ValueType;
-
-public:
   HandlePool() noexcept = default;
 
   HandlePool(const HandlePool&) = delete;
@@ -37,15 +41,9 @@ public:
   auto operator=(const HandlePool&) -> HandlePool& = delete;
   auto operator=(HandlePool&&) noexcept -> HandlePool& = default;
 
-private:
-  // handle must be < size
-  [[nodiscard]] auto is_allocated(const Handle handle) const noexcept -> bool {
-    return mStorage[handle.value()].handle == handle;
-  }
-
-public:
   [[nodiscard]] auto is_valid(const Handle handle) const noexcept -> bool {
-    return handle.value() < mStorage.size() && is_allocated(handle);
+    return is_allocated(handle) &&
+           mBookkeeping[handle.value()].handle == handle;
   }
 
   // handle must be valid
@@ -53,28 +51,41 @@ public:
     -> const T& {
     BASALT_ASSERT(is_valid(handle));
 
-    return mStorage[handle.value()].data;
+    return *mBookkeeping[handle.value()].data;
+  }
+
+  template <typename... Args>
+  [[nodiscard]] auto emplace(Args&&... args) -> Handle {
+    return allocate(std::forward<Args>(args)...);
   }
 
   template <typename... Args>
   [[nodiscard]] auto allocate(Args&&... args) -> Handle {
-    if (mFreeSlot) {
-      SlotData& slot {mStorage[mFreeSlot.value()]};
-      new (std::addressof(slot.data)) T {std::forward<Args>(args)...};
-      slot.handle = mFreeSlot;
-      mFreeSlot = slot.nextFreeSlot;
+    if (mFreeSlotIndex != sInvalidIndex) {
+      SlotData& slot {mBookkeeping[mFreeSlotIndex]};
+
+      AllocatorTraits::construct(mAllocator, slot.data,
+                                 std::forward<Args>(args)...);
+
+      slot.handle = Handle {mFreeSlotIndex};
+      mFreeSlotIndex = std::exchange(slot.nextFreeSlot, sInvalidIndex);
 
       return slot.handle;
     }
 
-    const uSize nextIndex {mStorage.size()};
+    const uSize nextIndex {mBookkeeping.size()};
     BASALT_ASSERT(nextIndex < std::numeric_limits<IndexType>::max());
 
     const auto index {static_cast<IndexType>(nextIndex)};
-    SlotData& slot {mStorage.emplace_back(SlotData {
-      T {std::forward<Args>(args)...},
+
+    T* element {AllocatorTraits::allocate(mAllocator, 1)};
+    AllocatorTraits::construct(mAllocator, element,
+                               std::forward<Args>(args)...);
+
+    SlotData& slot {mBookkeeping.emplace_back(SlotData {
+      element,
       Handle {index},
-      Handle {},
+      sInvalidIndex,
     })};
 
     mActiveSlots.emplace_back(slot.handle);
@@ -95,18 +106,19 @@ public:
 
     const auto index {handle.value()};
 
-    // don't add to freelist if last element is de-allocated
-    if (index == mStorage.size() - 1) {
-      mStorage.pop_back();
-
-      return;
-    }
-
-    SlotData& slot {mStorage[index]};
-    slot.data.~T();
+    SlotData& slot {mBookkeeping[index]};
     slot.handle = Handle {};
-    slot.nextFreeSlot = mFreeSlot;
-    mFreeSlot = handle;
+
+    AllocatorTraits::destroy(mAllocator, slot.data);
+
+    // don't add to freelist if last element is de-allocated
+    if (index == mBookkeeping.size() - 1) {
+      AllocatorTraits::deallocate(mAllocator, slot.data, 1);
+
+      mBookkeeping.pop_back();
+    } else {
+      slot.nextFreeSlot = std::exchange(mFreeSlotIndex, index);
+    }
   }
 
   auto begin() -> iterator {
@@ -119,14 +131,24 @@ public:
 
 private:
   struct SlotData final {
-    T data {};
+    T* data;
     Handle handle;
-    Handle nextFreeSlot;
+    IndexType nextFreeSlot;
   };
 
-  std::vector<SlotData> mStorage;
+  using MemoryResource = std::pmr::unsynchronized_pool_resource;
+
+  std::unique_ptr<MemoryResource> mMemory {
+    std::make_unique<MemoryResource>(std::pmr::pool_options {0, sizeof(T)})};
+  std::pmr::polymorphic_allocator<T> mAllocator {mMemory.get()};
+  std::vector<SlotData> mBookkeeping;
   ActiveSlotsList mActiveSlots;
-  Handle mFreeSlot;
+  IndexType mFreeSlotIndex {sInvalidIndex};
+
+  // handle must be < size
+  [[nodiscard]] auto is_allocated(const Handle handle) const noexcept -> bool {
+    return handle.value() < mBookkeeping.size();
+  }
 };
 
 } // namespace basalt

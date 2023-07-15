@@ -12,6 +12,9 @@ namespace basalt {
 struct Color;
 struct Config;
 
+template<typename T, typename Handle>
+class HandlePool;
+
 template <typename T>
 class Size2D;
 using Size2Du16 = Size2D<u16>;
