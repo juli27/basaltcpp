@@ -278,11 +278,12 @@ auto DebugUi::display_local_to_world(const LocalToWorld& localToWorld) -> void {
 }
 
 auto DebugUi::edit_directional_light(gfx::DirectionalLight& light) -> void {
-  edit_color4("Diffuse", light.diffuseColor);
-  edit_color4("Ambient", light.ambientColor);
+  edit_color4("Diffuse", light.diffuse);
+  edit_color4("Specular", light.specular);
+  edit_color4("Ambient", light.ambient);
 
-  ImGui::DragFloat3("Direction", light.direction.elements.data(), 0.1f);
-  light.direction = Vector3f32::normalize(light.direction);
+  ImGui::DragFloat3("Direction", light.directionInWorld.elements.data(), 0.1f);
+  light.directionInWorld = Vector3f32::normalize(light.directionInWorld);
 }
 
 auto DebugUi::edit_color3(const char* label, Color& color) -> void {

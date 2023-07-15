@@ -89,7 +89,7 @@ private:
     D3DTEXTUREOP stage1ColorOp {D3DTOP_DISABLE};
     D3DTEXTUREOP stage1AlphaOp {D3DTOP_DISABLE};
     D3DPRIMITIVETYPE primitiveType {D3DPT_POINTLIST};
-    BOOL lighting {FALSE};
+    bool lightingEnabled {false};
     D3DSHADEMODE shadeMode {D3DSHADE_GOURAUD};
     D3DCULL cullMode {D3DCULL_NONE};
     D3DFILLMODE fillMode {D3DFILL_SOLID};
@@ -101,6 +101,13 @@ private:
     D3DFOGMODE vertexFogMode {D3DFOG_NONE};
     BOOL vertexFogRanged {FALSE};
     D3DFOGMODE tableFogMode {D3DFOG_NONE};
+    bool vertexColorEnabled {true};
+    D3DMATERIALCOLORSOURCE diffuseSource {D3DMCS_COLOR1};
+    D3DMATERIALCOLORSOURCE specularSource {D3DMCS_COLOR2};
+    D3DMATERIALCOLORSOURCE ambientSource {D3DMCS_MATERIAL};
+    D3DMATERIALCOLORSOURCE emissiveSource {D3DMCS_MATERIAL};
+    bool specularEnabled {false};
+    bool normalizeViewSpaceNormals {false};
   };
 
   struct SamplerData final {
@@ -126,7 +133,7 @@ private:
 
   DeviceCaps mCaps {};
   D3DPRIMITIVETYPE mCurrentPrimitiveType {D3DPT_POINTLIST};
-  u8 mNumLightsUsed {};
+  u32 mNumLightsUsed {};
 
   auto execute(const Command&) -> void;
   auto execute(const CommandClearAttachments&) -> void;

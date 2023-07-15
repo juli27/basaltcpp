@@ -221,11 +221,24 @@ struct TextureBlendingStage final {
   TextureOp alphaOp {TextureOp::SelectArg1};
 };
 
+enum class MaterialColorSource : u8 {
+  DiffuseVertexColor,
+  SpecularVertexColor,
+  Material,
+};
+constexpr u8 MATERIAL_COLOR_SOURCE_COUNT {3};
+
 struct PipelineDescriptor final {
   VertexLayout vertexInputState;
   gsl::span<const TextureBlendingStage> textureStages {};
   PrimitiveType primitiveType {PrimitiveType::PointList};
-  bool lighting {false};
+  bool lightingEnabled {false};
+  bool specularEnabled {false};
+  bool vertexColorEnabled {true};
+  MaterialColorSource diffuseSource {MaterialColorSource::DiffuseVertexColor};
+  MaterialColorSource specularSource {MaterialColorSource::SpecularVertexColor};
+  MaterialColorSource ambientSource {MaterialColorSource::Material};
+  MaterialColorSource emissiveSource {MaterialColorSource::Material};
   ShadeMode shadeMode {ShadeMode::Gouraud};
   CullMode cullMode {CullMode::None};
   FillMode fillMode {FillMode::Solid};
@@ -263,15 +276,17 @@ struct IndexBufferDescriptor final {
 };
 
 struct DirectionalLight final {
-  Vector3f32 direction;
-  Color diffuseColor;
-  Color ambientColor;
+  Color diffuse;
+  Color specular;
+  Color ambient;
+  Vector3f32 directionInWorld;
 };
 
 struct PointLight final {
-  Color diffuseColor {};
-  Color ambientColor {};
-  Vector3f32 positionInWorld {0.0f};
+  Color diffuse;
+  Color specular;
+  Color ambient;
+  Vector3f32 positionInWorld;
   f32 rangeInWorld {};
   f32 attenuation0 {};
   f32 attenuation1 {};
@@ -279,10 +294,11 @@ struct PointLight final {
 };
 
 struct SpotLight final {
-  Color diffuseColor {};
-  Color ambientColor {};
-  Vector3f32 positionInWorld {0.0f};
-  Vector3f32 directionInWorld {0.0f};
+  Color diffuse;
+  Color specular;
+  Color ambient;
+  Vector3f32 positionInWorld;
+  Vector3f32 directionInWorld;
   f32 rangeInWorld {};
   f32 attenuation0 {};
   f32 attenuation1 {};

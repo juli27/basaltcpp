@@ -77,7 +77,10 @@ auto ResourceCache::load_x_model(const path& path) -> ext::XModel {
     MaterialDescriptor desc;
     desc.diffuse = material.diffuse;
     desc.ambient = material.ambient;
-    desc.sampledTexture.texture = load_texture(material.textureFile);
+    
+    if (!material.textureFile.empty()) {
+      desc.sampledTexture.texture = load_texture(material.textureFile);
+    }
 
     materials.push_back(create_material(desc));
   }
@@ -149,20 +152,17 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
   textureStage.texCoordinateTransformMode = desc.textureTransformMode;
   textureStage.texCoordinateProjected = desc.textureTransformProjected;
 
-  const Pipeline pipeline {create_pipeline(PipelineDescriptor {
-    desc.vertexInputState,
-    span<TextureBlendingStage> {&textureStage, 1},
-    desc.primitiveType,
-    desc.lit,
-    ShadeMode::Gouraud,
-    desc.cullBackFace ? CullMode::CounterClockwise : CullMode::None,
-    desc.solid ? FillMode::Solid : FillMode::Wireframe,
-    TestPassCond::IfLessEqual,
-    true,
-    false,
-    FogType::None,
-    FogMode::Linear,
-  })};
+  PipelineDescriptor pipelineDesc;
+  pipelineDesc.vertexInputState = desc.vertexInputState;
+  pipelineDesc.textureStages = span<TextureBlendingStage> {&textureStage, 1};
+  pipelineDesc.primitiveType = desc.primitiveType;
+  pipelineDesc.lightingEnabled = desc.lit;
+  pipelineDesc.cullMode =
+    desc.cullBackFace ? CullMode::CounterClockwise : CullMode::None;
+  pipelineDesc.fillMode = desc.solid ? FillMode::Solid : FillMode::Wireframe;
+  pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+  pipelineDesc.depthWriteEnable = true;
+  const Pipeline pipeline {create_pipeline(pipelineDesc)};
 
   const u8 maxAnisotropy {
     desc.sampledTexture.filter == TextureFilter::Anisotropic

@@ -155,10 +155,10 @@ struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
 };
 
 struct CommandSetAmbientLight final : CommandT<CommandType::SetAmbientLight> {
-  Color ambientColor;
+  Color ambient;
 
-  constexpr explicit CommandSetAmbientLight(const Color& aAmbientColor) noexcept
-    : ambientColor {aAmbientColor} {
+  constexpr explicit CommandSetAmbientLight(const Color& aAmbient) noexcept
+    : ambient {aAmbient} {
   }
 };
 
@@ -175,10 +175,17 @@ struct CommandSetMaterial final : CommandT<CommandType::SetMaterial> {
   Color diffuse;
   Color ambient;
   Color emissive;
+  Color specular;
+  f32 specularPower;
 
   constexpr CommandSetMaterial(const Color& aDiffuse, const Color& aAmbient,
-                               const Color& aEmissive) noexcept
-    : diffuse {aDiffuse}, ambient {aAmbient}, emissive {aEmissive} {
+                               const Color& aEmissive, const Color& aSpecular,
+                               const f32 aSpecularPower) noexcept
+    : diffuse {aDiffuse}
+    , ambient {aAmbient}
+    , emissive {aEmissive}
+    , specular {aSpecular}
+    , specularPower {aSpecularPower} {
   }
 };
 

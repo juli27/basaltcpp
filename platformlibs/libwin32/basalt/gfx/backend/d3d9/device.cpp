@@ -232,14 +232,6 @@ auto D3D9Device::reset(D3DPRESENT_PARAMETERS& pp) const -> void {
 
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
 auto D3D9Device::execute(const CommandList& cmdList) -> void {
-  // set device state to what the command list expects as default
-  // TODO: remove
-  PIX_BEGIN_EVENT(D3DCOLOR_XRGB(128, 128, 128), L"set default state");
-
-  D3D9CHECK(mDevice->SetRenderState(D3DRS_AMBIENT, 0u));
-
-  PIX_END_EVENT();
-
   // overload resolution fails if one of the execute overloads is const
   // TODO: MSVC compiler bug?
 
@@ -311,18 +303,24 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
     stage1ColorOp,
     stage1AlphaOp,
     to_d3d(desc.primitiveType),
-    to_d3d(desc.lighting),
+    desc.lightingEnabled,
     to_d3d(desc.shadeMode),
     to_d3d(desc.cullMode),
     to_d3d(desc.fillMode),
     zEnabled,
     to_d3d(desc.depthTest),
-    to_d3d(desc.depthWriteEnable),
-    to_d3d(desc.dithering),
+    desc.depthWriteEnable,
+    desc.dithering,
     desc.fogType != FogType::None,
     toVertexFogMode(desc.fogMode, desc.fogType),
     desc.fogType == FogType::VertexRangeBased,
     toTableFogMode(desc.fogMode, desc.fogType),
+    desc.vertexColorEnabled,
+    to_d3d(desc.diffuseSource),
+    to_d3d(desc.specularSource),
+    to_d3d(desc.ambientSource),
+    to_d3d(desc.emissiveSource),
+    desc.specularEnabled,
   });
 }
 
@@ -549,8 +547,8 @@ auto D3D9Device::execute(const CommandClearAttachments& cmd) -> void {
     return f;
   }()};
 
-  D3D9CHECK(mDevice->Clear(0u, nullptr, flags, to_d3d(cmd.color), cmd.depth,
-                           cmd.stencil));
+  D3D9CHECK(mDevice->Clear(0u, nullptr, flags, to_d3d_color(cmd.color),
+                           cmd.depth, cmd.stencil));
 }
 
 auto D3D9Device::execute(const CommandDraw& cmd) -> void {
@@ -581,7 +579,21 @@ auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
 
   D3D9CHECK(mDevice->SetFVF(data.fvf));
 
-  D3D9CHECK(mDevice->SetRenderState(D3DRS_LIGHTING, data.lighting));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_LIGHTING, data.lightingEnabled));
+  D3D9CHECK(
+    mDevice->SetRenderState(D3DRS_SPECULARENABLE, data.specularEnabled));
+  D3D9CHECK(
+    mDevice->SetRenderState(D3DRS_COLORVERTEX, data.vertexColorEnabled));
+  D3D9CHECK(
+    mDevice->SetRenderState(D3DRS_DIFFUSEMATERIALSOURCE, data.diffuseSource));
+  D3D9CHECK(
+    mDevice->SetRenderState(D3DRS_SPECULARMATERIALSOURCE, data.specularSource));
+  D3D9CHECK(
+    mDevice->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, data.ambientSource));
+  D3D9CHECK(
+    mDevice->SetRenderState(D3DRS_EMISSIVEMATERIALSOURCE, data.emissiveSource));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_NORMALIZENORMALS,
+                                    data.normalizeViewSpaceNormals));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_SHADEMODE, data.shadeMode));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_CULLMODE, data.cullMode));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_FILLMODE, data.fillMode));
@@ -679,36 +691,42 @@ auto D3D9Device::execute(const CommandSetTransform& cmd) -> void {
 }
 
 auto D3D9Device::execute(const CommandSetAmbientLight& cmd) -> void {
-  D3D9CHECK(mDevice->SetRenderState(D3DRS_AMBIENT, to_d3d(cmd.ambientColor)));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_AMBIENT, to_d3d_color(cmd.ambient)));
 }
 
 auto D3D9Device::execute(const CommandSetLights& cmd) -> void {
+  PIX_BEGIN_EVENT(0, L"CommandSetLights");
+
   const auto& lights {cmd.lights};
+  const DWORD numLights {
+    std::min(saturated_cast<u32>(lights.size()), mCaps.maxLights)};
 
   DWORD lightIndex {0ul};
-  for (const auto& l : lights) {
-    D3DLIGHT9 d3dLight {visit([](auto&& light) { return to_d3d(light); }, l)};
+  for (; lightIndex < numLights; lightIndex++) {
+    D3DLIGHT9 d3dLight {
+      visit([](auto&& light) { return to_d3d(light); }, lights[lightIndex])};
 
     D3D9CHECK(mDevice->SetLight(lightIndex, &d3dLight));
     D3D9CHECK(mDevice->LightEnable(lightIndex, TRUE));
-    lightIndex++;
   }
 
   // disable previously enabled lights
-  for (DWORD i {lightIndex}; i < mNumLightsUsed; i++) {
-    D3D9CHECK(mDevice->LightEnable(i, FALSE));
+  for (; lightIndex < mNumLightsUsed; lightIndex++) {
+    D3D9CHECK(mDevice->LightEnable(lightIndex, FALSE));
   }
 
-  mNumLightsUsed = static_cast<u8>(lights.size());
+  mNumLightsUsed = numLights;
+
+  PIX_END_EVENT();
 }
 
 auto D3D9Device::execute(const CommandSetMaterial& cmd) -> void {
   const D3DMATERIAL9 material {
     to_d3d_color_value(cmd.diffuse),
     to_d3d_color_value(cmd.ambient),
-    D3DCOLORVALUE {},
+    to_d3d_color_value(cmd.specular),
     to_d3d_color_value(cmd.emissive),
-    0.0f,
+    cmd.specularPower,
   };
 
   D3D9CHECK(mDevice->SetMaterial(&material));
@@ -717,7 +735,7 @@ auto D3D9Device::execute(const CommandSetMaterial& cmd) -> void {
 auto D3D9Device::execute(const CommandSetFogParameters& cmd) -> void {
   PIX_BEGIN_EVENT(0, L"CommandSetFogParameters");
 
-  D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGCOLOR, to_d3d(cmd.color)));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGCOLOR, to_d3d_color(cmd.color)));
   D3D9CHECK(mDevice->SetRenderState(
     D3DRS_FOGSTART, *reinterpret_cast<const DWORD*>(&cmd.start)));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGEND,

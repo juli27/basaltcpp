@@ -511,7 +511,7 @@ auto ValidatingDevice::patch(CommandList& cmdList,
 
 auto ValidatingDevice::patch(CommandList& cmdList,
                              const CommandSetAmbientLight& cmd) -> void {
-  cmdList.set_ambient_light(cmd.ambientColor);
+  cmdList.set_ambient_light(cmd.ambient);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList, const CommandSetLights& cmd)
@@ -521,7 +521,8 @@ auto ValidatingDevice::patch(CommandList& cmdList, const CommandSetLights& cmd)
 
 auto ValidatingDevice::patch(CommandList& cmdList,
                              const CommandSetMaterial& cmd) -> void {
-  cmdList.set_material(cmd.diffuse, cmd.ambient, cmd.emissive);
+  cmdList.set_material(cmd.diffuse, cmd.ambient, cmd.emissive, cmd.specular,
+                       cmd.specularPower);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,

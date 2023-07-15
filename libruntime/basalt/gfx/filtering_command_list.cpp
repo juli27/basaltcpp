@@ -77,9 +77,13 @@ auto FilteringCommandList::set_lights(const span<const Light> lights) -> void {
 
 auto FilteringCommandList::set_material(const Color& diffuse,
                                         const Color& ambient,
-                                        const Color& emissive) -> void {
-  if (mDeviceState.update(diffuse, ambient, emissive)) {
-    mCommandList.set_material(diffuse, ambient, emissive);
+                                        const Color& emissive,
+                                        const Color& specular,
+                                        const f32 specularPower) -> void {
+  if (mDeviceState.update(diffuse, ambient, emissive, specular,
+                          specularPower)) {
+    mCommandList.set_material(diffuse, ambient, emissive, specular,
+                              specularPower);
   }
 }
 

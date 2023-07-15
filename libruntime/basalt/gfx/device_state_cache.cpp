@@ -72,12 +72,16 @@ auto DeviceStateCache::update_ambient_light(const Color& c) noexcept -> bool {
 }
 
 auto DeviceStateCache::update(const Color& diffuse, const Color& ambient,
-                              const Color& emissive) noexcept -> bool {
+                              const Color& emissive, const Color& specular,
+                              const f32 specularPower) noexcept -> bool {
   if (diffuse != mMaterial.diffuse || ambient != mMaterial.ambient ||
-      emissive != mMaterial.emissive) {
+      emissive != mMaterial.emissive || specular != mMaterial.specular ||
+      specularPower != mMaterial.specularPower) {
     mMaterial.diffuse = diffuse;
     mMaterial.ambient = ambient;
     mMaterial.emissive = emissive;
+    mMaterial.specular = specular;
+    mMaterial.specularPower = specularPower;
 
     return true;
   }

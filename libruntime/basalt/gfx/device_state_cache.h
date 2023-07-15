@@ -23,14 +23,16 @@ struct DeviceStateCache final {
   auto update(Texture) noexcept -> bool;
   auto update(TransformState, const Matrix4x4f32&) noexcept -> bool;
   auto update_ambient_light(const Color&) noexcept -> bool;
-  auto update(const Color& diffuse, const Color& ambient,
-              const Color& emissive) noexcept -> bool;
+  auto update(const Color& diffuse, const Color& ambient, const Color& emissive,
+              const Color& specular, f32 specularPower) noexcept -> bool;
 
 private:
   struct Material final {
     Color diffuse;
     Color ambient;
     Color emissive;
+    Color specular;
+    f32 specularPower {};
   };
 
   using MaybeMatrix = std::optional<Matrix4x4f32>;

@@ -39,7 +39,7 @@ public:
   [[nodiscard]] auto begin() const -> const_iterator;
   [[nodiscard]] auto end() const -> const_iterator;
 
-  auto clear_attachments(Attachments, const Color& = {}, f32 depth = 0.0f,
+  auto clear_attachments(Attachments, const Color& = {}, f32 depth = 0,
                          u32 stencil = 0) -> void;
   auto draw(u32 firstVertex, u32 vertexCount) -> void;
   auto draw_indexed(i32 vertexOffset, u32 minIndex, u32 numVertices,
@@ -53,9 +53,10 @@ public:
   auto set_ambient_light(const Color&) -> void;
   auto set_lights(gsl::span<const Light>) -> void;
   auto set_material(const Color& diffuse, const Color& ambient = {},
-                    const Color& emissive = {}) -> void;
+                    const Color& emissive = {}, const Color& specular = {},
+                    f32 specularPower = 0) -> void;
   auto set_fog_parameters(const Color& color, f32 start, f32 end,
-                          f32 density = 0.0f) -> void;
+                          f32 density = 0) -> void;
 
   // the following function templates are engine private (implementation is in
   // libRuntime: basalt/gfx/backend/command_list.h)

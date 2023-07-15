@@ -213,10 +213,14 @@ void display(const CommandBindTexture& cmd) {
   ImGui::Text("textureId = %#x", cmd.textureId.value());
 }
 
-void display(const PointLight& light) {
+auto display(const PointLight& light) -> void {
+  ImGui::SeparatorText("PointLight");
+
+  display_color4("diffuse", light.diffuse);
+  display_color4("specular", light.specular);
+  display_color4("ambient", light.ambient);
+
   display_vec3("position", light.positionInWorld);
-  display_color4("diffuseColor", light.diffuseColor);
-  display_color4("ambientColor", light.ambientColor);
 
   float f {light.rangeInWorld};
   ImGui::InputFloat("range", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
@@ -231,11 +235,15 @@ void display(const PointLight& light) {
                     ImGuiInputTextFlags_ReadOnly);
 }
 
-void display(const SpotLight& light) {
+auto display(const SpotLight& light) -> void {
+  ImGui::SeparatorText("SpotLight");
+
+  display_color4("diffuse", light.diffuse);
+  display_color4("specular", light.specular);
+  display_color4("ambient", light.ambient);
+
   display_vec3("position", light.positionInWorld);
   display_vec3("direction", light.directionInWorld);
-  display_color4("diffuseColor", light.diffuseColor);
-  display_color4("ambientColor", light.ambientColor);
 
   float f {light.rangeInWorld};
   ImGui::InputFloat("range", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
@@ -256,23 +264,25 @@ void display(const SpotLight& light) {
   ImGui::InputFloat("theta", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
 }
 
-void display(const DirectionalLight& light) {
-  display_vec3("direction", light.direction);
-  display_color4("diffuseColor", light.diffuseColor);
-  display_color4("ambientColor", light.ambientColor);
+auto display(const DirectionalLight& light) -> void {
+  ImGui::SeparatorText("DirectionalLight");
+  display_color4("diffuse", light.diffuse);
+  display_color4("specular", light.specular);
+  display_color4("ambient", light.ambient);
+
+  display_vec3("direction", light.directionInWorld);
 }
 
-void display(const CommandSetLights& cmd) {
-  i32 i {0};
+auto display(const CommandSetLights& cmd) -> void {
   for (const Light& l : cmd.lights) {
-    ImGui::PushID(i++);
+    ImGui::PushID(&l);
     visit([](auto&& light) { display(light); }, l);
     ImGui::PopID();
   }
 }
 
 void display(const CommandSetAmbientLight& cmd) {
-  display_color4("color", cmd.ambientColor);
+  display_color4("color", cmd.ambient);
 }
 
 void display(const CommandSetTransform& cmd) {
@@ -281,9 +291,11 @@ void display(const CommandSetTransform& cmd) {
 }
 
 void display(const CommandSetMaterial& cmd) {
-  display_color4("diffuseColor", cmd.diffuse);
-  display_color4("ambientColor", cmd.ambient);
-  display_color4("emissiveColor", cmd.emissive);
+  display_color4("diffuse", cmd.diffuse);
+  display_color4("ambient", cmd.ambient);
+  display_color4("emissive", cmd.emissive);
+  display_color4("specular", cmd.emissive);
+  ImGui::Text("specularPower = %.3f", static_cast<f64>(cmd.specularPower));
 }
 
 auto display(const CommandSetFogParameters& cmd) -> void {

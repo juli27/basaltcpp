@@ -275,7 +275,7 @@ public:
     PipelineDescriptor pipelineDesc;
     pipelineDesc.vertexInputState = Vertex::sLayout;
     pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
-    pipelineDesc.lighting = true;
+    pipelineDesc.lightingEnabled = true;
     pipelineDesc.depthTest = TestPassCond::IfLessEqual;
     pipelineDesc.depthWriteEnable = true;
     mPipeline = mGfxCache.create_pipeline(pipelineDesc);
@@ -332,13 +332,13 @@ private:
     cmdList.set_transform(TransformState::LocalToWorld,
                           Matrix4x4f32::rotation_x(mRotationX));
 
-    const Light light {DirectionalLight {
-      Vector3f32::normalize(mLightRotation.cos(), 1.0f, mLightRotation.sin()),
-      Color::from_non_linear(1.0f, 1.0f, 1.0f, 0.0f),
-      {},
-    }};
+    DirectionalLight directionalLight;
+    directionalLight.diffuse = Color::from_non_linear(1.0f, 1.0f, 1.0f, 0.0f);
+    directionalLight.directionInWorld =
+      Vector3f32::normalize(mLightRotation.cos(), 1.0f, mLightRotation.sin());
+    const Light light {directionalLight};
 
-    cmdList.set_lights(span {&light, 1});
+    cmdList.set_lights(span<const Light> {&light, 1});
     cmdList.set_ambient_light(Color::from(0x00202020_a8r8g8b8));
     cmdList.set_material(Colors::YELLOW, Colors::YELLOW);
 

@@ -236,6 +236,16 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
     }
   }
 
+  static constexpr array<Cap, 4> MIN_VERTEX_PROCESSING_CAPS {
+    MAKE_CAP(D3DVTXPCAPS_DIRECTIONALLIGHTS),
+    MAKE_CAP(D3DVTXPCAPS_LOCALVIEWER),
+    MAKE_CAP(D3DVTXPCAPS_MATERIALSOURCE7),
+    MAKE_CAP(D3DVTXPCAPS_POSITIONALLIGHTS),
+  };
+
+  allCapsPresent &=
+    verify_caps_present(caps.VertexProcessingCaps, MIN_VERTEX_PROCESSING_CAPS);
+
   static constexpr array<Cap, 1> MIN_DEV_CAPS2 {
     MAKE_CAP(D3DDEVCAPS2_STREAMOFFSET),
   };

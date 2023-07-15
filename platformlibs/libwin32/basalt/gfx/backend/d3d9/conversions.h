@@ -16,11 +16,7 @@
 
 namespace basalt::gfx {
 
-constexpr auto to_d3d(const bool b) noexcept -> BOOL {
-  return b;
-}
-
-constexpr auto to_d3d(const Color& color) noexcept -> D3DCOLOR {
+constexpr auto to_d3d_color(const Color& color) noexcept -> D3DCOLOR {
   return enum_cast(color.to_argb());
 }
 
@@ -101,6 +97,16 @@ inline auto to_d3d(const IndexType type) -> D3DFORMAT {
   static_assert(TO_D3D.size() == INDEX_TYPE_COUNT);
 
   return TO_D3D[type];
+}
+
+inline auto to_d3d(const MaterialColorSource mcs) -> D3DMATERIALCOLORSOURCE {
+  static constexpr EnumArray<MaterialColorSource, D3DMATERIALCOLORSOURCE, 3>
+    TO_D3D {{MaterialColorSource::DiffuseVertexColor, D3DMCS_COLOR1},
+            {MaterialColorSource::SpecularVertexColor, D3DMCS_COLOR2},
+            {MaterialColorSource::Material, D3DMCS_MATERIAL}};
+  static_assert(TO_D3D.size() == MATERIAL_COLOR_SOURCE_COUNT);
+
+  return TO_D3D[mcs];
 }
 
 inline auto to_d3d(const MultiSampleCount sampleCount) -> D3DMULTISAMPLE_TYPE {
@@ -249,7 +255,7 @@ inline auto to_d3d(const TransformState state) -> D3DTRANSFORMSTATETYPE {
 inline auto to_d3d(const BorderColor borderColor, const Color& custom)
   -> D3DCOLOR {
   if (borderColor == BorderColor::Custom) {
-    return to_d3d(custom);
+    return to_d3d_color(custom);
   }
 
   static constexpr EnumArray<BorderColor, D3DCOLOR, 3> TO_D3D {
@@ -266,9 +272,10 @@ inline auto to_d3d(const BorderColor borderColor, const Color& custom)
 inline auto to_d3d(const DirectionalLight& light) -> D3DLIGHT9 {
   D3DLIGHT9 d3dLight {};
   d3dLight.Type = D3DLIGHT_DIRECTIONAL;
-  d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
-  d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
-  d3dLight.Direction = to_d3d(light.direction);
+  d3dLight.Diffuse = to_d3d_color_value(light.diffuse);
+  d3dLight.Specular = to_d3d_color_value(light.specular);
+  d3dLight.Ambient = to_d3d_color_value(light.ambient);
+  d3dLight.Direction = to_d3d(light.directionInWorld);
 
   return d3dLight;
 }
@@ -276,8 +283,9 @@ inline auto to_d3d(const DirectionalLight& light) -> D3DLIGHT9 {
 inline auto to_d3d(const PointLight& light) -> D3DLIGHT9 {
   D3DLIGHT9 d3dLight {};
   d3dLight.Type = D3DLIGHT_POINT;
-  d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
-  d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
+  d3dLight.Diffuse = to_d3d_color_value(light.diffuse);
+  d3dLight.Specular = to_d3d_color_value(light.specular);
+  d3dLight.Ambient = to_d3d_color_value(light.ambient);
   d3dLight.Position = to_d3d(light.positionInWorld);
   d3dLight.Range = light.rangeInWorld;
   d3dLight.Attenuation0 = light.attenuation0;
@@ -290,10 +298,11 @@ inline auto to_d3d(const PointLight& light) -> D3DLIGHT9 {
 inline auto to_d3d(const SpotLight& light) -> D3DLIGHT9 {
   D3DLIGHT9 d3dLight {};
   d3dLight.Type = D3DLIGHT_SPOT;
-  d3dLight.Diffuse = to_d3d_color_value(light.diffuseColor);
-  d3dLight.Ambient = to_d3d_color_value(light.ambientColor);
-  d3dLight.Position = gfx::to_d3d(light.positionInWorld);
-  d3dLight.Direction = gfx::to_d3d(light.directionInWorld);
+  d3dLight.Diffuse = to_d3d_color_value(light.diffuse);
+  d3dLight.Specular = to_d3d_color_value(light.specular);
+  d3dLight.Ambient = to_d3d_color_value(light.ambient);
+  d3dLight.Position = to_d3d(light.positionInWorld);
+  d3dLight.Direction = to_d3d(light.directionInWorld);
   d3dLight.Range = light.rangeInWorld;
   d3dLight.Falloff = light.falloff;
   d3dLight.Attenuation0 = light.attenuation0;

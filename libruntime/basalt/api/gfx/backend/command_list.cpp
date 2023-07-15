@@ -84,12 +84,13 @@ auto CommandList::set_lights(const span<const Light> lights) -> void {
 }
 
 auto CommandList::set_material(const Color& diffuse, const Color& ambient,
-                               const Color& emissive) -> void {
-  add<CommandSetMaterial>(diffuse, ambient, emissive);
+                               const Color& emissive, const Color& specular,
+                               const f32 specularPower) -> void {
+  add<CommandSetMaterial>(diffuse, ambient, emissive, specular, specularPower);
 }
 
-auto CommandList::set_fog_parameters(const Color& color, f32 start,
-                                     f32 end, f32 density) -> void {
+auto CommandList::set_fog_parameters(const Color& color, f32 start, f32 end,
+                                     f32 density) -> void {
   add<CommandSetFogParameters>(color, start, end, density);
 }
 

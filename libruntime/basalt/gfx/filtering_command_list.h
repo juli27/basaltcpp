@@ -33,7 +33,8 @@ public:
   auto set_ambient_light(const Color&) -> void;
   auto set_lights(gsl::span<const Light>) -> void;
   auto set_material(const Color& diffuse, const Color& ambient = {},
-                    const Color& emissive = {}) -> void;
+                    const Color& emissive = {}, const Color& specular = {},
+                    f32 specularPower = 0) -> void;
 
   auto cmd_list() -> CommandList&;
 
