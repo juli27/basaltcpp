@@ -71,8 +71,7 @@ auto D3D9XModelSupport::load(const path& filepath) -> XModelData {
       continue;
     }
 
-    path texPath {"data"sv};
-    texPath /= texFileName;
+    path texPath {filepath.parent_path() / texFileName};
     material.textureFile = std::move(texPath);
   }
 

@@ -11,6 +11,8 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "02-05_buffers_exercises.h"
   "02-06_fog.cpp"
   "02-06_fog.h"
+  "02-07_lighting.cpp"
+  "02-07_lighting.h"
   "tribase_examples.cpp"
   "tribase_examples.h"
 )
