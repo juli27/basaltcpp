@@ -122,8 +122,8 @@ auto fill_buffers(const span<Vertex> vb, const span<u16> ib) {
 } // namespace
 
 BuffersExercises::BuffersExercises(Engine& engine)
-  : mGfxCache {engine.gfx_resource_cache()}
-  , mTexture {mGfxCache.load_texture("data/tribase/Texture2.bmp")}
+  : mGfxCache {engine.create_gfx_resource_cache()}
+  , mTexture {mGfxCache->load_texture("data/tribase/Texture2.bmp")}
   , mFov {90_deg} {
   {
     default_random_engine randomEngine {random_device {}()};
@@ -158,20 +158,20 @@ BuffersExercises::BuffersExercises(Engine& engine)
   pipelineDesc.depthTest = TestPassCond::IfLessEqual;
   pipelineDesc.depthWriteEnable = true;
   pipelineDesc.dithering = true;
-  mPipeline = mGfxCache.create_pipeline(pipelineDesc);
+  mPipeline = mGfxCache->create_pipeline(pipelineDesc);
 
-  mVertexBuffer = mGfxCache.create_vertex_buffer(
+  mVertexBuffer = mGfxCache->create_vertex_buffer(
     {NUM_VERTICES_PER_CUBE * sizeof(Vertex), Vertex::sLayout});
 
   IndexBufferDescriptor ibDesc;
   ibDesc.sizeInBytes = NUM_INDICES_PER_CUBE * sizeof(u16);
-  mIndexBuffer = mGfxCache.create_index_buffer(ibDesc);
+  mIndexBuffer = mGfxCache->create_index_buffer(ibDesc);
 
-  mGfxCache.with_mapping_of(mVertexBuffer, [this](const span<byte> vbData) {
+  mGfxCache->with_mapping_of(mVertexBuffer, [this](const span<byte> vbData) {
     span vb {reinterpret_cast<Vertex*>(vbData.data()),
              vbData.size() / sizeof(Vertex)};
 
-    mGfxCache.with_mapping_of(mIndexBuffer, [vb](const span<byte> ibData) {
+    mGfxCache->with_mapping_of(mIndexBuffer, [vb](const span<byte> ibData) {
       span ib {reinterpret_cast<u16*>(ibData.data()),
                ibData.size() / sizeof(u16)};
       fill_buffers(vb, ib);
@@ -182,15 +182,15 @@ BuffersExercises::BuffersExercises(Engine& engine)
   samplerDesc.magFilter = TextureFilter::Bilinear;
   samplerDesc.minFilter = TextureFilter::Bilinear;
   samplerDesc.mipFilter = TextureMipFilter::Linear;
-  mSampler = mGfxCache.create_sampler(samplerDesc);
+  mSampler = mGfxCache->create_sampler(samplerDesc);
 }
 
 BuffersExercises::~BuffersExercises() noexcept {
-  mGfxCache.destroy(mTexture);
-  mGfxCache.destroy(mSampler);
-  mGfxCache.destroy(mIndexBuffer);
-  mGfxCache.destroy(mVertexBuffer);
-  mGfxCache.destroy(mPipeline);
+  mGfxCache->destroy(mTexture);
+  mGfxCache->destroy(mSampler);
+  mGfxCache->destroy(mIndexBuffer);
+  mGfxCache->destroy(mVertexBuffer);
+  mGfxCache->destroy(mPipeline);
 }
 
 auto BuffersExercises::regenerate_velocities() -> void {

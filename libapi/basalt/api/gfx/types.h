@@ -14,12 +14,14 @@
 #include <gsl/span>
 
 #include <cstddef>
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace basalt::gfx {
 
-struct ResourceCache;
+class ResourceCache;
+using ResourceCachePtr = std::shared_ptr<ResourceCache>;
 
 namespace detail {
 

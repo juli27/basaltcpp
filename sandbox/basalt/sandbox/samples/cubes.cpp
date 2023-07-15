@@ -6,6 +6,7 @@
 #include <basalt/api/scene_view.h>
 
 #include <basalt/api/gfx/camera.h>
+#include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/api/scene/ecs.h>
 #include <basalt/api/scene/scene.h>
@@ -198,8 +199,8 @@ public:
 } // namespace
 
 Cubes::Cubes(basalt::Engine& engine)
-  : mGfxCache {engine.gfx_resource_cache()}
-  , mTexture {mGfxCache.load_texture("data/tribase/Texture2.bmp")} {
+  : mGfxCache {engine.create_gfx_resource_cache()}
+  , mTexture {mGfxCache->load_texture("data/tribase/Texture2.bmp")} {
   constexpr u32 vertexCount {NUM_VERTICES_PER_CUBE * NUM_CUBES};
   constexpr u32 indexCount {NUM_INDICES_PER_CUBE * NUM_CUBES};
   vector<Vertex> vertices {vertexCount};
@@ -208,7 +209,7 @@ Cubes::Cubes(basalt::Engine& engine)
 
   const auto vertexData {as_bytes(span {vertices})};
   const auto indexData {as_bytes(span {indices})};
-  mMesh = mGfxCache.create_mesh(
+  mMesh = mGfxCache->create_mesh(
     {vertexData, vertexCount, Vertex::sLayout, indexData, indexCount});
 
   MaterialDescriptor matDesc;
@@ -219,7 +220,7 @@ Cubes::Cubes(basalt::Engine& engine)
   matDesc.sampledTexture.filter = TextureFilter::Bilinear;
   matDesc.sampledTexture.mipFilter = TextureMipFilter::Linear;
   matDesc.lit = false;
-  mMaterial = mGfxCache.create_material(matDesc);
+  mMaterial = mGfxCache->create_material(matDesc);
 
   const auto scene {Scene::create()};
   auto& entities {scene->entity_registry()};
@@ -237,13 +238,13 @@ Cubes::Cubes(basalt::Engine& engine)
 
   entities.ctx().emplace_as<EntityId>(CONTROLLED_CAMERA, mCameraId);
 
-  add_child_bottom(SceneView::create(scene, mCameraId));
+  add_child_bottom(SceneView::create(scene, mGfxCache, mCameraId));
 }
 
 Cubes::~Cubes() noexcept {
-  mGfxCache.destroy(mMaterial);
-  mGfxCache.destroy(mTexture);
-  mGfxCache.destroy(mMesh);
+  mGfxCache->destroy(mMaterial);
+  mGfxCache->destroy(mTexture);
+  mGfxCache->destroy(mMesh);
 }
 
 } // namespace samples

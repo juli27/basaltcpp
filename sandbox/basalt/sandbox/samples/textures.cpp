@@ -140,8 +140,8 @@ auto add_camera(Scene& scene) -> Entity {
 } // namespace
 
 Textures::Textures(Engine& engine)
-  : mGfxCache {engine.gfx_resource_cache()}
-  , mTexture {mGfxCache.load_texture("data/Tiger.bmp")} {
+  : mGfxCache {engine.create_gfx_resource_cache()}
+  , mTexture {mGfxCache->load_texture("data/Tiger.bmp")} {
   MaterialDescriptor material;
   material.vertexInputState = Vertex::sLayout;
   material.primitiveType = PrimitiveType::TriangleStrip;
@@ -159,7 +159,7 @@ Textures::Textures(Engine& engine)
          {TextureMipFilter::None, TextureMipFilter::Point,
           TextureMipFilter::Linear}) {
       material.sampledTexture.mipFilter = mipFilter;
-      mMaterials[i] = mGfxCache.create_material(material);
+      mMaterials[i] = mGfxCache->create_material(material);
       ++i;
     }
   }
@@ -168,7 +168,7 @@ Textures::Textures(Engine& engine)
                   Vertex {{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
                   Vertex {{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},
                   Vertex {{1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}}};
-  mMesh = mGfxCache.create_mesh({
+  mMesh = mGfxCache->create_mesh({
     as_bytes(span {vertices}),
     static_cast<u32>(vertices.size()),
     Vertex::sLayout,
@@ -184,15 +184,15 @@ Textures::Textures(Engine& engine)
   const Entity camera {add_camera(*scene)};
 
   scene->create_system<SamplerSettingsSystem>();
-  add_child_top(SceneView::create(scene, camera.entity()));
+  add_child_top(SceneView::create(scene, mGfxCache, camera.entity()));
 }
 Textures::~Textures() noexcept {
   for (const Material materialId : mMaterials) {
-    mGfxCache.destroy(materialId);
+    mGfxCache->destroy(materialId);
   }
 
-  mGfxCache.destroy(mTexture);
-  mGfxCache.destroy(mMesh);
+  mGfxCache->destroy(mTexture);
+  mGfxCache->destroy(mMesh);
 }
 
 } // namespace samples

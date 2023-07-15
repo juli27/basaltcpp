@@ -2,7 +2,6 @@
 
 #include <basalt/api/types.h>
 
-#include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/types.h>
 
 #include <basalt/api/gfx/backend/types.h>
@@ -26,6 +25,7 @@ struct Engine {
   [[nodiscard]] auto config() noexcept -> Config&;
 
   [[nodiscard]] auto gfx_info() const noexcept -> const gfx::Info&;
+  [[nodiscard]] auto create_gfx_resource_cache() const -> gfx::ResourceCachePtr;
 
   [[nodiscard]] auto resource_registry() const noexcept -> ResourceRegistry&;
   [[nodiscard]] auto gfx_resource_cache() noexcept -> gfx::ResourceCache&;
@@ -40,13 +40,14 @@ struct Engine {
 
   template <typename T>
   auto get_or_load(Resource) -> T;
-  
+
 protected:
   gfx::Info mGfxInfo;
 
   ResourceRegistryPtr mResourceRegistry {};
 
-  gfx::ResourceCache mGfxResourceCache;
+  gfx::ResourceCachePtr mGfxResourceCache;
+  gfx::DevicePtr mGfxDevice;
 
   std::unordered_map<ResourceId, gfx::Texture> mTextures {};
   std::unordered_map<ResourceId, gfx::ext::XModel> mXModels {};

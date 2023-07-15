@@ -15,9 +15,10 @@
 
 namespace basalt::gfx {
 
-struct ResourceCache {
-  explicit ResourceCache(DevicePtr);
-
+class ResourceCache final {
+public:
+  static auto create(DevicePtr) -> ResourceCachePtr;
+  
   [[nodiscard]] auto create_pipeline(const PipelineDescriptor&) const
     -> Pipeline;
   auto destroy(Pipeline) const noexcept -> void;
@@ -97,6 +98,8 @@ struct ResourceCache {
   [[nodiscard]] auto create_material(const MaterialDescriptor&) -> Material;
   [[nodiscard]] auto get(Material) const -> const MaterialData&;
   auto destroy(Material) noexcept -> void;
+
+  explicit ResourceCache(DevicePtr); 
 
 private:
   DevicePtr mDevice;

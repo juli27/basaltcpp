@@ -5,6 +5,7 @@
 #include <basalt/api/input.h>
 
 #include <basalt/api/gfx/gfx_system.h>
+#include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/api/scene/ecs.h>
 #include <basalt/api/scene/scene.h>
@@ -22,19 +23,23 @@ using namespace std::literals;
 
 using namespace entt::literals;
 
-auto SceneView::create(ScenePtr scene, const EntityId cameraEntity)
-  -> SceneViewPtr {
+// TODO: make gfxCache somehow bound to the GfxSystem
+
+auto SceneView::create(ScenePtr scene, gfx::ResourceCachePtr gfxCache,
+                       const EntityId cameraEntity) -> SceneViewPtr {
   scene->create_system<gfx::GfxSystem>();
 
   auto& ctx {scene->entity_registry().ctx()};
   ctx.emplace_as<EntityId>(gfx::GfxSystem::sMainCamera, cameraEntity);
 
-  return std::make_shared<SceneView>(std::move(scene));
+  return std::make_shared<SceneView>(std::move(scene), std::move(gfxCache));
 }
 
-SceneView::SceneView(ScenePtr scene) : mScene {std::move(scene)} {
+SceneView::SceneView(ScenePtr scene, gfx::ResourceCachePtr gfxCache)
+  : mScene {std::move(scene)}, mGfxCache {std::move(gfxCache)} {
   auto& ctx {mScene->entity_registry().ctx()};
   ctx.emplace<const InputState&>(input_state());
+  ctx.emplace<gfx::ResourceCache&>(*mGfxCache);
 }
 
 auto SceneView::on_input(const InputEvent&) -> InputEventHandled {
@@ -45,10 +50,6 @@ auto SceneView::on_update(UpdateContext& ctx) -> void {
   Engine& engine {ctx.engine};
 
   auto& ecsCtx {mScene->entity_registry().ctx()};
-  // emplace does nothing if already exists
-  // TODO: move to SceneView creation
-  ecsCtx.emplace<gfx::ResourceCache&>(engine.gfx_resource_cache());
-
   ecsCtx.insert_or_assign<const DrawContext&>(ctx.drawCtx);
 
   const Scene::UpdateContext sceneCtx {ctx.deltaTime};

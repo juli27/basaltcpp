@@ -3,7 +3,6 @@
 #include <basalt/api/input.h>
 #include <basalt/api/types.h>
 
-#include <basalt/api/gfx/types.h>
 #include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/shared/size2d.h>
@@ -38,7 +37,6 @@ public:
 
   struct DrawContext final {
     std::vector<gfx::CommandList>& commandLists;
-    gfx::ResourceCache& cache;
     Size2Du16 viewport;
   };
 

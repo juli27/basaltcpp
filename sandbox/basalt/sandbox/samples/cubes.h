@@ -22,7 +22,7 @@ public:
   auto operator=(Cubes&&) -> Cubes& = delete;
 
 private:
-  basalt::gfx::ResourceCache& mGfxCache;
+  basalt::gfx::ResourceCachePtr mGfxCache;
   basalt::gfx::Mesh mMesh;
   basalt::gfx::Texture mTexture;
   basalt::gfx::Material mMaterial;

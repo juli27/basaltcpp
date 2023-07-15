@@ -83,8 +83,8 @@ struct Textures::TriangleData final {
 
 Textures::Textures(Engine& engine)
   : mTriangles {NUM_TRIANGLES}
-  , mGfxCache {engine.gfx_resource_cache()}
-  , mTexture {mGfxCache.load_texture("data/tribase/Texture.bmp")} {
+  , mGfxCache {engine.create_gfx_resource_cache()}
+  , mTexture {mGfxCache->load_texture("data/tribase/Texture.bmp")} {
   TextureBlendingStage textureStage;
   textureStage.arg1 = TextureStageArgument::SampledTexture;
   textureStage.arg2 = TextureStageArgument::Diffuse;
@@ -97,7 +97,7 @@ Textures::Textures(Engine& engine)
   pipelineDesc.depthTest = TestPassCond::IfLessEqual;
   pipelineDesc.depthWriteEnable = true;
   pipelineDesc.dithering = true;
-  mPipeline = mGfxCache.create_pipeline(pipelineDesc);
+  mPipeline = mGfxCache->create_pipeline(pipelineDesc);
 
   default_random_engine randomEngine {random_device {}()};
   Distribution scaleRng {1.0f, 5.0f};
@@ -141,7 +141,7 @@ Textures::Textures(Engine& engine)
   }
 
   const span vertexData {as_bytes(span {vertices})};
-  mVertexBuffer = mGfxCache.create_vertex_buffer(
+  mVertexBuffer = mGfxCache->create_vertex_buffer(
     {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
 
   SamplerDescriptor samplerDesc;
@@ -150,12 +150,12 @@ Textures::Textures(Engine& engine)
   samplerDesc.mipFilter = TextureMipFilter::None;
   samplerDesc.addressModeU = TextureAddressMode::Repeat;
   samplerDesc.addressModeV = TextureAddressMode::Repeat;
-  mSamplerPoint = mGfxCache.create_sampler(samplerDesc);
+  mSamplerPoint = mGfxCache->create_sampler(samplerDesc);
 
   samplerDesc.magFilter = TextureFilter::Bilinear;
   samplerDesc.minFilter = TextureFilter::Bilinear;
   samplerDesc.mipFilter = TextureMipFilter::Linear;
-  mSamplerLinearWithMip = mGfxCache.create_sampler(samplerDesc);
+  mSamplerLinearWithMip = mGfxCache->create_sampler(samplerDesc);
 
   const auto& gfxInfo {engine.gfx_info()};
   BASALT_ASSERT(gfxInfo.currentDeviceCaps.samplerMinFilterAnisotropic);
@@ -165,16 +165,16 @@ Textures::Textures(Engine& engine)
   samplerDesc.mipFilter = TextureMipFilter::None;
 
   samplerDesc.maxAnisotropy = gfxInfo.currentDeviceCaps.samplerMaxAnisotropy;
-  mSamplerAnisotropic = mGfxCache.create_sampler(samplerDesc);
+  mSamplerAnisotropic = mGfxCache->create_sampler(samplerDesc);
 }
 
 Textures::~Textures() noexcept {
-  mGfxCache.destroy(mSamplerAnisotropic);
-  mGfxCache.destroy(mSamplerLinearWithMip);
-  mGfxCache.destroy(mSamplerPoint);
-  mGfxCache.destroy(mTexture);
-  mGfxCache.destroy(mVertexBuffer);
-  mGfxCache.destroy(mPipeline);
+  mGfxCache->destroy(mSamplerAnisotropic);
+  mGfxCache->destroy(mSamplerLinearWithMip);
+  mGfxCache->destroy(mSamplerPoint);
+  mGfxCache->destroy(mTexture);
+  mGfxCache->destroy(mVertexBuffer);
+  mGfxCache->destroy(mPipeline);
 }
 
 auto Textures::on_update(UpdateContext& ctx) -> void {

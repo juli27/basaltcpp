@@ -67,30 +67,30 @@ constexpr array<Vertex, 4> QUAD_VERTICES {
 } // namespace
 
 FirstTriangle::FirstTriangle(Engine& engine)
-  : mGfxCache {engine.gfx_resource_cache()} {
+  : mGfxCache {engine.create_gfx_resource_cache()} {
   PipelineDescriptor pipelineDesc;
   pipelineDesc.vertexInputState = Vertex::sLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
   pipelineDesc.dithering = true;
-  mPipeline = mGfxCache.create_pipeline(pipelineDesc);
+  mPipeline = mGfxCache->create_pipeline(pipelineDesc);
 
   pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
-  mQuadPipeline = mGfxCache.create_pipeline(pipelineDesc);
+  mQuadPipeline = mGfxCache->create_pipeline(pipelineDesc);
 
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
   pipelineDesc.fillMode = FillMode::Wireframe;
-  mWireframePipeline = mGfxCache.create_pipeline(pipelineDesc);
+  mWireframePipeline = mGfxCache->create_pipeline(pipelineDesc);
 
   const span vertexData {as_bytes(span {TRIANGLE_VERTICES})};
-  mVertexBuffer = mGfxCache.create_vertex_buffer(
+  mVertexBuffer = mGfxCache->create_vertex_buffer(
     {4 * sizeof(Vertex), Vertex::sLayout}, vertexData);
 }
 
 FirstTriangle::~FirstTriangle() noexcept {
-  mGfxCache.destroy(mVertexBuffer);
-  mGfxCache.destroy(mWireframePipeline);
-  mGfxCache.destroy(mQuadPipeline);
-  mGfxCache.destroy(mPipeline);
+  mGfxCache->destroy(mVertexBuffer);
+  mGfxCache->destroy(mWireframePipeline);
+  mGfxCache->destroy(mQuadPipeline);
+  mGfxCache->destroy(mPipeline);
 }
 
 auto FirstTriangle::on_update(UpdateContext& ctx) -> void {
@@ -104,7 +104,7 @@ auto FirstTriangle::on_update(UpdateContext& ctx) -> void {
 
   if (ImGui::Begin("Settings##TribaseDreieck")) {
     const auto uploadDefaultTriangle {[this] {
-      mGfxCache.with_mapping_of(mVertexBuffer, [](const span<byte> data) {
+      mGfxCache->with_mapping_of(mVertexBuffer, [](const span<byte> data) {
         const span vertexData {as_bytes(span {TRIANGLE_VERTICES})};
         std::copy_n(vertexData.begin(),
                     std::min(vertexData.size_bytes(), data.size_bytes()),
@@ -128,7 +128,7 @@ auto FirstTriangle::on_update(UpdateContext& ctx) -> void {
     if (ImGui::RadioButton("Exercise 2", &mCurrentExercise, 2)) {
       mScale = 1.0f;
 
-      mGfxCache.with_mapping_of(mVertexBuffer, [](const span<byte> data) {
+      mGfxCache->with_mapping_of(mVertexBuffer, [](const span<byte> data) {
         const span vertexData {as_bytes(span {QUAD_VERTICES})};
         std::copy_n(vertexData.begin(),
                     std::min(vertexData.size_bytes(), data.size_bytes()),
@@ -165,7 +165,7 @@ auto FirstTriangle::on_update(UpdateContext& ctx) -> void {
                 Color::from_non_linear(value2, 0.0f, value1).to_argb()},
       };
 
-      mGfxCache.with_mapping_of(mVertexBuffer, [&](const span<byte> data) {
+      mGfxCache->with_mapping_of(mVertexBuffer, [&](const span<byte> data) {
         const span vertexData {as_bytes(span {triangleVertices})};
         std::copy_n(vertexData.begin(),
                     std::min(vertexData.size_bytes(), data.size_bytes()),

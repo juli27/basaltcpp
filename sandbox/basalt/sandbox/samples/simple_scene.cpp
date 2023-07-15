@@ -81,12 +81,12 @@ auto add_camera(Scene& scene) -> Entity {
 } // namespace
 
 SimpleScene::SimpleScene(Engine& engine)
-  : mGfxCache {engine.gfx_resource_cache()} {
+  : mGfxCache {engine.create_gfx_resource_cache()} {
   const array vertices {Vertex {{-1.0f, -1.0f, 0.0f}, 0xffff0000_a8r8g8b8},
                         Vertex {{1.0f, -1.0f, 0.0f}, 0xff0000ff_a8r8g8b8},
                         Vertex {{0.0f, 1.0f, 0.0f}, 0xffffffff_a8r8g8b8}};
 
-  mMesh = mGfxCache.create_mesh({
+  mMesh = mGfxCache->create_mesh({
     as_bytes(span {vertices}),
     static_cast<u32>(vertices.size()),
     Vertex::sLayout,
@@ -97,7 +97,7 @@ SimpleScene::SimpleScene(Engine& engine)
   materialDescriptor.primitiveType = PrimitiveType::TriangleList;
   materialDescriptor.lit = false;
   materialDescriptor.cullBackFace = false;
-  mMaterial = mGfxCache.create_material(materialDescriptor);
+  mMaterial = mGfxCache->create_material(materialDescriptor);
 
   const auto scene {Scene::create()};
   scene->set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
@@ -109,12 +109,12 @@ SimpleScene::SimpleScene(Engine& engine)
   const Entity camera {add_camera(*scene)};
 
   scene->create_system<RotationSpeedSystem>();
-  add_child_top(SceneView::create(scene, camera.entity()));
+  add_child_top(SceneView::create(scene, mGfxCache, camera.entity()));
 }
 
 SimpleScene::~SimpleScene() noexcept {
-  mGfxCache.destroy(mMaterial);
-  mGfxCache.destroy(mMesh);
+  mGfxCache->destroy(mMaterial);
+  mGfxCache->destroy(mMesh);
 }
 
 } // namespace samples

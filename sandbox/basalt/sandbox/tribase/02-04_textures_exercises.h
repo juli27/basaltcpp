@@ -25,7 +25,7 @@ public:
   auto operator=(TexturesExercises&&) noexcept -> TexturesExercises& = delete;
 
 private:
-  basalt::gfx::ResourceCache& mGfxCache;
+  basalt::gfx::ResourceCachePtr mGfxCache;
   basalt::gfx::Texture mTexture;
   basalt::gfx::VertexBuffer mVertexBuffer;
   basalt::gfx::Pipeline mPipeline;

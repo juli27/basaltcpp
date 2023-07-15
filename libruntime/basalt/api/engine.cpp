@@ -1,5 +1,7 @@
 #include <basalt/api/engine.h>
 
+#include <basalt/api/gfx/resource_cache.h>
+
 #include <basalt/api/shared/config.h>
 #include <basalt/api/shared/resource_registry.h>
 
@@ -21,12 +23,16 @@ auto Engine::gfx_info() const noexcept -> const gfx::Info& {
   return mGfxInfo;
 }
 
+auto Engine::create_gfx_resource_cache() const -> gfx::ResourceCachePtr {
+  return gfx::ResourceCache::create(mGfxDevice);
+}
+
 auto Engine::resource_registry() const noexcept -> ResourceRegistry& {
   return *mResourceRegistry;
 }
 
 auto Engine::gfx_resource_cache() noexcept -> gfx::ResourceCache& {
-  return mGfxResourceCache;
+  return *mGfxResourceCache;
 }
 
 auto Engine::root() const -> const ViewPtr& {
@@ -53,10 +59,11 @@ void Engine::set_window_mode(const WindowMode windowMode) noexcept {
 
 Engine::Engine(Config& config, gfx::Info gfxInfo,
                gfx::DevicePtr gfxDevice) noexcept
-  : mConfig {config}
-  , mGfxInfo {std::move(gfxInfo)}
+  : mGfxInfo {std::move(gfxInfo)}
   , mResourceRegistry {std::make_shared<ResourceRegistry>()}
-  , mGfxResourceCache {std::move(gfxDevice)} {
+  , mGfxResourceCache {gfx::ResourceCache::create(gfxDevice)}
+  , mGfxDevice {std::move(gfxDevice)}
+  , mConfig {config} {
 }
 
 auto Engine::is_loaded(const ResourceId id) const -> bool {
@@ -76,7 +83,7 @@ auto Engine::get_or_load(const Resource resource) -> gfx::ext::XModel {
 
   const auto& path {mResourceRegistry->get_path(resource)};
 
-  return mXModels[resource] = mGfxResourceCache.load_x_model(path);
+  return mXModels[resource] = mGfxResourceCache->load_x_model(path);
 }
 
 template <>
@@ -91,7 +98,7 @@ auto Engine::get_or_load(const Resource resource) -> gfx::Texture {
 
   const auto& path {mResourceRegistry->get_path(resource)};
 
-  return mTextures[resource] = mGfxResourceCache.load_texture(path);
+  return mTextures[resource] = mGfxResourceCache->load_texture(path);
 }
 
 } // namespace basalt

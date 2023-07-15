@@ -64,11 +64,11 @@ constexpr array TRIANGLE_VERTICES {
 } // namespace
 
 TexturesExercises::TexturesExercises(Engine& engine)
-  : mGfxCache {engine.gfx_resource_cache()}
-  , mTexture {mGfxCache.load_texture("data/banana.bmp"sv)}
-  , mSampler {mGfxCache.create_sampler({})} {
+  : mGfxCache {engine.create_gfx_resource_cache()}
+  , mTexture {mGfxCache->load_texture("data/banana.bmp"sv)}
+  , mSampler {mGfxCache->create_sampler({})} {
   const span vertexData {as_bytes(span {TRIANGLE_VERTICES})};
-  mVertexBuffer = mGfxCache.create_vertex_buffer(
+  mVertexBuffer = mGfxCache->create_vertex_buffer(
     {vertexData.size(), Vertex::sLayout}, vertexData);
 
   TextureBlendingStage textureStage {};
@@ -76,20 +76,20 @@ TexturesExercises::TexturesExercises(Engine& engine)
   pipelineDesc.vertexInputState = Vertex::sLayout;
   pipelineDesc.textureStages = span {&textureStage, 1};
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
-  mPipeline = mGfxCache.create_pipeline(pipelineDesc);
+  mPipeline = mGfxCache->create_pipeline(pipelineDesc);
 }
 
 TexturesExercises::~TexturesExercises() noexcept {
-  mGfxCache.destroy(mSampler);
-  mGfxCache.destroy(mPipeline);
-  mGfxCache.destroy(mVertexBuffer);
-  mGfxCache.destroy(mTexture);
+  mGfxCache->destroy(mSampler);
+  mGfxCache->destroy(mPipeline);
+  mGfxCache->destroy(mVertexBuffer);
+  mGfxCache->destroy(mTexture);
 }
 
 auto TexturesExercises::on_update(UpdateContext& ctx) -> void {
   if (ImGui::Begin("Settings##TribaseTexturesEx")) {
     auto uploadTriangle {[this] {
-      mGfxCache.with_mapping_of(mVertexBuffer, [](const span<byte> vbData) {
+      mGfxCache->with_mapping_of(mVertexBuffer, [](const span<byte> vbData) {
         const span vertexData {as_bytes(span {TRIANGLE_VERTICES})};
 
         std::copy_n(vertexData.begin(),
@@ -116,7 +116,7 @@ auto TexturesExercises::on_update(UpdateContext& ctx) -> void {
   const f32 dt {ctx.deltaTime.count()};
 
   if (mCurrentExercise == 1) {
-    mGfxCache.with_mapping_of(mVertexBuffer, [&](const span<byte> vbData) {
+    mGfxCache->with_mapping_of(mVertexBuffer, [&](const span<byte> vbData) {
       const span<Vertex> vertexData {reinterpret_cast<Vertex*>(vbData.data()),
                                      vbData.size() / sizeof(Vertex)};
 
@@ -128,7 +128,7 @@ auto TexturesExercises::on_update(UpdateContext& ctx) -> void {
   }
 
   if (mCurrentExercise == 2) {
-    mGfxCache.with_mapping_of(mVertexBuffer, [&](const span<byte> vbData) {
+    mGfxCache->with_mapping_of(mVertexBuffer, [&](const span<byte> vbData) {
       const span<Vertex> vertexData {reinterpret_cast<Vertex*>(vbData.data()),
                                      vbData.size() / sizeof(Vertex)};
 

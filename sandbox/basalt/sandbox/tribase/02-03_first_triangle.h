@@ -25,7 +25,7 @@ public:
 
 private:
   basalt::f64 mTimeAccum {};
-  basalt::gfx::ResourceCache& mGfxCache;
+  basalt::gfx::ResourceCachePtr mGfxCache;
   basalt::gfx::Pipeline mPipeline;
   basalt::gfx::Pipeline mQuadPipeline;
   basalt::gfx::Pipeline mWireframePipeline;

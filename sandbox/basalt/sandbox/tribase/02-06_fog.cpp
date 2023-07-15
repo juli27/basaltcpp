@@ -35,7 +35,6 @@ using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::SamplerDescriptor;
 using basalt::gfx::TestPassCond;
-using basalt::gfx::Texture;
 using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
@@ -65,7 +64,7 @@ struct Vertex final {
 
 } // namespace
 
-Fog::Fog(Engine& engine) : mGfxCache {engine.gfx_resource_cache()} {
+Fog::Fog(Engine& engine) : mGfxCache {engine.create_gfx_resource_cache()} {
   update_pipeline();
 
   array vertices {Vertex {{-1.0f, -1.0f, 0.0f},
@@ -81,33 +80,33 @@ Fog::Fog(Engine& engine) : mGfxCache {engine.gfx_resource_cache()} {
                           ColorEncoding::pack_a8r8g8b8_u32(255, 255, 255),
                           {1.0f, 0.0f}}};
   const span vertexData {as_bytes(span {vertices})};
-  mVertexBuffer = mGfxCache.create_vertex_buffer(
+  mVertexBuffer = mGfxCache->create_vertex_buffer(
     {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
 
   SamplerDescriptor samplerDesc;
   samplerDesc.magFilter = TextureFilter::Bilinear;
   samplerDesc.minFilter = TextureFilter::Bilinear;
   samplerDesc.mipFilter = TextureMipFilter::Linear;
-  mSampler = mGfxCache.create_sampler(samplerDesc);
+  mSampler = mGfxCache->create_sampler(samplerDesc);
 
   for (i32 i {0}; i < sNumTextures; i++) {
     string fileName {
       fmt::format("data/tribase/02-06_fog/Texture{}.bmp", i + 1)};
-    mTextures[i] = mGfxCache.load_texture(fileName);
+    mTextures[i] = mGfxCache->load_texture(fileName);
   }
 }
 
 Fog::~Fog() noexcept {
   for (const Texture texId : mTextures) {
-    mGfxCache.destroy(texId);
+    mGfxCache->destroy(texId);
   }
-  mGfxCache.destroy(mSampler);
-  mGfxCache.destroy(mVertexBuffer);
-  mGfxCache.destroy(mPipeline);
+  mGfxCache->destroy(mSampler);
+  mGfxCache->destroy(mVertexBuffer);
+  mGfxCache->destroy(mPipeline);
 }
 
 auto Fog::update_pipeline() -> void {
-  mGfxCache.destroy(mPipeline);
+  mGfxCache->destroy(mPipeline);
 
   TextureBlendingStage textureStage;
   textureStage.arg1 = TextureStageArgument::SampledTexture;
@@ -125,7 +124,7 @@ auto Fog::update_pipeline() -> void {
   pipelineDesc.dithering = true;
   pipelineDesc.fogType = mFogType;
   pipelineDesc.fogMode = mFogMode;
-  mPipeline = mGfxCache.create_pipeline(pipelineDesc);
+  mPipeline = mGfxCache->create_pipeline(pipelineDesc);
 }
 auto Fog::render_ui() -> void {
   ImGui::SetNextWindowSize({300.0f, 0}, ImGuiCond_FirstUseEver);

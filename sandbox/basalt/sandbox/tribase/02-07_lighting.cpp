@@ -3,6 +3,7 @@
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 
+#include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
@@ -38,7 +39,6 @@ using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PointLight;
 using basalt::gfx::SamplerDescriptor;
 using basalt::gfx::TestPassCond;
-using basalt::gfx::Texture;
 using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
@@ -52,13 +52,16 @@ constexpr Color BACKGROUND {Color::from_non_linear_rgba8(0, 0, 63)};
 
 } // namespace
 
-Lighting::Lighting(Engine& engine) : mGfxCache {engine.gfx_resource_cache()} {
+Lighting::Lighting(Engine& engine)
+  : mGfxCache {engine.create_gfx_resource_cache()} {
   mSphereTexture =
-    mGfxCache.load_texture("data/tribase/02-07_lighting/Sphere.bmp");
+    mGfxCache->load_texture("data/tribase/02-07_lighting/Sphere.bmp");
   mGroundTexture =
-    mGfxCache.load_texture("data/tribase/02-07_lighting/Ground.bmp");
-  mSphereModel = mGfxCache.load_x_model("data/tribase/02-07_lighting/Sphere.x");
-  mGroundModel = mGfxCache.load_x_model("data/tribase/02-07_lighting/Ground.x");
+    mGfxCache->load_texture("data/tribase/02-07_lighting/Ground.bmp");
+  mSphereModel =
+    mGfxCache->load_x_model("data/tribase/02-07_lighting/Sphere.x");
+  mGroundModel =
+    mGfxCache->load_x_model("data/tribase/02-07_lighting/Ground.x");
 
   array<TextureBlendingStage, 1> textureStages {};
   PipelineDescriptor pipelineDesc;
@@ -71,27 +74,27 @@ Lighting::Lighting(Engine& engine) : mGfxCache {engine.gfx_resource_cache()} {
   pipelineDesc.dithering = true;
   pipelineDesc.fogType = FogType::Vertex;
   pipelineDesc.fogMode = FogMode::Exponential;
-  mPipeline = mGfxCache.create_pipeline(pipelineDesc);
+  mPipeline = mGfxCache->create_pipeline(pipelineDesc);
 
   std::get<0>(textureStages).colorOp = TextureOp::SelectArg2;
   std::get<0>(textureStages).alphaOp = TextureOp::SelectArg2;
-  mNoTexturePipeline = mGfxCache.create_pipeline(pipelineDesc);
+  mNoTexturePipeline = mGfxCache->create_pipeline(pipelineDesc);
 
   SamplerDescriptor samplerDesc;
   samplerDesc.magFilter = TextureFilter::Bilinear;
   samplerDesc.minFilter = TextureFilter::Bilinear;
   samplerDesc.mipFilter = TextureMipFilter::Linear;
-  mSampler = mGfxCache.create_sampler(samplerDesc);
+  mSampler = mGfxCache->create_sampler(samplerDesc);
 }
 
 Lighting::~Lighting() noexcept {
-  mGfxCache.destroy(mSampler);
-  mGfxCache.destroy(mNoTexturePipeline);
-  mGfxCache.destroy(mPipeline);
-  mGfxCache.destroy(mGroundModel);
-  mGfxCache.destroy(mSphereModel);
-  mGfxCache.destroy(mGroundTexture);
-  mGfxCache.destroy(mSphereTexture);
+  mGfxCache->destroy(mSampler);
+  mGfxCache->destroy(mNoTexturePipeline);
+  mGfxCache->destroy(mPipeline);
+  mGfxCache->destroy(mGroundModel);
+  mGfxCache->destroy(mSphereModel);
+  mGfxCache->destroy(mGroundTexture);
+  mGfxCache->destroy(mSphereTexture);
 }
 
 auto Lighting::on_update(UpdateContext& ctx) -> void {
@@ -123,7 +126,7 @@ auto Lighting::on_update(UpdateContext& ctx) -> void {
   cmdList.set_transform(TransformState::WorldToView, worldToView);
 
   // render spheres
-  const auto& sphereData {mGfxCache.get(mSphereModel)};
+  const auto& sphereData {mGfxCache->get(mSphereModel)};
   cmdList.bind_texture(mSphereTexture);
 
   for (i32 i {0}; i < 10; i++) {
@@ -144,7 +147,7 @@ auto Lighting::on_update(UpdateContext& ctx) -> void {
   }
 
   // render ground
-  const auto& groundData {mGfxCache.get(mGroundModel)};
+  const auto& groundData {mGfxCache->get(mGroundModel)};
   cmdList.bind_texture(mGroundTexture);
   cmdList.set_material(Color::from_non_linear(0.75f, 0.75f, 0.75f),
                        Color::from_non_linear(0.25f, 0.25f, 0.25f),

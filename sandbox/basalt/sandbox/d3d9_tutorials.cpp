@@ -21,7 +21,6 @@
 #include <imgui/imgui.h>
 
 #include <array>
-#include <cstddef>
 #include <memory>
 #include <string_view>
 #include <utility>
@@ -49,7 +48,7 @@ using basalt::gfx::Light;
 using basalt::gfx::Pipeline;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
-using basalt::gfx::ResourceCache;
+using basalt::gfx::ResourceCachePtr;
 using basalt::gfx::Sampler;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::Texture;
@@ -131,7 +130,8 @@ protected:
 
 class Vertices final : public View {
 public:
-  explicit Vertices(Engine& engine) : mGfxCache {engine.gfx_resource_cache()} {
+  explicit Vertices(Engine& engine)
+    : mGfxCache {engine.create_gfx_resource_cache()} {
     const array vertices {
       Vertex1 {{150.0f, 50.0f, 0.5f, 1.0f}, 0xffff0000_a8r8g8b8},
       Vertex1 {{250.0f, 250.0f, 0.5f, 1.0f}, 0xff00ff00_a8r8g8b8},
@@ -139,21 +139,21 @@ public:
     using Vertex = decltype(vertices)::value_type;
 
     const auto vertexData {as_bytes(span {vertices})};
-    mVertexBuffer = mGfxCache.create_vertex_buffer(
+    mVertexBuffer = mGfxCache->create_vertex_buffer(
       {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
 
     PipelineDescriptor pipelineDesc;
     pipelineDesc.vertexInputState = Vertex::sLayout;
     pipelineDesc.primitiveType = PrimitiveType::TriangleList;
-    mPipeline = mGfxCache.create_pipeline(pipelineDesc);
+    mPipeline = mGfxCache->create_pipeline(pipelineDesc);
   }
 
   Vertices(const Vertices&) = delete;
   Vertices(Vertices&&) = delete;
 
   ~Vertices() noexcept override {
-    mGfxCache.destroy(mPipeline);
-    mGfxCache.destroy(mVertexBuffer);
+    mGfxCache->destroy(mPipeline);
+    mGfxCache->destroy(mVertexBuffer);
   }
 
   auto operator=(const Vertices&) -> Vertices& = delete;
@@ -172,14 +172,15 @@ protected:
   }
 
 private:
-  ResourceCache& mGfxCache;
+  ResourceCachePtr mGfxCache;
   VertexBuffer mVertexBuffer;
   Pipeline mPipeline;
 };
 
 class Matrices final : public View {
 public:
-  explicit Matrices(Engine& engine) : mGfxCache {engine.gfx_resource_cache()} {
+  explicit Matrices(Engine& engine)
+    : mGfxCache {engine.create_gfx_resource_cache()} {
     const array vertices {
       Vertex2 {{-1.0f, -1.0f, 0.0f}, 0xffff0000_a8r8g8b8},
       Vertex2 {{1.0f, -1.0f, 0.0f}, 0xff0000ff_a8r8g8b8},
@@ -188,21 +189,21 @@ public:
     using Vertex = decltype(vertices)::value_type;
 
     const auto vertexData {as_bytes(span {vertices})};
-    mVertexBuffer = mGfxCache.create_vertex_buffer(
+    mVertexBuffer = mGfxCache->create_vertex_buffer(
       {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
 
     PipelineDescriptor pipelineDesc;
     pipelineDesc.vertexInputState = Vertex::sLayout;
     pipelineDesc.primitiveType = PrimitiveType::TriangleList;
-    mPipeline = mGfxCache.create_pipeline(pipelineDesc);
+    mPipeline = mGfxCache->create_pipeline(pipelineDesc);
   }
 
   Matrices(const Matrices&) = delete;
   Matrices(Matrices&&) = delete;
 
   ~Matrices() noexcept override {
-    mGfxCache.destroy(mPipeline);
-    mGfxCache.destroy(mVertexBuffer);
+    mGfxCache->destroy(mPipeline);
+    mGfxCache->destroy(mVertexBuffer);
   }
 
   auto operator=(const Matrices&) -> Matrices& = delete;
@@ -240,7 +241,7 @@ protected:
   }
 
 private:
-  ResourceCache& mGfxCache;
+  ResourceCachePtr mGfxCache;
   VertexBuffer mVertexBuffer;
   Pipeline mPipeline;
   Angle mRotationY;
@@ -250,7 +251,8 @@ class Lights final : public View {
   static constexpr u32 sVertexCount {2 * 50};
 
 public:
-  explicit Lights(Engine& engine) : mGfxCache {engine.gfx_resource_cache()} {
+  explicit Lights(Engine& engine)
+    : mGfxCache {engine.create_gfx_resource_cache()} {
     array<Vertex3, sVertexCount> vertices {};
     for (uSize i {0}; i < 50; i++) {
       const Angle theta {
@@ -269,7 +271,7 @@ public:
     using Vertex = decltype(vertices)::value_type;
 
     const auto vertexData {as_bytes(span {vertices})};
-    mVertexBuffer = mGfxCache.create_vertex_buffer(
+    mVertexBuffer = mGfxCache->create_vertex_buffer(
       {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
 
     PipelineDescriptor pipelineDesc;
@@ -278,22 +280,22 @@ public:
     pipelineDesc.lightingEnabled = true;
     pipelineDesc.depthTest = TestPassCond::IfLessEqual;
     pipelineDesc.depthWriteEnable = true;
-    mPipeline = mGfxCache.create_pipeline(pipelineDesc);
+    mPipeline = mGfxCache->create_pipeline(pipelineDesc);
   }
 
   Lights(const Lights&) = delete;
   Lights(Lights&&) = delete;
 
   ~Lights() noexcept override {
-    mGfxCache.destroy(mPipeline);
-    mGfxCache.destroy(mVertexBuffer);
+    mGfxCache->destroy(mPipeline);
+    mGfxCache->destroy(mVertexBuffer);
   }
 
   auto operator=(const Lights&) -> Lights& = delete;
   auto operator=(Lights&&) -> Lights& = delete;
 
 private:
-  ResourceCache& mGfxCache;
+  ResourceCachePtr mGfxCache;
   VertexBuffer mVertexBuffer;
   Pipeline mPipeline;
   Angle mRotationX;
@@ -353,9 +355,9 @@ class Textures final : public View {
 
 public:
   explicit Textures(Engine& engine)
-    : mGfxCache {engine.gfx_resource_cache()}
-    , mSampler {mGfxCache.create_sampler({})}
-    , mTexture {mGfxCache.load_texture("data/banana.bmp")} {
+    : mGfxCache {engine.create_gfx_resource_cache()}
+    , mSampler {mGfxCache->create_sampler({})}
+    , mTexture {mGfxCache->load_texture("data/banana.bmp")} {
     array<Vertex4, sVertexCount> vertices {};
     for (uSize i {0}; i < 50; i++) {
       const Angle theta {
@@ -382,7 +384,7 @@ public:
     using Vertex = decltype(vertices)::value_type;
 
     const auto vertexData {as_bytes(span {vertices})};
-    mVertexBuffer = mGfxCache.create_vertex_buffer(
+    mVertexBuffer = mGfxCache->create_vertex_buffer(
       {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
 
     TextureBlendingStage textureBlendingStage;
@@ -392,32 +394,32 @@ public:
     pipelineDesc.textureStages = span {&textureBlendingStage, 1};
     pipelineDesc.depthTest = TestPassCond::IfLessEqual;
     pipelineDesc.depthWriteEnable = true;
-    mPipeline = mGfxCache.create_pipeline(pipelineDesc);
+    mPipeline = mGfxCache->create_pipeline(pipelineDesc);
 
     textureBlendingStage.texCoordinateSrc =
       TextureCoordinateSource::VertexPositionInView;
     textureBlendingStage.texCoordinateTransformMode =
       TextureTransformMode::Count4;
     textureBlendingStage.texCoordinateProjected = true;
-    mPipelineTci = mGfxCache.create_pipeline(pipelineDesc);
+    mPipelineTci = mGfxCache->create_pipeline(pipelineDesc);
   }
 
   Textures(const Textures&) = delete;
   Textures(Textures&&) = delete;
 
   ~Textures() noexcept override {
-    mGfxCache.destroy(mPipelineTci);
-    mGfxCache.destroy(mPipeline);
-    mGfxCache.destroy(mTexture);
-    mGfxCache.destroy(mSampler);
-    mGfxCache.destroy(mVertexBuffer);
+    mGfxCache->destroy(mPipelineTci);
+    mGfxCache->destroy(mPipeline);
+    mGfxCache->destroy(mTexture);
+    mGfxCache->destroy(mSampler);
+    mGfxCache->destroy(mVertexBuffer);
   }
 
   auto operator=(const Textures&) -> Textures& = delete;
   auto operator=(Textures&&) -> Textures& = delete;
 
 private:
-  ResourceCache& mGfxCache;
+  ResourceCachePtr mGfxCache;
   VertexBuffer mVertexBuffer;
   Sampler mSampler;
   Texture mTexture;
@@ -476,22 +478,22 @@ private:
 class Meshes final : public View {
 public:
   explicit Meshes(Engine& engine)
-    : mGfxCache {engine.gfx_resource_cache()}
-    , mModel {mGfxCache.load_x_model("data/Tiger.x"sv)} {
+    : mGfxCache {engine.create_gfx_resource_cache()}
+    , mModel {mGfxCache->load_x_model("data/Tiger.x"sv)} {
   }
 
   Meshes(const Meshes&) = delete;
   Meshes(const Meshes&&) = delete;
 
   ~Meshes() noexcept override {
-    mGfxCache.destroy(mModel);
+    mGfxCache->destroy(mModel);
   }
 
   auto operator=(const Meshes&) -> Meshes& = delete;
   auto operator=(const Meshes&&) -> Meshes& = delete;
 
 private:
-  ResourceCache& mGfxCache;
+  ResourceCachePtr mGfxCache;
   XModel mModel;
   Angle mRotationY;
 
@@ -517,11 +519,11 @@ private:
     const auto worldToView {create_default_world_to_view_transform()};
     cmdList.set_transform(TransformState::WorldToView, worldToView);
 
-    const auto& modelData {mGfxCache.get(mModel)};
+    const auto& modelData {mGfxCache->get(mModel)};
 
     const u32 numMaterials {static_cast<u32>(modelData.materials.size())};
     for (u32 i {0}; i < numMaterials; ++i) {
-      const auto& materialData {mGfxCache.get(modelData.materials[i])};
+      const auto& materialData {mGfxCache->get(modelData.materials[i])};
 
       cmdList.bind_pipeline(materialData.pipeline);
 

@@ -24,7 +24,7 @@ public:
   auto operator=(Lighting&&) -> Lighting& = delete;
 
 private:
-  basalt::gfx::ResourceCache& mGfxCache;
+  basalt::gfx::ResourceCachePtr mGfxCache;
   basalt::gfx::Texture mSphereTexture;
   basalt::gfx::Texture mGroundTexture;
   basalt::gfx::ext::XModel mSphereModel;

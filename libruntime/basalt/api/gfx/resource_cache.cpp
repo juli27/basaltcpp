@@ -5,6 +5,7 @@
 
 #include <basalt/api/base/types.h>
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -16,7 +17,8 @@ using gsl::span;
 
 namespace basalt::gfx {
 
-ResourceCache::ResourceCache(DevicePtr device) : mDevice {std::move(device)} {
+auto ResourceCache::create(DevicePtr device) -> ResourceCachePtr {
+  return std::make_shared<ResourceCache>(std::move(device));
 }
 
 auto ResourceCache::create_pipeline(const PipelineDescriptor& desc) const
@@ -77,7 +79,7 @@ auto ResourceCache::load_x_model(const path& path) -> ext::XModel {
     MaterialDescriptor desc;
     desc.diffuse = material.diffuse;
     desc.ambient = material.ambient;
-    
+
     if (!material.textureFile.empty()) {
       desc.sampledTexture.texture = load_texture(material.textureFile);
     }
@@ -207,6 +209,9 @@ auto ResourceCache::destroy(const Material handle) noexcept -> void {
   }
 
   mMaterials.deallocate(handle);
+}
+
+ResourceCache::ResourceCache(DevicePtr device) : mDevice {std::move(device)} {
 }
 
 auto ResourceCache::map(const VertexBuffer vb, const uDeviceSize offset,
