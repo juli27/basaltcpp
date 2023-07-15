@@ -148,17 +148,6 @@ public:
     mPipeline = mGfxCache->create_pipeline(pipelineDesc);
   }
 
-  Vertices(const Vertices&) = delete;
-  Vertices(Vertices&&) = delete;
-
-  ~Vertices() noexcept override {
-    mGfxCache->destroy(mPipeline);
-    mGfxCache->destroy(mVertexBuffer);
-  }
-
-  auto operator=(const Vertices&) -> Vertices& = delete;
-  auto operator=(Vertices&&) -> Vertices& = delete;
-
 protected:
   auto on_update(UpdateContext& ctx) -> void override {
     CommandList cmdList;
@@ -197,17 +186,6 @@ public:
     pipelineDesc.primitiveType = PrimitiveType::TriangleList;
     mPipeline = mGfxCache->create_pipeline(pipelineDesc);
   }
-
-  Matrices(const Matrices&) = delete;
-  Matrices(Matrices&&) = delete;
-
-  ~Matrices() noexcept override {
-    mGfxCache->destroy(mPipeline);
-    mGfxCache->destroy(mVertexBuffer);
-  }
-
-  auto operator=(const Matrices&) -> Matrices& = delete;
-  auto operator=(Matrices&&) -> Matrices& = delete;
 
 protected:
   auto on_update(UpdateContext& ctx) -> void override {
@@ -282,17 +260,6 @@ public:
     pipelineDesc.depthWriteEnable = true;
     mPipeline = mGfxCache->create_pipeline(pipelineDesc);
   }
-
-  Lights(const Lights&) = delete;
-  Lights(Lights&&) = delete;
-
-  ~Lights() noexcept override {
-    mGfxCache->destroy(mPipeline);
-    mGfxCache->destroy(mVertexBuffer);
-  }
-
-  auto operator=(const Lights&) -> Lights& = delete;
-  auto operator=(Lights&&) -> Lights& = delete;
 
 private:
   ResourceCachePtr mGfxCache;
@@ -387,15 +354,16 @@ public:
     mVertexBuffer = mGfxCache->create_vertex_buffer(
       {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
 
-    TextureBlendingStage textureBlendingStage;
+    array<TextureBlendingStage, 1> textureBlendingStages {};
     PipelineDescriptor pipelineDesc;
     pipelineDesc.vertexInputState = Vertex::sLayout;
     pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
-    pipelineDesc.textureStages = span {&textureBlendingStage, 1};
+    pipelineDesc.textureStages = span {textureBlendingStages};
     pipelineDesc.depthTest = TestPassCond::IfLessEqual;
     pipelineDesc.depthWriteEnable = true;
     mPipeline = mGfxCache->create_pipeline(pipelineDesc);
 
+    auto& textureBlendingStage {std::get<0>(textureBlendingStages)};
     textureBlendingStage.texCoordinateSrc =
       TextureCoordinateSource::VertexPositionInView;
     textureBlendingStage.texCoordinateTransformMode =
@@ -403,20 +371,6 @@ public:
     textureBlendingStage.texCoordinateProjected = true;
     mPipelineTci = mGfxCache->create_pipeline(pipelineDesc);
   }
-
-  Textures(const Textures&) = delete;
-  Textures(Textures&&) = delete;
-
-  ~Textures() noexcept override {
-    mGfxCache->destroy(mPipelineTci);
-    mGfxCache->destroy(mPipeline);
-    mGfxCache->destroy(mTexture);
-    mGfxCache->destroy(mSampler);
-    mGfxCache->destroy(mVertexBuffer);
-  }
-
-  auto operator=(const Textures&) -> Textures& = delete;
-  auto operator=(Textures&&) -> Textures& = delete;
 
 private:
   ResourceCachePtr mGfxCache;
@@ -482,16 +436,6 @@ public:
     , mModel {mGfxCache->load_x_model("data/Tiger.x"sv)} {
   }
 
-  Meshes(const Meshes&) = delete;
-  Meshes(const Meshes&&) = delete;
-
-  ~Meshes() noexcept override {
-    mGfxCache->destroy(mModel);
-  }
-
-  auto operator=(const Meshes&) -> Meshes& = delete;
-  auto operator=(const Meshes&&) -> Meshes& = delete;
-
 private:
   ResourceCachePtr mGfxCache;
   XModel mModel;
@@ -511,6 +455,7 @@ private:
       Colors::BLUE, 1.0f);
 
     cmdList.set_ambient_light(Colors::WHITE);
+    cmdList.set_lights({});
 
     const auto viewToClip {
       create_default_view_to_clip_transform(ctx.drawCtx.viewport)};

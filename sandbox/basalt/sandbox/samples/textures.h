@@ -17,14 +17,6 @@ class Textures final : public basalt::View {
 public:
   explicit Textures(basalt::Engine&);
 
-  Textures(const Textures&) = delete;
-  Textures(Textures&&) = delete;
-
-  ~Textures() noexcept override;
-
-  auto operator=(const Textures&) -> Textures& = delete;
-  auto operator=(Textures&&) -> Textures& = delete;
-
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;
   basalt::gfx::Mesh mMesh;

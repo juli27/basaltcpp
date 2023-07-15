@@ -186,13 +186,5 @@ Textures::Textures(Engine& engine)
   scene->create_system<SamplerSettingsSystem>();
   add_child_top(SceneView::create(scene, mGfxCache, camera.entity()));
 }
-Textures::~Textures() noexcept {
-  for (const Material materialId : mMaterials) {
-    mGfxCache->destroy(materialId);
-  }
-
-  mGfxCache->destroy(mTexture);
-  mGfxCache->destroy(mMesh);
-}
 
 } // namespace samples

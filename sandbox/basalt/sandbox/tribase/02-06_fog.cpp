@@ -38,8 +38,6 @@ using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
-using basalt::gfx::TextureOp;
-using basalt::gfx::TextureStageArgument;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexElement;
 
@@ -96,27 +94,13 @@ Fog::Fog(Engine& engine) : mGfxCache {engine.create_gfx_resource_cache()} {
   }
 }
 
-Fog::~Fog() noexcept {
-  for (const Texture texId : mTextures) {
-    mGfxCache->destroy(texId);
-  }
-  mGfxCache->destroy(mSampler);
-  mGfxCache->destroy(mVertexBuffer);
-  mGfxCache->destroy(mPipeline);
-}
-
 auto Fog::update_pipeline() -> void {
   mGfxCache->destroy(mPipeline);
 
-  TextureBlendingStage textureStage;
-  textureStage.arg1 = TextureStageArgument::SampledTexture;
-  textureStage.arg2 = TextureStageArgument::Diffuse;
-  textureStage.colorOp = TextureOp::Modulate;
-  textureStage.alphaOp = TextureOp::SelectArg1;
-
+  array textureStages {TextureBlendingStage {}};
   PipelineDescriptor pipelineDesc;
   pipelineDesc.vertexInputState = Vertex::sLayout;
-  pipelineDesc.textureStages = span {&textureStage, 1};
+  pipelineDesc.textureStages = span {textureStages};
   pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
   pipelineDesc.cullMode = CullMode::CounterClockwise;
   pipelineDesc.depthTest = TestPassCond::IfLessEqual;

@@ -130,10 +130,10 @@ Buffers::Buffers(Engine& engine)
   : mGfxCache {engine.create_gfx_resource_cache()}
   , mTexture {mGfxCache->load_texture("data/tribase/Texture2.bmp")}
   , mFov {90_deg} {
-  TextureBlendingStage textureStage;
+  array textureStages {TextureBlendingStage {}};
   PipelineDescriptor pipelineDesc;
   pipelineDesc.vertexInputState = Vertex::sLayout;
-  pipelineDesc.textureStages = span {&textureStage, 1};
+  pipelineDesc.textureStages = span {textureStages};
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
   pipelineDesc.depthTest = TestPassCond::IfLessEqual;
   pipelineDesc.depthWriteEnable = true;
@@ -148,12 +148,12 @@ Buffers::Buffers(Engine& engine)
   mIndexBuffer = mGfxCache->create_index_buffer(ibDesc);
 
   mGfxCache->with_mapping_of(mVertexBuffer, [this](const span<byte> vbData) {
-    span vb {reinterpret_cast<Vertex*>(vbData.data()),
-             vbData.size() / sizeof(Vertex)};
+    const span<Vertex> vb {reinterpret_cast<Vertex*>(vbData.data()),
+                           vbData.size() / sizeof(Vertex)};
 
     mGfxCache->with_mapping_of(mIndexBuffer, [vb](const span<byte> ibData) {
-      span ib {reinterpret_cast<u16*>(ibData.data()),
-               ibData.size() / sizeof(u16)};
+      const span<u16> ib {reinterpret_cast<u16*>(ibData.data()),
+                          ibData.size() / sizeof(u16)};
       fill_buffers(vb, ib);
     });
   });
@@ -163,14 +163,6 @@ Buffers::Buffers(Engine& engine)
   samplerDesc.minFilter = TextureFilter::Bilinear;
   samplerDesc.mipFilter = TextureMipFilter::Linear;
   mSampler = mGfxCache->create_sampler(samplerDesc);
-}
-
-Buffers::~Buffers() noexcept {
-  mGfxCache->destroy(mTexture);
-  mGfxCache->destroy(mSampler);
-  mGfxCache->destroy(mIndexBuffer);
-  mGfxCache->destroy(mVertexBuffer);
-  mGfxCache->destroy(mPipeline);
 }
 
 auto Buffers::on_update(UpdateContext& ctx) -> void {

@@ -5,6 +5,7 @@
 
 #include <basalt/api/base/types.h>
 
+#include <algorithm>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -21,48 +22,114 @@ auto ResourceCache::create(DevicePtr device) -> ResourceCachePtr {
   return std::make_shared<ResourceCache>(std::move(device));
 }
 
-auto ResourceCache::create_pipeline(const PipelineDescriptor& desc) const
+ResourceCache::~ResourceCache() noexcept {
+  // destroy the device resources for our compound resources
+  for (const auto handle : mXModels) {
+    destroy_data(handle);
+  }
+
+  for (const auto handle : mMeshes) {
+    destroy_data(handle);
+  }
+
+  for (const auto handle : mMaterials) {
+    destroy_data(handle);
+  }
+  
+  for (const auto handle : mPipelines) {
+    mDevice->destroy(handle);
+  }
+
+  for (const auto handle : mVertexBuffers) {
+    mDevice->destroy(handle);
+  }
+
+  for (const auto handle : mIndexBuffers) {
+    mDevice->destroy(handle);
+  }
+
+  for (const auto handle : mSamplers) {
+    mDevice->destroy(handle);
+  }
+
+  for (const auto handle : mTextures) {
+    mDevice->destroy(handle);
+  }
+}
+
+auto ResourceCache::create_pipeline(const PipelineDescriptor& desc)
   -> Pipeline {
-  return mDevice->create_pipeline(desc);
+  const Pipeline handle {mDevice->create_pipeline(desc)};
+  mPipelines.push_back(handle);
+
+  return handle;
 }
 
-auto ResourceCache::destroy(const Pipeline handle) const noexcept -> void {
+auto ResourceCache::destroy(const Pipeline handle) noexcept -> void {
+  mPipelines.erase(std::remove(mPipelines.begin(), mPipelines.end(), handle),
+                   mPipelines.end());
+
   mDevice->destroy(handle);
 }
 
-auto ResourceCache::create_vertex_buffer(
-  const VertexBufferDescriptor& desc, const span<const byte> initialData) const
+auto ResourceCache::create_vertex_buffer(const VertexBufferDescriptor& desc,
+                                         const span<const byte> initialData)
   -> VertexBuffer {
-  return mDevice->create_vertex_buffer(desc, initialData);
+  const VertexBuffer handle {mDevice->create_vertex_buffer(desc, initialData)};
+  mVertexBuffers.push_back(handle);
+
+  return handle;
 }
 
-auto ResourceCache::destroy(const VertexBuffer handle) const noexcept -> void {
+auto ResourceCache::destroy(const VertexBuffer handle) noexcept -> void {
+  mVertexBuffers.erase(
+    std::remove(mVertexBuffers.begin(), mVertexBuffers.end(), handle),
+    mVertexBuffers.end());
+
   mDevice->destroy(handle);
 }
-auto ResourceCache::create_index_buffer(
-  const IndexBufferDescriptor& desc,
-  const span<const std::byte> initialData) const -> IndexBuffer {
-  return mDevice->create_index_buffer(desc, initialData);
+auto ResourceCache::create_index_buffer(const IndexBufferDescriptor& desc,
+                                        const span<const std::byte> initialData)
+  -> IndexBuffer {
+  const IndexBuffer handle {mDevice->create_index_buffer(desc, initialData)};
+  mIndexBuffers.push_back(handle);
+
+  return handle;
 }
 
-auto ResourceCache::destroy(const IndexBuffer ib) const noexcept -> void {
-  mDevice->destroy(ib);
-}
+auto ResourceCache::destroy(const IndexBuffer handle) noexcept -> void {
+  mIndexBuffers.erase(
+    std::remove(mIndexBuffers.begin(), mIndexBuffers.end(), handle),
+    mIndexBuffers.end());
 
-auto ResourceCache::create_sampler(const SamplerDescriptor& desc) const
-  -> Sampler {
-  return mDevice->create_sampler(desc);
-}
-
-auto ResourceCache::destroy(const Sampler handle) const noexcept -> void {
   mDevice->destroy(handle);
 }
 
-auto ResourceCache::load_texture(const path& path) const -> Texture {
-  return mDevice->load_texture(path);
+auto ResourceCache::create_sampler(const SamplerDescriptor& desc) -> Sampler {
+  const Sampler handle {mDevice->create_sampler(desc)};
+  mSamplers.push_back(handle);
+
+  return handle;
 }
 
-auto ResourceCache::destroy(const Texture handle) const noexcept -> void {
+auto ResourceCache::destroy(const Sampler handle) noexcept -> void {
+  mSamplers.erase(std::remove(mSamplers.begin(), mSamplers.end(), handle),
+                  mSamplers.end());
+
+  mDevice->destroy(handle);
+}
+
+auto ResourceCache::load_texture(const path& path) -> Texture {
+  const Texture handle {mDevice->load_texture(path)};
+  mTextures.push_back(handle);
+
+  return handle;
+}
+
+auto ResourceCache::destroy(const Texture handle) noexcept -> void {
+  mTextures.erase(std::remove(mTextures.begin(), mTextures.end(), handle),
+                  mTextures.end());
+
   mDevice->destroy(handle);
 }
 
@@ -95,23 +162,7 @@ auto ResourceCache::get(const ext::XModel handle) const -> const XModelData& {
 }
 
 auto ResourceCache::destroy(const ext::XModel handle) noexcept -> void {
-  if (!mXModels.is_valid(handle)) {
-    return;
-  }
-
-  {
-    const auto& data {get(handle)};
-
-    for (const Material material : data.materials) {
-      destroy(get(material).texture);
-      destroy(material);
-    }
-
-    // throws std::bad_optional_access if extension not present
-    const auto modelExt {
-      mDevice->query_extension<ext::XModelSupport>().value()};
-    modelExt->destroy(data.mesh);
-  }
+  destroy_data(handle);
 
   mXModels.deallocate(handle);
 }
@@ -134,15 +185,7 @@ auto ResourceCache::get(const Mesh handle) const -> const MeshData& {
 }
 
 auto ResourceCache::destroy(const Mesh handle) noexcept -> void {
-  if (!mMeshes.is_valid(handle)) {
-    return;
-  }
-
-  {
-    auto& data {get(handle)};
-    destroy(data.vertexBuffer);
-    destroy(data.indexBuffer);
-  }
+  destroy_data(handle);
 
   mMeshes.deallocate(handle);
 }
@@ -201,12 +244,7 @@ auto ResourceCache::get(const Material material) const -> const MaterialData& {
 }
 
 auto ResourceCache::destroy(const Material handle) noexcept -> void {
-  {
-    const auto& data {get(handle)};
-
-    destroy(data.sampler);
-    destroy(data.pipeline);
-  }
+  destroy_data(handle);
 
   mMaterials.deallocate(handle);
 }
@@ -231,6 +269,39 @@ auto ResourceCache::map(const IndexBuffer ib, const uDeviceSize offsetInBytes,
 
 auto ResourceCache::unmap(const IndexBuffer ib) const -> void {
   mDevice->unmap(ib);
+}
+
+auto ResourceCache::destroy_data(const ext::XModel handle) noexcept -> void {
+  if (!mXModels.is_valid(handle)) {
+    return;
+  }
+
+  const auto& data {get(handle)};
+
+  for (const Material material : data.materials) {
+    destroy(material);
+  }
+
+  // throws std::bad_optional_access if extension not present
+  const auto modelExt {*mDevice->query_extension<ext::XModelSupport>()};
+  modelExt->destroy(data.mesh);
+}
+
+auto ResourceCache::destroy_data(const Mesh handle) noexcept -> void {
+  if (!mMeshes.is_valid(handle)) {
+    return;
+  }
+
+  auto& data {get(handle)};
+  destroy(data.vertexBuffer);
+  destroy(data.indexBuffer);
+}
+
+auto ResourceCache::destroy_data(const Material handle) noexcept -> void {
+  const auto& data {get(handle)};
+
+  destroy(data.sampler);
+  destroy(data.pipeline);
 }
 
 } // namespace basalt::gfx

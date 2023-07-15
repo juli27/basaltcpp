@@ -70,20 +70,12 @@ TexturesExercises::TexturesExercises(Engine& engine)
   const span vertexData {as_bytes(span {TRIANGLE_VERTICES})};
   mVertexBuffer = mGfxCache->create_vertex_buffer(
     {vertexData.size(), Vertex::sLayout}, vertexData);
-
-  TextureBlendingStage textureStage {};
+  array textureStages {TextureBlendingStage {}};
   PipelineDescriptor pipelineDesc;
   pipelineDesc.vertexInputState = Vertex::sLayout;
-  pipelineDesc.textureStages = span {&textureStage, 1};
+  pipelineDesc.textureStages = span {textureStages};
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
   mPipeline = mGfxCache->create_pipeline(pipelineDesc);
-}
-
-TexturesExercises::~TexturesExercises() noexcept {
-  mGfxCache->destroy(mSampler);
-  mGfxCache->destroy(mPipeline);
-  mGfxCache->destroy(mVertexBuffer);
-  mGfxCache->destroy(mTexture);
 }
 
 auto TexturesExercises::on_update(UpdateContext& ctx) -> void {

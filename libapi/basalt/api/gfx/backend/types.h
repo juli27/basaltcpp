@@ -211,14 +211,14 @@ struct DeviceCaps final {
 };
 
 struct TextureBlendingStage final {
-  TextureCoordinateSource texCoordinateSrc {TextureCoordinateSource::Vertex};
-  TextureTransformMode texCoordinateTransformMode {
-    TextureTransformMode::Disabled};
-  bool texCoordinateProjected {false};
   TextureStageArgument arg1 {TextureStageArgument::SampledTexture};
   TextureStageArgument arg2 {TextureStageArgument::Diffuse};
   TextureOp colorOp {TextureOp::Modulate};
   TextureOp alphaOp {TextureOp::SelectArg1};
+  TextureCoordinateSource texCoordinateSrc {TextureCoordinateSource::Vertex};
+  TextureTransformMode texCoordinateTransformMode {
+    TextureTransformMode::Disabled};
+  bool texCoordinateProjected {false};
 };
 
 enum class MaterialColorSource : u8 {
@@ -235,6 +235,7 @@ struct PipelineDescriptor final {
   bool lightingEnabled {false};
   bool specularEnabled {false};
   bool vertexColorEnabled {true};
+  bool normalizeViewSpaceNormals {false};
   MaterialColorSource diffuseSource {MaterialColorSource::DiffuseVertexColor};
   MaterialColorSource specularSource {MaterialColorSource::SpecularVertexColor};
   MaterialColorSource ambientSource {MaterialColorSource::Material};

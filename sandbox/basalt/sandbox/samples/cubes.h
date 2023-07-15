@@ -13,14 +13,6 @@ class Cubes final : public basalt::View {
 public:
   explicit Cubes(basalt::Engine&);
 
-  Cubes(const Cubes&) = delete;
-  Cubes(Cubes&&) = delete;
-
-  ~Cubes() noexcept override;
-
-  auto operator=(const Cubes&) -> Cubes& = delete;
-  auto operator=(Cubes&&) -> Cubes& = delete;
-
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;
   basalt::gfx::Mesh mMesh;

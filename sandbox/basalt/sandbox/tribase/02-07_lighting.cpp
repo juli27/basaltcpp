@@ -87,16 +87,6 @@ Lighting::Lighting(Engine& engine)
   mSampler = mGfxCache->create_sampler(samplerDesc);
 }
 
-Lighting::~Lighting() noexcept {
-  mGfxCache->destroy(mSampler);
-  mGfxCache->destroy(mNoTexturePipeline);
-  mGfxCache->destroy(mPipeline);
-  mGfxCache->destroy(mGroundModel);
-  mGfxCache->destroy(mSphereModel);
-  mGfxCache->destroy(mGroundTexture);
-  mGfxCache->destroy(mSphereTexture);
-}
-
 auto Lighting::on_update(UpdateContext& ctx) -> void {
   mTime += ctx.deltaTime;
   const f32 t {mTime.count()};

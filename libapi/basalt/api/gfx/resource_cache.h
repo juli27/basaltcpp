@@ -12,21 +12,30 @@
 #include <cstddef>
 #include <filesystem>
 #include <utility>
+#include <vector>
 
 namespace basalt::gfx {
 
 class ResourceCache final {
 public:
   static auto create(DevicePtr) -> ResourceCachePtr;
-  
-  [[nodiscard]] auto create_pipeline(const PipelineDescriptor&) const
-    -> Pipeline;
-  auto destroy(Pipeline) const noexcept -> void;
+
+  ResourceCache(const ResourceCache&) = delete;
+  ResourceCache(ResourceCache&&) = delete;
+
+  ~ResourceCache() noexcept;
+
+  auto operator=(const ResourceCache&) -> ResourceCache& = delete;
+  auto operator=(ResourceCache&&) -> ResourceCache& = delete;
+
+  [[nodiscard]] auto create_pipeline(const PipelineDescriptor&) -> Pipeline;
+  auto destroy(Pipeline) noexcept -> void;
 
   [[nodiscard]] auto
   create_vertex_buffer(const VertexBufferDescriptor&,
-                       gsl::span<const std::byte> initialData = {}) const
+                       gsl::span<const std::byte> initialData = {})
     -> VertexBuffer;
+  auto destroy(VertexBuffer) noexcept -> void;
 
   // span is empty on failure
   // F = void(gsl::span<std::byte>)
@@ -49,12 +58,11 @@ public:
     unmap(handle);
   }
 
-  auto destroy(VertexBuffer) const noexcept -> void;
-
   [[nodiscard]] auto
   create_index_buffer(const IndexBufferDescriptor&,
-                      gsl::span<const std::byte> initialData = {}) const
+                      gsl::span<const std::byte> initialData = {})
     -> IndexBuffer;
+  auto destroy(IndexBuffer) noexcept -> void;
 
   // span is empty on failure
   // F = void(gsl::span<std::byte>)
@@ -78,31 +86,35 @@ public:
     unmap(handle);
   }
 
-  auto destroy(IndexBuffer) const noexcept -> void;
+  [[nodiscard]] auto create_sampler(const SamplerDescriptor&) -> Sampler;
+  auto destroy(Sampler) noexcept -> void;
 
-  [[nodiscard]] auto create_sampler(const SamplerDescriptor&) const -> Sampler;
-  auto destroy(Sampler) const noexcept -> void;
-
-  [[nodiscard]] auto load_texture(const std::filesystem::path&) const
-    -> Texture;
-  auto destroy(Texture) const noexcept -> void;
+  [[nodiscard]] auto load_texture(const std::filesystem::path&) -> Texture;
+  auto destroy(Texture) noexcept -> void;
 
   [[nodiscard]] auto load_x_model(const std::filesystem::path&) -> ext::XModel;
-  [[nodiscard]] auto get(ext::XModel) const -> const XModelData&;
   auto destroy(ext::XModel) noexcept -> void;
+  [[nodiscard]] auto get(ext::XModel) const -> const XModelData&;
 
   [[nodiscard]] auto create_mesh(const MeshDescriptor&) -> Mesh;
-  [[nodiscard]] auto get(Mesh) const -> const MeshData&;
   auto destroy(Mesh) noexcept -> void;
+  [[nodiscard]] auto get(Mesh) const -> const MeshData&;
 
   [[nodiscard]] auto create_material(const MaterialDescriptor&) -> Material;
-  [[nodiscard]] auto get(Material) const -> const MaterialData&;
   auto destroy(Material) noexcept -> void;
+  [[nodiscard]] auto get(Material) const -> const MaterialData&;
 
-  explicit ResourceCache(DevicePtr); 
+  explicit ResourceCache(DevicePtr);
 
 private:
   DevicePtr mDevice;
+
+  // owned resources
+  std::vector<Pipeline> mPipelines;
+  std::vector<VertexBuffer> mVertexBuffers;
+  std::vector<IndexBuffer> mIndexBuffers;
+  std::vector<Sampler> mSamplers;
+  std::vector<Texture> mTextures;
   HandlePool<MeshData, Mesh> mMeshes;
   HandlePool<MaterialData, Material> mMaterials;
   HandlePool<XModelData, ext::XModel> mXModels;
@@ -114,6 +126,10 @@ private:
                          uDeviceSize sizeInBytes = 0) const
     -> gsl::span<std::byte>;
   auto unmap(IndexBuffer) const -> void;
+
+  auto destroy_data(ext::XModel) noexcept -> void;
+  auto destroy_data(Mesh) noexcept -> void;
+  auto destroy_data(Material) noexcept -> void;
 };
 
 } // namespace basalt::gfx

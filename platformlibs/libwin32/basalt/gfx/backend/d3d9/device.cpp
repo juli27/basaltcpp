@@ -321,6 +321,7 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
     to_d3d(desc.ambientSource),
     to_d3d(desc.emissiveSource),
     desc.specularEnabled,
+    desc.normalizeViewSpaceNormals,
   });
 }
 

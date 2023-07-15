@@ -112,9 +112,4 @@ SimpleScene::SimpleScene(Engine& engine)
   add_child_top(SceneView::create(scene, mGfxCache, camera.entity()));
 }
 
-SimpleScene::~SimpleScene() noexcept {
-  mGfxCache->destroy(mMaterial);
-  mGfxCache->destroy(mMesh);
-}
-
 } // namespace samples

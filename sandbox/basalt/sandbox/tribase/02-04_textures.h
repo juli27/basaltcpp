@@ -8,6 +8,8 @@
 
 #include <basalt/api/gfx/backend/types.h>
 
+#include <basalt/api/math/vector3.h>
+
 #include <basalt/api/base/types.h>
 
 #include <vector>
@@ -18,16 +20,14 @@ class Textures final : public basalt::View {
 public:
   explicit Textures(basalt::Engine&);
 
-  Textures(const Textures&) = delete;
-  Textures(Textures&&) = delete;
-
-  ~Textures() noexcept override;
-
-  auto operator=(const Textures&) -> Textures& = delete;
-  auto operator=(Textures&&) -> Textures& = delete;
-
 private:
-  struct TriangleData;
+  struct TriangleData final {
+    basalt::Vector3f32 position;
+    basalt::Vector3f32 rotation;
+    basalt::f32 scale {1.0f};
+    basalt::Vector3f32 velocity;
+    basalt::Vector3f32 rotationVelocity;
+  };
 
   std::vector<TriangleData> mTriangles;
   basalt::gfx::ResourceCachePtr mGfxCache;

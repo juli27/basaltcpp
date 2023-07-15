@@ -40,8 +40,6 @@ using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
-using basalt::gfx::TextureOp;
-using basalt::gfx::TextureStageArgument;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexElement;
 
@@ -54,11 +52,6 @@ using std::random_device;
 using std::uniform_real_distribution;
 
 namespace tribase {
-
-struct BuffersExercises::CubeData final {
-  Vector3f32 position;
-  Vector3f32 velocity;
-};
 
 namespace {
 
@@ -145,15 +138,10 @@ BuffersExercises::BuffersExercises(Engine& engine)
     });
   }
 
-  TextureBlendingStage textureStage;
-  textureStage.arg1 = TextureStageArgument::SampledTexture;
-  textureStage.arg2 = TextureStageArgument::Diffuse;
-  textureStage.colorOp = TextureOp::Modulate;
-  textureStage.alphaOp = TextureOp::SelectArg1;
-
+  array textureStages {TextureBlendingStage {}};
   PipelineDescriptor pipelineDesc;
   pipelineDesc.vertexInputState = Vertex::sLayout;
-  pipelineDesc.textureStages = span {&textureStage, 1};
+  pipelineDesc.textureStages = span {textureStages};
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
   pipelineDesc.depthTest = TestPassCond::IfLessEqual;
   pipelineDesc.depthWriteEnable = true;
@@ -168,12 +156,12 @@ BuffersExercises::BuffersExercises(Engine& engine)
   mIndexBuffer = mGfxCache->create_index_buffer(ibDesc);
 
   mGfxCache->with_mapping_of(mVertexBuffer, [this](const span<byte> vbData) {
-    span vb {reinterpret_cast<Vertex*>(vbData.data()),
-             vbData.size() / sizeof(Vertex)};
+    const span<Vertex> vb {reinterpret_cast<Vertex*>(vbData.data()),
+                           vbData.size() / sizeof(Vertex)};
 
     mGfxCache->with_mapping_of(mIndexBuffer, [vb](const span<byte> ibData) {
-      span ib {reinterpret_cast<u16*>(ibData.data()),
-               ibData.size() / sizeof(u16)};
+      const span<u16> ib {reinterpret_cast<u16*>(ibData.data()),
+                          ibData.size() / sizeof(u16)};
       fill_buffers(vb, ib);
     });
   });
@@ -183,14 +171,6 @@ BuffersExercises::BuffersExercises(Engine& engine)
   samplerDesc.minFilter = TextureFilter::Bilinear;
   samplerDesc.mipFilter = TextureMipFilter::Linear;
   mSampler = mGfxCache->create_sampler(samplerDesc);
-}
-
-BuffersExercises::~BuffersExercises() noexcept {
-  mGfxCache->destroy(mTexture);
-  mGfxCache->destroy(mSampler);
-  mGfxCache->destroy(mIndexBuffer);
-  mGfxCache->destroy(mVertexBuffer);
-  mGfxCache->destroy(mPipeline);
 }
 
 auto BuffersExercises::regenerate_velocities() -> void {

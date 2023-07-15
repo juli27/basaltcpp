@@ -86,13 +86,6 @@ FirstTriangle::FirstTriangle(Engine& engine)
     {4 * sizeof(Vertex), Vertex::sLayout}, vertexData);
 }
 
-FirstTriangle::~FirstTriangle() noexcept {
-  mGfxCache->destroy(mVertexBuffer);
-  mGfxCache->destroy(mWireframePipeline);
-  mGfxCache->destroy(mQuadPipeline);
-  mGfxCache->destroy(mPipeline);
-}
-
 auto FirstTriangle::on_update(UpdateContext& ctx) -> void {
   const f32 dt {ctx.deltaTime.count()};
 

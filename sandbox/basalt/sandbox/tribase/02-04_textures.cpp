@@ -48,8 +48,6 @@ using basalt::gfx::TextureAddressMode;
 using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
-using basalt::gfx::TextureOp;
-using basalt::gfx::TextureStageArgument;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexElement;
 
@@ -73,27 +71,15 @@ using Distribution = uniform_real_distribution<float>;
 
 } // namespace
 
-struct Textures::TriangleData final {
-  Vector3f32 position;
-  Vector3f32 rotation;
-  f32 scale {1.0f};
-  Vector3f32 velocity;
-  Vector3f32 rotationVelocity;
-};
-
 Textures::Textures(Engine& engine)
   : mTriangles {NUM_TRIANGLES}
   , mGfxCache {engine.create_gfx_resource_cache()}
   , mTexture {mGfxCache->load_texture("data/tribase/Texture.bmp")} {
-  TextureBlendingStage textureStage;
-  textureStage.arg1 = TextureStageArgument::SampledTexture;
-  textureStage.arg2 = TextureStageArgument::Diffuse;
-  textureStage.colorOp = TextureOp::Modulate;
-  textureStage.alphaOp = TextureOp::SelectArg1;
+  array textureStages {TextureBlendingStage {}};
   PipelineDescriptor pipelineDesc;
   pipelineDesc.vertexInputState = Vertex::sLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
-  pipelineDesc.textureStages = span {&textureStage, 1};
+  pipelineDesc.textureStages = span {textureStages};
   pipelineDesc.depthTest = TestPassCond::IfLessEqual;
   pipelineDesc.depthWriteEnable = true;
   pipelineDesc.dithering = true;
@@ -166,15 +152,6 @@ Textures::Textures(Engine& engine)
 
   samplerDesc.maxAnisotropy = gfxInfo.currentDeviceCaps.samplerMaxAnisotropy;
   mSamplerAnisotropic = mGfxCache->create_sampler(samplerDesc);
-}
-
-Textures::~Textures() noexcept {
-  mGfxCache->destroy(mSamplerAnisotropic);
-  mGfxCache->destroy(mSamplerLinearWithMip);
-  mGfxCache->destroy(mSamplerPoint);
-  mGfxCache->destroy(mTexture);
-  mGfxCache->destroy(mVertexBuffer);
-  mGfxCache->destroy(mPipeline);
 }
 
 auto Textures::on_update(UpdateContext& ctx) -> void {

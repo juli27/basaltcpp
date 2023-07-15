@@ -15,13 +15,6 @@ namespace tribase {
 class FirstTriangle final : public basalt::View {
 public:
   explicit FirstTriangle(basalt::Engine&);
-  FirstTriangle(const FirstTriangle&) = delete;
-  FirstTriangle(FirstTriangle&&) = delete;
-
-  ~FirstTriangle() noexcept override;
-
-  auto operator=(const FirstTriangle&) -> FirstTriangle& = delete;
-  auto operator=(FirstTriangle&&) -> FirstTriangle& = delete;
 
 private:
   basalt::f64 mTimeAccum {};

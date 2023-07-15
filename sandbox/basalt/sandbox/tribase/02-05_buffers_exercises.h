@@ -18,16 +18,12 @@ namespace tribase {
 class BuffersExercises final : public basalt::View {
 public:
   explicit BuffersExercises(basalt::Engine&);
-  BuffersExercises(const BuffersExercises&) = delete;
-  BuffersExercises(BuffersExercises&&) = delete;
-
-  ~BuffersExercises() noexcept override;
-
-  auto operator=(const BuffersExercises&) -> BuffersExercises& = delete;
-  auto operator=(BuffersExercises&&) -> BuffersExercises& = delete;
 
 private:
-  struct CubeData;
+  struct CubeData final {
+    basalt::Vector3f32 position;
+    basalt::Vector3f32 velocity;
+  };
 
   std::vector<CubeData> mCubes;
   basalt::gfx::ResourceCachePtr mGfxCache;

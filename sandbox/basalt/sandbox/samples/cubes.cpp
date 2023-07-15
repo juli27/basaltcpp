@@ -241,10 +241,4 @@ Cubes::Cubes(basalt::Engine& engine)
   add_child_bottom(SceneView::create(scene, mGfxCache, mCameraId));
 }
 
-Cubes::~Cubes() noexcept {
-  mGfxCache->destroy(mMaterial);
-  mGfxCache->destroy(mTexture);
-  mGfxCache->destroy(mMesh);
-}
-
 } // namespace samples

@@ -15,14 +15,6 @@ class Lighting final : public basalt::View {
 public:
   explicit Lighting(basalt::Engine&);
 
-  Lighting(const Lighting&) = delete;
-  Lighting(Lighting&&) = delete;
-
-  ~Lighting() noexcept override;
-
-  auto operator=(const Lighting&) -> Lighting& = delete;
-  auto operator=(Lighting&&) -> Lighting& = delete;
-
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;
   basalt::gfx::Texture mSphereTexture;
