@@ -10,15 +10,15 @@ FetchContent_Declare(EnTT
 )
 FetchContent_Declare(fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG        a33701196adfad74917046096bf5a2aa0ab0bb50 # v9.1
+  GIT_TAG        a0b8a92e3d1532361c2f7feb63babc5c18d00ef2 # v10
 )
 FetchContent_Declare(GSL
   GIT_REPOSITORY https://github.com/microsoft/GSL.git
-  GIT_TAG        9f85e4e0880bf90d51b8dee15c65386b8e8e9fc2
+  GIT_TAG        b34f7350fe666b3637d150e8abae8691ec3b7343
 )
 FetchContent_Declare(spdlog
   GIT_REPOSITORY https://github.com/gabime/spdlog.git
-  GIT_TAG        ad0e89cbfb4d0c1ce4d097e134eb7be67baebb36 # v1.11
+  GIT_TAG        7e635fca68d014934b4af8a1cf874f63989352b7 # v1.12
 )
 
 add_subdirectory("DearImGui")
