@@ -57,6 +57,8 @@ struct RotationSpeed final {
 
 class RotationSpeedSystem final : public System {
 public:
+  using UpdateBefore = basalt::TransformSystem;
+
   RotationSpeedSystem() noexcept = default;
 
   auto on_update(const UpdateContext& ctx) -> void override {

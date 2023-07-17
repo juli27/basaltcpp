@@ -4,6 +4,7 @@
 
 #include <basalt/api/base/types.h>
 
+#include <functional>
 #include <limits>
 
 namespace basalt {
@@ -58,3 +59,10 @@ struct Handle final : detail::HandleBase {
 };
 
 } // namespace basalt
+
+template <typename T>
+struct std::hash<basalt::Handle<T>> {
+  auto operator()(const basalt::Handle<T>& handle) const -> std::size_t {
+    return std::hash<typename basalt::Handle<T>::ValueType> {}(handle.value());
+  }
+};

@@ -30,6 +30,7 @@ class HandlePool final {
 
 public:
   using iterator = typename ActiveSlotsList::iterator;
+  using const_iterator = typename ActiveSlotsList::const_iterator;
 
   HandlePool() noexcept = default;
 
@@ -121,11 +122,19 @@ public:
     }
   }
 
-  auto begin() -> iterator {
+  [[nodiscard]] auto begin() -> iterator {
     return mActiveSlots.begin();
   }
 
-  auto end() -> iterator {
+  [[nodiscard]] auto begin() const -> const_iterator {
+    return mActiveSlots.begin();
+  }
+
+  [[nodiscard]] auto end() -> iterator {
+    return mActiveSlots.end();
+  }
+
+  [[nodiscard]] auto end() const -> const_iterator {
     return mActiveSlots.end();
   }
 

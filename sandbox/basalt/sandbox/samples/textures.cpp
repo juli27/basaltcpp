@@ -62,6 +62,8 @@ struct SamplerSettings final {
 
 class SamplerSettingsSystem final : public System {
 public:
+  using UpdateBefore = basalt::gfx::GfxSystem;
+
   SamplerSettingsSystem() noexcept = default;
 
   auto on_update(const UpdateContext& ctx) -> void override {

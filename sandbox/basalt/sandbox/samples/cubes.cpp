@@ -132,9 +132,10 @@ struct CameraControllerData final {
   Angle angleY;
 };
 
-// TODO: this should run before the TransformSystem
 class CameraController final : public System {
 public:
+  using UpdateBefore = basalt::TransformSystem;
+
   auto on_update(const UpdateContext& ctx) -> void override {
     auto& scene {ctx.scene};
     const auto& entities {scene.entity_registry()};

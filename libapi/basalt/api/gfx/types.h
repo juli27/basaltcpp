@@ -20,6 +20,8 @@
 
 namespace basalt::gfx {
 
+class GfxSystem;
+
 class ResourceCache;
 using ResourceCachePtr = std::shared_ptr<ResourceCache>;
 
