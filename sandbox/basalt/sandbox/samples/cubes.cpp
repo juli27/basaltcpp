@@ -155,14 +155,6 @@ public:
       controllerData.angleY += Angle::degrees(45 * dt);
     }
 
-    while (controllerData.angleY.degrees() < -180) {
-      controllerData.angleY += 360_deg;
-    }
-
-    while (controllerData.angleY.degrees() > 180) {
-      controllerData.angleY -= 360_deg;
-    }
-
     const Vector3f32 direction {controllerData.angleY.sin(), 0,
                                 controllerData.angleY.cos()};
 
@@ -187,8 +179,8 @@ public:
     if (fov.degrees() <= 0) {
       fov = 0.1_deg;
     }
-    if (fov.degrees() >= 180) {
-      fov = 179.9_deg;
+    if (fov.degrees() >= 179) {
+      fov = 179_deg;
     }
 
     cameraData.fov = fov;

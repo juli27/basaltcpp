@@ -6,14 +6,10 @@
 
 namespace basalt {
 
-struct Angle final {
-  [[nodiscard]] static constexpr auto radians(const f32 rad) noexcept -> Angle {
-    return Angle {rad};
-  }
-
-  [[nodiscard]] static constexpr auto degrees(const f32 deg) noexcept -> Angle {
-    return radians(deg * RAD_PER_DEG);
-  }
+class Angle final {
+public:
+  [[nodiscard]] static auto radians(f32 rad) noexcept -> Angle;
+  [[nodiscard]] static auto degrees(f32 deg) noexcept -> Angle;
 
   // sin in [-1; 1]
   [[nodiscard]] static auto arcsin(f32 sin) noexcept -> Angle;
@@ -37,35 +33,19 @@ struct Angle final {
   [[nodiscard]] auto cos() const noexcept -> f32;
   [[nodiscard]] auto tan() const noexcept -> f32;
 
-  constexpr auto operator+=(const Angle rhs) noexcept -> Angle& {
-    mRadians += rhs.mRadians;
+  auto operator+=(Angle rhs) noexcept -> Angle&;
+  [[nodiscard]] friend auto operator+(Angle lhs, Angle rhs) noexcept -> Angle;
 
-    return *this;
-  }
-
-  constexpr auto operator-=(const Angle rhs) noexcept -> Angle& {
-    mRadians -= rhs.mRadians;
-
-    return *this;
-  }
-
-  [[nodiscard]] friend constexpr auto operator+(Angle lhs,
-                                                const Angle rhs) noexcept
-    -> Angle {
-    return lhs += rhs;
-  }
-
-  [[nodiscard]] friend constexpr auto operator-(Angle lhs,
-                                                const Angle rhs) noexcept
-    -> Angle {
-    return lhs -= rhs;
-  }
+  auto operator-=(Angle rhs) noexcept -> Angle&;
+  [[nodiscard]] friend auto operator-(Angle lhs, Angle rhs) noexcept -> Angle;
 
 private:
   f32 mRadians {};
 
-  explicit constexpr Angle(const f32 rad) noexcept : mRadians {rad} {
-  }
+  explicit Angle(f32 rad) noexcept;
+
+  // normalize angle to [-pi,pi)
+  auto normalize() noexcept -> void;
 
   static constexpr f32 DEG_PER_RAD {180.0f / PI};
   static constexpr f32 RAD_PER_DEG {PI / 180.0f};
@@ -73,25 +53,10 @@ private:
 
 inline namespace literals {
 
-[[nodiscard]] constexpr auto operator"" _rad(const long double rad) noexcept
-  -> Angle {
-  return Angle::radians(static_cast<f32>(rad));
-}
-
-[[nodiscard]] constexpr auto
-operator"" _rad(const unsigned long long rad) noexcept -> Angle {
-  return Angle::radians(static_cast<f32>(rad));
-}
-
-[[nodiscard]] constexpr auto operator"" _deg(const long double deg) noexcept
-  -> Angle {
-  return Angle::degrees(static_cast<f32>(deg));
-}
-
-[[nodiscard]] constexpr auto
-operator"" _deg(const unsigned long long deg) noexcept -> Angle {
-  return Angle::degrees(static_cast<f32>(deg));
-}
+[[nodiscard]] auto operator"" _rad(long double rad) noexcept -> Angle;
+[[nodiscard]] auto operator"" _rad(unsigned long long rad) noexcept -> Angle;
+[[nodiscard]] auto operator"" _deg(long double deg) noexcept -> Angle;
+[[nodiscard]] auto operator"" _deg(unsigned long long deg) noexcept -> Angle;
 
 } // namespace literals
 

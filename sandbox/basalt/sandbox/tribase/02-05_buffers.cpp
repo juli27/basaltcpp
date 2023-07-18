@@ -175,14 +175,6 @@ auto Buffers::on_update(UpdateContext& ctx) -> void {
     mCameraAngleY += Angle::degrees(45.0f * dt);
   }
 
-  while (mCameraAngleY.degrees() < -180) {
-    mCameraAngleY += 360_deg;
-  }
-
-  while (mCameraAngleY.degrees() > 180) {
-    mCameraAngleY -= 360_deg;
-  }
-
   const Vector3f32 dir {mCameraAngleY.sin(), 0.0f, mCameraAngleY.cos()};
 
   if (is_key_down(Key::UpArrow)) {
@@ -202,8 +194,8 @@ auto Buffers::on_update(UpdateContext& ctx) -> void {
   if (mFov.degrees() <= 0) {
     mFov = 0.1_deg;
   }
-  if (mFov.degrees() >= 180) {
-    mFov = 179.9_deg;
+  if (mFov.degrees() >= 179) {
+    mFov = 179_deg;
   }
 
   CommandList cmdList;

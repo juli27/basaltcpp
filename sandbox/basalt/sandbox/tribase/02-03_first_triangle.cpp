@@ -91,9 +91,6 @@ auto FirstTriangle::on_update(UpdateContext& ctx) -> void {
 
   // 90 deg per second
   mRotationY += Angle::degrees(90.0f * dt);
-  while (mRotationY.radians() > PI) {
-    mRotationY -= Angle::radians(PI * 2.0f);
-  }
 
   if (ImGui::Begin("Settings##TribaseDreieck")) {
     const auto uploadDefaultTriangle {[this] {

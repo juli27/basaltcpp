@@ -1,7 +1,5 @@
 #include "transform.h"
 
-#include <basalt/api/math/constants.h>
-
 namespace basalt {
 
 auto Transform::move(const f32 offsetX, const f32 offsetY,
@@ -14,25 +12,10 @@ auto Transform::rotate(const Angle offsetX, const Angle offsetY,
   rotation +=
     Vector3f32 {offsetX.radians(), offsetY.radians(), offsetZ.radians()};
 
-  constexpr auto twoPi = PI * 2.0f;
-  if (rotation.x() < -PI) {
-    rotation.x() += twoPi;
-  }
-  if (rotation.x() > PI) {
-    rotation.x() -= twoPi;
-  }
-  if (rotation.y() < -PI) {
-    rotation.y() += twoPi;
-  }
-  if (rotation.y() > PI) {
-    rotation.y() -= twoPi;
-  }
-  if (rotation.z() < -PI) {
-    rotation.z() += twoPi;
-  }
-  if (rotation.z() > PI) {
-    rotation.z() -= twoPi;
-  }
+  // this little dance is to (ab-) use the angle normalization
+  rotation.x() = Angle::radians(rotation.x()).radians();
+  rotation.y() = Angle::radians(rotation.y()).radians();
+  rotation.z() = Angle::radians(rotation.z()).radians();
 }
 
 auto Transform::rotate_y(const Angle offsetY) noexcept -> void {

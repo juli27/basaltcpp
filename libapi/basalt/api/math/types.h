@@ -4,7 +4,7 @@
 
 namespace basalt {
 
-struct Angle;
+class Angle;
 
 struct Matrix4x4f32;
 

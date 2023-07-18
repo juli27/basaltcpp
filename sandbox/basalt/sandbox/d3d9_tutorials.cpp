@@ -108,7 +108,7 @@ struct Vertex4 final {
 [[nodiscard]] auto
 create_default_view_to_clip_transform(const basalt::Size2Du16 viewport) noexcept
   -> Matrix4x4f32 {
-  constexpr auto fov {45_deg};
+  const auto fov {45_deg};
   const f32 aspectRatio {viewport.aspect_ratio()};
 
   return Matrix4x4f32::perspective_projection(fov, aspectRatio, 1.0f, 100.0f);
@@ -191,12 +191,9 @@ protected:
   auto on_update(UpdateContext& ctx) -> void override {
     const f32 dt {ctx.deltaTime.count()};
 
-    constexpr f32 twoPi {PI * 2.0f};
-    // 1 full rotation per second
-    mRotationY += Angle::radians(twoPi * dt);
-    while (mRotationY.radians() > PI) {
-      mRotationY -= Angle::radians(twoPi);
-    }
+    // per second
+    constexpr f32 rotationSpeedRadians {2 * PI};
+    mRotationY += Angle::radians(rotationSpeedRadians * dt);
 
     CommandList cmdList;
     cmdList.clear_attachments(Attachments {Attachment::RenderTarget});
@@ -271,17 +268,8 @@ private:
   auto on_update(UpdateContext& ctx) -> void override {
     const f32 dt {ctx.deltaTime.count()};
 
-    constexpr f32 twoPi {2.0f * PI};
-
-    mRotationX += Angle::radians(2.0f * dt);
-    while (mRotationX.radians() > PI) {
-      mRotationX -= Angle::radians(twoPi);
-    }
-
+    mRotationX += Angle::radians(2 * dt);
     mLightRotation += Angle::radians(20.0f / 7.0f * dt);
-    while (mLightRotation.radians() > PI) {
-      mLightRotation -= Angle::radians(twoPi);
-    }
 
     CommandList cmdList;
     cmdList.clear_attachments(
@@ -328,24 +316,24 @@ public:
     array<Vertex4, sVertexCount> vertices {};
     for (uSize i {0}; i < 50; i++) {
       const Angle theta {
-        Angle::radians(2.0f * PI * static_cast<f32>(i) / (50 - 1))};
+        Angle::radians(2 * PI * static_cast<f32>(i) / (50 - 1))};
       const f32 sinTheta {theta.sin()};
       const f32 cosTheta {theta.cos()};
 
       Vertex4& vertex1 {vertices[2 * i]};
-      vertex1.pos = {sinTheta, -1.0f, cosTheta};
+      vertex1.pos = {sinTheta, -1, cosTheta};
       vertex1.color = Colors::WHITE.to_argb();
       vertex1.uv = {
-        static_cast<f32>(i) / (50.0f - 1.0f),
-        1.0f,
+        static_cast<f32>(i) / (50 - 1),
+        1,
       };
 
       Vertex4& vertex2 {vertices[2 * i + 1]};
-      vertex2.pos = {sinTheta, 1.0f, cosTheta};
+      vertex2.pos = {sinTheta, 1, cosTheta};
       vertex2.color = 0xff808080_a8r8g8b8;
       vertex2.uv = {
         std::get<0>(vertex1.uv),
-        0.0f,
+        0,
       };
     }
     using Vertex = decltype(vertices)::value_type;
@@ -386,9 +374,6 @@ private:
     const f32 dt {ctx.deltaTime.count()};
 
     mRotationX += Angle::radians(dt);
-    while (mRotationX.radians() > PI) {
-      mRotationX -= Angle::radians(PI * 2.0f);
-    }
 
     if (ImGui::Begin("Settings##D3D9Textures")) {
       ImGui::Checkbox("Show TCI", &mShowTci);
@@ -445,14 +430,11 @@ private:
     const f32 dt {ctx.deltaTime.count()};
 
     mRotationY += Angle::radians(dt);
-    while (mRotationY.radians() > PI) {
-      mRotationY -= Angle::radians(PI * 2.0f);
-    }
 
     CommandList cmdList;
     cmdList.clear_attachments(
       Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
-      Colors::BLUE, 1.0f);
+      Colors::BLUE, 1);
 
     cmdList.set_ambient_light(Colors::WHITE);
     cmdList.set_lights({});
