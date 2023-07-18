@@ -6,10 +6,12 @@
 #include <basalt/api/base/types.h>
 
 #include <algorithm>
+#include <array>
 #include <memory>
 #include <utility>
 #include <vector>
 
+using std::array;
 using std::byte;
 using std::vector;
 using std::filesystem::path;
@@ -35,7 +37,7 @@ ResourceCache::~ResourceCache() noexcept {
   for (const auto handle : mMaterials) {
     destroy_data(handle);
   }
-  
+
   for (const auto handle : mPipelines) {
     mDevice->destroy(handle);
   }
@@ -88,6 +90,7 @@ auto ResourceCache::destroy(const VertexBuffer handle) noexcept -> void {
 
   mDevice->destroy(handle);
 }
+
 auto ResourceCache::create_index_buffer(const IndexBufferDescriptor& desc,
                                         const span<const std::byte> initialData)
   -> IndexBuffer {
@@ -143,7 +146,15 @@ auto ResourceCache::load_x_model(const path& path) -> ext::XModel {
   materials.reserve(xModel.materials().size());
 
   for (const auto& material : xModel.materials()) {
+    array<TextureBlendingStage, 1> textureStages {};
+    PipelineDescriptor pipelineDesc;
+    pipelineDesc.lightingEnabled = true;
+    pipelineDesc.cullMode = CullMode::CounterClockwise;
+    pipelineDesc.textureStages = textureStages;
+    pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+    pipelineDesc.depthWriteEnable = true;
     MaterialDescriptor desc;
+    desc.pipelineDesc = &pipelineDesc;
     desc.diffuse = material.diffuse;
     desc.ambient = material.ambient;
 
@@ -192,22 +203,8 @@ auto ResourceCache::destroy(const Mesh handle) noexcept -> void {
 
 auto ResourceCache::create_material(const MaterialDescriptor& desc)
   -> Material {
-  TextureBlendingStage textureStage;
-  textureStage.texCoordinateSrc = desc.textureCoordinateSource;
-  textureStage.texCoordinateTransformMode = desc.textureTransformMode;
-  textureStage.texCoordinateProjected = desc.textureTransformProjected;
-
-  PipelineDescriptor pipelineDesc;
-  pipelineDesc.vertexInputState = desc.vertexInputState;
-  pipelineDesc.textureStages = span<TextureBlendingStage> {&textureStage, 1};
-  pipelineDesc.primitiveType = desc.primitiveType;
-  pipelineDesc.lightingEnabled = desc.lit;
-  pipelineDesc.cullMode =
-    desc.cullBackFace ? CullMode::CounterClockwise : CullMode::None;
-  pipelineDesc.fillMode = desc.solid ? FillMode::Solid : FillMode::Wireframe;
-  pipelineDesc.depthTest = TestPassCond::IfLessEqual;
-  pipelineDesc.depthWriteEnable = true;
-  const Pipeline pipeline {create_pipeline(pipelineDesc)};
+  // TODO: cache pipelines
+  const Pipeline pipeline {create_pipeline(*desc.pipelineDesc)};
 
   const u8 maxAnisotropy {
     desc.sampledTexture.filter == TextureFilter::Anisotropic

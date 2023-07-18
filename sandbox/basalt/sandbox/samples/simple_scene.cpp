@@ -37,8 +37,10 @@ using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::MaterialDescriptor;
+using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
+using basalt::gfx::TestPassCond;
 using basalt::gfx::VertexElement;
 
 namespace {
@@ -94,12 +96,15 @@ SimpleScene::SimpleScene(Engine& engine)
     Vertex::sLayout,
   });
 
-  MaterialDescriptor materialDescriptor;
-  materialDescriptor.vertexInputState = Vertex::sLayout;
-  materialDescriptor.primitiveType = PrimitiveType::TriangleList;
-  materialDescriptor.lit = false;
-  materialDescriptor.cullBackFace = false;
-  mMaterial = mGfxCache->create_material(materialDescriptor);
+  PipelineDescriptor pipelineDesc;
+  pipelineDesc.vertexInputState = Vertex::sLayout;
+  pipelineDesc.primitiveType = PrimitiveType::TriangleList;
+  pipelineDesc.lightingEnabled = false;
+  pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+  pipelineDesc.depthWriteEnable = true;
+  MaterialDescriptor materialDesc;
+  materialDesc.pipelineDesc = &pipelineDesc;
+  mMaterial = mGfxCache->create_material(materialDesc);
 
   const auto scene {Scene::create()};
   scene->set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));

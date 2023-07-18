@@ -145,22 +145,11 @@ struct SampledTextureDescriptor final {
 };
 
 struct MaterialDescriptor final {
-  gsl::span<const VertexElement> vertexInputState;
+  PipelineDescriptor* pipelineDesc {};
   Color diffuse;
   Color ambient;
 
   SampledTextureDescriptor sampledTexture;
-
-  PrimitiveType primitiveType {PrimitiveType::PointList};
-  // TODO: upgrade boolean flag to CullMode enum
-  bool cullBackFace {true};
-  bool lit {true};
-  bool solid {true};
-
-  TextureCoordinateSource textureCoordinateSource {
-    TextureCoordinateSource::Vertex};
-  TextureTransformMode textureTransformMode {TextureTransformMode::Disabled};
-  bool textureTransformProjected {false};
 };
 
 struct RenderComponent final {

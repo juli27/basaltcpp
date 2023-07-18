@@ -37,8 +37,11 @@ using basalt::Vector3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::Material;
 using basalt::gfx::MaterialDescriptor;
+using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
+using basalt::gfx::TestPassCond;
+using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
 using basalt::gfx::VertexElement;
@@ -144,24 +147,29 @@ auto add_camera(Scene& scene) -> Entity {
 Textures::Textures(Engine& engine)
   : mGfxCache {engine.create_gfx_resource_cache()}
   , mTexture {mGfxCache->load_texture("data/Tiger.bmp")} {
-  MaterialDescriptor material;
-  material.vertexInputState = Vertex::sLayout;
-  material.primitiveType = PrimitiveType::TriangleStrip;
-  material.cullBackFace = false;
-  material.lit = false;
-  material.sampledTexture.texture = mTexture;
+  PipelineDescriptor pipelineDesc;
+  pipelineDesc.vertexInputState = Vertex::sLayout;
+  pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
+  pipelineDesc.lightingEnabled = false;
+  array<TextureBlendingStage, 1> textureStages {};
+  pipelineDesc.textureStages = textureStages;
+  pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+  pipelineDesc.depthWriteEnable = true;
+  MaterialDescriptor materialDesc;
+  materialDesc.pipelineDesc = &pipelineDesc;
+  materialDesc.sampledTexture.texture = mTexture;
 
   u32 i {0};
 
   for (const auto filter : {TextureFilter::Point, TextureFilter::Bilinear,
                             TextureFilter::Anisotropic}) {
-    material.sampledTexture.filter = filter;
+    materialDesc.sampledTexture.filter = filter;
 
     for (const auto mipFilter :
          {TextureMipFilter::None, TextureMipFilter::Point,
           TextureMipFilter::Linear}) {
-      material.sampledTexture.mipFilter = mipFilter;
-      mMaterials[i] = mGfxCache->create_material(material);
+      materialDesc.sampledTexture.mipFilter = mipFilter;
+      mMaterials[i] = mGfxCache->create_material(materialDesc);
       ++i;
     }
   }

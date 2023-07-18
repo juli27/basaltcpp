@@ -46,8 +46,11 @@ using basalt::Vector3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::CameraEntity;
 using basalt::gfx::MaterialDescriptor;
+using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
+using basalt::gfx::TestPassCond;
+using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
 using basalt::gfx::VertexElement;
@@ -205,14 +208,19 @@ Cubes::Cubes(basalt::Engine& engine)
   mMesh = mGfxCache->create_mesh(
     {vertexData, vertexCount, Vertex::sLayout, indexData, indexCount});
 
+  PipelineDescriptor pipelineDesc;
+  pipelineDesc.vertexInputState = Vertex::sLayout;
+  pipelineDesc.primitiveType = PrimitiveType::TriangleList;
+  pipelineDesc.lightingEnabled = false;
+  array<TextureBlendingStage, 1> textureStages {};
+  pipelineDesc.textureStages = textureStages;
+  pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+  pipelineDesc.depthWriteEnable = true;
   MaterialDescriptor matDesc;
-  matDesc.vertexInputState = Vertex::sLayout;
-  matDesc.primitiveType = PrimitiveType::TriangleList;
-  matDesc.cullBackFace = false;
+  matDesc.pipelineDesc = &pipelineDesc;
   matDesc.sampledTexture.texture = mTexture;
   matDesc.sampledTexture.filter = TextureFilter::Bilinear;
   matDesc.sampledTexture.mipFilter = TextureMipFilter::Linear;
-  matDesc.lit = false;
   mMaterial = mGfxCache->create_material(matDesc);
 
   const auto scene {Scene::create()};

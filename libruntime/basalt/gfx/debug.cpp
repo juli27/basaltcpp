@@ -336,6 +336,7 @@ void draw_composite_inspector(const Composite& composite) {
 
   if (!ImGui::BeginChild("commands", ImVec2 {200, 0})) {
     ImGui::EndChild();
+    ImGui::End();
     return;
   }
 
@@ -369,6 +370,8 @@ void draw_composite_inspector(const Composite& composite) {
 
   if (!ImGui::BeginChild("command data")) {
     ImGui::EndChild();
+    ImGui::End();
+    
     return;
   }
 
