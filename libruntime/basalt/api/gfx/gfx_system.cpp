@@ -5,6 +5,7 @@
 #include <basalt/api/view.h> // for DrawContext ...
 
 #include <basalt/api/gfx/camera.h>
+#include <basalt/api/gfx/environment.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/types.h>
 #include <basalt/api/gfx/backend/types.h>
@@ -15,9 +16,13 @@
 #include <basalt/api/scene/transform.h>
 #include <basalt/api/scene/types.h>
 
+#include <gsl/span>
+
 #include <vector>
 
 using std::vector;
+
+using gsl::span;
 
 namespace basalt::gfx {
 
@@ -80,20 +85,20 @@ auto GfxSystem::on_update(const UpdateContext& ctx) -> void {
 
   const auto& drawCtx {ecsCtx.get<const View::DrawContext>()};
   const auto& cache {ecsCtx.get<const ResourceCache>()};
+  const auto& env {ecsCtx.get<const Environment>()};
 
   FilteringCommandList cmdList;
   cmdList.clear_attachments(
     Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
-    scene.background(), 1.0f);
+    env.background(), 1.0f);
 
   const f32 aspectRatio {drawCtx.viewport.aspect_ratio()};
   record_camera(cmdList, scene, aspectRatio);
 
-  cmdList.set_ambient_light(scene.ambient_light());
+  cmdList.set_ambient_light(env.ambient_light());
 
   vector<Light> lights;
-
-  const auto& directionalLights {scene.directional_lights()};
+  const span directionalLights {env.directional_lights()};
   if (!directionalLights.empty()) {
     lights.insert(lights.end(), directionalLights.begin(),
                   directionalLights.end());

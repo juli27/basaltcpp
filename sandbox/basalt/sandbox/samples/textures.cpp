@@ -5,6 +5,7 @@
 #include <basalt/api/scene_view.h>
 
 #include <basalt/api/gfx/camera.h>
+#include <basalt/api/gfx/environment.h>
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/api/scene/ecs.h>
@@ -35,6 +36,7 @@ using basalt::SceneView;
 using basalt::System;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
+using basalt::gfx::Environment;
 using basalt::gfx::Material;
 using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::PipelineDescriptor;
@@ -185,7 +187,8 @@ Textures::Textures(Engine& engine)
   });
 
   const auto scene {Scene::create()};
-  scene->set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
+  auto& gfxEnv {scene->entity_registry().ctx().emplace<Environment>()};
+  gfxEnv.set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
 
   const Entity quad {scene->create_entity({0.0f, 0.0f, 1.5f})};
   quad.emplace<RenderComponent>(mMesh, std::get<0>(mMaterials));

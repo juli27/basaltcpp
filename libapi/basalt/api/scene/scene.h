@@ -1,12 +1,9 @@
 #pragma once
 
-#include <basalt/api/gfx/backend/types.h>
-
 #include <basalt/api/scene/ecs.h>
 #include <basalt/api/scene/system.h>
 #include <basalt/api/scene/types.h>
 
-#include <basalt/api/shared/color.h>
 #include <basalt/api/shared/handle_pool.h>
 #include <basalt/api/shared/types.h>
 
@@ -71,17 +68,6 @@ public:
 
   auto on_update(const UpdateContext&) -> void;
 
-  [[nodiscard]] auto background() const -> const Color&;
-  auto set_background(const Color&) -> void;
-
-  [[nodiscard]] auto ambient_light() const -> const Color&;
-  auto set_ambient_light(const Color&) -> void;
-
-  [[nodiscard]] auto directional_lights() const
-    -> const std::vector<gfx::DirectionalLight>&;
-  auto add_directional_light(const Vector3f32& direction, const Color&) -> void;
-  auto clear_directional_lights() -> void;
-
 private:
   friend class DebugUi;
 
@@ -106,10 +92,6 @@ private:
   std::vector<SystemId> mUpdateOrder;
   std::unordered_map<SystemId, SystemTypeId> mSystemIdToSystemType;
   std::unordered_map<SystemTypeId, SystemTypeInfo> mSystemTypes;
-
-  std::vector<gfx::DirectionalLight> mDirectionalLights;
-  Color mBackgroundColor {Colors::BLACK};
-  Color mAmbientLightColor;
 
   [[nodiscard]] auto add_system(SystemPtr, const SystemInfo&) -> SystemId;
   [[nodiscard]] auto compute_update_order() const -> std::vector<SystemId>;

@@ -20,6 +20,8 @@
 
 namespace basalt::gfx {
 
+struct Camera;
+class Environment;
 class GfxSystem;
 
 class ResourceCache;

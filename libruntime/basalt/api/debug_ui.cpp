@@ -192,30 +192,6 @@ auto DebugUi::show_scene_inspector(Scene& scene, bool& isOpen) -> void {
 }
 
 auto DebugUi::edit_scene(Scene& scene) -> void {
-  edit_color3("Background Color", scene.mBackgroundColor);
-
-  ImGui::Separator();
-
-  edit_color4("Ambient Light", scene.mAmbientLightColor);
-
-  if (!scene.mDirectionalLights.empty()) {
-    ImGui::PushID("Directional Lights");
-    for (uSize i {0}; i < scene.mDirectionalLights.size(); i++) {
-      ImGui::PushID(static_cast<i32>(i));
-      if (ImGui::TreeNode("Directional Light")) {
-        edit_directional_light(scene.mDirectionalLights[i]);
-
-        ImGui::TreePop();
-      }
-
-      ImGui::PopID();
-    }
-
-    ImGui::PopID();
-  }
-
-  ImGui::Separator();
-
   edit_ecs(scene.entity_registry());
 }
 

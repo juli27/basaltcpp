@@ -24,8 +24,6 @@ using std::vector;
 
 namespace basalt {
 
-using gfx::DirectionalLight;
-
 using AdjacencyMatrix = adjacency_matrix<directed_tag>;
 
 enum class Visited : u8 {
@@ -104,36 +102,6 @@ auto Scene::on_update(const UpdateContext& ctx) -> void {
 
     mSystems[systemId]->on_update(systemCtx);
   }
-}
-
-auto Scene::background() const -> const Color& {
-  return mBackgroundColor;
-}
-
-auto Scene::set_background(const Color& background) -> void {
-  mBackgroundColor = background;
-}
-
-auto Scene::set_ambient_light(const Color& color) -> void {
-  mAmbientLightColor = color;
-}
-
-auto Scene::ambient_light() const -> const Color& {
-  return mAmbientLightColor;
-}
-
-auto Scene::directional_lights() const -> const vector<DirectionalLight>& {
-  return mDirectionalLights;
-}
-
-// TODO: ambient color support
-auto Scene::add_directional_light(const Vector3f32& direction,
-                                  const Color& color) -> void {
-  mDirectionalLights.emplace_back(DirectionalLight {color, {}, {}, direction});
-}
-
-auto Scene::clear_directional_lights() -> void {
-  mDirectionalLights.clear();
 }
 
 auto Scene::add_system(SystemPtr system, const SystemInfo& info) -> SystemId {

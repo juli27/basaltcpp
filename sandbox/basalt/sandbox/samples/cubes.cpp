@@ -6,6 +6,7 @@
 #include <basalt/api/scene_view.h>
 
 #include <basalt/api/gfx/camera.h>
+#include <basalt/api/gfx/environment.h>
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/api/scene/ecs.h>
@@ -45,6 +46,7 @@ using basalt::System;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::CameraEntity;
+using basalt::gfx::Environment;
 using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
@@ -224,6 +226,8 @@ Cubes::Cubes(basalt::Engine& engine)
   mMaterial = mGfxCache->create_material(matDesc);
 
   const auto scene {Scene::create()};
+  auto& gfxEnv {scene->entity_registry().ctx().emplace<Environment>()};
+  gfxEnv.set_background(Colors::BLACK);
   auto& entities {scene->entity_registry()};
   scene->create_system<CameraController>();
 

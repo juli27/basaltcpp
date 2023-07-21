@@ -5,6 +5,7 @@
 #include <basalt/api/scene_view.h>
 
 #include <basalt/api/gfx/camera.h>
+#include <basalt/api/gfx/environment.h>
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/api/scene/ecs.h>
@@ -36,6 +37,7 @@ using basalt::System;
 using basalt::Transform;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
+using basalt::gfx::Environment;
 using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
@@ -107,7 +109,8 @@ SimpleScene::SimpleScene(Engine& engine)
   mMaterial = mGfxCache->create_material(materialDesc);
 
   const auto scene {Scene::create()};
-  scene->set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
+  auto& gfxEnv {scene->entity_registry().ctx().emplace<Environment>()};
+  gfxEnv.set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
 
   const Entity triangle {scene->create_entity(Vector3f32::forward() * 2.5f)};
   triangle.emplace<RotationSpeed>(360_deg);
