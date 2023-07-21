@@ -8,11 +8,9 @@
 #include <basalt/api/client_app.h>
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
-#include <basalt/api/types.h>
 
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/config.h>
-#include <basalt/api/shared/types.h>
 
 #include <imgui/imgui.h>
 
@@ -40,7 +38,7 @@ struct SandboxView::Example final {
 };
 
 SandboxView::SandboxView(Engine& engine) {
-  mExamples.reserve(16u);
+  mExamples.reserve(17u);
   mExamples.emplace_back(Example {
     "Tutorial 1: Creating a Device"s,
     &D3D9Tutorials::new_device_tutorial,
@@ -104,6 +102,10 @@ SandboxView::SandboxView(Engine& engine) {
   mExamples.emplace_back(Example {
     "Cubes"s,
     &Samples::new_cubes_sample,
+  });
+  mExamples.emplace_back(Example {
+    "Lighting"s,
+    &Samples::new_lighting_sample,
   });
 
   switch_scene(mCurrentExampleIndex, engine);

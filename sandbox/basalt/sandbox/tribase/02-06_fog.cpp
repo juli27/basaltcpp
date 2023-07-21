@@ -110,6 +110,7 @@ auto Fog::update_pipeline() -> void {
   pipelineDesc.fogMode = mFogMode;
   mPipeline = mGfxCache->create_pipeline(pipelineDesc);
 }
+
 auto Fog::render_ui() -> void {
   ImGui::SetNextWindowSize({300.0f, 0}, ImGuiCond_FirstUseEver);
   if (!ImGui::Begin("Fog Settings")) {
@@ -174,6 +175,7 @@ auto Fog::on_update(UpdateContext& ctx) -> void {
   cmdList.bind_pipeline(mPipeline);
   cmdList.bind_sampler(mSampler);
   cmdList.bind_vertex_buffer(mVertexBuffer);
+  cmdList.set_fog_parameters(mFogColor, mFogStart, mFogEnd, mFogDensity);
 
   const DrawContext drawCtx {ctx.drawCtx};
 
@@ -201,7 +203,6 @@ auto Fog::on_update(UpdateContext& ctx) -> void {
                            Matrix4x4f32::translation(0.0f, -7.5f, 75.0f)};
   cmdList.set_transform(TransformState::LocalToWorld, localToWorld);
   cmdList.bind_texture(mTextures[5]);
-  cmdList.set_fog_parameters(mFogColor, mFogStart, mFogEnd, mFogDensity);
   cmdList.draw(0, 4);
 
   drawCtx.commandLists.emplace_back(std::move(cmdList));
