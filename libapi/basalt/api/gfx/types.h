@@ -14,6 +14,7 @@
 #include <gsl/span>
 
 #include <cstddef>
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
@@ -200,6 +201,13 @@ struct MaterialData final {
   Pipeline pipeline;
   Texture texture;
   Sampler sampler;
+};
+
+struct XModelDescriptor final {
+  std::filesystem::path modelPath;
+
+  // optional materials to override (in order of the model)
+  gsl::span<MaterialDescriptor> materials {};
 };
 
 struct XModelData final {

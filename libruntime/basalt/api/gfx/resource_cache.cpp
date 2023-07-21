@@ -168,6 +168,51 @@ auto ResourceCache::load_x_model(const path& path) -> ext::XModel {
   return mXModels.allocate(XModelData {std::move(materials), xModel.mesh()});
 }
 
+auto ResourceCache::load_x_model(const XModelDescriptor& desc) -> ext::XModel {
+  // throws std::bad_optional_access if extension not present
+  const auto modelExt {mDevice->query_extension<ext::XModelSupport>().value()};
+
+  const ext::XModelData xModel {modelExt->load(desc.modelPath)};
+
+  const uSize numModelMaterials {
+    std::max(xModel.materials().size(), desc.materials.size())};
+  vector<Material> materials;
+  materials.reserve(numModelMaterials);
+
+  for (const auto& materialDesc : desc.materials) {
+    materials.push_back(create_material(materialDesc));
+  }
+
+  // if the model has more materials than are provided in the XModelDescriptor
+  // then use those
+  if (desc.materials.size() < numModelMaterials) {
+    array<TextureBlendingStage, 1> textureStages {};
+    PipelineDescriptor pipelineDesc;
+    pipelineDesc.lightingEnabled = true;
+    pipelineDesc.cullMode = CullMode::CounterClockwise;
+    pipelineDesc.textureStages = textureStages;
+    pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+    pipelineDesc.depthWriteEnable = true;
+
+    for (uSize i {desc.materials.size()}; i < numModelMaterials; ++i) {
+      const auto& material {xModel.materials()[i]};
+      MaterialDescriptor materialDesc;
+      materialDesc.pipelineDesc = &pipelineDesc;
+      materialDesc.diffuse = material.diffuse;
+      materialDesc.ambient = material.ambient;
+
+      if (!material.textureFile.empty()) {
+        materialDesc.sampledTexture.texture =
+          load_texture(material.textureFile);
+      }
+
+      materials.push_back(create_material(materialDesc));
+    }
+  }
+
+  return mXModels.allocate(XModelData {std::move(materials), xModel.mesh()});
+}
+
 auto ResourceCache::get(const ext::XModel handle) const -> const XModelData& {
   return mXModels[handle];
 }

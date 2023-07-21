@@ -93,6 +93,7 @@ public:
   auto destroy(Texture) noexcept -> void;
 
   [[nodiscard]] auto load_x_model(const std::filesystem::path&) -> ext::XModel;
+  [[nodiscard]] auto load_x_model(const XModelDescriptor&) -> ext::XModel;
   auto destroy(ext::XModel) noexcept -> void;
   [[nodiscard]] auto get(ext::XModel) const -> const XModelData&;
 
