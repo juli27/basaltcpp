@@ -148,7 +148,9 @@ struct MaterialDescriptor final {
   PipelineDescriptor* pipelineDesc {};
   Color diffuse;
   Color ambient;
-
+  Color emissive;
+  Color specular;
+  f32 specularPower {};
   SampledTextureDescriptor sampledTexture;
 };
 
@@ -171,6 +173,9 @@ struct MeshData final {
 struct MaterialData final {
   Color diffuse;
   Color ambient;
+  Color emissive;
+  Color specular;
+  f32 specularPower {};
 
   Pipeline pipeline;
   Texture texture;

@@ -230,6 +230,9 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
   return mMaterials.allocate(MaterialData {
     desc.diffuse,
     desc.ambient,
+    desc.emissive,
+    desc.specular,
+    desc.specularPower,
     pipeline,
     desc.sampledTexture.texture,
     sampler,

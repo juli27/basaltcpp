@@ -45,7 +45,8 @@ auto record_material(FilteringCommandList& cmdList, const ResourceCache& cache,
   cmdList.bind_texture(data.texture);
   cmdList.bind_sampler(data.sampler);
 
-  cmdList.set_material(data.diffuse, data.ambient);
+  cmdList.set_material(data.diffuse, data.ambient, data.emissive, data.specular,
+                       data.specularPower);
 }
 
 auto record_render_component(FilteringCommandList& cmdList,
