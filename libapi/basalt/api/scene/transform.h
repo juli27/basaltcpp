@@ -1,26 +1,41 @@
 #pragma once
 
-#include <basalt/api/math/angle.h>
+#include <basalt/api/scene/types.h>
+
 #include <basalt/api/math/matrix4x4.h>
+#include <basalt/api/math/types.h>
 #include <basalt/api/math/vector3.h>
 
 #include <basalt/api/base/types.h>
 
+#include <vector>
+
 namespace basalt {
 
-struct Transform {
+struct Transform final {
+  Vector3f32 position;
+  Vector3f32 rotation;
+  Vector3f32 scale {1.0f};
+
   // TODO: wrap vectors in Position/Rotation/Scale class?
   auto move(f32 offsetX, f32 offsetY, f32 offsetZ) noexcept -> void;
   auto rotate(Angle offsetX, Angle offsetY, Angle offsetZ) noexcept -> void;
   auto rotate_y(Angle offsetY) noexcept -> void;
 
-  Vector3f32 position {0.0f};
-  Vector3f32 rotation {0.0f};
-  Vector3f32 scale {1.0f};
+  [[nodiscard]] auto to_matrix() const -> Matrix4x4f32;
 };
 
-struct LocalToWorld {
-  Matrix4x4f32 value;
+struct LocalToWorld final {
+  Matrix4x4f32 matrix {Matrix4x4f32::identity()};
+};
+
+struct Parent final {
+  EntityId id {};
+};
+
+// don't add manually. Use Parent instead
+struct Children final {
+  std::vector<EntityId> ids;
 };
 
 } // namespace basalt

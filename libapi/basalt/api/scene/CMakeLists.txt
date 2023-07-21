@@ -1,5 +1,6 @@
 target_sources(${CURRENT_TARGET} PRIVATE
   "ecs.h"
+  "parent_system.h"
   "scene.cpp"
   "scene.h"
   "system.h"

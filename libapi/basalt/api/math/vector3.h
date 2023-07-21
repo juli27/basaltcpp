@@ -35,7 +35,10 @@ struct Vector3f32 final : vec<Vector3f32, f32, 3> {
     return Vector3f32 {0.0f, 0.0f, -1.0f};
   }
 
-  constexpr explicit Vector3f32(const f32 value = 0.0f) noexcept
+  // sets every component to 0
+  constexpr Vector3f32() noexcept = default;
+
+  constexpr explicit Vector3f32(const f32 value) noexcept
     : vec {value, value, value} {
   }
 

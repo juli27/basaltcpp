@@ -1,5 +1,6 @@
 #include <basalt/api/scene/scene.h>
 
+#include <basalt/api/scene/parent_system.h>
 #include <basalt/api/scene/transform.h>
 #include <basalt/api/scene/transform_system.h>
 
@@ -59,6 +60,7 @@ auto depth_first_search(const uSize vertex, const AdjacencyMatrix& adj,
 
 auto Scene::create() -> ScenePtr {
   auto scene {std::make_shared<Scene>()};
+  scene->create_system<ParentSystem>();
   scene->create_system<TransformSystem>();
 
   return scene;
@@ -76,6 +78,7 @@ auto Scene::create_entity(const Vector3f32& position,
                           const Vector3f32& rotation, const Vector3f32& scale)
   -> Entity {
   const EntityId id {mEntityRegistry.create()};
+  mEntityRegistry.emplace<LocalToWorld>(id);
   mEntityRegistry.emplace<Transform>(id, position, rotation, scale);
 
   return Entity {mEntityRegistry, id};

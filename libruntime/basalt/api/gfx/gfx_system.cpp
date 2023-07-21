@@ -55,7 +55,7 @@ auto record_render_component(FilteringCommandList& cmdList,
   record_material(cmdList, cache, renderComponent.material);
 
   cmdList.set_transform(TransformState::Texture, renderComponent.texTransform);
-  cmdList.set_transform(TransformState::LocalToWorld, localToWorld.value);
+  cmdList.set_transform(TransformState::LocalToWorld, localToWorld.matrix);
 
   const auto& meshData = cache.get(renderComponent.mesh);
   cmdList.bind_vertex_buffer(meshData.vertexBuffer);
@@ -97,7 +97,7 @@ auto GfxSystem::on_update(const UpdateContext& ctx) -> void {
 
   entities.view<const LocalToWorld, const ext::XModel>().each(
     [&](const LocalToWorld& localToWorld, const ext::XModel& model) {
-      cmdList.set_transform(TransformState::LocalToWorld, localToWorld.value);
+      cmdList.set_transform(TransformState::LocalToWorld, localToWorld.matrix);
 
       const auto& modelData {cache.get(model)};
 

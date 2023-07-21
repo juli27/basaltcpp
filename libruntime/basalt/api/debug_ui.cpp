@@ -274,7 +274,7 @@ auto DebugUi::edit_transform(Transform& transform) -> void {
 }
 
 auto DebugUi::display_local_to_world(const LocalToWorld& localToWorld) -> void {
-  display_mat4("##value", localToWorld.value);
+  display_mat4("##value", localToWorld.matrix);
 }
 
 auto DebugUi::edit_directional_light(gfx::DirectionalLight& light) -> void {
