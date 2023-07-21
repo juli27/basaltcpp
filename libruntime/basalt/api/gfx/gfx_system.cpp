@@ -91,12 +91,24 @@ auto GfxSystem::on_update(const UpdateContext& ctx) -> void {
 
   cmdList.set_ambient_light(scene.ambient_light());
 
+  vector<Light> lights;
+
   const auto& directionalLights {scene.directional_lights()};
   if (!directionalLights.empty()) {
-    const vector<Light> lights {directionalLights.begin(),
-                                directionalLights.end()};
-    cmdList.set_lights(lights);
+    lights.insert(lights.end(), directionalLights.begin(),
+                  directionalLights.end());
   }
+
+  // TODO: this should use LocalToWorld
+  entities.view<const Transform, const PointLightComponent>().each(
+    [&](const Transform& transform, const PointLightComponent& light) {
+      lights.emplace_back(PointLight {light.diffuse, light.specular,
+                                      light.ambient, transform.position,
+                                      light.range, light.attenuation0,
+                                      light.attenuation1, light.attenuation2});
+    });
+
+  cmdList.set_lights(lights);
 
   entities.view<const LocalToWorld, const ext::XModel>().each(
     [&](const LocalToWorld& localToWorld, const ext::XModel& model) {

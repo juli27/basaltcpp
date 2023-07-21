@@ -166,6 +166,16 @@ struct RenderComponent final {
 
 static_assert(sizeof(RenderComponent) == 72);
 
+struct PointLightComponent {
+  Color diffuse;
+  Color specular;
+  Color ambient;
+  f32 range {};
+  f32 attenuation0 {};
+  f32 attenuation1 {};
+  f32 attenuation2 {};
+};
+
 struct MeshData final {
   VertexBuffer vertexBuffer;
   u32 startVertex {};
