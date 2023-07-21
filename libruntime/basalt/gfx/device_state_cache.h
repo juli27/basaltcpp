@@ -25,6 +25,8 @@ struct DeviceStateCache final {
   auto update_ambient_light(const Color&) noexcept -> bool;
   auto update(const Color& diffuse, const Color& ambient, const Color& emissive,
               const Color& specular, f32 specularPower) noexcept -> bool;
+  auto update_fog_parameters(const Color&, f32 start, f32 end, f32 density)
+    -> bool;
 
 private:
   struct Material final {
@@ -33,6 +35,13 @@ private:
     Color emissive;
     Color specular;
     f32 specularPower {};
+  };
+
+  struct FogParams final {
+    Color color;
+    f32 start {};
+    f32 end {};
+    f32 density {};
   };
 
   using MaybeMatrix = std::optional<Matrix4x4f32>;
@@ -45,6 +54,7 @@ private:
   };
   Color mAmbientLight;
   Material mMaterial;
+  FogParams mFogParams;
   Pipeline mBoundPipeline {Pipeline::null()};
   VertexBuffer mBoundVertexBuffer {VertexBuffer::null()};
   u64 mVertexBufferOffset {0ull};

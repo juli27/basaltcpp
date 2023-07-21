@@ -39,6 +39,7 @@ auto FilteringCommandList::bind_vertex_buffer(const VertexBuffer buffer,
     mCommandList.bind_vertex_buffer(buffer, offsetInBytes);
   }
 }
+
 auto FilteringCommandList::bind_index_buffer(const IndexBuffer handle) -> void {
   if (mDeviceState.update(handle)) {
     mCommandList.bind_index_buffer(handle);
@@ -84,6 +85,14 @@ auto FilteringCommandList::set_material(const Color& diffuse,
                           specularPower)) {
     mCommandList.set_material(diffuse, ambient, emissive, specular,
                               specularPower);
+  }
+}
+
+auto FilteringCommandList::set_fog_parameters(const Color& color,
+                                              const f32 start, const f32 end,
+                                              const f32 density) -> void {
+  if (mDeviceState.update_fog_parameters(color, start, end, density)) {
+    mCommandList.set_fog_parameters(color, start, end, density);
   }
 }
 

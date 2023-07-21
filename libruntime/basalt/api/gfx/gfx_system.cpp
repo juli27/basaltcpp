@@ -47,6 +47,8 @@ auto record_material(FilteringCommandList& cmdList, const ResourceCache& cache,
 
   cmdList.set_material(data.diffuse, data.ambient, data.emissive, data.specular,
                        data.specularPower);
+  cmdList.set_fog_parameters(data.fogColor, data.fogStart, data.fogEnd,
+                             data.fogDensity);
 }
 
 auto record_render_component(FilteringCommandList& cmdList,

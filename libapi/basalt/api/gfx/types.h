@@ -152,6 +152,10 @@ struct MaterialDescriptor final {
   Color specular;
   f32 specularPower {};
   SampledTextureDescriptor sampledTexture;
+  Color fogColor;
+  f32 fogStart {};
+  f32 fogEnd {};
+  f32 fogDensity {};
 };
 
 struct RenderComponent final {
@@ -176,6 +180,10 @@ struct MaterialData final {
   Color emissive;
   Color specular;
   f32 specularPower {};
+  Color fogColor;
+  f32 fogStart {};
+  f32 fogEnd {};
+  f32 fogDensity {};
 
   Pipeline pipeline;
   Texture texture;

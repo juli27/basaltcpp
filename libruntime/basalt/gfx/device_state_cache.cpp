@@ -23,6 +23,7 @@ auto DeviceStateCache::update(const VertexBuffer buffer,
 
   return false;
 }
+
 auto DeviceStateCache::update(const IndexBuffer handle) noexcept -> bool {
   if (handle != mBoundIndexBuffer) {
     mBoundIndexBuffer = handle;
@@ -82,6 +83,19 @@ auto DeviceStateCache::update(const Color& diffuse, const Color& ambient,
     mMaterial.emissive = emissive;
     mMaterial.specular = specular;
     mMaterial.specularPower = specularPower;
+
+    return true;
+  }
+
+  return false;
+}
+
+auto DeviceStateCache::update_fog_parameters(const Color& color,
+                                             const f32 start, const f32 end,
+                                             const f32 density) -> bool {
+  if (color != mFogParams.color || start != mFogParams.start ||
+      end != mFogParams.end || density != mFogParams.density) {
+    mFogParams = {color, start, end, density};
 
     return true;
   }

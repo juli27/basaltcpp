@@ -35,6 +35,8 @@ public:
   auto set_material(const Color& diffuse, const Color& ambient = {},
                     const Color& emissive = {}, const Color& specular = {},
                     f32 specularPower = 0) -> void;
+  auto set_fog_parameters(const Color&, f32 start, f32 end, f32 density = 0)
+    -> void;
 
   auto cmd_list() -> CommandList&;
 
