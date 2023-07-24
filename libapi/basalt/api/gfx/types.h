@@ -211,8 +211,9 @@ struct XModelDescriptor final {
 };
 
 struct XModelData final {
+  // indices imply a 1:1 mapping between mesh and material
+  std::vector<ext::XMesh> meshes;
   std::vector<Material> materials;
-  ext::XMesh mesh;
 };
 
 } // namespace basalt::gfx

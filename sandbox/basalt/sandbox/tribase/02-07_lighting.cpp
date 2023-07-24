@@ -133,7 +133,7 @@ auto Lighting::on_update(UpdateContext& ctx) -> void {
       Matrix4x4f32::translation(0, std::sin(perSphereFactor + t * 2), 0)};
     cmdList.set_transform(TransformState::LocalToWorld, localToWorld);
 
-    XMeshCommandEncoder::draw_x_mesh(cmdList, sphereData.mesh, 0);
+    XMeshCommandEncoder::draw_x_mesh(cmdList, sphereData.meshes[0]);
   }
 
   // render ground
@@ -145,7 +145,7 @@ auto Lighting::on_update(UpdateContext& ctx) -> void {
   auto localToWorld {Matrix4x4f32::rotation_y(Angle::radians(t)) *
                      Matrix4x4f32::translation(0, -50, 0)};
   cmdList.set_transform(TransformState::LocalToWorld, localToWorld);
-  XMeshCommandEncoder::draw_x_mesh(cmdList, groundData.mesh, 0);
+  XMeshCommandEncoder::draw_x_mesh(cmdList, groundData.meshes[0]);
 
   // render light source
   cmdList.bind_pipeline(mNoTexturePipeline);
@@ -156,7 +156,7 @@ auto Lighting::on_update(UpdateContext& ctx) -> void {
   localToWorld = Matrix4x4f32::translation(pointLight.positionInWorld);
   cmdList.set_transform(TransformState::LocalToWorld, localToWorld);
 
-  XMeshCommandEncoder::draw_x_mesh(cmdList, sphereData.mesh, 0);
+  XMeshCommandEncoder::draw_x_mesh(cmdList, sphereData.meshes[0]);
 
   drawCtx.commandLists.emplace_back(std::move(cmdList));
 }

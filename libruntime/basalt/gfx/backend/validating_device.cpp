@@ -417,8 +417,7 @@ auto ValidatingDevice::patch(CommandList& cmdList, const Command& cmd) -> void {
   switch (cmd.type) {
   case CommandType::ExtDrawXMesh: {
     const auto& drawCmd {cmd.as<ext::CommandDrawXMesh>()};
-    ext::XMeshCommandEncoder::draw_x_mesh(cmdList, drawCmd.xMeshId,
-                                          drawCmd.subset);
+    ext::XMeshCommandEncoder::draw_x_mesh(cmdList, drawCmd.xMeshId);
 
     break;
   }

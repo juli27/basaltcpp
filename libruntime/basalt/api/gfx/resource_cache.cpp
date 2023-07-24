@@ -140,12 +140,12 @@ auto ResourceCache::load_x_model(const path& path) -> ext::XModel {
   // throws std::bad_optional_access if extension not present
   const auto modelExt {mDevice->query_extension<ext::XModelSupport>().value()};
 
-  const ext::XModelData xModel {modelExt->load(path)};
+  ext::XModelData xModel {modelExt->load(path)};
 
   vector<Material> materials;
-  materials.reserve(xModel.materials().size());
+  materials.reserve(xModel.materials.size());
 
-  for (const auto& material : xModel.materials()) {
+  for (const auto& material : xModel.materials) {
     array<TextureBlendingStage, 1> textureStages {};
     PipelineDescriptor pipelineDesc;
     pipelineDesc.lightingEnabled = true;
@@ -157,6 +157,9 @@ auto ResourceCache::load_x_model(const path& path) -> ext::XModel {
     desc.pipelineDesc = &pipelineDesc;
     desc.diffuse = material.diffuse;
     desc.ambient = material.ambient;
+    desc.emissive = material.emissive;
+    desc.specular = material.specular;
+    desc.specularPower = material.specularPower;
 
     if (!material.textureFile.empty()) {
       desc.sampledTexture.texture = load_texture(material.textureFile);
@@ -165,17 +168,18 @@ auto ResourceCache::load_x_model(const path& path) -> ext::XModel {
     materials.push_back(create_material(desc));
   }
 
-  return mXModels.allocate(XModelData {std::move(materials), xModel.mesh()});
+  return mXModels.allocate(
+    XModelData {std::move(xModel.meshes), std::move(materials)});
 }
 
 auto ResourceCache::load_x_model(const XModelDescriptor& desc) -> ext::XModel {
   // throws std::bad_optional_access if extension not present
   const auto modelExt {mDevice->query_extension<ext::XModelSupport>().value()};
 
-  const ext::XModelData xModel {modelExt->load(desc.modelPath)};
+  ext::XModelData xModel {modelExt->load(desc.modelPath)};
 
   const uSize numModelMaterials {
-    std::max(xModel.materials().size(), desc.materials.size())};
+    std::max(xModel.materials.size(), desc.materials.size())};
   vector<Material> materials;
   materials.reserve(numModelMaterials);
 
@@ -195,7 +199,7 @@ auto ResourceCache::load_x_model(const XModelDescriptor& desc) -> ext::XModel {
     pipelineDesc.depthWriteEnable = true;
 
     for (uSize i {desc.materials.size()}; i < numModelMaterials; ++i) {
-      const auto& material {xModel.materials()[i]};
+      const auto& material {xModel.materials[i]};
       MaterialDescriptor materialDesc;
       materialDesc.pipelineDesc = &pipelineDesc;
       materialDesc.diffuse = material.diffuse;
@@ -210,7 +214,8 @@ auto ResourceCache::load_x_model(const XModelDescriptor& desc) -> ext::XModel {
     }
   }
 
-  return mXModels.allocate(XModelData {std::move(materials), xModel.mesh()});
+  return mXModels.allocate(
+    XModelData {std::move(xModel.meshes), std::move(materials)});
 }
 
 auto ResourceCache::get(const ext::XModel handle) const -> const XModelData& {
@@ -333,7 +338,9 @@ auto ResourceCache::destroy_data(const ext::XModel handle) noexcept -> void {
 
   // throws std::bad_optional_access if extension not present
   const auto modelExt {*mDevice->query_extension<ext::XModelSupport>()};
-  modelExt->destroy(data.mesh);
+  for (const auto meshId : data.meshes) {
+    modelExt->destroy(meshId);
+  }
 }
 
 auto ResourceCache::destroy_data(const Mesh handle) noexcept -> void {

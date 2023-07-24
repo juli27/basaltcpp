@@ -34,8 +34,13 @@ public:
 private:
   using XMeshPtr = Microsoft::WRL::ComPtr<ID3DXMesh>;
 
+  struct XMeshData {
+    XMeshPtr mesh;
+    DWORD attributeId {};
+  };
+
   DevicePtr mDevice;
-  HandlePool<XMeshPtr, XMesh> mMeshes;
+  HandlePool<XMeshData, XMesh> mMeshes;
 };
 
 } // namespace basalt::gfx::ext

@@ -79,7 +79,8 @@ struct CommandDraw final : CommandT<CommandType::Draw> {
   u32 vertexCount;
 
   constexpr CommandDraw(const u32 aFirstVertex, const u32 aVertexCount) noexcept
-    : firstVertex {aFirstVertex}, vertexCount {aVertexCount} {
+    : firstVertex {aFirstVertex}
+    , vertexCount {aVertexCount} {
   }
 };
 
@@ -115,7 +116,8 @@ struct CommandBindVertexBuffer final : CommandT<CommandType::BindVertexBuffer> {
 
   constexpr CommandBindVertexBuffer(const VertexBuffer aVertexBufferId,
                                     const uDeviceSize aOffsetInBytes) noexcept
-    : vertexBufferId {aVertexBufferId}, offsetInBytes {aOffsetInBytes} {
+    : vertexBufferId {aVertexBufferId}
+    , offsetInBytes {aOffsetInBytes} {
   }
 };
 
@@ -150,7 +152,8 @@ struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
 
   constexpr CommandSetTransform(const TransformState aTransformState,
                                 const Matrix4x4f32& aTransform) noexcept
-    : transformState {aTransformState}, transform {aTransform} {
+    : transformState {aTransformState}
+    , transform {aTransform} {
   }
 };
 
@@ -197,7 +200,10 @@ struct CommandSetFogParameters final : CommandT<CommandType::SetFogParameters> {
 
   constexpr CommandSetFogParameters(const Color& aColor, const f32 aStart,
                                     const f32 aEnd, const f32 aDensity) noexcept
-    : color {aColor}, start {aStart}, end {aEnd}, density {aDensity} {
+    : color {aColor}
+    , start {aStart}
+    , end {aEnd}
+    , density {aDensity} {
   }
 };
 
@@ -236,10 +242,9 @@ namespace ext {
 
 struct CommandDrawXMesh final : CommandT<CommandType::ExtDrawXMesh> {
   XMesh xMeshId;
-  u32 subset;
 
-  constexpr CommandDrawXMesh(const XMesh aXMeshId, const u32 aSubset) noexcept
-    : xMeshId {aXMeshId}, subset {aSubset} {
+  constexpr explicit CommandDrawXMesh(const XMesh aXMeshId) noexcept
+    : xMeshId {aXMeshId} {
   }
 };
 

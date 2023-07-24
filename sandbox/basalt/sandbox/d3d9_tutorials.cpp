@@ -461,7 +461,7 @@ private:
       cmdList.set_transform(TransformState::LocalToWorld,
                             Matrix4x4f32::rotation_y(mRotationY));
 
-      XMeshCommandEncoder::draw_x_mesh(cmdList, modelData.mesh, i);
+      XMeshCommandEncoder::draw_x_mesh(cmdList, modelData.meshes[i]);
     }
 
     ctx.drawCtx.commandLists.push_back(std::move(cmdList));

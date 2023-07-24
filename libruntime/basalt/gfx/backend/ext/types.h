@@ -14,5 +14,6 @@ enum class ExtensionId {
 
 class DearImGuiRenderer;
 class XModelSupport;
+struct XModelData;
 
 } // namespace basalt::gfx::ext

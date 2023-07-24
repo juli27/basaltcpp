@@ -18,7 +18,7 @@ static_assert(sizeof(CommandSetFogParameters) == 32);
 
 namespace ext {
 
-static_assert(sizeof(CommandDrawXMesh) == 12);
+static_assert(sizeof(CommandDrawXMesh) == 8);
 static_assert(sizeof(CommandRenderDearImGui) == 1);
 
 } // namespace ext

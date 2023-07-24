@@ -310,7 +310,6 @@ auto display(const CommandSetFogParameters& cmd) -> void {
 
 void display(const ext::CommandDrawXMesh& cmd) {
   ImGui::Text("mesh = %#x", cmd.xMeshId.value());
-  ImGui::Text("subsetIndex = %#x", cmd.subset);
 }
 
 void display(const Command& cmd) {

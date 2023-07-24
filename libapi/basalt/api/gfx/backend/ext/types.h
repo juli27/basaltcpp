@@ -7,10 +7,13 @@ namespace basalt::gfx::ext {
 namespace detail {
 
 struct XMeshTag;
+struct XModelTag;
 
 } // namespace detail
+
 using XMesh = Handle<detail::XMeshTag>;
-class XModelData;
-using XModel = Handle<XModelData>;
+using XModel = Handle<detail::XModelTag>;
+
+class XMeshCommandEncoder;
 
 } // namespace basalt::gfx::ext

@@ -25,6 +25,10 @@ constexpr auto to_d3d_color_value(const Color& color) noexcept
   return D3DCOLORVALUE {color.r(), color.g(), color.b(), color.a()};
 }
 
+constexpr auto to_color(const D3DCOLORVALUE& color) -> Color {
+  return Color::from_non_linear(color.r, color.g, color.b, color.a);
+}
+
 constexpr auto to_d3d(const Matrix4x4f32& mat) noexcept -> D3DMATRIX {
   // clang-format off
   return D3DMATRIX {mat.m11, mat.m12, mat.m13, mat.m14,

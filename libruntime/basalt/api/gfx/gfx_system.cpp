@@ -127,7 +127,7 @@ auto GfxSystem::on_update(const UpdateContext& ctx) -> void {
         record_material(cmdList, cache, modelData.materials[i]);
 
         ext::XMeshCommandEncoder::draw_x_mesh(cmdList.cmd_list(),
-                                              modelData.mesh, i);
+                                              modelData.meshes[i]);
       }
     });
 
