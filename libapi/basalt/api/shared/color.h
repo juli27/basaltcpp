@@ -2,7 +2,7 @@
 
 #include <basalt/api/shared/data.h>
 
-#include <basalt/api/base/vec.h>
+#include <basalt/api/math/vector.h>
 
 #include <algorithm>
 
@@ -10,10 +10,11 @@ namespace basalt {
 
 // TODO: tbColorNegate, tbColorBrightness, tbColorRandom
 // TODO: tbColorInterpolate, tbColorMin, tbColorMax
+// TODO: is this really a vector (in the math sense)
 
 // TODO: this should be in linear representation (convert linear <-> non-linear)
 // non-linear sRGB color
-struct Color final : vec<Color, f32, 4> {
+struct Color final : detail::Vector<Color, f32, 4> {
   // input is non-linear
   [[nodiscard]] static constexpr auto
   from(const ColorEncoding::A8R8G8B8 argb) noexcept -> Color {
@@ -40,19 +41,19 @@ struct Color final : vec<Color, f32, 4> {
   constexpr Color() noexcept = default;
 
   [[nodiscard]] constexpr auto r() const noexcept -> f32 {
-    return std::get<0>(elements);
+    return std::get<0>(components);
   }
 
   [[nodiscard]] constexpr auto g() const noexcept -> f32 {
-    return std::get<1>(elements);
+    return std::get<1>(components);
   }
 
   [[nodiscard]] constexpr auto b() const noexcept -> f32 {
-    return std::get<2>(elements);
+    return std::get<2>(components);
   }
 
   [[nodiscard]] constexpr auto a() const noexcept -> f32 {
-    return std::get<3>(elements);
+    return std::get<3>(components);
   }
 
   // output is non-linear
@@ -71,7 +72,7 @@ private:
   // input is non-linear
   constexpr Color(const f32 r, const f32 g, const f32 b,
                   const f32 a = 1.0f) noexcept
-    : vec {r, g, b, a} {
+    : Vector {r, g, b, a} {
   }
 };
 

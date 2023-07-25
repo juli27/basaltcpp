@@ -9,7 +9,7 @@
 
 #include <basalt/api/math/angle.h>
 #include <basalt/api/math/matrix4x4.h>
-#include <basalt/api/math/vector3.h>
+#include <basalt/api/math/vector2.h>
 
 #include <gsl/span>
 
@@ -33,7 +33,7 @@ using namespace basalt::literals;
 using basalt::Angle;
 using basalt::Engine;
 using basalt::Matrix4x4f32;
-using basalt::Vector3f32;
+using basalt::Vector2f32;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
@@ -128,10 +128,9 @@ auto TexturesExercises::on_update(UpdateContext& ctx) -> void {
         Matrix4x4f32::rotation_z(Angle::degrees(45.0f * dt))};
       // READING from the vertex buffer!
       for (Vertex& vertex : vertexData) {
-        Vector3f32 uv {std::get<0>(vertex.uv), std::get<1>(vertex.uv), 0.0f};
-        vertex.uv = {
-          Vector3f32::dot(uv, Vector3f32 {rotation.m11, rotation.m21, 0}),
-          Vector3f32::dot(uv, Vector3f32 {rotation.m12, rotation.m22, 0})};
+        Vector2f32 uv {std::get<0>(vertex.uv), std::get<1>(vertex.uv)};
+        vertex.uv = {uv.dot(Vector2f32 {rotation.m11, rotation.m21}),
+                     uv.dot(Vector2f32 {rotation.m12, rotation.m22})};
       }
     });
   }

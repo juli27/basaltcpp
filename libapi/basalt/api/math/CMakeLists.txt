@@ -8,6 +8,9 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "plane.h"
   "rectangle.h"
   "types.h"
-  "vector3.cpp"
+  "vector.cpp"
+  "vector.h"
+  "vector2.h"
   "vector3.h"
+  "vector4.h"
 )

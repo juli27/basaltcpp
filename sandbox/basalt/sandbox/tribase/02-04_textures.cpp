@@ -117,7 +117,7 @@ Textures::Textures(Engine& engine)
       auto& vertex {vertices[j + 3 * i]};
 
       const auto pos {normalizedRandomVector()};
-      vertex.pos = pos.elements;
+      vertex.pos = pos.components;
       vertex.color =
         Color::from_non_linear(rng4(randomEngine), rng4(randomEngine),
                                rng4(randomEngine))

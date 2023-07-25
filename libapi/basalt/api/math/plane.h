@@ -36,7 +36,7 @@ struct Plane final {
   }
 
   [[nodiscard]] constexpr auto dot_normal(const Vector3f32& v) const -> f32 {
-    return Vector3f32::dot(mNormal, v);
+    return mNormal.dot(v);
   }
 
   [[nodiscard]] constexpr auto dot_coords(const Vector3f32& v) const -> f32 {

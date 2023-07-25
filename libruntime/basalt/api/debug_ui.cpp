@@ -241,12 +241,12 @@ auto DebugUi::edit_ecs(EntityRegistry& ecs) -> void {
 }
 
 auto DebugUi::edit_transform(Transform& transform) -> void {
-  ImGui::DragFloat3("Position", transform.position.elements.data(), 0.1f);
+  ImGui::DragFloat3("Position", transform.position.components.data(), 0.1f);
 
-  ImGui::DragFloat3("Rotation", transform.rotation.elements.data(), 0.01f, -PI,
-                    PI);
+  ImGui::DragFloat3("Rotation", transform.rotation.components.data(), 0.01f,
+                    -PI, PI);
 
-  ImGui::DragFloat3("Scale", transform.scale.elements.data(), 0.1f, 0.0f);
+  ImGui::DragFloat3("Scale", transform.scale.components.data(), 0.1f, 0.0f);
 }
 
 auto DebugUi::display_local_to_world(const LocalToWorld& localToWorld) -> void {
@@ -258,7 +258,8 @@ auto DebugUi::edit_directional_light(gfx::DirectionalLight& light) -> void {
   edit_color4("Specular", light.specular);
   edit_color4("Ambient", light.ambient);
 
-  ImGui::DragFloat3("Direction", light.directionInWorld.elements.data(), 0.1f);
+  ImGui::DragFloat3("Direction", light.directionInWorld.components.data(),
+                    0.1f);
   light.directionInWorld = Vector3f32::normalize(light.directionInWorld);
 }
 

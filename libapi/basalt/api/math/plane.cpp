@@ -19,7 +19,7 @@ auto Plane::from_general_form(const f32 a, const f32 b, const f32 c,
 
 auto Plane::from_point_normal(const Vector3f32& p, const Vector3f32& n)
   -> Plane {
-  return from_general_form(n.x(), n.y(), n.z(), -Vector3f32::dot(p, n));
+  return from_general_form(n.x(), n.y(), n.z(), -p.dot(n));
 }
 
 // TODO: review normal orientation
