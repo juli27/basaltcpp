@@ -16,8 +16,6 @@ struct Vector {
     return Derived {};
   }
 
-  [[nodiscard]] static auto normalize(Derived v) noexcept -> Derived;
-
   std::array<T, Size> components {};
 
   [[nodiscard]] constexpr auto operator==(const Derived& o) const noexcept
@@ -129,7 +127,8 @@ struct Vector {
 
   [[nodiscard]] auto length() const noexcept -> T;
 
-  auto normalize() noexcept -> void;
+  [[nodiscard]] static auto normalize(Derived v) noexcept -> Derived;
+  auto normalize() const noexcept -> Derived;
 
   [[nodiscard]] constexpr auto dot(const Derived& r) const noexcept -> T {
     T dotProduct {0};

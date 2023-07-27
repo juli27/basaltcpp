@@ -63,8 +63,8 @@ public:
 
 extern template auto detail::Vector<Vector4f32, f32, 4>::length() const noexcept
   -> f32;
-extern template auto detail::Vector<Vector4f32, f32, 4>::normalize() noexcept
-  -> void;
+extern template auto
+detail::Vector<Vector4f32, f32, 4>::normalize() const noexcept -> Vector4f32;
 extern template auto
   detail::Vector<Vector4f32, f32, 4>::normalize(Vector4f32) noexcept
   -> Vector4f32;

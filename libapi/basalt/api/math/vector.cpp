@@ -23,8 +23,8 @@ auto detail::Vector<Derived, T, Size>::length() const noexcept -> T {
 }
 
 template <typename Derived, typename T, uSize Size>
-auto detail::Vector<Derived, T, Size>::normalize() noexcept -> void {
-  *this /= length();
+auto detail::Vector<Derived, T, Size>::normalize() const noexcept -> Derived {
+  return *self() / length();
 }
 
 template <typename Derived, typename T, uSize Size>
@@ -36,7 +36,8 @@ auto detail::Vector<Derived, T, Size>::distance(const Derived& p1,
 
 template auto detail::Vector<Vector2f32, f32, 2>::length() const noexcept
   -> f32;
-template auto detail::Vector<Vector2f32, f32, 2>::normalize() noexcept -> void;
+template auto detail::Vector<Vector2f32, f32, 2>::normalize() const noexcept
+  -> Vector2f32;
 template auto detail::Vector<Vector2f32, f32, 2>::normalize(Vector2f32) noexcept
   -> Vector2f32;
 template auto
@@ -53,7 +54,8 @@ auto Vector2f32::normalize(const f32 x, const f32 y) noexcept -> Vector2f32 {
 
 template auto detail::Vector<Vector3f32, f32, 3>::length() const noexcept
   -> f32;
-template auto detail::Vector<Vector3f32, f32, 3>::normalize() noexcept -> void;
+template auto detail::Vector<Vector3f32, f32, 3>::normalize() const noexcept
+  -> Vector3f32;
 template auto detail::Vector<Vector3f32, f32, 3>::normalize(Vector3f32) noexcept
   -> Vector3f32;
 template auto
@@ -72,7 +74,8 @@ auto Vector3f32::angle(const Vector3f32& v1, const Vector3f32& v2) -> Angle {
 
 template auto detail::Vector<Vector4f32, f32, 4>::length() const noexcept
   -> f32;
-template auto detail::Vector<Vector4f32, f32, 4>::normalize() noexcept -> void;
+template auto detail::Vector<Vector4f32, f32, 4>::normalize() const noexcept
+  -> Vector4f32;
 template auto detail::Vector<Vector4f32, f32, 4>::normalize(Vector4f32) noexcept
   -> Vector4f32;
 template auto

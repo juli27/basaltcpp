@@ -25,7 +25,7 @@ auto Plane::from_point_normal(const Vector3f32& p, const Vector3f32& n)
 // TODO: review normal orientation
 auto Plane::from_points(const Vector3f32& p1, const Vector3f32& p2,
                         const Vector3f32& p3) -> Plane {
-  return from_point_normal(p1, Vector3f32::cross(p3 - p2, p1 - p2));
+  return from_point_normal(p1, (p3 - p2).cross(p1 - p2));
 }
 
 } // namespace basalt

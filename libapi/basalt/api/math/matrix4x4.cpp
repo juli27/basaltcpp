@@ -89,9 +89,9 @@ auto Matrix4x4f32::rotation(const Vector3f32& axis, const Angle angle) noexcept
 auto Matrix4x4f32::look_at_lh(const Vector3f32& position,
                               const Vector3f32& lookAt, const Vector3f32& up)
   -> Matrix4x4f32 {
-  const auto zAxis {Vector3f32::normalize(lookAt - position)};
-  const auto xAxis {Vector3f32::normalize(Vector3f32::cross(up, zAxis))};
-  const auto yAxis {Vector3f32::normalize(Vector3f32::cross(zAxis, xAxis))};
+  const auto zAxis {(lookAt - position).normalize()};
+  const auto xAxis {up.cross(zAxis).normalize()};
+  const auto yAxis {zAxis.cross(xAxis).normalize()};
 
   return translation(-position) *
          Matrix4x4f32 {xAxis.x(), yAxis.x(), zAxis.x(), 0.0f,

@@ -75,14 +75,19 @@ public:
     return std::get<2>(components);
   }
 
+  [[nodiscard]] constexpr auto cross(const Vector3f32& r) const noexcept
+    -> Vector3f32 {
+    return Vector3f32 {
+      y() * r.z() - z() * r.y(),
+      z() * r.x() - x() * r.z(),
+      x() * r.y() - y() * r.x(),
+    };
+  }
+
   [[nodiscard]] static constexpr auto cross(const Vector3f32& l,
                                             const Vector3f32& r) noexcept
     -> Vector3f32 {
-    return Vector3f32 {
-      l.y() * r.z() - l.z() * r.y(),
-      l.z() * r.x() - l.x() * r.z(),
-      l.x() * r.y() - l.y() * r.x(),
-    };
+    return l.cross(r);
   }
 
   [[nodiscard]] static auto angle(const Vector3f32&, const Vector3f32&)
@@ -91,8 +96,8 @@ public:
 
 extern template auto detail::Vector<Vector3f32, f32, 3>::length() const noexcept
   -> f32;
-extern template auto detail::Vector<Vector3f32, f32, 3>::normalize() noexcept
-  -> void;
+extern template auto
+detail::Vector<Vector3f32, f32, 3>::normalize() const noexcept -> Vector3f32;
 extern template auto
   detail::Vector<Vector3f32, f32, 3>::normalize(Vector3f32) noexcept
   -> Vector3f32;
