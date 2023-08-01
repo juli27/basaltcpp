@@ -93,6 +93,8 @@ private:
   std::unordered_map<SystemId, SystemTypeId> mSystemIdToSystemType;
   std::unordered_map<SystemTypeId, SystemTypeInfo> mSystemTypes;
 
+  SecondsF32 mTime {};
+
   [[nodiscard]] auto add_system(SystemPtr, const SystemInfo&) -> SystemId;
   [[nodiscard]] auto compute_update_order() const -> std::vector<SystemId>;
 };

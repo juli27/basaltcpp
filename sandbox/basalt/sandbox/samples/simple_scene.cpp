@@ -56,7 +56,7 @@ struct Vertex final {
 };
 
 struct RotationSpeed final {
-  Angle rotationPerSecond;
+  f32 rotationDegPerSecond;
 };
 
 class RotationSpeedSystem final : public System {
@@ -71,7 +71,7 @@ public:
     ctx.scene.entity_registry().view<Transform, const RotationSpeed>().each(
       [&](Transform& t, const RotationSpeed& rotationSpeed) {
         t.rotate_y(
-          Angle::degrees(rotationSpeed.rotationPerSecond.degrees() * dt));
+          Angle::degrees(rotationSpeed.rotationDegPerSecond * dt));
       });
   }
 };
@@ -113,7 +113,7 @@ SimpleScene::SimpleScene(Engine& engine)
   gfxEnv.set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
 
   const Entity triangle {scene->create_entity(Vector3f32::forward() * 2.5f)};
-  triangle.emplace<RotationSpeed>(360_deg);
+  triangle.emplace<RotationSpeed>(360.0f);
   triangle.emplace<RenderComponent>(mMesh, mMaterial);
 
   const Entity camera {add_camera(*scene)};

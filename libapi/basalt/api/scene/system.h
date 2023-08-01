@@ -17,7 +17,8 @@ public:
   auto operator=(System&&) -> System& = delete;
 
   struct UpdateContext final {
-    SecondsF32 deltaTime;
+    SecondsF32 deltaTime {};
+    SecondsF32 time {};
     Scene& scene;
   };
 
