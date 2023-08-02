@@ -14,8 +14,6 @@ public:
 
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;
-  basalt::gfx::Mesh mMesh;
-  basalt::gfx::Material mMaterial;
 };
 
 } // namespace samples

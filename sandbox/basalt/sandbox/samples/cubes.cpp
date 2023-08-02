@@ -197,8 +197,7 @@ public:
 } // namespace
 
 Cubes::Cubes(basalt::Engine& engine)
-  : mGfxCache {engine.create_gfx_resource_cache()}
-  , mTexture {mGfxCache->load_texture("data/tribase/Texture2.bmp")} {
+  : mGfxCache {engine.create_gfx_resource_cache()} {
   constexpr u32 vertexCount {NUM_VERTICES_PER_CUBE * NUM_CUBES};
   constexpr u32 indexCount {NUM_INDICES_PER_CUBE * NUM_CUBES};
   vector<Vertex> vertices {vertexCount};
@@ -207,8 +206,8 @@ Cubes::Cubes(basalt::Engine& engine)
 
   const auto vertexData {as_bytes(span {vertices})};
   const auto indexData {as_bytes(span {indices})};
-  mMesh = mGfxCache->create_mesh(
-    {vertexData, vertexCount, Vertex::sLayout, indexData, indexCount});
+  const auto mesh {mGfxCache->create_mesh(
+    {vertexData, vertexCount, Vertex::sLayout, indexData, indexCount})};
 
   PipelineDescriptor pipelineDesc;
   pipelineDesc.vertexInputState = Vertex::sLayout;
@@ -220,10 +219,11 @@ Cubes::Cubes(basalt::Engine& engine)
   pipelineDesc.depthWriteEnable = true;
   MaterialDescriptor matDesc;
   matDesc.pipelineDesc = &pipelineDesc;
-  matDesc.sampledTexture.texture = mTexture;
+  matDesc.sampledTexture.texture =
+    mGfxCache->load_texture("data/tribase/Texture2.bmp");
   matDesc.sampledTexture.filter = TextureFilter::Bilinear;
   matDesc.sampledTexture.mipFilter = TextureMipFilter::Linear;
-  mMaterial = mGfxCache->create_material(matDesc);
+  const auto material {mGfxCache->create_material(matDesc)};
 
   const auto scene {Scene::create()};
   auto& gfxEnv {scene->entity_registry().ctx().emplace<Environment>()};
@@ -232,18 +232,16 @@ Cubes::Cubes(basalt::Engine& engine)
   scene->create_system<CameraController>();
 
   const auto cubes {scene->create_entity()};
-  cubes.emplace<RenderComponent>(mMesh, mMaterial);
+  cubes.emplace<RenderComponent>(mesh, material);
 
   const auto camera {scene->create_entity()};
   camera.emplace<Camera>(Vector3f32::forward(), Vector3f32::up(), 90_deg, 0.1f,
                          250.0f);
   camera.emplace<CameraControllerData>(CameraControllerData {0_deg});
-  mScene = scene;
-  mCameraId = camera.entity();
 
-  entities.ctx().emplace_as<EntityId>(CONTROLLED_CAMERA, mCameraId);
+  entities.ctx().emplace_as<EntityId>(CONTROLLED_CAMERA, camera.entity());
 
-  add_child_bottom(SceneView::create(scene, mGfxCache, mCameraId));
+  add_child_bottom(SceneView::create(scene, mGfxCache, camera.entity()));
 }
 
 } // namespace samples

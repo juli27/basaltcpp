@@ -20,7 +20,7 @@
 #include <gsl/span>
 #include <imgui/imgui.h>
 
-#include <utility>
+#include <array>
 
 using std::array;
 
@@ -147,8 +147,27 @@ auto add_camera(Scene& scene) -> Entity {
 } // namespace
 
 Textures::Textures(Engine& engine)
-  : mGfxCache {engine.create_gfx_resource_cache()}
-  , mTexture {mGfxCache->load_texture("data/Tiger.bmp")} {
+  : mGfxCache {engine.create_gfx_resource_cache()} {
+  array vertices {Vertex {{-1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+                  Vertex {{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+                  Vertex {{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},
+                  Vertex {{1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}}};
+  const auto mesh {mGfxCache->create_mesh({
+    as_bytes(span {vertices}),
+    static_cast<u32>(vertices.size()),
+    Vertex::sLayout,
+  })};
+
+  const auto scene {Scene::create()};
+  auto& gfxEnv {scene->entity_registry().ctx().emplace<Environment>()};
+  gfxEnv.set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
+
+  const Entity quad {scene->create_entity({0.0f, 0.0f, 1.5f})};
+  // material is set in SamplerSettingsSystem
+  quad.emplace<RenderComponent>(mesh, Material::null());
+
+  auto& samplerSettings {quad.emplace<SamplerSettings>()};
+
   PipelineDescriptor pipelineDesc;
   pipelineDesc.vertexInputState = Vertex::sLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
@@ -159,10 +178,10 @@ Textures::Textures(Engine& engine)
   pipelineDesc.depthWriteEnable = true;
   MaterialDescriptor materialDesc;
   materialDesc.pipelineDesc = &pipelineDesc;
-  materialDesc.sampledTexture.texture = mTexture;
-
+  materialDesc.sampledTexture.texture =
+    mGfxCache->load_texture("data/Tiger.bmp");
+  auto& materials {samplerSettings.materials};
   u32 i {0};
-
   for (const auto filter : {TextureFilter::Point, TextureFilter::Bilinear,
                             TextureFilter::Anisotropic}) {
     materialDesc.sampledTexture.filter = filter;
@@ -171,28 +190,10 @@ Textures::Textures(Engine& engine)
          {TextureMipFilter::None, TextureMipFilter::Point,
           TextureMipFilter::Linear}) {
       materialDesc.sampledTexture.mipFilter = mipFilter;
-      mMaterials[i] = mGfxCache->create_material(materialDesc);
+      materials[i] = mGfxCache->create_material(materialDesc);
       ++i;
     }
   }
-
-  array vertices {Vertex {{-1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-                  Vertex {{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-                  Vertex {{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},
-                  Vertex {{1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}}};
-  mMesh = mGfxCache->create_mesh({
-    as_bytes(span {vertices}),
-    static_cast<u32>(vertices.size()),
-    Vertex::sLayout,
-  });
-
-  const auto scene {Scene::create()};
-  auto& gfxEnv {scene->entity_registry().ctx().emplace<Environment>()};
-  gfxEnv.set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
-
-  const Entity quad {scene->create_entity({0.0f, 0.0f, 1.5f})};
-  quad.emplace<RenderComponent>(mMesh, std::get<0>(mMaterials));
-  quad.emplace<SamplerSettings>(mMaterials, 0u);
 
   const Entity camera {add_camera(*scene)};
 

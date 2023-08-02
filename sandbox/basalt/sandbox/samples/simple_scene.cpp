@@ -70,8 +70,7 @@ public:
 
     ctx.scene.entity_registry().view<Transform, const RotationSpeed>().each(
       [&](Transform& t, const RotationSpeed& rotationSpeed) {
-        t.rotate_y(
-          Angle::degrees(rotationSpeed.rotationDegPerSecond * dt));
+        t.rotate_y(Angle::degrees(rotationSpeed.rotationDegPerSecond * dt));
       });
   }
 };
@@ -92,11 +91,11 @@ SimpleScene::SimpleScene(Engine& engine)
                         Vertex {{1.0f, -1.0f, 0.0f}, 0xff0000ff_a8r8g8b8},
                         Vertex {{0.0f, 1.0f, 0.0f}, 0xffffffff_a8r8g8b8}};
 
-  mMesh = mGfxCache->create_mesh({
+  const auto mesh {mGfxCache->create_mesh({
     as_bytes(span {vertices}),
     static_cast<u32>(vertices.size()),
     Vertex::sLayout,
-  });
+  })};
 
   PipelineDescriptor pipelineDesc;
   pipelineDesc.vertexInputState = Vertex::sLayout;
@@ -106,7 +105,7 @@ SimpleScene::SimpleScene(Engine& engine)
   pipelineDesc.depthWriteEnable = true;
   MaterialDescriptor materialDesc;
   materialDesc.pipelineDesc = &pipelineDesc;
-  mMaterial = mGfxCache->create_material(materialDesc);
+  const auto material {mGfxCache->create_material(materialDesc)};
 
   const auto scene {Scene::create()};
   auto& gfxEnv {scene->entity_registry().ctx().emplace<Environment>()};
@@ -114,7 +113,7 @@ SimpleScene::SimpleScene(Engine& engine)
 
   const Entity triangle {scene->create_entity(Vector3f32::forward() * 2.5f)};
   triangle.emplace<RotationSpeed>(360.0f);
-  triangle.emplace<RenderComponent>(mMesh, mMaterial);
+  triangle.emplace<RenderComponent>(mesh, material);
 
   const Entity camera {add_camera(*scene)};
 
