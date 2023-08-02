@@ -4,11 +4,14 @@
 #include <basalt/api/engine.h>
 #include <basalt/api/input.h>
 
+#include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/gfx_system.h>
 #include <basalt/api/gfx/resource_cache.h>
+#include <basalt/api/gfx/backend/ext/types.h>
 
 #include <basalt/api/scene/ecs.h>
 #include <basalt/api/scene/scene.h>
+#include <basalt/api/scene/transform.h>
 
 #include <basalt/api/shared/config.h>
 
@@ -36,10 +39,63 @@ auto SceneView::create(ScenePtr scene, gfx::ResourceCachePtr gfxCache,
 }
 
 SceneView::SceneView(ScenePtr scene, gfx::ResourceCachePtr gfxCache)
-  : mScene {std::move(scene)}, mGfxCache {std::move(gfxCache)} {
+  : mScene {std::move(scene)}
+  , mGfxCache {std::move(gfxCache)}
+  , mSelectedEntity {entt::null} {
   auto& ctx {mScene->entity_registry().ctx()};
   ctx.emplace<const InputState&>(input_state());
   ctx.emplace<gfx::ResourceCache&>(*mGfxCache);
+
+  mComponentUis.push_back({
+    entt::type_hash<Transform>::value(),
+    "Transform"s,
+    [](const Entity& entity) { DebugUi::transform(entity.get<Transform>()); },
+  });
+  mComponentUis.push_back({
+    entt::type_hash<LocalToWorld>::value(),
+    "LocalToWorld"s,
+    [](const Entity& entity) {
+      DebugUi::local_to_world(entity.get<LocalToWorld>());
+    },
+  });
+  mComponentUis.push_back({
+    entt::type_hash<gfx::Camera>::value(),
+    "gfx::Camera"s,
+    [](const Entity& entity) { DebugUi::camera(entity.get<gfx::Camera>()); },
+  });
+  mComponentUis.push_back({
+    entt::type_hash<gfx::RenderComponent>::value(),
+    "gfx::RenderComponent"s,
+    [](const Entity& entity) {
+      DebugUi::render_component(entity.get<const gfx::RenderComponent>());
+    },
+  });
+  mComponentUis.push_back({
+    entt::type_hash<gfx::PointLightComponent>::value(),
+    "gfx::PointLightComponent"s,
+    [](const Entity& entity) {
+      DebugUi::point_light(entity.get<gfx::PointLightComponent>());
+    },
+  });
+  mComponentUis.push_back({
+    entt::type_hash<gfx::ext::XModel>::value(),
+    "gfx::ext::XModel"s,
+    [](const Entity& entity) {
+      DebugUi::x_model(entity.get<const gfx::ext::XModel>());
+    },
+  });
+}
+
+auto SceneView::update_debug_ui(Config& config) -> void {
+  if (bool sceneInspectorOpen {
+        config.get_bool("debug.scene_inspector.visible"s)}) {
+    const auto& state {mScene->entity_registry().ctx().insert_or_assign(
+      DebugUi::SceneInspectorState {mSelectedEntity, mComponentUis})};
+    DebugUi::scene_inspector(*mScene, sceneInspectorOpen);
+    mSelectedEntity = state.selected;
+
+    config.set_bool("debug.scene_inspector.visible"s, sceneInspectorOpen);
+  }
 }
 
 auto SceneView::on_input(const InputEvent&) -> InputEventHandled {
@@ -55,13 +111,9 @@ auto SceneView::on_update(UpdateContext& ctx) -> void {
   const Scene::UpdateContext sceneCtx {ctx.deltaTime};
   mScene->on_update(sceneCtx);
 
-  auto& config {engine.config()};
-
-  if (bool sceneInspectorEnabled {
-        config.get_bool("debug.scene_inspector.enabled"s)}) {
-    DebugUi::show_scene_inspector(*mScene, sceneInspectorEnabled);
-
-    config.set_bool("debug.scene_inspector.enabled"s, sceneInspectorEnabled);
+  if (auto& config {engine.config()};
+      config.get_bool("runtime.debugUI.enabled"s)) {
+    update_debug_ui(config);
   }
 }
 

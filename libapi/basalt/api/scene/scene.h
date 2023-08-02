@@ -69,8 +69,6 @@ public:
   auto on_update(const UpdateContext&) -> void;
 
 private:
-  friend class DebugUi;
-
   using SystemTypeId = entt::id_type;
   static constexpr SystemTypeId sVoidId = entt::type_hash<void>::value();
 

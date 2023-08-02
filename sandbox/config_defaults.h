@@ -7,7 +7,7 @@
 #include <basalt/api/base/utils.h>
 
 #define BASALT_CONFIG_DEFAULTS                                                 \
-  {"debug.scene_inspector.enabled"s, false},                                   \
+  {"debug.scene_inspector.visible"s, false},                                   \
     {"runtime.debugUI.enabled"s, true}, {"window.title"s, "Basalt Sandbox"s},  \
     {"window.resizeable"s, true},                                              \
     {"window.mode"s, ::basalt::enum_cast(::basalt::WindowMode::Windowed)},     \

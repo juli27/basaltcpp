@@ -287,7 +287,7 @@ void display(const CommandSetAmbientLight& cmd) {
 
 void display(const CommandSetTransform& cmd) {
   ImGui::Text("transformState = %s", to_string(cmd.transformState));
-  DebugUi::display_mat4("##transform", cmd.transform);
+  DebugUi::display_matrix4x4("##transform", cmd.transform);
 }
 
 void display(const CommandSetMaterial& cmd) {

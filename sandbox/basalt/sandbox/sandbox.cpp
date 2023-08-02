@@ -113,6 +113,7 @@ SandboxView::SandboxView(Engine& engine) {
 
 auto SandboxView::on_update(UpdateContext& ctx) -> void {
   Engine& engine {ctx.engine};
+  Config& config {engine.config()};
 
   // https://github.com/ocornut/imgui/issues/331
   enum class OpenPopup : u8 { None, GfxInfo };
@@ -147,7 +148,6 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
     }
 
     if (ImGui::BeginMenu("View")) {
-      Config& config {engine.config()};
       const auto currentMode =
         config.get_enum("window.mode"s, basalt::to_window_mode);
       if (ImGui::MenuItem("Windowed", nullptr,
@@ -173,11 +173,11 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
       }
 
       bool sceneInspectorEnabled {
-        config.get_bool("debug.scene_inspector.enabled"s)};
+        config.get_bool("debug.scene_inspector.visible"s)};
 
       ImGui::MenuItem("Scene Inspector", nullptr, &sceneInspectorEnabled);
 
-      config.set_bool("debug.scene_inspector.enabled"s, sceneInspectorEnabled);
+      config.set_bool("debug.scene_inspector.visible"s, sceneInspectorEnabled);
 
       ImGui::MenuItem("Performance Overlay", nullptr, &mShowOverlay);
 

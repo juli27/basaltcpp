@@ -6,10 +6,12 @@
 #include <basalt/api/scene/scene.h>
 #include <basalt/api/scene/transform.h>
 
-#include <basalt/api/gfx/backend/ext/types.h>
+#include <basalt/api/gfx/camera.h>
 
 #include <basalt/api/shared/color.h>
+#include <basalt/api/shared/config.h>
 
+#include <basalt/api/math/angle.h>
 #include <basalt/api/math/constants.h>
 #include <basalt/api/math/matrix4x4.h>
 #include <basalt/api/math/vector3.h>
@@ -179,68 +181,131 @@ auto DebugUi::show_performance_overlay(bool& isOpen) -> void {
   ImGui::End();
 }
 
-auto DebugUi::show_scene_inspector(Scene& scene, bool& isOpen) -> void {
+// TODO: turn scene inspector into a system
+// TODO: show systems and allow to enable/disable them
+// TODO: how to display system state like main camera and gfx resource cache
+auto DebugUi::scene_inspector(Scene& scene, bool& isOpen) -> void {
   ImGui::SetNextWindowSize(ImVec2 {400.0f, 600.0f}, ImGuiCond_FirstUseEver);
   if (!ImGui::Begin("Scene Inspector", &isOpen)) {
     ImGui::End();
     return;
   }
 
-  edit_scene(scene);
+  entities(scene.entity_registry());
 
   ImGui::End();
 }
 
-auto DebugUi::edit_scene(Scene& scene) -> void {
-  edit_ecs(scene.entity_registry());
+auto DebugUi::entities(EntityRegistry& entities) -> void {
+  auto& state {entities.ctx().get<SceneInspectorState>()};
+
+  constexpr ImGuiWindowFlags childFlags {ImGuiWindowFlags_HorizontalScrollbar};
+
+  if (ImGui::BeginChild("hierarchy",
+                        {ImGui::GetContentRegionAvail().x * 0.25f, 0}, false,
+                        childFlags)) {
+    entity_hierarchy_panel(entities, state.selected);
+  }
+  ImGui::EndChild();
+
+  ImGui::SameLine();
+
+  if (ImGui::BeginChild("components", {}, false, childFlags)) {
+    entity_components(Entity {entities, state.selected}, state.componentUis);
+  }
+  ImGui::EndChild();
 }
 
-auto DebugUi::edit_ecs(EntityRegistry& ecs) -> void {
-  ecs.view<EntityId>().each([&](const EntityId entity) -> void {
-    ImGui::PushID(to_integral(entity));
+namespace {
 
-    if (ImGui::TreeNode("Entity", "Entity %d", to_integral(entity))) {
-      if (auto* const transform {ecs.try_get<Transform>(entity)}) {
-        if (ImGui::TreeNode("Transform")) {
-          edit_transform(*transform);
+auto entity_node(const Entity entity, EntityId& selected) -> void {
+  constexpr ImGuiTreeNodeFlags baseNodeFlags {
+    ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow |
+    ImGuiTreeNodeFlags_SpanAvailWidth};
+  constexpr ImGuiTreeNodeFlags leafNodeFlags {baseNodeFlags |
+                                              ImGuiTreeNodeFlags_Leaf};
+  ImGui::PushID(to_integral(entity.entity()));
 
-          ImGui::TreePop();
-        }
-      }
-      if (const auto* const localToWorld {
-            ecs.try_get<const LocalToWorld>(entity)}) {
-        if (ImGui::TreeNode("LocalToWorld")) {
-          display_local_to_world(*localToWorld);
+  const auto* children {entity.try_get<Children>()};
+  const bool isParent {children != nullptr};
+  ImGuiTreeNodeFlags nodeFlags {isParent ? baseNodeFlags : leafNodeFlags};
 
-          ImGui::TreePop();
-        }
-      }
+  if (selected == entity) {
+    nodeFlags |= ImGuiTreeNodeFlags_Selected;
+  }
 
-      if (const auto* const rc {ecs.try_get<gfx::RenderComponent>(entity)}) {
-        if (ImGui::TreeNode("Render Component")) {
-          ImGui::Text("Mesh: %#x", rc->mesh.value());
-          ImGui::Text("Material: %#x", rc->material.value());
-
-          ImGui::TreePop();
-        }
+  const auto entityNode {
+    [](const Entity e, const ImGuiTreeNodeFlags flags) -> bool {
+      if (const auto* name {e.try_get<const EntityName>()}) {
+        return ImGui::TreeNodeEx(name->value.c_str(), flags);
       }
 
-      if (const auto* const gfxXModel {ecs.try_get<gfx::ext::XModel>(entity)}) {
-        if (ImGui::TreeNode("Gfx Model")) {
-          ImGui::Text("handle = %d", gfxXModel->value());
+      return ImGui::TreeNodeEx("Entity", flags, "Entity %d",
+                               to_integral(e.entity()));
+    }};
 
-          ImGui::TreePop();
-        }
+  const bool open {entityNode(entity, nodeFlags)};
+
+  if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
+    selected = entity;
+  }
+
+  if (open) {
+    if (children) {
+      for (const EntityId childId : children->ids) {
+        entity_node(Entity {*entity.registry(), childId}, selected);
       }
+    }
+
+    ImGui::TreePop();
+  }
+
+  ImGui::PopID();
+}
+
+} // namespace
+
+auto DebugUi::entity_hierarchy_panel(EntityRegistry& entities,
+                                     EntityId& selected) -> void {
+  const auto rootEntities {entities.view<EntityId>(entt::exclude<Parent>)};
+
+  for (const EntityId id : rootEntities) {
+    entity_node(Entity {entities, id}, selected);
+  }
+}
+
+auto DebugUi::entity_components(const Entity entity,
+                                const gsl::span<ComponentUi> componentUis)
+  -> void {
+  if (entity.entity() == entt::null) {
+    ImGui::TextUnformatted("no entity selected");
+
+    return;
+  }
+
+  constexpr ImGuiTreeNodeFlags nodeFlags {ImGuiTreeNodeFlags_DefaultOpen |
+                                          ImGuiTreeNodeFlags_SpanAvailWidth};
+
+  // TODO: add a way to show components which don't have a UI
+  for (const ComponentUi& componentUi : componentUis) {
+    const auto* storage {entity.registry()->storage(componentUi.typeId)};
+    if (!storage) {
+      continue;
+    }
+
+    if (!storage->contains(entity.entity())) {
+      continue;
+    }
+
+    if (ImGui::TreeNodeEx(componentUi.name.c_str(), nodeFlags)) {
+      componentUi.render(entity);
 
       ImGui::TreePop();
     }
-
-    ImGui::PopID();
-  });
+  }
 }
 
-auto DebugUi::edit_transform(Transform& transform) -> void {
+auto DebugUi::transform(Transform& transform) -> void {
   ImGui::DragFloat3("Position", transform.position.components.data(), 0.1f);
 
   ImGui::DragFloat3("Rotation", transform.rotation.components.data(), 0.01f,
@@ -249,8 +314,40 @@ auto DebugUi::edit_transform(Transform& transform) -> void {
   ImGui::DragFloat3("Scale", transform.scale.components.data(), 0.1f, 0.0f);
 }
 
-auto DebugUi::display_local_to_world(const LocalToWorld& localToWorld) -> void {
-  display_mat4("##value", localToWorld.matrix);
+auto DebugUi::local_to_world(const LocalToWorld& localToWorld) -> void {
+  display_matrix4x4("##value", localToWorld.matrix);
+}
+
+auto DebugUi::camera(gfx::Camera& camera) -> void {
+  ImGui::DragFloat3("Look At", camera.lookAt.components.data(), 0.1f);
+  ImGui::DragFloat3("Up", camera.up.components.data(), 0.1f);
+  f32 fovRad {camera.fov.radians()};
+  ImGui::SliderAngle("fov", &fovRad, 1, 179);
+  camera.fov = Angle::radians(fovRad);
+  ImGui::BeginDisabled();
+  ImGui::DragFloat("Aspect Ratio", &camera.aspectRatio);
+  ImGui::EndDisabled();
+  ImGui::DragFloatRange2("Near and far plane", &camera.nearPlane,
+                         &camera.farPlane);
+}
+
+auto DebugUi::render_component(const gfx::RenderComponent& rc) -> void {
+  ImGui::Text("Mesh: %#x", rc.mesh.value());
+  ImGui::Text("Material: %#x", rc.material.value());
+}
+
+auto DebugUi::x_model(const gfx::ext::XModel& xModel) -> void {
+  ImGui::Text("handle = %d", xModel.value());
+}
+
+auto DebugUi::point_light(gfx::PointLightComponent& light) -> void {
+  edit_color3("Diffuse", light.diffuse);
+  edit_color3("Specular", light.specular);
+  edit_color3("Ambient", light.ambient);
+  ImGui::DragFloat("Range", &light.range);
+  ImGui::DragFloat("Attenuation 0", &light.attenuation0);
+  ImGui::DragFloat("Attenuation 1", &light.attenuation1);
+  ImGui::DragFloat("Attenuation 0", &light.attenuation2);
 }
 
 auto DebugUi::edit_directional_light(gfx::DirectionalLight& light) -> void {
@@ -282,7 +379,8 @@ auto DebugUi::edit_color4(const char* label, Color& color) -> void {
                            std::get<2>(colorArray), std::get<3>(colorArray));
 }
 
-auto DebugUi::display_mat4(const char* label, const Matrix4x4f32& mat) -> void {
+auto DebugUi::display_matrix4x4(const char* label, const Matrix4x4f32& mat)
+  -> void {
   const string labelString {label};
 
   ImGui::BeginDisabled();

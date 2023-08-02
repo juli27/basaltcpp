@@ -1,11 +1,16 @@
 #pragma once
 
+#include <basalt/api/debug_ui.h>
 #include <basalt/api/types.h>
 #include <basalt/api/view.h>
 
 #include <basalt/api/gfx/types.h>
 
 #include <basalt/api/scene/types.h>
+
+#include <basalt/api/shared/types.h>
+
+#include <vector>
 
 namespace basalt {
 
@@ -27,6 +32,11 @@ public:
 private:
   ScenePtr mScene;
   gfx::ResourceCachePtr mGfxCache;
+
+  EntityId mSelectedEntity;
+  std::vector<DebugUi::ComponentUi> mComponentUis;
+
+  auto update_debug_ui(Config& config) -> void;
 
   auto on_input(const InputEvent&) -> InputEventHandled override;
   auto on_update(UpdateContext&) -> void override;

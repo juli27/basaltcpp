@@ -14,17 +14,22 @@
 #include <basalt/api/math/angle.h>
 #include <basalt/api/math/vector3.h>
 
+#include <fmt/format.h>
+
 #include <array>
 #include <cmath>
+#include <string>
 #include <utility>
 
 namespace samples {
 
+using namespace std::literals;
 using std::array;
 
 using namespace basalt::literals;
 using basalt::Angle;
 using basalt::Engine;
+using basalt::EntityName;
 using basalt::Parent;
 using basalt::Scene;
 using basalt::SceneView;
@@ -122,6 +127,7 @@ Lighting::Lighting(Engine& engine)
   gfxEnv.set_ambient_light(Color::from_non_linear(0.25f, 0, 0));
 
   mCenter = scene->create_entity();
+  mCenter.emplace<EntityName>("Center"s);
 
   for (i32 i {0}; i < 10; i++) {
     const f32 perSphereFactor {static_cast<f32>(i)};
@@ -133,20 +139,25 @@ Lighting::Lighting(Engine& engine)
     // make the spheres point inward
     Vector3f32 rotation {0, -1 * angle.radians(), 0};
     mSpheres[i] = scene->create_entity(pos, rotation);
+    mSpheres[i].emplace<EntityName>(
+      fmt::format(FMT_STRING("Sphere {}"), i + 1));
     mSpheres[i].emplace<Parent>(mCenter.entity());
 
     mSpheres[i].emplace<XModel>(sphereModels[i]);
   }
 
   mGround = scene->create_entity({0, -50, 0});
+  mGround.emplace<EntityName>("Ground"s);
   (void)mGround.emplace<XModel>(groundModel);
 
   mLight = scene->create_entity();
+  mLight.emplace<EntityName>("Light"s);
   (void)mLight.emplace<XModel>(lightModel);
   mLight.emplace<PointLightComponent>(
     Colors::WHITE, Colors::WHITE, Colors::WHITE, 1000.0f, 0.0f, 0.025f, 0.0f);
 
   const auto cameraEntity {scene->create_entity({5, 7.5f, -15})};
+  cameraEntity.emplace<EntityName>("Camera"s);
   cameraEntity.emplace<Camera>(
     Camera {{}, Vector3f32::up(), 90_deg, 0.1f, 500});
 
@@ -167,9 +178,7 @@ auto Lighting::on_update(UpdateContext& ctx) -> void {
   }
 
   mGround.get<Transform>().rotation.y() = Angle::radians(t).radians();
-
-  const Vector3f32 lightPos {0, std::sin(t) * 10, 0};
-  mLight.get<Transform>().position = lightPos;
+  mLight.get<Transform>().position.y() = std::sin(t) * 10;
 }
 
 } // namespace samples

@@ -5,12 +5,17 @@
 #include <entt/entity/fwd.hpp>
 
 #include <memory>
+#include <string>
 
 namespace basalt {
 
 using Entity = entt::handle;
 using EntityId = entt::entity;
 using EntityRegistry = entt::registry;
+
+struct EntityName {
+  std::string value;
+};
 
 class Scene;
 using ScenePtr = std::shared_ptr<Scene>;
