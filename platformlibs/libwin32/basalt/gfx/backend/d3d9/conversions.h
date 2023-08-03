@@ -273,7 +273,7 @@ inline auto to_d3d(const BorderColor borderColor, const Color& custom)
   return TO_D3D[borderColor];
 }
 
-inline auto to_d3d(const DirectionalLight& light) -> D3DLIGHT9 {
+inline auto to_d3d(const DirectionalLightData& light) -> D3DLIGHT9 {
   D3DLIGHT9 d3dLight {};
   d3dLight.Type = D3DLIGHT_DIRECTIONAL;
   d3dLight.Diffuse = to_d3d_color_value(light.diffuse);
@@ -284,7 +284,7 @@ inline auto to_d3d(const DirectionalLight& light) -> D3DLIGHT9 {
   return d3dLight;
 }
 
-inline auto to_d3d(const PointLight& light) -> D3DLIGHT9 {
+inline auto to_d3d(const PointLightData& light) -> D3DLIGHT9 {
   D3DLIGHT9 d3dLight {};
   d3dLight.Type = D3DLIGHT_POINT;
   d3dLight.Diffuse = to_d3d_color_value(light.diffuse);
@@ -299,7 +299,7 @@ inline auto to_d3d(const PointLight& light) -> D3DLIGHT9 {
   return d3dLight;
 }
 
-inline auto to_d3d(const SpotLight& light) -> D3DLIGHT9 {
+inline auto to_d3d(const SpotLightData& light) -> D3DLIGHT9 {
   D3DLIGHT9 d3dLight {};
   d3dLight.Type = D3DLIGHT_SPOT;
   d3dLight.Diffuse = to_d3d_color_value(light.diffuse);
@@ -312,8 +312,8 @@ inline auto to_d3d(const SpotLight& light) -> D3DLIGHT9 {
   d3dLight.Attenuation0 = light.attenuation0;
   d3dLight.Attenuation1 = light.attenuation1;
   d3dLight.Attenuation2 = light.attenuation2;
-  d3dLight.Theta = light.theta;
-  d3dLight.Phi = light.phi;
+  d3dLight.Theta = light.theta.radians();
+  d3dLight.Phi = light.phi.radians();
 
   return d3dLight;
 }

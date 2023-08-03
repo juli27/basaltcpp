@@ -40,9 +40,10 @@ using basalt::gfx::CullMode;
 using basalt::gfx::Environment;
 using basalt::gfx::FogMode;
 using basalt::gfx::FogType;
+using basalt::gfx::Light;
 using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::PipelineDescriptor;
-using basalt::gfx::PointLightComponent;
+using basalt::gfx::PointLight;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
@@ -153,8 +154,8 @@ Lighting::Lighting(Engine& engine)
   mLight = scene->create_entity();
   mLight.emplace<EntityName>("Light"s);
   (void)mLight.emplace<XModel>(lightModel);
-  mLight.emplace<PointLightComponent>(
-    Colors::WHITE, Colors::WHITE, Colors::WHITE, 1000.0f, 0.0f, 0.025f, 0.0f);
+  mLight.emplace<Light>(PointLight {Colors::WHITE, Colors::WHITE, Colors::WHITE,
+                                    1000.0f, 0.0f, 0.025f, 0.0f});
 
   const auto cameraEntity {scene->create_entity({5, 7.5f, -15})};
   cameraEntity.emplace<EntityName>("Camera"s);

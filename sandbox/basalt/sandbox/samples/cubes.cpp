@@ -22,10 +22,12 @@
 
 #include <array>
 #include <random>
+#include <string>
 #include <vector>
 
 namespace samples {
 
+using namespace std::literals;
 using std::array;
 using std::default_random_engine;
 using std::random_device;
@@ -38,6 +40,7 @@ using gsl::span;
 using namespace basalt::literals;
 using basalt::Angle;
 using basalt::EntityId;
+using basalt::EntityName;
 using basalt::InputState;
 using basalt::Key;
 using basalt::Scene;
@@ -47,10 +50,13 @@ using basalt::Vector3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::CameraEntity;
 using basalt::gfx::Environment;
+using basalt::gfx::Light;
+using basalt::gfx::MaterialColorSource;
 using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
+using basalt::gfx::SpotLight;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
@@ -63,17 +69,18 @@ using Distribution = uniform_real_distribution<float>;
 
 struct Vertex final {
   Vector3f32 pos;
+  Vector3f32 normal;
   ColorEncoding::A8R8G8B8 diffuse {};
   array<f32, 2> uv {};
 
-  static constexpr array sLayout {VertexElement::Position3F32,
-                                  VertexElement::ColorDiffuse1U32A8R8G8B8,
-                                  VertexElement::TextureCoords2F32};
+  static constexpr array sLayout {
+    VertexElement::Position3F32, VertexElement::Normal3F32,
+    VertexElement::ColorDiffuse1U32A8R8G8B8, VertexElement::TextureCoords2F32};
 };
 
 constexpr u32 NUM_CUBES {2048};
 constexpr u32 NUM_TRIANGLES_PER_CUBE {2 * 6};
-constexpr u32 NUM_VERTICES_PER_CUBE {8};
+constexpr u32 NUM_VERTICES_PER_CUBE {4 * 6};
 constexpr u32 NUM_INDICES_PER_CUBE {NUM_TRIANGLES_PER_CUBE * 3};
 
 static_assert(NUM_CUBES * NUM_VERTICES_PER_CUBE <= 0xffff,
@@ -90,29 +97,40 @@ auto generate_mesh(const span<Vertex> vb, const span<u16> ib) -> void {
                                  rng1(randomEngine));
   }};
 
-  const array<u16, NUM_INDICES_PER_CUBE> cubeIndices {
-    0, 3, 7, 0, 7, 4, // front
-    2, 1, 5, 2, 5, 6, // back
-    1, 0, 4, 1, 4, 5, // left
-    3, 2, 6, 3, 6, 7, // right
-    0, 1, 2, 0, 2, 3, // top
-    6, 5, 4, 6, 4, 7}; // bottom
+  constexpr array<u16, NUM_INDICES_PER_CUBE> cubeIndices {
+    8,  9,  11, 8,  11, 10, // front
+    13, 12, 14, 13, 14, 15, // back
+    17, 16, 18, 17, 18, 19, // left
+    21, 20, 22, 21, 22, 23, // right
+    0,  1,  2,  0,  2,  3, // top
+    6,  5,  4,  6,  4,  7}; // bottom
 
   for (u32 iCube {0}; iCube < NUM_CUBES; iCube++) {
     const Vector3f32 pos {normalizedRandomVector() * rng2(randomEngine)};
 
     const u16 startVertex {static_cast<u16>(NUM_VERTICES_PER_CUBE * iCube)};
 
+    // top
     vb[startVertex + 0].pos = pos + Vector3f32 {-1.0f, 1.0f, -1.0f};
+    vb[startVertex + 0].normal = {0, 1.0f, 0};
     vb[startVertex + 1].pos = pos + Vector3f32 {-1.0f, 1.0f, 1.0f};
+    vb[startVertex + 1].normal = {0, 1.0f, 0};
     vb[startVertex + 2].pos = pos + Vector3f32 {1.0f, 1.0f, 1.0f};
+    vb[startVertex + 2].normal = {0, 1.0f, 0};
     vb[startVertex + 3].pos = pos + Vector3f32 {1.0f, 1.0f, -1.0f};
-    vb[startVertex + 4].pos = pos + Vector3f32 {-1.0f, -1.0f, -1.0f};
-    vb[startVertex + 5].pos = pos + Vector3f32 {-1.0f, -1.0f, 1.0f};
-    vb[startVertex + 6].pos = pos + Vector3f32 {1.0f, -1.0f, 1.0f};
-    vb[startVertex + 7].pos = pos + Vector3f32 {1.0f, -1.0f, -1.0f};
+    vb[startVertex + 3].normal = {0, 1.0f, 0};
 
-    for (Vertex& vertex : vb.subspan(startVertex, NUM_VERTICES_PER_CUBE)) {
+    // bottom
+    vb[startVertex + 4].pos = pos + Vector3f32 {-1.0f, -1.0f, -1.0f};
+    vb[startVertex + 4].normal = {0, -1.0f, 0};
+    vb[startVertex + 5].pos = pos + Vector3f32 {-1.0f, -1.0f, 1.0f};
+    vb[startVertex + 5].normal = {0, -1.0f, 0};
+    vb[startVertex + 6].pos = pos + Vector3f32 {1.0f, -1.0f, 1.0f};
+    vb[startVertex + 6].normal = {0, -1.0f, 0};
+    vb[startVertex + 7].pos = pos + Vector3f32 {1.0f, -1.0f, -1.0f};
+    vb[startVertex + 7].normal = {0, -1.0f, 0};
+
+    for (Vertex& vertex : vb.subspan(startVertex, 8)) {
       const Color vertexColor {Color::from_non_linear(rng3(randomEngine),
                                                       rng3(randomEngine),
                                                       rng3(randomEngine)) *
@@ -121,6 +139,45 @@ auto generate_mesh(const span<Vertex> vb, const span<u16> ib) -> void {
 
       vertex.uv = {rng1(randomEngine), rng1(randomEngine)};
     }
+
+    // duplicate vertices for each face of the cube for correct lighting
+    // (normals)
+    // front
+    vb[startVertex + 8] = vb[startVertex + 0];
+    vb[startVertex + 8].normal = Vector3f32 {0, 0, -1.0f};
+    vb[startVertex + 9] = vb[startVertex + 3];
+    vb[startVertex + 9].normal = Vector3f32 {0, 0, -1.0f};
+    vb[startVertex + 10] = vb[startVertex + 4];
+    vb[startVertex + 10].normal = Vector3f32 {0, 0, -1.0f};
+    vb[startVertex + 11] = vb[startVertex + 7];
+    vb[startVertex + 11].normal = Vector3f32 {0, 0, -1.0f};
+    // back
+    vb[startVertex + 12] = vb[startVertex + 1];
+    vb[startVertex + 12].normal = Vector3f32 {0, 0, 1.0f};
+    vb[startVertex + 13] = vb[startVertex + 2];
+    vb[startVertex + 13].normal = Vector3f32 {0, 0, 1.0f};
+    vb[startVertex + 14] = vb[startVertex + 5];
+    vb[startVertex + 14].normal = Vector3f32 {0, 0, 1.0f};
+    vb[startVertex + 15] = vb[startVertex + 6];
+    vb[startVertex + 15].normal = Vector3f32 {0, 0, 1.0f};
+    // left
+    vb[startVertex + 16] = vb[startVertex + 0];
+    vb[startVertex + 16].normal = Vector3f32 {-1.0f, 0, 0};
+    vb[startVertex + 17] = vb[startVertex + 1];
+    vb[startVertex + 17].normal = Vector3f32 {-1.0f, 0, 0};
+    vb[startVertex + 18] = vb[startVertex + 4];
+    vb[startVertex + 18].normal = Vector3f32 {-1.0f, 0, 0};
+    vb[startVertex + 19] = vb[startVertex + 5];
+    vb[startVertex + 19].normal = Vector3f32 {-1.0f, 0, 0};
+    // right
+    vb[startVertex + 20] = vb[startVertex + 2];
+    vb[startVertex + 20].normal = Vector3f32 {1.0f, 0, 0};
+    vb[startVertex + 21] = vb[startVertex + 3];
+    vb[startVertex + 21].normal = Vector3f32 {1.0f, 0, 0};
+    vb[startVertex + 22] = vb[startVertex + 6];
+    vb[startVertex + 22].normal = Vector3f32 {1.0f, 0, 0};
+    vb[startVertex + 23] = vb[startVertex + 7];
+    vb[startVertex + 23].normal = Vector3f32 {1.0f, 0, 0};
 
     const u32 startIndex {NUM_INDICES_PER_CUBE * iCube};
 
@@ -135,6 +192,22 @@ constexpr entt::id_type CONTROLLED_CAMERA {"controlled camera"_hs};
 
 struct CameraControllerData final {
   Angle angleY;
+};
+
+class RotatingLightSystem final : public System {
+public:
+  using UpdateBefore = basalt::TransformSystem;
+
+  auto on_update(const UpdateContext& ctx) -> void override {
+    ctx.scene.entity_registry().view<Light>().each([&](Light& light) {
+      const f32 lightAngle {ctx.time.count() * 0.1f};
+
+      std::get<SpotLight>(light).direction =
+        Vector3f32 {std::cos(lightAngle), 0, std::sin(lightAngle)}.normalize();
+    });
+  }
+
+  RotatingLightSystem() noexcept = default;
 };
 
 class CameraController final : public System {
@@ -212,7 +285,8 @@ Cubes::Cubes(basalt::Engine& engine)
   PipelineDescriptor pipelineDesc;
   pipelineDesc.vertexInputState = Vertex::sLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
-  pipelineDesc.lightingEnabled = false;
+  pipelineDesc.lightingEnabled = true;
+  pipelineDesc.ambientSource = MaterialColorSource::DiffuseVertexColor;
   array<TextureBlendingStage, 1> textureStages {};
   pipelineDesc.textureStages = textureStages;
   pipelineDesc.depthTest = TestPassCond::IfLessEqual;
@@ -226,15 +300,33 @@ Cubes::Cubes(basalt::Engine& engine)
   const auto material {mGfxCache->create_material(matDesc)};
 
   const auto scene {Scene::create()};
+  scene->create_system<RotatingLightSystem>();
+  scene->create_system<CameraController>();
   auto& gfxEnv {scene->entity_registry().ctx().emplace<Environment>()};
   gfxEnv.set_background(Colors::BLACK);
+  gfxEnv.set_ambient_light(Color::from_non_linear(0.2f, 0.2f, 0.2f));
   auto& entities {scene->entity_registry()};
-  scene->create_system<CameraController>();
 
   const auto cubes {scene->create_entity()};
+  cubes.emplace<EntityName>("Cubes"s);
   cubes.emplace<RenderComponent>(mesh, material);
 
+  const auto light {scene->create_entity()};
+  light.emplace<EntityName>("SpotLight"s);
+  light.emplace<Light>(SpotLight {Colors::WHITE,
+                                  {},
+                                  {},
+                                  Vector3f32::forward(),
+                                  250.0f,
+                                  0,
+                                  0.025f,
+                                  0,
+                                  1.0f,
+                                  45_deg,
+                                  15_deg});
+
   const auto camera {scene->create_entity()};
+  camera.emplace<EntityName>("Camera"s);
   camera.emplace<Camera>(Vector3f32::forward(), Vector3f32::up(), 90_deg, 0.1f,
                          250.0f);
   camera.emplace<CameraControllerData>(CameraControllerData {0_deg});

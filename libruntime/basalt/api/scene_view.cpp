@@ -71,11 +71,9 @@ SceneView::SceneView(ScenePtr scene, gfx::ResourceCachePtr gfxCache)
     },
   });
   mComponentUis.push_back({
-    entt::type_hash<gfx::PointLightComponent>::value(),
-    "gfx::PointLightComponent"s,
-    [](const Entity& entity) {
-      DebugUi::point_light(entity.get<gfx::PointLightComponent>());
-    },
+    entt::type_hash<gfx::Light>::value(),
+    "gfx::Light"s,
+    [](const Entity& entity) { DebugUi::light(entity.get<gfx::Light>()); },
   });
   mComponentUis.push_back({
     entt::type_hash<gfx::ext::XModel>::value(),

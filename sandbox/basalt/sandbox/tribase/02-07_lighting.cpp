@@ -34,9 +34,9 @@ using basalt::gfx::CommandList;
 using basalt::gfx::CullMode;
 using basalt::gfx::FogMode;
 using basalt::gfx::FogType;
-using basalt::gfx::Light;
+using basalt::gfx::LightData;
 using basalt::gfx::PipelineDescriptor;
-using basalt::gfx::PointLight;
+using basalt::gfx::PointLightData;
 using basalt::gfx::SamplerDescriptor;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureBlendingStage;
@@ -101,9 +101,9 @@ auto Lighting::on_update(UpdateContext& ctx) -> void {
   cmdList.set_fog_parameters(BACKGROUND, 0, 0, 0.01f);
 
   const Vector3f32 lightPos {0, std::sin(t) * 10, 0};
-  PointLight pointLight {
+  PointLightData pointLight {
     Colors::WHITE, Colors::WHITE, Colors::WHITE, lightPos, 1000, 0, 0.025f, 0};
-  const array<Light, 1> lights {pointLight};
+  const array<LightData, 1> lights {pointLight};
   cmdList.set_lights(lights);
   cmdList.set_ambient_light(Color::from_non_linear(0.25f, 0, 0));
 

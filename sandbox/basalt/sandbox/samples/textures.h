@@ -5,7 +5,6 @@
 #include <basalt/api/types.h>
 
 #include <basalt/api/gfx/types.h>
-#include <basalt/api/gfx/backend/types.h>
 
 namespace samples {
 

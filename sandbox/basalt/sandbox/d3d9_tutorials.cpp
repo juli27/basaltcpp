@@ -43,8 +43,8 @@ using basalt::ViewPtr;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
-using basalt::gfx::DirectionalLight;
-using basalt::gfx::Light;
+using basalt::gfx::DirectionalLightData;
+using basalt::gfx::LightData;
 using basalt::gfx::Pipeline;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
@@ -289,13 +289,13 @@ private:
     cmdList.set_transform(TransformState::LocalToWorld,
                           Matrix4x4f32::rotation_x(mRotationX));
 
-    DirectionalLight directionalLight;
+    DirectionalLightData directionalLight;
     directionalLight.diffuse = Color::from_non_linear(1.0f, 1.0f, 1.0f, 0.0f);
     directionalLight.directionInWorld =
       Vector3f32::normalize(mLightRotation.cos(), 1.0f, mLightRotation.sin());
-    const Light light {directionalLight};
+    const LightData light {directionalLight};
 
-    cmdList.set_lights(span<const Light> {&light, 1});
+    cmdList.set_lights(span<const LightData> {&light, 1});
     cmdList.set_ambient_light(Color::from(0x00202020_a8r8g8b8));
     cmdList.set_material(Colors::YELLOW, Colors::YELLOW);
 

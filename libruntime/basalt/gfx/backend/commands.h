@@ -166,10 +166,10 @@ struct CommandSetAmbientLight final : CommandT<CommandType::SetAmbientLight> {
 };
 
 struct CommandSetLights final : CommandT<CommandType::SetLights> {
-  gsl::span<const Light> lights;
+  gsl::span<const LightData> lights;
 
   constexpr explicit CommandSetLights(
-    const gsl::span<const Light> aLights) noexcept
+    const gsl::span<const LightData> aLights) noexcept
     : lights {aLights} {
   }
 };

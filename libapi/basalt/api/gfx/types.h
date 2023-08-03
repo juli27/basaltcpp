@@ -3,6 +3,7 @@
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 
+#include <basalt/api/math/angle.h>
 #include <basalt/api/math/matrix4x4.h>
 
 #include <basalt/api/shared/color.h>
@@ -17,6 +18,7 @@
 #include <filesystem>
 #include <memory>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace basalt::gfx {
@@ -169,7 +171,9 @@ struct RenderComponent final {
 
 static_assert(sizeof(RenderComponent) == 72);
 
-struct PointLightComponent {
+using DirectionalLight = DirectionalLightData;
+
+struct PointLight {
   Color diffuse;
   Color specular;
   Color ambient;
@@ -178,6 +182,22 @@ struct PointLightComponent {
   f32 attenuation1 {};
   f32 attenuation2 {};
 };
+
+struct SpotLight {
+  Color diffuse;
+  Color specular;
+  Color ambient;
+  Vector3f32 direction;
+  f32 range {};
+  f32 attenuation0 {};
+  f32 attenuation1 {};
+  f32 attenuation2 {};
+  f32 falloff {};
+  Angle phi;
+  Angle theta;
+};
+
+using Light = std::variant<PointLight, SpotLight>;
 
 struct MeshData final {
   VertexBuffer vertexBuffer;

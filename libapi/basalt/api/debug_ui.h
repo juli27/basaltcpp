@@ -49,7 +49,9 @@ public:
   static auto camera(gfx::Camera&) -> void;
   static auto render_component(const gfx::RenderComponent&) -> void;
   static auto x_model(const gfx::ext::XModel&) -> void;
-  static auto point_light(gfx::PointLightComponent&) -> void;
+  static auto light(gfx::Light&) -> void;
+  static auto point_light(gfx::PointLight&) -> void;
+  static auto spot_light(gfx::SpotLight&) -> void;
   static auto edit_directional_light(gfx::DirectionalLight&) -> void;
   static auto edit_color3(const char* label, Color&) -> void;
   static auto edit_color4(const char* label, Color&) -> void;

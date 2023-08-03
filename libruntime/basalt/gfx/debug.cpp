@@ -213,8 +213,8 @@ void display(const CommandBindTexture& cmd) {
   ImGui::Text("textureId = %#x", cmd.textureId.value());
 }
 
-auto display(const PointLight& light) -> void {
-  ImGui::SeparatorText("PointLight");
+auto display(const PointLightData& light) -> void {
+  ImGui::SeparatorText("PointLightData");
 
   display_color4("diffuse", light.diffuse);
   display_color4("specular", light.specular);
@@ -235,8 +235,8 @@ auto display(const PointLight& light) -> void {
                     ImGuiInputTextFlags_ReadOnly);
 }
 
-auto display(const SpotLight& light) -> void {
-  ImGui::SeparatorText("SpotLight");
+auto display(const SpotLightData& light) -> void {
+  ImGui::SeparatorText("SpotLightData");
 
   display_color4("diffuse", light.diffuse);
   display_color4("specular", light.specular);
@@ -258,14 +258,14 @@ auto display(const SpotLight& light) -> void {
                     ImGuiInputTextFlags_ReadOnly);
   f = light.falloff;
   ImGui::InputFloat("falloff", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
-  f = light.phi;
+  f = light.phi.radians();
   ImGui::InputFloat("phi", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
-  f = light.theta;
+  f = light.theta.radians();
   ImGui::InputFloat("theta", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
 }
 
-auto display(const DirectionalLight& light) -> void {
-  ImGui::SeparatorText("DirectionalLight");
+auto display(const DirectionalLightData& light) -> void {
+  ImGui::SeparatorText("DirectionalLightData");
   display_color4("diffuse", light.diffuse);
   display_color4("specular", light.specular);
   display_color4("ambient", light.ambient);
@@ -274,7 +274,7 @@ auto display(const DirectionalLight& light) -> void {
 }
 
 auto display(const CommandSetLights& cmd) -> void {
-  for (const Light& l : cmd.lights) {
+  for (const LightData& l : cmd.lights) {
     ImGui::PushID(&l);
     visit([](auto&& light) { display(light); }, l);
     ImGui::PopID();
@@ -370,7 +370,7 @@ void draw_composite_inspector(const Composite& composite) {
   if (!ImGui::BeginChild("command data")) {
     ImGui::EndChild();
     ImGui::End();
-    
+
     return;
   }
 

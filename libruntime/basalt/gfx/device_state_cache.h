@@ -52,9 +52,9 @@ private:
     {TransformState::LocalToWorld, std::nullopt},
     {TransformState::Texture, std::nullopt},
   };
-  Color mAmbientLight;
-  Material mMaterial;
-  FogParams mFogParams;
+  std::optional<Color> mAmbientLight;
+  std::optional<Material> mMaterial;
+  std::optional<FogParams> mFogParams;
   Pipeline mBoundPipeline {Pipeline::null()};
   VertexBuffer mBoundVertexBuffer {VertexBuffer::null()};
   u64 mVertexBufferOffset {0ull};

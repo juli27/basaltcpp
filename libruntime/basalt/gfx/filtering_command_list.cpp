@@ -72,7 +72,8 @@ auto FilteringCommandList::set_ambient_light(const Color& c) -> void {
   }
 }
 
-auto FilteringCommandList::set_lights(const span<const Light> lights) -> void {
+auto FilteringCommandList::set_lights(const span<const LightData> lights)
+  -> void {
   mCommandList.set_lights(lights);
 }
 

@@ -55,6 +55,7 @@ auto CommandList::bind_vertex_buffer(const VertexBuffer vertexBufferId,
                                      const u64 offsetInBytes) -> void {
   add<CommandBindVertexBuffer>(vertexBufferId, offsetInBytes);
 }
+
 auto CommandList::bind_index_buffer(const IndexBuffer indexBufferId) -> void {
   add<CommandBindIndexBuffer>(indexBufferId);
 }
@@ -76,8 +77,8 @@ auto CommandList::set_ambient_light(const Color& ambientColor) -> void {
   add<CommandSetAmbientLight>(ambientColor);
 }
 
-auto CommandList::set_lights(const span<const Light> lights) -> void {
-  span lightsCopy {allocate<const Light>(lights.size())};
+auto CommandList::set_lights(const span<const LightData> lights) -> void {
+  span lightsCopy {allocate<const LightData>(lights.size())};
   std::uninitialized_copy(lights.begin(), lights.end(), lightsCopy.begin());
 
   add<CommandSetLights>(lightsCopy);

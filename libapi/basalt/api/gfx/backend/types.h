@@ -3,6 +3,7 @@
 #include <basalt/api/shared/color.h>
 #include <basalt/api/shared/handle.h>
 
+#include <basalt/api/math/angle.h>
 #include <basalt/api/math/vector3.h>
 
 #include <basalt/api/base/enum_set.h>
@@ -181,6 +182,7 @@ struct TextureTag;
 struct VertexBufferTag;
 struct IndexBufferTag;
 } // namespace detail
+
 using Pipeline = Handle<detail::PipelineTag>;
 using Sampler = Handle<detail::SamplerTag>;
 using Texture = Handle<detail::TextureTag>;
@@ -276,14 +278,14 @@ struct IndexBufferDescriptor final {
   IndexType type {IndexType::U16};
 };
 
-struct DirectionalLight final {
+struct DirectionalLightData final {
   Color diffuse;
   Color specular;
   Color ambient;
   Vector3f32 directionInWorld;
 };
 
-struct PointLight final {
+struct PointLightData final {
   Color diffuse;
   Color specular;
   Color ambient;
@@ -294,7 +296,7 @@ struct PointLight final {
   f32 attenuation2 {};
 };
 
-struct SpotLight final {
+struct SpotLightData final {
   Color diffuse;
   Color specular;
   Color ambient;
@@ -305,10 +307,10 @@ struct SpotLight final {
   f32 attenuation1 {};
   f32 attenuation2 {};
   f32 falloff {};
-  f32 phi {};
-  f32 theta {};
+  Angle phi;
+  Angle theta;
 };
 
-using Light = std::variant<PointLight, SpotLight, DirectionalLight>;
+using LightData = std::variant<PointLightData, SpotLightData, DirectionalLightData>;
 
 } // namespace basalt::gfx

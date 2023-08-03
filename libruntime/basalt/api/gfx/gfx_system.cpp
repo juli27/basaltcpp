@@ -18,6 +18,7 @@
 
 #include <gsl/span>
 
+#include <variant>
 #include <vector>
 
 using std::vector;
@@ -27,6 +28,9 @@ using gsl::span;
 namespace basalt::gfx {
 
 namespace {
+
+template <class>
+inline constexpr bool always_false_v = false;
 
 auto record_camera(FilteringCommandList& cmdList, Scene& scene,
                    const f32 aspectRatio) -> void {
@@ -97,7 +101,7 @@ auto GfxSystem::on_update(const UpdateContext& ctx) -> void {
 
   cmdList.set_ambient_light(env.ambient_light());
 
-  vector<Light> lights;
+  vector<LightData> lights;
   const span directionalLights {env.directional_lights()};
   if (!directionalLights.empty()) {
     lights.insert(lights.end(), directionalLights.begin(),
@@ -105,12 +109,26 @@ auto GfxSystem::on_update(const UpdateContext& ctx) -> void {
   }
 
   // TODO: this should use LocalToWorld
-  entities.view<const Transform, const PointLightComponent>().each(
-    [&](const Transform& transform, const PointLightComponent& light) {
-      lights.emplace_back(PointLight {light.diffuse, light.specular,
-                                      light.ambient, transform.position,
-                                      light.range, light.attenuation0,
-                                      light.attenuation1, light.attenuation2});
+  entities.view<const Transform, const Light>().each(
+    [&](const Transform& transform, const Light& light) {
+      std::visit(
+        [&](auto&& l) {
+          using T = std::decay_t<decltype(l)>;
+
+          if constexpr (std::is_same_v<T, PointLight>) {
+            lights.emplace_back(PointLightData {
+              l.diffuse, l.specular, l.ambient, transform.position, l.range,
+              l.attenuation0, l.attenuation1, l.attenuation2});
+          } else if constexpr (std::is_same_v<T, SpotLight>) {
+            lights.emplace_back(SpotLightData {
+              l.diffuse, l.specular, l.ambient, transform.position, l.direction,
+              l.range, l.attenuation0, l.attenuation1, l.attenuation2,
+              l.falloff, l.phi, l.theta});
+          } else {
+            static_assert(always_false_v<T>, "non-exhaustive visitor");
+          }
+        },
+        light);
     });
 
   cmdList.set_lights(lights);

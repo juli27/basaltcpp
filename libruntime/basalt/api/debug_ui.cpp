@@ -25,6 +25,7 @@
 #include <numeric>
 #include <string>
 #include <string_view>
+#include <variant>
 
 namespace basalt {
 
@@ -340,14 +341,51 @@ auto DebugUi::x_model(const gfx::ext::XModel& xModel) -> void {
   ImGui::Text("handle = %d", xModel.value());
 }
 
-auto DebugUi::point_light(gfx::PointLightComponent& light) -> void {
+auto DebugUi::light(gfx::Light& light) -> void {
+  std::visit(
+    [&](auto&& l) {
+      using T = std::decay_t<decltype(l)>;
+      if constexpr (std::is_same_v<T, gfx::PointLight>) {
+        point_light(l);
+      } else if constexpr (std::is_same_v<T, gfx::SpotLight>) {
+        spot_light(l);
+      } else {
+        static_assert(std::is_same_v<T, void>, "non-exhaustive visitor");
+      }
+    },
+    light);
+}
+
+auto DebugUi::point_light(gfx::PointLight& light) -> void {
+  ImGui::TextUnformatted("Point Light");
   edit_color3("Diffuse", light.diffuse);
   edit_color3("Specular", light.specular);
   edit_color3("Ambient", light.ambient);
   ImGui::DragFloat("Range", &light.range);
   ImGui::DragFloat("Attenuation 0", &light.attenuation0);
   ImGui::DragFloat("Attenuation 1", &light.attenuation1);
-  ImGui::DragFloat("Attenuation 0", &light.attenuation2);
+  ImGui::DragFloat("Attenuation 2", &light.attenuation2);
+}
+
+auto DebugUi::spot_light(gfx::SpotLight& light) -> void {
+  ImGui::TextUnformatted("Spot Light");
+  edit_color3("Diffuse", light.diffuse);
+  edit_color3("Specular", light.specular);
+  edit_color3("Ambient", light.ambient);
+  ImGui::DragFloat3("Direction", light.direction.components.data());
+  ImGui::DragFloat("Range", &light.range);
+  ImGui::DragFloat("Attenuation 0", &light.attenuation0);
+  ImGui::DragFloat("Attenuation 1", &light.attenuation1);
+  ImGui::DragFloat("Attenuation 2", &light.attenuation2);
+  ImGui::DragFloat("Falloff", &light.falloff);
+
+  f32 phiRad {light.phi.radians()};
+  ImGui::SliderAngle("Phi", &phiRad, 0, 90);
+  light.phi = Angle::radians(phiRad);
+
+  f32 thetaRad {light.theta.radians()};
+  ImGui::SliderAngle("Theta", &thetaRad, 0, light.phi.degrees());
+  light.theta = Angle::radians(thetaRad);
 }
 
 auto DebugUi::edit_directional_light(gfx::DirectionalLight& light) -> void {
