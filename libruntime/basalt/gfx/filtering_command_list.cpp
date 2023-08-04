@@ -58,6 +58,12 @@ auto FilteringCommandList::bind_texture(const Texture texture) -> void {
   }
 }
 
+auto FilteringCommandList::set_blend_constant(const Color& c) -> void {
+  if (mDeviceState.update_blend_constant(c)) {
+    mCommandList.set_blend_constant(c);
+  }
+}
+
 auto FilteringCommandList::set_transform(const TransformState state,
                                          const Matrix4x4f32& transform)
   -> void {
@@ -94,6 +100,12 @@ auto FilteringCommandList::set_fog_parameters(const Color& color,
                                               const f32 density) -> void {
   if (mDeviceState.update_fog_parameters(color, start, end, density)) {
     mCommandList.set_fog_parameters(color, start, end, density);
+  }
+}
+
+auto FilteringCommandList::set_reference_alpha(const u8 alpha) -> void {
+  if (mDeviceState.update_reference_alpha(alpha)) {
+    mCommandList.set_reference_alpha(alpha);
   }
 }
 

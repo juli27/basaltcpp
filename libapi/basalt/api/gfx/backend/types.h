@@ -23,6 +23,25 @@ enum class Attachment : u8 {
 };
 using Attachments = EnumSet<Attachment, Attachment::StencilBuffer>;
 
+enum class BlendFactor : u8 {
+  Zero,
+  One,
+  SrcColor,
+  OneMinusSrcColor,
+  SrcAlpha,
+  OneMinusSrcAlpha,
+  Constant,
+  OneMinusConstant,
+};
+constexpr u8 BLEND_FACTOR_COUNT {8};
+
+enum class BlendOp : u8 {
+  Add,
+  Subtract,
+  ReverseSubtract,
+};
+constexpr u8 BLEND_OP_COUNT {3};
+
 enum class BorderColor : u8 {
   BlackTransparent,
   BlackOpaque,
@@ -250,6 +269,10 @@ struct PipelineDescriptor final {
   bool dithering {false};
   FogType fogType {FogType::None};
   FogMode fogMode {FogMode::Linear};
+  TestPassCond alphaTest {TestPassCond::Always};
+  BlendFactor srcBlendFactor {BlendFactor::One};
+  BlendFactor destBlendFactor {BlendFactor::Zero};
+  BlendOp blendOp {BlendOp::Add};
 };
 
 struct SamplerDescriptor final {
@@ -311,6 +334,7 @@ struct SpotLightData final {
   Angle theta;
 };
 
-using LightData = std::variant<PointLightData, SpotLightData, DirectionalLightData>;
+using LightData =
+  std::variant<PointLightData, SpotLightData, DirectionalLightData>;
 
 } // namespace basalt::gfx

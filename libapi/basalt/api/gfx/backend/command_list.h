@@ -49,6 +49,7 @@ public:
   auto bind_index_buffer(IndexBuffer) -> void;
   auto bind_sampler(Sampler) -> void;
   auto bind_texture(Texture) -> void;
+  auto set_blend_constant(const Color&) -> void;
   auto set_transform(TransformState, const Matrix4x4f32&) -> void;
   auto set_ambient_light(const Color&) -> void;
   auto set_lights(gsl::span<const LightData>) -> void;
@@ -57,6 +58,7 @@ public:
                     f32 specularPower = 0) -> void;
   auto set_fog_parameters(const Color& color, f32 start, f32 end,
                           f32 density = 0) -> void;
+  auto set_reference_alpha(u8) -> void;
 
   // the following function templates are engine private (implementation is in
   // libRuntime: basalt/gfx/backend/command_list.h)

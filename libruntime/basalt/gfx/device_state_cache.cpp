@@ -100,4 +100,24 @@ auto DeviceStateCache::update_fog_parameters(const Color& color,
   return false;
 }
 
+auto DeviceStateCache::update_blend_constant(const Color& c) -> bool {
+  if (mBlendConstant != c) {
+    mBlendConstant = c;
+
+    return true;
+  }
+
+  return false;
+}
+
+auto DeviceStateCache::update_reference_alpha(const u8 alpha) -> bool {
+  if (mReferenceAlpha != alpha) {
+    mReferenceAlpha = alpha;
+
+    return true;
+  }
+
+  return false;
+}
+
 } // namespace basalt::gfx

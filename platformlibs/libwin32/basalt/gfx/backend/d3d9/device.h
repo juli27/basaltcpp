@@ -108,6 +108,12 @@ private:
     D3DMATERIALCOLORSOURCE emissiveSource {D3DMCS_MATERIAL};
     bool specularEnabled {false};
     bool normalizeViewSpaceNormals {false};
+    bool alphaTestEnabled {false};
+    D3DCMPFUNC alphaFunc {D3DCMP_ALWAYS};
+    bool alphaBlendEnabled {false};
+    D3DBLEND srcBlend {D3DBLEND_ONE};
+    D3DBLEND destBlend {D3DBLEND_ZERO};
+    D3DBLENDOP blendOp {D3DBLENDOP_ADD};
   };
 
   struct SamplerData final {
@@ -144,11 +150,13 @@ private:
   auto execute(const CommandBindIndexBuffer&) -> void;
   auto execute(const CommandBindSampler&) -> void;
   auto execute(const CommandBindTexture&) -> void;
+  auto execute(const CommandSetBlendConstant&) -> void;
   auto execute(const CommandSetTransform&) -> void;
   auto execute(const CommandSetAmbientLight&) -> void;
   auto execute(const CommandSetLights&) -> void;
   auto execute(const CommandSetMaterial&) -> void;
   auto execute(const CommandSetFogParameters&) -> void;
+  auto execute(const CommandSetReferenceAlpha&) -> void;
 
   template <typename T>
   [[nodiscard]] auto get_extension() const -> std::shared_ptr<T> {

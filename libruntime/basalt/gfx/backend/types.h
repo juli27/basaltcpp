@@ -28,11 +28,13 @@ struct CommandBindVertexBuffer;
 struct CommandBindIndexBuffer;
 struct CommandBindSampler;
 struct CommandBindTexture;
+struct CommandSetBlendConstant;
 struct CommandSetTransform;
 struct CommandSetAmbientLight;
 struct CommandSetLights;
 struct CommandSetMaterial;
 struct CommandSetFogParameters;
+struct CommandSetReferenceAlpha;
 
 enum class CommandType : u8;
 

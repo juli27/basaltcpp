@@ -42,6 +42,33 @@ constexpr auto to_d3d(const Vector3f32& vec) noexcept -> D3DVECTOR {
   return D3DVECTOR {vec.x(), vec.y(), vec.z()};
 }
 
+inline auto to_d3d(const BlendFactor factor) -> D3DBLEND {
+  static constexpr EnumArray<BlendFactor, D3DBLEND, 8> TO_D3D {
+    {BlendFactor::Zero, D3DBLEND_ZERO},
+    {BlendFactor::One, D3DBLEND_ONE},
+    {BlendFactor::SrcColor, D3DBLEND_SRCCOLOR},
+    {BlendFactor::OneMinusSrcColor, D3DBLEND_INVSRCCOLOR},
+    {BlendFactor::SrcAlpha, D3DBLEND_SRCALPHA},
+    {BlendFactor::OneMinusSrcAlpha, D3DBLEND_INVSRCALPHA},
+    {BlendFactor::Constant, D3DBLEND_BLENDFACTOR},
+    {BlendFactor::OneMinusConstant, D3DBLEND_INVBLENDFACTOR},
+  };
+  static_assert(BLEND_FACTOR_COUNT == TO_D3D.size());
+
+  return TO_D3D[factor];
+}
+
+inline auto to_d3d(const BlendOp op) -> D3DBLENDOP {
+  static constexpr EnumArray<BlendOp, D3DBLENDOP, 3> TO_D3D {
+    {BlendOp::Add, D3DBLENDOP_ADD},
+    {BlendOp::Subtract, D3DBLENDOP_SUBTRACT},
+    {BlendOp::ReverseSubtract, D3DBLENDOP_REVSUBTRACT},
+  };
+  static_assert(BLEND_OP_COUNT == TO_D3D.size());
+
+  return TO_D3D[op];
+}
+
 inline auto to_d3d(const CullMode mode) -> D3DCULL {
   static constexpr EnumArray<CullMode, D3DCULL, 3> TO_D3D {
     {CullMode::None, D3DCULL_NONE},

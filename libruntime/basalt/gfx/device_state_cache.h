@@ -27,6 +27,8 @@ struct DeviceStateCache final {
               const Color& specular, f32 specularPower) noexcept -> bool;
   auto update_fog_parameters(const Color&, f32 start, f32 end, f32 density)
     -> bool;
+  auto update_blend_constant(const Color&) -> bool;
+  auto update_reference_alpha(u8) -> bool;
 
 private:
   struct Material final {
@@ -55,6 +57,8 @@ private:
   std::optional<Color> mAmbientLight;
   std::optional<Material> mMaterial;
   std::optional<FogParams> mFogParams;
+  std::optional<Color> mBlendConstant;
+  std::optional<u8> mReferenceAlpha;
   Pipeline mBoundPipeline {Pipeline::null()};
   VertexBuffer mBoundVertexBuffer {VertexBuffer::null()};
   u64 mVertexBufferOffset {0ull};

@@ -23,6 +23,7 @@ enum class CommandType : u8 {
   BindIndexBuffer,
   BindSampler,
   BindTexture,
+  SetBlendConstant,
 
   // fixed function only
   SetTransform,
@@ -30,6 +31,7 @@ enum class CommandType : u8 {
   SetLights,
   SetMaterial,
   SetFogParameters,
+  SetReferenceAlpha,
 
   // built-in extensions
   ExtDrawXMesh,
@@ -146,6 +148,14 @@ struct CommandBindTexture final : CommandT<CommandType::BindTexture> {
   }
 };
 
+struct CommandSetBlendConstant final : CommandT<CommandType::SetBlendConstant> {
+  Color value;
+
+  constexpr explicit CommandSetBlendConstant(const Color& aValue) noexcept
+    : value {aValue} {
+  }
+};
+
 struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
   TransformState transformState;
   Matrix4x4f32 transform;
@@ -207,6 +217,15 @@ struct CommandSetFogParameters final : CommandT<CommandType::SetFogParameters> {
   }
 };
 
+struct CommandSetReferenceAlpha final
+  : CommandT<CommandType::SetReferenceAlpha> {
+  u8 value;
+
+  constexpr explicit CommandSetReferenceAlpha(const u8 aValue) noexcept
+    : value {aValue} {
+  }
+};
+
 #define VISIT(cmdStruct)                                                       \
   case cmdStruct::TYPE:                                                        \
     visitor(cmd.as<cmdStruct>());                                              \
@@ -223,11 +242,13 @@ auto visit(const Command& cmd, Visitor&& visitor) -> void {
     VISIT(CommandBindIndexBuffer);
     VISIT(CommandBindSampler);
     VISIT(CommandBindTexture);
+    VISIT(CommandSetBlendConstant);
     VISIT(CommandSetTransform);
     VISIT(CommandSetAmbientLight);
     VISIT(CommandSetLights);
     VISIT(CommandSetMaterial);
     VISIT(CommandSetFogParameters);
+    VISIT(CommandSetReferenceAlpha);
 
   default:
     break;

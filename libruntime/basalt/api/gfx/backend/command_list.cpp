@@ -68,6 +68,10 @@ auto CommandList::bind_texture(const Texture textureId) -> void {
   add<CommandBindTexture>(textureId);
 }
 
+auto CommandList::set_blend_constant(const Color& c) -> void {
+  add<CommandSetBlendConstant>(c);
+}
+
 auto CommandList::set_transform(const TransformState transformState,
                                 const Matrix4x4f32& transform) -> void {
   add<CommandSetTransform>(transformState, transform);
@@ -93,6 +97,10 @@ auto CommandList::set_material(const Color& diffuse, const Color& ambient,
 auto CommandList::set_fog_parameters(const Color& color, f32 start, f32 end,
                                      f32 density) -> void {
   add<CommandSetFogParameters>(color, start, end, density);
+}
+
+auto CommandList::set_reference_alpha(const u8 alpha) -> void {
+  add<CommandSetReferenceAlpha>(alpha);
 }
 
 } // namespace basalt::gfx

@@ -125,11 +125,13 @@ private:
   auto patch(CommandList&, const CommandBindIndexBuffer&) -> void;
   auto patch(CommandList&, const CommandBindSampler&) -> void;
   auto patch(CommandList&, const CommandBindTexture&) -> void;
+  auto patch(CommandList&, const CommandSetBlendConstant&) -> void;
   auto patch(CommandList&, const CommandSetTransform&) -> void;
   auto patch(CommandList&, const CommandSetAmbientLight&) -> void;
   auto patch(CommandList&, const CommandSetLights&) -> void;
   auto patch(CommandList&, const CommandSetMaterial&) -> void;
   auto patch(CommandList&, const CommandSetFogParameters&) -> void;
+  auto patch(CommandList&, const CommandSetReferenceAlpha&) -> void;
 };
 
 } // namespace basalt::gfx

@@ -294,6 +294,12 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
       return D3DFOG_NONE;
     }};
 
+  const bool alphaTestEnabled {desc.alphaTest != TestPassCond::Always};
+  const bool alphaBlendEnabled {desc.blendOp != BlendOp::Add ||
+                                desc.srcBlendFactor != BlendFactor::One ||
+                                desc.destBlendFactor != BlendFactor::Zero};
+
+  // TODO: split texture stage args into color and alpha args
   return mPipelines.allocate(PipelineData {
     to_fvf(desc.vertexInputState),
     stage1Tci,
@@ -322,6 +328,12 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
     to_d3d(desc.emissiveSource),
     desc.specularEnabled,
     desc.normalizeViewSpaceNormals,
+    alphaTestEnabled,
+    to_d3d(desc.alphaTest),
+    alphaBlendEnabled,
+    to_d3d(desc.srcBlendFactor),
+    to_d3d(desc.destBlendFactor),
+    to_d3d(desc.blendOp),
   });
 }
 
@@ -389,6 +401,7 @@ auto D3D9Device::unmap(const VertexBuffer handle) noexcept -> void {
 
   D3D9CHECK(vertexBuffer->Unlock());
 }
+
 auto D3D9Device::create_index_buffer(const IndexBufferDescriptor& desc,
                                      const span<const std::byte> initialData)
   -> IndexBuffer {
@@ -422,9 +435,11 @@ auto D3D9Device::create_index_buffer(const IndexBufferDescriptor& desc,
 
   return mIndexBuffers.allocate(std::move(indexBuffer));
 }
+
 auto D3D9Device::destroy(const IndexBuffer handle) noexcept -> void {
   mIndexBuffers.deallocate(handle);
 }
+
 auto D3D9Device::map(const IndexBuffer handle, const uDeviceSize offsetInBytes,
                      const uDeviceSize sizeInBytes) -> span<std::byte> {
   if (!mIndexBuffers.is_valid(handle)) {
@@ -559,6 +574,7 @@ auto D3D9Device::execute(const CommandDraw& cmd) -> void {
   D3D9CHECK(mDevice->DrawPrimitive(mCurrentPrimitiveType, cmd.firstVertex,
                                    primitiveCount));
 }
+
 auto D3D9Device::execute(const CommandDrawIndexed& cmd) -> void {
   const UINT primitiveCount {
     calculate_primitive_count(mCurrentPrimitiveType, cmd.indexCount)};
@@ -605,6 +621,14 @@ auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
   D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGENABLE, data.fogEnabled));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGVERTEXMODE, data.vertexFogMode));
   D3D9CHECK(
+    mDevice->SetRenderState(D3DRS_ALPHATESTENABLE, data.alphaTestEnabled));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_ALPHAFUNC, data.alphaFunc));
+  D3D9CHECK(
+    mDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, data.alphaBlendEnabled));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_SRCBLEND, data.srcBlend));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_DESTBLEND, data.destBlend));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_BLENDOP, data.blendOp));
+  D3D9CHECK(
     mDevice->SetRenderState(D3DRS_RANGEFOGENABLE, data.vertexFogRanged));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGTABLEMODE, data.tableFogMode));
 
@@ -646,6 +670,7 @@ auto D3D9Device::execute(const CommandBindVertexBuffer& cmd) -> void {
 
   D3D9CHECK(mDevice->SetStreamSource(0u, buffer.Get(), offset, fvfStride));
 }
+
 auto D3D9Device::execute(const CommandBindIndexBuffer& cmd) -> void {
   if (!mIndexBuffers.is_valid(cmd.indexBufferId)) {
     return;
@@ -682,6 +707,11 @@ auto D3D9Device::execute(const CommandBindTexture& cmd) -> void {
   const D3D9TexturePtr& texture {mTextures[cmd.textureId]};
 
   D3D9CHECK(mDevice->SetTexture(0, texture.Get()));
+}
+
+auto D3D9Device::execute(const CommandSetBlendConstant& cmd) -> void {
+  D3D9CHECK(
+    mDevice->SetRenderState(D3DRS_BLENDFACTOR, to_d3d_color(cmd.value)));
 }
 
 auto D3D9Device::execute(const CommandSetTransform& cmd) -> void {
@@ -745,6 +775,10 @@ auto D3D9Device::execute(const CommandSetFogParameters& cmd) -> void {
     D3DRS_FOGDENSITY, *reinterpret_cast<const DWORD*>(&cmd.density)));
 
   PIX_END_EVENT();
+}
+
+auto D3D9Device::execute(const CommandSetReferenceAlpha& cmd) -> void {
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_ALPHAREF, cmd.value));
 }
 
 } // namespace basalt::gfx

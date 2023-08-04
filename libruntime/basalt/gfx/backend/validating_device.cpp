@@ -504,6 +504,11 @@ auto ValidatingDevice::patch(CommandList& cmdList,
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
+                             const CommandSetBlendConstant& cmd) -> void {
+  cmdList.set_blend_constant(cmd.value);
+}
+
+auto ValidatingDevice::patch(CommandList& cmdList,
                              const CommandSetTransform& cmd) -> void {
   cmdList.set_transform(cmd.transformState, cmd.transform);
 }
@@ -527,6 +532,11 @@ auto ValidatingDevice::patch(CommandList& cmdList,
 auto ValidatingDevice::patch(CommandList& cmdList,
                              const CommandSetFogParameters& cmd) -> void {
   cmdList.set_fog_parameters(cmd.color, cmd.start, cmd.end, cmd.density);
+}
+
+auto ValidatingDevice::patch(CommandList& cmdList, const CommandSetReferenceAlpha& cmd)
+  -> void {
+  cmdList.set_reference_alpha(cmd.value);
 }
 
 } // namespace basalt::gfx

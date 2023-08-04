@@ -52,11 +52,13 @@ constexpr auto enumerator_to_string(const CommandType type) noexcept -> const
     ENUMERATOR_TO_STRING(CommandType, BindIndexBuffer);
     ENUMERATOR_TO_STRING(CommandType, BindTexture);
     ENUMERATOR_TO_STRING(CommandType, BindSampler);
+    ENUMERATOR_TO_STRING(CommandType, SetBlendConstant);
     ENUMERATOR_TO_STRING(CommandType, SetLights);
     ENUMERATOR_TO_STRING(CommandType, SetTransform);
     ENUMERATOR_TO_STRING(CommandType, SetAmbientLight);
     ENUMERATOR_TO_STRING(CommandType, SetMaterial);
     ENUMERATOR_TO_STRING(CommandType, SetFogParameters);
+    ENUMERATOR_TO_STRING(CommandType, SetReferenceAlpha);
     ENUMERATOR_TO_STRING(CommandType, ExtDrawXMesh);
     ENUMERATOR_TO_STRING(CommandType, ExtRenderDearImGui);
   }
@@ -213,6 +215,10 @@ void display(const CommandBindTexture& cmd) {
   ImGui::Text("textureId = %#x", cmd.textureId.value());
 }
 
+auto display(const CommandSetBlendConstant& cmd) {
+  display_color4("value", cmd.value);
+}
+
 auto display(const PointLightData& light) -> void {
   ImGui::SeparatorText("PointLightData");
 
@@ -306,6 +312,10 @@ auto display(const CommandSetFogParameters& cmd) -> void {
   ImGui::InputFloat("end", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
   f = cmd.density;
   ImGui::InputFloat("density", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+}
+
+auto display(const CommandSetReferenceAlpha& cmd) -> void {
+  ImGui::Text("value = %u", cmd.value);
 }
 
 void display(const ext::CommandDrawXMesh& cmd) {
