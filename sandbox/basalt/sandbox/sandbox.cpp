@@ -38,7 +38,7 @@ struct SandboxView::Example final {
 };
 
 SandboxView::SandboxView(Engine& engine) {
-  mExamples.reserve(17u);
+  mExamples.reserve(18u);
   mExamples.emplace_back(Example {
     "Tutorial 1: Creating a Device"s,
     &D3D9Tutorials::new_device_tutorial,
@@ -90,6 +90,10 @@ SandboxView::SandboxView(Engine& engine) {
   mExamples.emplace_back(Example {
     "Bsp. 02-07: Beleuchtung"s,
     &TribaseExamples::new_02_07_lighting_example,
+  });
+  mExamples.emplace_back(Example {
+    "Bsp. 02-08: Alpha Blending"s,
+    &TribaseExamples::new_02_08_blending_example,
   });
   mExamples.emplace_back(Example {
     "Textures"s,

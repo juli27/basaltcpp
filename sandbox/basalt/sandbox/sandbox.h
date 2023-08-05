@@ -19,7 +19,7 @@ private:
   struct Example;
 
   std::vector<Example> mExamples;
-  basalt::uSize mCurrentExampleIndex {16};
+  basalt::uSize mCurrentExampleIndex {13};
   basalt::ViewPtr mCurrentExampleView;
 
   basalt::DebugUi mDebugUi {};

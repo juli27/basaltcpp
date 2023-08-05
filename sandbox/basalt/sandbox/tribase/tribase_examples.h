@@ -11,4 +11,5 @@ public:
   static auto new_02_05_buffers_exercises(basalt::Engine&) -> basalt::ViewPtr;
   static auto new_02_06_fog_example(basalt::Engine&) -> basalt::ViewPtr;
   static auto new_02_07_lighting_example(basalt::Engine&) -> basalt::ViewPtr;
+  static auto new_02_08_blending_example(basalt::Engine&) -> basalt::ViewPtr;
 };
