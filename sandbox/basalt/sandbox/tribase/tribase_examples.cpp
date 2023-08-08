@@ -8,6 +8,7 @@
 #include <basalt/sandbox/tribase/02-06_fog.h>
 #include <basalt/sandbox/tribase/02-07_lighting.h>
 #include <basalt/sandbox/tribase/02-08_blending.h>
+#include <basalt/sandbox/tribase/02-09_multi_texturing.h>
 
 #include <memory>
 
@@ -49,4 +50,9 @@ auto TribaseExamples::new_02_07_lighting_example(basalt::Engine& engine)
 auto TribaseExamples::new_02_08_blending_example(basalt::Engine& engine)
   -> basalt::ViewPtr {
   return std::make_shared<tribase::Blending>(engine);
+}
+
+auto TribaseExamples::new_02_09_multi_texturing_example(basalt::Engine& engine)
+  -> basalt::ViewPtr {
+  return std::make_shared<tribase::MultiTexturing>(engine);
 }
