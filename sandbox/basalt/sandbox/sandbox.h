@@ -29,7 +29,8 @@ private:
   bool mShowAbout {false};
   bool mShowOverlay {true};
 
+  auto reload_scene(basalt::Engine&) -> void;
   auto next_scene(basalt::Engine&) -> void;
   auto prev_scene(basalt::Engine&) -> void;
-  auto switch_scene(basalt::uSize index, basalt::Engine&) -> void;
+  auto set_scene(basalt::uSize index, basalt::Engine&) -> void;
 };

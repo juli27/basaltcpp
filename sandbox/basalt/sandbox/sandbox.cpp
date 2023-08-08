@@ -116,7 +116,7 @@ SandboxView::SandboxView(Engine& engine) {
     &Samples::new_lighting_sample,
   });
 
-  switch_scene(mCurrentExampleIndex, engine);
+  set_scene(mCurrentExampleIndex, engine);
 }
 
 auto SandboxView::on_update(UpdateContext& ctx) -> void {
@@ -133,11 +133,15 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
         const bool isCurrent {mCurrentExampleIndex == i};
         if (ImGui::MenuItem(mExamples[i].name.data(), nullptr, isCurrent,
                             !isCurrent)) {
-          switch_scene(i, engine);
+          set_scene(i, engine);
         }
       }
 
       ImGui::Separator();
+
+      if (ImGui::MenuItem("Reload Scene", "Ctrl+R")) {
+        reload_scene(engine);
+      }
 
       if (ImGui::MenuItem("Next Scene", "PgDn")) {
         next_scene(engine);
@@ -241,11 +245,19 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
     ImGui::ShowAboutWindow(&mShowAbout);
   }
 
+  if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_R)) {
+    reload_scene(engine);
+  }
+
   if (ImGui::IsKeyPressed(ImGuiKey_PageDown)) {
     next_scene(engine);
   } else if (ImGui::IsKeyPressed(ImGuiKey_PageUp)) {
     prev_scene(engine);
   }
+}
+
+auto SandboxView::reload_scene(Engine& engine) -> void {
+  set_scene(mCurrentExampleIndex, engine);
 }
 
 auto SandboxView::next_scene(Engine& engine) -> void {
@@ -254,7 +266,7 @@ auto SandboxView::next_scene(Engine& engine) -> void {
     nextSceneIndex = 0;
   }
 
-  switch_scene(nextSceneIndex, engine);
+  set_scene(nextSceneIndex, engine);
 }
 
 auto SandboxView::prev_scene(Engine& engine) -> void {
@@ -266,10 +278,10 @@ auto SandboxView::prev_scene(Engine& engine) -> void {
     return mCurrentExampleIndex - 1;
   }()};
 
-  switch_scene(prevSceneIndex, engine);
+  set_scene(prevSceneIndex, engine);
 }
 
-auto SandboxView::switch_scene(const uSize index, Engine& engine) -> void {
+auto SandboxView::set_scene(const uSize index, Engine& engine) -> void {
   BASALT_ASSERT(index < mExamples.size());
 
   if (mExamples.empty()) {
