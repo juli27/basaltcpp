@@ -173,7 +173,7 @@ auto Fog::on_update(UpdateContext& ctx) -> void {
     1.0f);
 
   cmdList.bind_pipeline(mPipeline);
-  cmdList.bind_sampler(mSampler);
+  cmdList.bind_sampler(0, mSampler);
   cmdList.bind_vertex_buffer(mVertexBuffer);
   cmdList.set_fog_parameters(mFogColor, mFogStart, mFogEnd, mFogDensity);
 
@@ -193,7 +193,7 @@ auto Fog::on_update(UpdateContext& ctx) -> void {
       Matrix4x4f32::translation(static_cast<f32>(i * i) * 5.0f, 0.0f, 0.0f)};
 
     cmdList.set_transform(TransformState::LocalToWorld, localToWorld);
-    cmdList.bind_texture(mTextures[i]);
+    cmdList.bind_texture(0, mTextures[i]);
     cmdList.draw(0, 4);
   }
 
@@ -202,7 +202,7 @@ auto Fog::on_update(UpdateContext& ctx) -> void {
                            Matrix4x4f32::rotation_x(90_deg) *
                            Matrix4x4f32::translation(0.0f, -7.5f, 75.0f)};
   cmdList.set_transform(TransformState::LocalToWorld, localToWorld);
-  cmdList.bind_texture(mTextures[5]);
+  cmdList.bind_texture(0, mTextures[5]);
   cmdList.draw(0, 4);
 
   drawCtx.commandLists.emplace_back(std::move(cmdList));

@@ -32,6 +32,8 @@ enum class CommandType : u8 {
   SetMaterial,
   SetFogParameters,
   SetReferenceAlpha,
+  SetTextureFactor,
+  SetTextureStageConstant,
 
   // built-in extensions
   ExtDrawXMesh,
@@ -133,18 +135,24 @@ struct CommandBindIndexBuffer final : CommandT<CommandType::BindIndexBuffer> {
 };
 
 struct CommandBindSampler final : CommandT<CommandType::BindSampler> {
+  u8 slot;
   Sampler samplerId;
 
-  constexpr explicit CommandBindSampler(const Sampler aSamplerId) noexcept
-    : samplerId {aSamplerId} {
+  constexpr CommandBindSampler(const u8 aSlot,
+                               const Sampler aSamplerId) noexcept
+    : slot {aSlot}
+    , samplerId {aSamplerId} {
   }
 };
 
 struct CommandBindTexture final : CommandT<CommandType::BindTexture> {
+  u8 slot;
   Texture textureId;
 
-  constexpr explicit CommandBindTexture(const Texture aTextureId) noexcept
-    : textureId {aTextureId} {
+  constexpr CommandBindTexture(const u8 aSlot,
+                               const Texture aTextureId) noexcept
+    : slot {aSlot}
+    , textureId {aTextureId} {
   }
 };
 
@@ -226,6 +234,27 @@ struct CommandSetReferenceAlpha final
   }
 };
 
+struct CommandSetTextureFactor final : CommandT<CommandType::SetTextureFactor> {
+  Color textureFactor;
+
+  constexpr explicit CommandSetTextureFactor(
+    const Color& aTextureFactor) noexcept
+    : textureFactor {aTextureFactor} {
+  }
+};
+
+struct CommandSetTextureStageConstant final
+  : CommandT<CommandType::SetTextureStageConstant> {
+  u8 stageId;
+  Color constant;
+
+  constexpr CommandSetTextureStageConstant(const u8 aStageId,
+                                           const Color& aConstant) noexcept
+    : stageId {aStageId}
+    , constant {aConstant} {
+  }
+};
+
 #define VISIT(cmdStruct)                                                       \
   case cmdStruct::TYPE:                                                        \
     visitor(cmd.as<cmdStruct>());                                              \
@@ -249,6 +278,8 @@ auto visit(const Command& cmd, Visitor&& visitor) -> void {
     VISIT(CommandSetMaterial);
     VISIT(CommandSetFogParameters);
     VISIT(CommandSetReferenceAlpha);
+    VISIT(CommandSetTextureFactor);
+    VISIT(CommandSetTextureStageConstant);
 
   default:
     break;

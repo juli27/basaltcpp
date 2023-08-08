@@ -92,6 +92,7 @@ private:
   };
 
   DevicePtr mDevice;
+  DeviceCaps mCaps;
   HandlePool<PipelineData, Pipeline> mPipelines;
   HandlePool<VertexBufferData, VertexBuffer> mVertexBuffers;
   HandlePool<IndexBufferData, IndexBuffer> mIndexBuffers;
@@ -132,6 +133,8 @@ private:
   auto patch(CommandList&, const CommandSetMaterial&) -> void;
   auto patch(CommandList&, const CommandSetFogParameters&) -> void;
   auto patch(CommandList&, const CommandSetReferenceAlpha&) -> void;
+  auto patch(CommandList&, const CommandSetTextureFactor&) -> void;
+  auto patch(CommandList&, const CommandSetTextureStageConstant&) -> void;
 };
 
 } // namespace basalt::gfx

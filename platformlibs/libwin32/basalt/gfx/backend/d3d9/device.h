@@ -12,6 +12,7 @@
 
 #include <wrl/client.h>
 
+#include <array>
 #include <filesystem>
 #include <memory>
 #include <unordered_map>
@@ -80,14 +81,25 @@ private:
   using D3D9IndexBufferPtr = Microsoft::WRL::ComPtr<IDirect3DIndexBuffer9>;
   using D3D9TexturePtr = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
 
+  struct D3D9TexStage {
+    D3DTEXTUREOP colorOp {D3DTOP_DISABLE};
+    DWORD colorArg1 {D3DTA_TEXTURE};
+    DWORD colorArg2 {D3DTA_CURRENT};
+    DWORD colorArg3 {D3DTA_CURRENT};
+    D3DTEXTUREOP alphaOp {D3DTOP_DISABLE};
+    DWORD alphaArg1 {D3DTA_TEXTURE};
+    DWORD alphaArg2 {D3DTA_CURRENT};
+    DWORD alphaArg3 {D3DTA_CURRENT};
+    DWORD resultArg {D3DTA_CURRENT};
+    DWORD coordinateIndex {0 | D3DTSS_TCI_PASSTHRU};
+    D3DTEXTURETRANSFORMFLAGS coordinateTransformFlags {D3DTTFF_DISABLE};
+  };
+
   struct PipelineData final {
     DWORD fvf {};
-    DWORD stage1Tci {0 | D3DTSS_TCI_PASSTHRU};
-    D3DTEXTURETRANSFORMFLAGS stage0Ttf {D3DTTFF_DISABLE};
-    DWORD stage1Arg1 {D3DTA_DIFFUSE};
-    DWORD stage1Arg2 {D3DTA_TEXTURE};
-    D3DTEXTUREOP stage1ColorOp {D3DTOP_DISABLE};
-    D3DTEXTUREOP stage1AlphaOp {D3DTOP_DISABLE};
+    // TODO: custom allocate this in the pipeline memory pool
+    // then use a span here
+    std::array<D3D9TexStage, 8> textureStages;
     D3DPRIMITIVETYPE primitiveType {D3DPT_POINTLIST};
     bool lightingEnabled {false};
     D3DSHADEMODE shadeMode {D3DSHADE_GOURAUD};
@@ -157,6 +169,8 @@ private:
   auto execute(const CommandSetMaterial&) -> void;
   auto execute(const CommandSetFogParameters&) -> void;
   auto execute(const CommandSetReferenceAlpha&) -> void;
+  auto execute(const CommandSetTextureFactor&) -> void;
+  auto execute(const CommandSetTextureStageConstant&) -> void;
 
   template <typename T>
   [[nodiscard]] auto get_extension() const -> std::shared_ptr<T> {

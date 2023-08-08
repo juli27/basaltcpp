@@ -33,18 +33,20 @@ auto DeviceStateCache::update(const IndexBuffer handle) noexcept -> bool {
   return false;
 }
 
-auto DeviceStateCache::update(const Sampler sampler) noexcept -> bool {
-  if (sampler != mBoundSampler) {
-    mBoundSampler = sampler;
+auto DeviceStateCache::update(const u8 slot, const Sampler sampler) noexcept
+  -> bool {
+  if (sampler != mBoundSamplers[slot]) {
+    mBoundSamplers[slot] = sampler;
     return true;
   }
 
   return false;
 }
 
-auto DeviceStateCache::update(const Texture texture) noexcept -> bool {
-  if (texture != mBoundTexture) {
-    mBoundTexture = texture;
+auto DeviceStateCache::update(const u8 slot, const Texture texture) noexcept
+  -> bool {
+  if (texture != mBoundTextures[slot]) {
+    mBoundTextures[slot] = texture;
     return true;
   }
 

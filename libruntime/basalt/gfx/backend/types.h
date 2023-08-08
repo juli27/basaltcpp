@@ -35,6 +35,8 @@ struct CommandSetLights;
 struct CommandSetMaterial;
 struct CommandSetFogParameters;
 struct CommandSetReferenceAlpha;
+struct CommandSetTextureFactor;
+struct CommandSetTextureStageConstant;
 
 enum class CommandType : u8;
 

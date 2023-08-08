@@ -48,7 +48,6 @@ using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
-using basalt::gfx::TextureOp;
 using basalt::gfx::XModelDescriptor;
 using basalt::gfx::ext::XModel;
 
@@ -60,7 +59,7 @@ constexpr Color BACKGROUND {Color::from_non_linear_rgba8(0, 0, 63)};
 
 Lighting::Lighting(Engine& engine)
   : mGfxCache {engine.create_gfx_resource_cache()} {
-  array<TextureBlendingStage, 1> textureStages {};
+  array textureStages {TextureBlendingStage {}};
   PipelineDescriptor pipelineDesc;
   pipelineDesc.textureStages = textureStages;
   pipelineDesc.lightingEnabled = true;
@@ -111,8 +110,7 @@ Lighting::Lighting(Engine& engine)
     XModelDescriptor {"data/tribase/02-07_lighting/Ground.x", materials})};
 
   // light model
-  std::get<0>(textureStages).colorOp = TextureOp::SelectArg2;
-  std::get<0>(textureStages).alphaOp = TextureOp::SelectArg2;
+  pipelineDesc.textureStages = {};
   materialDesc.sampledTexture = {};
   materialDesc.diffuse = Color::from_non_linear(0.75f, 0.75f, 0.75f);
   materialDesc.ambient = Color::from_non_linear(0.25f, 0.25f, 0.25f);

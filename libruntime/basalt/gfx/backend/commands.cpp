@@ -10,11 +10,15 @@ static_assert(sizeof(CommandBindVertexBuffer) == 16);
 static_assert(sizeof(CommandBindIndexBuffer) == 8);
 static_assert(sizeof(CommandBindSampler) == 8);
 static_assert(sizeof(CommandBindTexture) == 8);
+static_assert(sizeof(CommandSetBlendConstant) == 20);
 static_assert(sizeof(CommandSetTransform) == 68);
 static_assert(sizeof(CommandSetAmbientLight) == 20);
 static_assert(sizeof(CommandSetLights) == 24);
 static_assert(sizeof(CommandSetMaterial) == 72);
 static_assert(sizeof(CommandSetFogParameters) == 32);
+static_assert(sizeof(CommandSetReferenceAlpha) == 2);
+static_assert(sizeof(CommandSetTextureFactor) == 20);
+static_assert(sizeof(CommandSetTextureStageConstant) == 20);
 
 namespace ext {
 

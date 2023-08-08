@@ -51,8 +51,8 @@ auto record_material(FilteringCommandList& cmdList, const ResourceCache& cache,
   const MaterialData& data {cache.get(id)};
 
   cmdList.bind_pipeline(data.pipeline);
-  cmdList.bind_texture(data.texture);
-  cmdList.bind_sampler(data.sampler);
+  cmdList.bind_texture(0, data.texture);
+  cmdList.bind_sampler(0, data.sampler);
 
   cmdList.set_material(data.diffuse, data.ambient, data.emissive, data.specular,
                        data.specularPower);
@@ -66,7 +66,7 @@ auto record_render_component(FilteringCommandList& cmdList,
                              const RenderComponent& renderComponent) {
   record_material(cmdList, cache, renderComponent.material);
 
-  cmdList.set_transform(TransformState::Texture, renderComponent.texTransform);
+  cmdList.set_transform(TransformState::Texture0, renderComponent.texTransform);
   cmdList.set_transform(TransformState::LocalToWorld, localToWorld.matrix);
 
   const auto& meshData = cache.get(renderComponent.mesh);

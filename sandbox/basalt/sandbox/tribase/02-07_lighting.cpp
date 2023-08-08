@@ -11,8 +11,6 @@
 #include <basalt/api/math/matrix4x4.h>
 #include <basalt/api/math/vector3.h>
 
-#include <gsl/span>
-
 #include <array>
 #include <cmath>
 #include <utility>
@@ -20,8 +18,6 @@
 namespace tribase {
 
 using std::array;
-
-using gsl::span;
 
 using namespace basalt::literals;
 using basalt::Angle;
@@ -42,7 +38,6 @@ using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
-using basalt::gfx::TextureOp;
 using basalt::gfx::TransformState;
 using basalt::gfx::ext::XMeshCommandEncoder;
 
@@ -63,9 +58,9 @@ Lighting::Lighting(Engine& engine)
   mGroundModel =
     mGfxCache->load_x_model("data/tribase/02-07_lighting/Ground.x");
 
-  array<TextureBlendingStage, 1> textureStages {};
+  array textureStages {TextureBlendingStage {}};
   PipelineDescriptor pipelineDesc;
-  pipelineDesc.textureStages = span {textureStages};
+  pipelineDesc.textureStages = textureStages;
   pipelineDesc.lightingEnabled = true;
   pipelineDesc.specularEnabled = true;
   pipelineDesc.cullMode = CullMode::CounterClockwise;
@@ -76,8 +71,7 @@ Lighting::Lighting(Engine& engine)
   pipelineDesc.fogMode = FogMode::Exponential;
   mPipeline = mGfxCache->create_pipeline(pipelineDesc);
 
-  std::get<0>(textureStages).colorOp = TextureOp::SelectArg2;
-  std::get<0>(textureStages).alphaOp = TextureOp::SelectArg2;
+  pipelineDesc.textureStages = {};
   mNoTexturePipeline = mGfxCache->create_pipeline(pipelineDesc);
 
   SamplerDescriptor samplerDesc;
@@ -97,7 +91,7 @@ auto Lighting::on_update(UpdateContext& ctx) -> void {
     Attachments {Attachment::RenderTarget, Attachment::DepthBuffer}, BACKGROUND,
     1);
   cmdList.bind_pipeline(mPipeline);
-  cmdList.bind_sampler(mSampler);
+  cmdList.bind_sampler(0, mSampler);
   cmdList.set_fog_parameters(BACKGROUND, 0, 0, 0.01f);
 
   const Vector3f32 lightPos {0, std::sin(t) * 10, 0};
@@ -117,7 +111,7 @@ auto Lighting::on_update(UpdateContext& ctx) -> void {
 
   // render spheres
   const auto& sphereData {mGfxCache->get(mSphereModel)};
-  cmdList.bind_texture(mSphereTexture);
+  cmdList.bind_texture(0, mSphereTexture);
 
   for (i32 i {0}; i < 10; i++) {
     const f32 perSphereFactor {static_cast<f32>(i)};
@@ -138,7 +132,7 @@ auto Lighting::on_update(UpdateContext& ctx) -> void {
 
   // render ground
   const auto& groundData {mGfxCache->get(mGroundModel)};
-  cmdList.bind_texture(mGroundTexture);
+  cmdList.bind_texture(0, mGroundTexture);
   cmdList.set_material(Color::from_non_linear(0.75f, 0.75f, 0.75f),
                        Color::from_non_linear(0.25f, 0.25f, 0.25f),
                        Colors::BLACK, Colors::WHITE, 1);

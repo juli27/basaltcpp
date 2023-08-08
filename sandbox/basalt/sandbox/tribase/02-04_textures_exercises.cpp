@@ -141,8 +141,8 @@ auto TexturesExercises::on_update(UpdateContext& ctx) -> void {
                             1.0f);
   cmdList.bind_pipeline(mPipeline);
   cmdList.bind_vertex_buffer(mVertexBuffer);
-  cmdList.bind_sampler(mSampler);
-  cmdList.bind_texture(mTexture);
+  cmdList.bind_sampler(0, mSampler);
+  cmdList.bind_texture(0, mTexture);
 
   const DrawContext& drawCtx {ctx.drawCtx};
   const f32 aspectRatio {drawCtx.viewport.aspect_ratio()};

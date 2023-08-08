@@ -121,11 +121,13 @@ enum class TextureAddressMode : u8 {
 };
 constexpr u8 TEXTURE_ADDRESS_MODE_COUNT {5u};
 
-enum class TextureCoordinateSource : u8 {
+enum class TextureCoordinateSrc : u8 {
   Vertex,
-  VertexPositionInView,
+  PositionInViewSpace,
+  NormalInViewSpace,
+  ReflectionVectorInViewSpace,
 };
-constexpr uSize TEXTURE_COORDINATE_SOURCE_COUNT {2u};
+constexpr u8 TEXTURE_COORDINATE_SOURCE_COUNT {4};
 
 enum class TextureFilter : u8 {
   Point,
@@ -145,31 +147,111 @@ enum class TextureMipFilter : u8 {
 constexpr u8 TEXTURE_MIP_FILTER_COUNT {3u};
 
 enum class TextureOp : u8 {
-  SelectArg1,
-  SelectArg2,
+  // r = arg1
+  Replace,
+  // r = arg1 * arg2
   Modulate,
+  // r = 2 * arg1 * arg2
+  Modulate2X,
+  // r = 4 * arg1 * arg2
+  Modulate4X,
+  // r = arg1 + arg2
+  Add,
+  // r = arg1 + arg2 - 0.5
+  AddSigned,
+  // r = 2 * (arg1 + arg2 - 0.5)
+  AddSigned2X,
+  // r = arg1 - arg2
+  Subtract,
+  // r = arg1 + arg2 - arg1 * arg2 = arg1 + arg2 (1 - arg1)
+  AddSmooth,
+  // r = arg1 * alpha_d + arg2 * (1 - alpha_d)
+  BlendDiffuseAlpha,
+  // r = arg1 * alpha_t + arg2 * (1 - alpha_t)
+  BlendTextureAlpha,
+  // r = arg1 * alpha_f + arg2 * (1 - alpha_f)
+  BlendFactorAlpha,
+  // r = arg1 * alpha_c + arg2 * (1 - alpha_c)
+  BlendCurrentAlpha,
+  // r = arg1 + arg2 * (1 - alpha_t)
+  BlendTextureAlphaPm,
+  // r = arg1, current = texture_{n+1} * current, if there is a texture in the
+  // next stage
+  PreModulate,
+  // r.rgba = arg1.rgb + arg1.a * arg2.rgb
+  ModulateAlphaAddColor,
+  // r.rgba = arg1.rgb * arg2.rgb + arg1.a
+  ModulateColorAddAlpha,
+  // r.rgba = arg1.rgb + (1 - arg1.a) * arg2.rgb
+  ModulateInvAlphaAddColor,
+  // r.rgba = (1 - arg1.rgb) * arg2.rgb + arg1.a
+  ModulateInvColorAddAlpha,
+  // performs per-pixel bump mapping using the env map in the next stage without
+  // luminance
+  BumpEnvMap,
+  // performs per-pixel bump mapping using the env map in the next stage with
+  // luminance
+  BumpEnvMapLuminance,
+  // r.rgba = arg1.r * arg2.r + arg1.g * arg2.g + arg1.b * arg2.b
+  // with args biased to be signed
+  DotProduct3,
+  // r.rgba = arg1 + arg2 * arg3
+  MultiplyAdd,
+  // r.rgba = arg1 * arg2 + (1 - arg1) * arg3
+  Interpolate,
 };
-constexpr uSize TEXTURE_OP_COUNT {3u};
+constexpr u8 TEXTURE_OP_COUNT {24};
+using TextureOps = EnumSet<TextureOp, TextureOp::Interpolate>;
 
-enum class TextureStageArgument : u8 {
+enum class TextureStageSrc : u8 {
+  Current,
   Diffuse,
+  Specular,
   SampledTexture,
-};
-constexpr u8 TEXTURE_STAGE_ARGUMENT_COUNT {2};
+  TextureFactor,
+  Temporary,
 
-enum class TextureTransformMode : u8 {
+  // DeviceCaps.perTextureStageConstant
+  StageConstant,
+};
+constexpr u8 TEXTURE_STAGE_SRC_COUNT {7};
+
+enum class TextureStageSrcMod : u8 {
+  None,
+  Complement,
+  AlphaReplicate,
+};
+constexpr u8 TEXTURE_STAGE_SRC_MOD_COUNT {3};
+
+enum class TextureStageDestination : u8 {
+  Current,
+  Temporary,
+};
+constexpr u8 TEXTURE_STAGE_DESTINATION_COUNT {2};
+
+enum class TextureCoordinateTransformMode : u8 {
   Disabled,
+  Count1,
+  Count2,
+  Count3,
   Count4,
 };
-constexpr uSize TEXTURE_TRANSFORM_MODE_COUNT {2u};
+constexpr u8 TEXTURE_COORDINATE_TRANSFORM_MODE_COUNT {5};
 
 enum class TransformState : u8 {
   ViewToClip,
   WorldToView,
   LocalToWorld,
-  Texture,
+  Texture0,
+  Texture1,
+  Texture2,
+  Texture3,
+  Texture4,
+  Texture5,
+  Texture6,
+  Texture7,
 };
-constexpr u8 TRANSFORM_STATE_COUNT {4u};
+constexpr u8 TRANSFORM_STATE_COUNT {11};
 
 enum class VertexElement : u8 {
   Position3F32,
@@ -229,17 +311,36 @@ struct DeviceCaps final {
   bool samplerMinFilterAnisotropic {false};
   bool samplerMagFilterAnisotropic {false};
   u8 samplerMaxAnisotropy {1};
+  bool perTextureStageConstant {false};
+  TextureOps supportedColorOps;
+  TextureOps supportedAlphaOps;
+};
+
+struct TextureStageArgument {
+  TextureStageSrc src {TextureStageSrc::Current};
+  TextureStageSrcMod modifier {TextureStageSrcMod::None};
+};
+
+struct TextureStageCoordinateIndex {
+  u8 index;
+  TextureCoordinateSrc src {TextureCoordinateSrc::Vertex};
 };
 
 struct TextureBlendingStage final {
-  TextureStageArgument arg1 {TextureStageArgument::SampledTexture};
-  TextureStageArgument arg2 {TextureStageArgument::Diffuse};
   TextureOp colorOp {TextureOp::Modulate};
-  TextureOp alphaOp {TextureOp::SelectArg1};
-  TextureCoordinateSource texCoordinateSrc {TextureCoordinateSource::Vertex};
-  TextureTransformMode texCoordinateTransformMode {
-    TextureTransformMode::Disabled};
-  bool texCoordinateProjected {false};
+  TextureStageArgument colorArg1 {TextureStageSrc::SampledTexture};
+  TextureStageArgument colorArg2;
+  TextureStageArgument colorArg3;
+  TextureOp alphaOp {TextureOp::Replace};
+  TextureStageArgument alphaArg1 {TextureStageSrc::SampledTexture};
+  TextureStageArgument alphaArg2;
+  TextureStageArgument alphaArg3;
+  TextureStageDestination dest {TextureStageDestination::Current};
+  u8 coordinateIndex {0};
+  TextureCoordinateSrc coordinateSrc {TextureCoordinateSrc::Vertex};
+  TextureCoordinateTransformMode coordinateTransformMode {
+    TextureCoordinateTransformMode::Disabled};
+  bool coordinateIsProjected {false};
 };
 
 enum class MaterialColorSource : u8 {
@@ -251,7 +352,7 @@ constexpr u8 MATERIAL_COLOR_SOURCE_COUNT {3};
 
 struct PipelineDescriptor final {
   VertexLayout vertexInputState;
-  gsl::span<const TextureBlendingStage> textureStages {};
+  gsl::span<const TextureBlendingStage> textureStages;
   PrimitiveType primitiveType {PrimitiveType::PointList};
   bool lightingEnabled {false};
   bool specularEnabled {false};
@@ -286,7 +387,7 @@ struct SamplerDescriptor final {
   // DeviceCaps.samplerClampToBorder
   BorderColor borderColor {BorderColor::BlackTransparent};
   // DeviceCaps.samplerCustomBorderColor
-  Color customBorderColor;
+  Color customBorderColor {};
   // DeviceCaps.samplerMaxAnisotropy
   u8 maxAnisotropy {1};
 };

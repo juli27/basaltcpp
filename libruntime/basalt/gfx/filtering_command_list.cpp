@@ -46,15 +46,17 @@ auto FilteringCommandList::bind_index_buffer(const IndexBuffer handle) -> void {
   }
 }
 
-auto FilteringCommandList::bind_sampler(const Sampler sampler) -> void {
-  if (mDeviceState.update(sampler)) {
-    mCommandList.bind_sampler(sampler);
+auto FilteringCommandList::bind_sampler(const u8 slot, const Sampler sampler)
+  -> void {
+  if (mDeviceState.update(slot, sampler)) {
+    mCommandList.bind_sampler(slot, sampler);
   }
 }
 
-auto FilteringCommandList::bind_texture(const Texture texture) -> void {
-  if (mDeviceState.update(texture)) {
-    mCommandList.bind_texture(texture);
+auto FilteringCommandList::bind_texture(const u8 slot, const Texture texture)
+  -> void {
+  if (mDeviceState.update(slot, texture)) {
+    mCommandList.bind_texture(slot, texture);
   }
 }
 

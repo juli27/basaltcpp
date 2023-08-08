@@ -110,7 +110,8 @@ auto ValidatingDevice::wrap(DevicePtr device) -> ValidatingDevicePtr {
 }
 
 ValidatingDevice::ValidatingDevice(DevicePtr device)
-  : mDevice {std::move(device)} {
+  : mDevice {std::move(device)}
+  , mCaps {mDevice->capabilities()} {
 }
 
 auto ValidatingDevice::capabilities() const -> const DeviceCaps& {
@@ -120,7 +121,8 @@ auto ValidatingDevice::capabilities() const -> const DeviceCaps& {
 auto ValidatingDevice::create_pipeline(const PipelineDescriptor& desc)
   -> Pipeline {
   check_vertex_layout(desc.vertexInputState);
-  check("max 1 texture stage"sv, desc.textureStages.size() <= 1u);
+  check("too many texture stages"sv,
+        desc.textureStages.size() <= mCaps.maxTextureBlendStages);
 
   const Pipeline pipelineId {mDevice->create_pipeline(desc)};
 
@@ -489,7 +491,7 @@ auto ValidatingDevice::patch(CommandList& cmdList,
 
   const Sampler originalId {mSamplers[cmd.samplerId].originalId};
 
-  cmdList.bind_sampler(originalId);
+  cmdList.bind_sampler(cmd.slot, originalId);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
@@ -500,7 +502,7 @@ auto ValidatingDevice::patch(CommandList& cmdList,
 
   const Texture originalId {mTextures[cmd.textureId].originalId};
 
-  cmdList.bind_texture(originalId);
+  cmdList.bind_texture(cmd.slot, originalId);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
@@ -534,9 +536,20 @@ auto ValidatingDevice::patch(CommandList& cmdList,
   cmdList.set_fog_parameters(cmd.color, cmd.start, cmd.end, cmd.density);
 }
 
-auto ValidatingDevice::patch(CommandList& cmdList, const CommandSetReferenceAlpha& cmd)
-  -> void {
+auto ValidatingDevice::patch(CommandList& cmdList,
+                             const CommandSetReferenceAlpha& cmd) -> void {
   cmdList.set_reference_alpha(cmd.value);
+}
+
+auto ValidatingDevice::patch(CommandList& cmdList,
+                             const CommandSetTextureFactor& cmd) -> void {
+  cmdList.set_texture_factor(cmd.textureFactor);
+}
+
+auto ValidatingDevice::patch(CommandList& cmdList,
+                             const CommandSetTextureStageConstant& cmd)
+  -> void {
+  cmdList.set_texture_stage_constant(cmd.stageId, cmd.constant);
 }
 
 } // namespace basalt::gfx

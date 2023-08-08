@@ -27,8 +27,8 @@ public:
   auto bind_pipeline(Pipeline) -> void;
   auto bind_vertex_buffer(VertexBuffer, uDeviceSize offsetInBytes = 0) -> void;
   auto bind_index_buffer(IndexBuffer) -> void;
-  auto bind_sampler(Sampler) -> void;
-  auto bind_texture(Texture) -> void;
+  auto bind_sampler(u8 slot, Sampler) -> void;
+  auto bind_texture(u8 slot, Texture) -> void;
   auto set_blend_constant(const Color&) -> void;
   auto set_transform(TransformState, const Matrix4x4f32&) -> void;
   auto set_ambient_light(const Color&) -> void;

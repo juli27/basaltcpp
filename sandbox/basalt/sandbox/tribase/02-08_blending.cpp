@@ -250,7 +250,7 @@ auto Blending::on_update(UpdateContext& ctx) -> void {
   cmdList.bind_vertex_buffer(mStarsVb);
   cmdList.draw(0, NUM_STARS);
 
-  cmdList.bind_sampler(mSampler);
+  cmdList.bind_sampler(0, mSampler);
 
   constexpr array<LightData, 1> lights {
     PointLightData {Color::from_non_linear(1.0f, 1.0f, 0.75f),
@@ -286,7 +286,7 @@ auto Blending::on_update(UpdateContext& ctx) -> void {
           Color::from_non_linear(0, 0, 0, 1.1f - static_cast<f32>(i) / 20.0f),
           {}, Color::from_non_linear(1.0f, 1.0f, 0.75f));
 
-        cmdList.bind_texture(std::get<0>(mPlanetTextures));
+        cmdList.bind_texture(0, std::get<0>(mPlanetTextures));
 
         const auto& sunModel {mGfxCache->get(mSunModel)};
         cmdList.bind_pipeline(mPlanetPipelineCw);
@@ -305,7 +305,7 @@ auto Blending::on_update(UpdateContext& ctx) -> void {
     cmdList.set_transform(TransformState::LocalToWorld, localToWorld);
     cmdList.set_material(Colors::WHITE,
                          Color::from_non_linear(0.25f, 0.25f, 0.25f));
-    cmdList.bind_texture(mPlanetTextures[planet.type]);
+    cmdList.bind_texture(0, mPlanetTextures[planet.type]);
 
     cmdList.bind_pipeline(mPlanetPipelineCw);
     XMeshCommandEncoder::draw_x_mesh(cmdList, planetModel.meshes[0]);

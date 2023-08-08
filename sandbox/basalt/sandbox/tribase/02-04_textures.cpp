@@ -178,22 +178,22 @@ auto Textures::on_update(UpdateContext& ctx) -> void {
 
   cmdList.bind_pipeline(mPipeline);
   cmdList.bind_vertex_buffer(mVertexBuffer);
-  cmdList.bind_texture(mTexture);
+  cmdList.bind_texture(0, mTexture);
 
   const char* currentMode;
 
   if (static_cast<i32>(mTimeAccum / 3.0) % 3 == 0) {
     currentMode = "MIN: Linear, MAG: Linear, MIP: Linear";
 
-    cmdList.bind_sampler(mSamplerLinearWithMip);
+    cmdList.bind_sampler(0, mSamplerLinearWithMip);
   } else if (static_cast<i32>(mTimeAccum / 3.0) % 3 == 2) {
     currentMode = "MIN: Point, MAG: Point, MIP: None";
 
-    cmdList.bind_sampler(mSamplerPoint);
+    cmdList.bind_sampler(0, mSamplerPoint);
   } else {
     currentMode = "MIN: Anisotropic, MAG: Linear, MIP: None";
 
-    cmdList.bind_sampler(mSamplerAnisotropic);
+    cmdList.bind_sampler(0, mSamplerAnisotropic);
   }
 
   if (ImGui::Begin("Textures##TribaseTextures")) {

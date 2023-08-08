@@ -59,6 +59,8 @@ constexpr auto enumerator_to_string(const CommandType type) noexcept -> const
     ENUMERATOR_TO_STRING(CommandType, SetMaterial);
     ENUMERATOR_TO_STRING(CommandType, SetFogParameters);
     ENUMERATOR_TO_STRING(CommandType, SetReferenceAlpha);
+    ENUMERATOR_TO_STRING(CommandType, SetTextureFactor);
+    ENUMERATOR_TO_STRING(CommandType, SetTextureStageConstant);
     ENUMERATOR_TO_STRING(CommandType, ExtDrawXMesh);
     ENUMERATOR_TO_STRING(CommandType, ExtRenderDearImGui);
   }
@@ -139,7 +141,14 @@ constexpr auto to_string(const TransformState state) noexcept -> const char* {
     ENUM_TO_STRING(TransformState::ViewToClip);
     ENUM_TO_STRING(TransformState::WorldToView);
     ENUM_TO_STRING(TransformState::LocalToWorld);
-    ENUM_TO_STRING(TransformState::Texture);
+    ENUM_TO_STRING(TransformState::Texture0);
+    ENUM_TO_STRING(TransformState::Texture1);
+    ENUM_TO_STRING(TransformState::Texture2);
+    ENUM_TO_STRING(TransformState::Texture3);
+    ENUM_TO_STRING(TransformState::Texture4);
+    ENUM_TO_STRING(TransformState::Texture5);
+    ENUM_TO_STRING(TransformState::Texture6);
+    ENUM_TO_STRING(TransformState::Texture7);
   }
 
   return "(unknown)";
@@ -208,10 +217,12 @@ void display(const CommandBindIndexBuffer& cmd) {
 }
 
 void display(const CommandBindSampler& cmd) {
+  ImGui::Text("slot = %u", cmd.slot);
   ImGui::Text("samplerId = %#x", cmd.samplerId.value());
 }
 
 void display(const CommandBindTexture& cmd) {
+  ImGui::Text("slot = %u", cmd.slot);
   ImGui::Text("textureId = %#x", cmd.textureId.value());
 }
 
@@ -316,6 +327,15 @@ auto display(const CommandSetFogParameters& cmd) -> void {
 
 auto display(const CommandSetReferenceAlpha& cmd) -> void {
   ImGui::Text("value = %u", cmd.value);
+}
+
+auto display(const CommandSetTextureFactor& cmd) -> void {
+  display_color4("texture factor", cmd.textureFactor);
+}
+
+auto display(const CommandSetTextureStageConstant& cmd) -> void {
+  ImGui::Text("stageId = %u", cmd.stageId);
+  display_color4("texture factor", cmd.constant);
 }
 
 void display(const ext::CommandDrawXMesh& cmd) {

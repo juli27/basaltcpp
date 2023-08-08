@@ -25,6 +25,7 @@
 
 using namespace std::literals;
 
+using std::array;
 using std::bad_alloc;
 using std::numeric_limits;
 using std::optional;
@@ -36,66 +37,6 @@ using Microsoft::WRL::ComPtr;
 
 namespace basalt::gfx {
 namespace {
-
-// TODO: needs some form of validation
-auto to_fvf(const span<const VertexElement> layout) -> DWORD {
-  DWORD fvf {0ul};
-
-  // TODO: values >= 8 invalidate the fvf
-  i32 numTexCoords {0};
-
-  for (const VertexElement& element : layout) {
-    switch (element) {
-    case VertexElement::Position3F32:
-      fvf |= D3DFVF_XYZ;
-      break;
-
-    case VertexElement::PositionTransformed4F32:
-      fvf |= D3DFVF_XYZRHW;
-      break;
-
-    case VertexElement::Normal3F32:
-      fvf |= D3DFVF_NORMAL;
-      break;
-
-    case VertexElement::PointSize1F32:
-      fvf |= D3DFVF_PSIZE;
-      break;
-
-    case VertexElement::ColorDiffuse1U32A8R8G8B8:
-      fvf |= D3DFVF_DIFFUSE;
-      break;
-
-    case VertexElement::ColorSpecular1U32A8R8G8B8:
-      fvf |= D3DFVF_SPECULAR;
-      break;
-
-    case VertexElement::TextureCoords1F32:
-      fvf |= D3DFVF_TEXCOORDSIZE1(numTexCoords);
-      ++numTexCoords;
-      break;
-
-    case VertexElement::TextureCoords2F32:
-      fvf |= D3DFVF_TEXCOORDSIZE2(numTexCoords);
-      ++numTexCoords;
-      break;
-
-    case VertexElement::TextureCoords3F32:
-      fvf |= D3DFVF_TEXCOORDSIZE3(numTexCoords);
-      ++numTexCoords;
-      break;
-
-    case VertexElement::TextureCoords4F32:
-      fvf |= D3DFVF_TEXCOORDSIZE4(numTexCoords);
-      ++numTexCoords;
-      break;
-    }
-  }
-
-  fvf |= std::min(8, numTexCoords) << D3DFVF_TEXCOUNT_SHIFT;
-
-  return fvf;
-}
 
 auto map_impl(IDirect3DVertexBuffer9& vertexBuffer,
               const uDeviceSize offset = 0, uDeviceSize size = 0)
@@ -212,6 +153,56 @@ D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
   mCaps.samplerMagFilterAnisotropic =
     d3d9Caps.TextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC;
   mCaps.samplerMaxAnisotropy = saturated_cast<u8>(d3d9Caps.MaxAnisotropy);
+  mCaps.perTextureStageConstant =
+    d3d9Caps.PrimitiveMiscCaps & D3DPMISCCAPS_PERSTAGECONSTANT;
+  mCaps.supportedColorOps = TextureOps {
+    TextureOp::Replace,
+    TextureOp::Modulate,
+    TextureOp::Modulate2X,
+    TextureOp::Modulate4X,
+    TextureOp::Add,
+    TextureOp::AddSigned,
+    TextureOp::AddSigned2X,
+    TextureOp::Subtract,
+    TextureOp::AddSmooth,
+    TextureOp::BlendDiffuseAlpha,
+    TextureOp::BlendTextureAlpha,
+    TextureOp::BlendFactorAlpha,
+    TextureOp::BlendCurrentAlpha,
+    TextureOp::BlendTextureAlphaPm,
+    TextureOp::ModulateAlphaAddColor,
+    TextureOp::ModulateColorAddAlpha,
+    TextureOp::ModulateInvAlphaAddColor,
+    TextureOp::ModulateInvColorAddAlpha,
+    TextureOp::BumpEnvMap,
+    TextureOp::BumpEnvMapLuminance,
+    TextureOp::DotProduct3,
+    TextureOp::MultiplyAdd,
+    TextureOp::Interpolate,
+  };
+  mCaps.supportedAlphaOps = TextureOps {
+    TextureOp::Replace,
+    TextureOp::Modulate,
+    TextureOp::Modulate2X,
+    TextureOp::Modulate4X,
+    TextureOp::Add,
+    TextureOp::AddSigned,
+    TextureOp::AddSigned2X,
+    TextureOp::Subtract,
+    TextureOp::AddSmooth,
+    TextureOp::BlendDiffuseAlpha,
+    TextureOp::BlendTextureAlpha,
+    TextureOp::BlendFactorAlpha,
+    TextureOp::BlendCurrentAlpha,
+    TextureOp::BlendTextureAlphaPm,
+    TextureOp::MultiplyAdd,
+    TextureOp::Interpolate,
+  };
+
+  if (d3d9Caps.TextureOpCaps & D3DTEXOPCAPS_PREMODULATE) {
+    mCaps.supportedColorOps.set(TextureOp::PreModulate);
+    // TODO: can TextureOp::PreModulate be an alpha op too?
+  }
 }
 
 auto D3D9Device::device() const -> ComPtr<IDirect3DDevice9> {
@@ -248,25 +239,30 @@ auto D3D9Device::capabilities() const -> const DeviceCaps& {
 }
 
 auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
-  DWORD stage1Tci {0 | D3DTSS_TCI_PASSTHRU};
-  D3DTEXTURETRANSFORMFLAGS stage0Ttf {D3DTTFF_DISABLE};
-  DWORD stage1Arg1 {};
-  DWORD stage1Arg2 {};
-  D3DTEXTUREOP stage1ColorOp {D3DTOP_DISABLE};
-  D3DTEXTUREOP stage1AlphaOp {D3DTOP_DISABLE};
+  array<D3D9TexStage, 8> textureStages {};
+  u8 i {0};
+  for (const auto& stage : desc.textureStages) {
+    auto& d3d9Stage {textureStages[i]};
+    d3d9Stage.colorOp = to_d3d(stage.colorOp);
+    d3d9Stage.colorArg1 = to_d3d(stage.colorArg1);
+    d3d9Stage.colorArg2 = to_d3d(stage.colorArg2);
+    d3d9Stage.colorArg3 = to_d3d(stage.colorArg3);
+    d3d9Stage.alphaOp = to_d3d(stage.alphaOp);
+    d3d9Stage.alphaArg1 = to_d3d(stage.alphaArg1);
+    d3d9Stage.alphaArg2 = to_d3d(stage.alphaArg2);
+    d3d9Stage.alphaArg3 = to_d3d(stage.alphaArg3);
 
-  if (!desc.textureStages.empty()) {
-    const TextureBlendingStage& stage {desc.textureStages[0]};
-    stage1Tci = 0 | to_d3d(stage.texCoordinateSrc);
-    stage0Ttf = to_d3d(stage.texCoordinateTransformMode);
-    if (stage.texCoordinateProjected) {
-      stage0Ttf =
-        static_cast<D3DTEXTURETRANSFORMFLAGS>(stage0Ttf | D3DTTFF_PROJECTED);
+    d3d9Stage.coordinateIndex =
+      stage.coordinateIndex | to_d3d(stage.coordinateSrc);
+    d3d9Stage.coordinateTransformFlags = to_d3d(stage.coordinateTransformMode);
+
+    if (stage.coordinateIsProjected) {
+      d3d9Stage.coordinateTransformFlags =
+        static_cast<D3DTEXTURETRANSFORMFLAGS>(
+          d3d9Stage.coordinateTransformFlags | D3DTTFF_PROJECTED);
     }
-    stage1Arg1 = to_d3d(stage.arg1);
-    stage1Arg2 = to_d3d(stage.arg2);
-    stage1ColorOp = to_d3d(stage.colorOp);
-    stage1AlphaOp = to_d3d(stage.alphaOp);
+
+    i++;
   }
 
   // TODO: is there a benefit to turn off z testing when func = Always
@@ -301,13 +297,8 @@ auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
 
   // TODO: split texture stage args into color and alpha args
   return mPipelines.allocate(PipelineData {
-    to_fvf(desc.vertexInputState),
-    stage1Tci,
-    stage0Ttf,
-    stage1Arg1,
-    stage1Arg2,
-    stage1ColorOp,
-    stage1AlphaOp,
+    to_d3d_fvf(desc.vertexInputState),
+    textureStages,
     to_d3d(desc.primitiveType),
     desc.lightingEnabled,
     to_d3d(desc.shadeMode),
@@ -350,7 +341,7 @@ auto D3D9Device::create_vertex_buffer(const VertexBufferDescriptor& desc,
     throw bad_alloc {};
   }
 
-  const DWORD fvf {to_fvf(desc.layout)};
+  const DWORD fvf {to_d3d_fvf(desc.layout)};
   const UINT size {static_cast<UINT>(desc.sizeInBytes)};
 
   D3D9VertexBufferPtr vertexBuffer {};
@@ -512,7 +503,11 @@ auto D3D9Device::submit(const span<CommandList> commandLists) -> void {
   PIX_BEGIN_EVENT(D3DCOLOR_XRGB(128, 128, 128), L"unbind resources");
   D3D9CHECK(mDevice->SetStreamSource(0u, nullptr, 0u, 0u));
   D3D9CHECK(mDevice->SetIndices(nullptr));
-  D3D9CHECK(mDevice->SetTexture(0, nullptr));
+
+  for (DWORD i {0}; i < mCaps.maxTextureBlendStages; i++) {
+    D3D9CHECK(mDevice->SetTexture(i, nullptr));
+  }
+
   PIX_END_EVENT();
 
   D3D9CHECK(mDevice->EndScene());
@@ -632,25 +627,42 @@ auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
     mDevice->SetRenderState(D3DRS_RANGEFOGENABLE, data.vertexFogRanged));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGTABLEMODE, data.tableFogMode));
 
-  D3D9CHECK(
-    mDevice->SetTextureStageState(0, D3DTSS_COLOROP, data.stage1ColorOp));
-  D3D9CHECK(
-    mDevice->SetTextureStageState(0, D3DTSS_COLORARG1, data.stage1Arg1));
-  D3D9CHECK(
-    mDevice->SetTextureStageState(0, D3DTSS_COLORARG2, data.stage1Arg2));
-  D3D9CHECK(
-    mDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, data.stage1AlphaOp));
-  D3D9CHECK(
-    mDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, data.stage1Arg1));
-  D3D9CHECK(
-    mDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, data.stage1Arg2));
-  D3D9CHECK(
-    mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, data.stage1Tci));
-  D3D9CHECK(mDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS,
-                                          data.stage0Ttf));
+  u8 stageId {0};
+  for (const auto& stage : data.textureStages) {
+    D3D9CHECK(
+      mDevice->SetTextureStageState(stageId, D3DTSS_COLOROP, stage.colorOp));
 
-  D3D9CHECK(mDevice->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE));
-  D3D9CHECK(mDevice->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
+    if (stage.colorOp == D3DTOP_DISABLE) {
+      // the first disabled color op disables all following stages
+      break;
+    }
+
+    D3D9CHECK(mDevice->SetTextureStageState(stageId, D3DTSS_COLORARG1,
+                                            stage.colorArg1));
+    D3D9CHECK(mDevice->SetTextureStageState(stageId, D3DTSS_COLORARG2,
+                                            stage.colorArg2));
+    D3D9CHECK(mDevice->SetTextureStageState(stageId, D3DTSS_COLORARG0,
+                                            stage.colorArg3));
+
+    D3D9CHECK(
+      mDevice->SetTextureStageState(stageId, D3DTSS_ALPHAOP, stage.alphaOp));
+    D3D9CHECK(mDevice->SetTextureStageState(stageId, D3DTSS_ALPHAARG1,
+                                            stage.alphaArg1));
+    D3D9CHECK(mDevice->SetTextureStageState(stageId, D3DTSS_ALPHAARG2,
+                                            stage.alphaArg2));
+    D3D9CHECK(mDevice->SetTextureStageState(stageId, D3DTSS_ALPHAARG0,
+                                            stage.alphaArg3));
+
+    D3D9CHECK(mDevice->SetTextureStageState(stageId, D3DTSS_RESULTARG,
+                                            stage.resultArg));
+
+    D3D9CHECK(mDevice->SetTextureStageState(stageId, D3DTSS_TEXCOORDINDEX,
+                                            stage.coordinateIndex));
+    D3D9CHECK(mDevice->SetTextureStageState(
+      stageId, D3DTSS_TEXTURETRANSFORMFLAGS, stage.coordinateTransformFlags));
+
+    stageId++;
+  }
 
   PIX_END_EVENT();
 }
@@ -686,17 +698,28 @@ auto D3D9Device::execute(const CommandBindSampler& cmd) -> void {
     return;
   }
 
+  PIX_BEGIN_EVENT(0, L"CommandBindSampler");
+
   const auto& data {mSamplers[cmd.samplerId]};
 
-  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MINFILTER, data.minFilter));
-  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, data.magFilter));
-  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, data.mipFilter));
   D3D9CHECK(
-    mDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY, data.maxAnisotropy));
-  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, data.addressModeU));
-  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, data.addressModeV));
-  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_ADDRESSW, data.addressModeW));
-  D3D9CHECK(mDevice->SetSamplerState(0, D3DSAMP_BORDERCOLOR, data.borderColor));
+    mDevice->SetSamplerState(cmd.slot, D3DSAMP_MINFILTER, data.minFilter));
+  D3D9CHECK(
+    mDevice->SetSamplerState(cmd.slot, D3DSAMP_MAGFILTER, data.magFilter));
+  D3D9CHECK(
+    mDevice->SetSamplerState(cmd.slot, D3DSAMP_MIPFILTER, data.mipFilter));
+  D3D9CHECK(mDevice->SetSamplerState(cmd.slot, D3DSAMP_MAXANISOTROPY,
+                                     data.maxAnisotropy));
+  D3D9CHECK(
+    mDevice->SetSamplerState(cmd.slot, D3DSAMP_ADDRESSU, data.addressModeU));
+  D3D9CHECK(
+    mDevice->SetSamplerState(cmd.slot, D3DSAMP_ADDRESSV, data.addressModeV));
+  D3D9CHECK(
+    mDevice->SetSamplerState(cmd.slot, D3DSAMP_ADDRESSW, data.addressModeW));
+  D3D9CHECK(
+    mDevice->SetSamplerState(cmd.slot, D3DSAMP_BORDERCOLOR, data.borderColor));
+
+  PIX_END_EVENT();
 }
 
 auto D3D9Device::execute(const CommandBindTexture& cmd) -> void {
@@ -706,7 +729,7 @@ auto D3D9Device::execute(const CommandBindTexture& cmd) -> void {
 
   const D3D9TexturePtr& texture {mTextures[cmd.textureId]};
 
-  D3D9CHECK(mDevice->SetTexture(0, texture.Get()));
+  D3D9CHECK(mDevice->SetTexture(cmd.slot, texture.Get()));
 }
 
 auto D3D9Device::execute(const CommandSetBlendConstant& cmd) -> void {
@@ -779,6 +802,16 @@ auto D3D9Device::execute(const CommandSetFogParameters& cmd) -> void {
 
 auto D3D9Device::execute(const CommandSetReferenceAlpha& cmd) -> void {
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ALPHAREF, cmd.value));
+}
+
+auto D3D9Device::execute(const CommandSetTextureFactor& cmd) -> void {
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_TEXTUREFACTOR,
+                                    to_d3d_color(cmd.textureFactor)));
+}
+
+auto D3D9Device::execute(const CommandSetTextureStageConstant& cmd) -> void {
+  D3D9CHECK(mDevice->SetTextureStageState(cmd.stageId, D3DTSS_CONSTANT,
+                                          to_d3d_color(cmd.constant)));
 }
 
 } // namespace basalt::gfx

@@ -60,12 +60,12 @@ auto CommandList::bind_index_buffer(const IndexBuffer indexBufferId) -> void {
   add<CommandBindIndexBuffer>(indexBufferId);
 }
 
-auto CommandList::bind_sampler(const Sampler samplerId) -> void {
-  add<CommandBindSampler>(samplerId);
+auto CommandList::bind_sampler(const u8 slot, const Sampler samplerId) -> void {
+  add<CommandBindSampler>(slot, samplerId);
 }
 
-auto CommandList::bind_texture(const Texture textureId) -> void {
-  add<CommandBindTexture>(textureId);
+auto CommandList::bind_texture(const u8 slot, const Texture textureId) -> void {
+  add<CommandBindTexture>(slot, textureId);
 }
 
 auto CommandList::set_blend_constant(const Color& c) -> void {
@@ -101,6 +101,15 @@ auto CommandList::set_fog_parameters(const Color& color, f32 start, f32 end,
 
 auto CommandList::set_reference_alpha(const u8 alpha) -> void {
   add<CommandSetReferenceAlpha>(alpha);
+}
+
+auto CommandList::set_texture_factor(const Color& textureFactor) -> void {
+  add<CommandSetTextureFactor>(textureFactor);
+}
+
+auto CommandList::set_texture_stage_constant(const u8 stageId,
+                                             const Color& constant) -> void {
+  add<CommandSetTextureStageConstant>(stageId, constant);
 }
 
 } // namespace basalt::gfx

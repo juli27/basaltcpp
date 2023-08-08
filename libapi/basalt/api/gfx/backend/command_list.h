@@ -47,8 +47,8 @@ public:
   auto bind_pipeline(Pipeline) -> void;
   auto bind_vertex_buffer(VertexBuffer, uDeviceSize offsetInBytes = 0) -> void;
   auto bind_index_buffer(IndexBuffer) -> void;
-  auto bind_sampler(Sampler) -> void;
-  auto bind_texture(Texture) -> void;
+  auto bind_sampler(u8 slot, Sampler) -> void;
+  auto bind_texture(u8 slot, Texture) -> void;
   auto set_blend_constant(const Color&) -> void;
   auto set_transform(TransformState, const Matrix4x4f32&) -> void;
   auto set_ambient_light(const Color&) -> void;
@@ -59,6 +59,8 @@ public:
   auto set_fog_parameters(const Color& color, f32 start, f32 end,
                           f32 density = 0) -> void;
   auto set_reference_alpha(u8) -> void;
+  auto set_texture_factor(const Color&) -> void;
+  auto set_texture_stage_constant(u8 stageId, const Color&) -> void;
 
   // the following function templates are engine private (implementation is in
   // libRuntime: basalt/gfx/backend/command_list.h)

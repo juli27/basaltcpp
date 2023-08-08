@@ -253,8 +253,8 @@ auto BuffersExercises::on_update(UpdateContext& ctx) -> void {
     Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
     Colors::BLACK, 1.0f);
   cmdList.bind_pipeline(mPipeline);
-  cmdList.bind_sampler(mSampler);
-  cmdList.bind_texture(mTexture);
+  cmdList.bind_sampler(0, mSampler);
+  cmdList.bind_texture(0, mTexture);
   cmdList.bind_vertex_buffer(mVertexBuffer);
   cmdList.bind_index_buffer(mIndexBuffer);
 

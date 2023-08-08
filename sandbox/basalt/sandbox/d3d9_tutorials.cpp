@@ -53,8 +53,8 @@ using basalt::gfx::Sampler;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::Texture;
 using basalt::gfx::TextureBlendingStage;
-using basalt::gfx::TextureCoordinateSource;
-using basalt::gfx::TextureTransformMode;
+using basalt::gfx::TextureCoordinateSrc;
+using basalt::gfx::TextureCoordinateTransformMode;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexBuffer;
 using basalt::gfx::VertexElement;
@@ -342,21 +342,20 @@ public:
     mVertexBuffer = mGfxCache->create_vertex_buffer(
       {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
 
-    array<TextureBlendingStage, 1> textureBlendingStages {};
+    array textureStages {TextureBlendingStage {}};
     PipelineDescriptor pipelineDesc;
     pipelineDesc.vertexInputState = Vertex::sLayout;
     pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
-    pipelineDesc.textureStages = span {textureBlendingStages};
+    pipelineDesc.textureStages = textureStages;
     pipelineDesc.depthTest = TestPassCond::IfLessEqual;
     pipelineDesc.depthWriteEnable = true;
     mPipeline = mGfxCache->create_pipeline(pipelineDesc);
 
-    auto& textureBlendingStage {std::get<0>(textureBlendingStages)};
-    textureBlendingStage.texCoordinateSrc =
-      TextureCoordinateSource::VertexPositionInView;
-    textureBlendingStage.texCoordinateTransformMode =
-      TextureTransformMode::Count4;
-    textureBlendingStage.texCoordinateProjected = true;
+    auto& textureStage {std::get<0>(textureStages)};
+    textureStage.coordinateSrc = TextureCoordinateSrc::PositionInViewSpace;
+    textureStage.coordinateTransformMode =
+      TextureCoordinateTransformMode::Count4;
+    textureStage.coordinateIsProjected = true;
     mPipelineTci = mGfxCache->create_pipeline(pipelineDesc);
   }
 
@@ -387,8 +386,8 @@ private:
       Colors::BLUE, 1.0f);
 
     cmdList.bind_pipeline(mShowTci ? mPipelineTci : mPipeline);
-    cmdList.bind_sampler(mSampler);
-    cmdList.bind_texture(mTexture);
+    cmdList.bind_sampler(0, mSampler);
+    cmdList.bind_texture(0, mTexture);
     cmdList.bind_vertex_buffer(mVertexBuffer);
 
     const auto viewToClip {
@@ -405,7 +404,7 @@ private:
       const auto texTransform {viewToClip *
                                Matrix4x4f32::scaling(0.5f, -0.5f, 1.0f) *
                                Matrix4x4f32::translation(0.5f, 0.5f, 0.0f)};
-      cmdList.set_transform(TransformState::Texture, texTransform);
+      cmdList.set_transform(TransformState::Texture0, texTransform);
     }
 
     cmdList.draw(0, sVertexCount);
@@ -454,8 +453,8 @@ private:
 
       cmdList.bind_pipeline(materialData.pipeline);
 
-      cmdList.bind_sampler(materialData.sampler);
-      cmdList.bind_texture(materialData.texture);
+      cmdList.bind_sampler(0, materialData.sampler);
+      cmdList.bind_texture(0, materialData.texture);
       cmdList.set_material(materialData.diffuse, materialData.ambient);
 
       cmdList.set_transform(TransformState::LocalToWorld,
