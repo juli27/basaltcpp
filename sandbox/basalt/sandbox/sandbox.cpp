@@ -38,11 +38,7 @@ struct SandboxView::Example final {
 };
 
 SandboxView::SandboxView(Engine& engine) {
-  mExamples.reserve(19u);
-  mExamples.emplace_back(Example {
-    "Tutorial 1: Creating a Device"s,
-    &D3D9Tutorials::new_device_tutorial,
-  });
+  mExamples.reserve(18);
   mExamples.emplace_back(Example {
     "Tutorial 2: Rendering Vertices"s,
     &D3D9Tutorials::new_vertices_tutorial,

@@ -114,20 +114,6 @@ create_default_view_to_clip_transform(const basalt::Size2Du16 viewport) noexcept
   return Matrix4x4f32::perspective_projection(fov, aspectRatio, 1.0f, 100.0f);
 }
 
-class Device final : public View {
-public:
-  Device() noexcept = default;
-
-protected:
-  auto on_update(UpdateContext& ctx) -> void override {
-    CommandList cmdList;
-    cmdList.clear_attachments(Attachments {Attachment::RenderTarget},
-                              Colors::BLUE);
-
-    ctx.drawCtx.commandLists.push_back(std::move(cmdList));
-  }
-};
-
 class Vertices final : public View {
 public:
   explicit Vertices(Engine& engine)
@@ -487,8 +473,4 @@ auto D3D9Tutorials::new_textures_tutorial(Engine& engine) -> ViewPtr {
 
 auto D3D9Tutorials::new_meshes_tutorial(Engine& engine) -> ViewPtr {
   return std::make_shared<Meshes>(engine);
-}
-
-auto D3D9Tutorials::new_device_tutorial(Engine&) -> ViewPtr {
-  return std::make_shared<Device>();
 }
