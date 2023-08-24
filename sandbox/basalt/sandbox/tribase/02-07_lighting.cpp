@@ -13,10 +13,12 @@
 
 #include <array>
 #include <cmath>
+#include <string_view>
 #include <utility>
 
 namespace tribase {
 
+using namespace std::literals;
 using std::array;
 
 using namespace basalt::literals;
@@ -51,13 +53,13 @@ constexpr Color BACKGROUND {Color::from_non_linear_rgba8(0, 0, 63)};
 Lighting::Lighting(Engine& engine)
   : mGfxCache {engine.create_gfx_resource_cache()} {
   mSphereTexture =
-    mGfxCache->load_texture("data/tribase/02-07_lighting/Sphere.bmp");
+    mGfxCache->load_texture("data/tribase/02-07_lighting/Sphere.bmp"sv);
   mGroundTexture =
-    mGfxCache->load_texture("data/tribase/02-07_lighting/Ground.bmp");
+    mGfxCache->load_texture("data/tribase/02-07_lighting/Ground.bmp"sv);
   mSphereModel =
-    mGfxCache->load_x_model("data/tribase/02-07_lighting/Sphere.x");
+    mGfxCache->load_x_model("data/tribase/02-07_lighting/Sphere.x"sv);
   mGroundModel =
-    mGfxCache->load_x_model("data/tribase/02-07_lighting/Ground.x");
+    mGfxCache->load_x_model("data/tribase/02-07_lighting/Ground.x"sv);
 
   FixedVertexShaderCreateInfo vs;
   vs.lightingEnabled = true;

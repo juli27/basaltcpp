@@ -22,14 +22,12 @@
 #include <utility>
 
 using namespace std::literals;
-
 using std::array;
 using std::byte;
 
 using gsl::span;
 
 using namespace basalt::literals;
-
 using basalt::Angle;
 using basalt::Engine;
 using basalt::Matrix4x4f32;

@@ -18,10 +18,12 @@
 #include <array>
 #include <cmath>
 #include <random>
+#include <string_view>
 #include <vector>
 
 namespace tribase {
 
+using namespace std::literals;
 using std::array;
 using std::default_random_engine;
 using std::random_device;
@@ -207,8 +209,8 @@ Blending::Blending(const Engine& engine)
   }
 
   mPlanetModel =
-    mGfxCache->load_x_model("data/tribase/02-08_blending/Planet.x");
-  mSunModel = mGfxCache->load_x_model("data/tribase/02-08_blending/Sun.x");
+    mGfxCache->load_x_model("data/tribase/02-08_blending/Planet.x"sv);
+  mSunModel = mGfxCache->load_x_model("data/tribase/02-08_blending/Sun.x"sv);
 
   vector<StarVertex> starVertices(NUM_STARS);
   generate_stars(starVertices);

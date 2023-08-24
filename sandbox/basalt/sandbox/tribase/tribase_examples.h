@@ -14,4 +14,5 @@ public:
   static auto new_02_08_blending_example(basalt::Engine&) -> basalt::ViewPtr;
   static auto new_02_09_multi_texturing_example(basalt::Engine&)
     -> basalt::ViewPtr;
+  static auto new_02_10_volume_textures(basalt::Engine&) -> basalt::ViewPtr;
 };

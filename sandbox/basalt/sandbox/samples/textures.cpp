@@ -21,7 +21,9 @@
 #include <imgui/imgui.h>
 
 #include <array>
+#include <string_view>
 
+using namespace std::literals;
 using std::array;
 
 using gsl::span;
@@ -182,7 +184,7 @@ Textures::Textures(Engine& engine)
   MaterialDescriptor materialDesc;
   materialDesc.pipelineDesc = &pipelineDesc;
   materialDesc.sampledTexture.texture =
-    mGfxCache->load_texture("data/Tiger.bmp");
+    mGfxCache->load_texture("data/Tiger.bmp"sv);
   auto& materials {samplerSettings.materials};
   u32 i {0};
   for (const auto filter : {TextureFilter::Point, TextureFilter::Bilinear,

@@ -15,10 +15,12 @@
 
 #include <array>
 #include <cmath>
+#include <string_view>
 #include <utility>
 
 namespace tribase {
 
+using namespace std::literals;
 using std::array;
 
 using gsl::span;
@@ -123,10 +125,10 @@ MultiTexturing::MultiTexturing(const Engine& engine)
                                TextureMipFilter::Linear});
 
   mTexture0 =
-    mGfxCache->load_texture("data/tribase/02-09_multi_tex/Texture1.jpg");
+    mGfxCache->load_texture("data/tribase/02-09_multi_tex/Texture1.jpg"sv);
   mTexture1 =
-    mGfxCache->load_texture("data/tribase/02-09_multi_tex/Texture2.jpg");
-  mCube = mGfxCache->load_x_model("data/tribase/02-09_multi_tex/Cube.x");
+    mGfxCache->load_texture("data/tribase/02-09_multi_tex/Texture2.jpg"sv);
+  mCube = mGfxCache->load_x_model("data/tribase/02-09_multi_tex/Cube.x"sv);
 }
 
 auto MultiTexturing::on_update(UpdateContext& ctx) -> void {

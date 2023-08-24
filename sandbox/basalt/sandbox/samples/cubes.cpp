@@ -23,6 +23,7 @@
 #include <array>
 #include <random>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace samples {
@@ -302,7 +303,7 @@ Cubes::Cubes(basalt::Engine& engine)
   MaterialDescriptor matDesc;
   matDesc.pipelineDesc = &pipelineDesc;
   matDesc.sampledTexture.texture =
-    mGfxCache->load_texture("data/tribase/Texture2.bmp");
+    mGfxCache->load_texture("data/tribase/Texture2.bmp"sv);
   matDesc.sampledTexture.filter = TextureFilter::Bilinear;
   matDesc.sampledTexture.mipFilter = TextureMipFilter::Linear;
   const auto material {mGfxCache->create_material(matDesc)};

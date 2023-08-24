@@ -19,8 +19,10 @@
 
 #include <array>
 #include <random>
+#include <string_view>
 #include <utility>
 
+using namespace std::literals;
 using std::array;
 using std::default_random_engine;
 using std::random_device;
@@ -75,7 +77,7 @@ using Distribution = uniform_real_distribution<float>;
 Textures::Textures(Engine& engine)
   : mTriangles {NUM_TRIANGLES}
   , mGfxCache {engine.create_gfx_resource_cache()}
-  , mTexture {mGfxCache->load_texture("data/tribase/Texture.bmp")} {
+  , mTexture {mGfxCache->load_texture("data/tribase/Texture.bmp"sv)} {
   FixedFragmentShaderCreateInfo fs;
   array textureStages {TextureStage {}};
   fs.textureStages = textureStages;

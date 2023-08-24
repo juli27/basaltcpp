@@ -46,6 +46,7 @@ using basalt::gfx::VertexElement;
 
 using gsl::span;
 
+using namespace std::literals;
 using std::array;
 using std::byte;
 using std::default_random_engine;
@@ -117,7 +118,7 @@ auto fill_buffers(const span<Vertex> vb, const span<u16> ib) {
 
 BuffersExercises::BuffersExercises(Engine& engine)
   : mGfxCache {engine.create_gfx_resource_cache()}
-  , mTexture {mGfxCache->load_texture("data/tribase/Texture2.bmp")}
+  , mTexture {mGfxCache->load_texture("data/tribase/Texture2.bmp"sv)}
   , mFov {90_deg} {
   {
     default_random_engine randomEngine {random_device {}()};

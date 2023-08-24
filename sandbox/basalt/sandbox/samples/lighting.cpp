@@ -19,6 +19,7 @@
 #include <array>
 #include <cmath>
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace samples {
@@ -79,7 +80,7 @@ Lighting::Lighting(Engine& engine)
 
   // sphere models
   const auto sphereTexture =
-    mGfxCache->load_texture("data/tribase/02-07_lighting/Sphere.bmp");
+    mGfxCache->load_texture("data/tribase/02-07_lighting/Sphere.bmp"sv);
   array<MaterialDescriptor, 1> materials {};
   MaterialDescriptor& materialDesc {std::get<0>(materials)};
   materialDesc.pipelineDesc = &pipelineDesc;
@@ -98,12 +99,12 @@ Lighting::Lighting(Engine& engine)
     materialDesc.specularPower = 5 * perSphereFactor;
 
     sphereModels[i] = mGfxCache->load_x_model(
-      XModelDescriptor {"data/tribase/02-07_lighting/Sphere.x", materials});
+      XModelDescriptor {"data/tribase/02-07_lighting/Sphere.x"sv, materials});
   }
 
   // ground model
   const auto groundTexture {
-    mGfxCache->load_texture("data/tribase/02-07_lighting/Ground.bmp")};
+    mGfxCache->load_texture("data/tribase/02-07_lighting/Ground.bmp"sv)};
   materialDesc.diffuse = Color::from_non_linear(0.75f, 0.75f, 0.75f);
   materialDesc.ambient = Color::from_non_linear(0.25f, 0.25f, 0.25f);
   materialDesc.emissive = Colors::BLACK;
@@ -113,7 +114,7 @@ Lighting::Lighting(Engine& engine)
   materialDesc.sampledTexture.filter = TextureFilter::Bilinear;
   materialDesc.sampledTexture.mipFilter = TextureMipFilter::Linear;
   const auto groundModel {mGfxCache->load_x_model(
-    XModelDescriptor {"data/tribase/02-07_lighting/Ground.x", materials})};
+    XModelDescriptor {"data/tribase/02-07_lighting/Ground.x"sv, materials})};
 
   // light model
   fs.textureStages = {};
@@ -124,7 +125,7 @@ Lighting::Lighting(Engine& engine)
   materialDesc.specular = Colors::WHITE;
   materialDesc.specularPower = 1.0f;
   const auto lightModel {mGfxCache->load_x_model(
-    XModelDescriptor {"data/tribase/02-07_lighting/Sphere.x", materials})};
+    XModelDescriptor {"data/tribase/02-07_lighting/Sphere.x"sv, materials})};
 
   auto scene {Scene::create()};
   auto& gfxEnv {scene->entity_registry().ctx().emplace<Environment>()};
