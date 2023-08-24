@@ -1,6 +1,7 @@
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/gfx/backend/device.h>
+#include <basalt/gfx/backend/ext/texture_3d_support.h>
 #include <basalt/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/base/types.h>
@@ -134,6 +135,16 @@ auto ResourceCache::destroy(const Texture handle) noexcept -> void {
                   mTextures.end());
 
   mDevice->destroy(handle);
+}
+
+auto ResourceCache::load_texture_3d(const path& path) -> Texture {
+  // throws std::bad_optional_access if extension not present
+  const auto tex3dExt {
+    mDevice->query_extension<ext::Texture3DSupport>().value()};
+  const Texture handle {tex3dExt->load(path)};
+  mTextures.push_back(handle);
+
+  return handle;
 }
 
 auto ResourceCache::load_x_model(const path& path) -> ext::XModel {

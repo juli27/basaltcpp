@@ -11,6 +11,8 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "device.h"
   "factory.cpp"
   "factory.h"
+  "texture_3d_support.cpp"
+  "texture_3d_support.h"
   "types.h"
   "x_model_support.cpp"
   "x_model_support.h"

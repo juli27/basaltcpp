@@ -2,6 +2,7 @@
 
 #include <basalt/gfx/backend/d3d9/conversions.h>
 #include <basalt/gfx/backend/d3d9/dear_imgui_renderer.h>
+#include <basalt/gfx/backend/d3d9/texture_3d_support.h>
 #include <basalt/gfx/backend/d3d9/x_model_support.h>
 
 #include <basalt/gfx/backend/commands.h>
@@ -38,6 +39,9 @@ using Microsoft::WRL::ComPtr;
 
 namespace basalt::gfx {
 namespace {
+
+using D3D9TexturePtr = ComPtr<IDirect3DTexture9>;
+using D3D9VolumeTexturePtr = ComPtr<IDirect3DVolumeTexture9>;
 
 auto map_impl(IDirect3DVertexBuffer9& vertexBuffer,
               const uDeviceSize offset = 0, uDeviceSize size = 0)
@@ -128,6 +132,8 @@ D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
 
   mExtensions[ext::ExtensionId::XModelSupport] =
     ext::D3D9XModelSupport::create(mDevice);
+  mExtensions[ext::ExtensionId::Texture3DSupport] =
+    ext::D3D9Texture3DSupport::create(this);
 
   D3DCAPS9 d3d9Caps {};
   D3D9CHECK(mDevice->GetDeviceCaps(&d3d9Caps));
@@ -144,15 +150,21 @@ D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
   mCaps.maxBoundSampledTextures = d3d9Caps.MaxSimultaneousTextures;
 
   mCaps.samplerClampToBorder =
-    d3d9Caps.TextureAddressCaps & D3DPTADDRESSCAPS_BORDER;
+    d3d9Caps.TextureAddressCaps & D3DPTADDRESSCAPS_BORDER &&
+    d3d9Caps.VolumeTextureAddressCaps & D3DPTADDRESSCAPS_BORDER;
   mCaps.samplerCustomBorderColor = mCaps.samplerClampToBorder;
   mCaps.samplerMirrorOnceClampToEdge =
-    d3d9Caps.TextureAddressCaps & D3DPTADDRESSCAPS_MIRRORONCE;
+    d3d9Caps.TextureAddressCaps & D3DPTADDRESSCAPS_MIRRORONCE &&
+    d3d9Caps.VolumeTextureAddressCaps & D3DPTADDRESSCAPS_MIRRORONCE;
 
   mCaps.samplerMinFilterAnisotropic =
     d3d9Caps.TextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC;
   mCaps.samplerMagFilterAnisotropic =
     d3d9Caps.TextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC;
+  mCaps.sampler3DMinFilterAnisotropic =
+    d3d9Caps.VolumeTextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC;
+  mCaps.sampler3DMagFilterAnisotropic =
+    d3d9Caps.VolumeTextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC;
   mCaps.samplerMaxAnisotropy = saturated_cast<u8>(d3d9Caps.MaxAnisotropy);
   mCaps.perTextureStageConstant =
     d3d9Caps.PrimitiveMiscCaps & D3DPMISCCAPS_PERSTAGECONSTANT;
@@ -233,6 +245,20 @@ auto D3D9Device::execute(const CommandList& cmdList) -> void {
   for (const auto* cmd : cmdList) {
     visit(*cmd, visitor);
   }
+}
+
+auto D3D9Device::load_texture_3d(const path& path) -> Texture {
+  D3D9VolumeTexturePtr texture;
+
+  // TODO: Mip map count is fixed to 1
+  if (FAILED(D3DXCreateVolumeTextureFromFileExW(
+        mDevice.Get(), path.c_str(), D3DX_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT,
+        1, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0,
+        nullptr, nullptr, &texture))) {
+    throw std::runtime_error {"loading texture file failed"};
+  }
+
+  return mTextures.allocate(std::move(texture));
 }
 
 auto D3D9Device::capabilities() const -> const DeviceCaps& {
@@ -639,11 +665,7 @@ auto D3D9Device::execute(const CommandBindSampler& cmd) -> void {
 }
 
 auto D3D9Device::execute(const CommandBindTexture& cmd) -> void {
-  if (!mTextures.is_valid(cmd.textureId)) {
-    return;
-  }
-
-  const D3D9TexturePtr& texture {mTextures[cmd.textureId]};
+  const D3D9BaseTexturePtr& texture {mTextures[cmd.textureId]};
 
   D3D9CHECK(mDevice->SetTexture(cmd.slot, texture.Get()));
 }

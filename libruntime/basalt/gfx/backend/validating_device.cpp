@@ -2,6 +2,7 @@
 
 #include <basalt/gfx/backend/commands.h>
 #include <basalt/gfx/backend/ext/dear_imgui_renderer.h>
+#include <basalt/gfx/backend/ext/texture_3d_support.h>
 
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/types.h>
@@ -18,6 +19,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <filesystem>
+#include <memory>
 #include <numeric>
 #include <optional>
 #include <string_view>
@@ -40,6 +42,29 @@ using std::filesystem::path;
 namespace basalt::gfx {
 
 namespace {
+
+class ValidatingTexture3DSupport;
+using ValidatingTexture3DSupportPtr =
+  std::shared_ptr<ValidatingTexture3DSupport>;
+
+class ValidatingTexture3DSupport final : public ext::Texture3DSupport {
+public:
+  static auto create(ValidatingDevice* device)
+    -> ValidatingTexture3DSupportPtr {
+    return std::make_shared<ValidatingTexture3DSupport>(device);
+  }
+
+  auto load(const path& path) -> Texture override {
+    return mDevice->load_texture_3d(path);
+  }
+
+  explicit ValidatingTexture3DSupport(ValidatingDevice* device)
+    : mDevice {device} {
+  }
+
+private:
+  ValidatingDevice* mDevice {};
+};
 
 auto check(const string_view description, const bool value) -> bool {
   if (!value) {
@@ -112,6 +137,15 @@ auto ValidatingDevice::wrap(DevicePtr device) -> ValidatingDevicePtr {
 ValidatingDevice::ValidatingDevice(DevicePtr device)
   : mDevice {std::move(device)}
   , mCaps {mDevice->capabilities()} {
+  mExtensions[ext::ExtensionId::Texture3DSupport] =
+    ValidatingTexture3DSupport::create(this);
+}
+
+auto ValidatingDevice::load_texture_3d(const path& path) -> Texture {
+  const Texture id {
+    mDevice->query_extension<ext::Texture3DSupport>().value()->load(path)};
+
+  return mTextures.allocate(TextureData {id});
 }
 
 auto ValidatingDevice::capabilities() const -> const DeviceCaps& {
@@ -330,6 +364,10 @@ auto ValidatingDevice::submit(const span<CommandList> commandLists) -> void {
 
 auto ValidatingDevice::query_extension(const ext::ExtensionId id)
   -> optional<ext::ExtensionPtr> {
+  if (const auto entry = mExtensions.find(id); entry != mExtensions.end()) {
+    return entry->second;
+  }
+
   return mDevice->query_extension(id);
 }
 
@@ -502,10 +540,6 @@ auto ValidatingDevice::patch(CommandList& cmdList,
 
 auto ValidatingDevice::patch(CommandList& cmdList,
                              const CommandBindTexture& cmd) -> void {
-  if (!mTextures.is_valid(cmd.textureId)) {
-    return;
-  }
-
   const Texture originalId {mTextures[cmd.textureId].originalId};
 
   cmdList.bind_texture(cmd.slot, originalId);

@@ -18,6 +18,9 @@ namespace ext {
 class D3D9ImGuiRenderer;
 using D3D9ImGuiRendererPtr = std::shared_ptr<D3D9ImGuiRenderer>;
 
+class D3D9Texture3DSupport;
+using D3D9Texture3DSupportPtr = std::shared_ptr<D3D9Texture3DSupport>;
+
 class D3D9XModelSupport;
 using D3D9XModelSupportPtr = std::shared_ptr<D3D9XModelSupport>;
 

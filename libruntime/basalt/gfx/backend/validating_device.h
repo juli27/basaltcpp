@@ -8,6 +8,7 @@
 
 #include <basalt/api/shared/handle_pool.h>
 
+#include <unordered_map>
 #include <vector>
 
 namespace basalt::gfx {
@@ -18,6 +19,8 @@ public:
 
   // don't use directly
   explicit ValidatingDevice(DevicePtr);
+
+  [[nodiscard]] auto load_texture_3d(const std::filesystem::path&) -> Texture;
 
   [[nodiscard]] auto capabilities() const -> const DeviceCaps& override;
 
@@ -66,6 +69,8 @@ public:
     -> std::optional<ext::ExtensionPtr> override;
 
 private:
+  using ExtensionMap = std::unordered_map<ext::ExtensionId, ext::ExtensionPtr>;
+
   struct PipelineData final {
     Pipeline originalId;
     std::vector<VertexElement> vertexInputLayout;
@@ -93,6 +98,7 @@ private:
 
   DevicePtr mDevice;
   DeviceCaps mCaps;
+  ExtensionMap mExtensions;
   HandlePool<PipelineData, Pipeline> mPipelines;
   HandlePool<VertexBufferData, VertexBuffer> mVertexBuffers;
   HandlePool<IndexBufferData, IndexBuffer> mIndexBuffers;

@@ -29,6 +29,8 @@ public:
 
   auto execute(const CommandList&) -> void;
 
+  [[nodiscard]] auto load_texture_3d(const std::filesystem::path&) -> Texture;
+
   [[nodiscard]] auto capabilities() const -> const DeviceCaps& override;
 
   [[nodiscard]] auto create_pipeline(const PipelineDescriptor&)
@@ -79,7 +81,7 @@ private:
   using ExtensionMap = std::unordered_map<ext::ExtensionId, ext::ExtensionPtr>;
   using D3D9VertexBufferPtr = Microsoft::WRL::ComPtr<IDirect3DVertexBuffer9>;
   using D3D9IndexBufferPtr = Microsoft::WRL::ComPtr<IDirect3DIndexBuffer9>;
-  using D3D9TexturePtr = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
+  using D3D9BaseTexturePtr = Microsoft::WRL::ComPtr<IDirect3DBaseTexture9>;
 
   struct SamplerData final {
     D3DTEXTUREFILTERTYPE magFilter {D3DTEXF_POINT};
@@ -99,7 +101,7 @@ private:
   HandlePool<D3D9Pipeline, Pipeline> mPipelines {};
   HandlePool<D3D9VertexBufferPtr, VertexBuffer> mVertexBuffers {};
   HandlePool<D3D9IndexBufferPtr, IndexBuffer> mIndexBuffers {};
-  HandlePool<D3D9TexturePtr, Texture> mTextures {};
+  HandlePool<D3D9BaseTexturePtr, Texture> mTextures {};
   HandlePool<SamplerData, Sampler> mSamplers {};
 
   DeviceCaps mCaps {};

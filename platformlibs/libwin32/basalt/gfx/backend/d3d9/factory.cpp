@@ -200,11 +200,13 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
 
   allCapsPresent &= verify_caps_present(caps.ShadeCaps, MIN_SHADE_CAPS);
 
-  static constexpr array<Cap, 4> MIN_TEXTURE_CAPS {
+  static constexpr array MIN_TEXTURE_CAPS {
     MAKE_CAP(D3DPTEXTURECAPS_PERSPECTIVE),
     MAKE_CAP(D3DPTEXTURECAPS_ALPHA),
     MAKE_CAP(D3DPTEXTURECAPS_PROJECTED),
+    MAKE_CAP(D3DPTEXTURECAPS_VOLUMEMAP),
     MAKE_CAP(D3DPTEXTURECAPS_MIPMAP),
+    MAKE_CAP(D3DPTEXTURECAPS_MIPVOLUMEMAP),
   };
 
   allCapsPresent &= verify_caps_present(caps.TextureCaps, MIN_TEXTURE_CAPS);
@@ -220,7 +222,7 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
     }
   }
 
-  static constexpr array<Cap, 6> MIN_TEXTURE_FILTER_CAPS {
+  static constexpr array MIN_TEXTURE_FILTER_CAPS {
     MAKE_CAP(D3DPTFILTERCAPS_MINFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MINFLINEAR),
     MAKE_CAP(D3DPTFILTERCAPS_MIPFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MIPFLINEAR),
     MAKE_CAP(D3DPTFILTERCAPS_MAGFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MAGFLINEAR),
@@ -229,7 +231,16 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
   allCapsPresent &=
     verify_caps_present(caps.TextureFilterCaps, MIN_TEXTURE_FILTER_CAPS);
 
-  static constexpr array<Cap, 4> MIN_TEXTURE_ADDRESS_CAPS {
+  static constexpr array MIN_VOLUME_TEXTURE_FILTER_CAPS {
+    MAKE_CAP(D3DPTFILTERCAPS_MINFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MINFLINEAR),
+    MAKE_CAP(D3DPTFILTERCAPS_MIPFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MIPFLINEAR),
+    MAKE_CAP(D3DPTFILTERCAPS_MAGFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MAGFLINEAR),
+  };
+
+  allCapsPresent &= verify_caps_present(caps.VolumeTextureFilterCaps,
+                                        MIN_VOLUME_TEXTURE_FILTER_CAPS);
+
+  static constexpr array MIN_TEXTURE_ADDRESS_CAPS {
     MAKE_CAP(D3DPTADDRESSCAPS_WRAP),
     MAKE_CAP(D3DPTADDRESSCAPS_MIRROR),
     MAKE_CAP(D3DPTADDRESSCAPS_CLAMP),
@@ -238,6 +249,16 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
 
   allCapsPresent &=
     verify_caps_present(caps.TextureAddressCaps, MIN_TEXTURE_ADDRESS_CAPS);
+
+  static constexpr array MIN_VOLUME_TEXTURE_ADDRESS_CAPS {
+    MAKE_CAP(D3DPTADDRESSCAPS_WRAP),
+    MAKE_CAP(D3DPTADDRESSCAPS_MIRROR),
+    MAKE_CAP(D3DPTADDRESSCAPS_CLAMP),
+    MAKE_CAP(D3DPTADDRESSCAPS_INDEPENDENTUV),
+  };
+
+  allCapsPresent &= verify_caps_present(caps.VolumeTextureAddressCaps,
+                                        MIN_VOLUME_TEXTURE_ADDRESS_CAPS);
 
   {
     constexpr u8 minNumTexCoords {1};

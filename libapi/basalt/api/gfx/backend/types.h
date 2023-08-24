@@ -303,6 +303,8 @@ struct DeviceCaps final {
   bool samplerMirrorOnceClampToEdge {false};
   bool samplerMinFilterAnisotropic {false};
   bool samplerMagFilterAnisotropic {false};
+  bool sampler3DMinFilterAnisotropic {false};
+  bool sampler3DMagFilterAnisotropic {false};
   u8 samplerMaxAnisotropy {1};
   bool perTextureStageConstant {false};
   TextureOps supportedColorOps;
