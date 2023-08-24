@@ -16,6 +16,7 @@
 #include <gsl/span>
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <limits>
 #include <new>
@@ -239,93 +240,7 @@ auto D3D9Device::capabilities() const -> const DeviceCaps& {
 }
 
 auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {
-  array<D3D9TexStage, 8> textureStages {};
-  u8 i {0};
-  for (const auto& stage : desc.textureStages) {
-    auto& d3d9Stage {textureStages[i]};
-    d3d9Stage.colorOp = to_d3d(stage.colorOp);
-    d3d9Stage.colorArg1 = to_d3d(stage.colorArg1);
-    d3d9Stage.colorArg2 = to_d3d(stage.colorArg2);
-    d3d9Stage.colorArg3 = to_d3d(stage.colorArg3);
-    d3d9Stage.alphaOp = to_d3d(stage.alphaOp);
-    d3d9Stage.alphaArg1 = to_d3d(stage.alphaArg1);
-    d3d9Stage.alphaArg2 = to_d3d(stage.alphaArg2);
-    d3d9Stage.alphaArg3 = to_d3d(stage.alphaArg3);
-
-    d3d9Stage.coordinateIndex =
-      stage.coordinateIndex | to_d3d(stage.coordinateSrc);
-    d3d9Stage.coordinateTransformFlags = to_d3d(stage.coordinateTransformMode);
-
-    if (stage.coordinateIsProjected) {
-      d3d9Stage.coordinateTransformFlags =
-        static_cast<D3DTEXTURETRANSFORMFLAGS>(
-          d3d9Stage.coordinateTransformFlags | D3DTTFF_PROJECTED);
-    }
-
-    i++;
-  }
-
-  // TODO: is there a benefit to turn off z testing when func = Always
-  // and with writing disabled?
-  const D3DZBUFFERTYPE zEnabled {desc.depthTest == TestPassCond::Always &&
-                                     !desc.depthWriteEnable
-                                   ? D3DZB_FALSE
-                                   : D3DZB_TRUE};
-
-  auto toVertexFogMode {
-    [](const FogMode mode, const FogType type) -> D3DFOGMODE {
-      if (type == FogType::None || type == FogType::Fragment) {
-        return D3DFOG_NONE;
-      }
-
-      return to_d3d(mode);
-    }};
-
-  auto toTableFogMode {
-    [](const FogMode mode, const FogType type) -> D3DFOGMODE {
-      if (type == FogType::Fragment) {
-        return to_d3d(mode);
-      }
-
-      return D3DFOG_NONE;
-    }};
-
-  const bool alphaTestEnabled {desc.alphaTest != TestPassCond::Always};
-  const bool alphaBlendEnabled {desc.blendOp != BlendOp::Add ||
-                                desc.srcBlendFactor != BlendFactor::One ||
-                                desc.destBlendFactor != BlendFactor::Zero};
-
-  // TODO: split texture stage args into color and alpha args
-  return mPipelines.allocate(PipelineData {
-    to_d3d_fvf(desc.vertexInputState),
-    textureStages,
-    to_d3d(desc.primitiveType),
-    desc.lightingEnabled,
-    to_d3d(desc.shadeMode),
-    to_d3d(desc.cullMode),
-    to_d3d(desc.fillMode),
-    zEnabled,
-    to_d3d(desc.depthTest),
-    desc.depthWriteEnable,
-    desc.dithering,
-    desc.fogType != FogType::None,
-    toVertexFogMode(desc.fogMode, desc.fogType),
-    desc.fogType == FogType::VertexRangeBased,
-    toTableFogMode(desc.fogMode, desc.fogType),
-    desc.vertexColorEnabled,
-    to_d3d(desc.diffuseSource),
-    to_d3d(desc.specularSource),
-    to_d3d(desc.ambientSource),
-    to_d3d(desc.emissiveSource),
-    desc.specularEnabled,
-    desc.normalizeViewSpaceNormals,
-    alphaTestEnabled,
-    to_d3d(desc.alphaTest),
-    alphaBlendEnabled,
-    to_d3d(desc.srcBlendFactor),
-    to_d3d(desc.destBlendFactor),
-    to_d3d(desc.blendOp),
-  });
+  return mPipelines.allocate(D3D9Pipeline::from(desc));
 }
 
 auto D3D9Device::destroy(const Pipeline handle) noexcept -> void {
@@ -586,35 +501,39 @@ auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
 
   PIX_BEGIN_EVENT(0, L"CommandBindPipeline");
 
-  const PipelineData& data {mPipelines[cmd.pipelineId]};
+  const D3D9Pipeline& data {mPipelines[cmd.pipelineId]};
   mCurrentPrimitiveType = data.primitiveType;
 
   D3D9CHECK(mDevice->SetFVF(data.fvf));
 
-  D3D9CHECK(mDevice->SetRenderState(D3DRS_LIGHTING, data.lightingEnabled));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_SHADEMODE, data.vs.shadeMode));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_LIGHTING, data.vs.lightingEnabled));
   D3D9CHECK(
-    mDevice->SetRenderState(D3DRS_SPECULARENABLE, data.specularEnabled));
+    mDevice->SetRenderState(D3DRS_SPECULARENABLE, data.vs.specularEnabled));
   D3D9CHECK(
-    mDevice->SetRenderState(D3DRS_COLORVERTEX, data.vertexColorEnabled));
-  D3D9CHECK(
-    mDevice->SetRenderState(D3DRS_DIFFUSEMATERIALSOURCE, data.diffuseSource));
-  D3D9CHECK(
-    mDevice->SetRenderState(D3DRS_SPECULARMATERIALSOURCE, data.specularSource));
-  D3D9CHECK(
-    mDevice->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, data.ambientSource));
-  D3D9CHECK(
-    mDevice->SetRenderState(D3DRS_EMISSIVEMATERIALSOURCE, data.emissiveSource));
+    mDevice->SetRenderState(D3DRS_COLORVERTEX, data.vs.vertexColorEnabled));
+
   D3D9CHECK(mDevice->SetRenderState(D3DRS_NORMALIZENORMALS,
-                                    data.normalizeViewSpaceNormals));
-  D3D9CHECK(mDevice->SetRenderState(D3DRS_SHADEMODE, data.shadeMode));
+                                    data.vs.normalizeViewSpaceNormals));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_DIFFUSEMATERIALSOURCE,
+                                    data.vs.diffuseSource));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE,
+                                    data.vs.ambientSource));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_EMISSIVEMATERIALSOURCE,
+                                    data.vs.emissiveSource));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_SPECULARMATERIALSOURCE,
+                                    data.vs.specularSource));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGENABLE, data.fog.enabled));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGVERTEXMODE, data.fog.vertexMode));
+  D3D9CHECK(
+    mDevice->SetRenderState(D3DRS_RANGEFOGENABLE, data.fog.vertexRanged));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGTABLEMODE, data.fog.tableMode));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_CULLMODE, data.cullMode));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_FILLMODE, data.fillMode));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ZENABLE, data.zEnabled));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ZFUNC, data.zFunc));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, data.zWriteEnabled));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_DITHERENABLE, data.dithering));
-  D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGENABLE, data.fogEnabled));
-  D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGVERTEXMODE, data.vertexFogMode));
   D3D9CHECK(
     mDevice->SetRenderState(D3DRS_ALPHATESTENABLE, data.alphaTestEnabled));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ALPHAFUNC, data.alphaFunc));
@@ -623,9 +542,6 @@ auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
   D3D9CHECK(mDevice->SetRenderState(D3DRS_SRCBLEND, data.srcBlend));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_DESTBLEND, data.destBlend));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_BLENDOP, data.blendOp));
-  D3D9CHECK(
-    mDevice->SetRenderState(D3DRS_RANGEFOGENABLE, data.vertexFogRanged));
-  D3D9CHECK(mDevice->SetRenderState(D3DRS_FOGTABLEMODE, data.tableFogMode));
 
   u8 stageId {0};
   for (const auto& stage : data.textureStages) {

@@ -98,9 +98,8 @@ SimpleScene::SimpleScene(Engine& engine)
   })};
 
   PipelineDescriptor pipelineDesc;
-  pipelineDesc.vertexInputState = Vertex::sLayout;
+  pipelineDesc.vertexLayout = Vertex::sLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
-  pipelineDesc.lightingEnabled = false;
   pipelineDesc.depthTest = TestPassCond::IfLessEqual;
   pipelineDesc.depthWriteEnable = true;
   MaterialDescriptor materialDesc;

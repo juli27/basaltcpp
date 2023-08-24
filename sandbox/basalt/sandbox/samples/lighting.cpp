@@ -38,16 +38,17 @@ using basalt::Vector3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::CullMode;
 using basalt::gfx::Environment;
+using basalt::gfx::FixedFragmentShaderCreateInfo;
+using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::FogMode;
-using basalt::gfx::FogType;
 using basalt::gfx::Light;
 using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PointLight;
 using basalt::gfx::TestPassCond;
-using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
+using basalt::gfx::TextureStage;
 using basalt::gfx::XModelDescriptor;
 using basalt::gfx::ext::XModel;
 
@@ -59,17 +60,22 @@ constexpr Color BACKGROUND {Color::from_non_linear_rgba8(0, 0, 63)};
 
 Lighting::Lighting(Engine& engine)
   : mGfxCache {engine.create_gfx_resource_cache()} {
-  array textureStages {TextureBlendingStage {}};
+  FixedVertexShaderCreateInfo vs;
+  vs.lightingEnabled = true;
+  vs.specularEnabled = true;
+  vs.fog = FogMode::Exponential;
+
+  FixedFragmentShaderCreateInfo fs;
+  array textureStages {TextureStage {}};
+  fs.textureStages = textureStages;
+
   PipelineDescriptor pipelineDesc;
-  pipelineDesc.textureStages = textureStages;
-  pipelineDesc.lightingEnabled = true;
-  pipelineDesc.specularEnabled = true;
+  pipelineDesc.vertexShader = &vs;
+  pipelineDesc.fragmentShader = &fs;
   pipelineDesc.cullMode = CullMode::CounterClockwise;
   pipelineDesc.depthTest = TestPassCond::IfLessEqual;
   pipelineDesc.depthWriteEnable = true;
   pipelineDesc.dithering = true;
-  pipelineDesc.fogType = FogType::Vertex;
-  pipelineDesc.fogMode = FogMode::Exponential;
 
   // sphere models
   const auto sphereTexture =
@@ -110,7 +116,7 @@ Lighting::Lighting(Engine& engine)
     XModelDescriptor {"data/tribase/02-07_lighting/Ground.x", materials})};
 
   // light model
-  pipelineDesc.textureStages = {};
+  fs.textureStages = {};
   materialDesc.sampledTexture = {};
   materialDesc.diffuse = Color::from_non_linear(0.75f, 0.75f, 0.75f);
   materialDesc.ambient = Color::from_non_linear(0.25f, 0.25f, 0.25f);

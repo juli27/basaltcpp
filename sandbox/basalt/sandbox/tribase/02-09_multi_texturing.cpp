@@ -33,14 +33,17 @@ using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
 using basalt::gfx::CullMode;
 using basalt::gfx::DirectionalLightData;
+using basalt::gfx::FixedFragmentShaderCreateInfo;
+using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::LightData;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::TestPassCond;
-using basalt::gfx::TextureBlendingStage;
+using basalt::gfx::TextureCoordinateSet;
 using basalt::gfx::TextureCoordinateTransformMode;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
 using basalt::gfx::TextureOp;
+using basalt::gfx::TextureStage;
 using basalt::gfx::TransformState;
 using basalt::gfx::ext::XMeshCommandEncoder;
 
@@ -61,12 +64,20 @@ constexpr auto to_matrix3x3(const Matrix4x4f32& m) -> Matrix4x4f32 {
 
 MultiTexturing::MultiTexturing(const Engine& engine)
   : mGfxCache {engine.create_gfx_resource_cache()} {
-  PipelineDescriptor pipelineDesc;
-  array textureStages {TextureBlendingStage {}, TextureBlendingStage {}};
-  textureStages[1].coordinateTransformMode =
+  FixedVertexShaderCreateInfo vs;
+  array textureCoordinateSets {TextureCoordinateSet {1}};
+  textureCoordinateSets[0].transformMode =
     TextureCoordinateTransformMode::Count2;
-  pipelineDesc.textureStages = textureStages;
-  pipelineDesc.lightingEnabled = true;
+  vs.textureCoordinateSets = textureCoordinateSets;
+  vs.lightingEnabled = true;
+
+  FixedFragmentShaderCreateInfo fs;
+  array textureStages {TextureStage {}, TextureStage {}};
+  fs.textureStages = textureStages;
+
+  PipelineDescriptor pipelineDesc;
+  pipelineDesc.vertexShader = &vs;
+  pipelineDesc.fragmentShader = &fs;
   pipelineDesc.cullMode = CullMode::CounterClockwise;
   pipelineDesc.depthTest = TestPassCond::IfLessEqual;
   pipelineDesc.depthWriteEnable = true;
@@ -104,7 +115,7 @@ MultiTexturing::MultiTexturing(const Engine& engine)
   mPipelines[10] = mGfxCache->create_pipeline(pipelineDesc);
 
   // disable second stage
-  pipelineDesc.textureStages = span {textureStages}.subspan(0, 1);
+  fs.textureStages = span {textureStages}.subspan(0, 1);
   mPipelines[11] = mGfxCache->create_pipeline(pipelineDesc);
 
   mSampler =

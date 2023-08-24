@@ -120,14 +120,17 @@ auto ValidatingDevice::capabilities() const -> const DeviceCaps& {
 
 auto ValidatingDevice::create_pipeline(const PipelineDescriptor& desc)
   -> Pipeline {
-  check_vertex_layout(desc.vertexInputState);
-  check("too many texture stages"sv,
-        desc.textureStages.size() <= mCaps.maxTextureBlendStages);
+  check_vertex_layout(desc.vertexLayout);
+  if (desc.fragmentShader) {
+    check("too many texture stages"sv,
+          desc.fragmentShader->textureStages.size() <=
+            mCaps.maxTextureBlendStages);
+  }
 
   const Pipeline pipelineId {mDevice->create_pipeline(desc)};
 
-  vector<VertexElement> vertexInputLayout {desc.vertexInputState.begin(),
-                                           desc.vertexInputState.end()};
+  vector<VertexElement> vertexInputLayout {desc.vertexLayout.begin(),
+                                           desc.vertexLayout.end()};
 
   return mPipelines.allocate(PipelineData {
     pipelineId,
@@ -354,6 +357,7 @@ auto ValidatingDevice::validate(const CommandClearAttachments& cmd) -> void {
 }
 
 auto ValidatingDevice::validate(const CommandDraw&) -> void {
+  check("no pipeline bound"sv, mPipelines.is_valid(mBoundPipeline));
 }
 
 auto ValidatingDevice::validate(const CommandDrawIndexed&) -> void {
@@ -365,6 +369,8 @@ auto ValidatingDevice::validate(const CommandBindPipeline& cmd) -> void {
   if (!check("valid pipeline id", mPipelines.is_valid(cmd.pipelineId))) {
     return;
   }
+
+  mBoundPipeline = cmd.pipelineId;
 
   const PipelineData& data {mPipelines[cmd.pipelineId]};
   mCurrentPrimitiveType = data.primitiveType;

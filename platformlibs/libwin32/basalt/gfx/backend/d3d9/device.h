@@ -3,6 +3,7 @@
 #include <basalt/gfx/backend/device.h>
 
 #include <basalt/gfx/backend/d3d9/d3d9_custom.h>
+#include <basalt/gfx/backend/d3d9/data.h>
 
 #include <basalt/gfx/backend/types.h>
 
@@ -12,7 +13,6 @@
 
 #include <wrl/client.h>
 
-#include <array>
 #include <filesystem>
 #include <memory>
 #include <unordered_map>
@@ -81,53 +81,6 @@ private:
   using D3D9IndexBufferPtr = Microsoft::WRL::ComPtr<IDirect3DIndexBuffer9>;
   using D3D9TexturePtr = Microsoft::WRL::ComPtr<IDirect3DTexture9>;
 
-  struct D3D9TexStage {
-    D3DTEXTUREOP colorOp {D3DTOP_DISABLE};
-    DWORD colorArg1 {D3DTA_TEXTURE};
-    DWORD colorArg2 {D3DTA_CURRENT};
-    DWORD colorArg3 {D3DTA_CURRENT};
-    D3DTEXTUREOP alphaOp {D3DTOP_DISABLE};
-    DWORD alphaArg1 {D3DTA_TEXTURE};
-    DWORD alphaArg2 {D3DTA_CURRENT};
-    DWORD alphaArg3 {D3DTA_CURRENT};
-    DWORD resultArg {D3DTA_CURRENT};
-    DWORD coordinateIndex {0 | D3DTSS_TCI_PASSTHRU};
-    D3DTEXTURETRANSFORMFLAGS coordinateTransformFlags {D3DTTFF_DISABLE};
-  };
-
-  struct PipelineData final {
-    DWORD fvf {};
-    // TODO: custom allocate this in the pipeline memory pool
-    // then use a span here
-    std::array<D3D9TexStage, 8> textureStages;
-    D3DPRIMITIVETYPE primitiveType {D3DPT_POINTLIST};
-    bool lightingEnabled {false};
-    D3DSHADEMODE shadeMode {D3DSHADE_GOURAUD};
-    D3DCULL cullMode {D3DCULL_NONE};
-    D3DFILLMODE fillMode {D3DFILL_SOLID};
-    D3DZBUFFERTYPE zEnabled {D3DZB_FALSE};
-    D3DCMPFUNC zFunc {D3DCMP_ALWAYS};
-    BOOL zWriteEnabled {FALSE};
-    BOOL dithering {FALSE};
-    BOOL fogEnabled {FALSE};
-    D3DFOGMODE vertexFogMode {D3DFOG_NONE};
-    BOOL vertexFogRanged {FALSE};
-    D3DFOGMODE tableFogMode {D3DFOG_NONE};
-    bool vertexColorEnabled {true};
-    D3DMATERIALCOLORSOURCE diffuseSource {D3DMCS_COLOR1};
-    D3DMATERIALCOLORSOURCE specularSource {D3DMCS_COLOR2};
-    D3DMATERIALCOLORSOURCE ambientSource {D3DMCS_MATERIAL};
-    D3DMATERIALCOLORSOURCE emissiveSource {D3DMCS_MATERIAL};
-    bool specularEnabled {false};
-    bool normalizeViewSpaceNormals {false};
-    bool alphaTestEnabled {false};
-    D3DCMPFUNC alphaFunc {D3DCMP_ALWAYS};
-    bool alphaBlendEnabled {false};
-    D3DBLEND srcBlend {D3DBLEND_ONE};
-    D3DBLEND destBlend {D3DBLEND_ZERO};
-    D3DBLENDOP blendOp {D3DBLENDOP_ADD};
-  };
-
   struct SamplerData final {
     D3DTEXTUREFILTERTYPE magFilter {D3DTEXF_POINT};
     D3DTEXTUREFILTERTYPE minFilter {D3DTEXF_POINT};
@@ -143,7 +96,7 @@ private:
 
   ExtensionMap mExtensions;
 
-  HandlePool<PipelineData, Pipeline> mPipelines {};
+  HandlePool<D3D9Pipeline, Pipeline> mPipelines {};
   HandlePool<D3D9VertexBufferPtr, VertexBuffer> mVertexBuffers {};
   HandlePool<D3D9IndexBufferPtr, IndexBuffer> mIndexBuffers {};
   HandlePool<D3D9TexturePtr, Texture> mTextures {};

@@ -29,15 +29,16 @@ using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
 using basalt::gfx::CullMode;
+using basalt::gfx::FixedFragmentShaderCreateInfo;
+using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::FogMode;
-using basalt::gfx::FogType;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::SamplerDescriptor;
 using basalt::gfx::TestPassCond;
-using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
+using basalt::gfx::TextureStage;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexElement;
 
@@ -97,17 +98,24 @@ Fog::Fog(Engine& engine) : mGfxCache {engine.create_gfx_resource_cache()} {
 auto Fog::update_pipeline() -> void {
   mGfxCache->destroy(mPipeline);
 
-  array textureStages {TextureBlendingStage {}};
+  FixedVertexShaderCreateInfo vs;
+  vs.fog = mFogMode;
+  vs.fogRangeBased = mVertexFogRangeBased;
+
+  FixedFragmentShaderCreateInfo fs;
+  array textureStages {TextureStage {}};
+  fs.textureStages = textureStages;
+  fs.fog = mFragmentFog ? mFogMode : FogMode::None;
+
   PipelineDescriptor pipelineDesc;
-  pipelineDesc.vertexInputState = Vertex::sLayout;
-  pipelineDesc.textureStages = span {textureStages};
+  pipelineDesc.vertexShader = &vs;
+  pipelineDesc.fragmentShader = &fs;
+  pipelineDesc.vertexLayout = Vertex::sLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
   pipelineDesc.cullMode = CullMode::CounterClockwise;
   pipelineDesc.depthTest = TestPassCond::IfLessEqual;
   pipelineDesc.depthWriteEnable = true;
   pipelineDesc.dithering = true;
-  pipelineDesc.fogType = mFogType;
-  pipelineDesc.fogMode = mFogMode;
   mPipeline = mGfxCache->create_pipeline(pipelineDesc);
 }
 
@@ -118,17 +126,20 @@ auto Fog::render_ui() -> void {
     return;
   }
 
-  if (ImGui::RadioButton("vertex fog", mFogType == FogType::Vertex)) {
-    mFogType = FogType::Vertex;
+  if (ImGui::RadioButton("vertex fog",
+                         !mFragmentFog && !mVertexFogRangeBased)) {
+    mVertexFogRangeBased = false;
+    mFragmentFog = false;
     update_pipeline();
   }
   if (ImGui::RadioButton("vertex fog (range-based)",
-                         mFogType == FogType::VertexRangeBased)) {
-    mFogType = FogType::VertexRangeBased;
+                         !mFragmentFog && mVertexFogRangeBased)) {
+    mVertexFogRangeBased = true;
+    mFragmentFog = false;
     update_pipeline();
   }
-  if (ImGui::RadioButton("fragment fog", mFogType == FogType::Fragment)) {
-    mFogType = FogType::Fragment;
+  if (ImGui::RadioButton("fragment fog", mFragmentFog)) {
+    mFragmentFog = true;
     update_pipeline();
   }
 

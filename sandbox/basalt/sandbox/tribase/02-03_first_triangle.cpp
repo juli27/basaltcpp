@@ -69,7 +69,7 @@ constexpr array<Vertex, 4> QUAD_VERTICES {
 FirstTriangle::FirstTriangle(Engine& engine)
   : mGfxCache {engine.create_gfx_resource_cache()} {
   PipelineDescriptor pipelineDesc;
-  pipelineDesc.vertexInputState = Vertex::sLayout;
+  pipelineDesc.vertexLayout = Vertex::sLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
   pipelineDesc.dithering = true;
   mPipeline = mGfxCache->create_pipeline(pipelineDesc);
@@ -147,11 +147,11 @@ auto FirstTriangle::on_update(UpdateContext& ctx) -> void {
       const f32 value2 {std::cos(time) / 2.0f + 0.5f};
 
       const array<Vertex, 3> triangleVertices {
-        Vertex {0.0f, 1.0f, 0.0f,
+        Vertex {{0.0f, 1.0f, 0.0f},
                 Color::from_non_linear(value1, value2, 0.0f).to_argb()},
-        Vertex {1.0f, -1.0f, 0.0f,
+        Vertex {{1.0f, -1.0f, 0.0f},
                 Color::from_non_linear(0.0f, value1, value2).to_argb()},
-        Vertex {-1.0f, -1.0f, 0.0f,
+        Vertex {{-1.0f, -1.0f, 0.0f},
                 Color::from_non_linear(value2, 0.0f, value1).to_argb()},
       };
 

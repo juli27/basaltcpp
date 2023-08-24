@@ -94,7 +94,8 @@ inline auto to_d3d(const FillMode mode) -> D3DFILLMODE {
 }
 
 inline auto to_d3d(const FogMode mode) -> D3DFOGMODE {
-  static constexpr EnumArray<FogMode, D3DFOGMODE, 3> TO_D3D {
+  static constexpr EnumArray<FogMode, D3DFOGMODE, 4> TO_D3D {
+    {FogMode::None, D3DFOG_NONE},
     {FogMode::Linear, D3DFOG_LINEAR},
     {FogMode::Exponential, D3DFOG_EXP},
     {FogMode::ExponentialSquared, D3DFOG_EXP2},

@@ -44,6 +44,8 @@ using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
 using basalt::gfx::DirectionalLightData;
+using basalt::gfx::FixedFragmentShaderCreateInfo;
+using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::LightData;
 using basalt::gfx::Pipeline;
 using basalt::gfx::PipelineDescriptor;
@@ -52,9 +54,10 @@ using basalt::gfx::ResourceCachePtr;
 using basalt::gfx::Sampler;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::Texture;
-using basalt::gfx::TextureBlendingStage;
+using basalt::gfx::TextureCoordinateSet;
 using basalt::gfx::TextureCoordinateSrc;
 using basalt::gfx::TextureCoordinateTransformMode;
+using basalt::gfx::TextureStage;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexBuffer;
 using basalt::gfx::VertexElement;
@@ -99,26 +102,21 @@ struct Vertex4 final {
 
 [[nodiscard]] auto create_default_world_to_view_transform() noexcept
   -> Matrix4x4f32 {
-  constexpr Vector3f32 pos {0.0f, 3.0f, -5.0f};
-  constexpr Vector3f32 lookAt {0.0f};
-
-  return Matrix4x4f32::look_at_lh(pos, lookAt, Vector3f32::up());
+  return Matrix4x4f32::look_at_lh({0.0f, 3.0f, -5.0f}, {}, Vector3f32::up());
 }
 
 [[nodiscard]] auto
 create_default_view_to_clip_transform(const basalt::Size2Du16 viewport) noexcept
   -> Matrix4x4f32 {
-  const auto fov {45_deg};
-  const f32 aspectRatio {viewport.aspect_ratio()};
-
-  return Matrix4x4f32::perspective_projection(fov, aspectRatio, 1.0f, 100.0f);
+  return Matrix4x4f32::perspective_projection(45_deg, viewport.aspect_ratio(),
+                                              1.0f, 100.0f);
 }
 
 class Vertices final : public View {
 public:
-  explicit Vertices(Engine& engine)
+  explicit Vertices(const Engine& engine)
     : mGfxCache {engine.create_gfx_resource_cache()} {
-    const array vertices {
+    constexpr array vertices {
       Vertex1 {{150.0f, 50.0f, 0.5f, 1.0f}, 0xffff0000_a8r8g8b8},
       Vertex1 {{250.0f, 250.0f, 0.5f, 1.0f}, 0xff00ff00_a8r8g8b8},
       Vertex1 {{50.0f, 250.0f, 0.5f, 1.0f}, 0xff00ffff_a8r8g8b8}};
@@ -129,7 +127,7 @@ public:
       {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
 
     PipelineDescriptor pipelineDesc;
-    pipelineDesc.vertexInputState = Vertex::sLayout;
+    pipelineDesc.vertexLayout = Vertex::sLayout;
     pipelineDesc.primitiveType = PrimitiveType::TriangleList;
     mPipeline = mGfxCache->create_pipeline(pipelineDesc);
   }
@@ -154,9 +152,9 @@ private:
 
 class Matrices final : public View {
 public:
-  explicit Matrices(Engine& engine)
+  explicit Matrices(const Engine& engine)
     : mGfxCache {engine.create_gfx_resource_cache()} {
-    const array vertices {
+    constexpr array vertices {
       Vertex2 {{-1.0f, -1.0f, 0.0f}, 0xffff0000_a8r8g8b8},
       Vertex2 {{1.0f, -1.0f, 0.0f}, 0xff0000ff_a8r8g8b8},
       Vertex2 {{0.0f, 1.0f, 0.0f}, 0xffffffff_a8r8g8b8},
@@ -166,10 +164,9 @@ public:
     const auto vertexData {as_bytes(span {vertices})};
     mVertexBuffer = mGfxCache->create_vertex_buffer(
       {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
-
     PipelineDescriptor pipelineDesc;
-    pipelineDesc.vertexInputState = Vertex::sLayout;
-    pipelineDesc.primitiveType = PrimitiveType::TriangleList;
+    pipelineDesc.vertexLayout = Vertex::sLayout;
+    pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
     mPipeline = mGfxCache->create_pipeline(pipelineDesc);
   }
 
@@ -185,17 +182,14 @@ protected:
     cmdList.clear_attachments(Attachments {Attachment::RenderTarget});
     cmdList.bind_pipeline(mPipeline);
     cmdList.bind_vertex_buffer(mVertexBuffer);
+    cmdList.set_transform(
+      TransformState::ViewToClip,
+      create_default_view_to_clip_transform(ctx.drawCtx.viewport));
+    cmdList.set_transform(TransformState::WorldToView,
+                          create_default_world_to_view_transform());
 
     cmdList.set_transform(TransformState::LocalToWorld,
                           Matrix4x4f32::rotation_y(mRotationY));
-
-    const Matrix4x4f32 worldToView {create_default_world_to_view_transform()};
-    cmdList.set_transform(TransformState::WorldToView, worldToView);
-
-    const Matrix4x4f32 viewToClip {
-      create_default_view_to_clip_transform(ctx.drawCtx.viewport)};
-    cmdList.set_transform(TransformState::ViewToClip, viewToClip);
-
     cmdList.draw(0, 3);
 
     ctx.drawCtx.commandLists.push_back(std::move(cmdList));
@@ -212,7 +206,7 @@ class Lights final : public View {
   static constexpr u32 sVertexCount {2 * 50};
 
 public:
-  explicit Lights(Engine& engine)
+  explicit Lights(const Engine& engine)
     : mGfxCache {engine.create_gfx_resource_cache()} {
     array<Vertex3, sVertexCount> vertices {};
     for (uSize i {0}; i < 50; i++) {
@@ -235,10 +229,13 @@ public:
     mVertexBuffer = mGfxCache->create_vertex_buffer(
       {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
 
+    FixedVertexShaderCreateInfo vs;
+    vs.lightingEnabled = true;
+    
     PipelineDescriptor pipelineDesc;
-    pipelineDesc.vertexInputState = Vertex::sLayout;
+    pipelineDesc.vertexShader = &vs;
+    pipelineDesc.vertexLayout = Vertex::sLayout;
     pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
-    pipelineDesc.lightingEnabled = true;
     pipelineDesc.depthTest = TestPassCond::IfLessEqual;
     pipelineDesc.depthWriteEnable = true;
     mPipeline = mGfxCache->create_pipeline(pipelineDesc);
@@ -279,9 +276,8 @@ private:
     directionalLight.diffuse = Color::from_non_linear(1.0f, 1.0f, 1.0f, 0.0f);
     directionalLight.directionInWorld =
       Vector3f32::normalize(mLightRotation.cos(), 1.0f, mLightRotation.sin());
-    const LightData light {directionalLight};
-
-    cmdList.set_lights(span<const LightData> {&light, 1});
+    const array lights {LightData {directionalLight}};
+    cmdList.set_lights(lights);
     cmdList.set_ambient_light(Color::from(0x00202020_a8r8g8b8));
     cmdList.set_material(Colors::YELLOW, Colors::YELLOW);
 
@@ -295,10 +291,10 @@ class Textures final : public View {
   static constexpr u32 sVertexCount {2 * 50};
 
 public:
-  explicit Textures(Engine& engine)
+  explicit Textures(const Engine& engine)
     : mGfxCache {engine.create_gfx_resource_cache()}
     , mSampler {mGfxCache->create_sampler({})}
-    , mTexture {mGfxCache->load_texture("data/banana.bmp")} {
+    , mTexture {mGfxCache->load_texture("data/banana.bmp"sv)} {
     array<Vertex4, sVertexCount> vertices {};
     for (uSize i {0}; i < 50; i++) {
       const Angle theta {
@@ -328,20 +324,26 @@ public:
     mVertexBuffer = mGfxCache->create_vertex_buffer(
       {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
 
-    array textureStages {TextureBlendingStage {}};
+    FixedFragmentShaderCreateInfo fs;
+    array textureStages {TextureStage {}};
+    fs.textureStages = textureStages;
+
     PipelineDescriptor pipelineDesc;
-    pipelineDesc.vertexInputState = Vertex::sLayout;
+    pipelineDesc.fragmentShader = &fs;
+    pipelineDesc.vertexLayout = Vertex::sLayout;
     pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
-    pipelineDesc.textureStages = textureStages;
     pipelineDesc.depthTest = TestPassCond::IfLessEqual;
     pipelineDesc.depthWriteEnable = true;
     mPipeline = mGfxCache->create_pipeline(pipelineDesc);
 
-    auto& textureStage {std::get<0>(textureStages)};
-    textureStage.coordinateSrc = TextureCoordinateSrc::PositionInViewSpace;
-    textureStage.coordinateTransformMode =
-      TextureCoordinateTransformMode::Count4;
-    textureStage.coordinateIsProjected = true;
+    FixedVertexShaderCreateInfo vs;
+    array texCoordinateSets {TextureCoordinateSet {}};
+    auto& coordinateSet {std::get<0>(texCoordinateSets)};
+    coordinateSet.src = TextureCoordinateSrc::PositionInViewSpace;
+    coordinateSet.transformMode = TextureCoordinateTransformMode::Count4;
+    coordinateSet.projected = true;
+    vs.textureCoordinateSets = texCoordinateSets;
+    pipelineDesc.vertexShader = &vs;
     mPipelineTci = mGfxCache->create_pipeline(pipelineDesc);
   }
 
@@ -401,7 +403,7 @@ private:
 
 class Meshes final : public View {
 public:
-  explicit Meshes(Engine& engine)
+  explicit Meshes(const Engine& engine)
     : mGfxCache {engine.create_gfx_resource_cache()}
     , mModel {mGfxCache->load_x_model("data/Tiger.x"sv)} {
   }

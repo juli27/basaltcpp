@@ -95,19 +95,12 @@ enum class ShadeMode : u8 {
 constexpr u8 SHADE_MODE_COUNT {2};
 
 enum class FogMode : u8 {
+  None,
   Linear,
   Exponential,
   ExponentialSquared,
 };
-constexpr u8 FOG_MODE_COUNT {3};
-
-enum class FogType : u8 {
-  None,
-  Vertex,
-  VertexRangeBased,
-  Fragment,
-};
-constexpr u8 FOG_TYPE_COUNT {4};
+constexpr u8 FOG_MODE_COUNT {4};
 
 enum class TextureAddressMode : u8 {
   Repeat,
@@ -321,26 +314,13 @@ struct TextureStageArgument {
   TextureStageSrcMod modifier {TextureStageSrcMod::None};
 };
 
-struct TextureStageCoordinateIndex {
-  u8 index;
+struct TextureCoordinateSet {
+  u8 setIndex {};
   TextureCoordinateSrc src {TextureCoordinateSrc::Vertex};
-};
-
-struct TextureBlendingStage final {
-  TextureOp colorOp {TextureOp::Modulate};
-  TextureStageArgument colorArg1 {TextureStageSrc::SampledTexture};
-  TextureStageArgument colorArg2;
-  TextureStageArgument colorArg3;
-  TextureOp alphaOp {TextureOp::Replace};
-  TextureStageArgument alphaArg1 {TextureStageSrc::SampledTexture};
-  TextureStageArgument alphaArg2;
-  TextureStageArgument alphaArg3;
-  TextureStageDestination dest {TextureStageDestination::Current};
-  u8 coordinateIndex {0};
-  TextureCoordinateSrc coordinateSrc {TextureCoordinateSrc::Vertex};
-  TextureCoordinateTransformMode coordinateTransformMode {
+  u8 srcIndex {};
+  TextureCoordinateTransformMode transformMode {
     TextureCoordinateTransformMode::Disabled};
-  bool coordinateIsProjected {false};
+  bool projected {false};
 };
 
 enum class MaterialColorSource : u8 {
@@ -350,10 +330,10 @@ enum class MaterialColorSource : u8 {
 };
 constexpr u8 MATERIAL_COLOR_SOURCE_COUNT {3};
 
-struct PipelineDescriptor final {
-  VertexLayout vertexInputState;
-  gsl::span<const TextureBlendingStage> textureStages;
-  PrimitiveType primitiveType {PrimitiveType::PointList};
+// or enum set with wanted features
+struct FixedVertexShaderCreateInfo {
+  gsl::span<TextureCoordinateSet> textureCoordinateSets {};
+  ShadeMode shadeMode {ShadeMode::Gouraud};
   bool lightingEnabled {false};
   bool specularEnabled {false};
   bool vertexColorEnabled {true};
@@ -362,14 +342,40 @@ struct PipelineDescriptor final {
   MaterialColorSource specularSource {MaterialColorSource::SpecularVertexColor};
   MaterialColorSource ambientSource {MaterialColorSource::Material};
   MaterialColorSource emissiveSource {MaterialColorSource::Material};
-  ShadeMode shadeMode {ShadeMode::Gouraud};
+  FogMode fog {FogMode::None};
+  bool fogRangeBased {false};
+};
+
+struct TextureStage {
+  TextureOp colorOp {TextureOp::Modulate};
+  TextureStageArgument colorArg1 {TextureStageSrc::SampledTexture};
+  TextureStageArgument colorArg2;
+  TextureStageArgument colorArg3;
+  TextureOp alphaOp {TextureOp::Replace};
+  TextureStageArgument alphaArg1 {TextureStageSrc::SampledTexture};
+  TextureStageArgument alphaArg2;
+  TextureStageArgument alphaArg3;
+  TextureStageDestination dest {TextureStageDestination::Current};
+};
+
+struct FixedFragmentShaderCreateInfo {
+  gsl::span<const TextureStage> textureStages {};
+  // this overrides vertex fog
+  FogMode fog {FogMode::None};
+};
+
+struct PipelineDescriptor final {
+  // null -> default fixed vertex shader
+  const FixedVertexShaderCreateInfo* vertexShader {};
+  // null -> default fixed fragment shader
+  const FixedFragmentShaderCreateInfo* fragmentShader {};
+  VertexLayout vertexLayout {};
+  PrimitiveType primitiveType {PrimitiveType::PointList};
   CullMode cullMode {CullMode::None};
   FillMode fillMode {FillMode::Solid};
   TestPassCond depthTest {TestPassCond::Always};
   bool depthWriteEnable {false};
   bool dithering {false};
-  FogType fogType {FogType::None};
-  FogMode fogMode {FogMode::Linear};
   TestPassCond alphaTest {TestPassCond::Always};
   BlendFactor srcBlendFactor {BlendFactor::One};
   BlendFactor destBlendFactor {BlendFactor::Zero};

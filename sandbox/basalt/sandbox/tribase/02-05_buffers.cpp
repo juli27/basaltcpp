@@ -28,15 +28,16 @@ using basalt::Vector3f32;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
+using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::IndexBufferDescriptor;
 using basalt::gfx::Pipeline;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::SamplerDescriptor;
 using basalt::gfx::TestPassCond;
-using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
+using basalt::gfx::TextureStage;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexElement;
 
@@ -130,10 +131,12 @@ Buffers::Buffers(Engine& engine)
   : mGfxCache {engine.create_gfx_resource_cache()}
   , mTexture {mGfxCache->load_texture("data/tribase/Texture2.bmp")}
   , mFov {90_deg} {
-  array textureStages {TextureBlendingStage {}};
+  FixedFragmentShaderCreateInfo fs;
+  array textureStages {TextureStage {}};
+  fs.textureStages = textureStages;
   PipelineDescriptor pipelineDesc;
-  pipelineDesc.vertexInputState = Vertex::sLayout;
-  pipelineDesc.textureStages = span {textureStages};
+  pipelineDesc.fragmentShader = &fs;
+  pipelineDesc.vertexLayout = Vertex::sLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
   pipelineDesc.depthTest = TestPassCond::IfLessEqual;
   pipelineDesc.depthWriteEnable = true;

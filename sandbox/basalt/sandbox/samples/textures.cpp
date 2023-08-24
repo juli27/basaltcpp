@@ -37,15 +37,16 @@ using basalt::System;
 using basalt::Vector3f32;
 using basalt::gfx::Camera;
 using basalt::gfx::Environment;
+using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::Material;
 using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
 using basalt::gfx::TestPassCond;
-using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
+using basalt::gfx::TextureStage;
 using basalt::gfx::VertexElement;
 
 namespace samples {
@@ -168,12 +169,14 @@ Textures::Textures(Engine& engine)
 
   auto& samplerSettings {quad.emplace<SamplerSettings>()};
 
+  FixedFragmentShaderCreateInfo fs;
+  array textureStages {TextureStage {}};
+  fs.textureStages = textureStages;
+
   PipelineDescriptor pipelineDesc;
-  pipelineDesc.vertexInputState = Vertex::sLayout;
+  pipelineDesc.fragmentShader = &fs;
+  pipelineDesc.vertexLayout = Vertex::sLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
-  pipelineDesc.lightingEnabled = false;
-  array<TextureBlendingStage, 1> textureStages {};
-  pipelineDesc.textureStages = textureStages;
   pipelineDesc.depthTest = TestPassCond::IfLessEqual;
   pipelineDesc.depthWriteEnable = true;
   MaterialDescriptor materialDesc;

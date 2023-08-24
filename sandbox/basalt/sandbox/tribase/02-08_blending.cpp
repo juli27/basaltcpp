@@ -40,14 +40,16 @@ using basalt::gfx::Attachments;
 using basalt::gfx::BlendFactor;
 using basalt::gfx::CommandList;
 using basalt::gfx::CullMode;
+using basalt::gfx::FixedFragmentShaderCreateInfo;
+using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::LightData;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PointLightData;
 using basalt::gfx::SamplerDescriptor;
-using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
 using basalt::gfx::TextureOp;
+using basalt::gfx::TextureStage;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexElement;
 using basalt::gfx::ext::XMeshCommandEncoder;
@@ -170,15 +172,21 @@ auto rotation_axis(Vector3f32 axis, const Angle angle) -> Matrix4x4f32 {
 Blending::Blending(const Engine& engine)
   : mGfxCache {engine.create_gfx_resource_cache()} {
   PipelineDescriptor starPipelineDesc {};
-  starPipelineDesc.vertexInputState = StarVertex::sLayout;
+  starPipelineDesc.vertexLayout = StarVertex::sLayout;
   starPipelineDesc.dithering = true;
   mStarPipeline = mGfxCache->create_pipeline(starPipelineDesc);
 
-  PipelineDescriptor planetPipelineDesc {};
-  array textureStages {TextureBlendingStage {}};
+  FixedVertexShaderCreateInfo vs;
+  vs.lightingEnabled = true;
+
+  FixedFragmentShaderCreateInfo fs;
+  array textureStages {TextureStage {}};
   std::get<0>(textureStages).alphaOp = TextureOp::Modulate;
-  planetPipelineDesc.textureStages = textureStages;
-  planetPipelineDesc.lightingEnabled = true;
+  fs.textureStages = textureStages;
+
+  PipelineDescriptor planetPipelineDesc {};
+  planetPipelineDesc.vertexShader = &vs;
+  planetPipelineDesc.fragmentShader = &fs;
   planetPipelineDesc.cullMode = CullMode::Clockwise;
   planetPipelineDesc.dithering = true;
   planetPipelineDesc.srcBlendFactor = BlendFactor::SrcAlpha;

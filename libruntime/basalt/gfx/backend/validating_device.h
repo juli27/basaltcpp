@@ -98,6 +98,7 @@ private:
   HandlePool<IndexBufferData, IndexBuffer> mIndexBuffers;
   HandlePool<TextureData, Texture> mTextures;
   HandlePool<SamplerData, Sampler> mSamplers;
+  Pipeline mBoundPipeline;
 
   PrimitiveType mCurrentPrimitiveType {PrimitiveType::PointList};
 

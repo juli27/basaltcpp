@@ -37,9 +37,10 @@ using basalt::Vector2f32;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
+using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
-using basalt::gfx::TextureBlendingStage;
+using basalt::gfx::TextureStage;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexElement;
 
@@ -70,10 +71,14 @@ TexturesExercises::TexturesExercises(Engine& engine)
   const span vertexData {as_bytes(span {TRIANGLE_VERTICES})};
   mVertexBuffer = mGfxCache->create_vertex_buffer(
     {vertexData.size(), Vertex::sLayout}, vertexData);
-  array textureStages {TextureBlendingStage {}};
+
+  FixedFragmentShaderCreateInfo fs;
+  array textureStages {TextureStage {}};
+  fs.textureStages = textureStages;
+
   PipelineDescriptor pipelineDesc;
-  pipelineDesc.vertexInputState = Vertex::sLayout;
-  pipelineDesc.textureStages = span {textureStages};
+  pipelineDesc.fragmentShader = &fs;
+  pipelineDesc.vertexLayout = Vertex::sLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
   mPipeline = mGfxCache->create_pipeline(pipelineDesc);
 }

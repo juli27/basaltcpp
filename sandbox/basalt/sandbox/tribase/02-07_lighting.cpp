@@ -28,16 +28,17 @@ using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
 using basalt::gfx::CullMode;
+using basalt::gfx::FixedFragmentShaderCreateInfo;
+using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::FogMode;
-using basalt::gfx::FogType;
 using basalt::gfx::LightData;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PointLightData;
 using basalt::gfx::SamplerDescriptor;
 using basalt::gfx::TestPassCond;
-using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
+using basalt::gfx::TextureStage;
 using basalt::gfx::TransformState;
 using basalt::gfx::ext::XMeshCommandEncoder;
 
@@ -58,20 +59,25 @@ Lighting::Lighting(Engine& engine)
   mGroundModel =
     mGfxCache->load_x_model("data/tribase/02-07_lighting/Ground.x");
 
-  array textureStages {TextureBlendingStage {}};
+  FixedVertexShaderCreateInfo vs;
+  vs.lightingEnabled = true;
+  vs.specularEnabled = true;
+  vs.fog = FogMode::Exponential;
+
+  FixedFragmentShaderCreateInfo fs;
+  array textureStages {TextureStage {}};
+  fs.textureStages = textureStages;
+
   PipelineDescriptor pipelineDesc;
-  pipelineDesc.textureStages = textureStages;
-  pipelineDesc.lightingEnabled = true;
-  pipelineDesc.specularEnabled = true;
+  pipelineDesc.vertexShader = &vs;
+  pipelineDesc.fragmentShader = &fs;
   pipelineDesc.cullMode = CullMode::CounterClockwise;
   pipelineDesc.depthTest = TestPassCond::IfLessEqual;
   pipelineDesc.depthWriteEnable = true;
   pipelineDesc.dithering = true;
-  pipelineDesc.fogType = FogType::Vertex;
-  pipelineDesc.fogMode = FogMode::Exponential;
   mPipeline = mGfxCache->create_pipeline(pipelineDesc);
 
-  pipelineDesc.textureStages = {};
+  pipelineDesc.fragmentShader = nullptr;
   mNoTexturePipeline = mGfxCache->create_pipeline(pipelineDesc);
 
   SamplerDescriptor samplerDesc;

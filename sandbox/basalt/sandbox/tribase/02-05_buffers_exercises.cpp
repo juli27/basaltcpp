@@ -31,15 +31,16 @@ using basalt::Vector3f32;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
+using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::IndexBufferDescriptor;
 using basalt::gfx::Pipeline;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::SamplerDescriptor;
 using basalt::gfx::TestPassCond;
-using basalt::gfx::TextureBlendingStage;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
+using basalt::gfx::TextureStage;
 using basalt::gfx::TransformState;
 using basalt::gfx::VertexElement;
 
@@ -101,7 +102,7 @@ auto fill_buffers(const span<Vertex> vb, const span<u16> ib) {
     vertex.uv = {rng1(randomEngine), rng1(randomEngine)};
   }
 
-  const array<u16, NUM_INDICES_PER_CUBE> cubeIndices {
+  constexpr array<u16, NUM_INDICES_PER_CUBE> cubeIndices {
     0, 3, 7, 0, 7, 4, // front
     2, 1, 5, 2, 5, 6, // back
     1, 0, 4, 1, 4, 5, // left
@@ -138,10 +139,12 @@ BuffersExercises::BuffersExercises(Engine& engine)
     });
   }
 
-  array textureStages {TextureBlendingStage {}};
+  FixedFragmentShaderCreateInfo fs;
+  array textureStages {TextureStage {}};
+  fs.textureStages = textureStages;
   PipelineDescriptor pipelineDesc;
-  pipelineDesc.vertexInputState = Vertex::sLayout;
-  pipelineDesc.textureStages = span {textureStages};
+  pipelineDesc.fragmentShader = &fs;
+  pipelineDesc.vertexLayout = Vertex::sLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
   pipelineDesc.depthTest = TestPassCond::IfLessEqual;
   pipelineDesc.depthWriteEnable = true;

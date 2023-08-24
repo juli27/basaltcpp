@@ -24,8 +24,9 @@ private:
   basalt::gfx::VertexBuffer mVertexBuffer;
   basalt::gfx::Sampler mSampler;
   std::array<basalt::gfx::Texture, sNumTextures> mTextures {};
-  basalt::gfx::FogType mFogType {basalt::gfx::FogType::VertexRangeBased};
   basalt::gfx::FogMode mFogMode {basalt::gfx::FogMode::Linear};
+  bool mVertexFogRangeBased {true};
+  bool mFragmentFog {false};
   basalt::Color mFogColor {basalt::Colors::BLACK};
   basalt::f32 mFogStart {25.0f};
   basalt::f32 mFogEnd {100.0f};

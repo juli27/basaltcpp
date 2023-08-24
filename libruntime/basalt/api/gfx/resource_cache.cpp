@@ -145,14 +145,21 @@ auto ResourceCache::load_x_model(const path& path) -> ext::XModel {
   vector<Material> materials;
   materials.reserve(xModel.materials.size());
 
+  FixedVertexShaderCreateInfo vs;
+  vs.lightingEnabled = true;
+
+  FixedFragmentShaderCreateInfo fs;
+  array textureStages {TextureStage {}};
+  fs.textureStages = textureStages;
+
+  PipelineDescriptor pipelineDesc;
+  pipelineDesc.vertexShader = &vs;
+  pipelineDesc.fragmentShader = &fs;
+  pipelineDesc.cullMode = CullMode::CounterClockwise;
+  pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+  pipelineDesc.depthWriteEnable = true;
+
   for (const auto& material : xModel.materials) {
-    array<TextureBlendingStage, 1> textureStages {};
-    PipelineDescriptor pipelineDesc;
-    pipelineDesc.lightingEnabled = true;
-    pipelineDesc.cullMode = CullMode::CounterClockwise;
-    pipelineDesc.textureStages = textureStages;
-    pipelineDesc.depthTest = TestPassCond::IfLessEqual;
-    pipelineDesc.depthWriteEnable = true;
     MaterialDescriptor desc;
     desc.pipelineDesc = &pipelineDesc;
     desc.diffuse = material.diffuse;
@@ -190,11 +197,17 @@ auto ResourceCache::load_x_model(const XModelDescriptor& desc) -> ext::XModel {
   // if the model has more materials than are provided in the XModelDescriptor
   // then use those
   if (desc.materials.size() < numModelMaterials) {
-    array<TextureBlendingStage, 1> textureStages {};
+    FixedVertexShaderCreateInfo vs;
+    vs.lightingEnabled = true;
+
+    FixedFragmentShaderCreateInfo fs;
+    array textureStages {TextureStage {}};
+    fs.textureStages = textureStages;
+
     PipelineDescriptor pipelineDesc;
-    pipelineDesc.lightingEnabled = true;
+    pipelineDesc.vertexShader = &vs;
+    pipelineDesc.fragmentShader = &fs;
     pipelineDesc.cullMode = CullMode::CounterClockwise;
-    pipelineDesc.textureStages = textureStages;
     pipelineDesc.depthTest = TestPassCond::IfLessEqual;
     pipelineDesc.depthWriteEnable = true;
 
