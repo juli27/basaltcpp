@@ -152,6 +152,14 @@ auto ValidatingDevice::capabilities() const -> const DeviceCaps& {
   return mDevice->capabilities();
 }
 
+auto ValidatingDevice::get_status() const noexcept -> DeviceStatus {
+  return mDevice->get_status();
+}
+
+auto ValidatingDevice::reset() -> void {
+  mDevice->reset();
+}
+
 auto ValidatingDevice::create_pipeline(const PipelineDescriptor& desc)
   -> Pipeline {
   check_vertex_layout(desc.vertexLayout);

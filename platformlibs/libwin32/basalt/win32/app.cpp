@@ -97,20 +97,20 @@ auto dump_config(const Config& config) -> void {
   return poll_messages();
 }
 
-auto run_lost_device_loop(gfx::Context& gfxContext) -> bool {
+auto run_lost_device_loop(gfx::Device& gfxDevice) -> bool {
   while (wait_for_messages()) {
-    switch (gfxContext.get_status()) {
-    case gfx::ContextStatus::Ok:
+    switch (gfxDevice.get_status()) {
+    case gfx::DeviceStatus::Ok:
       return true;
 
-    case gfx::ContextStatus::Error:
+    case gfx::DeviceStatus::Error:
       return false;
 
-    case gfx::ContextStatus::DeviceLost:
+    case gfx::DeviceStatus::DeviceLost:
       break;
 
-    case gfx::ContextStatus::ResetNeeded:
-      gfxContext.reset();
+    case gfx::DeviceStatus::ResetNeeded:
+      gfxDevice.reset();
 
       return true;
     }
@@ -190,7 +190,7 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
     case gfx::PresentResult::Ok:
       break;
     case gfx::PresentResult::DeviceLost:
-      if (!run_lost_device_loop(*gfxContext)) {
+      if (!run_lost_device_loop(*gfxDevice)) {
         quit();
       }
 

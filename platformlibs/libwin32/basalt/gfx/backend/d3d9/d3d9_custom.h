@@ -2,10 +2,18 @@
 
 #include <basalt/win32/shared/Windows_custom.h>
 
+#include <wrl/client.h>
+
 #define D3D_DISABLE_9EX
 #include <d3d9.h>
 
 #include <d3dx9.h>
+
+namespace basalt::gfx {
+
+using IDirect3DSwapChain9Ptr = Microsoft::WRL::ComPtr<IDirect3DSwapChain9>;
+
+} // namespace basalt::gfx
 
 #if BASALT_DEBUG_BUILD
 

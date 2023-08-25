@@ -218,10 +218,6 @@ D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
   }
 }
 
-auto D3D9Device::device() const -> ComPtr<IDirect3DDevice9> {
-  return mDevice;
-}
-
 auto D3D9Device::reset(D3DPRESENT_PARAMETERS& pp) const -> void {
   const ext::D3D9ImGuiRendererPtr imguiRenderer {
     get_extension<ext::D3D9ImGuiRenderer>()};
@@ -263,6 +259,18 @@ auto D3D9Device::load_texture_3d(const path& path) -> Texture {
 
 auto D3D9Device::capabilities() const -> const DeviceCaps& {
   return mCaps;
+}
+
+auto D3D9Device::get_status() const noexcept -> DeviceStatus {
+  return to_device_status(mDevice->TestCooperativeLevel());
+}
+
+auto D3D9Device::reset() -> void {
+  IDirect3DSwapChain9Ptr swapChain;
+  D3D9CHECK(mDevice->GetSwapChain(0, &swapChain));
+  D3DPRESENT_PARAMETERS pp {};
+  D3D9CHECK(swapChain->GetPresentParameters(&pp));
+  reset(pp);
 }
 
 auto D3D9Device::create_pipeline(const PipelineDescriptor& desc) -> Pipeline {

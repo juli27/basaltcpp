@@ -23,6 +23,9 @@ public:
   [[nodiscard]] auto load_texture_3d(const std::filesystem::path&) -> Texture;
 
   [[nodiscard]] auto capabilities() const -> const DeviceCaps& override;
+  [[nodiscard]] auto get_status() const noexcept -> DeviceStatus override;
+
+  auto reset() -> void override;
 
   [[nodiscard]] auto create_pipeline(const PipelineDescriptor&)
     -> Pipeline override;

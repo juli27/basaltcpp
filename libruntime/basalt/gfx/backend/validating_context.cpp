@@ -15,24 +15,16 @@ ValidatingContext::ValidatingContext(ContextPtr context)
   , mDebugDevice {ValidatingDevice::wrap(mContext->device())} {
 }
 
-auto ValidatingContext::surface_size() const noexcept -> Size2Du16 {
-  return mContext->surface_size();
+auto ValidatingContext::device() const noexcept -> DevicePtr {
+  return mDebugDevice;
 }
 
-auto ValidatingContext::get_status() const noexcept -> ContextStatus {
-  return mContext->get_status();
-}
-
-auto ValidatingContext::reset() -> void {
-  mContext->reset();
+auto ValidatingContext::get_info() const noexcept -> Info {
+  return mContext->get_info();
 }
 
 auto ValidatingContext::reset(const ResetDesc& desc) -> void {
   mContext->reset(desc);
-}
-
-auto ValidatingContext::device() const noexcept -> DevicePtr {
-  return mDebugDevice;
 }
 
 auto ValidatingContext::present() -> PresentResult {

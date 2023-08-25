@@ -92,7 +92,7 @@ template <typename MinCaps>
 
 #define MAKE_CAP(cap)                                                          \
   Cap {                                                                        \
-#cap##sv, cap,                                                             \
+    #cap##sv, cap,                                                             \
   }
 
 auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
@@ -688,12 +688,13 @@ auto D3D9Factory::do_create_device_and_context(
   ComPtr<IDirect3DDevice9> d3d9Device;
   D3D9CHECK(mInstance->CreateDevice(adapterOrdinal, DEVICE_TYPE, window,
                                     DEVICE_CREATE_FLAGS, &pp, &d3d9Device));
+  IDirect3DSwapChain9Ptr implicitSwapChain;
+  D3D9CHECK(d3d9Device->GetSwapChain(0, &implicitSwapChain));
 
   // TODO: verify the five caps which differ?
 
   auto device {std::make_shared<D3D9Device>(std::move(d3d9Device))};
-
-  auto context {std::make_shared<D3D9Context>(device)};
+  auto context {D3D9Context::create(device, std::move(implicitSwapChain))};
 
   return DeviceAndContext {std::move(device), std::move(context)};
 }

@@ -13,15 +13,10 @@ public:
   // don't use directly
   explicit ValidatingContext(ContextPtr);
 
-  [[nodiscard]] auto surface_size() const noexcept -> Size2Du16 override;
-
-  [[nodiscard]] auto get_status() const noexcept -> ContextStatus override;
-
-  auto reset() -> void override;
+  [[nodiscard]] auto device() const noexcept -> DevicePtr override;
+  [[nodiscard]] auto get_info() const noexcept -> Info override;
 
   auto reset(const ResetDesc&) -> void override;
-
-  [[nodiscard]] auto device() const noexcept -> DevicePtr override;
 
   [[nodiscard]] auto present() -> PresentResult override;
 

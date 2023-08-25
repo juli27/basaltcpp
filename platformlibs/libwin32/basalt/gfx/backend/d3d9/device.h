@@ -23,8 +23,6 @@ class D3D9Device final : public Device {
 public:
   explicit D3D9Device(Microsoft::WRL::ComPtr<IDirect3DDevice9> device);
 
-  [[nodiscard]] auto device() const -> Microsoft::WRL::ComPtr<IDirect3DDevice9>;
-
   auto reset(D3DPRESENT_PARAMETERS&) const -> void;
 
   auto execute(const CommandList&) -> void;
@@ -32,6 +30,9 @@ public:
   [[nodiscard]] auto load_texture_3d(const std::filesystem::path&) -> Texture;
 
   [[nodiscard]] auto capabilities() const -> const DeviceCaps& override;
+  [[nodiscard]] auto get_status() const noexcept -> DeviceStatus override;
+
+  auto reset() -> void override;
 
   [[nodiscard]] auto create_pipeline(const PipelineDescriptor&)
     -> Pipeline override;

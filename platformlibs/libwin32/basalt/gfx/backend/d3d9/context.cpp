@@ -1,6 +1,7 @@
 #include <basalt/gfx/backend/d3d9/context.h>
 
 #include <basalt/gfx/backend/d3d9/conversions.h>
+#include <basalt/gfx/backend/d3d9/device.h>
 
 #include <basalt/gfx/backend/types.h>
 
@@ -9,60 +10,37 @@
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/log.h>
 
+#include <basalt/api/base/utils.h>
+
+#include <memory>
+#include <utility>
+
 namespace basalt::gfx {
 
-namespace {
-
-auto to_context_status(const HRESULT hr) -> ContextStatus {
-  if (SUCCEEDED(hr)) {
-    return ContextStatus::Ok;
-  }
-
-  switch (hr) {
-  case D3DERR_DEVICELOST:
-    return ContextStatus::DeviceLost;
-
-  case D3DERR_DEVICENOTRESET:
-    return ContextStatus::ResetNeeded;
-
-  default:
-    return ContextStatus::Error;
-  }
+auto D3D9Context::create(D3D9DevicePtr device, IDirect3DSwapChain9Ptr swapChain)
+  -> D3D9ContextPtr {
+  return std::make_shared<D3D9Context>(std::move(device), std::move(swapChain));
 }
 
-} // namespace
-
-D3D9Context::D3D9Context(D3D9DevicePtr device)
-  : mDevice {std::move(device)}, mD3D9Device {mDevice->device()} {
-  BASALT_ASSERT(mDevice);
-  BASALT_ASSERT(mD3D9Device);
-
-  D3D9CHECK(mD3D9Device->GetSwapChain(0, mImplicitSwapChain.GetAddressOf()));
-  BASALT_ASSERT(mImplicitSwapChain);
+auto D3D9Context::device() const noexcept -> DevicePtr {
+  return mDevice;
 }
 
-auto D3D9Context::surface_size() const noexcept -> Size2Du16 {
+auto D3D9Context::get_info() const noexcept -> Info {
   D3DPRESENT_PARAMETERS pp {};
-  D3D9CHECK(mImplicitSwapChain->GetPresentParameters(&pp));
+  D3D9CHECK(mSwapChain->GetPresentParameters(&pp));
 
-  return Size2Du16 {static_cast<u16>(pp.BackBufferWidth),
-                    static_cast<u16>(pp.BackBufferHeight)};
-}
-
-auto D3D9Context::get_status() const noexcept -> ContextStatus {
-  return to_context_status(mD3D9Device->TestCooperativeLevel());
-}
-
-auto D3D9Context::reset() -> void {
-  D3DPRESENT_PARAMETERS pp {};
-  D3D9CHECK(mImplicitSwapChain->GetPresentParameters(&pp));
-
-  mDevice->reset(pp);
+  return Info {{saturated_cast<u16>(pp.BackBufferWidth),
+                saturated_cast<u16>(pp.BackBufferHeight)},
+               pp.FullScreen_RefreshRateInHz,
+               to_image_format(pp.BackBufferFormat),
+               to_multi_sample_count(pp.MultiSampleType),
+               !pp.Windowed};
 }
 
 auto D3D9Context::reset(const ResetDesc& desc) -> void {
   D3DPRESENT_PARAMETERS pp {};
-  D3D9CHECK(mImplicitSwapChain->GetPresentParameters(&pp));
+  D3D9CHECK(mSwapChain->GetPresentParameters(&pp));
 
   pp.BackBufferFormat = to_d3d(desc.renderTargetFormat);
   pp.MultiSampleType = to_d3d(desc.sampleCount);
@@ -82,13 +60,9 @@ auto D3D9Context::reset(const ResetDesc& desc) -> void {
   mDevice->reset(pp);
 }
 
-auto D3D9Context::device() const noexcept -> DevicePtr {
-  return mDevice;
-}
-
 auto D3D9Context::present() -> PresentResult {
-  if (const HRESULT hr =
-        mImplicitSwapChain->Present(nullptr, nullptr, nullptr, nullptr, 0ul);
+  if (const HRESULT hr {
+        mSwapChain->Present(nullptr, nullptr, nullptr, nullptr, 0ul)};
       FAILED(hr)) {
     if (hr == D3DERR_DEVICELOST) {
       return PresentResult::DeviceLost;
@@ -98,6 +72,13 @@ auto D3D9Context::present() -> PresentResult {
   }
 
   return PresentResult::Ok;
+}
+
+D3D9Context::D3D9Context(D3D9DevicePtr device, IDirect3DSwapChain9Ptr swapChain)
+  : mDevice {std::move(device)}
+  , mSwapChain {std::move(swapChain)} {
+  BASALT_ASSERT(mDevice);
+  BASALT_ASSERT(mSwapChain);
 }
 
 } // namespace basalt::gfx

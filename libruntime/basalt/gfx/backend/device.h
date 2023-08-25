@@ -1,5 +1,6 @@
 #pragma once
 
+#include <basalt/gfx/backend/types.h>
 #include <basalt/gfx/backend/ext/types.h>
 
 #include <basalt/api/gfx/backend/types.h>
@@ -25,7 +26,10 @@ public:
   auto operator=(Device&&) -> Device& = delete;
 
   [[nodiscard]] virtual auto capabilities() const -> const DeviceCaps& = 0;
+  [[nodiscard]] virtual auto get_status() const noexcept -> DeviceStatus = 0;
 
+  virtual auto reset() -> void = 0;
+  
   [[nodiscard]] virtual auto create_pipeline(const PipelineDescriptor&)
     -> Pipeline = 0;
 

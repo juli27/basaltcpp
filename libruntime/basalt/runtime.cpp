@@ -29,7 +29,7 @@ auto Runtime::update(const UpdateContext& ctx) -> void {
   gfx::Composite composite;
   const View::DrawContext drawCtx {
     composite,
-    mGfxContext->surface_size(),
+    mGfxContext->get_info().backBufferSize,
   };
   View::UpdateContext updateCtx {*this, drawCtx, ctx.deltaTime};
 

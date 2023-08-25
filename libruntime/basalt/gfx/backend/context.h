@@ -23,11 +23,16 @@ public:
   auto operator=(const Context&) -> Context& = delete;
   auto operator=(Context&&) -> Context& = delete;
 
-  [[nodiscard]] virtual auto surface_size() const noexcept -> Size2Du16 = 0;
-
-  [[nodiscard]] virtual auto get_status() const noexcept -> ContextStatus = 0;
-
-  virtual auto reset() -> void = 0;
+  struct Info {
+    Size2Du16 backBufferSize {};
+    u32 refreshRate {};
+    ImageFormat renderTargetFormat {ImageFormat::Unknown};
+    MultiSampleCount sampleCount {MultiSampleCount::One};
+    bool exclusive {false};
+  };
+  
+  [[nodiscard]] virtual auto device() const noexcept -> DevicePtr = 0;
+  [[nodiscard]] virtual auto get_info() const noexcept -> Info = 0;
 
   struct ResetDesc final {
     // ignored when exclusive == true
@@ -40,8 +45,6 @@ public:
   };
 
   virtual auto reset(const ResetDesc&) -> void = 0;
-
-  [[nodiscard]] virtual auto device() const noexcept -> DevicePtr = 0;
 
   [[nodiscard]] virtual auto present() -> PresentResult = 0;
 

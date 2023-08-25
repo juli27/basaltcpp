@@ -386,7 +386,7 @@ auto Window::resize(const Size2Du16 newClientAreaSize) -> void {
   // SetWindowPos
   if (mGfxContext) {
     if (mCurrentMode != WindowMode::FullscreenExclusive &&
-        mClientAreaSize != mGfxContext->surface_size()) {
+        mClientAreaSize != mGfxContext->get_info().backBufferSize) {
       mGfxContext->reset(gfx::Context::ResetDesc {});
     }
   }

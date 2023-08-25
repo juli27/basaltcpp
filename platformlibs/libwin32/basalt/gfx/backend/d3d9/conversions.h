@@ -2,8 +2,9 @@
 
 #include <basalt/gfx/backend/d3d9/d3d9_custom.h>
 
-#include <basalt/api/gfx/types.h>
+#include <basalt/gfx/backend/types.h>
 
+#include <basalt/api/gfx/types.h>
 #include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/shared/color.h>
@@ -17,6 +18,23 @@
 #include <algorithm>
 
 namespace basalt::gfx {
+
+constexpr auto to_device_status(const HRESULT hr) -> DeviceStatus {
+  if (SUCCEEDED(hr)) {
+    return DeviceStatus::Ok;
+  }
+
+  switch (hr) {
+  case D3DERR_DEVICELOST:
+    return DeviceStatus::DeviceLost;
+
+  case D3DERR_DEVICENOTRESET:
+    return DeviceStatus::ResetNeeded;
+
+  default:
+    return DeviceStatus::Error;
+  }
+}
 
 constexpr auto to_d3d_color(const Color& color) noexcept -> D3DCOLOR {
   return enum_cast(color.to_argb());
@@ -123,6 +141,34 @@ inline auto to_d3d(const ImageFormat format) -> D3DFORMAT {
   return TO_D3D[format];
 }
 
+constexpr auto to_image_format(const D3DFORMAT format) -> ImageFormat {
+  switch (format) {
+  case D3DFMT_R5G6B5:
+    return ImageFormat::B5G6R5;
+  case D3DFMT_X1R5G5B5:
+    return ImageFormat::B5G5R5X1;
+  case D3DFMT_A1R5G5B5:
+    return ImageFormat::B5G5R5A1;
+  case D3DFMT_X8R8G8B8:
+    return ImageFormat::B8G8R8X8;
+  case D3DFMT_A8R8G8B8:
+    return ImageFormat::B8G8R8A8;
+  case D3DFMT_A2R10G10B10:
+    return ImageFormat::B10G10R10A2;
+  case D3DFMT_D16:
+    return ImageFormat::D16;
+  case D3DFMT_D24X8:
+    return ImageFormat::D24X8;
+  case D3DFMT_D24S8:
+    return ImageFormat::D24S8;
+  case D3DFMT_UNKNOWN:
+  default:
+    break;
+  }
+
+  return ImageFormat::Unknown;
+}
+
 inline auto to_d3d(const IndexType type) -> D3DFORMAT {
   static constexpr EnumArray<IndexType, D3DFORMAT, 2> TO_D3D {
     {IndexType::U16, D3DFMT_INDEX16},
@@ -153,6 +199,41 @@ inline auto to_d3d(const MultiSampleCount sampleCount) -> D3DMULTISAMPLE_TYPE {
   static_assert(TO_D3D.size() == MULTI_SAMPLE_COUNT_COUNT);
 
   return TO_D3D[sampleCount];
+}
+
+constexpr auto to_multi_sample_count(const D3DMULTISAMPLE_TYPE sampleType)
+  -> MultiSampleCount {
+  switch (sampleType) {
+  case D3DMULTISAMPLE_NONE:
+  case D3DMULTISAMPLE_NONMASKABLE:
+    return MultiSampleCount::One;
+
+  case D3DMULTISAMPLE_2_SAMPLES:
+    return MultiSampleCount::Two;
+
+  case D3DMULTISAMPLE_3_SAMPLES:
+  case D3DMULTISAMPLE_4_SAMPLES:
+    return MultiSampleCount::Four;
+
+  case D3DMULTISAMPLE_5_SAMPLES:
+  case D3DMULTISAMPLE_6_SAMPLES:
+  case D3DMULTISAMPLE_7_SAMPLES:
+  case D3DMULTISAMPLE_8_SAMPLES:
+  case D3DMULTISAMPLE_9_SAMPLES:
+  case D3DMULTISAMPLE_10_SAMPLES:
+  case D3DMULTISAMPLE_11_SAMPLES:
+  case D3DMULTISAMPLE_12_SAMPLES:
+  case D3DMULTISAMPLE_13_SAMPLES:
+  case D3DMULTISAMPLE_14_SAMPLES:
+  case D3DMULTISAMPLE_15_SAMPLES:
+  case D3DMULTISAMPLE_16_SAMPLES:
+    return MultiSampleCount::Eight;
+
+  default:
+    break;
+  }
+
+  return MultiSampleCount::One;
 }
 
 inline auto to_d3d(const PrimitiveType primitiveType) -> D3DPRIMITIVETYPE {

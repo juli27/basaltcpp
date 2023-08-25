@@ -40,7 +40,7 @@ struct CommandSetTextureStageConstant;
 
 enum class CommandType : u8;
 
-enum class ContextStatus : u8 {
+enum class DeviceStatus : u8 {
   Ok,
   Error,
   DeviceLost,
