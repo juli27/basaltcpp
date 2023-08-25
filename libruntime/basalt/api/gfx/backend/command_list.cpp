@@ -82,7 +82,7 @@ auto CommandList::set_ambient_light(const Color& ambientColor) -> void {
 }
 
 auto CommandList::set_lights(const span<const LightData> lights) -> void {
-  span lightsCopy {allocate<const LightData>(lights.size())};
+  span lightsCopy {allocate<LightData>(lights.size())};
   std::uninitialized_copy(lights.begin(), lights.end(), lightsCopy.begin());
 
   add<CommandSetLights>(lightsCopy);
