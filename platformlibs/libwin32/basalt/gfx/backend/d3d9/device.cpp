@@ -224,7 +224,7 @@ auto D3D9Device::reset(D3DPRESENT_PARAMETERS& pp) const -> void {
 
   imguiRenderer->invalidate_device_objects();
 
-  // TODO: test cooperative level (see D3D9Context::present)
+  // TODO: test cooperative level (see D3D9SwapChain::present)
   D3D9CHECK(mDevice->Reset(&pp));
 
   imguiRenderer->create_device_objects();

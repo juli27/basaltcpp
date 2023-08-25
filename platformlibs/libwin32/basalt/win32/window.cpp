@@ -11,7 +11,7 @@
 #include <basalt/win32/shared/utils.h>
 #include <basalt/win32/shared/win32_gfx_factory.h>
 
-#include <basalt/gfx/backend/context.h>
+#include <basalt/gfx/backend/swap_chain.h>
 
 #include <basalt/api/shared/log.h>
 
@@ -211,8 +211,8 @@ auto Window::handle() const noexcept -> HWND {
   return mHandle;
 }
 
-auto Window::gfx_context() const noexcept -> const gfx::ContextPtr& {
-  return mGfxContext;
+auto Window::swap_chain() const noexcept -> const gfx::SwapChainPtr& {
+  return mSwapChain;
 }
 
 auto Window::input_manager() noexcept -> InputManager& {
@@ -239,11 +239,11 @@ auto Window::set_mode(const WindowMode windowMode) -> void {
 
     const auto& adapterInfo {mAdapters[0]};
 
-    gfx::Context::ResetDesc desc {};
+    gfx::SwapChain::ResetDesc desc {};
     desc.exclusiveDisplayMode = adapterInfo.displayMode;
     desc.renderTargetFormat = adapterInfo.displayFormat;
     desc.exclusive = true;
-    mGfxContext->reset(desc);
+    mSwapChain->reset(desc);
 
     return;
   }
@@ -251,7 +251,7 @@ auto Window::set_mode(const WindowMode windowMode) -> void {
   // exclusive ownership of the output monitor needs to be released before
   // window changes can be made
   if (mCurrentMode == WindowMode::FullscreenExclusive) {
-    mGfxContext->reset(gfx::Context::ResetDesc {});
+    mSwapChain->reset(gfx::SwapChain::ResetDesc {});
 
     // the d3d9 runtime leaves the window as topmost when exiting exclusive
     // fullscreen
@@ -355,24 +355,24 @@ Window::Window(const HMODULE moduleHandle, const ATOM classAtom,
 auto Window::init_gfx_context(const gfx::Win32GfxFactory& gfxFactory) -> void {
   const auto& adapterInfo {mAdapters[0]};
 
-  const gfx::Win32GfxFactory::DeviceAndContextDesc contextDesc {
+  const gfx::Win32GfxFactory::DeviceAndSwapChainDesc contextDesc {
     adapterInfo.handle,         adapterInfo.displayMode,
     adapterInfo.displayFormat,  gfx::ImageFormat::D16,
     gfx::MultiSampleCount::One, mCurrentMode == WindowMode::FullscreenExclusive,
   };
 
-  auto [device, context] {
-    gfxFactory.create_device_and_context(mHandle, contextDesc),
+  auto [device, swapChain] {
+    gfxFactory.create_device_and_swap_chain(mHandle, contextDesc),
   };
 
-  mGfxContext = std::move(context);
+  mSwapChain = std::move(swapChain);
 
   BASALT_LOG_INFO("Direct3D9 context created: adapter={}, driver={}",
                   adapterInfo.displayName, adapterInfo.driverInfo);
 }
 
 auto Window::shutdown_gfx_context() -> void {
-  mGfxContext.reset();
+  mSwapChain.reset();
 }
 
 auto Window::resize(const Size2Du16 newClientAreaSize) -> void {
@@ -382,12 +382,12 @@ auto Window::resize(const Size2Du16 newClientAreaSize) -> void {
 
   mClientAreaSize = newClientAreaSize;
 
-  // mGfxContext is null when this method is called from on_create through
+  // mSwapChain is null when this method is called from on_create through
   // SetWindowPos
-  if (mGfxContext) {
+  if (mSwapChain) {
     if (mCurrentMode != WindowMode::FullscreenExclusive &&
-        mClientAreaSize != mGfxContext->get_info().backBufferSize) {
-      mGfxContext->reset(gfx::Context::ResetDesc {});
+        mClientAreaSize != mSwapChain->get_info().backBufferSize) {
+      mSwapChain->reset(gfx::SwapChain::ResetDesc {});
     }
   }
 }

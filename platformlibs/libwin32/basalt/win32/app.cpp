@@ -16,8 +16,8 @@
 
 #include <basalt/dear_imgui.h>
 
-#include <basalt/gfx/backend/context.h>
 #include <basalt/gfx/backend/device.h>
+#include <basalt/gfx/backend/swap_chain.h>
 #include <basalt/gfx/backend/types.h>
 
 #include <basalt/api/gfx/types.h>
@@ -148,8 +148,8 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
     return Window::create(moduleHandle, windowInfo, *gfxFactory);
   }()};
 
-  const gfx::ContextPtr& gfxContext {window->gfx_context()};
-  const gfx::DevicePtr gfxDevice {gfxContext->device()};
+  const gfx::SwapChainPtr& swapChain {window->swap_chain()};
+  const gfx::DevicePtr gfxDevice {swapChain->device()};
 
   App app {
     config,
@@ -158,7 +158,7 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
       gfxFactory->adapters(),
       gfx::BackendApi::Direct3D9,
     },
-    gfxContext,
+    swapChain,
     DearImGui::create(*gfxDevice, window->handle()),
   };
 
@@ -186,7 +186,7 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
       window->set_cursor(app.mMouseCursor);
     }
 
-    switch (gfxContext->present()) {
+    switch (swapChain->present()) {
     case gfx::PresentResult::Ok:
       break;
     case gfx::PresentResult::DeviceLost:
@@ -203,9 +203,9 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
   }
 }
 
-App::App(Config& config, gfx::Info gfxInfo, gfx::ContextPtr gfxContext,
+App::App(Config& config, gfx::Info gfxInfo, gfx::SwapChainPtr swapChain,
          DearImGuiPtr dearImGui)
-  : Runtime {config, std::move(gfxInfo), std::move(gfxContext),
+  : Runtime {config, std::move(gfxInfo), std::move(swapChain),
              std::move(dearImGui)} {
 }
 

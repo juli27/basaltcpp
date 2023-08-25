@@ -1,4 +1,4 @@
-#include <basalt/gfx/backend/d3d9/context.h>
+#include <basalt/gfx/backend/d3d9/swap_chain.h>
 
 #include <basalt/gfx/backend/d3d9/conversions.h>
 #include <basalt/gfx/backend/d3d9/device.h>
@@ -17,16 +17,18 @@
 
 namespace basalt::gfx {
 
-auto D3D9Context::create(D3D9DevicePtr device, IDirect3DSwapChain9Ptr swapChain)
-  -> D3D9ContextPtr {
-  return std::make_shared<D3D9Context>(std::move(device), std::move(swapChain));
+auto D3D9SwapChain::create(D3D9DevicePtr device,
+                           IDirect3DSwapChain9Ptr swapChain)
+  -> D3D9SwapChainPtr {
+  return std::make_shared<D3D9SwapChain>(std::move(device),
+                                         std::move(swapChain));
 }
 
-auto D3D9Context::device() const noexcept -> DevicePtr {
+auto D3D9SwapChain::device() const noexcept -> DevicePtr {
   return mDevice;
 }
 
-auto D3D9Context::get_info() const noexcept -> Info {
+auto D3D9SwapChain::get_info() const noexcept -> Info {
   D3DPRESENT_PARAMETERS pp {};
   D3D9CHECK(mSwapChain->GetPresentParameters(&pp));
 
@@ -38,7 +40,7 @@ auto D3D9Context::get_info() const noexcept -> Info {
                !pp.Windowed};
 }
 
-auto D3D9Context::reset(const ResetDesc& desc) -> void {
+auto D3D9SwapChain::reset(const ResetDesc& desc) -> void {
   D3DPRESENT_PARAMETERS pp {};
   D3D9CHECK(mSwapChain->GetPresentParameters(&pp));
 
@@ -60,7 +62,7 @@ auto D3D9Context::reset(const ResetDesc& desc) -> void {
   mDevice->reset(pp);
 }
 
-auto D3D9Context::present() -> PresentResult {
+auto D3D9SwapChain::present() -> PresentResult {
   if (const HRESULT hr {
         mSwapChain->Present(nullptr, nullptr, nullptr, nullptr, 0ul)};
       FAILED(hr)) {
@@ -74,7 +76,8 @@ auto D3D9Context::present() -> PresentResult {
   return PresentResult::Ok;
 }
 
-D3D9Context::D3D9Context(D3D9DevicePtr device, IDirect3DSwapChain9Ptr swapChain)
+D3D9SwapChain::D3D9SwapChain(D3D9DevicePtr device,
+                             IDirect3DSwapChain9Ptr swapChain)
   : mDevice {std::move(device)}
   , mSwapChain {std::move(swapChain)} {
   BASALT_ASSERT(mDevice);

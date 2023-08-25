@@ -39,8 +39,8 @@ private:
   InstancePtr mInstance;
   AdapterList mAdapters;
 
-  auto do_create_device_and_context(HWND, const DeviceAndContextDesc&) const
-    -> DeviceAndContext override;
+  auto do_create_device_and_swap_chain(HWND, const DeviceAndSwapChainDesc&) const
+    -> DeviceAndSwapChain override;
 };
 
 } // namespace basalt::gfx

@@ -4,8 +4,8 @@
 
 #include <basalt/gfx/debug.h>
 
-#include <basalt/gfx/backend/context.h>
 #include <basalt/gfx/backend/device.h>
+#include <basalt/gfx/backend/swap_chain.h>
 
 #include <basalt/api/client_app.h>
 #include <basalt/api/view.h>
@@ -29,7 +29,7 @@ auto Runtime::update(const UpdateContext& ctx) -> void {
   gfx::Composite composite;
   const View::DrawContext drawCtx {
     composite,
-    mGfxContext->get_info().backBufferSize,
+    mSwapChain->get_info().backBufferSize,
   };
   View::UpdateContext updateCtx {*this, drawCtx, ctx.deltaTime};
 
@@ -45,13 +45,13 @@ auto Runtime::update(const UpdateContext& ctx) -> void {
     gfx::Debug::update(composite);
   }
 
-  mGfxContext->device()->submit(composite);
+  mSwapChain->device()->submit(composite);
 }
 
-Runtime::Runtime(Config& config, gfx::Info gfxInfo, gfx::ContextPtr gfxContext,
+Runtime::Runtime(Config& config, gfx::Info gfxInfo, gfx::SwapChainPtr swapChain,
                  DearImGuiPtr dearImGui)
-  : Engine {config, std::move(gfxInfo), gfxContext->device()}
-  , mGfxContext {std::move(gfxContext)}
+  : Engine {config, std::move(gfxInfo), swapChain->device()}
+  , mSwapChain {std::move(swapChain)}
   , mDearImGui {std::move(dearImGui)} {
   ClientApp::bootstrap(*this);
 }

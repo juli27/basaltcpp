@@ -17,7 +17,7 @@ public:
   static auto run(Config&, HMODULE, int showCommand) -> void;
 
 private:
-  App(Config&, gfx::Info, gfx::ContextPtr, DearImGuiPtr);
+  App(Config&, gfx::Info, gfx::SwapChainPtr, DearImGuiPtr);
 };
 
 } // namespace basalt

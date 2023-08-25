@@ -11,17 +11,17 @@
 
 namespace basalt::gfx {
 
-// A gfx context is directly tied to a window. If another gfx context is
+// A swap chain is directly tied to a window. If another swap chain is
 // required (e.g. change of rendering API), the window must be recreated.
-class Context {
+class SwapChain {
 public:
-  Context(const Context&) = delete;
-  Context(Context&&) = delete;
+  SwapChain(const SwapChain&) = delete;
+  SwapChain(SwapChain&&) = delete;
 
-  virtual ~Context() noexcept = default;
+  virtual ~SwapChain() noexcept = default;
 
-  auto operator=(const Context&) -> Context& = delete;
-  auto operator=(Context&&) -> Context& = delete;
+  auto operator=(const SwapChain&) -> SwapChain& = delete;
+  auto operator=(SwapChain&&) -> SwapChain& = delete;
 
   struct Info {
     Size2Du16 backBufferSize {};
@@ -49,7 +49,7 @@ public:
   [[nodiscard]] virtual auto present() -> PresentResult = 0;
 
 protected:
-  Context() noexcept = default;
+  SwapChain() noexcept = default;
 };
 
 } // namespace basalt::gfx

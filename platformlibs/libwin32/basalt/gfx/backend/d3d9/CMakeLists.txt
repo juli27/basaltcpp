@@ -1,6 +1,4 @@
 target_sources(${CURRENT_TARGET} PRIVATE
-  "context.cpp"
-  "context.h"
   "conversions.h"
   "d3d9_custom.h"
   "data.cpp"
@@ -11,6 +9,8 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "device.h"
   "factory.cpp"
   "factory.h"
+  "swap_chain.cpp"
+  "swap_chain.h"
   "texture_3d_support.cpp"
   "texture_3d_support.h"
   "types.h"

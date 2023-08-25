@@ -19,13 +19,14 @@ public:
   struct UpdateContext final {
     SecondsF32 deltaTime;
   };
+
   auto update(const UpdateContext&) -> void;
 
 protected:
-  Runtime(Config&, gfx::Info, gfx::ContextPtr, DearImGuiPtr);
+  Runtime(Config&, gfx::Info, gfx::SwapChainPtr, DearImGuiPtr);
 
 private:
-  gfx::ContextPtr mGfxContext;
+  gfx::SwapChainPtr mSwapChain;
   DearImGuiPtr mDearImGui;
 };
 

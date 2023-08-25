@@ -1,8 +1,8 @@
 #include <basalt/gfx/backend/d3d9/factory.h>
 
-#include <basalt/gfx/backend/d3d9/context.h>
 #include <basalt/gfx/backend/d3d9/conversions.h>
 #include <basalt/gfx/backend/d3d9/device.h>
+#include <basalt/gfx/backend/d3d9/swap_chain.h>
 
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/log.h>
@@ -659,9 +659,9 @@ auto D3D9Factory::get_adapter_monitor(const Adapter adapter) const -> HMONITOR {
   return mInstance->GetAdapterMonitor(adapterOrdinal);
 }
 
-auto D3D9Factory::do_create_device_and_context(
-  const HWND window, const DeviceAndContextDesc& desc) const
-  -> DeviceAndContext {
+auto D3D9Factory::do_create_device_and_swap_chain(
+  const HWND window, const DeviceAndSwapChainDesc& desc) const
+  -> DeviceAndSwapChain {
   const UINT adapterOrdinal {desc.adapter.value()};
   BASALT_ASSERT(adapterOrdinal < mInstance->GetAdapterCount());
 
@@ -694,9 +694,9 @@ auto D3D9Factory::do_create_device_and_context(
   // TODO: verify the five caps which differ?
 
   auto device {std::make_shared<D3D9Device>(std::move(d3d9Device))};
-  auto context {D3D9Context::create(device, std::move(implicitSwapChain))};
+  auto context {D3D9SwapChain::create(device, std::move(implicitSwapChain))};
 
-  return DeviceAndContext {std::move(device), std::move(context)};
+  return DeviceAndSwapChain {std::move(device), std::move(context)};
 }
 
 } // namespace basalt::gfx

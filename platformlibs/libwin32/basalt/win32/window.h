@@ -44,7 +44,7 @@ public:
   auto operator=(Window&&) -> Window& = delete;
 
   [[nodiscard]] auto handle() const noexcept -> HWND;
-  [[nodiscard]] auto gfx_context() const noexcept -> const gfx::ContextPtr&;
+  [[nodiscard]] auto swap_chain() const noexcept -> const gfx::SwapChainPtr&;
   [[nodiscard]] auto input_manager() noexcept -> InputManager&;
   [[nodiscard]] auto client_area_size() const noexcept -> Size2Du16;
   [[nodiscard]] auto mode() const noexcept -> WindowMode;
@@ -66,7 +66,7 @@ private:
   ATOM mClassAtom {};
   HWND mHandle {};
   const gfx::AdapterList& mAdapters;
-  gfx::ContextPtr mGfxContext;
+  gfx::SwapChainPtr mSwapChain;
   InputManager mInputManager;
   SavedWindowInfo mSavedWindowInfo;
   Size2Du16 mClientAreaSize {Size2Du16::dont_care()};
