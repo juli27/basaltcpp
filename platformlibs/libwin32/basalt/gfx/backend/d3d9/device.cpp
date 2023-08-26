@@ -435,7 +435,7 @@ auto D3D9Device::destroy(const Sampler handle) noexcept -> void {
   mSamplers.deallocate(handle);
 }
 
-auto D3D9Device::submit(const span<CommandList> commandLists) -> void {
+auto D3D9Device::submit(const span<const CommandList> commandLists) -> void {
   // TODO: should we make all rendering code dependent
   // on the success of BeginScene? -> Log error and/or throw exception
   D3D9CHECK(mDevice->BeginScene());

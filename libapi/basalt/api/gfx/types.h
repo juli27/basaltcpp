@@ -24,6 +24,10 @@
 namespace basalt::gfx {
 
 struct Camera;
+
+class Context;
+using ContextPtr = std::shared_ptr<Context>;
+
 class Environment;
 class GfxSystem;
 

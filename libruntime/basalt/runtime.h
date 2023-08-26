@@ -2,8 +2,6 @@
 
 #include <basalt/types.h>
 
-#include <basalt/gfx/backend/types.h>
-
 #include <basalt/api/engine.h>
 
 #include <basalt/api/gfx/types.h>
@@ -23,10 +21,9 @@ public:
   auto update(const UpdateContext&) -> void;
 
 protected:
-  Runtime(Config&, gfx::Info, gfx::SwapChainPtr, DearImGuiPtr);
+  Runtime(Config&, gfx::ContextPtr, DearImGuiPtr);
 
 private:
-  gfx::SwapChainPtr mSwapChain;
   DearImGuiPtr mDearImGui;
 };
 

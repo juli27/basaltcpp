@@ -72,7 +72,7 @@ public:
 
   auto destroy(Sampler) noexcept -> void override;
 
-  auto submit(gsl::span<CommandList>) -> void override;
+  auto submit(gsl::span<const CommandList>) -> void override;
 
   auto query_extension(ext::ExtensionId)
     -> std::optional<ext::ExtensionPtr> override;

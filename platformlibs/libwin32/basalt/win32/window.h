@@ -7,11 +7,10 @@
 
 #include <basalt/input_manager.h>
 
-#include <basalt/gfx/backend/types.h>
-
 #include <basalt/api/types.h>
 
 #include <basalt/api/gfx/types.h>
+#include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/shared/size2d.h>
 #include <basalt/api/shared/types.h>
@@ -44,7 +43,7 @@ public:
   auto operator=(Window&&) -> Window& = delete;
 
   [[nodiscard]] auto handle() const noexcept -> HWND;
-  [[nodiscard]] auto swap_chain() const noexcept -> const gfx::SwapChainPtr&;
+  [[nodiscard]] auto gfx_context() const noexcept -> const gfx::ContextPtr&;
   [[nodiscard]] auto input_manager() noexcept -> InputManager&;
   [[nodiscard]] auto client_area_size() const noexcept -> Size2Du16;
   [[nodiscard]] auto mode() const noexcept -> WindowMode;
@@ -66,6 +65,7 @@ private:
   ATOM mClassAtom {};
   HWND mHandle {};
   const gfx::AdapterList& mAdapters;
+  gfx::ContextPtr mGfxContext;
   gfx::SwapChainPtr mSwapChain;
   InputManager mInputManager;
   SavedWindowInfo mSavedWindowInfo;

@@ -6,6 +6,7 @@
 #include <basalt/gfx/backend/device.h>
 #include <basalt/gfx/backend/ext/dear_imgui_renderer.h>
 
+#include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/backend/command_list.h>
 
 #include <basalt/api/shared/size2d.h>
@@ -22,7 +23,6 @@
 namespace basalt {
 
 using gfx::CommandList;
-using gfx::Device;
 using gfx::ext::DearImGuiCommandEncoder;
 using gfx::ext::DearImGuiRenderer;
 
@@ -141,7 +141,7 @@ constexpr auto to_imgui_key(const Key key) -> ImGuiKey {
 
 } // namespace
 
-auto DearImGui::create(Device& gfxDevice, void* const rawWindowHandle)
+auto DearImGui::create(gfx::Context& gfxContext, void* const rawWindowHandle)
   -> DearImGuiPtr {
   IMGUI_CHECKVERSION();
 
@@ -151,7 +151,8 @@ auto DearImGui::create(Device& gfxDevice, void* const rawWindowHandle)
   ImGui::GetMainViewport()->PlatformHandleRaw = rawWindowHandle;
 
   auto renderer {
-    gfxDevice.query_extension<DearImGuiRenderer>().value_or(nullptr)};
+    gfxContext.device()->query_extension<DearImGuiRenderer>().value_or(
+      nullptr)};
 
   return std::make_shared<DearImGui>(std::move(renderer));
 }

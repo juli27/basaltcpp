@@ -288,6 +288,8 @@ class CommandList;
 
 class Device;
 using DevicePtr = std::shared_ptr<Device>;
+class SwapChain;
+using SwapChainPtr = std::shared_ptr<SwapChain>;
 
 using uDeviceSize = u64;
 

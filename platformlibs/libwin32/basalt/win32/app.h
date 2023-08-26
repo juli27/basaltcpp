@@ -4,8 +4,6 @@
 
 #include <basalt/win32/shared/Windows_custom.h>
 
-#include <basalt/gfx/backend/types.h>
-
 #include <basalt/api/gfx/types.h>
 
 #include <basalt/api/shared/types.h>
@@ -17,7 +15,7 @@ public:
   static auto run(Config&, HMODULE, int showCommand) -> void;
 
 private:
-  App(Config&, gfx::Info, gfx::SwapChainPtr, DearImGuiPtr);
+  App(Config&, gfx::ContextPtr, DearImGuiPtr);
 };
 
 } // namespace basalt

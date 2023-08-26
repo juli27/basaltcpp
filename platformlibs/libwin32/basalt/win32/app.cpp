@@ -20,7 +20,9 @@
 #include <basalt/gfx/backend/swap_chain.h>
 #include <basalt/gfx/backend/types.h>
 
+#include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/types.h>
+#include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/shared/config.h>
 #include <basalt/api/shared/log.h>
@@ -148,18 +150,12 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
     return Window::create(moduleHandle, windowInfo, *gfxFactory);
   }()};
 
-  const gfx::SwapChainPtr& swapChain {window->swap_chain()};
-  const gfx::DevicePtr gfxDevice {swapChain->device()};
+  gfx::Context& gfxContext {*window->gfx_context()};
 
   App app {
     config,
-    gfx::Info {
-      gfxDevice->capabilities(),
-      gfxFactory->adapters(),
-      gfx::BackendApi::Direct3D9,
-    },
-    swapChain,
-    DearImGui::create(*gfxDevice, window->handle()),
+    window->gfx_context(),
+    DearImGui::create(gfxContext, window->handle()),
   };
 
   window->input_manager().set_overlay(app.dear_imgui());
@@ -186,11 +182,11 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
       window->set_cursor(app.mMouseCursor);
     }
 
-    switch (swapChain->present()) {
+    switch (app.mGfxContext->swap_chain()->present()) {
     case gfx::PresentResult::Ok:
       break;
     case gfx::PresentResult::DeviceLost:
-      if (!run_lost_device_loop(*gfxDevice)) {
+      if (!run_lost_device_loop(*gfxContext.device())) {
         quit();
       }
 
@@ -203,10 +199,8 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
   }
 }
 
-App::App(Config& config, gfx::Info gfxInfo, gfx::SwapChainPtr swapChain,
-         DearImGuiPtr dearImGui)
-  : Runtime {config, std::move(gfxInfo), std::move(swapChain),
-             std::move(dearImGui)} {
+App::App(Config& config, gfx::ContextPtr gfxContext, DearImGuiPtr dearImGui)
+  : Runtime {config, std::move(gfxContext), std::move(dearImGui)} {
 }
 
 // namespace {

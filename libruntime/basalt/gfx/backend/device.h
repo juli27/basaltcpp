@@ -29,7 +29,7 @@ public:
   [[nodiscard]] virtual auto get_status() const noexcept -> DeviceStatus = 0;
 
   virtual auto reset() -> void = 0;
-  
+
   [[nodiscard]] virtual auto create_pipeline(const PipelineDescriptor&)
     -> Pipeline = 0;
 
@@ -93,7 +93,7 @@ public:
 
   virtual auto destroy(Sampler) noexcept -> void = 0;
 
-  virtual auto submit(gsl::span<CommandList>) -> void = 0;
+  virtual auto submit(gsl::span<const CommandList>) -> void = 0;
 
   virtual auto query_extension(ext::ExtensionId)
     -> std::optional<ext::ExtensionPtr> = 0;

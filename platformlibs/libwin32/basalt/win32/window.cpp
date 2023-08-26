@@ -11,7 +11,10 @@
 #include <basalt/win32/shared/utils.h>
 #include <basalt/win32/shared/win32_gfx_factory.h>
 
+#include <basalt/gfx/backend/device.h>
 #include <basalt/gfx/backend/swap_chain.h>
+
+#include <basalt/api/gfx/context.h>
 
 #include <basalt/api/shared/log.h>
 
@@ -211,8 +214,8 @@ auto Window::handle() const noexcept -> HWND {
   return mHandle;
 }
 
-auto Window::swap_chain() const noexcept -> const gfx::SwapChainPtr& {
-  return mSwapChain;
+auto Window::gfx_context() const noexcept -> const gfx::ContextPtr& {
+  return mGfxContext;
 }
 
 auto Window::input_manager() noexcept -> InputManager& {
@@ -365,7 +368,14 @@ auto Window::init_gfx_context(const gfx::Win32GfxFactory& gfxFactory) -> void {
     gfxFactory.create_device_and_swap_chain(mHandle, contextDesc),
   };
 
-  mSwapChain = std::move(swapChain);
+  const gfx::DevicePtr gfxDevice {swapChain->device()};
+  mGfxContext = gfx::Context::create(gfxDevice, std::move(swapChain),
+                                     gfx::Info {
+                                       gfxDevice->capabilities(),
+                                       gfxFactory.adapters(),
+                                       gfx::BackendApi::Direct3D9,
+                                     });
+  mSwapChain = mGfxContext->swap_chain();
 
   BASALT_LOG_INFO("Direct3D9 context created: adapter={}, driver={}",
                   adapterInfo.displayName, adapterInfo.driverInfo);
@@ -373,6 +383,7 @@ auto Window::init_gfx_context(const gfx::Win32GfxFactory& gfxFactory) -> void {
 
 auto Window::shutdown_gfx_context() -> void {
   mSwapChain.reset();
+  mGfxContext.reset();
 }
 
 auto Window::resize(const Size2Du16 newClientAreaSize) -> void {

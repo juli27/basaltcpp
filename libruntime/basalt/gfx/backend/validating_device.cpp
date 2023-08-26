@@ -361,7 +361,7 @@ auto ValidatingDevice::destroy(const Sampler id) noexcept -> void {
   mSamplers.deallocate(id);
 }
 
-auto ValidatingDevice::submit(const span<CommandList> commandLists) -> void {
+auto ValidatingDevice::submit(const span<const CommandList> commandLists) -> void {
   Composite patchedComposite;
   for (const CommandList& cmdList : commandLists) {
     patchedComposite.emplace_back(validate(cmdList));

@@ -7,6 +7,8 @@
 
 #include <basalt/gfx/backend/ext/types.h>
 
+#include <basalt/api/gfx/types.h>
+
 #include <basalt/api/shared/types.h>
 
 #include <memory>
@@ -15,7 +17,7 @@ namespace basalt {
 
 class DearImGui final : public View {
 public:
-  static auto create(gfx::Device&, void* rawWindowHandle) -> DearImGuiPtr;
+  static auto create(gfx::Context&, void* rawWindowHandle) -> DearImGuiPtr;
 
   DearImGui(const DearImGui&) = delete;
   DearImGui(DearImGui&&) = delete;

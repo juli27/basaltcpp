@@ -11,9 +11,6 @@ namespace basalt::gfx {
 
 using Composite = std::vector<CommandList>;
 
-class SwapChain;
-using SwapChainPtr = std::shared_ptr<SwapChain>;
-
 class ValidatingDevice;
 using ValidatingDevicePtr = std::shared_ptr<ValidatingDevice>;
 

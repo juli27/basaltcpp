@@ -1,5 +1,6 @@
 #include <basalt/api/engine.h>
 
+#include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/api/shared/config.h>
@@ -19,12 +20,16 @@ auto Engine::config() noexcept -> Config& {
   return mConfig;
 }
 
+auto Engine::gfx_context() const noexcept -> gfx::Context& {
+  return *mGfxContext;
+}
+
 auto Engine::gfx_info() const noexcept -> const gfx::Info& {
-  return mGfxInfo;
+  return mGfxContext->gfx_info();
 }
 
 auto Engine::create_gfx_resource_cache() const -> gfx::ResourceCachePtr {
-  return gfx::ResourceCache::create(mGfxDevice);
+  return mGfxContext->create_resource_cache();
 }
 
 auto Engine::resource_registry() const noexcept -> ResourceRegistry& {
@@ -57,12 +62,10 @@ void Engine::set_window_mode(const WindowMode windowMode) noexcept {
   mIsDirty = true;
 }
 
-Engine::Engine(Config& config, gfx::Info gfxInfo,
-               gfx::DevicePtr gfxDevice) noexcept
-  : mGfxInfo {std::move(gfxInfo)}
-  , mResourceRegistry {std::make_shared<ResourceRegistry>()}
-  , mGfxResourceCache {gfx::ResourceCache::create(gfxDevice)}
-  , mGfxDevice {std::move(gfxDevice)}
+Engine::Engine(Config& config, gfx::ContextPtr gfxContext) noexcept
+  : mResourceRegistry {std::make_shared<ResourceRegistry>()}
+  , mGfxContext {std::move(gfxContext)}
+  , mGfxResourceCache {mGfxContext->create_resource_cache()}
   , mConfig {config} {
 }
 

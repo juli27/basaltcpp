@@ -4,6 +4,8 @@
 
 #include <basalt/gfx/backend/types.h>
 
+#include <basalt/api/gfx/backend/types.h>
+
 namespace basalt::gfx {
 
 class ValidatingSwapChain final : public SwapChain {

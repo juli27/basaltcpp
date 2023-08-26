@@ -3,7 +3,6 @@
 #include <basalt/api/types.h>
 
 #include <basalt/api/gfx/types.h>
-
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 
@@ -24,6 +23,7 @@ struct Engine {
   [[nodiscard]] auto config() const noexcept -> const Config&;
   [[nodiscard]] auto config() noexcept -> Config&;
 
+  [[nodiscard]] auto gfx_context() const noexcept -> gfx::Context&;
   [[nodiscard]] auto gfx_info() const noexcept -> const gfx::Info&;
   [[nodiscard]] auto create_gfx_resource_cache() const -> gfx::ResourceCachePtr;
 
@@ -42,12 +42,10 @@ struct Engine {
   auto get_or_load(Resource) -> T;
 
 protected:
-  gfx::Info mGfxInfo;
-
   ResourceRegistryPtr mResourceRegistry {};
 
+  gfx::ContextPtr mGfxContext;
   gfx::ResourceCachePtr mGfxResourceCache;
-  gfx::DevicePtr mGfxDevice;
 
   std::unordered_map<ResourceId, gfx::Texture> mTextures {};
   std::unordered_map<ResourceId, gfx::ext::XModel> mXModels {};
@@ -55,7 +53,7 @@ protected:
   MouseCursor mMouseCursor {MouseCursor::Arrow};
   bool mIsDirty {false};
 
-  Engine(Config&, gfx::Info, gfx::DevicePtr) noexcept;
+  Engine(Config&, gfx::ContextPtr) noexcept;
 
   ~Engine() noexcept = default;
 
