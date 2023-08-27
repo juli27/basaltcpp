@@ -10,6 +10,7 @@
 #include <basalt/sandbox/tribase/02-08_blending.h>
 #include <basalt/sandbox/tribase/02-09_multi_texturing.h>
 #include <basalt/sandbox/tribase/02-10_volume_textures.h>
+#include <basalt/sandbox/tribase/02-11_env_mapping.h>
 
 #include <memory>
 
@@ -61,4 +62,9 @@ auto TribaseExamples::new_02_09_multi_texturing_example(basalt::Engine& engine)
 auto TribaseExamples::new_02_10_volume_textures(basalt::Engine& engine)
   -> basalt::ViewPtr {
   return std::make_shared<tribase::VolumeTextures>(engine);
+}
+
+auto TribaseExamples::new_02_11_env_mapping(basalt::Engine& engine)
+  -> basalt::ViewPtr {
+  return std::make_shared<tribase::EnvMapping>(engine);
 }

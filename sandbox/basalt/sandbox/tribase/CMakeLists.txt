@@ -19,6 +19,8 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "02-09_multi_texturing.h"
   "02-10_volume_textures.cpp"
   "02-10_volume_textures.h"
+  "02-11_env_mapping.cpp"
+  "02-11_env_mapping.h"
   "tribase_examples.cpp"
   "tribase_examples.h"
 )
