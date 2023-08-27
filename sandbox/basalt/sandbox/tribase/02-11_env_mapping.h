@@ -7,8 +7,6 @@
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 
-#include <basalt/api/shared/types.h>
-
 #include <basalt/api/math/angle.h>
 #include <basalt/api/math/vector3.h>
 
@@ -32,7 +30,6 @@ private:
   basalt::gfx::ext::XModel mSphere;
   basalt::gfx::VertexBuffer mSkyBoxVb;
   basalt::gfx::IndexBuffer mSkyBoxIb;
-  basalt::SecondsF32 mTime {};
   basalt::Vector3f32 mCameraPos {};
   basalt::Angle mCameraAngleY {};
   basalt::f32 mCameraUpDown {};

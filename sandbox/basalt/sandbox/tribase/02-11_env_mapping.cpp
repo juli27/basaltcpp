@@ -141,8 +141,6 @@ EnvMapping::EnvMapping(const Engine& engine)
 }
 
 auto EnvMapping::on_update(UpdateContext& ctx) -> void {
-  mTime += ctx.deltaTime;
-  const f32 t {mTime.count()};
   const f32 dt {ctx.deltaTime.count()};
 
   if (is_key_down(Key::LeftArrow)) {
