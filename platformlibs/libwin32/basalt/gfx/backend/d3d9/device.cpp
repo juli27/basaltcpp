@@ -35,13 +35,8 @@ using std::filesystem::path;
 
 using gsl::span;
 
-using Microsoft::WRL::ComPtr;
-
 namespace basalt::gfx {
 namespace {
-
-using D3D9TexturePtr = ComPtr<IDirect3DTexture9>;
-using D3D9VolumeTexturePtr = ComPtr<IDirect3DVolumeTexture9>;
 
 auto map_impl(IDirect3DVertexBuffer9& vertexBuffer,
               const uDeviceSize offset = 0, uDeviceSize size = 0)
@@ -123,7 +118,7 @@ auto calculate_primitive_count(const D3DPRIMITIVETYPE type,
 
 } // namespace
 
-D3D9Device::D3D9Device(ComPtr<IDirect3DDevice9> device)
+D3D9Device::D3D9Device(IDirect3DDevice9Ptr device)
   : mDevice {std::move(device)} {
   BASALT_ASSERT(mDevice);
 
@@ -244,7 +239,7 @@ auto D3D9Device::execute(const CommandList& cmdList) -> void {
 }
 
 auto D3D9Device::load_texture_3d(const path& path) -> Texture {
-  D3D9VolumeTexturePtr texture;
+  IDirect3DVolumeTexture9Ptr texture;
 
   // TODO: Mip map count is fixed to 1
   if (FAILED(D3DXCreateVolumeTextureFromFileExW(
@@ -402,12 +397,26 @@ auto D3D9Device::unmap(const IndexBuffer handle) noexcept -> void {
 }
 
 auto D3D9Device::load_texture(const path& filePath) -> Texture {
-  D3D9TexturePtr texture;
+  IDirect3DTexture9Ptr texture;
 
   if (FAILED(D3DXCreateTextureFromFileExW(
         mDevice.Get(), filePath.c_str(), D3DX_DEFAULT, D3DX_DEFAULT,
         D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT,
         D3DX_DEFAULT, 0, nullptr, nullptr, &texture))) {
+    throw std::runtime_error {"loading texture file failed"};
+  }
+
+  return mTextures.allocate(std::move(texture));
+}
+
+auto D3D9Device::load_cube_texture(const path& path) -> Texture {
+  IDirect3DCubeTexture9Ptr texture;
+
+  // TODO: Mip map count is fixed to 1
+  if (FAILED(D3DXCreateCubeTextureFromFileExW(
+        mDevice.Get(), path.c_str(), D3DX_DEFAULT, 1, 0, D3DFMT_UNKNOWN,
+        D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, nullptr, nullptr,
+        &texture))) {
     throw std::runtime_error {"loading texture file failed"};
   }
 
@@ -673,7 +682,7 @@ auto D3D9Device::execute(const CommandBindSampler& cmd) -> void {
 }
 
 auto D3D9Device::execute(const CommandBindTexture& cmd) -> void {
-  const D3D9BaseTexturePtr& texture {mTextures[cmd.textureId]};
+  const IDirect3DBaseTexture9Ptr& texture {mTextures[cmd.textureId]};
 
   D3D9CHECK(mDevice->SetTexture(cmd.slot, texture.Get()));
 }

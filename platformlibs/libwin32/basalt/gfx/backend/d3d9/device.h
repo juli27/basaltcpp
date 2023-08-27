@@ -21,7 +21,7 @@ namespace basalt::gfx {
 
 class D3D9Device final : public Device {
 public:
-  explicit D3D9Device(Microsoft::WRL::ComPtr<IDirect3DDevice9> device);
+  explicit D3D9Device(IDirect3DDevice9Ptr device);
 
   auto reset(D3DPRESENT_PARAMETERS&) const -> void;
 
@@ -65,6 +65,9 @@ public:
   [[nodiscard]] auto load_texture(const std::filesystem::path&)
     -> Texture override;
 
+  [[nodiscard]] auto load_cube_texture(const std::filesystem::path&)
+    -> Texture override;
+
   auto destroy(Texture) noexcept -> void override;
 
   [[nodiscard]] auto create_sampler(const SamplerDescriptor&)
@@ -78,11 +81,9 @@ public:
     -> std::optional<ext::ExtensionPtr> override;
 
 private:
-  using D3D9DevicePtr = Microsoft::WRL::ComPtr<IDirect3DDevice9>;
   using ExtensionMap = std::unordered_map<ext::ExtensionId, ext::ExtensionPtr>;
   using D3D9VertexBufferPtr = Microsoft::WRL::ComPtr<IDirect3DVertexBuffer9>;
   using D3D9IndexBufferPtr = Microsoft::WRL::ComPtr<IDirect3DIndexBuffer9>;
-  using D3D9BaseTexturePtr = Microsoft::WRL::ComPtr<IDirect3DBaseTexture9>;
 
   struct SamplerData final {
     D3DTEXTUREFILTERTYPE magFilter {D3DTEXF_POINT};
@@ -95,14 +96,14 @@ private:
     DWORD maxAnisotropy {1};
   };
 
-  D3D9DevicePtr mDevice;
+  IDirect3DDevice9Ptr mDevice;
 
   ExtensionMap mExtensions;
 
   HandlePool<D3D9Pipeline, Pipeline> mPipelines {};
   HandlePool<D3D9VertexBufferPtr, VertexBuffer> mVertexBuffers {};
   HandlePool<D3D9IndexBufferPtr, IndexBuffer> mIndexBuffers {};
-  HandlePool<D3D9BaseTexturePtr, Texture> mTextures {};
+  HandlePool<IDirect3DBaseTexture9Ptr, Texture> mTextures {};
   HandlePool<SamplerData, Sampler> mSamplers {};
 
   DeviceCaps mCaps {};

@@ -65,7 +65,7 @@ auto D3D9TexStage::from(const FixedVertexShaderCreateInfo* vs,
 
   if (vs) {
     for (const auto& coordinateSet : vs->textureCoordinateSets) {
-      auto& d3d9Stage {stages[coordinateSet.setIndex]};
+      auto& d3d9Stage {stages[coordinateSet.stageIndex]};
 
       d3d9Stage.coordinateIndex =
         coordinateSet.srcIndex | to_d3d(coordinateSet.src);

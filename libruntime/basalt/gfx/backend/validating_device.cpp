@@ -324,6 +324,12 @@ auto ValidatingDevice::load_texture(const path& path) -> Texture {
   });
 }
 
+auto ValidatingDevice::load_cube_texture(const path& path) -> Texture {
+  const Texture id {mDevice->load_cube_texture(path)};
+
+  return mTextures.allocate(TextureData {id});
+}
+
 auto ValidatingDevice::destroy(const Texture id) noexcept -> void {
   if (!mTextures.is_valid(id)) {
     return;
@@ -361,7 +367,8 @@ auto ValidatingDevice::destroy(const Sampler id) noexcept -> void {
   mSamplers.deallocate(id);
 }
 
-auto ValidatingDevice::submit(const span<const CommandList> commandLists) -> void {
+auto ValidatingDevice::submit(const span<const CommandList> commandLists)
+  -> void {
   Composite patchedComposite;
   for (const CommandList& cmdList : commandLists) {
     patchedComposite.emplace_back(validate(cmdList));

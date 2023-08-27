@@ -86,6 +86,9 @@ public:
   [[nodiscard]] virtual auto load_texture(const std::filesystem::path&)
     -> Texture = 0;
 
+  [[nodiscard]] virtual auto load_cube_texture(const std::filesystem::path&)
+    -> Texture = 0;
+
   virtual auto destroy(Texture) noexcept -> void = 0;
 
   [[nodiscard]] virtual auto create_sampler(const SamplerDescriptor&)

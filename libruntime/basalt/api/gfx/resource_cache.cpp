@@ -130,6 +130,13 @@ auto ResourceCache::load_texture(const path& path) -> Texture {
   return handle;
 }
 
+auto ResourceCache::load_cube_texture(const path& path) -> Texture {
+  const Texture handle {mDevice->load_cube_texture(path)};
+  mTextures.push_back(handle);
+
+  return handle;
+}
+
 auto ResourceCache::destroy(const Texture handle) noexcept -> void {
   mTextures.erase(std::remove(mTextures.begin(), mTextures.end(), handle),
                   mTextures.end());

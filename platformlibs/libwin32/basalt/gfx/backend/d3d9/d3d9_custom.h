@@ -11,7 +11,18 @@
 
 namespace basalt::gfx {
 
-using IDirect3DSwapChain9Ptr = Microsoft::WRL::ComPtr<IDirect3DSwapChain9>;
+namespace detail {
+
+using Microsoft::WRL::ComPtr;
+
+} // namespace detail
+
+using IDirect3DBaseTexture9Ptr = detail::ComPtr<IDirect3DBaseTexture9>;
+using IDirect3DCubeTexture9Ptr = detail::ComPtr<IDirect3DCubeTexture9>;
+using IDirect3DDevice9Ptr = detail::ComPtr<IDirect3DDevice9>;
+using IDirect3DSwapChain9Ptr = detail::ComPtr<IDirect3DSwapChain9>;
+using IDirect3DTexture9Ptr = detail::ComPtr<IDirect3DTexture9>;
+using IDirect3DVolumeTexture9Ptr = detail::ComPtr<IDirect3DVolumeTexture9>;
 
 } // namespace basalt::gfx
 

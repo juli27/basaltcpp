@@ -319,7 +319,7 @@ struct TextureStageArgument {
 };
 
 struct TextureCoordinateSet {
-  u8 setIndex {};
+  u8 stageIndex {};
   TextureCoordinateSrc src {TextureCoordinateSrc::Vertex};
   u8 srcIndex {};
   TextureCoordinateTransformMode transformMode {
@@ -336,7 +336,7 @@ constexpr u8 MATERIAL_COLOR_SOURCE_COUNT {3};
 
 // or enum set with wanted features
 struct FixedVertexShaderCreateInfo {
-  gsl::span<TextureCoordinateSet> textureCoordinateSets {};
+  gsl::span<const TextureCoordinateSet> textureCoordinateSets {};
   ShadeMode shadeMode {ShadeMode::Gouraud};
   bool lightingEnabled {false};
   bool specularEnabled {false};
@@ -353,12 +353,12 @@ struct FixedVertexShaderCreateInfo {
 struct TextureStage {
   TextureOp colorOp {TextureOp::Modulate};
   TextureStageArgument colorArg1 {TextureStageSrc::SampledTexture};
-  TextureStageArgument colorArg2;
-  TextureStageArgument colorArg3;
+  TextureStageArgument colorArg2 {};
+  TextureStageArgument colorArg3 {};
   TextureOp alphaOp {TextureOp::Replace};
   TextureStageArgument alphaArg1 {TextureStageSrc::SampledTexture};
-  TextureStageArgument alphaArg2;
-  TextureStageArgument alphaArg3;
+  TextureStageArgument alphaArg2 {};
+  TextureStageArgument alphaArg3 {};
   TextureStageDestination dest {TextureStageDestination::Current};
 };
 

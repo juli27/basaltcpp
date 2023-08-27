@@ -90,6 +90,7 @@ public:
   auto destroy(Sampler) noexcept -> void;
 
   [[nodiscard]] auto load_texture(const std::filesystem::path&) -> Texture;
+  [[nodiscard]] auto load_cube_texture(const std::filesystem::path&) -> Texture;
   auto destroy(Texture) noexcept -> void;
 
   auto load_texture_3d(const std::filesystem::path&) -> Texture;

@@ -59,6 +59,9 @@ public:
   [[nodiscard]] auto load_texture(const std::filesystem::path&)
     -> Texture override;
 
+  [[nodiscard]] auto load_cube_texture(const std::filesystem::path&)
+    -> Texture override;
+
   auto destroy(Texture) noexcept -> void override;
 
   [[nodiscard]] auto create_sampler(const SamplerDescriptor&)
