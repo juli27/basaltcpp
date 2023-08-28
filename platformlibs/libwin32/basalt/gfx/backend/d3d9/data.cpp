@@ -59,6 +59,12 @@ auto D3D9TexStage::from(const FixedVertexShaderCreateInfo* vs,
     d3d9Stage.alphaArg1 = to_d3d(stage.alphaArg1);
     d3d9Stage.alphaArg2 = to_d3d(stage.alphaArg2);
     d3d9Stage.alphaArg3 = to_d3d(stage.alphaArg3);
+    d3d9Stage.bumpEnvMat00 = stage.bumpEnvMat00;
+    d3d9Stage.bumpEnvMat01 = stage.bumpEnvMat01;
+    d3d9Stage.bumpEnvMat10 = stage.bumpEnvMat10;
+    d3d9Stage.bumpEnvMat11 = stage.bumpEnvMat11;
+    d3d9Stage.bumpEnvLScale = stage.bumpEnvLuminanceScale;
+    d3d9Stage.bumpEnvLOffset = stage.bumpEnvLuminanceOffset;
 
     i++;
   }

@@ -179,8 +179,8 @@ enum class TextureOp : u8 {
   ModulateInvAlphaAddColor,
   // r.rgba = (1 - arg1.rgb) * arg2.rgb + arg1.a
   ModulateInvColorAddAlpha,
-  // performs per-pixel bump mapping using the env map in the next stage without
-  // luminance
+  // performs per-pixel bump mapping using the env map in the next stage with
+  // luminance = 1
   BumpEnvMap,
   // performs per-pixel bump mapping using the env map in the next stage with
   // luminance
@@ -362,6 +362,13 @@ struct TextureStage {
   TextureStageArgument alphaArg2 {};
   TextureStageArgument alphaArg3 {};
   TextureStageDestination dest {TextureStageDestination::Current};
+  // TODO: replace with Matrix2x2
+  f32 bumpEnvMat00 {1};
+  f32 bumpEnvMat01 {0};
+  f32 bumpEnvMat10 {0};
+  f32 bumpEnvMat11 {1};
+  f32 bumpEnvLuminanceScale {1};
+  f32 bumpEnvLuminanceOffset {0};
 };
 
 struct FixedFragmentShaderCreateInfo {

@@ -20,6 +20,8 @@ auto to_string(const ImageFormat format) noexcept -> const char* {
     return "B8G8R8A8";
   case ImageFormat::B10G10R10A2:
     return "B10G10R10A2";
+  case ImageFormat::U8V8:
+    return "U8V8";
   case ImageFormat::D16:
     return "D16";
   case ImageFormat::D24X8:

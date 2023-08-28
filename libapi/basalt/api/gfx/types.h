@@ -68,6 +68,10 @@ enum class ImageFormat : u8 {
   B8G8R8A8,
   B10G10R10A2,
 
+  // signed data
+  // 16-bit
+  U8V8,
+
   // Depth-Stencil
   // 16-bit
   D16,
@@ -76,7 +80,7 @@ enum class ImageFormat : u8 {
   D24X8,
   D24S8,
 };
-constexpr u8 IMAGE_FORMAT_COUNT {10};
+constexpr u8 IMAGE_FORMAT_COUNT {11};
 
 // SERIALIZED
 enum class BackendApi : u8 {

@@ -623,6 +623,24 @@ auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
                                             stage.coordinateIndex));
     D3D9CHECK(mDevice->SetTextureStageState(
       stageId, D3DTSS_TEXTURETRANSFORMFLAGS, stage.coordinateTransformFlags));
+    D3D9CHECK(mDevice->SetTextureStageState(
+      stageId, D3DTSS_BUMPENVMAT00,
+      *reinterpret_cast<const DWORD*>(&stage.bumpEnvMat00)));
+    D3D9CHECK(mDevice->SetTextureStageState(
+      stageId, D3DTSS_BUMPENVMAT01,
+      *reinterpret_cast<const DWORD*>(&stage.bumpEnvMat01)));
+    D3D9CHECK(mDevice->SetTextureStageState(
+      stageId, D3DTSS_BUMPENVMAT10,
+      *reinterpret_cast<const DWORD*>(&stage.bumpEnvMat10)));
+    D3D9CHECK(mDevice->SetTextureStageState(
+      stageId, D3DTSS_BUMPENVMAT11,
+      *reinterpret_cast<const DWORD*>(&stage.bumpEnvMat11)));
+    D3D9CHECK(mDevice->SetTextureStageState(
+      stageId, D3DTSS_BUMPENVLSCALE,
+      *reinterpret_cast<const DWORD*>(&stage.bumpEnvLScale)));
+    D3D9CHECK(mDevice->SetTextureStageState(
+      stageId, D3DTSS_BUMPENVLOFFSET,
+      *reinterpret_cast<const DWORD*>(&stage.bumpEnvLOffset)));
 
     stageId++;
   }

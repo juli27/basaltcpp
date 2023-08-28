@@ -48,6 +48,12 @@ struct D3D9TexStage {
   DWORD resultArg {D3DTA_CURRENT};
   DWORD coordinateIndex {0 | D3DTSS_TCI_PASSTHRU};
   D3DTEXTURETRANSFORMFLAGS coordinateTransformFlags {D3DTTFF_DISABLE};
+  float bumpEnvMat00 {1};
+  float bumpEnvMat01 {0};
+  float bumpEnvMat10 {0};
+  float bumpEnvMat11 {1};
+  float bumpEnvLScale {1};
+  float bumpEnvLOffset {0};
 };
 
 struct D3D9Pipeline {

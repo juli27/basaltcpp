@@ -125,7 +125,7 @@ inline auto to_d3d(const FogMode mode) -> D3DFOGMODE {
 }
 
 inline auto to_d3d(const ImageFormat format) -> D3DFORMAT {
-  static constexpr EnumArray<ImageFormat, D3DFORMAT, 10> TO_D3D {
+  static constexpr EnumArray<ImageFormat, D3DFORMAT, 11> TO_D3D {
     {ImageFormat::Unknown, D3DFMT_UNKNOWN},
     {ImageFormat::B5G6R5, D3DFMT_R5G6B5},
     {ImageFormat::B5G5R5X1, D3DFMT_X1R5G5B5},
@@ -133,6 +133,7 @@ inline auto to_d3d(const ImageFormat format) -> D3DFORMAT {
     {ImageFormat::B8G8R8X8, D3DFMT_X8R8G8B8},
     {ImageFormat::B8G8R8A8, D3DFMT_A8R8G8B8},
     {ImageFormat::B10G10R10A2, D3DFMT_A2R10G10B10},
+    {ImageFormat::U8V8, D3DFMT_V8U8},
     {ImageFormat::D16, D3DFMT_D16},
     {ImageFormat::D24X8, D3DFMT_D24X8},
     {ImageFormat::D24S8, D3DFMT_D24S8},
@@ -161,6 +162,9 @@ constexpr auto to_image_format(const D3DFORMAT format) noexcept -> ImageFormat {
 
   case D3DFMT_A2R10G10B10:
     return ImageFormat::B10G10R10A2;
+
+  case D3DFMT_V8U8:
+    return ImageFormat::U8V8;
 
   case D3DFMT_D24S8:
     return ImageFormat::D24S8;
