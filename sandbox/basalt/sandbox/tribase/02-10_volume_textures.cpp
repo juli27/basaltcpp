@@ -110,6 +110,8 @@ auto VolumeTextures::on_update(UpdateContext& ctx) -> void {
   cmdList.set_transform(TransformState::ViewToClip,
                         Matrix4x4f32::perspective_projection(
                           90_deg, drawCtx.viewport.aspect_ratio(), 0.1f, 100));
+  cmdList.set_transform(TransformState::WorldToView, Matrix4x4f32::identity());
+  cmdList.set_transform(TransformState::LocalToWorld, Matrix4x4f32::identity());
 
   cmdList.draw(0, 4);
 
