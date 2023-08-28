@@ -156,6 +156,10 @@ D3D9Device::D3D9Device(IDirect3DDevice9Ptr device)
     d3d9Caps.TextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC;
   mCaps.samplerMagFilterAnisotropic =
     d3d9Caps.TextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC;
+  mCaps.samplerCubeMinFilterAnisotropic =
+    d3d9Caps.CubeTextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC;
+  mCaps.samplerCubeMagFilterAnisotropic =
+    d3d9Caps.CubeTextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC;
   mCaps.sampler3DMinFilterAnisotropic =
     d3d9Caps.VolumeTextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC;
   mCaps.sampler3DMagFilterAnisotropic =
