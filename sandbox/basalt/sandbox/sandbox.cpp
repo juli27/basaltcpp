@@ -38,7 +38,7 @@ struct SandboxView::Example final {
 };
 
 SandboxView::SandboxView(Engine& engine) {
-  mExamples.reserve(21);
+  mExamples.reserve(22);
   mExamples.emplace_back(Example {
     "Tutorial 2: Rendering Vertices"s,
     &D3D9Tutorials::new_vertices_tutorial,
@@ -106,6 +106,10 @@ SandboxView::SandboxView(Engine& engine) {
   mExamples.emplace_back(Example {
     "Bsp. 02-12: Bump-Mapping"s,
     &TribaseExamples::new_02_12_bump_mapping,
+  });
+  mExamples.emplace_back(Example {
+    "Bsp. 02-13: Stencil Buffer"s,
+    &TribaseExamples::new_02_13_stencil_buffer,
   });
   mExamples.emplace_back(Example {
     "Textures"s,

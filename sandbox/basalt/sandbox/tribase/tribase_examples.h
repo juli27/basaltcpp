@@ -17,4 +17,5 @@ public:
   static auto new_02_10_volume_textures(basalt::Engine&) -> basalt::ViewPtr;
   static auto new_02_11_env_mapping(basalt::Engine&) -> basalt::ViewPtr;
   static auto new_02_12_bump_mapping(basalt::Engine&) -> basalt::ViewPtr;
+  static auto new_02_13_stencil_buffer(basalt::Engine&) -> basalt::ViewPtr;
 };
