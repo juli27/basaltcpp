@@ -56,6 +56,15 @@ struct D3D9TexStage {
   float bumpEnvLOffset {0};
 };
 
+struct D3D9StencilOpState {
+  static auto from(const StencilOpState&) noexcept -> D3D9StencilOpState;
+
+  D3DCMPFUNC func {D3DCMP_ALWAYS};
+  D3DSTENCILOP failOp {D3DSTENCILOP_KEEP};
+  D3DSTENCILOP passDepthFailOp {D3DSTENCILOP_KEEP};
+  D3DSTENCILOP passDepthPassOp {D3DSTENCILOP_KEEP};
+};
+
 struct D3D9Pipeline {
   static auto from(const PipelineDescriptor& desc) -> D3D9Pipeline;
 
@@ -71,6 +80,10 @@ struct D3D9Pipeline {
   D3DZBUFFERTYPE zEnabled {D3DZB_FALSE};
   D3DCMPFUNC zFunc {D3DCMP_ALWAYS};
   BOOL zWriteEnabled {FALSE};
+  bool stencilEnabled {false};
+  bool twoSidedStencilEnabled {false};
+  D3D9StencilOpState cwStencilState {};
+  D3D9StencilOpState ccwStencilState {};
   BOOL dithering {FALSE};
   bool alphaTestEnabled {false};
   D3DCMPFUNC alphaFunc {D3DCMP_ALWAYS};

@@ -247,6 +247,15 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
   allCapsPresent &= verify_caps_present(caps.VolumeTextureAddressCaps,
                                         MIN_VOLUME_TEXTURE_ADDRESS_CAPS);
 
+  static constexpr array MIN_STENCIL_CAPS {
+    MAKE_CAP(D3DSTENCILCAPS_KEEP),     MAKE_CAP(D3DSTENCILCAPS_ZERO),
+    MAKE_CAP(D3DSTENCILCAPS_REPLACE),  MAKE_CAP(D3DSTENCILCAPS_INCRSAT),
+    MAKE_CAP(D3DSTENCILCAPS_DECRSAT),  MAKE_CAP(D3DSTENCILCAPS_INVERT),
+    MAKE_CAP(D3DSTENCILCAPS_INCR),     MAKE_CAP(D3DSTENCILCAPS_DECR),
+    MAKE_CAP(D3DSTENCILCAPS_TWOSIDED),
+  };
+  allCapsPresent &= verify_caps_present(caps.StencilCaps, MIN_STENCIL_CAPS);
+
   {
     constexpr u8 minNumTexCoords {1};
     const WORD numTexCoords {

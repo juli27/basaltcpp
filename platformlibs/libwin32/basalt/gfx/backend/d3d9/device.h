@@ -115,6 +115,9 @@ private:
   auto execute(const CommandBindIndexBuffer&) -> void;
   auto execute(const CommandBindSampler&) -> void;
   auto execute(const CommandBindTexture&) -> void;
+  auto execute(const CommandSetStencilReference&) -> void;
+  auto execute(const CommandSetStencilReadMask&) -> void;
+  auto execute(const CommandSetStencilWriteMask&) -> void;
   auto execute(const CommandSetBlendConstant&) -> void;
   auto execute(const CommandSetTransform&) -> void;
   auto execute(const CommandSetAmbientLight&) -> void;

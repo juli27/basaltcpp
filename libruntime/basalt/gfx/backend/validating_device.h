@@ -139,6 +139,9 @@ private:
   auto patch(CommandList&, const CommandBindIndexBuffer&) -> void;
   auto patch(CommandList&, const CommandBindSampler&) -> void;
   auto patch(CommandList&, const CommandBindTexture&) -> void;
+  auto patch(CommandList&, const CommandSetStencilReference&) -> void;
+  auto patch(CommandList&, const CommandSetStencilReadMask&) -> void;
+  auto patch(CommandList&, const CommandSetStencilWriteMask&) -> void;
   auto patch(CommandList&, const CommandSetBlendConstant&) -> void;
   auto patch(CommandList&, const CommandSetTransform&) -> void;
   auto patch(CommandList&, const CommandSetAmbientLight&) -> void;

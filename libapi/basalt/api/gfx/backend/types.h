@@ -377,6 +377,25 @@ struct FixedFragmentShaderCreateInfo {
   FogMode fog {FogMode::None};
 };
 
+enum class StencilOp : u8 {
+  Keep,
+  Zero,
+  Replace,
+  Invert,
+  IncrementClamp,
+  DecrementClamp,
+  IncrementWrap,
+  DecrementWrap,
+};
+constexpr u8 STENCIL_OP_COUNT {8};
+
+struct StencilOpState {
+  TestPassCond test {TestPassCond::Always};
+  StencilOp failOp {StencilOp::Keep};
+  StencilOp passDepthFailOp {StencilOp::Keep};
+  StencilOp passDepthPassOp {StencilOp::Keep};
+};
+
 struct PipelineDescriptor final {
   // null -> default fixed vertex shader
   const FixedVertexShaderCreateInfo* vertexShader {};
@@ -388,6 +407,8 @@ struct PipelineDescriptor final {
   FillMode fillMode {FillMode::Solid};
   TestPassCond depthTest {TestPassCond::Always};
   bool depthWriteEnable {false};
+  StencilOpState frontFaceStencilOp {};
+  StencilOpState backFaceStencilOp {};
   bool dithering {false};
   TestPassCond alphaTest {TestPassCond::Always};
   BlendFactor srcBlendFactor {BlendFactor::One};

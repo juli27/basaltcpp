@@ -580,6 +580,28 @@ auto D3D9Device::execute(const CommandBindPipeline& cmd) -> void {
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ZENABLE, data.zEnabled));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ZFUNC, data.zFunc));
   D3D9CHECK(mDevice->SetRenderState(D3DRS_ZWRITEENABLE, data.zWriteEnabled));
+
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_STENCILENABLE, data.stencilEnabled));
+  D3D9CHECK(
+    mDevice->SetRenderState(D3DRS_STENCILFUNC, data.cwStencilState.func));
+  D3D9CHECK(
+    mDevice->SetRenderState(D3DRS_STENCILFAIL, data.cwStencilState.failOp));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_STENCILZFAIL,
+                                    data.cwStencilState.passDepthFailOp));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_STENCILPASS,
+                                    data.cwStencilState.passDepthPassOp));
+
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_TWOSIDEDSTENCILMODE,
+                                    data.twoSidedStencilEnabled));
+  D3D9CHECK(
+    mDevice->SetRenderState(D3DRS_CCW_STENCILFUNC, data.ccwStencilState.func));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_CCW_STENCILFAIL,
+                                    data.ccwStencilState.failOp));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_CCW_STENCILZFAIL,
+                                    data.ccwStencilState.passDepthFailOp));
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_CCW_STENCILPASS,
+                                    data.ccwStencilState.passDepthPassOp));
+
   D3D9CHECK(mDevice->SetRenderState(D3DRS_DITHERENABLE, data.dithering));
   D3D9CHECK(
     mDevice->SetRenderState(D3DRS_ALPHATESTENABLE, data.alphaTestEnabled));
@@ -707,6 +729,18 @@ auto D3D9Device::execute(const CommandBindTexture& cmd) -> void {
   const IDirect3DBaseTexture9Ptr& texture {mTextures[cmd.textureId]};
 
   D3D9CHECK(mDevice->SetTexture(cmd.slot, texture.Get()));
+}
+
+auto D3D9Device::execute(const CommandSetStencilReference& cmd) -> void {
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_STENCILREF, cmd.value));
+}
+
+auto D3D9Device::execute(const CommandSetStencilReadMask& cmd) -> void {
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_STENCILMASK, cmd.value));
+}
+
+auto D3D9Device::execute(const CommandSetStencilWriteMask& cmd) -> void {
+  D3D9CHECK(mDevice->SetRenderState(D3DRS_STENCILWRITEMASK, cmd.value));
 }
 
 auto D3D9Device::execute(const CommandSetBlendConstant& cmd) -> void {

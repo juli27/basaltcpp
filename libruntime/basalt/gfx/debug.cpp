@@ -52,6 +52,9 @@ constexpr auto enumerator_to_string(const CommandType type) noexcept -> const
     ENUMERATOR_TO_STRING(CommandType, BindIndexBuffer);
     ENUMERATOR_TO_STRING(CommandType, BindTexture);
     ENUMERATOR_TO_STRING(CommandType, BindSampler);
+    ENUMERATOR_TO_STRING(CommandType, SetStencilReference);
+    ENUMERATOR_TO_STRING(CommandType, SetStencilReadMask);
+    ENUMERATOR_TO_STRING(CommandType, SetStencilWriteMask);
     ENUMERATOR_TO_STRING(CommandType, SetBlendConstant);
     ENUMERATOR_TO_STRING(CommandType, SetLights);
     ENUMERATOR_TO_STRING(CommandType, SetTransform);
@@ -224,6 +227,18 @@ void display(const CommandBindSampler& cmd) {
 void display(const CommandBindTexture& cmd) {
   ImGui::Text("slot = %u", cmd.slot);
   ImGui::Text("textureId = %#x", cmd.textureId.value());
+}
+
+auto display(const CommandSetStencilReference& cmd) {
+  ImGui::Text("value = %u", cmd.value);
+}
+
+auto display(const CommandSetStencilReadMask& cmd) {
+  ImGui::Text("value = %u", cmd.value);
+}
+
+auto display(const CommandSetStencilWriteMask& cmd) {
+  ImGui::Text("value = %u", cmd.value);
 }
 
 auto display(const CommandSetBlendConstant& cmd) {

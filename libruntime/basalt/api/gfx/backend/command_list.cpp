@@ -68,6 +68,18 @@ auto CommandList::bind_texture(const u8 slot, const Texture textureId) -> void {
   add<CommandBindTexture>(slot, textureId);
 }
 
+auto CommandList::set_stencil_reference(const u32 value) -> void {
+  add<CommandSetStencilReference>(value);
+}
+
+auto CommandList::set_stencil_read_mask(const u32 value) -> void {
+  add<CommandSetStencilReadMask>(value);
+}
+
+auto CommandList::set_stencil_write_mask(const u32 value) -> void {
+  add<CommandSetStencilWriteMask>(value);
+}
+
 auto CommandList::set_blend_constant(const Color& c) -> void {
   add<CommandSetBlendConstant>(c);
 }

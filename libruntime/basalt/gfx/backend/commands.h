@@ -23,6 +23,9 @@ enum class CommandType : u8 {
   BindIndexBuffer,
   BindSampler,
   BindTexture,
+  SetStencilReference,
+  SetStencilReadMask,
+  SetStencilWriteMask,
   SetBlendConstant,
 
   // fixed function only
@@ -156,6 +159,33 @@ struct CommandBindTexture final : CommandT<CommandType::BindTexture> {
   }
 };
 
+struct CommandSetStencilReference final
+  : CommandT<CommandType::SetStencilReference> {
+  u32 value;
+
+  constexpr explicit CommandSetStencilReference(const u32 aValue) noexcept
+    : value {aValue} {
+  }
+};
+
+struct CommandSetStencilReadMask final
+  : CommandT<CommandType::SetStencilReadMask> {
+  u32 value;
+
+  constexpr explicit CommandSetStencilReadMask(const u32 aValue) noexcept
+    : value {aValue} {
+  }
+};
+
+struct CommandSetStencilWriteMask final
+  : CommandT<CommandType::SetStencilWriteMask> {
+  u32 value;
+
+  constexpr explicit CommandSetStencilWriteMask(const u32 aValue) noexcept
+    : value {aValue} {
+  }
+};
+
 struct CommandSetBlendConstant final : CommandT<CommandType::SetBlendConstant> {
   Color value;
 
@@ -271,6 +301,9 @@ auto visit(const Command& cmd, Visitor&& visitor) -> void {
     VISIT(CommandBindIndexBuffer);
     VISIT(CommandBindSampler);
     VISIT(CommandBindTexture);
+    VISIT(CommandSetStencilReference);
+    VISIT(CommandSetStencilReadMask);
+    VISIT(CommandSetStencilWriteMask);
     VISIT(CommandSetBlendConstant);
     VISIT(CommandSetTransform);
     VISIT(CommandSetAmbientLight);

@@ -561,6 +561,21 @@ auto ValidatingDevice::patch(CommandList& cmdList,
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
+                             const CommandSetStencilReference& cmd) -> void {
+  cmdList.set_stencil_reference(cmd.value);
+}
+
+auto ValidatingDevice::patch(CommandList& cmdList,
+                             const CommandSetStencilReadMask& cmd) -> void {
+  cmdList.set_stencil_read_mask(cmd.value);
+}
+
+auto ValidatingDevice::patch(CommandList& cmdList,
+                             const CommandSetStencilWriteMask& cmd) -> void {
+  cmdList.set_stencil_write_mask(cmd.value);
+}
+
+auto ValidatingDevice::patch(CommandList& cmdList,
                              const CommandSetBlendConstant& cmd) -> void {
   cmdList.set_blend_constant(cmd.value);
 }

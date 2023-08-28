@@ -8,6 +8,17 @@ using std::array;
 
 namespace basalt::gfx {
 
+namespace {
+
+auto is_no_op(const StencilOpState& op) -> bool {
+  // fail op doesn't matter since the test has to always pass
+  return op.test == TestPassCond::Always &&
+         op.passDepthFailOp == StencilOp::Keep &&
+         op.passDepthPassOp == StencilOp::Keep;
+}
+
+} // namespace
+
 auto D3D9FixedVertexShader::from(const FixedVertexShaderCreateInfo* info)
   -> D3D9FixedVertexShader {
   if (!info) {
@@ -88,6 +99,13 @@ auto D3D9TexStage::from(const FixedVertexShaderCreateInfo* vs,
   return stages;
 }
 
+auto D3D9StencilOpState::from(const StencilOpState& stencilOp) noexcept
+  -> D3D9StencilOpState {
+  return D3D9StencilOpState {to_d3d(stencilOp.test), to_d3d(stencilOp.failOp),
+                             to_d3d(stencilOp.passDepthFailOp),
+                             to_d3d(stencilOp.passDepthPassOp)};
+}
+
 auto D3D9Pipeline::from(const PipelineDescriptor& desc) -> D3D9Pipeline {
   // TODO: is there a benefit to turn off z testing when func = Always
   // and with writing disabled?
@@ -95,6 +113,12 @@ auto D3D9Pipeline::from(const PipelineDescriptor& desc) -> D3D9Pipeline {
                                      !desc.depthWriteEnable
                                    ? D3DZB_FALSE
                                    : D3DZB_TRUE};
+
+  const bool stencilEnabled {!is_no_op(desc.frontFaceStencilOp) ||
+                             !is_no_op(desc.backFaceStencilOp)};
+  const bool twoSidedStencilEnabled {desc.cullMode == CullMode::None &&
+                                     stencilEnabled &&
+                                     !is_no_op(desc.backFaceStencilOp)};
 
   const bool alphaTestEnabled {desc.alphaTest != TestPassCond::Always};
   const bool alphaBlendEnabled {desc.blendOp != BlendOp::Add ||
@@ -112,6 +136,10 @@ auto D3D9Pipeline::from(const PipelineDescriptor& desc) -> D3D9Pipeline {
     zEnabled,
     to_d3d(desc.depthTest),
     desc.depthWriteEnable,
+    stencilEnabled,
+    twoSidedStencilEnabled,
+    D3D9StencilOpState::from(desc.frontFaceStencilOp),
+    D3D9StencilOpState::from(desc.backFaceStencilOp),
     desc.dithering,
     alphaTestEnabled,
     to_d3d(desc.alphaTest),

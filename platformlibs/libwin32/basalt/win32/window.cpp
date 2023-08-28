@@ -360,7 +360,7 @@ auto Window::init_gfx_context(const gfx::Win32GfxFactory& gfxFactory) -> void {
 
   const gfx::Win32GfxFactory::DeviceAndSwapChainDesc contextDesc {
     adapterInfo.handle,         adapterInfo.displayMode,
-    adapterInfo.displayFormat,  gfx::ImageFormat::D16,
+    adapterInfo.displayFormat,  gfx::ImageFormat::D24S8,
     gfx::MultiSampleCount::One, mCurrentMode == WindowMode::FullscreenExclusive,
   };
 

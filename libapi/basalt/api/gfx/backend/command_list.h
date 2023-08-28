@@ -49,6 +49,9 @@ public:
   auto bind_index_buffer(IndexBuffer) -> void;
   auto bind_sampler(u8 slot, Sampler) -> void;
   auto bind_texture(u8 slot, Texture) -> void;
+  auto set_stencil_reference(u32) -> void;
+  auto set_stencil_read_mask(u32) -> void;
+  auto set_stencil_write_mask(u32) -> void;
   auto set_blend_constant(const Color&) -> void;
   auto set_transform(TransformState, const Matrix4x4f32&) -> void;
   auto set_ambient_light(const Color&) -> void;

@@ -257,6 +257,22 @@ inline auto to_d3d(const ShadeMode mode) -> D3DSHADEMODE {
   return TO_D3D[mode];
 }
 
+inline auto to_d3d(const StencilOp op) -> D3DSTENCILOP {
+  static constexpr EnumArray<StencilOp, D3DSTENCILOP, 8> TO_D3D {
+    {StencilOp::Keep, D3DSTENCILOP_KEEP},
+    {StencilOp::Zero, D3DSTENCILOP_ZERO},
+    {StencilOp::Replace, D3DSTENCILOP_REPLACE},
+    {StencilOp::Invert, D3DSTENCILOP_INVERT},
+    {StencilOp::IncrementClamp, D3DSTENCILOP_INCRSAT},
+    {StencilOp::DecrementClamp, D3DSTENCILOP_DECRSAT},
+    {StencilOp::IncrementWrap, D3DSTENCILOP_INCR},
+    {StencilOp::DecrementWrap, D3DSTENCILOP_DECR},
+  };
+  static_assert(STENCIL_OP_COUNT == TO_D3D.size());
+
+  return TO_D3D[op];
+}
+
 inline auto to_d3d(const TestPassCond function) -> D3DCMPFUNC {
   static constexpr EnumArray<TestPassCond, D3DCMPFUNC, 8> TO_D3D {
     {TestPassCond::Never, D3DCMP_NEVER},
