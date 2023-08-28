@@ -11,6 +11,7 @@
 #include <basalt/sandbox/tribase/02-09_multi_texturing.h>
 #include <basalt/sandbox/tribase/02-10_volume_textures.h>
 #include <basalt/sandbox/tribase/02-11_env_mapping.h>
+#include <basalt/sandbox/tribase/02-12_bump_mapping.h>
 
 #include <memory>
 
@@ -67,4 +68,9 @@ auto TribaseExamples::new_02_10_volume_textures(basalt::Engine& engine)
 auto TribaseExamples::new_02_11_env_mapping(basalt::Engine& engine)
   -> basalt::ViewPtr {
   return std::make_shared<tribase::EnvMapping>(engine);
+}
+
+auto TribaseExamples::new_02_12_bump_mapping(basalt::Engine& engine)
+  -> basalt::ViewPtr {
+  return std::make_shared<tribase::BumpMapping>(engine);
 }
