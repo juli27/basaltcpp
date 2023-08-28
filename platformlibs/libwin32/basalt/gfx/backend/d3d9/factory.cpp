@@ -21,8 +21,6 @@
 
 namespace basalt::gfx {
 
-using Microsoft::WRL::ComPtr;
-
 using namespace std::literals;
 using std::array;
 using std::string;
@@ -35,27 +33,18 @@ constexpr D3DDEVTYPE DEVICE_TYPE {D3DDEVTYPE_HAL};
 constexpr DWORD DEVICE_CREATE_FLAGS {D3DCREATE_HARDWARE_VERTEXPROCESSING |
                                      D3DCREATE_DISABLE_DRIVER_MANAGEMENT};
 
-constexpr array<D3DFORMAT, 4> DISPLAY_FORMATS {
-  D3DFMT_X1R5G5B5,
-  D3DFMT_R5G6B5,
-  D3DFMT_X8R8G8B8,
-  D3DFMT_A2R10G10B10,
-};
+constexpr array DISPLAY_FORMATS {D3DFMT_X1R5G5B5, D3DFMT_R5G6B5,
+                                 D3DFMT_X8R8G8B8, D3DFMT_A2R10G10B10};
 
-constexpr array<D3DFORMAT, 6> BACK_BUFFER_FORMATS {
-  D3DFMT_X1R5G5B5, D3DFMT_A1R5G5B5, D3DFMT_R5G6B5,
-  D3DFMT_X8R8G8B8, D3DFMT_A8R8G8B8, D3DFMT_A2R10G10B10,
-};
+constexpr array BACK_BUFFER_FORMATS {D3DFMT_X1R5G5B5, D3DFMT_A1R5G5B5,
+                                     D3DFMT_R5G6B5,   D3DFMT_X8R8G8B8,
+                                     D3DFMT_A8R8G8B8, D3DFMT_A2R10G10B10};
 
 // unsupported formats: D3DFMT_D16_LOCKABLE, D3DFMT_D32, D3DFMT_D15S1,
 // D3DFMT_D24X4S4, D3DFMT_D32F_LOCKABLE, D3DFMT_D24FS8
-constexpr array<D3DFORMAT, 3> DEPTH_STENCIL_FORMATS {
-  D3DFMT_D16,
-  D3DFMT_D24X8,
-  D3DFMT_D24S8,
-};
+constexpr array DEPTH_STENCIL_FORMATS {D3DFMT_D16, D3DFMT_D24X8, D3DFMT_D24S8};
 
-constexpr array<D3DMULTISAMPLE_TYPE, 4> MULTI_SAMPLE_TYPES {
+constexpr array MULTI_SAMPLE_TYPES {
   D3DMULTISAMPLE_NONE,
   D3DMULTISAMPLE_2_SAMPLES,
   D3DMULTISAMPLE_4_SAMPLES,
@@ -98,26 +87,23 @@ template <typename MinCaps>
 auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
   bool allCapsPresent {true};
 
-  static constexpr array<Cap, 1> MIN_CAPS3 {
+  static constexpr array MIN_CAPS3 {
     MAKE_CAP(D3DCAPS3_ALPHA_FULLSCREEN_FLIP_OR_DISCARD),
   };
-
   allCapsPresent &= verify_caps_present(caps.Caps3, MIN_CAPS3);
 
-  static constexpr array<Cap, 1> MIN_PRESENT_INTERVALS {
+  static constexpr array MIN_PRESENT_INTERVALS {
     MAKE_CAP(D3DPRESENT_INTERVAL_ONE),
   };
-
   allCapsPresent &=
     verify_caps_present(caps.PresentationIntervals, MIN_PRESENT_INTERVALS);
 
-  static constexpr array<Cap, 4> MIN_DEV_CAPS {
+  static constexpr array MIN_DEV_CAPS {
     MAKE_CAP(D3DDEVCAPS_DRAWPRIMITIVES2),
     MAKE_CAP(D3DDEVCAPS_DRAWPRIMITIVES2EX),
     MAKE_CAP(D3DDEVCAPS_HWTRANSFORMANDLIGHT),
     MAKE_CAP(D3DDEVCAPS_HWRASTERIZATION),
   };
-
   allCapsPresent &= verify_caps_present(caps.DevCaps, MIN_DEV_CAPS);
 
   static constexpr array MIN_PRIMITIVE_MISC_CAPS {
@@ -132,22 +118,20 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
   allCapsPresent &=
     verify_caps_present(caps.PrimitiveMiscCaps, MIN_PRIMITIVE_MISC_CAPS);
 
-  static constexpr array<Cap, 7> MIN_RASTER_CAPS {
+  static constexpr array MIN_RASTER_CAPS {
     MAKE_CAP(D3DPRASTERCAPS_DITHER),    MAKE_CAP(D3DPRASTERCAPS_ZTEST),
     MAKE_CAP(D3DPRASTERCAPS_FOGVERTEX), MAKE_CAP(D3DPRASTERCAPS_FOGTABLE),
     MAKE_CAP(D3DPRASTERCAPS_FOGRANGE),  MAKE_CAP(D3DPRASTERCAPS_WFOG),
     MAKE_CAP(D3DPRASTERCAPS_ZFOG),
   };
-
   allCapsPresent &= verify_caps_present(caps.RasterCaps, MIN_RASTER_CAPS);
 
-  static constexpr array<Cap, 8> MIN_Z_CMP_CAPS {
+  static constexpr array MIN_Z_CMP_CAPS {
     MAKE_CAP(D3DPCMPCAPS_NEVER),        MAKE_CAP(D3DPCMPCAPS_LESS),
     MAKE_CAP(D3DPCMPCAPS_EQUAL),        MAKE_CAP(D3DPCMPCAPS_LESSEQUAL),
     MAKE_CAP(D3DPCMPCAPS_GREATER),      MAKE_CAP(D3DPCMPCAPS_NOTEQUAL),
     MAKE_CAP(D3DPCMPCAPS_GREATEREQUAL), MAKE_CAP(D3DPCMPCAPS_ALWAYS),
   };
-
   allCapsPresent &= verify_caps_present(caps.ZCmpCaps, MIN_Z_CMP_CAPS);
 
   static constexpr array MIN_SRC_BLEND_CAPS {
@@ -191,13 +175,12 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
   };
   allCapsPresent &= verify_caps_present(caps.AlphaCmpCaps, MIN_ALPHA_CMP_CAPS);
 
-  static constexpr array<Cap, 4> MIN_SHADE_CAPS {
+  static constexpr array MIN_SHADE_CAPS {
     MAKE_CAP(D3DPSHADECAPS_COLORGOURAUDRGB),
     MAKE_CAP(D3DPSHADECAPS_SPECULARGOURAUDRGB),
     MAKE_CAP(D3DPSHADECAPS_ALPHAGOURAUDBLEND),
     MAKE_CAP(D3DPSHADECAPS_FOGGOURAUD),
   };
-
   allCapsPresent &= verify_caps_present(caps.ShadeCaps, MIN_SHADE_CAPS);
 
   static constexpr array MIN_TEXTURE_CAPS {
@@ -208,13 +191,11 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
     MAKE_CAP(D3DPTEXTURECAPS_MIPMAP),
     MAKE_CAP(D3DPTEXTURECAPS_MIPVOLUMEMAP),
   };
-
   allCapsPresent &= verify_caps_present(caps.TextureCaps, MIN_TEXTURE_CAPS);
 
-  static constexpr array<Cap, 1> FORBIDDEN_TEXTURE_CAPS {
+  static constexpr array FORBIDDEN_TEXTURE_CAPS {
     MAKE_CAP(D3DPTEXTURECAPS_SQUAREONLY),
   };
-
   for (const Cap& cap : FORBIDDEN_TEXTURE_CAPS) {
     if (caps.TextureCaps & cap.cap) {
       allCapsPresent = false;
@@ -227,7 +208,6 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
     MAKE_CAP(D3DPTFILTERCAPS_MIPFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MIPFLINEAR),
     MAKE_CAP(D3DPTFILTERCAPS_MAGFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MAGFLINEAR),
   };
-
   allCapsPresent &=
     verify_caps_present(caps.TextureFilterCaps, MIN_TEXTURE_FILTER_CAPS);
 
@@ -236,7 +216,6 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
     MAKE_CAP(D3DPTFILTERCAPS_MIPFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MIPFLINEAR),
     MAKE_CAP(D3DPTFILTERCAPS_MAGFPOINT), MAKE_CAP(D3DPTFILTERCAPS_MAGFLINEAR),
   };
-
   allCapsPresent &= verify_caps_present(caps.VolumeTextureFilterCaps,
                                         MIN_VOLUME_TEXTURE_FILTER_CAPS);
 
@@ -246,7 +225,6 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
     MAKE_CAP(D3DPTADDRESSCAPS_CLAMP),
     MAKE_CAP(D3DPTADDRESSCAPS_INDEPENDENTUV),
   };
-
   allCapsPresent &=
     verify_caps_present(caps.TextureAddressCaps, MIN_TEXTURE_ADDRESS_CAPS);
 
@@ -256,7 +234,6 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
     MAKE_CAP(D3DPTADDRESSCAPS_CLAMP),
     MAKE_CAP(D3DPTADDRESSCAPS_INDEPENDENTUV),
   };
-
   allCapsPresent &= verify_caps_present(caps.VolumeTextureAddressCaps,
                                         MIN_VOLUME_TEXTURE_ADDRESS_CAPS);
 
@@ -300,20 +277,18 @@ auto verify_minimum_caps(const D3DCAPS9& caps) -> bool {
   allCapsPresent &=
     verify_caps_present(caps.TextureOpCaps, MIN_TEXTURE_OP_CAPS);
 
-  static constexpr array<Cap, 4> MIN_VERTEX_PROCESSING_CAPS {
+  static constexpr array MIN_VERTEX_PROCESSING_CAPS {
     MAKE_CAP(D3DVTXPCAPS_DIRECTIONALLIGHTS),
     MAKE_CAP(D3DVTXPCAPS_LOCALVIEWER),
     MAKE_CAP(D3DVTXPCAPS_MATERIALSOURCE7),
     MAKE_CAP(D3DVTXPCAPS_POSITIONALLIGHTS),
   };
-
   allCapsPresent &=
     verify_caps_present(caps.VertexProcessingCaps, MIN_VERTEX_PROCESSING_CAPS);
 
-  static constexpr array<Cap, 1> MIN_DEV_CAPS2 {
+  static constexpr array MIN_DEV_CAPS2 {
     MAKE_CAP(D3DDEVCAPS2_STREAMOFFSET),
   };
-
   allCapsPresent &= verify_caps_present(caps.DevCaps2, MIN_DEV_CAPS2);
 
   return allCapsPresent;
@@ -341,62 +316,6 @@ auto enum_display_modes(IDirect3D9& instance, const UINT adapter,
   }
 
   return displayModes;
-}
-
-constexpr auto to_image_format(const D3DFORMAT format) noexcept -> ImageFormat {
-  switch (format) {
-  case D3DFMT_A8R8G8B8:
-    return ImageFormat::B8G8R8A8;
-
-  case D3DFMT_X8R8G8B8:
-    return ImageFormat::B8G8R8X8;
-
-  case D3DFMT_R5G6B5:
-    return ImageFormat::B5G6R5;
-
-  case D3DFMT_X1R5G5B5:
-    return ImageFormat::B5G5R5X1;
-
-  case D3DFMT_A1R5G5B5:
-    return ImageFormat::B5G5R5A1;
-
-  case D3DFMT_A2R10G10B10:
-    return ImageFormat::B10G10R10A2;
-
-  case D3DFMT_D24S8:
-    return ImageFormat::D24S8;
-
-  case D3DFMT_D24X8:
-    return ImageFormat::D24X8;
-
-  case D3DFMT_D16:
-    return ImageFormat::D16;
-
-  case D3DFMT_UNKNOWN:
-  case D3DFMT_D16_LOCKABLE:
-  case D3DFMT_D32:
-  case D3DFMT_D15S1:
-  case D3DFMT_D24X4S4:
-  case D3DFMT_D32F_LOCKABLE:
-  case D3DFMT_D24FS8:
-  default:
-    return ImageFormat::Unknown;
-  }
-}
-
-auto to_multi_sample_count(const D3DMULTISAMPLE_TYPE type) -> MultiSampleCount {
-  switch (type) {
-  case D3DMULTISAMPLE_NONE:
-    return MultiSampleCount::One;
-  case D3DMULTISAMPLE_2_SAMPLES:
-    return MultiSampleCount::Two;
-  case D3DMULTISAMPLE_4_SAMPLES:
-    return MultiSampleCount::Four;
-  case D3DMULTISAMPLE_8_SAMPLES:
-    return MultiSampleCount::Eight;
-  default:
-    BASALT_CRASH("unknown multisample type");
-  }
 }
 
 auto enum_depth_stencil_formats(IDirect3D9& instance, const UINT adapter,
@@ -617,7 +536,7 @@ auto enum_suitable_adapters(IDirect3D9& instance) -> AdapterList {
 } // namespace
 
 auto D3D9Factory::create() -> D3D9FactoryPtr {
-  InstancePtr instance;
+  IDirect3D9Ptr instance;
   instance.Attach(Direct3DCreate9(D3D_SDK_VERSION));
   if (!instance) {
     BASALT_LOG_WARN("d3d9: not available");
@@ -639,17 +558,8 @@ auto D3D9Factory::create() -> D3D9FactoryPtr {
     return nullptr;
   }
 
-  return std::make_unique<D3D9Factory>(Token {}, std::move(instance),
+  return std::make_unique<D3D9Factory>(std::move(instance),
                                        std::move(adapters));
-}
-
-D3D9Factory::D3D9Factory(Token, InstancePtr instance, AdapterList adapters)
-  : mInstance {std::move(instance)}
-  , mAdapters {std::move(adapters)} {
-}
-
-auto D3D9Factory::adapters() const -> const AdapterList& {
-  return mAdapters;
 }
 
 auto D3D9Factory::get_adapter_monitor(const Adapter adapter) const -> HMONITOR {
@@ -657,6 +567,15 @@ auto D3D9Factory::get_adapter_monitor(const Adapter adapter) const -> HMONITOR {
   BASALT_ASSERT(adapterOrdinal < mInstance->GetAdapterCount());
 
   return mInstance->GetAdapterMonitor(adapterOrdinal);
+}
+
+auto D3D9Factory::adapters() const -> const AdapterList& {
+  return mAdapters;
+}
+
+D3D9Factory::D3D9Factory(IDirect3D9Ptr instance, AdapterList adapters)
+  : mInstance {std::move(instance)}
+  , mAdapters {std::move(adapters)} {
 }
 
 auto D3D9Factory::do_create_device_and_swap_chain(
@@ -685,7 +604,7 @@ auto D3D9Factory::do_create_device_and_swap_chain(
     pp.FullScreen_RefreshRateInHz = desc.exclusiveDisplayMode.refreshRate;
   }
 
-  ComPtr<IDirect3DDevice9> d3d9Device;
+  IDirect3DDevice9Ptr d3d9Device;
   D3D9CHECK(mInstance->CreateDevice(adapterOrdinal, DEVICE_TYPE, window,
                                     DEVICE_CREATE_FLAGS, &pp, &d3d9Device));
   IDirect3DSwapChain9Ptr implicitSwapChain;
@@ -694,9 +613,9 @@ auto D3D9Factory::do_create_device_and_swap_chain(
   // TODO: verify the five caps which differ?
 
   auto device {std::make_shared<D3D9Device>(std::move(d3d9Device))};
-  auto context {D3D9SwapChain::create(device, std::move(implicitSwapChain))};
+  auto swapChain {D3D9SwapChain::create(device, std::move(implicitSwapChain))};
 
-  return DeviceAndSwapChain {std::move(device), std::move(context)};
+  return DeviceAndSwapChain {std::move(device), std::move(swapChain)};
 }
 
 } // namespace basalt::gfx

@@ -7,13 +7,11 @@
 
 #include <basalt/gfx/backend/types.h>
 
-#include <wrl/client.h>
-
 namespace basalt::gfx::ext {
 
 class D3D9ImGuiRenderer final : public DearImGuiRenderer {
 public:
-  static auto create(Microsoft::WRL::ComPtr<IDirect3DDevice9>)
+  static auto create(IDirect3DDevice9Ptr)
     -> D3D9ImGuiRendererPtr;
 
   auto execute(const CommandRenderDearImGui&) const -> void;
@@ -24,10 +22,10 @@ public:
   auto shutdown() -> void override;
   auto new_frame() -> void override;
 
-  explicit D3D9ImGuiRenderer(Microsoft::WRL::ComPtr<IDirect3DDevice9>);
+  explicit D3D9ImGuiRenderer(IDirect3DDevice9Ptr);
 
 private:
-  Microsoft::WRL::ComPtr<IDirect3DDevice9> mDevice;
+  IDirect3DDevice9Ptr mDevice;
 };
 
 } // namespace basalt::gfx::ext

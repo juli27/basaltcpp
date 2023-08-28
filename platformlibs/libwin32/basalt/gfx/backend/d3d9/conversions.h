@@ -7,6 +7,7 @@
 #include <basalt/api/gfx/types.h>
 #include <basalt/api/gfx/backend/types.h>
 
+#include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/color.h>
 
 #include <basalt/api/math/matrix4x4.h>
@@ -141,26 +142,35 @@ inline auto to_d3d(const ImageFormat format) -> D3DFORMAT {
   return TO_D3D[format];
 }
 
-constexpr auto to_image_format(const D3DFORMAT format) -> ImageFormat {
+constexpr auto to_image_format(const D3DFORMAT format) noexcept -> ImageFormat {
   switch (format) {
-  case D3DFMT_R5G6B5:
-    return ImageFormat::B5G6R5;
-  case D3DFMT_X1R5G5B5:
-    return ImageFormat::B5G5R5X1;
-  case D3DFMT_A1R5G5B5:
-    return ImageFormat::B5G5R5A1;
-  case D3DFMT_X8R8G8B8:
-    return ImageFormat::B8G8R8X8;
   case D3DFMT_A8R8G8B8:
     return ImageFormat::B8G8R8A8;
+
+  case D3DFMT_X8R8G8B8:
+    return ImageFormat::B8G8R8X8;
+
+  case D3DFMT_R5G6B5:
+    return ImageFormat::B5G6R5;
+
+  case D3DFMT_X1R5G5B5:
+    return ImageFormat::B5G5R5X1;
+
+  case D3DFMT_A1R5G5B5:
+    return ImageFormat::B5G5R5A1;
+
   case D3DFMT_A2R10G10B10:
     return ImageFormat::B10G10R10A2;
-  case D3DFMT_D16:
-    return ImageFormat::D16;
-  case D3DFMT_D24X8:
-    return ImageFormat::D24X8;
+
   case D3DFMT_D24S8:
     return ImageFormat::D24S8;
+
+  case D3DFMT_D24X8:
+    return ImageFormat::D24X8;
+
+  case D3DFMT_D16:
+    return ImageFormat::D16;
+
   case D3DFMT_UNKNOWN:
   default:
     break;
@@ -201,39 +211,22 @@ inline auto to_d3d(const MultiSampleCount sampleCount) -> D3DMULTISAMPLE_TYPE {
   return TO_D3D[sampleCount];
 }
 
-constexpr auto to_multi_sample_count(const D3DMULTISAMPLE_TYPE sampleType)
+inline auto to_multi_sample_count(const D3DMULTISAMPLE_TYPE sampleType)
   -> MultiSampleCount {
   switch (sampleType) {
   case D3DMULTISAMPLE_NONE:
-  case D3DMULTISAMPLE_NONMASKABLE:
     return MultiSampleCount::One;
-
   case D3DMULTISAMPLE_2_SAMPLES:
     return MultiSampleCount::Two;
-
-  case D3DMULTISAMPLE_3_SAMPLES:
   case D3DMULTISAMPLE_4_SAMPLES:
     return MultiSampleCount::Four;
-
-  case D3DMULTISAMPLE_5_SAMPLES:
-  case D3DMULTISAMPLE_6_SAMPLES:
-  case D3DMULTISAMPLE_7_SAMPLES:
   case D3DMULTISAMPLE_8_SAMPLES:
-  case D3DMULTISAMPLE_9_SAMPLES:
-  case D3DMULTISAMPLE_10_SAMPLES:
-  case D3DMULTISAMPLE_11_SAMPLES:
-  case D3DMULTISAMPLE_12_SAMPLES:
-  case D3DMULTISAMPLE_13_SAMPLES:
-  case D3DMULTISAMPLE_14_SAMPLES:
-  case D3DMULTISAMPLE_15_SAMPLES:
-  case D3DMULTISAMPLE_16_SAMPLES:
     return MultiSampleCount::Eight;
-
   default:
     break;
   }
 
-  return MultiSampleCount::One;
+  BASALT_CRASH("unknown multisample type");
 }
 
 inline auto to_d3d(const PrimitiveType primitiveType) -> D3DPRIMITIVETYPE {

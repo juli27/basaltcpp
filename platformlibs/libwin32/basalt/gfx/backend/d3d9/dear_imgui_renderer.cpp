@@ -7,9 +7,7 @@
 
 namespace basalt::gfx::ext {
 
-using Microsoft::WRL::ComPtr;
-
-auto D3D9ImGuiRenderer::create(ComPtr<IDirect3DDevice9> device)
+auto D3D9ImGuiRenderer::create(IDirect3DDevice9Ptr device)
   -> D3D9ImGuiRendererPtr {
   return std::make_shared<D3D9ImGuiRenderer>(std::move(device));
 }
@@ -49,7 +47,7 @@ auto D3D9ImGuiRenderer::new_frame() -> void {
   ImGui_ImplDX9_NewFrame();
 }
 
-D3D9ImGuiRenderer::D3D9ImGuiRenderer(ComPtr<IDirect3DDevice9> device)
+D3D9ImGuiRenderer::D3D9ImGuiRenderer(IDirect3DDevice9Ptr device)
   : mDevice {std::move(device)} {
 }
 

@@ -20,9 +20,8 @@ using std::filesystem::path;
 
 using gsl::span;
 
-using Microsoft::WRL::ComPtr;
-
-auto D3D9XModelSupport::create(DevicePtr device) -> D3D9XModelSupportPtr {
+auto D3D9XModelSupport::create(IDirect3DDevice9Ptr device)
+  -> D3D9XModelSupportPtr {
   return std::make_shared<D3D9XModelSupport>(std::move(device));
 }
 
@@ -33,9 +32,9 @@ auto D3D9XModelSupport::execute(const CommandDrawXMesh& cmd) const -> void {
 }
 
 auto D3D9XModelSupport::load(const path& filepath) -> XModelData {
-  XMeshPtr mesh;
+  ID3DXMeshPtr mesh;
 
-  ComPtr<ID3DXBuffer> materialBuffer;
+  ID3DXBufferPtr materialBuffer;
   DWORD numMaterials {};
   if (FAILED(D3DXLoadMeshFromXW(filepath.c_str(), D3DXMESH_MANAGED,
                                 mDevice.Get(), nullptr, &materialBuffer,
@@ -79,7 +78,7 @@ auto D3D9XModelSupport::destroy(const XMesh handle) noexcept -> void {
   mMeshes.deallocate(handle);
 }
 
-D3D9XModelSupport::D3D9XModelSupport(DevicePtr device)
+D3D9XModelSupport::D3D9XModelSupport(IDirect3DDevice9Ptr device)
   : mDevice {std::move(device)} {
 }
 

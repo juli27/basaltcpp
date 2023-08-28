@@ -288,7 +288,7 @@ auto D3D9Device::create_vertex_buffer(const VertexBufferDescriptor& desc,
   const DWORD fvf {to_d3d_fvf(desc.layout)};
   const UINT size {static_cast<UINT>(desc.sizeInBytes)};
 
-  D3D9VertexBufferPtr vertexBuffer {};
+  IDirect3DVertexBuffer9Ptr vertexBuffer {};
   if (FAILED(mDevice->CreateVertexBuffer(size, 0ul, fvf, D3DPOOL_MANAGED,
                                          &vertexBuffer, nullptr))) {
     BASALT_LOG_ERROR("failed to allocate vertex buffer");
@@ -322,7 +322,7 @@ auto D3D9Device::map(const VertexBuffer handle, const uDeviceSize offset,
     return {};
   }
 
-  const D3D9VertexBufferPtr& vertexBuffer {mVertexBuffers[handle]};
+  const IDirect3DVertexBuffer9Ptr& vertexBuffer {mVertexBuffers[handle]};
 
   return map_impl(*vertexBuffer.Get(), offset, size);
 }
@@ -332,7 +332,7 @@ auto D3D9Device::unmap(const VertexBuffer handle) noexcept -> void {
     return;
   }
 
-  const D3D9VertexBufferPtr& vertexBuffer {mVertexBuffers[handle]};
+  const IDirect3DVertexBuffer9Ptr& vertexBuffer {mVertexBuffers[handle]};
 
   D3D9CHECK(vertexBuffer->Unlock());
 }
@@ -347,7 +347,7 @@ auto D3D9Device::create_index_buffer(const IndexBufferDescriptor& desc,
   const UINT size {static_cast<UINT>(desc.sizeInBytes)};
   const D3DFORMAT type {to_d3d(desc.type)};
 
-  D3D9IndexBufferPtr indexBuffer {};
+  IDirect3DIndexBuffer9Ptr indexBuffer {};
   if (FAILED(mDevice->CreateIndexBuffer(size, 0ul, type, D3DPOOL_MANAGED,
                                         &indexBuffer, nullptr))) {
     BASALT_LOG_ERROR("failed to allocate index buffer");
@@ -381,7 +381,7 @@ auto D3D9Device::map(const IndexBuffer handle, const uDeviceSize offsetInBytes,
     return {};
   }
 
-  const D3D9IndexBufferPtr& indexBuffer {mIndexBuffers[handle]};
+  const IDirect3DIndexBuffer9Ptr& indexBuffer {mIndexBuffers[handle]};
 
   return map_impl(*indexBuffer.Get(), offsetInBytes, sizeInBytes);
 }
@@ -391,7 +391,7 @@ auto D3D9Device::unmap(const IndexBuffer handle) noexcept -> void {
     return;
   }
 
-  const D3D9IndexBufferPtr& indexBuffer {mIndexBuffers[handle]};
+  const IDirect3DIndexBuffer9Ptr& indexBuffer {mIndexBuffers[handle]};
 
   D3D9CHECK(indexBuffer->Unlock());
 }
@@ -631,7 +631,7 @@ auto D3D9Device::execute(const CommandBindVertexBuffer& cmd) -> void {
     return;
   }
 
-  const D3D9VertexBufferPtr& buffer {mVertexBuffers[cmd.vertexBufferId]};
+  const IDirect3DVertexBuffer9Ptr& buffer {mVertexBuffers[cmd.vertexBufferId]};
 
   D3DVERTEXBUFFER_DESC desc {};
   D3D9CHECK(buffer->GetDesc(&desc));
@@ -647,7 +647,7 @@ auto D3D9Device::execute(const CommandBindIndexBuffer& cmd) -> void {
     return;
   }
 
-  const D3D9IndexBufferPtr& buffer {mIndexBuffers[cmd.indexBufferId]};
+  const IDirect3DIndexBuffer9Ptr& buffer {mIndexBuffers[cmd.indexBufferId]};
 
   D3D9CHECK(mDevice->SetIndices(buffer.Get()));
 }

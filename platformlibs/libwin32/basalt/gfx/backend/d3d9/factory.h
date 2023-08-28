@@ -7,21 +7,12 @@
 
 #include <basalt/api/gfx/types.h>
 
-#include <wrl/client.h>
-
 namespace basalt::gfx {
 
 class D3D9Factory final : public Win32GfxFactory {
-  // disallow outside construction while enabling make_unique
-  struct Token {};
-
-  using InstancePtr = Microsoft::WRL::ComPtr<IDirect3D9>;
-
 public:
   // returns null on failure
   static auto create() -> D3D9FactoryPtr;
-
-  D3D9Factory(Token, InstancePtr, AdapterList);
 
   D3D9Factory(const D3D9Factory&) = delete;
   D3D9Factory(D3D9Factory&&) = delete;
@@ -35,11 +26,15 @@ public:
 
   [[nodiscard]] auto adapters() const -> const AdapterList& override;
 
+  // don't use. Use create function instead
+  D3D9Factory(IDirect3D9Ptr, AdapterList);
+
 private:
-  InstancePtr mInstance;
+  IDirect3D9Ptr mInstance;
   AdapterList mAdapters;
 
-  auto do_create_device_and_swap_chain(HWND, const DeviceAndSwapChainDesc&) const
+  auto do_create_device_and_swap_chain(HWND,
+                                       const DeviceAndSwapChainDesc&) const
     -> DeviceAndSwapChain override;
 };
 

@@ -11,8 +11,6 @@
 
 #include <basalt/api/shared/handle_pool.h>
 
-#include <wrl/client.h>
-
 #include <filesystem>
 #include <memory>
 #include <unordered_map>
@@ -82,8 +80,6 @@ public:
 
 private:
   using ExtensionMap = std::unordered_map<ext::ExtensionId, ext::ExtensionPtr>;
-  using D3D9VertexBufferPtr = Microsoft::WRL::ComPtr<IDirect3DVertexBuffer9>;
-  using D3D9IndexBufferPtr = Microsoft::WRL::ComPtr<IDirect3DIndexBuffer9>;
 
   struct SamplerData final {
     D3DTEXTUREFILTERTYPE magFilter {D3DTEXF_POINT};
@@ -101,8 +97,8 @@ private:
   ExtensionMap mExtensions;
 
   HandlePool<D3D9Pipeline, Pipeline> mPipelines {};
-  HandlePool<D3D9VertexBufferPtr, VertexBuffer> mVertexBuffers {};
-  HandlePool<D3D9IndexBufferPtr, IndexBuffer> mIndexBuffers {};
+  HandlePool<IDirect3DVertexBuffer9Ptr, VertexBuffer> mVertexBuffers {};
+  HandlePool<IDirect3DIndexBuffer9Ptr, IndexBuffer> mIndexBuffers {};
   HandlePool<IDirect3DBaseTexture9Ptr, Texture> mTextures {};
   HandlePool<SamplerData, Sampler> mSamplers {};
 
