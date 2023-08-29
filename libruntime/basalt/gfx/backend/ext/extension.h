@@ -4,23 +4,24 @@
 
 namespace basalt::gfx::ext {
 
-struct Extension {
-  Extension(const Extension&) = delete;
-  Extension(Extension&&) = delete;
+class DeviceExtension {
+public:
+  DeviceExtension(const DeviceExtension&) = delete;
+  DeviceExtension(DeviceExtension&&) = delete;
 
-  virtual ~Extension() noexcept = default;
+  virtual ~DeviceExtension() noexcept = default;
 
-  auto operator=(const Extension&) -> Extension& = delete;
-  auto operator=(Extension&&) -> Extension& = delete;
+  auto operator=(const DeviceExtension&) -> DeviceExtension& = delete;
+  auto operator=(DeviceExtension&&) -> DeviceExtension& = delete;
 
 protected:
-  Extension() noexcept = default;
+  DeviceExtension() noexcept = default;
 };
 
-template <ExtensionId Id>
-class ExtensionT : public Extension {
+template <DeviceExtensionId Id>
+class DeviceExtensionT : public DeviceExtension {
 public:
-  static constexpr ExtensionId ID = Id;
+  static constexpr DeviceExtensionId ID = Id;
 };
 
 } // namespace basalt::gfx::ext

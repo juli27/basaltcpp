@@ -6,8 +6,7 @@
 #include <basalt/gfx/backend/d3d9/data.h>
 
 #include <basalt/gfx/backend/types.h>
-
-#include <basalt/api/gfx/backend/types.h>
+#include <basalt/gfx/backend/ext/types.h>
 
 #include <basalt/api/shared/handle_pool.h>
 
@@ -75,11 +74,12 @@ public:
 
   auto submit(gsl::span<const CommandList>) -> void override;
 
-  auto query_extension(ext::ExtensionId)
-    -> std::optional<ext::ExtensionPtr> override;
+  auto query_extension(ext::DeviceExtensionId)
+    -> std::optional<ext::DeviceExtensionPtr> override;
 
 private:
-  using ExtensionMap = std::unordered_map<ext::ExtensionId, ext::ExtensionPtr>;
+  using ExtensionMap =
+    std::unordered_map<ext::DeviceExtensionId, ext::DeviceExtensionPtr>;
 
   struct SamplerData final {
     D3DTEXTUREFILTERTYPE magFilter {D3DTEXF_POINT};

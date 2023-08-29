@@ -6,8 +6,6 @@
 #include <basalt/gfx/backend/ext/extension.h>
 #include <basalt/gfx/backend/ext/types.h>
 
-#include <basalt/api/gfx/backend/ext/types.h>
-
 #include <basalt/api/shared/color.h>
 
 #include <filesystem>
@@ -15,7 +13,8 @@
 
 namespace basalt::gfx::ext {
 
-class XModelSupport : public ExtensionT<ExtensionId::XModelSupport> {
+class XModelSupport
+  : public DeviceExtensionT<DeviceExtensionId::XModelSupport> {
 public:
   [[nodiscard]] virtual auto load(const std::filesystem::path&)
     -> XModelData = 0;

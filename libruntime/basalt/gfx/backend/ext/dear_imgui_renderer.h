@@ -7,7 +7,8 @@
 
 namespace basalt::gfx::ext {
 
-class DearImGuiRenderer : public ExtensionT<ExtensionId::DearImGuiRenderer> {
+class DearImGuiRenderer
+  : public DeviceExtensionT<DeviceExtensionId::DearImGuiRenderer> {
 public:
   virtual auto init() -> void = 0;
   virtual auto shutdown() -> void = 0;

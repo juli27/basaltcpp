@@ -5,7 +5,6 @@
 #include <basalt/gfx/backend/ext/texture_3d_support.h>
 
 #include <basalt/api/gfx/backend/command_list.h>
-#include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/shared/asserts.h>
@@ -137,7 +136,7 @@ auto ValidatingDevice::wrap(DevicePtr device) -> ValidatingDevicePtr {
 ValidatingDevice::ValidatingDevice(DevicePtr device)
   : mDevice {std::move(device)}
   , mCaps {mDevice->capabilities()} {
-  mExtensions[ext::ExtensionId::Texture3DSupport] =
+  mExtensions[ext::DeviceExtensionId::Texture3DSupport] =
     ValidatingTexture3DSupport::create(this);
 }
 
@@ -377,8 +376,8 @@ auto ValidatingDevice::submit(const span<const CommandList> commandLists)
   mDevice->submit(patchedComposite);
 }
 
-auto ValidatingDevice::query_extension(const ext::ExtensionId id)
-  -> optional<ext::ExtensionPtr> {
+auto ValidatingDevice::query_extension(const ext::DeviceExtensionId id)
+  -> optional<ext::DeviceExtensionPtr> {
   if (const auto entry = mExtensions.find(id); entry != mExtensions.end()) {
     return entry->second;
   }

@@ -1,13 +1,13 @@
 #pragma once
 
-#include <memory>
+// transitive include
+#include <basalt/api/gfx/backend/ext/types.h>
+
+#include <basalt/api/base/types.h>
 
 namespace basalt::gfx::ext {
 
-struct Extension;
-using ExtensionPtr = std::shared_ptr<Extension>;
-
-enum class ExtensionId {
+enum class DeviceExtensionId : u8 {
   DearImGuiRenderer,
   XModelSupport,
   Texture3DSupport,

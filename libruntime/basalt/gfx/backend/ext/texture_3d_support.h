@@ -8,7 +8,8 @@
 
 namespace basalt::gfx::ext {
 
-class Texture3DSupport : public ExtensionT<ExtensionId::Texture3DSupport> {
+class Texture3DSupport
+  : public DeviceExtensionT<DeviceExtensionId::Texture3DSupport> {
 public:
   [[nodiscard]] virtual auto load(const std::filesystem::path&) -> Texture = 0;
 };

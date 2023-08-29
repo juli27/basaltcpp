@@ -122,12 +122,12 @@ D3D9Device::D3D9Device(IDirect3DDevice9Ptr device)
   : mDevice {std::move(device)} {
   BASALT_ASSERT(mDevice);
 
-  mExtensions[ext::ExtensionId::DearImGuiRenderer] =
+  mExtensions[ext::DeviceExtensionId::DearImGuiRenderer] =
     ext::D3D9ImGuiRenderer::create(mDevice);
 
-  mExtensions[ext::ExtensionId::XModelSupport] =
+  mExtensions[ext::DeviceExtensionId::XModelSupport] =
     ext::D3D9XModelSupport::create(mDevice);
-  mExtensions[ext::ExtensionId::Texture3DSupport] =
+  mExtensions[ext::DeviceExtensionId::Texture3DSupport] =
     ext::D3D9Texture3DSupport::create(this);
 
   D3DCAPS9 d3d9Caps {};
@@ -475,8 +475,8 @@ auto D3D9Device::submit(const span<const CommandList> commandLists) -> void {
   D3D9CHECK(mDevice->EndScene());
 }
 
-auto D3D9Device::query_extension(const ext::ExtensionId id)
-  -> optional<ext::ExtensionPtr> {
+auto D3D9Device::query_extension(const ext::DeviceExtensionId id)
+  -> optional<ext::DeviceExtensionPtr> {
   if (const auto entry = mExtensions.find(id); entry != mExtensions.end()) {
     return entry->second;
   }

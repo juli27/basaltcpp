@@ -3,8 +3,7 @@
 #include <basalt/gfx/backend/device.h>
 
 #include <basalt/gfx/backend/types.h>
-
-#include <basalt/api/gfx/backend/types.h>
+#include <basalt/gfx/backend/ext/types.h>
 
 #include <basalt/api/shared/handle_pool.h>
 
@@ -71,11 +70,12 @@ public:
 
   auto submit(gsl::span<const CommandList>) -> void override;
 
-  auto query_extension(ext::ExtensionId)
-    -> std::optional<ext::ExtensionPtr> override;
+  auto query_extension(ext::DeviceExtensionId)
+    -> std::optional<ext::DeviceExtensionPtr> override;
 
 private:
-  using ExtensionMap = std::unordered_map<ext::ExtensionId, ext::ExtensionPtr>;
+  using Extensions =
+    std::unordered_map<ext::DeviceExtensionId, ext::DeviceExtensionPtr>;
 
   struct PipelineData final {
     Pipeline originalId;
@@ -104,7 +104,7 @@ private:
 
   DevicePtr mDevice;
   DeviceCaps mCaps;
-  ExtensionMap mExtensions;
+  Extensions mExtensions;
   HandlePool<PipelineData, Pipeline> mPipelines;
   HandlePool<VertexBufferData, VertexBuffer> mVertexBuffers;
   HandlePool<IndexBufferData, IndexBuffer> mIndexBuffers;

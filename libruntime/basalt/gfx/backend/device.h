@@ -3,8 +3,6 @@
 #include <basalt/gfx/backend/types.h>
 #include <basalt/gfx/backend/ext/types.h>
 
-#include <basalt/api/gfx/backend/types.h>
-
 #include <gsl/span>
 
 #include <cstddef>
@@ -98,12 +96,12 @@ public:
 
   virtual auto submit(gsl::span<const CommandList>) -> void = 0;
 
-  virtual auto query_extension(ext::ExtensionId)
-    -> std::optional<ext::ExtensionPtr> = 0;
+  virtual auto query_extension(ext::DeviceExtensionId)
+    -> std::optional<ext::DeviceExtensionPtr> = 0;
 
   template <typename T>
   [[nodiscard]] auto query_extension() -> std::optional<std::shared_ptr<T>> {
-    static_assert(std::is_base_of_v<ext::Extension, T>);
+    static_assert(std::is_base_of_v<ext::DeviceExtension, T>);
 
     auto maybeExt {query_extension(T::ID)};
     if (!maybeExt) {
