@@ -10,12 +10,12 @@ namespace basalt::gfx {
 class Context {
 public:
   static auto create(DevicePtr, SwapChainPtr, Info) -> ContextPtr;
-  
+
   [[nodiscard]] auto gfx_info() const noexcept -> const Info&;
 
   [[nodiscard]] auto create_resource_cache() const -> ResourceCachePtr;
 
-  auto submit(gsl::span<CommandList>) const -> void;
+  auto submit(gsl::span<const CommandList>) const -> void;
 
   // don't use. Use create() function instead
   Context(DevicePtr, SwapChainPtr, Info);

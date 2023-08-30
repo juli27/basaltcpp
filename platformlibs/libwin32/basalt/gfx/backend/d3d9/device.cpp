@@ -20,6 +20,7 @@
 #include <array>
 #include <cstddef>
 #include <limits>
+#include <memory>
 #include <new>
 #include <stdexcept>
 #include <utility>
@@ -118,13 +119,19 @@ auto calculate_primitive_count(const D3DPRIMITIVETYPE type,
 
 } // namespace
 
+auto D3D9Device::create(IDirect3DDevice9Ptr device) -> D3D9DevicePtr {
+  Extensions extensions {{ext::DeviceExtensionId::DearImGuiRenderer,
+                          ext::D3D9ImGuiRenderer::create(device)}};
+
+  return std::make_shared<D3D9Device>(std::move(device));
+}
+
 D3D9Device::D3D9Device(IDirect3DDevice9Ptr device)
   : mDevice {std::move(device)} {
   BASALT_ASSERT(mDevice);
 
   mExtensions[ext::DeviceExtensionId::DearImGuiRenderer] =
     ext::D3D9ImGuiRenderer::create(mDevice);
-
   mExtensions[ext::DeviceExtensionId::XModelSupport] =
     ext::D3D9XModelSupport::create(mDevice);
   mExtensions[ext::DeviceExtensionId::Texture3DSupport] =
@@ -215,6 +222,10 @@ D3D9Device::D3D9Device(IDirect3DDevice9Ptr device)
     mCaps.supportedColorOps.set(TextureOp::PreModulate);
     // TODO: can TextureOp::PreModulate be an alpha op too?
   }
+}
+
+auto D3D9Device::device() const noexcept -> const IDirect3DDevice9Ptr& {
+  return mDevice;
 }
 
 auto D3D9Device::reset(D3DPRESENT_PARAMETERS& pp) const -> void {
@@ -823,6 +834,11 @@ auto D3D9Device::execute(const CommandSetTextureFactor& cmd) -> void {
 auto D3D9Device::execute(const CommandSetTextureStageConstant& cmd) -> void {
   D3D9CHECK(mDevice->SetTextureStageState(cmd.stageId, D3DTSS_CONSTANT,
                                           to_d3d_color(cmd.constant)));
+}
+
+template <typename T>
+auto D3D9Device::get_extension() const -> std::shared_ptr<T> {
+  return std::static_pointer_cast<T>(mExtensions.at(T::ID));
 }
 
 } // namespace basalt::gfx

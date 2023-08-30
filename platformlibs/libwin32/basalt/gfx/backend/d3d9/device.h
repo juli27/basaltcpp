@@ -4,6 +4,7 @@
 
 #include <basalt/gfx/backend/d3d9/d3d9_custom.h>
 #include <basalt/gfx/backend/d3d9/data.h>
+#include <basalt/gfx/backend/d3d9/types.h>
 
 #include <basalt/gfx/backend/types.h>
 #include <basalt/gfx/backend/ext/types.h>
@@ -18,7 +19,11 @@ namespace basalt::gfx {
 
 class D3D9Device final : public Device {
 public:
-  explicit D3D9Device(IDirect3DDevice9Ptr device);
+  static auto create(IDirect3DDevice9Ptr) -> D3D9DevicePtr;
+
+  explicit D3D9Device(IDirect3DDevice9Ptr);
+
+  [[nodiscard]] auto device() const noexcept -> const IDirect3DDevice9Ptr&;
 
   auto reset(D3DPRESENT_PARAMETERS&) const -> void;
 
@@ -78,7 +83,7 @@ public:
     -> std::optional<ext::DeviceExtensionPtr> override;
 
 private:
-  using ExtensionMap =
+  using Extensions =
     std::unordered_map<ext::DeviceExtensionId, ext::DeviceExtensionPtr>;
 
   struct SamplerData final {
@@ -94,7 +99,7 @@ private:
 
   IDirect3DDevice9Ptr mDevice;
 
-  ExtensionMap mExtensions;
+  Extensions mExtensions;
 
   HandlePool<D3D9Pipeline, Pipeline> mPipelines {};
   HandlePool<IDirect3DVertexBuffer9Ptr, VertexBuffer> mVertexBuffers {};
@@ -129,9 +134,7 @@ private:
   auto execute(const CommandSetTextureStageConstant&) -> void;
 
   template <typename T>
-  [[nodiscard]] auto get_extension() const -> std::shared_ptr<T> {
-    return std::static_pointer_cast<T>(mExtensions.at(T::ID));
-  }
+  [[nodiscard]] auto get_extension() const -> std::shared_ptr<T>;
 };
 
 } // namespace basalt::gfx

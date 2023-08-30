@@ -24,7 +24,7 @@ auto Context::create_resource_cache() const -> ResourceCachePtr {
   return ResourceCache::create(mDevice);
 }
 
-auto Context::submit(const gsl::span<CommandList> cmdLists) const -> void {
+auto Context::submit(const gsl::span<const CommandList> cmdLists) const -> void {
   mDevice->submit(cmdLists);
 }
 

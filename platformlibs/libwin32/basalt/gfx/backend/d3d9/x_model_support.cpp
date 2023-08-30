@@ -42,6 +42,9 @@ auto D3D9XModelSupport::load(const path& filepath) -> XModelData {
     throw std::runtime_error {"loading mesh file failed"};
   }
 
+  BASALT_ASSERT(materialBuffer->GetBufferSize() / sizeof(D3DXMATERIAL) >=
+                numMaterials);
+
   const span<const D3DXMATERIAL> d3dxMaterials {
     static_cast<const D3DXMATERIAL*>(materialBuffer->GetBufferPointer()),
     numMaterials};

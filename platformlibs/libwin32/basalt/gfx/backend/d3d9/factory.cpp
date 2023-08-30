@@ -631,7 +631,7 @@ auto D3D9Factory::do_create_device_and_swap_chain(
 
   // TODO: verify the five caps which differ?
 
-  auto device {std::make_shared<D3D9Device>(std::move(d3d9Device))};
+  auto device {D3D9Device::create(std::move(d3d9Device))};
   auto swapChain {D3D9SwapChain::create(device, std::move(implicitSwapChain))};
 
   return DeviceAndSwapChain {std::move(device), std::move(swapChain)};
