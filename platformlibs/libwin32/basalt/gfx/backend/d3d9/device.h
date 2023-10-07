@@ -30,6 +30,7 @@ public:
   auto execute(const CommandList&) -> void;
 
   [[nodiscard]] auto load_texture_3d(const std::filesystem::path&) -> Texture;
+  [[nodiscard]] auto get_d3d9(Texture) const -> IDirect3DBaseTexture9Ptr;
 
   [[nodiscard]] auto capabilities() const -> const DeviceCaps& override;
   [[nodiscard]] auto get_status() const noexcept -> DeviceStatus override;

@@ -41,6 +41,10 @@ enum class CommandType : u8 {
   // built-in extensions
   ExtDrawXMesh,
   ExtRenderDearImGui,
+  ExtBeginEffect,
+  ExtEndEffect,
+  ExtBeginEffectPass,
+  ExtEndEffectPass,
 };
 
 struct Command {
@@ -335,6 +339,27 @@ struct CommandDrawXMesh final : CommandT<CommandType::ExtDrawXMesh> {
 
 struct CommandRenderDearImGui final
   : CommandT<CommandType::ExtRenderDearImGui> {};
+
+struct CommandBeginEffect final : CommandT<CommandType::ExtBeginEffect> {
+  EffectId effect;
+
+  constexpr explicit CommandBeginEffect(EffectId const aEffect) noexcept
+    : effect {aEffect} {
+  }
+};
+
+struct CommandEndEffect final : CommandT<CommandType::ExtEndEffect> {};
+
+struct CommandBeginEffectPass final
+  : CommandT<CommandType::ExtBeginEffectPass> {
+  u32 passIndex;
+
+  constexpr explicit CommandBeginEffectPass(u32 const aPassIndex) noexcept
+    : passIndex {aPassIndex} {
+  }
+};
+
+struct CommandEndEffectPass final : CommandT<CommandType::ExtEndEffectPass> {};
 
 } // namespace ext
 

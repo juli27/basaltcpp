@@ -15,6 +15,11 @@ using D3D9SwapChainPtr = std::shared_ptr<D3D9SwapChain>;
 
 namespace ext {
 
+class D3D9XEffects;
+using D3D9XEffectsPtr = std::shared_ptr<D3D9XEffects>;
+
+class D3D9XEffect;
+
 class D3D9ImGuiRenderer;
 using D3D9ImGuiRendererPtr = std::shared_ptr<D3D9ImGuiRenderer>;
 

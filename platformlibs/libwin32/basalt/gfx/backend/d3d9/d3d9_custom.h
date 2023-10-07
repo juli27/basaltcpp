@@ -28,6 +28,7 @@ using IDirect3DCubeTexture9Ptr = detail::ComPtr<IDirect3DCubeTexture9>;
 using IDirect3DVolumeTexture9Ptr = detail::ComPtr<IDirect3DVolumeTexture9>;
 
 using ID3DXBufferPtr = Microsoft::WRL::ComPtr<ID3DXBuffer>;
+using ID3DXEffectPtr = Microsoft::WRL::ComPtr<ID3DXEffect>;
 using ID3DXMeshPtr = Microsoft::WRL::ComPtr<ID3DXMesh>;
 
 } // namespace basalt::gfx

@@ -11,6 +11,7 @@ enum class DeviceExtensionId : u8 {
   DearImGuiRenderer,
   XModelSupport,
   Texture3DSupport,
+  Effects,
 };
 
 class DearImGuiRenderer;

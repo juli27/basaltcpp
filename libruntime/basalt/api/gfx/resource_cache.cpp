@@ -1,6 +1,7 @@
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/gfx/backend/device.h>
+#include <basalt/gfx/backend/ext/effect.h>
 #include <basalt/gfx/backend/ext/texture_3d_support.h>
 #include <basalt/gfx/backend/ext/x_model_support.h>
 
@@ -26,6 +27,13 @@ auto ResourceCache::create(DevicePtr device) -> ResourceCachePtr {
 }
 
 ResourceCache::~ResourceCache() noexcept {
+  if (auto const ext =
+        mDevice->query_extension<ext::Effects>().value_or(nullptr)) {
+    for (auto const id : mEffects) {
+      ext->destroy(id);
+    }
+  }
+
   // destroy the device resources for our compound resources
   for (const auto handle : mXModels) {
     destroy_data(handle);
@@ -326,6 +334,34 @@ auto ResourceCache::create_material(const MaterialDescriptor& desc)
 
 auto ResourceCache::get(const Material material) const -> const MaterialData& {
   return mMaterials[material];
+}
+
+auto ResourceCache::compile_effect(path const& filePath) -> ext::CompileResult {
+  // throws std::bad_optional_access if extension not present
+  auto const ext = mDevice->query_extension<ext::Effects>().value();
+
+  auto result = ext->compile(filePath);
+  if (auto const* id = std::get_if<ext::EffectId>(&result)) {
+    mEffects.push_back(*id);
+  }
+
+  return result;
+}
+
+auto ResourceCache::destroy(ext::EffectId const id) noexcept -> void {
+  mEffects.erase(std::remove(mEffects.begin(), mEffects.end(), id),
+                 mEffects.end());
+
+  // throws std::bad_optional_access if extension not present
+  auto const ext = mDevice->query_extension<ext::Effects>().value();
+  ext->destroy(id);
+}
+
+auto ResourceCache::get(ext::EffectId const id) const -> ext::Effect& {
+  // throws std::bad_optional_access if extension not present
+  auto const ext = mDevice->query_extension<ext::Effects>().value();
+
+  return ext->get(id);
 }
 
 auto ResourceCache::destroy(const Material handle) noexcept -> void {

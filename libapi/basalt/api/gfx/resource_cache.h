@@ -108,6 +108,11 @@ public:
   auto destroy(Material) noexcept -> void;
   [[nodiscard]] auto get(Material) const -> const MaterialData&;
 
+  [[nodiscard]] auto compile_effect(std::filesystem::path const&)
+    -> ext::CompileResult;
+  auto destroy(ext::EffectId) noexcept -> void;
+  [[nodiscard]] auto get(ext::EffectId) const -> ext::Effect&;
+
   explicit ResourceCache(DevicePtr);
 
 private:
@@ -122,6 +127,7 @@ private:
   HandlePool<MeshData, Mesh> mMeshes;
   HandlePool<MaterialData, Material> mMaterials;
   HandlePool<XModelData, ext::XModel> mXModels;
+  std::vector<ext::EffectId> mEffects;
 
   [[nodiscard]] auto map(VertexBuffer, uDeviceSize offset = 0,
                          uDeviceSize size = 0) const -> gsl::span<std::byte>;

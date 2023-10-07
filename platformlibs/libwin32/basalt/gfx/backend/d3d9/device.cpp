@@ -2,6 +2,7 @@
 
 #include <basalt/gfx/backend/d3d9/conversions.h>
 #include <basalt/gfx/backend/d3d9/dear_imgui_renderer.h>
+#include <basalt/gfx/backend/d3d9/effect.h>
 #include <basalt/gfx/backend/d3d9/texture_3d_support.h>
 #include <basalt/gfx/backend/d3d9/x_model_support.h>
 
@@ -120,9 +121,6 @@ auto calculate_primitive_count(const D3DPRIMITIVETYPE type,
 } // namespace
 
 auto D3D9Device::create(IDirect3DDevice9Ptr device) -> D3D9DevicePtr {
-  Extensions extensions {{ext::DeviceExtensionId::DearImGuiRenderer,
-                          ext::D3D9ImGuiRenderer::create(device)}};
-
   return std::make_shared<D3D9Device>(std::move(device));
 }
 
@@ -136,6 +134,8 @@ D3D9Device::D3D9Device(IDirect3DDevice9Ptr device)
     ext::D3D9XModelSupport::create(mDevice);
   mExtensions[ext::DeviceExtensionId::Texture3DSupport] =
     ext::D3D9Texture3DSupport::create(this);
+  mExtensions[ext::DeviceExtensionId::Effects] =
+    ext::D3D9XEffects::create(this);
 
   D3DCAPS9 d3d9Caps {};
   D3D9CHECK(mDevice->GetDeviceCaps(&d3d9Caps));
@@ -229,15 +229,17 @@ auto D3D9Device::device() const noexcept -> const IDirect3DDevice9Ptr& {
 }
 
 auto D3D9Device::reset(D3DPRESENT_PARAMETERS& pp) const -> void {
-  const ext::D3D9ImGuiRendererPtr imguiRenderer {
-    get_extension<ext::D3D9ImGuiRenderer>()};
+  auto const imguiRenderer = get_extension<ext::D3D9ImGuiRenderer const>();
+  auto const effects = get_extension<ext::D3D9XEffects const>();
 
   imguiRenderer->invalidate_device_objects();
+  effects->on_device_lost();
 
   // TODO: test cooperative level (see D3D9SwapChain::present)
   D3D9CHECK(mDevice->Reset(&pp));
 
   imguiRenderer->create_device_objects();
+  effects->on_device_reset();
 }
 
 // TODO: lost device (resource location: Default, Managed, kept in RAM by us)
@@ -265,6 +267,10 @@ auto D3D9Device::load_texture_3d(const path& path) -> Texture {
   }
 
   return mTextures.allocate(std::move(texture));
+}
+
+auto D3D9Device::get_d3d9(Texture const id) const -> IDirect3DBaseTexture9Ptr {
+  return mTextures[id];
 }
 
 auto D3D9Device::capabilities() const -> const DeviceCaps& {
@@ -507,8 +513,28 @@ auto D3D9Device::execute(const Command& cmd) -> void {
       cmd.as<ext::CommandRenderDearImGui>());
     break;
 
+  case CommandType::ExtBeginEffect:
+    get_extension<ext::D3D9XEffects>()->execute(
+      cmd.as<ext::CommandBeginEffect>());
+    break;
+
+  case CommandType::ExtEndEffect:
+    get_extension<ext::D3D9XEffects>()->execute(
+      cmd.as<ext::CommandEndEffect>());
+    break;
+
+  case CommandType::ExtBeginEffectPass:
+    get_extension<ext::D3D9XEffects>()->execute(
+      cmd.as<ext::CommandBeginEffectPass>());
+    break;
+
+  case CommandType::ExtEndEffectPass:
+    get_extension<ext::D3D9XEffects>()->execute(
+      cmd.as<ext::CommandEndEffectPass>());
+    break;
+
   default:
-    BASALT_LOG_ERROR("d3d9 device can't handle this command");
+    BASALT_CRASH("d3d9 device can't handle this command");
   }
 }
 

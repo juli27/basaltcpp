@@ -25,6 +25,8 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "02-12_bump_mapping.h"
   "02-13_stencil_buffer.cpp"
   "02-13_stencil_buffer.h"
+  "02-14_effects.cpp"
+  "02-14_effects.h"
   "tribase_examples.cpp"
   "tribase_examples.h"
 )

@@ -66,6 +66,10 @@ constexpr auto enumerator_to_string(const CommandType type) noexcept -> const
     ENUMERATOR_TO_STRING(CommandType, SetTextureStageConstant);
     ENUMERATOR_TO_STRING(CommandType, ExtDrawXMesh);
     ENUMERATOR_TO_STRING(CommandType, ExtRenderDearImGui);
+    ENUMERATOR_TO_STRING(CommandType, ExtBeginEffect);
+    ENUMERATOR_TO_STRING(CommandType, ExtEndEffect);
+    ENUMERATOR_TO_STRING(CommandType, ExtBeginEffectPass);
+    ENUMERATOR_TO_STRING(CommandType, ExtEndEffectPass);
   }
 
   return "(unknown)";
@@ -357,13 +361,31 @@ void display(const ext::CommandDrawXMesh& cmd) {
   ImGui::Text("mesh = %#x", cmd.xMeshId.value());
 }
 
-void display(const Command& cmd) {
+auto display(ext::CommandBeginEffect const& cmd) {
+  ImGui::Text("effect = 0x%x", cmd.effect.value());
+}
+
+auto display(ext::CommandBeginEffectPass const& cmd) {
+  ImGui::Text("passIndex = %u", cmd.passIndex);
+}
+
+auto display(Command const& cmd) -> void {
   switch (cmd.type) {
   case CommandType::ExtDrawXMesh:
     display(cmd.as<ext::CommandDrawXMesh>());
     break;
 
+  case CommandType::ExtBeginEffect:
+    display(cmd.as<ext::CommandBeginEffect>());
+    break;
+
+  case CommandType::ExtBeginEffectPass:
+    display(cmd.as<ext::CommandBeginEffectPass>());
+    break;
+
   case CommandType::ExtRenderDearImGui:
+  case CommandType::ExtEndEffect:
+  case CommandType::ExtEndEffectPass:
     break;
 
   default:

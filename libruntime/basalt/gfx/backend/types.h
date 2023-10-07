@@ -57,6 +57,10 @@ namespace ext {
 
 struct CommandDrawXMesh;
 struct CommandRenderDearImGui;
+struct CommandBeginEffect;
+struct CommandEndEffect;
+struct CommandBeginEffectPass;
+struct CommandEndEffectPass;
 
 } // namespace ext
 

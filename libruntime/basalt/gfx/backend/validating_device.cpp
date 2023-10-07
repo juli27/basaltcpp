@@ -5,6 +5,7 @@
 #include <basalt/gfx/backend/ext/texture_3d_support.h>
 
 #include <basalt/api/gfx/backend/command_list.h>
+#include <basalt/api/gfx/backend/ext/effect.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/shared/asserts.h>
@@ -484,6 +485,30 @@ auto ValidatingDevice::patch(CommandList& cmdList, const Command& cmd) -> void {
 
   case CommandType::ExtRenderDearImGui:
     ext::DearImGuiCommandEncoder::render_dear_imgui(cmdList);
+
+    break;
+
+  case CommandType::ExtBeginEffect: {
+    auto const& beginCmd = cmd.as<ext::CommandBeginEffect>();
+    ext::EffectCommandEncoder::begin_effect(cmdList, beginCmd.effect);
+
+    break;
+  }
+
+  case CommandType::ExtEndEffect:
+    ext::EffectCommandEncoder::end_effect(cmdList);
+
+    break;
+
+  case CommandType::ExtBeginEffectPass: {
+    auto const& beginCmd = cmd.as<ext::CommandBeginEffectPass>();
+    ext::EffectCommandEncoder::begin_effect_pass(cmdList, beginCmd.passIndex);
+
+    break;
+  }
+
+  case CommandType::ExtEndEffectPass:
+    ext::EffectCommandEncoder::end_effect_pass(cmdList);
 
     break;
 

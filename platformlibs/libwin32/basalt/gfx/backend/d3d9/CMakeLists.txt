@@ -7,6 +7,8 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "dear_imgui_renderer.h"
   "device.cpp"
   "device.h"
+  "effect.cpp"
+  "effect.h"
   "factory.cpp"
   "factory.h"
   "swap_chain.cpp"

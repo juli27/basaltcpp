@@ -13,6 +13,7 @@
 #include <basalt/sandbox/tribase/02-11_env_mapping.h>
 #include <basalt/sandbox/tribase/02-12_bump_mapping.h>
 #include <basalt/sandbox/tribase/02-13_stencil_buffer.h>
+#include <basalt/sandbox/tribase/02-14_effects.h>
 
 #include <memory>
 
@@ -79,4 +80,9 @@ auto TribaseExamples::new_02_12_bump_mapping(basalt::Engine& engine)
 auto TribaseExamples::new_02_13_stencil_buffer(basalt::Engine& engine)
   -> basalt::ViewPtr {
   return std::make_shared<tribase::StencilBuffer>(engine);
+}
+
+auto TribaseExamples::new_02_14_effects(basalt::Engine& engine)
+  -> basalt::ViewPtr {
+  return std::make_shared<tribase::Effects>(engine);
 }

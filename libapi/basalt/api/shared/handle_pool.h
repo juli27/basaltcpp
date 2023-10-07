@@ -55,6 +55,13 @@ public:
     return *mBookkeeping[handle.value()].data;
   }
 
+  // handle must be valid
+  [[nodiscard]] auto operator[](Handle const handle) noexcept -> T& {
+    BASALT_ASSERT(is_valid(handle));
+
+    return *mBookkeeping[handle.value()].data;
+  }
+
   template <typename... Args>
   [[nodiscard]] auto emplace(Args&&... args) -> Handle {
     return allocate(std::forward<Args>(args)...);
