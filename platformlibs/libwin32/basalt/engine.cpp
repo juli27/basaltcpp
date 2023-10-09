@@ -4,8 +4,8 @@
 
 namespace basalt {
 
-void quit() {
-  ::PostQuitMessage(0);
+auto quit() -> void {
+  PostQuitMessage(0);
 }
 
 } // namespace basalt

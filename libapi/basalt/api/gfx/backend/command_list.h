@@ -19,19 +19,19 @@ namespace basalt::gfx {
 
 // serialized commands which the gfx device should execute
 class CommandList final {
-  using ListType = std::vector<const Command*>;
+  using ListType = std::vector<Command const*>;
 
 public:
   using const_iterator = ListType::const_iterator;
 
   CommandList();
 
-  CommandList(const CommandList&) = delete;
+  CommandList(CommandList const&) = delete;
   CommandList(CommandList&&) noexcept = default;
 
   ~CommandList() noexcept = default;
 
-  auto operator=(const CommandList&) -> CommandList& = delete;
+  auto operator=(CommandList const&) -> CommandList& = delete;
   auto operator=(CommandList&&) noexcept -> CommandList& = default;
 
   [[nodiscard]] auto size() const noexcept -> uSize;
@@ -39,7 +39,7 @@ public:
   [[nodiscard]] auto begin() const -> const_iterator;
   [[nodiscard]] auto end() const -> const_iterator;
 
-  auto clear_attachments(Attachments, const Color& = {}, f32 depth = 0,
+  auto clear_attachments(Attachments, Color const& = {}, f32 depth = 0,
                          u32 stencil = 0) -> void;
   auto draw(u32 firstVertex, u32 vertexCount) -> void;
   auto draw_indexed(i32 vertexOffset, u32 minIndex, u32 numVertices,
@@ -52,18 +52,18 @@ public:
   auto set_stencil_reference(u32) -> void;
   auto set_stencil_read_mask(u32) -> void;
   auto set_stencil_write_mask(u32) -> void;
-  auto set_blend_constant(const Color&) -> void;
-  auto set_transform(TransformState, const Matrix4x4f32&) -> void;
-  auto set_ambient_light(const Color&) -> void;
-  auto set_lights(gsl::span<const LightData>) -> void;
-  auto set_material(const Color& diffuse, const Color& ambient = {},
-                    const Color& emissive = {}, const Color& specular = {},
+  auto set_blend_constant(Color const&) -> void;
+  auto set_transform(TransformState, Matrix4x4f32 const&) -> void;
+  auto set_ambient_light(Color const&) -> void;
+  auto set_lights(gsl::span<LightData const>) -> void;
+  auto set_material(Color const& diffuse, Color const& ambient = {},
+                    Color const& emissive = {}, Color const& specular = {},
                     f32 specularPower = 0) -> void;
-  auto set_fog_parameters(const Color& color, f32 start, f32 end,
+  auto set_fog_parameters(Color const& color, f32 start, f32 end,
                           f32 density = 0) -> void;
   auto set_reference_alpha(u8) -> void;
-  auto set_texture_factor(const Color&) -> void;
-  auto set_texture_stage_constant(u8 stageId, const Color&) -> void;
+  auto set_texture_factor(Color const&) -> void;
+  auto set_texture_stage_constant(u8 stageId, Color const&) -> void;
 
   // the following function templates are engine private (implementation is in
   // libRuntime: basalt/gfx/backend/command_list.h)

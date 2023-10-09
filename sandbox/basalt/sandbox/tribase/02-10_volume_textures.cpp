@@ -47,60 +47,67 @@ struct Vertex {
   Vector3f32 pos;
   Vector3f32 tex1;
 
-  static constexpr array sLayout {VertexElement::Position3F32,
-                                  VertexElement::TextureCoords3F32};
+  static constexpr auto sLayout = array{
+    VertexElement::Position3F32,
+    VertexElement::TextureCoords3F32,
+  };
 };
 
 } // namespace
 
-VolumeTextures::VolumeTextures(const Engine& engine)
-  : mGfxCache {engine.create_gfx_resource_cache()} {
-  FixedFragmentShaderCreateInfo fs;
-  array textureStages {TextureStage {}};
-  fs.textureStages = textureStages;
+VolumeTextures::VolumeTextures(Engine const& engine)
+  : mGfxCache{engine.create_gfx_resource_cache()}
+  , mPipeline{[&] {
+    auto fs = FixedFragmentShaderCreateInfo{};
+    constexpr auto textureStages = array{TextureStage{}};
+    fs.textureStages = textureStages;
 
-  PipelineDescriptor pipelineDesc;
-  pipelineDesc.fragmentShader = &fs;
-  pipelineDesc.vertexLayout = Vertex::sLayout;
-  pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
-  pipelineDesc.dithering = true;
-  pipelineDesc.srcBlendFactor = BlendFactor::SrcColor;
-  pipelineDesc.destBlendFactor = BlendFactor::OneMinusSrcColor;
-  mPipeline = mGfxCache->create_pipeline(pipelineDesc);
+    auto desc = PipelineDescriptor{};
+    desc.fragmentShader = &fs;
+    desc.vertexLayout = Vertex::sLayout;
+    desc.primitiveType = PrimitiveType::TriangleStrip;
+    desc.dithering = true;
+    desc.srcBlendFactor = BlendFactor::SrcColor;
+    desc.destBlendFactor = BlendFactor::OneMinusSrcColor;
 
-  mSampler = mGfxCache->create_sampler(
-    {TextureFilter::Bilinear, TextureFilter::Bilinear});
-  mExplosionTexture =
-    mGfxCache->load_texture_3d("data/tribase/Explosion.dds"sv);
+    return mGfxCache->create_pipeline(desc);
+  }()}
+  , mSampler{mGfxCache->create_sampler(
+      {TextureFilter::Bilinear, TextureFilter::Bilinear})}
+  , mExplosionTexture{mGfxCache->load_texture_3d(
+      "data/tribase/Explosion.dds"sv)}
+  , mVertexBuffer{[&] {
+    constexpr auto vertices = array{
+      Vertex{{-1, -1, 1}, {0, 1, 0}},
+      Vertex{{-1, 1, 1}, {0, 0, 0}},
+      Vertex{{1, -1, 1}, {1, 1, 0}},
+      Vertex{{1, 1, 1}, {1, 0, 0}},
+    };
 
-  constexpr array vertices {
-    Vertex {{-1, -1, 1}, {0, 1, 0}},
-    Vertex {{-1, 1, 1}, {0, 0, 0}},
-    Vertex {{1, -1, 1}, {1, 1, 0}},
-    Vertex {{1, 1, 1}, {1, 0, 0}},
-  };
+    auto const vertexData = as_bytes(span{vertices});
 
-  const auto vertexData {as_bytes(span {vertices})};
-  mVertexBuffer = mGfxCache->create_vertex_buffer(
-    {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
+    return mGfxCache->create_vertex_buffer(
+      {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
+  }()} {
 }
 
 auto VolumeTextures::on_update(UpdateContext& ctx) -> void {
   mTime += ctx.deltaTime;
-  const f32 t {mTime.count()};
+  auto const t = mTime.count();
 
-  mGfxCache->with_mapping_of(mVertexBuffer, [&](const span<byte> vbData) {
-    const span<Vertex> vertexData {reinterpret_cast<Vertex*>(vbData.data()),
-                                   vbData.size_bytes() / sizeof(Vertex)};
+  mGfxCache->with_mapping_of(mVertexBuffer, [&](span<byte> const vbData) {
+    auto const vertexData =
+      span<Vertex>{reinterpret_cast<Vertex*>(vbData.data()),
+                   vbData.size_bytes() / sizeof(Vertex)};
 
-    for (Vertex& vertex : vertexData) {
+    for (auto& vertex : vertexData) {
       vertex.tex1.z() = 0.25f * t;
     }
   });
 
-  const auto& drawCtx {ctx.drawCtx};
-  CommandList cmdList;
-  cmdList.clear_attachments(Attachments {Attachment::RenderTarget},
+  auto const& drawCtx = ctx.drawCtx;
+  auto cmdList = CommandList{};
+  cmdList.clear_attachments(Attachments{Attachment::RenderTarget},
                             Color::from_non_linear_rgba8(0, 0, 63));
   cmdList.bind_pipeline(mPipeline);
   cmdList.bind_sampler(0, mSampler);

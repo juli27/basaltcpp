@@ -19,15 +19,15 @@ private:
   struct Example;
 
   std::vector<Example> mExamples;
-  basalt::uSize mCurrentExampleIndex {18};
+  basalt::uSize mCurrentExampleIndex{18};
   basalt::ViewPtr mCurrentExampleView;
 
-  basalt::DebugUi mDebugUi {};
+  basalt::DebugUi mDebugUi{};
 
-  bool mShowDemo {false};
-  bool mShowMetrics {false};
-  bool mShowAbout {false};
-  bool mShowOverlay {true};
+  bool mShowDemo{false};
+  bool mShowMetrics{false};
+  bool mShowAbout{false};
+  bool mShowOverlay{true};
 
   auto reload_scene(basalt::Engine&) -> void;
   auto next_scene(basalt::Engine&) -> void;

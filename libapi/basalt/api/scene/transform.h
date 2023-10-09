@@ -15,7 +15,7 @@ namespace basalt {
 struct Transform final {
   Vector3f32 position;
   Vector3f32 rotation;
-  Vector3f32 scale {1.0f};
+  Vector3f32 scale{1.0f};
 
   // TODO: wrap vectors in Position/Rotation/Scale class?
   auto move(f32 offsetX, f32 offsetY, f32 offsetZ) noexcept -> void;
@@ -26,11 +26,11 @@ struct Transform final {
 };
 
 struct LocalToWorld final {
-  Matrix4x4f32 matrix {Matrix4x4f32::identity()};
+  Matrix4x4f32 matrix{Matrix4x4f32::identity()};
 };
 
 struct Parent final {
-  EntityId id {};
+  EntityId id{};
 };
 
 // don't add manually. Use Parent instead

@@ -39,95 +39,95 @@ struct SandboxView::Example final {
 
 SandboxView::SandboxView(Engine& engine) {
   mExamples.reserve(23);
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Tutorial 2: Rendering Vertices"s,
     &D3D9Tutorials::new_vertices_tutorial,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Tutorial 3: Using Matrices"s,
     &D3D9Tutorials::new_matrices_tutorial,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Tutorial 4: Creating and Using Lights"s,
     &D3D9Tutorials::new_lights_tutorial,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Tutorial 5: Using Texture Maps"s,
     &D3D9Tutorials::new_textures_tutorial,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Tutorial 6: Using Meshes"s,
     &D3D9Tutorials::new_meshes_tutorial,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Bsp. 02-03: Das erste Dreieck"s,
     &TribaseExamples::new_first_triangle_example,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Bsp. 02-04: Texturen"s,
     &TribaseExamples::new_02_04_textures_example,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Bsp. 02-04: Texturen - Aufgabe 1-3"s,
     &TribaseExamples::new_02_04_textures_exercises,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Bsp. 02-05: Vertex- und Index-Buffer"s,
     &TribaseExamples::new_02_05_buffers_example,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Bsp. 02-05: Vertex- und Index-Buffer - Aufgabe 1-2"s,
     &TribaseExamples::new_02_05_buffers_exercises,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Bsp. 02-06: Nebel"s,
     &TribaseExamples::new_02_06_fog_example,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Bsp. 02-07: Beleuchtung"s,
     &TribaseExamples::new_02_07_lighting_example,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Bsp. 02-08: Alpha Blending"s,
     &TribaseExamples::new_02_08_blending_example,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Bsp. 02-09: Multi-Texturing"s,
     &TribaseExamples::new_02_09_multi_texturing_example,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Bsp. 02-10: Volumentexturen"s,
     &TribaseExamples::new_02_10_volume_textures,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Bsp. 02-11: Environment-Mapping"s,
     &TribaseExamples::new_02_11_env_mapping,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Bsp. 02-12: Bump-Mapping"s,
     &TribaseExamples::new_02_12_bump_mapping,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Bsp. 02-13: Stencil Buffer"s,
     &TribaseExamples::new_02_13_stencil_buffer,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Bsp. 02-14: Effekte"s,
     &TribaseExamples::new_02_14_effects,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Textures"s,
     &Samples::new_textures_sample,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Simple Scene"s,
     &Samples::new_simple_scene_sample,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Cubes"s,
     &Samples::new_cubes_sample,
   });
-  mExamples.emplace_back(Example {
+  mExamples.emplace_back(Example{
     "Lighting"s,
     &Samples::new_lighting_sample,
   });
@@ -136,17 +136,17 @@ SandboxView::SandboxView(Engine& engine) {
 }
 
 auto SandboxView::on_update(UpdateContext& ctx) -> void {
-  Engine& engine {ctx.engine};
-  Config& config {engine.config()};
+  auto& engine = ctx.engine;
+  auto& config = engine.config();
 
   // https://github.com/ocornut/imgui/issues/331
   enum class OpenPopup : u8 { None, GfxInfo };
-  OpenPopup shouldOpenPopup {OpenPopup::None};
+  auto shouldOpenPopup = OpenPopup::None;
 
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("File")) {
-      for (uSize i {0}; i < mExamples.size(); i++) {
-        const bool isCurrent {mCurrentExampleIndex == i};
+      for (auto i = uSize{0}; i < mExamples.size(); i++) {
+        auto const isCurrent = mCurrentExampleIndex == i;
         if (ImGui::MenuItem(mExamples[i].name.data(), nullptr, isCurrent,
                             !isCurrent)) {
           set_scene(i, engine);
@@ -176,7 +176,7 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
     }
 
     if (ImGui::BeginMenu("View")) {
-      const auto currentMode =
+      auto const currentMode =
         config.get_enum("window.mode"s, basalt::to_window_mode);
       if (ImGui::MenuItem("Windowed", nullptr,
                           currentMode == WindowMode::Windowed,
@@ -200,8 +200,8 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
         shouldOpenPopup = OpenPopup::GfxInfo;
       }
 
-      bool sceneInspectorEnabled {
-        config.get_bool("debug.scene_inspector.visible"s)};
+      auto sceneInspectorEnabled = 
+        config.get_bool("debug.scene_inspector.visible"s);
 
       ImGui::MenuItem("Scene Inspector", nullptr, &sceneInspectorEnabled);
 
@@ -230,17 +230,17 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
     ImGui::OpenPopup("Gfx Info");
   }
 
-  ImGui::SetNextWindowSize(ImVec2 {300.0f, 350.0f}, ImGuiCond_FirstUseEver);
+  ImGui::SetNextWindowSize(ImVec2{300.0f, 350.0f}, ImGuiCond_FirstUseEver);
   if (ImGui::BeginPopupModal("Gfx Info", nullptr)) {
-    const f32 footerHeight {ImGui::GetFrameHeightWithSpacing()};
+    auto const footerHeight = ImGui::GetFrameHeightWithSpacing();
 
-    if (ImGui::BeginChild("##info", ImVec2 {0.0f, -footerHeight})) {
+    if (ImGui::BeginChild("##info", ImVec2{0.0f, -footerHeight})) {
       mDebugUi.show_gfx_info(engine.gfx_info());
     }
 
     ImGui::EndChild();
 
-    if (ImGui::Button("Close", ImVec2 {120.0f, 0.0f})) {
+    if (ImGui::Button("Close", ImVec2{120.0f, 0.0f})) {
       ImGui::CloseCurrentPopup();
     }
 
@@ -277,7 +277,7 @@ auto SandboxView::reload_scene(Engine& engine) -> void {
 }
 
 auto SandboxView::next_scene(Engine& engine) -> void {
-  uSize nextSceneIndex {mCurrentExampleIndex + 1};
+  auto nextSceneIndex = mCurrentExampleIndex + 1;
   if (nextSceneIndex >= mExamples.size()) {
     nextSceneIndex = 0;
   }
@@ -286,18 +286,18 @@ auto SandboxView::next_scene(Engine& engine) -> void {
 }
 
 auto SandboxView::prev_scene(Engine& engine) -> void {
-  const uSize prevSceneIndex {[this] {
+  auto const prevSceneIndex = [&] {
     if (mCurrentExampleIndex == 0) {
       return mExamples.size() - 1;
     }
 
     return mCurrentExampleIndex - 1;
-  }()};
+  }();
 
   set_scene(prevSceneIndex, engine);
 }
 
-auto SandboxView::set_scene(const uSize index, Engine& engine) -> void {
+auto SandboxView::set_scene(uSize const index, Engine& engine) -> void {
   BASALT_ASSERT(index < mExamples.size());
 
   if (mExamples.empty()) {

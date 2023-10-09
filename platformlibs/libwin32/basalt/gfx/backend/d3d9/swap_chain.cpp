@@ -29,19 +29,19 @@ auto D3D9SwapChain::device() const noexcept -> DevicePtr {
 }
 
 auto D3D9SwapChain::get_info() const noexcept -> Info {
-  D3DPRESENT_PARAMETERS pp {};
+  auto pp = D3DPRESENT_PARAMETERS{};
   D3D9CHECK(mSwapChain->GetPresentParameters(&pp));
 
-  return Info {{saturated_cast<u16>(pp.BackBufferWidth),
-                saturated_cast<u16>(pp.BackBufferHeight)},
-               pp.FullScreen_RefreshRateInHz,
-               to_image_format(pp.BackBufferFormat),
-               to_multi_sample_count(pp.MultiSampleType),
-               !pp.Windowed};
+  return Info{{saturated_cast<u16>(pp.BackBufferWidth),
+               saturated_cast<u16>(pp.BackBufferHeight)},
+              pp.FullScreen_RefreshRateInHz,
+              to_image_format(pp.BackBufferFormat),
+              to_multi_sample_count(pp.MultiSampleType),
+              !pp.Windowed};
 }
 
-auto D3D9SwapChain::reset(const ResetDesc& desc) -> void {
-  D3DPRESENT_PARAMETERS pp {};
+auto D3D9SwapChain::reset(ResetDesc const& desc) -> void {
+  auto pp = D3DPRESENT_PARAMETERS{};
   D3D9CHECK(mSwapChain->GetPresentParameters(&pp));
 
   pp.BackBufferFormat = to_d3d(desc.renderTargetFormat);
@@ -63,8 +63,8 @@ auto D3D9SwapChain::reset(const ResetDesc& desc) -> void {
 }
 
 auto D3D9SwapChain::present() -> PresentResult {
-  if (const HRESULT hr {
-        mSwapChain->Present(nullptr, nullptr, nullptr, nullptr, 0ul)};
+  if (auto const hr =
+        mSwapChain->Present(nullptr, nullptr, nullptr, nullptr, 0ul);
       FAILED(hr)) {
     if (hr == D3DERR_DEVICELOST) {
       return PresentResult::DeviceLost;
@@ -78,8 +78,8 @@ auto D3D9SwapChain::present() -> PresentResult {
 
 D3D9SwapChain::D3D9SwapChain(D3D9DevicePtr device,
                              IDirect3DSwapChain9Ptr swapChain)
-  : mDevice {std::move(device)}
-  , mSwapChain {std::move(swapChain)} {
+  : mDevice{std::move(device)}
+  , mSwapChain{std::move(swapChain)} {
   BASALT_ASSERT(mDevice);
   BASALT_ASSERT(mSwapChain);
 }

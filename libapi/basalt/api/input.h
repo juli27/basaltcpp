@@ -14,7 +14,7 @@ struct InputState final {
   [[nodiscard]] auto is_mouse_button_down(MouseButton) const -> bool;
   [[nodiscard]] auto is_key_down(Key) const -> bool;
 
-  auto update(const InputEvent&) -> void;
+  auto update(InputEvent const&) -> void;
 };
 
 } // namespace basalt

@@ -48,11 +48,13 @@ using basalt::gfx::VertexElement;
 namespace {
 
 struct Vertex final {
-  array<f32, 3> pos {};
-  ColorEncoding::A8R8G8B8 color {};
+  Vector3f32 pos{};
+  ColorEncoding::A8R8G8B8 color{};
 
-  static constexpr array sLayout {VertexElement::Position3F32,
-                                  VertexElement::ColorDiffuse1U32A8R8G8B8};
+  static constexpr auto sLayout = array{
+    VertexElement::Position3F32,
+    VertexElement::ColorDiffuse1U32A8R8G8B8,
+  };
 };
 
 struct RotationSpeed final {
@@ -65,18 +67,18 @@ public:
 
   RotationSpeedSystem() noexcept = default;
 
-  auto on_update(const UpdateContext& ctx) -> void override {
-    const auto dt {ctx.deltaTime.count()};
+  auto on_update(UpdateContext const& ctx) -> void override {
+    auto const dt{ctx.deltaTime.count()};
 
-    ctx.scene.entity_registry().view<Transform, const RotationSpeed>().each(
-      [&](Transform& t, const RotationSpeed& rotationSpeed) {
+    ctx.scene.entity_registry().view<Transform, RotationSpeed const>().each(
+      [&](Transform& t, RotationSpeed const& rotationSpeed) {
         t.rotate_y(Angle::degrees(rotationSpeed.rotationDegPerSecond * dt));
       });
   }
 };
 
 auto add_camera(Scene& scene) -> Entity {
-  const Entity camera {scene.create_entity()};
+  auto const camera = scene.create_entity();
   camera.emplace<Camera>(Vector3f32::forward(), Vector3f32::up(), 90_deg, 0.1f,
                          100.0f);
 
@@ -85,36 +87,37 @@ auto add_camera(Scene& scene) -> Entity {
 
 } // namespace
 
-SimpleScene::SimpleScene(Engine& engine)
-  : mGfxCache {engine.create_gfx_resource_cache()} {
-  const array vertices {Vertex {{-1.0f, -1.0f, 0.0f}, 0xffff0000_a8r8g8b8},
-                        Vertex {{1.0f, -1.0f, 0.0f}, 0xff0000ff_a8r8g8b8},
-                        Vertex {{0.0f, 1.0f, 0.0f}, 0xffffffff_a8r8g8b8}};
+SimpleScene::SimpleScene(Engine const& engine)
+  : mGfxCache{engine.create_gfx_resource_cache()} {
+  constexpr auto vertices =
+    array{Vertex{{-1.0f, -1.0f, 0.0f}, 0xffff0000_a8r8g8b8},
+          Vertex{{1.0f, -1.0f, 0.0f}, 0xff0000ff_a8r8g8b8},
+          Vertex{{0.0f, 1.0f, 0.0f}, 0xffffffff_a8r8g8b8}};
 
-  const auto mesh {mGfxCache->create_mesh({
-    as_bytes(span {vertices}),
+  auto const mesh = mGfxCache->create_mesh({
+    as_bytes(span{vertices}),
     static_cast<u32>(vertices.size()),
     Vertex::sLayout,
-  })};
+  });
 
-  PipelineDescriptor pipelineDesc;
+  auto pipelineDesc = PipelineDescriptor{};
   pipelineDesc.vertexLayout = Vertex::sLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
   pipelineDesc.depthTest = TestPassCond::IfLessEqual;
   pipelineDesc.depthWriteEnable = true;
-  MaterialDescriptor materialDesc;
+  auto materialDesc = MaterialDescriptor{};
   materialDesc.pipelineDesc = &pipelineDesc;
-  const auto material {mGfxCache->create_material(materialDesc)};
+  auto const material = mGfxCache->create_material(materialDesc);
 
-  const auto scene {Scene::create()};
-  auto& gfxEnv {scene->entity_registry().ctx().emplace<Environment>()};
+  auto const scene = Scene::create();
+  auto& gfxEnv = scene->entity_registry().ctx().emplace<Environment>();
   gfxEnv.set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
 
-  const Entity triangle {scene->create_entity(Vector3f32::forward() * 2.5f)};
+  auto const triangle = scene->create_entity(Vector3f32::forward() * 2.5f);
   triangle.emplace<RotationSpeed>(360.0f);
   triangle.emplace<RenderComponent>(mesh, material);
 
-  const Entity camera {add_camera(*scene)};
+  auto const camera = add_camera(*scene);
 
   scene->create_system<RotationSpeedSystem>();
   add_child_top(SceneView::create(scene, mGfxCache, camera.entity()));

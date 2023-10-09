@@ -10,7 +10,7 @@ namespace samples {
 
 class SimpleScene final : public basalt::View {
 public:
-  explicit SimpleScene(basalt::Engine&);
+  explicit SimpleScene(basalt::Engine const&);
 
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;

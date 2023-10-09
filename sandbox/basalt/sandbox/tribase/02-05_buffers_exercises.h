@@ -17,7 +17,7 @@ namespace tribase {
 
 class BuffersExercises final : public basalt::View {
 public:
-  explicit BuffersExercises(basalt::Engine&);
+  explicit BuffersExercises(basalt::Engine const&);
 
 private:
   struct CubeData final {
@@ -32,15 +32,15 @@ private:
   basalt::gfx::IndexBuffer mIndexBuffer;
   basalt::gfx::Sampler mSampler;
   basalt::gfx::Texture mTexture;
-  basalt::Vector3f32 mCameraPos {0.0f};
-  basalt::Angle mCameraAngleY {};
+  basalt::Vector3f32 mCameraPos{0.0f};
+  basalt::Angle mCameraAngleY{};
   basalt::Angle mFov;
-  basalt::i32 mCurrentExercise {0};
+  basalt::i32 mCurrentExercise{0};
 
   auto regenerate_velocities() -> void;
 
   auto on_update(UpdateContext&) -> void override;
-  auto on_input(const basalt::InputEvent&)
+  auto on_input(basalt::InputEvent const&)
     -> basalt::InputEventHandled override;
 };
 

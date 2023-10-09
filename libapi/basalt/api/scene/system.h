@@ -8,21 +8,21 @@ namespace basalt {
 
 class System {
 public:
-  System(const System&) = delete;
+  System(System const&) = delete;
   System(System&&) = delete;
 
   virtual ~System() noexcept = default;
 
-  auto operator=(const System&) -> System& = delete;
+  auto operator=(System const&) -> System& = delete;
   auto operator=(System&&) -> System& = delete;
 
   struct UpdateContext final {
-    SecondsF32 deltaTime {};
-    SecondsF32 time {};
+    SecondsF32 deltaTime{};
+    SecondsF32 time{};
     Scene& scene;
   };
 
-  virtual auto on_update(const UpdateContext&) -> void = 0;
+  virtual auto on_update(UpdateContext const&) -> void = 0;
 
 protected:
   System() noexcept = default;

@@ -19,7 +19,7 @@ namespace basalt::gfx {
 // command list with redundant state filtering
 class FilteringCommandList final {
 public:
-  auto clear_attachments(Attachments, const Color& = {}, f32 depth = 0.0f,
+  auto clear_attachments(Attachments, Color const& = {}, f32 depth = 0.0f,
                          u32 stencil = 0) -> void;
   auto draw(u32 firstVertex, u32 vertexCount) -> void;
   auto draw_indexed(i32 vertexOffset, u32 minIndex, u32 numVertices,
@@ -29,14 +29,14 @@ public:
   auto bind_index_buffer(IndexBuffer) -> void;
   auto bind_sampler(u8 slot, Sampler) -> void;
   auto bind_texture(u8 slot, Texture) -> void;
-  auto set_blend_constant(const Color&) -> void;
-  auto set_transform(TransformState, const Matrix4x4f32&) -> void;
-  auto set_ambient_light(const Color&) -> void;
-  auto set_lights(gsl::span<const LightData>) -> void;
-  auto set_material(const Color& diffuse, const Color& ambient = {},
-                    const Color& emissive = {}, const Color& specular = {},
+  auto set_blend_constant(Color const&) -> void;
+  auto set_transform(TransformState, Matrix4x4f32 const&) -> void;
+  auto set_ambient_light(Color const&) -> void;
+  auto set_lights(gsl::span<LightData const>) -> void;
+  auto set_material(Color const& diffuse, Color const& ambient = {},
+                    Color const& emissive = {}, Color const& specular = {},
                     f32 specularPower = 0) -> void;
-  auto set_fog_parameters(const Color&, f32 start, f32 end, f32 density = 0)
+  auto set_fog_parameters(Color const&, f32 start, f32 end, f32 density = 0)
     -> void;
   auto set_reference_alpha(u8) -> void;
 

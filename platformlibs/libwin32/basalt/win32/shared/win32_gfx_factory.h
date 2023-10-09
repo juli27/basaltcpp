@@ -14,10 +14,10 @@ public:
   struct DeviceAndSwapChainDesc final {
     Adapter adapter;
     DisplayMode exclusiveDisplayMode;
-    ImageFormat renderTargetFormat {ImageFormat::Unknown};
-    ImageFormat depthStencilFormat {ImageFormat::Unknown};
-    MultiSampleCount sampleCount {MultiSampleCount::One};
-    bool exclusive {false};
+    ImageFormat renderTargetFormat{ImageFormat::Unknown};
+    ImageFormat depthStencilFormat{ImageFormat::Unknown};
+    MultiSampleCount sampleCount{MultiSampleCount::One};
+    bool exclusive{false};
   };
 
   struct DeviceAndSwapChain final {
@@ -25,24 +25,24 @@ public:
     SwapChainPtr swapChain;
   };
 
-  Win32GfxFactory(const Win32GfxFactory&) = delete;
+  Win32GfxFactory(Win32GfxFactory const&) = delete;
   Win32GfxFactory(Win32GfxFactory&&) = delete;
 
   virtual ~Win32GfxFactory() noexcept = default;
 
-  auto operator=(const Win32GfxFactory&) -> Win32GfxFactory& = delete;
+  auto operator=(Win32GfxFactory const&) -> Win32GfxFactory& = delete;
   auto operator=(Win32GfxFactory&&) -> Win32GfxFactory& = delete;
 
-  [[nodiscard]] virtual auto adapters() const -> const AdapterList& = 0;
+  [[nodiscard]] virtual auto adapters() const -> AdapterList const& = 0;
 
-  auto create_device_and_swap_chain(HWND, const DeviceAndSwapChainDesc&) const
+  auto create_device_and_swap_chain(HWND, DeviceAndSwapChainDesc const&) const
     -> DeviceAndSwapChain;
 
 protected:
   Win32GfxFactory() noexcept = default;
 
   virtual auto
-  do_create_device_and_swap_chain(HWND, const DeviceAndSwapChainDesc&) const
+  do_create_device_and_swap_chain(HWND, DeviceAndSwapChainDesc const&) const
     -> DeviceAndSwapChain = 0;
 };
 

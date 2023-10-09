@@ -14,26 +14,26 @@ namespace basalt {
 
 class View {
 public:
-  View(const View&) = delete;
+  View(View const&) = delete;
   View(View&&) noexcept = default;
 
   virtual ~View() noexcept = default;
 
-  auto operator=(const View&) -> View& = delete;
+  auto operator=(View const&) -> View& = delete;
   auto operator=(View&&) noexcept -> View& = default;
 
-  [[nodiscard]] auto input_state() const noexcept -> const InputState&;
+  [[nodiscard]] auto input_state() const noexcept -> InputState const&;
   [[nodiscard]] auto pointer_position() const noexcept -> PointerPosition;
   [[nodiscard]] auto is_mouse_button_down(MouseButton) const -> bool;
   [[nodiscard]] auto is_key_down(Key) const -> bool;
 
   auto add_child_top(ViewPtr) -> void;
   auto add_child_bottom(ViewPtr) -> void;
-  auto add_child_above(ViewPtr, const ViewPtr& before) -> void;
-  auto add_child_below(ViewPtr, const ViewPtr& after) -> void;
-  auto remove_child(const ViewPtr&) -> void;
+  auto add_child_above(ViewPtr, ViewPtr const& before) -> void;
+  auto add_child_below(ViewPtr, ViewPtr const& after) -> void;
+  auto remove_child(ViewPtr const&) -> void;
 
-  [[nodiscard]] auto handle_input(const InputEvent&) -> bool;
+  [[nodiscard]] auto handle_input(InputEvent const&) -> bool;
 
   struct DrawContext final {
     std::vector<gfx::CommandList>& commandLists;
@@ -42,7 +42,7 @@ public:
 
   struct UpdateContext final {
     Engine& engine;
-    const DrawContext& drawCtx;
+    DrawContext const& drawCtx;
     SecondsF32 deltaTime;
   };
 
@@ -53,7 +53,7 @@ protected:
 
   virtual auto on_update(UpdateContext&) -> void;
 
-  [[nodiscard]] virtual auto on_input(const InputEvent&) -> InputEventHandled;
+  [[nodiscard]] virtual auto on_input(InputEvent const&) -> InputEventHandled;
 
 private:
   // top to bottom order

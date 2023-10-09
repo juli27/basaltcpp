@@ -14,23 +14,23 @@ namespace basalt {
 // TODO: mouse leave
 // TODO: mouse capturing
 struct InputManager final {
-  void set_overlay(ViewPtr);
+  auto set_overlay(ViewPtr) -> void;
 
-  void dispatch_pending(const ViewPtr& root);
+  auto dispatch_pending(ViewPtr const& root) -> void;
 
-  void mouse_moved(PointerPosition);
+  auto mouse_moved(PointerPosition) -> void;
 
-  void mouse_wheel(f32 offset);
+  auto mouse_wheel(f32 offset) -> void;
 
-  void mouse_button_down(MouseButton);
-  void mouse_button_up(MouseButton);
+  auto mouse_button_down(MouseButton) -> void;
+  auto mouse_button_up(MouseButton) -> void;
 
   auto keyboard_focus_gained() -> void;
   auto keyboard_focus_lost() -> void;
-  void key_down(Key);
-  void key_up(Key);
+  auto key_down(Key) -> void;
+  auto key_up(Key) -> void;
 
-  void character_utf8(std::array<char, 4>);
+  auto character_utf8(std::array<char, 4>) -> void;
 
 private:
   ViewPtr mOverlay;
@@ -38,7 +38,7 @@ private:
   PointerPosition mPointerPos;
   std::bitset<MOUSE_BUTTON_COUNT> mMouseButtonsDown;
   std::bitset<KEY_COUNT> mKeysDown;
-  bool hasKeyboardFocus {false};
+  bool hasKeyboardFocus{false};
 };
 
 } // namespace basalt

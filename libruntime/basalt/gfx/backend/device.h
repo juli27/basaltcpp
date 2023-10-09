@@ -15,20 +15,20 @@ namespace basalt::gfx {
 
 class Device {
 public:
-  Device(const Device&) = delete;
+  Device(Device const&) = delete;
   Device(Device&&) = delete;
 
   virtual ~Device() noexcept = default;
 
-  auto operator=(const Device&) -> Device& = delete;
+  auto operator=(Device const&) -> Device& = delete;
   auto operator=(Device&&) -> Device& = delete;
 
-  [[nodiscard]] virtual auto capabilities() const -> const DeviceCaps& = 0;
+  [[nodiscard]] virtual auto capabilities() const -> DeviceCaps const& = 0;
   [[nodiscard]] virtual auto get_status() const noexcept -> DeviceStatus = 0;
 
   virtual auto reset() -> void = 0;
 
-  [[nodiscard]] virtual auto create_pipeline(const PipelineDescriptor&)
+  [[nodiscard]] virtual auto create_pipeline(PipelineDescriptor const&)
     -> Pipeline = 0;
 
   virtual auto destroy(Pipeline) noexcept -> void = 0;
@@ -45,8 +45,8 @@ public:
 
   // throws std::bad_alloc
   [[nodiscard]] virtual auto
-  create_vertex_buffer(const VertexBufferDescriptor&,
-                       gsl::span<const std::byte> initialData = {})
+  create_vertex_buffer(VertexBufferDescriptor const&,
+                       gsl::span<std::byte const> initialData = {})
     -> VertexBuffer = 0;
 
   virtual auto destroy(VertexBuffer) noexcept -> void = 0;
@@ -63,8 +63,8 @@ public:
 
   // throws std::bad_alloc
   [[nodiscard]] virtual auto
-  create_index_buffer(const IndexBufferDescriptor&,
-                      gsl::span<const std::byte> initialData = {})
+  create_index_buffer(IndexBufferDescriptor const&,
+                      gsl::span<std::byte const> initialData = {})
     -> IndexBuffer = 0;
 
   virtual auto destroy(IndexBuffer) noexcept -> void = 0;
@@ -81,20 +81,20 @@ public:
 
   // TODO: load file somewhere else
   // throws std::runtime_error when failing
-  [[nodiscard]] virtual auto load_texture(const std::filesystem::path&)
+  [[nodiscard]] virtual auto load_texture(std::filesystem::path const&)
     -> Texture = 0;
 
-  [[nodiscard]] virtual auto load_cube_texture(const std::filesystem::path&)
+  [[nodiscard]] virtual auto load_cube_texture(std::filesystem::path const&)
     -> Texture = 0;
 
   virtual auto destroy(Texture) noexcept -> void = 0;
 
-  [[nodiscard]] virtual auto create_sampler(const SamplerDescriptor&)
+  [[nodiscard]] virtual auto create_sampler(SamplerDescriptor const&)
     -> Sampler = 0;
 
   virtual auto destroy(Sampler) noexcept -> void = 0;
 
-  virtual auto submit(gsl::span<const CommandList>) -> void = 0;
+  virtual auto submit(gsl::span<CommandList const>) -> void = 0;
 
   virtual auto query_extension(ext::DeviceExtensionId)
     -> std::optional<ext::DeviceExtensionPtr> = 0;
@@ -103,12 +103,12 @@ public:
   [[nodiscard]] auto query_extension() -> std::optional<std::shared_ptr<T>> {
     static_assert(std::is_base_of_v<ext::DeviceExtension, T>);
 
-    auto maybeExt {query_extension(T::ID)};
+    auto maybeExt = query_extension(T::ID);
     if (!maybeExt) {
       return std::nullopt;
     }
 
-    return std::static_pointer_cast<T>(maybeExt.value());
+    return std::static_pointer_cast<T>(std::move(maybeExt).value());
   }
 
 protected:

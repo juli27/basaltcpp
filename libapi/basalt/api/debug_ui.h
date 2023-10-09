@@ -23,10 +23,10 @@ namespace basalt {
 
 class DebugUi final {
 public:
-  auto show_gfx_info(const gfx::Info&) -> void;
+  auto show_gfx_info(gfx::Info const&) -> void;
   auto show_performance_overlay(bool& isOpen) -> void;
 
-  using RenderComponentUi = std::function<void(const Entity&)>;
+  using RenderComponentUi = std::function<void(Entity const&)>;
 
   struct ComponentUi {
     entt::id_type typeId;
@@ -35,8 +35,8 @@ public:
   };
 
   struct SceneInspectorState {
-    EntityId selected {entt::null};
-    gsl::span<ComponentUi> componentUis {};
+    EntityId selected{entt::null};
+    gsl::span<ComponentUi> componentUis{};
   };
 
   static auto scene_inspector(Scene&, bool& isOpen) -> void;
@@ -45,21 +45,21 @@ public:
     -> void;
   static auto entity_components(Entity, gsl::span<ComponentUi>) -> void;
   static auto transform(Transform&) -> void;
-  static auto local_to_world(const LocalToWorld&) -> void;
+  static auto local_to_world(LocalToWorld const&) -> void;
   static auto camera(gfx::Camera&) -> void;
-  static auto render_component(const gfx::RenderComponent&) -> void;
-  static auto x_model(const gfx::ext::XModel&) -> void;
+  static auto render_component(gfx::RenderComponent const&) -> void;
+  static auto x_model(gfx::ext::XModel const&) -> void;
   static auto light(gfx::Light&) -> void;
   static auto point_light(gfx::PointLight&) -> void;
   static auto spot_light(gfx::SpotLight&) -> void;
   static auto edit_directional_light(gfx::DirectionalLight&) -> void;
-  static auto edit_color3(const char* label, Color&) -> void;
-  static auto edit_color4(const char* label, Color&) -> void;
-  static auto display_matrix4x4(const char* label, const Matrix4x4f32&) -> void;
+  static auto edit_color3(char const* label, Color&) -> void;
+  static auto edit_color4(char const* label, Color&) -> void;
+  static auto display_matrix4x4(char const* label, Matrix4x4f32 const&) -> void;
 
 private:
-  u32 mSelectedAdapterIndex {0};
-  u8 mOverlayCorner {2u};
+  u32 mSelectedAdapterIndex{0};
+  u8 mOverlayCorner{2u};
 };
 
 } // namespace basalt

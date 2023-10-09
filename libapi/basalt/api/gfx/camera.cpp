@@ -6,16 +6,16 @@
 
 namespace basalt::gfx {
 
-Camera::Camera(const Vector3f32& lookAt, const Vector3f32& up, const Angle fov,
-               const f32 nearPlane, const f32 farPlane) noexcept
-  : lookAt {lookAt}
-  , up {up}
-  , fov {fov}
-  , nearPlane {nearPlane}
-  , farPlane {farPlane} {
+Camera::Camera(Vector3f32 const& lookAt, Vector3f32 const& up, Angle const fov,
+               f32 const nearPlane, f32 const farPlane) noexcept
+  : lookAt{lookAt}
+  , up{up}
+  , fov{fov}
+  , nearPlane{nearPlane}
+  , farPlane{farPlane} {
 }
 
-CameraEntity::CameraEntity(const Entity entity) : mEntity {entity} {
+CameraEntity::CameraEntity(Entity const entity) : mEntity{entity} {
 }
 
 auto CameraEntity::entity() const noexcept -> Entity {
@@ -31,14 +31,14 @@ auto CameraEntity::get_camera() const noexcept -> Camera& {
 }
 
 auto CameraEntity::world_to_view() const noexcept -> Matrix4x4f32 {
-  const Transform& transform {get_transform()};
-  const Camera& camera {get_camera()};
+  auto const& transform = get_transform();
+  auto const& camera = get_camera();
 
   return Matrix4x4f32::look_at_lh(transform.position, camera.lookAt, camera.up);
 }
 
 auto CameraEntity::view_to_clip() const noexcept -> Matrix4x4f32 {
-  const Camera& camera {get_camera()};
+  auto const& camera = get_camera();
 
   return Matrix4x4f32::perspective_projection(
     camera.fov, camera.aspectRatio, camera.nearPlane, camera.farPlane);

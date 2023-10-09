@@ -9,13 +9,13 @@ namespace basalt::gfx {
 // implementations of engine private function templates
 
 template <typename T>
-auto CommandList::allocate(const uSize count) const -> gsl::span<T> {
+auto CommandList::allocate(uSize const count) const -> gsl::span<T> {
   static_assert(std::is_trivially_destructible_v<T>);
 
-  std::pmr::polymorphic_allocator<T> allocator {mBuffer.get()};
-  T* const storage {allocator.allocate(count)};
+  auto allocator = std::pmr::polymorphic_allocator<T>{mBuffer.get()};
+  auto* const storage = allocator.allocate(count);
 
-  return gsl::span {storage, count};
+  return gsl::span{storage, count};
 }
 
 template <typename T, typename... Args>

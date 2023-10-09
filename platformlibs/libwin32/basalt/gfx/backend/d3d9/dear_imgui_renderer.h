@@ -11,10 +11,9 @@ namespace basalt::gfx::ext {
 
 class D3D9ImGuiRenderer final : public DearImGuiRenderer {
 public:
-  static auto create(IDirect3DDevice9Ptr)
-    -> D3D9ImGuiRendererPtr;
+  static auto create(IDirect3DDevice9Ptr) -> D3D9ImGuiRendererPtr;
 
-  auto execute(const CommandRenderDearImGui&) const -> void;
+  auto execute(CommandRenderDearImGui const&) const -> void;
   auto invalidate_device_objects() const -> void;
   auto create_device_objects() const -> void;
 

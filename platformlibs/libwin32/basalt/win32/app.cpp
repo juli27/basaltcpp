@@ -42,7 +42,7 @@ namespace basalt {
 
 namespace {
 
-auto dump_config(const Config& config) -> void {
+auto dump_config(Config const& config) -> void {
   BASALT_LOG_INFO("config"sv);
   BASALT_LOG_INFO("\truntime.debugUI.enabled = {}"sv,
                   config.get_bool("runtime.debugUI.enabled"s));
@@ -58,7 +58,7 @@ auto dump_config(const Config& config) -> void {
 }
 
 [[nodiscard]] auto poll_messages() -> bool {
-  MSG msg {};
+  auto msg = MSG{};
   while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
     TranslateMessage(&msg);
     DispatchMessageW(&msg);
@@ -79,8 +79,8 @@ auto dump_config(const Config& config) -> void {
 }
 
 [[nodiscard]] auto wait_for_messages() -> bool {
-  MSG msg {};
-  const BOOL ret {GetMessageW(&msg, nullptr, 0u, 0u)};
+  auto msg = MSG{};
+  auto const ret = GetMessageW(&msg, nullptr, 0u, 0u);
   if (ret == -1) {
     BASALT_LOG_FATAL(create_win32_error_message(GetLastError()));
 
@@ -123,23 +123,23 @@ auto run_lost_device_loop(gfx::Device& gfxDevice) -> bool {
 
 } // namespace
 
-auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
+auto App::run(Config& config, HMODULE const moduleHandle, int const showCommand)
   -> void {
   dump_config(config);
 
-  const gfx::Win32GfxFactoryPtr gfxFactory {gfx::D3D9Factory::create()};
+  auto const gfxFactory = gfx::Win32GfxFactoryPtr{gfx::D3D9Factory::create()};
   if (!gfxFactory) {
     BASALT_LOG_FATAL("couldn't create any gfx factory");
 
     return;
   }
 
-  const WindowPtr window {[&] {
-    const Size2Du16 windowedSurfaceSize {
+  auto const window = [&] {
+    auto const windowedSurfaceSize = Size2Du16{
       static_cast<u16>(config.get_i32("window.size.width"s)),
       static_cast<u16>(config.get_i32("window.size.height"s)),
     };
-    const Window::CreateInfo windowInfo {
+    auto const windowInfo = Window::CreateInfo{
       config.get_string("window.title"s),
       showCommand,
       windowedSurfaceSize,
@@ -148,11 +148,11 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
     };
 
     return Window::create(moduleHandle, windowInfo, *gfxFactory);
-  }()};
+  }();
 
-  gfx::Context& gfxContext {*window->gfx_context()};
+  auto& gfxContext = *window->gfx_context();
 
-  App app {
+  auto app = App{
     config,
     window->gfx_context(),
     DearImGui::create(gfxContext, window->handle()),
@@ -161,20 +161,20 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
   window->input_manager().set_overlay(app.dear_imgui());
 
   using Clock = steady_clock;
-  time_point startTime {Clock::now()};
-  SecondsF32 deltaTime {0s};
+  auto startTime = Clock::now();
+  auto deltaTime = SecondsF32{0s};
 
   while (poll_messages()) {
-    if (const WindowMode mode {config.get_enum("window.mode"s, to_window_mode)};
+    if (auto const mode = config.get_enum("window.mode"s, to_window_mode);
         mode != window->mode()) {
       window->set_mode(mode);
     }
 
-    const ViewPtr& rootView {app.root()};
+    auto const& rootView = app.root();
 
     window->input_manager().dispatch_pending(rootView);
 
-    const UpdateContext runtimeCtx {deltaTime};
+    auto const runtimeCtx = UpdateContext{deltaTime};
     app.update(runtimeCtx);
 
     if (app.mIsDirty) {
@@ -193,14 +193,14 @@ auto App::run(Config& config, const HMODULE moduleHandle, const int showCommand)
       continue;
     }
 
-    const time_point endTime {Clock::now()};
+    auto const endTime = Clock::now();
     deltaTime = endTime - startTime;
     startTime = endTime;
   }
 }
 
 App::App(Config& config, gfx::ContextPtr gfxContext, DearImGuiPtr dearImGui)
-  : Runtime {config, std::move(gfxContext), std::move(dearImGui)} {
+  : Runtime{config, std::move(gfxContext), std::move(dearImGui)} {
 }
 
 // namespace {

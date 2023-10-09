@@ -6,10 +6,12 @@ namespace basalt {
 
 class Angle;
 
-struct Matrix4x4f32;
+class Matrix4x4f32;
+
+class Plane;
 
 template <typename T>
-struct Rectangle;
+class Rectangle;
 using RectangleI16 = Rectangle<i16>;
 using RectangleU16 = Rectangle<u16>;
 

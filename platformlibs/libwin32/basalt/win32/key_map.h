@@ -8,7 +8,7 @@ namespace basalt {
 
 // TODO: syskeys
 // TODO: left and right variants
-constexpr std::array<Key, 256> VK_TO_KEY_MAP = {
+constexpr auto VK_TO_KEY_MAP = std::array<Key, 256>{
   /* unassigned             */ Key::Unknown,
   /* VK_LBUTTON             */ Key::Unknown,
   /* VK_RBUTTON             */ Key::Unknown,

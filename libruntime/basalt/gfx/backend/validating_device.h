@@ -19,21 +19,21 @@ public:
   // don't use directly
   explicit ValidatingDevice(DevicePtr);
 
-  [[nodiscard]] auto load_texture_3d(const std::filesystem::path&) -> Texture;
+  [[nodiscard]] auto load_texture_3d(std::filesystem::path const&) -> Texture;
 
-  [[nodiscard]] auto capabilities() const -> const DeviceCaps& override;
+  [[nodiscard]] auto capabilities() const -> DeviceCaps const& override;
   [[nodiscard]] auto get_status() const noexcept -> DeviceStatus override;
 
   auto reset() -> void override;
 
-  [[nodiscard]] auto create_pipeline(const PipelineDescriptor&)
+  [[nodiscard]] auto create_pipeline(PipelineDescriptor const&)
     -> Pipeline override;
 
   auto destroy(Pipeline) noexcept -> void override;
 
   [[nodiscard]] auto
-  create_vertex_buffer(const VertexBufferDescriptor&,
-                       gsl::span<const std::byte> initialData)
+  create_vertex_buffer(VertexBufferDescriptor const&,
+                       gsl::span<std::byte const> initialData)
     -> VertexBuffer override;
 
   auto destroy(VertexBuffer) noexcept -> void override;
@@ -43,8 +43,8 @@ public:
 
   auto unmap(VertexBuffer) noexcept -> void override;
 
-  [[nodiscard]] auto create_index_buffer(const IndexBufferDescriptor&,
-                                         gsl::span<const std::byte> initialData)
+  [[nodiscard]] auto create_index_buffer(IndexBufferDescriptor const&,
+                                         gsl::span<std::byte const> initialData)
     -> IndexBuffer override;
 
   auto destroy(IndexBuffer) noexcept -> void override;
@@ -55,20 +55,20 @@ public:
 
   auto unmap(IndexBuffer) noexcept -> void override;
 
-  [[nodiscard]] auto load_texture(const std::filesystem::path&)
+  [[nodiscard]] auto load_texture(std::filesystem::path const&)
     -> Texture override;
 
-  [[nodiscard]] auto load_cube_texture(const std::filesystem::path&)
+  [[nodiscard]] auto load_cube_texture(std::filesystem::path const&)
     -> Texture override;
 
   auto destroy(Texture) noexcept -> void override;
 
-  [[nodiscard]] auto create_sampler(const SamplerDescriptor&)
+  [[nodiscard]] auto create_sampler(SamplerDescriptor const&)
     -> Sampler override;
 
   auto destroy(Sampler) noexcept -> void override;
 
-  auto submit(gsl::span<const CommandList>) -> void override;
+  auto submit(gsl::span<CommandList const>) -> void override;
 
   auto query_extension(ext::DeviceExtensionId)
     -> std::optional<ext::DeviceExtensionPtr> override;
@@ -112,45 +112,45 @@ private:
   HandlePool<SamplerData, Sampler> mSamplers;
   Pipeline mBoundPipeline;
 
-  PrimitiveType mCurrentPrimitiveType {PrimitiveType::PointList};
+  PrimitiveType mCurrentPrimitiveType{PrimitiveType::PointList};
 
-  auto validate(const CommandList&) -> CommandList;
-  auto validate(const Command&) -> void;
-  auto validate(const CommandClearAttachments&) -> void;
-  auto validate(const CommandDraw&) -> void;
-  auto validate(const CommandDrawIndexed&) -> void;
-  auto validate(const CommandBindPipeline&) -> void;
-  auto validate(const CommandBindVertexBuffer&) -> void;
-  auto validate(const CommandBindIndexBuffer&) -> void;
-  auto validate(const CommandBindSampler&) -> void;
-  auto validate(const CommandBindTexture&) -> void;
-  auto validate(const CommandSetTransform&) -> void;
-  auto validate(const CommandSetAmbientLight&) -> void;
-  auto validate(const CommandSetLights&) -> void;
-  auto validate(const CommandSetMaterial&) -> void;
-  auto validate(const CommandSetFogParameters&) -> void;
+  auto validate(CommandList const&) -> CommandList;
+  auto validate(Command const&) -> void;
+  auto validate(CommandClearAttachments const&) -> void;
+  auto validate(CommandDraw const&) -> void;
+  auto validate(CommandDrawIndexed const&) -> void;
+  auto validate(CommandBindPipeline const&) -> void;
+  auto validate(CommandBindVertexBuffer const&) -> void;
+  auto validate(CommandBindIndexBuffer const&) -> void;
+  auto validate(CommandBindSampler const&) -> void;
+  auto validate(CommandBindTexture const&) -> void;
+  auto validate(CommandSetTransform const&) -> void;
+  auto validate(CommandSetAmbientLight const&) -> void;
+  auto validate(CommandSetLights const&) -> void;
+  auto validate(CommandSetMaterial const&) -> void;
+  auto validate(CommandSetFogParameters const&) -> void;
 
-  auto patch(CommandList&, const Command&) -> void;
-  auto patch(CommandList&, const CommandClearAttachments&) -> void;
-  auto patch(CommandList&, const CommandDraw&) -> void;
-  auto patch(CommandList&, const CommandDrawIndexed&) -> void;
-  auto patch(CommandList&, const CommandBindPipeline&) -> void;
-  auto patch(CommandList&, const CommandBindVertexBuffer&) -> void;
-  auto patch(CommandList&, const CommandBindIndexBuffer&) -> void;
-  auto patch(CommandList&, const CommandBindSampler&) -> void;
-  auto patch(CommandList&, const CommandBindTexture&) -> void;
-  auto patch(CommandList&, const CommandSetStencilReference&) -> void;
-  auto patch(CommandList&, const CommandSetStencilReadMask&) -> void;
-  auto patch(CommandList&, const CommandSetStencilWriteMask&) -> void;
-  auto patch(CommandList&, const CommandSetBlendConstant&) -> void;
-  auto patch(CommandList&, const CommandSetTransform&) -> void;
-  auto patch(CommandList&, const CommandSetAmbientLight&) -> void;
-  auto patch(CommandList&, const CommandSetLights&) -> void;
-  auto patch(CommandList&, const CommandSetMaterial&) -> void;
-  auto patch(CommandList&, const CommandSetFogParameters&) -> void;
-  auto patch(CommandList&, const CommandSetReferenceAlpha&) -> void;
-  auto patch(CommandList&, const CommandSetTextureFactor&) -> void;
-  auto patch(CommandList&, const CommandSetTextureStageConstant&) -> void;
+  auto patch(CommandList&, Command const&) -> void;
+  auto patch(CommandList&, CommandClearAttachments const&) -> void;
+  auto patch(CommandList&, CommandDraw const&) -> void;
+  auto patch(CommandList&, CommandDrawIndexed const&) -> void;
+  auto patch(CommandList&, CommandBindPipeline const&) -> void;
+  auto patch(CommandList&, CommandBindVertexBuffer const&) -> void;
+  auto patch(CommandList&, CommandBindIndexBuffer const&) -> void;
+  auto patch(CommandList&, CommandBindSampler const&) -> void;
+  auto patch(CommandList&, CommandBindTexture const&) -> void;
+  auto patch(CommandList&, CommandSetStencilReference const&) -> void;
+  auto patch(CommandList&, CommandSetStencilReadMask const&) -> void;
+  auto patch(CommandList&, CommandSetStencilWriteMask const&) -> void;
+  auto patch(CommandList&, CommandSetBlendConstant const&) -> void;
+  auto patch(CommandList&, CommandSetTransform const&) -> void;
+  auto patch(CommandList&, CommandSetAmbientLight const&) -> void;
+  auto patch(CommandList&, CommandSetLights const&) -> void;
+  auto patch(CommandList&, CommandSetMaterial const&) -> void;
+  auto patch(CommandList&, CommandSetFogParameters const&) -> void;
+  auto patch(CommandList&, CommandSetReferenceAlpha const&) -> void;
+  auto patch(CommandList&, CommandSetTextureFactor const&) -> void;
+  auto patch(CommandList&, CommandSetTextureStageConstant const&) -> void;
 };
 
 } // namespace basalt::gfx

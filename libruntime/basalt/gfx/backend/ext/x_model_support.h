@@ -16,7 +16,7 @@ namespace basalt::gfx::ext {
 class XModelSupport
   : public DeviceExtensionT<DeviceExtensionId::XModelSupport> {
 public:
-  [[nodiscard]] virtual auto load(const std::filesystem::path&)
+  [[nodiscard]] virtual auto load(std::filesystem::path const&)
     -> XModelData = 0;
 
   virtual auto destroy(XMesh) noexcept -> void = 0;
@@ -28,7 +28,7 @@ struct XModelData final {
     Color ambient;
     Color emissive;
     Color specular;
-    f32 specularPower {};
+    f32 specularPower{};
     std::filesystem::path textureFile;
   };
 

@@ -7,14 +7,15 @@
 
 namespace basalt {
 
-struct ResourceRegistry final {
+class ResourceRegistry final {
+public:
   auto register_resource(Resource) -> void;
 
   [[nodiscard]] auto has_resource(ResourceId) const -> bool;
-  [[nodiscard]] auto get_path(ResourceId) const -> const std::filesystem::path&;
+  [[nodiscard]] auto get_path(ResourceId) const -> std::filesystem::path const&;
 
 private:
-  std::unordered_map<ResourceId, std::filesystem::path> mResources;
+  std::unordered_map<ResourceId, std::filesystem::path> mResources{};
 };
 
 } // namespace basalt

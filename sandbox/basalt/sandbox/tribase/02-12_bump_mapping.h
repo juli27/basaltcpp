@@ -18,7 +18,7 @@ namespace tribase {
 
 class BumpMapping final : public basalt::View {
 public:
-  explicit BumpMapping(const basalt::Engine&);
+  explicit BumpMapping(basalt::Engine const&);
 
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;
@@ -32,13 +32,14 @@ private:
   basalt::gfx::ext::XModel mCube;
   basalt::gfx::VertexBuffer mSkyBoxVb;
   basalt::gfx::IndexBuffer mSkyBoxIb;
-  basalt::SecondsF32 mTime {};
-  basalt::Vector3f32 mCameraPos {};
-  basalt::Angle mCameraAngleY {};
-  basalt::f32 mCameraUpDown {};
+  basalt::SecondsF32 mTime{};
+  basalt::Vector3f32 mCameraPos{};
+  basalt::Angle mCameraAngleY{};
+  basalt::f32 mCameraUpDown{};
 
   auto on_update(UpdateContext&) -> void override;
-  auto on_input(const basalt::InputEvent&) -> basalt::InputEventHandled override;
+  auto on_input(basalt::InputEvent const&)
+    -> basalt::InputEventHandled override;
 };
 
 } // namespace tribase

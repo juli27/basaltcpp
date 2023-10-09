@@ -15,36 +15,36 @@ namespace basalt::gfx {
 // required (e.g. change of rendering API), the window must be recreated.
 class SwapChain {
 public:
-  SwapChain(const SwapChain&) = delete;
+  SwapChain(SwapChain const&) = delete;
   SwapChain(SwapChain&&) = delete;
 
   virtual ~SwapChain() noexcept = default;
 
-  auto operator=(const SwapChain&) -> SwapChain& = delete;
+  auto operator=(SwapChain const&) -> SwapChain& = delete;
   auto operator=(SwapChain&&) -> SwapChain& = delete;
 
   struct Info {
-    Size2Du16 backBufferSize {};
-    u32 refreshRate {};
-    ImageFormat renderTargetFormat {ImageFormat::Unknown};
-    MultiSampleCount sampleCount {MultiSampleCount::One};
-    bool exclusive {false};
+    Size2Du16 backBufferSize{};
+    u32 refreshRate{};
+    ImageFormat renderTargetFormat{ImageFormat::Unknown};
+    MultiSampleCount sampleCount{MultiSampleCount::One};
+    bool exclusive{false};
   };
-  
+
   [[nodiscard]] virtual auto device() const noexcept -> DevicePtr = 0;
   [[nodiscard]] virtual auto get_info() const noexcept -> Info = 0;
 
   struct ResetDesc final {
     // ignored when exclusive == true
-    Size2Du16 windowBackBufferSize {};
+    Size2Du16 windowBackBufferSize{};
     // ignored when exclusive == false
     DisplayMode exclusiveDisplayMode;
-    ImageFormat renderTargetFormat {ImageFormat::Unknown};
-    MultiSampleCount sampleCount {MultiSampleCount::One};
-    bool exclusive {false};
+    ImageFormat renderTargetFormat{ImageFormat::Unknown};
+    MultiSampleCount sampleCount{MultiSampleCount::One};
+    bool exclusive{false};
   };
 
-  virtual auto reset(const ResetDesc&) -> void = 0;
+  virtual auto reset(ResetDesc const&) -> void = 0;
 
   [[nodiscard]] virtual auto present() -> PresentResult = 0;
 

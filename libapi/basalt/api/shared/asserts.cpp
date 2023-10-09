@@ -9,8 +9,8 @@
 namespace basalt::detail {
 
 #if BASALT_DEV_BUILD
-auto report_assert_failed(const char* message, const char* file, int line,
-                          const char* func) -> void {
+auto report_assert_failed(char const* message, char const* file, int line,
+                          char const* func) -> void {
   // TODO: allow to use asserts without logging initialized
   BASALT_LOG_FATAL("ASSERT FAILED: {}", message);
   BASALT_LOG_FATAL("\tfile: {}", file);
@@ -19,8 +19,8 @@ auto report_assert_failed(const char* message, const char* file, int line,
 }
 #endif // BASALT_DEV_BUILD
 
-auto report_crash(const char* message, const char* file, int line,
-                  const char* func) -> void {
+auto report_crash(char const* message, char const* file, int line,
+                  char const* func) -> void {
   // TODO: allow crashing without logging initialized
   // TODO: remove logging because it's unsafe during OOM situations
   // TODO: add crash handler/reporter

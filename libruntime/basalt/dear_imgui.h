@@ -19,15 +19,15 @@ class DearImGui final : public View {
 public:
   static auto create(gfx::Context&, void* rawWindowHandle) -> DearImGuiPtr;
 
-  DearImGui(const DearImGui&) = delete;
+  DearImGui(DearImGui const&) = delete;
   DearImGui(DearImGui&&) = delete;
 
   ~DearImGui() noexcept override;
 
-  auto operator=(const DearImGui&) -> DearImGui& = delete;
+  auto operator=(DearImGui const&) -> DearImGui& = delete;
   auto operator=(DearImGui&&) -> DearImGui& = delete;
 
-  auto new_frame(const UpdateContext&) const -> void;
+  auto new_frame(UpdateContext const&) const -> void;
 
   // do not call directly. use the static create function instead
   explicit DearImGui(std::shared_ptr<gfx::ext::DearImGuiRenderer>);
@@ -38,7 +38,7 @@ private:
 
   auto on_update(UpdateContext&) -> void override;
 
-  auto on_input(const InputEvent&) -> InputEventHandled override;
+  auto on_input(InputEvent const&) -> InputEventHandled override;
 };
 
 } // namespace basalt

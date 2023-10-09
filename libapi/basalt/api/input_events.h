@@ -11,27 +11,27 @@
 namespace basalt {
 
 struct InputEvent {
-  const InputEventType type;
+  InputEventType const type;
 
   template <typename T>
-  [[nodiscard]] auto as() const -> const T& {
+  [[nodiscard]] auto as() const -> T const& {
     BASALT_ASSERT(type == T::TYPE, "invalid input event cast");
 
-    return *static_cast<const T*>(this);
+    return *static_cast<T const*>(this);
   }
 
 protected:
-  constexpr explicit InputEvent(const InputEventType eType) noexcept
-    : type {eType} {
+  constexpr explicit InputEvent(InputEventType const eType) noexcept
+    : type{eType} {
   }
 };
 
 template <InputEventType Type>
 struct InputEventT : InputEvent {
-  static constexpr InputEventType TYPE = Type;
+  static constexpr auto TYPE = Type;
 
 protected:
-  constexpr InputEventT() noexcept : InputEvent {TYPE} {
+  constexpr InputEventT() noexcept : InputEvent{TYPE} {
   }
 };
 
@@ -40,31 +40,30 @@ protected:
 struct MouseMoved final : InputEventT<InputEventType::MouseMoved> {
   PointerPosition position;
 
-  constexpr explicit MouseMoved(const PointerPosition& pos) noexcept
-    : position {pos} {
+  constexpr explicit MouseMoved(PointerPosition const& pos) noexcept
+    : position{pos} {
   }
 };
 
 struct MouseWheel final : InputEventT<InputEventType::MouseWheel> {
   f32 offset;
 
-  constexpr explicit MouseWheel(const f32 mouseWheelOffset) noexcept
-    : offset {mouseWheelOffset} {
+  constexpr explicit MouseWheel(f32 const mouseWheelOffset) noexcept
+    : offset{mouseWheelOffset} {
   }
 };
 
 struct MouseButtonDown final : InputEventT<InputEventType::MouseButtonDown> {
   MouseButton button;
 
-  constexpr explicit MouseButtonDown(const MouseButton b) noexcept
-    : button {b} {
+  constexpr explicit MouseButtonDown(MouseButton const b) noexcept : button{b} {
   }
 };
 
 struct MouseButtonUp final : InputEventT<InputEventType::MouseButtonUp> {
   MouseButton button;
 
-  constexpr explicit MouseButtonUp(const MouseButton b) noexcept : button {b} {
+  constexpr explicit MouseButtonUp(MouseButton const b) noexcept : button{b} {
   }
 };
 
@@ -81,7 +80,7 @@ struct KeyboardFocusLost final
 struct KeyDown final : InputEventT<InputEventType::KeyDown> {
   Key key;
 
-  constexpr explicit KeyDown(const Key k) noexcept : key {k} {
+  constexpr explicit KeyDown(Key const k) noexcept : key{k} {
   }
 };
 
@@ -90,15 +89,15 @@ static_assert(sizeof(KeyDown) == 2);
 struct KeyUp : InputEventT<InputEventType::KeyUp> {
   Key key;
 
-  constexpr explicit KeyUp(const Key k) noexcept : key {k} {
+  constexpr explicit KeyUp(Key const k) noexcept : key{k} {
   }
 };
 
 struct CharacterTyped final : InputEventT<InputEventType::CharacterTyped> {
-  std::array<char, 4> character {};
+  std::array<char, 4> character{};
 
   explicit CharacterTyped(std::array<char, 4> character)
-    : character {character} {
+    : character{character} {
   }
 };
 

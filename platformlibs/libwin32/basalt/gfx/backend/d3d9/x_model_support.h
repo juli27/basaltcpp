@@ -18,9 +18,9 @@ class D3D9XModelSupport final : public XModelSupport {
 public:
   static auto create(IDirect3DDevice9Ptr) -> D3D9XModelSupportPtr;
 
-  auto execute(const CommandDrawXMesh& cmd) const -> void;
+  auto execute(CommandDrawXMesh const& cmd) const -> void;
 
-  [[nodiscard]] auto load(const std::filesystem::path& filepath)
+  [[nodiscard]] auto load(std::filesystem::path const& filepath)
     -> XModelData override;
 
   auto destroy(XMesh handle) noexcept -> void override;
@@ -30,7 +30,7 @@ public:
 private:
   struct XMeshData {
     ID3DXMeshPtr mesh;
-    DWORD attributeId {};
+    DWORD attributeId{};
   };
 
   IDirect3DDevice9Ptr mDevice;

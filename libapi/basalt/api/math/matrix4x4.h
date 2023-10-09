@@ -7,19 +7,22 @@
 
 namespace basalt {
 
-struct Matrix4x4f32 final {
-  f32 m11 {}, m12 {}, m13 {}, m14 {};
-  f32 m21 {}, m22 {}, m23 {}, m24 {};
-  f32 m31 {}, m32 {}, m33 {}, m34 {};
-  f32 m41 {}, m42 {}, m43 {}, m44 {};
+class Matrix4x4f32 final {
+public:
+  f32 m11{}, m12{}, m13{}, m14{};
+  f32 m21{}, m22{}, m23{}, m24{};
+  f32 m31{}, m32{}, m33{}, m34{};
+  f32 m41{}, m42{}, m43{}, m44{};
 
-  [[nodiscard]] static constexpr auto zero() noexcept -> Matrix4x4f32 {
-    return Matrix4x4f32 {};
+  [[nodiscard]]
+  static constexpr auto zero() noexcept -> Matrix4x4f32 {
+    return Matrix4x4f32{};
   }
 
-  [[nodiscard]] static constexpr auto identity() noexcept -> Matrix4x4f32 {
+  [[nodiscard]]
+  static constexpr auto identity() noexcept -> Matrix4x4f32 {
     // clang-format off
-    return Matrix4x4f32 {
+    return Matrix4x4f32{
       1.0f, 0.0f, 0.0f, 0.0f,
       0.0f, 1.0f, 0.0f, 0.0f,
       0.0f, 0.0f, 1.0f, 0.0f,
@@ -28,11 +31,11 @@ struct Matrix4x4f32 final {
     // clang-format on
   }
 
-  [[nodiscard]] static constexpr auto translation(const f32 x, const f32 y,
-                                                  const f32 z) noexcept
-    -> Matrix4x4f32 {
+  [[nodiscard]]
+  static constexpr auto translation(f32 const x, f32 const y,
+                                    f32 const z) noexcept -> Matrix4x4f32 {
     // clang-format off
-    return Matrix4x4f32 {
+    return Matrix4x4f32{
       1.0f, 0.0f, 0.0f, 0.0f,
       0.0f, 1.0f, 0.0f, 0.0f,
       0.0f, 0.0f, 1.0f, 0.0f,
@@ -41,7 +44,8 @@ struct Matrix4x4f32 final {
     // clang-format on
   }
 
-  [[nodiscard]] static constexpr auto translation(const Vector3f32& t) noexcept
+  [[nodiscard]]
+  static constexpr auto translation(Vector3f32 const& t) noexcept
     -> Matrix4x4f32 {
     return translation(t.x(), t.y(), t.z());
   }
@@ -52,25 +56,25 @@ struct Matrix4x4f32 final {
 
   [[nodiscard]] static auto rotation_z(Angle) noexcept -> Matrix4x4f32;
 
-  [[nodiscard]] static auto rotation(Angle x, Angle y, Angle z) noexcept
-    -> Matrix4x4f32;
+  [[nodiscard]]
+  static auto rotation(Angle x, Angle y, Angle z) noexcept -> Matrix4x4f32;
 
-  [[nodiscard]] static auto rotation(const Vector3f32& radians) noexcept
-    -> Matrix4x4f32;
+  [[nodiscard]]
+  static auto rotation(Vector3f32 const& radians) noexcept -> Matrix4x4f32;
 
-  [[nodiscard]] static auto rotation(const Vector3f32& axis, Angle) noexcept
-    -> Matrix4x4f32;
+  [[nodiscard]]
+  static auto rotation(Vector3f32 const& axis, Angle) noexcept -> Matrix4x4f32;
 
-  [[nodiscard]] static constexpr auto scaling(const f32 s) noexcept
-    -> Matrix4x4f32 {
-    return scaling(Vector3f32 {s});
+  [[nodiscard]]
+  static constexpr auto scaling(f32 const s) noexcept -> Matrix4x4f32 {
+    return scaling(Vector3f32{s});
   }
 
-  [[nodiscard]] static constexpr auto scaling(const f32 x, const f32 y,
-                                              const f32 z) noexcept
+  [[nodiscard]]
+  static constexpr auto scaling(f32 const x, f32 const y, f32 const z) noexcept
     -> Matrix4x4f32 {
     // clang-format off
-    return Matrix4x4f32 {
+    return Matrix4x4f32{
          x, 0.0f, 0.0f, 0.0f,
       0.0f,    y, 0.0f, 0.0f,
       0.0f, 0.0f,    z, 0.0f,
@@ -79,16 +83,16 @@ struct Matrix4x4f32 final {
     // clang-format on
   }
 
-  [[nodiscard]] static constexpr auto scaling(const Vector3f32& s) noexcept
-    -> Matrix4x4f32 {
+  [[nodiscard]]
+  static constexpr auto scaling(Vector3f32 const& s) noexcept -> Matrix4x4f32 {
     return scaling(s.x(), s.y(), s.z());
   }
 
-  [[nodiscard]] static constexpr auto
-  axes(const Vector3f32& x, const Vector3f32& y, const Vector3f32& z) noexcept
-    -> Matrix4x4f32 {
+  [[nodiscard]]
+  static constexpr auto axes(Vector3f32 const& x, Vector3f32 const& y,
+                             Vector3f32 const& z) noexcept -> Matrix4x4f32 {
     // clang-format off
-    return Matrix4x4f32 {
+    return Matrix4x4f32{
       x.x(), x.y(), x.z(), 0.0f,
       y.x(), y.y(), y.z(), 0.0f,
       z.x(), z.y(), z.z(), 0.0f,
@@ -97,16 +101,17 @@ struct Matrix4x4f32 final {
     // clang-format on
   }
 
-  [[nodiscard]] static constexpr auto inverted(const Matrix4x4f32& m) noexcept
+  [[nodiscard]]
+  static constexpr auto inverted(Matrix4x4f32 const& m) noexcept
     -> Matrix4x4f32 {
-    const f32 det {m.det_3x3()};
+    auto const det = m.det_3x3();
     if (det == 0.0f) {
       return identity();
     }
 
-    const f32 invDet = 1.0f / det;
+    auto const invDet = 1.0f / det;
 
-    Matrix4x4f32 result {
+    auto result = Matrix4x4f32{
       invDet * (m.m22 * m.m33 - m.m23 * m.m32),
       -invDet * (m.m12 * m.m33 - m.m13 * m.m32),
       invDet * (m.m12 * m.m23 - m.m13 * m.m22),
@@ -135,10 +140,11 @@ struct Matrix4x4f32 final {
     return result;
   }
 
-  [[nodiscard]] static constexpr auto transposed(const Matrix4x4f32& m) noexcept
+  [[nodiscard]]
+  static constexpr auto transposed(Matrix4x4f32 const& m) noexcept
     -> Matrix4x4f32 {
     // clang-format off
-    return Matrix4x4f32 {
+    return Matrix4x4f32{
       m.m11, m.m21, m.m31, m.m41,
       m.m12, m.m22, m.m32, m.m42,
       m.m13, m.m23, m.m33, m.m43,
@@ -147,44 +153,42 @@ struct Matrix4x4f32 final {
     // clang-format on
   }
 
-  [[nodiscard]] static auto look_at_lh(const Vector3f32& position,
-                                       const Vector3f32& lookAt,
-                                       const Vector3f32& up) -> Matrix4x4f32;
+  [[nodiscard]]
+  static auto look_at_lh(Vector3f32 const& position, Vector3f32 const& lookAt,
+                         Vector3f32 const& up) -> Matrix4x4f32;
 
-  [[nodiscard]] static auto perspective_projection(Angle fov, f32 aspectRatio,
-                                                   f32 nearPlaneZ,
-                                                   f32 farPlaneZ) noexcept
-    -> Matrix4x4f32;
+  [[nodiscard]]
+  static auto perspective_projection(Angle fov, f32 aspectRatio, f32 nearPlaneZ,
+                                     f32 farPlaneZ) noexcept -> Matrix4x4f32;
 
   constexpr Matrix4x4f32() noexcept = default;
 
   // clang-format off
   constexpr Matrix4x4f32(
-    const f32 m11, const f32 m12, const f32 m13, const f32 m14,
-    const f32 m21, const f32 m22, const f32 m23, const f32 m24,
-    const f32 m31, const f32 m32, const f32 m33, const f32 m34,
-    const f32 m41, const f32 m42, const f32 m43, const f32 m44) noexcept
-    : m11 {m11}, m12 {m12}, m13 {m13}, m14 {m14}
-    , m21 {m21}, m22 {m22}, m23 {m23}, m24 {m24}
-    , m31 {m31}, m32 {m32}, m33 {m33}, m34 {m34}
-    , m41 {m41}, m42 {m42}, m43 {m43}, m44 {m44} {
+     f32 const m11,  f32 const m12,  f32 const m13,  f32 const m14,
+     f32 const m21,  f32 const m22,  f32 const m23,  f32 const m24,
+     f32 const m31,  f32 const m32,  f32 const m33,  f32 const m34,
+     f32 const m41,  f32 const m42,  f32 const m43,  f32 const m44) noexcept
+    : m11{m11}, m12{m12}, m13{m13}, m14{m14}
+    , m21{m21}, m22{m22}, m23{m23}, m24{m24}
+    , m31{m31}, m32{m32}, m33{m33}, m34{m34}
+    , m41{m41}, m42{m42}, m43{m43}, m44{m44} {
   }
+
   // clang-format on
 
-  [[nodiscard]] constexpr auto operator==(const Matrix4x4f32& r) const noexcept
-    -> bool {
+  constexpr auto operator==(Matrix4x4f32 const& r) const noexcept -> bool {
     return m11 == r.m11 && m12 == r.m12 && m13 == r.m13 && m14 == r.m14 &&
            m21 == r.m21 && m22 == r.m22 && m23 == r.m23 && m24 == r.m24 &&
            m31 == r.m31 && m32 == r.m32 && m33 == r.m33 && m34 == r.m34 &&
            m41 == r.m41 && m42 == r.m42 && m43 == r.m43 && m44 == r.m44;
   }
 
-  [[nodiscard]] constexpr auto operator!=(const Matrix4x4f32& r) const noexcept
-    -> bool {
+  constexpr auto operator!=(Matrix4x4f32 const& r) const noexcept -> bool {
     return !(*this == r);
   }
 
-  constexpr auto operator+=(const Matrix4x4f32& rhs) noexcept -> Matrix4x4f32& {
+  constexpr auto operator+=(Matrix4x4f32 const& rhs) noexcept -> Matrix4x4f32& {
     // clang-format off
     m11 += rhs.m11; m12 += rhs.m12; m13 += rhs.m13; m14 += rhs.m14;
     m21 += rhs.m21; m22 += rhs.m22; m23 += rhs.m23; m24 += rhs.m24;
@@ -195,7 +199,7 @@ struct Matrix4x4f32 final {
     return *this;
   }
 
-  constexpr auto operator-=(const Matrix4x4f32& rhs) noexcept -> Matrix4x4f32& {
+  constexpr auto operator-=(Matrix4x4f32 const& rhs) noexcept -> Matrix4x4f32& {
     // clang-format off
     m11 -= rhs.m11; m12 -= rhs.m12; m13 -= rhs.m13; m14 -= rhs.m14;
     m21 -= rhs.m21; m22 -= rhs.m22; m23 -= rhs.m23; m24 -= rhs.m24;
@@ -206,8 +210,8 @@ struct Matrix4x4f32 final {
     return *this;
   }
 
-  constexpr auto operator*=(const Matrix4x4f32& rhs) noexcept -> Matrix4x4f32& {
-    const Matrix4x4f32 lhs {*this};
+  constexpr auto operator*=(Matrix4x4f32 const& rhs) noexcept -> Matrix4x4f32& {
+    auto const lhs = *this;
 
     m11 = lhs.m11 * rhs.m11 + lhs.m12 * rhs.m21 + lhs.m13 * rhs.m31 +
           lhs.m14 * rhs.m41;
@@ -248,7 +252,7 @@ struct Matrix4x4f32 final {
     return *this;
   }
 
-  constexpr auto operator*=(const f32 rhs) noexcept -> Matrix4x4f32& {
+  constexpr auto operator*=(f32 const rhs) noexcept -> Matrix4x4f32& {
     // clang-format off
     m11 *= rhs; m12 *= rhs; m13 *= rhs; m14 *= rhs;
     m21 *= rhs; m22 *= rhs; m23 *= rhs; m24 *= rhs;
@@ -259,11 +263,11 @@ struct Matrix4x4f32 final {
     return *this;
   }
 
-  constexpr auto operator/=(const Matrix4x4f32& rhs) noexcept -> Matrix4x4f32& {
+  constexpr auto operator/=(Matrix4x4f32 const& rhs) noexcept -> Matrix4x4f32& {
     return *this *= inverted(rhs);
   }
 
-  constexpr auto operator/=(const f32 rhs) noexcept -> Matrix4x4f32& {
+  constexpr auto operator/=(f32 const rhs) noexcept -> Matrix4x4f32& {
     // clang-format off
     m11 /= rhs; m12 /= rhs; m13 /= rhs; m14 /= rhs;
     m21 /= rhs; m22 /= rhs; m23 /= rhs; m24 /= rhs;
@@ -276,7 +280,7 @@ struct Matrix4x4f32 final {
 
   [[nodiscard]] constexpr auto operator-() const noexcept -> Matrix4x4f32 {
     // clang-format off
-    return Matrix4x4f32 {
+    return Matrix4x4f32{
       -m11, -m12, -m13, -m14,
       -m21, -m22, -m23, -m24,
       -m31, -m32, -m33, -m34,
@@ -286,43 +290,43 @@ struct Matrix4x4f32 final {
   }
 
   [[nodiscard]] friend constexpr auto operator+(Matrix4x4f32 l,
-                                                const Matrix4x4f32& r) noexcept
+                                                Matrix4x4f32 const& r) noexcept
     -> Matrix4x4f32 {
     return l += r;
   }
 
   [[nodiscard]] friend constexpr auto operator-(Matrix4x4f32 l,
-                                                const Matrix4x4f32& r) noexcept
+                                                Matrix4x4f32 const& r) noexcept
     -> Matrix4x4f32 {
     return l -= r;
   }
 
   [[nodiscard]] friend constexpr auto operator*(Matrix4x4f32 l,
-                                                const Matrix4x4f32& r) noexcept
+                                                Matrix4x4f32 const& r) noexcept
     -> Matrix4x4f32 {
     return l *= r;
   }
 
   [[nodiscard]] friend constexpr auto operator*(Matrix4x4f32 m,
-                                                const f32 s) noexcept
+                                                f32 const s) noexcept
     -> Matrix4x4f32 {
     return m *= s;
   }
 
-  [[nodiscard]] friend constexpr auto operator*(const f32 f,
-                                                const Matrix4x4f32& m) noexcept
+  [[nodiscard]] friend constexpr auto operator*(f32 const f,
+                                                Matrix4x4f32 const& m) noexcept
     -> Matrix4x4f32 {
     return m * f;
   }
 
   [[nodiscard]] friend constexpr auto operator/(Matrix4x4f32 l,
-                                                const Matrix4x4f32& r) noexcept
+                                                Matrix4x4f32 const& r) noexcept
     -> Matrix4x4f32 {
     return l /= r;
   }
 
   [[nodiscard]] friend constexpr auto operator/(Matrix4x4f32 m,
-                                                const f32 f) noexcept
+                                                f32 const f) noexcept
     -> Matrix4x4f32 {
     return m /= f;
   }

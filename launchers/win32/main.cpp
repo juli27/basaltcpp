@@ -20,16 +20,16 @@ using basalt::App;
 using basalt::Config;
 using basalt::Log;
 
-_Use_decl_annotations_ auto WINAPI wWinMain(const HINSTANCE hInstance,
+_Use_decl_annotations_ auto WINAPI wWinMain(HINSTANCE const hInstance,
                                             HINSTANCE, LPWSTR,
-                                            const int nShowCmd) -> int try {
+                                            int const nShowCmd) -> int try {
   Log::init();
 
   try {
-    Config config {BASALT_CONFIG_DEFAULTS};
+    auto config = Config{BASALT_CONFIG_DEFAULTS};
 
     App::run(config, hInstance, nShowCmd);
-  } catch (const exception& ex) {
+  } catch (exception const& ex) {
     BASALT_LOG_FATAL("unhandled exception: {}", ex.what());
     Log::shutdown();
 
@@ -40,8 +40,8 @@ _Use_decl_annotations_ auto WINAPI wWinMain(const HINSTANCE hInstance,
   Log::shutdown();
 
   return 0;
-} catch (const exception& ex) {
-  wstring mbText = L"Unhandled exception: \r\n";
+} catch (exception const& ex) {
+  auto mbText = wstring{L"Unhandled exception: \r\n"};
   mbText.append(basalt::create_wide_from_utf8(ex.what()));
   ::MessageBoxW(nullptr, mbText.c_str(), L"Basalt Fatal Error",
                 MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);

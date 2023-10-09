@@ -14,13 +14,13 @@ using std::wstring;
 
 namespace basalt {
 
-auto create_wide_from_utf8(const string_view src) -> wstring {
+auto create_wide_from_utf8(string_view const src) -> wstring {
   // Don't use asserts/log because this function can be used without the log
   // being initialized
 
   // MultiByteToWideChar fails when size is 0
   if (src.empty()) {
-    return wstring {};
+    return wstring{};
   }
 
   // use the size of the string view because the input string
@@ -29,16 +29,16 @@ auto create_wide_from_utf8(const string_view src) -> wstring {
     return L"create_wide_from_utf8: input string is too large"s;
   }
 
-  const auto numChars = static_cast<int>(src.size());
+  auto const numChars = static_cast<int>(src.size());
   auto numWChars =
-    ::MultiByteToWideChar(CP_UTF8, 0ul, src.data(), numChars, nullptr, 0);
+    MultiByteToWideChar(CP_UTF8, 0ul, src.data(), numChars, nullptr, 0);
   if (numWChars == 0) {
     return L"create_wide_from_utf8: MultiByteToWideChar returned 0"s;
   }
 
-  wstring dst(numWChars, L'\0');
-  numWChars = ::MultiByteToWideChar(CP_UTF8, 0ul, src.data(), numChars,
-                                    dst.data(), static_cast<int>(dst.size()));
+  auto dst = wstring(numWChars, L'\0');
+  numWChars = MultiByteToWideChar(CP_UTF8, 0ul, src.data(), numChars,
+                                  dst.data(), static_cast<int>(dst.size()));
   if (numWChars == 0) {
     return L"create_wide_from_utf8: MultiByteToWideChar returned 0"s;
   }

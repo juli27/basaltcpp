@@ -12,7 +12,7 @@ public:
 
   TransformSystem() noexcept = default;
 
-  auto on_update(const UpdateContext&) -> void override;
+  auto on_update(UpdateContext const&) -> void override;
 };
 
 } // namespace basalt

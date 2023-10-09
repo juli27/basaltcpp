@@ -20,6 +20,8 @@
 
 #include <basalt/api/base/utils.h>
 
+#include <gsl/zstring>
+
 #include <windowsx.h>
 
 #include <algorithm>
@@ -48,12 +50,12 @@ struct CreateParams final {
 // clientArea is the preferred size of the client area (width and/or height can
 // be 0 if no preference)
 // workArea in virtual-screen coords
-auto calc_window_rect(const int posX, const int posY, const DWORD style,
-                      const DWORD styleEx, const Size2Du16 clientArea,
-                      const Size2Du16 monitorSize,
-                      const RECT& workArea) noexcept -> RECT {
+auto calc_window_rect(int const posX, int const posY, DWORD const style,
+                      DWORD const styleEx, Size2Du16 const clientArea,
+                      Size2Du16 const monitorSize,
+                      RECT const& workArea) noexcept -> RECT {
   // window dimensions in client coords
-  RECT rect {0l, 0l, clientArea.width(), clientArea.height()};
+  auto rect = RECT{0l, 0l, clientArea.width(), clientArea.height()};
 
   // the default size is two thirds of the current display mode
   if (rect.right == 0l) {
@@ -87,8 +89,8 @@ auto calc_window_rect(const int posX, const int posY, const DWORD style,
   return rect;
 }
 
-auto CALLBACK bootstrap_proc(const HWND handle, const UINT message,
-                             const WPARAM wParam, const LPARAM lParam) noexcept
+auto CALLBACK bootstrap_proc(HWND const handle, UINT const message,
+                             WPARAM const wParam, LPARAM const lParam) noexcept
   -> LRESULT {
 #if BASALT_TRACE_WINDOWS_MESSAGES
   BASALT_LOG_TRACE("received message: {}",
@@ -96,23 +98,23 @@ auto CALLBACK bootstrap_proc(const HWND handle, const UINT message,
 #endif // BASALT_TRACE_WINDOWS_MESSAGES
 
   if (message == WM_CREATE) {
-    const auto& cs {*reinterpret_cast<CREATESTRUCTW*>(lParam)};
-    const auto* const createParams {
-      static_cast<CreateParams*>(cs.lpCreateParams)};
+    auto const& cs = *reinterpret_cast<CREATESTRUCTW*>(lParam);
+    auto const* const createParams =
+      static_cast<CreateParams*>(cs.lpCreateParams);
 
-    MONITORINFO mi {};
+    auto mi = MONITORINFO{};
     mi.cbSize = sizeof(MONITORINFO);
     GetMonitorInfoW(MonitorFromWindow(handle, MONITOR_DEFAULTTONEAREST), &mi);
 
-    POINT topLeftClient {0, 0};
+    auto topLeftClient = POINT{0, 0};
     ClientToScreen(handle, &topLeftClient);
 
-    const Size2Du16 monitorSize {
+    auto const monitorSize = Size2Du16{
       static_cast<u16>(mi.rcMonitor.right - mi.rcMonitor.left),
       static_cast<u16>(mi.rcMonitor.bottom - mi.rcMonitor.top),
     };
 
-    const RECT rect {
+    auto const rect = RECT{
       calc_window_rect(topLeftClient.x, topLeftClient.y, cs.style, cs.dwExStyle,
                        createParams->clientAreaSize, monitorSize, mi.rcWork),
     };
@@ -124,10 +126,10 @@ auto CALLBACK bootstrap_proc(const HWND handle, const UINT message,
   return DefWindowProcW(handle, message, wParam, lParam);
 }
 
-auto register_class(const HMODULE moduleHandle) -> ATOM {
-  constexpr const WCHAR* className {L"BasaltWindow"};
+auto register_class(HMODULE const moduleHandle) -> ATOM {
+  constexpr auto className = L"BasaltWindow";
 
-  const WNDCLASSEXW windowClass {
+  auto const windowClass = WNDCLASSEXW{
     sizeof(WNDCLASSEXW),
     0, // style
     &bootstrap_proc,
@@ -147,40 +149,39 @@ auto register_class(const HMODULE moduleHandle) -> ATOM {
 
 } // namespace
 
-auto Window::create(const HMODULE moduleHandle, const CreateInfo& info,
-                    const gfx::Win32GfxFactory& gfxFactory) -> WindowPtr {
-  const ATOM windowClass {register_class(moduleHandle)};
+auto Window::create(HMODULE const moduleHandle, CreateInfo const& info,
+                    gfx::Win32GfxFactory const& gfxFactory) -> WindowPtr {
+  auto const windowClass = register_class(moduleHandle);
   if (!windowClass) {
-    throw system_error {static_cast<int>(GetLastError()),
-                        std::system_category(),
-                        "Failed to register window class"s};
+    throw system_error{static_cast<int>(GetLastError()), std::system_category(),
+                       "Failed to register window class"s};
   }
 
   // WS_CLIPSIBLINGS is added automatically (tested on Windows 10)
-  DWORD style {WS_OVERLAPPEDWINDOW};
+  auto style = DWORD{WS_OVERLAPPEDWINDOW};
   if (!info.resizeable) {
     style &= ~(WS_MAXIMIZEBOX | WS_SIZEBOX);
   }
 
   // WS_EX_WINDOWEDGE is added automatically (tested on Windows 10)
-  constexpr DWORD styleEx {};
+  constexpr auto styleEx = DWORD{};
 
-  const wstring windowTitle {create_wide_from_utf8(info.title)};
+  auto const windowTitle = create_wide_from_utf8(info.title);
 
-  CreateParams params {info.preferredClientAreaSize};
+  auto params = CreateParams{info.preferredClientAreaSize};
 
-  const HWND handle {
+  auto const handle =
     CreateWindowExW(styleEx, reinterpret_cast<LPCWSTR>(windowClass),
                     windowTitle.c_str(), style, CW_USEDEFAULT, 0, CW_USEDEFAULT,
-                    0, nullptr, nullptr, moduleHandle, &params)};
+                    0, nullptr, nullptr, moduleHandle, &params);
   if (!handle) {
-    throw system_error {static_cast<int>(GetLastError()),
-                        std::system_category(), "Failed to create window"s};
+    throw system_error{static_cast<int>(GetLastError()), std::system_category(),
+                       "Failed to create window"s};
   }
 
-  auto window {std::make_unique<Window>(moduleHandle, windowClass, handle,
-                                        info.preferredClientAreaSize,
-                                        gfxFactory.adapters())};
+  auto window = std::make_unique<Window>(moduleHandle, windowClass, handle,
+                                         info.preferredClientAreaSize,
+                                         gfxFactory.adapters());
 
   // this pointer gets removed when the OS window data is destroyed by the
   // Window objects destructor
@@ -214,7 +215,7 @@ auto Window::handle() const noexcept -> HWND {
   return mHandle;
 }
 
-auto Window::gfx_context() const noexcept -> const gfx::ContextPtr& {
+auto Window::gfx_context() const noexcept -> gfx::ContextPtr const& {
   return mGfxContext;
 }
 
@@ -230,7 +231,7 @@ auto Window::mode() const noexcept -> WindowMode {
   return mCurrentMode;
 }
 
-auto Window::set_mode(const WindowMode windowMode) -> void {
+auto Window::set_mode(WindowMode const windowMode) -> void {
   if (mCurrentMode == windowMode) {
     return;
   }
@@ -240,9 +241,9 @@ auto Window::set_mode(const WindowMode windowMode) -> void {
 
     mCurrentMode = windowMode;
 
-    const auto& adapterInfo {mAdapters[0]};
+    auto const& adapterInfo = mAdapters[0];
 
-    gfx::SwapChain::ResetDesc desc {};
+    auto desc = gfx::SwapChain::ResetDesc{};
     desc.exclusiveDisplayMode = adapterInfo.displayMode;
     desc.renderTargetFormat = adapterInfo.displayFormat;
     desc.exclusive = true;
@@ -254,7 +255,7 @@ auto Window::set_mode(const WindowMode windowMode) -> void {
   // exclusive ownership of the output monitor needs to be released before
   // window changes can be made
   if (mCurrentMode == WindowMode::FullscreenExclusive) {
-    mSwapChain->reset(gfx::SwapChain::ResetDesc {});
+    mSwapChain->reset(gfx::SwapChain::ResetDesc{});
 
     // the d3d9 runtime leaves the window as topmost when exiting exclusive
     // fullscreen
@@ -268,7 +269,7 @@ auto Window::set_mode(const WindowMode windowMode) -> void {
     return;
   }
 
-  auto style {static_cast<DWORD>(GetWindowLongPtrW(mHandle, GWL_STYLE))};
+  auto style = static_cast<DWORD>(GetWindowLongPtrW(mHandle, GWL_STYLE));
 
   if (mCurrentMode == WindowMode::Windowed) {
     mSavedWindowInfo.style = style;
@@ -280,7 +281,7 @@ auto Window::set_mode(const WindowMode windowMode) -> void {
   BASALT_ASSERT(mCurrentMode != WindowMode::FullscreenExclusive,
                 "fullscreen exclusive mode must be handled by the gfx context");
 
-  RECT rect {};
+  auto rect = RECT{};
 
   switch (mCurrentMode) {
   case WindowMode::Windowed:
@@ -291,7 +292,7 @@ auto Window::set_mode(const WindowMode windowMode) -> void {
 
   case WindowMode::Fullscreen:
   case WindowMode::FullscreenExclusive: {
-    MONITORINFO mi {};
+    auto mi = MONITORINFO{};
     mi.cbSize = sizeof(MONITORINFO);
     GetMonitorInfoW(
       MonitorFromRect(&mSavedWindowInfo.windowRect, MONITOR_DEFAULTTONEAREST),
@@ -307,7 +308,8 @@ auto Window::set_mode(const WindowMode windowMode) -> void {
   SetWindowLongPtrW(mHandle, GWL_STYLE, style);
 
   // SWP_NOCOPYBITS causes the window to flash white
-  constexpr UINT swpFlags {SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED};
+  constexpr auto swpFlags =
+    UINT{SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED};
   SetWindowPos(mHandle, nullptr, rect.left, rect.top, rect.right - rect.left,
                rect.bottom - rect.top, swpFlags);
 }
@@ -317,24 +319,24 @@ auto Window::set_mode(const WindowMode windowMode) -> void {
 //   input queue -> the rest of the app gets the ability to set the
 //   cursor only in the next frame -> the new cursor is only set at the
 //   next WM_MOUSEMOVE/WM_SETCURSOR
-auto Window::set_cursor(const MouseCursor cursor) noexcept -> void {
+auto Window::set_cursor(MouseCursor const cursor) noexcept -> void {
   mCurrentCursor = cursor;
   SetCursor(mLoadedCursors[enum_cast(mCurrentCursor)]);
 }
 
-Window::Window(const HMODULE moduleHandle, const ATOM classAtom,
-               const HWND handle, const Size2Du16 clientAreaSize,
-               const gfx::AdapterList& adapters)
-  : mModuleHandle {moduleHandle}
-  , mClassAtom {classAtom}
-  , mHandle {handle}
-  , mAdapters {adapters}
-  , mClientAreaSize {clientAreaSize} {
+Window::Window(HMODULE const moduleHandle, ATOM const classAtom,
+               HWND const handle, Size2Du16 const clientAreaSize,
+               gfx::AdapterList const& adapters)
+  : mModuleHandle{moduleHandle}
+  , mClassAtom{classAtom}
+  , mHandle{handle}
+  , mAdapters{adapters}
+  , mClientAreaSize{clientAreaSize} {
   BASALT_ASSERT(mModuleHandle);
 
-  auto loadCursor {[](const WORD id) -> HCURSOR {
+  auto loadCursor = [](WORD const id) -> HCURSOR {
     return load_system_cursor(id, 0, 0, LR_DEFAULTSIZE);
-  }};
+  };
 
   std::get<enum_cast(MouseCursor::Arrow)>(mLoadedCursors) =
     loadCursor(OCR_NORMAL);
@@ -355,22 +357,21 @@ Window::Window(const HMODULE moduleHandle, const ATOM classAtom,
     loadCursor(OCR_NO);
 }
 
-auto Window::init_gfx_context(const gfx::Win32GfxFactory& gfxFactory) -> void {
-  const auto& adapterInfo {mAdapters[0]};
+auto Window::init_gfx_context(gfx::Win32GfxFactory const& gfxFactory) -> void {
+  auto const& adapterInfo = mAdapters[0];
 
-  const gfx::Win32GfxFactory::DeviceAndSwapChainDesc contextDesc {
+  auto const contextDesc = gfx::Win32GfxFactory::DeviceAndSwapChainDesc{
     adapterInfo.handle,         adapterInfo.displayMode,
     adapterInfo.displayFormat,  gfx::ImageFormat::D24S8,
     gfx::MultiSampleCount::One, mCurrentMode == WindowMode::FullscreenExclusive,
   };
 
-  auto [device, swapChain] {
-    gfxFactory.create_device_and_swap_chain(mHandle, contextDesc),
-  };
+  auto [device, swapChain] =
+    gfxFactory.create_device_and_swap_chain(mHandle, contextDesc);
 
-  const gfx::DevicePtr gfxDevice {swapChain->device()};
+  auto const gfxDevice = swapChain->device();
   mGfxContext = gfx::Context::create(gfxDevice, std::move(swapChain),
-                                     gfx::Info {
+                                     gfx::Info{
                                        gfxDevice->capabilities(),
                                        gfxFactory.adapters(),
                                        gfx::BackendApi::Direct3D9,
@@ -386,7 +387,7 @@ auto Window::shutdown_gfx_context() -> void {
   mGfxContext.reset();
 }
 
-auto Window::resize(const Size2Du16 newClientAreaSize) -> void {
+auto Window::resize(Size2Du16 const newClientAreaSize) -> void {
   if (mClientAreaSize == newClientAreaSize || mIsInSizeMoveModalLoop) {
     return;
   }
@@ -398,16 +399,16 @@ auto Window::resize(const Size2Du16 newClientAreaSize) -> void {
   if (mSwapChain) {
     if (mCurrentMode != WindowMode::FullscreenExclusive &&
         mClientAreaSize != mSwapChain->get_info().backBufferSize) {
-      mSwapChain->reset(gfx::SwapChain::ResetDesc {});
+      mSwapChain->reset(gfx::SwapChain::ResetDesc{});
     }
   }
 }
 
-auto Window::handle_message(const UINT message, const WPARAM wParam,
-                            const LPARAM lParam) -> LRESULT {
+auto Window::handle_message(UINT const message, WPARAM const wParam,
+                            LPARAM const lParam) -> LRESULT {
   switch (message) {
   case WM_SIZE:
-    on_size(wParam, Size2Du16 {LOWORD(lParam), HIWORD(lParam)});
+    on_size(wParam, Size2Du16{LOWORD(lParam), HIWORD(lParam)});
 
     break;
 
@@ -433,7 +434,7 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
     return on_char(wParam, LOWORD(lParam), HIWORD(lParam));
 
   case WM_MOUSEMOVE:
-    return on_mouse_move(wParam, PointerPosition {
+    return on_mouse_move(wParam, PointerPosition{
                                    GET_X_LPARAM(lParam),
                                    GET_Y_LPARAM(lParam),
                                  });
@@ -447,17 +448,17 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
   case WM_XBUTTONDOWN:
   case WM_XBUTTONUP:
     return on_mouse_button(message, wParam,
-                           PointerPosition {
+                           PointerPosition{
                              GET_X_LPARAM(lParam),
                              GET_Y_LPARAM(lParam),
                            });
 
   case WM_MOUSEWHEEL: {
-    POINT cursorPos {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+    auto cursorPos = POINT{GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
     ScreenToClient(mHandle, &cursorPos);
 
     return on_mouse_wheel(GET_WHEEL_DELTA_WPARAM(wParam), LOWORD(wParam),
-                          PointerPosition {
+                          PointerPosition{
                             cursorPos.x,
                             cursorPos.y,
                           });
@@ -471,10 +472,10 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
   case WM_EXITSIZEMOVE: {
     mIsInSizeMoveModalLoop = false;
 
-    RECT rect {};
+    auto rect = RECT{};
     GetClientRect(mHandle, &rect);
     resize(
-      Size2Du16 {static_cast<u16>(rect.right), static_cast<u16>(rect.bottom)});
+      Size2Du16{static_cast<u16>(rect.right), static_cast<u16>(rect.bottom)});
 
     return 0;
   }
@@ -486,7 +487,7 @@ auto Window::handle_message(const UINT message, const WPARAM wParam,
   return DefWindowProcW(mHandle, message, wParam, lParam);
 }
 
-auto Window::on_size(const WPARAM resizeType, const Size2Du16 newClientAreaSize)
+auto Window::on_size(WPARAM const resizeType, Size2Du16 const newClientAreaSize)
   -> void {
   switch (resizeType) {
   case SIZE_RESTORED:
@@ -501,7 +502,7 @@ auto Window::on_size(const WPARAM resizeType, const Size2Du16 newClientAreaSize)
   }
 }
 
-auto Window::on_keyboard_focus(const UINT message, HWND) -> LRESULT {
+auto Window::on_keyboard_focus(UINT const message, HWND) -> LRESULT {
   if (message == WM_KILLFOCUS) {
     mInputManager.keyboard_focus_lost();
   } else {
@@ -527,9 +528,9 @@ auto Window::on_set_cursor(HWND, SHORT, USHORT) -> LRESULT {
   return TRUE;
 }
 
-auto Window::on_key(const WPARAM virtualKeyCode, WORD, const WORD info)
+auto Window::on_key(WPARAM const virtualKeyCode, WORD, WORD const info)
   -> LRESULT {
-  Key keyCode {VK_TO_KEY_MAP[virtualKeyCode]};
+  auto keyCode = VK_TO_KEY_MAP[virtualKeyCode];
   if (virtualKeyCode == VK_RETURN && info & KF_EXTENDED) {
     keyCode = Key::NumpadEnter;
   }
@@ -543,7 +544,7 @@ auto Window::on_key(const WPARAM virtualKeyCode, WORD, const WORD info)
     // HACK: AltGr sends Ctrl + right Alt keydown messages but only sends
     // a keyup message for right Alt
     if (keyCode == Key::Control) {
-      MSG next {};
+      auto next = MSG{};
       if (PeekMessageW(&next, nullptr, 0u, 0u, PM_NOREMOVE)) {
         if (next.message == WM_KEYDOWN) {
           if (next.wParam == VK_MENU && HIWORD(next.lParam) & KF_EXTENDED &&
@@ -563,21 +564,21 @@ auto Window::on_key(const WPARAM virtualKeyCode, WORD, const WORD info)
   return 0;
 }
 
-auto Window::on_char(const WPARAM characterCode, const WORD repeatCount, WORD)
+auto Window::on_char(WPARAM const characterCode, WORD const repeatCount, WORD)
   -> LRESULT {
   // TODO: filter control characters
   // TODO: handle supplementary plane characters
   //       two messages are posted. create_utf8_from_wide handles the
   //       surrogates individually as invalid characters
   BASALT_ASSERT(characterCode < 0x10000);
-  const auto c {static_cast<wchar_t>(characterCode)};
-  const string typedChar {create_utf8_from_wide(wstring_view {&c, 1})};
+  auto const c = static_cast<wchar_t>(characterCode);
+  auto const typedChar = create_utf8_from_wide(wstring_view{&c, 1});
   BASALT_ASSERT(typedChar.size() <= 4);
-  array<char, 4> character {};
+  auto character = array<char, 4>{};
   std::copy_n(typedChar.begin(), std::min(typedChar.size(), 4ull),
               character.begin());
 
-  for (u16 repCount {LOWORD(repeatCount)}; repCount > 0; repCount--) {
+  for (auto repCount = LOWORD(repeatCount); repCount > 0; repCount--) {
     mInputManager.character_utf8(character);
   }
 
@@ -588,8 +589,8 @@ auto Window::on_char(const WPARAM characterCode, const WORD repeatCount, WORD)
 // "When mouse messages are posted faster than a thread can process them,
 // the system discards all but the most recent mouse message"
 // https://docs.microsoft.com/en-us/windows/win32/inputdev/about-mouse-input#mouse-messages
-auto Window::on_mouse_move(const WPARAM wParam,
-                           const PointerPosition pointerPos) -> LRESULT {
+auto Window::on_mouse_move(WPARAM const wParam,
+                           PointerPosition const pointerPos) -> LRESULT {
   // insert the mouse moved last, because this is the most recent message
   process_mouse_message_states(wParam);
   mInputManager.mouse_moved(pointerPos);
@@ -597,13 +598,13 @@ auto Window::on_mouse_move(const WPARAM wParam,
   return 0;
 }
 
-auto Window::on_mouse_button(const UINT message, const WPARAM wParam,
-                             const PointerPosition pointerPos) -> LRESULT {
+auto Window::on_mouse_button(UINT const message, WPARAM const wParam,
+                             PointerPosition const pointerPos) -> LRESULT {
   mInputManager.mouse_moved(pointerPos);
   process_mouse_message_states(wParam);
 
-  constexpr u16 anyButton {MK_LBUTTON | MK_RBUTTON | MK_MBUTTON | MK_XBUTTON1 |
-                           MK_XBUTTON2};
+  constexpr auto anyButton =
+    u16{MK_LBUTTON | MK_RBUTTON | MK_MBUTTON | MK_XBUTTON1 | MK_XBUTTON2};
   if (wParam & anyButton) {
     SetCapture(mHandle);
   } else {
@@ -616,17 +617,17 @@ auto Window::on_mouse_button(const UINT message, const WPARAM wParam,
   return message == WM_XBUTTONDOWN || message == WM_XBUTTONUP;
 }
 
-auto Window::on_mouse_wheel(const SHORT delta, const WPARAM states,
-                            const PointerPosition pointerPos) -> LRESULT {
+auto Window::on_mouse_wheel(SHORT const delta, WPARAM const states,
+                            PointerPosition const pointerPos) -> LRESULT {
   mInputManager.mouse_moved(pointerPos);
   process_mouse_message_states(states);
-  const f32 offset {static_cast<f32>(delta) / static_cast<f32>(WHEEL_DELTA)};
+  auto const offset = static_cast<f32>(delta) / static_cast<f32>(WHEEL_DELTA);
   mInputManager.mouse_wheel(offset);
 
   return 0;
 }
 
-auto Window::process_mouse_message_states(const WPARAM wParam) -> void {
+auto Window::process_mouse_message_states(WPARAM const wParam) -> void {
   if (wParam & MK_SHIFT) {
     mInputManager.key_down(Key::Shift);
   } else {
@@ -664,15 +665,15 @@ auto Window::process_mouse_message_states(const WPARAM wParam) -> void {
   }
 }
 
-auto CALLBACK Window::window_proc(const HWND handle, const UINT message,
-                                  const WPARAM wParam, const LPARAM lParam)
+auto CALLBACK Window::window_proc(HWND const handle, UINT const message,
+                                  WPARAM const wParam, LPARAM const lParam)
   -> LRESULT {
 #if BASALT_TRACE_WINDOWS_MESSAGES
   BASALT_LOG_TRACE("received message: {}",
                    message_to_string(message, wParam, lParam));
 #endif // BASALT_TRACE_WINDOWS_MESSAGES
 
-  const auto window {GetWindowLongPtrW(handle, GWLP_USERDATA)};
+  auto const window = GetWindowLongPtrW(handle, GWLP_USERDATA);
   BASALT_ASSERT(!!window);
 
   return reinterpret_cast<Window*>(window)->handle_message(message, wParam,

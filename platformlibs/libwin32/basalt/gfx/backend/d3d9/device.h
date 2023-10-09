@@ -23,28 +23,28 @@ public:
 
   explicit D3D9Device(IDirect3DDevice9Ptr);
 
-  [[nodiscard]] auto device() const noexcept -> const IDirect3DDevice9Ptr&;
+  [[nodiscard]] auto device() const noexcept -> IDirect3DDevice9Ptr const&;
 
   auto reset(D3DPRESENT_PARAMETERS&) const -> void;
 
-  auto execute(const CommandList&) -> void;
+  auto execute(CommandList const&) -> void;
 
-  [[nodiscard]] auto load_texture_3d(const std::filesystem::path&) -> Texture;
+  [[nodiscard]] auto load_texture_3d(std::filesystem::path const&) -> Texture;
   [[nodiscard]] auto get_d3d9(Texture) const -> IDirect3DBaseTexture9Ptr;
 
-  [[nodiscard]] auto capabilities() const -> const DeviceCaps& override;
+  [[nodiscard]] auto capabilities() const -> DeviceCaps const& override;
   [[nodiscard]] auto get_status() const noexcept -> DeviceStatus override;
 
   auto reset() -> void override;
 
-  [[nodiscard]] auto create_pipeline(const PipelineDescriptor&)
+  [[nodiscard]] auto create_pipeline(PipelineDescriptor const&)
     -> Pipeline override;
 
   auto destroy(Pipeline) noexcept -> void override;
 
   [[nodiscard]] auto
-  create_vertex_buffer(const VertexBufferDescriptor&,
-                       gsl::span<const std::byte> initialData)
+  create_vertex_buffer(VertexBufferDescriptor const&,
+                       gsl::span<std::byte const> initialData)
     -> VertexBuffer override;
 
   auto destroy(VertexBuffer) noexcept -> void override;
@@ -53,8 +53,8 @@ public:
     -> gsl::span<std::byte> override;
   auto unmap(VertexBuffer) noexcept -> void override;
 
-  [[nodiscard]] auto create_index_buffer(const IndexBufferDescriptor&,
-                                         gsl::span<const std::byte> initialData)
+  [[nodiscard]] auto create_index_buffer(IndexBufferDescriptor const&,
+                                         gsl::span<std::byte const> initialData)
     -> IndexBuffer override;
 
   auto destroy(IndexBuffer) noexcept -> void override;
@@ -65,20 +65,20 @@ public:
 
   auto unmap(IndexBuffer) noexcept -> void override;
 
-  [[nodiscard]] auto load_texture(const std::filesystem::path&)
+  [[nodiscard]] auto load_texture(std::filesystem::path const&)
     -> Texture override;
 
-  [[nodiscard]] auto load_cube_texture(const std::filesystem::path&)
+  [[nodiscard]] auto load_cube_texture(std::filesystem::path const&)
     -> Texture override;
 
   auto destroy(Texture) noexcept -> void override;
 
-  [[nodiscard]] auto create_sampler(const SamplerDescriptor&)
+  [[nodiscard]] auto create_sampler(SamplerDescriptor const&)
     -> Sampler override;
 
   auto destroy(Sampler) noexcept -> void override;
 
-  auto submit(gsl::span<const CommandList>) -> void override;
+  auto submit(gsl::span<CommandList const>) -> void override;
 
   auto query_extension(ext::DeviceExtensionId)
     -> std::optional<ext::DeviceExtensionPtr> override;
@@ -88,51 +88,51 @@ private:
     std::unordered_map<ext::DeviceExtensionId, ext::DeviceExtensionPtr>;
 
   struct SamplerData final {
-    D3DTEXTUREFILTERTYPE magFilter {D3DTEXF_POINT};
-    D3DTEXTUREFILTERTYPE minFilter {D3DTEXF_POINT};
-    D3DTEXTUREFILTERTYPE mipFilter {D3DTEXF_NONE};
-    D3DTEXTUREADDRESS addressModeU {D3DTADDRESS_WRAP};
-    D3DTEXTUREADDRESS addressModeV {D3DTADDRESS_WRAP};
-    D3DTEXTUREADDRESS addressModeW {D3DTADDRESS_WRAP};
-    D3DCOLOR borderColor {0};
-    DWORD maxAnisotropy {1};
+    D3DTEXTUREFILTERTYPE magFilter{D3DTEXF_POINT};
+    D3DTEXTUREFILTERTYPE minFilter{D3DTEXF_POINT};
+    D3DTEXTUREFILTERTYPE mipFilter{D3DTEXF_NONE};
+    D3DTEXTUREADDRESS addressModeU{D3DTADDRESS_WRAP};
+    D3DTEXTUREADDRESS addressModeV{D3DTADDRESS_WRAP};
+    D3DTEXTUREADDRESS addressModeW{D3DTADDRESS_WRAP};
+    D3DCOLOR borderColor{0};
+    DWORD maxAnisotropy{1};
   };
 
   IDirect3DDevice9Ptr mDevice;
 
   Extensions mExtensions;
 
-  HandlePool<D3D9Pipeline, Pipeline> mPipelines {};
-  HandlePool<IDirect3DVertexBuffer9Ptr, VertexBuffer> mVertexBuffers {};
-  HandlePool<IDirect3DIndexBuffer9Ptr, IndexBuffer> mIndexBuffers {};
-  HandlePool<IDirect3DBaseTexture9Ptr, Texture> mTextures {};
-  HandlePool<SamplerData, Sampler> mSamplers {};
+  HandlePool<D3D9Pipeline, Pipeline> mPipelines{};
+  HandlePool<IDirect3DVertexBuffer9Ptr, VertexBuffer> mVertexBuffers{};
+  HandlePool<IDirect3DIndexBuffer9Ptr, IndexBuffer> mIndexBuffers{};
+  HandlePool<IDirect3DBaseTexture9Ptr, Texture> mTextures{};
+  HandlePool<SamplerData, Sampler> mSamplers{};
 
-  DeviceCaps mCaps {};
-  D3DPRIMITIVETYPE mCurrentPrimitiveType {D3DPT_POINTLIST};
-  u32 mNumLightsUsed {};
+  DeviceCaps mCaps{};
+  D3DPRIMITIVETYPE mCurrentPrimitiveType{D3DPT_POINTLIST};
+  u32 mNumLightsUsed{};
 
-  auto execute(const Command&) -> void;
-  auto execute(const CommandClearAttachments&) -> void;
-  auto execute(const CommandDraw&) -> void;
-  auto execute(const CommandDrawIndexed&) -> void;
-  auto execute(const CommandBindPipeline&) -> void;
-  auto execute(const CommandBindVertexBuffer&) -> void;
-  auto execute(const CommandBindIndexBuffer&) -> void;
-  auto execute(const CommandBindSampler&) -> void;
-  auto execute(const CommandBindTexture&) -> void;
-  auto execute(const CommandSetStencilReference&) -> void;
-  auto execute(const CommandSetStencilReadMask&) -> void;
-  auto execute(const CommandSetStencilWriteMask&) -> void;
-  auto execute(const CommandSetBlendConstant&) -> void;
-  auto execute(const CommandSetTransform&) -> void;
-  auto execute(const CommandSetAmbientLight&) -> void;
-  auto execute(const CommandSetLights&) -> void;
-  auto execute(const CommandSetMaterial&) -> void;
-  auto execute(const CommandSetFogParameters&) -> void;
-  auto execute(const CommandSetReferenceAlpha&) -> void;
-  auto execute(const CommandSetTextureFactor&) -> void;
-  auto execute(const CommandSetTextureStageConstant&) -> void;
+  auto execute(Command const&) -> void;
+  auto execute(CommandClearAttachments const&) -> void;
+  auto execute(CommandDraw const&) -> void;
+  auto execute(CommandDrawIndexed const&) -> void;
+  auto execute(CommandBindPipeline const&) -> void;
+  auto execute(CommandBindVertexBuffer const&) -> void;
+  auto execute(CommandBindIndexBuffer const&) -> void;
+  auto execute(CommandBindSampler const&) -> void;
+  auto execute(CommandBindTexture const&) -> void;
+  auto execute(CommandSetStencilReference const&) -> void;
+  auto execute(CommandSetStencilReadMask const&) -> void;
+  auto execute(CommandSetStencilWriteMask const&) -> void;
+  auto execute(CommandSetBlendConstant const&) -> void;
+  auto execute(CommandSetTransform const&) -> void;
+  auto execute(CommandSetAmbientLight const&) -> void;
+  auto execute(CommandSetLights const&) -> void;
+  auto execute(CommandSetMaterial const&) -> void;
+  auto execute(CommandSetFogParameters const&) -> void;
+  auto execute(CommandSetReferenceAlpha const&) -> void;
+  auto execute(CommandSetTextureFactor const&) -> void;
+  auto execute(CommandSetTextureStageConstant const&) -> void;
 
   template <typename T>
   [[nodiscard]] auto get_extension() const -> std::shared_ptr<T>;

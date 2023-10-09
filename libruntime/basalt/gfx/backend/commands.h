@@ -48,24 +48,24 @@ enum class CommandType : u8 {
 };
 
 struct Command {
-  const CommandType type;
+  CommandType const type;
 
   template <typename T>
-  [[nodiscard]] auto as() const -> const T& {
+  [[nodiscard]] auto as() const -> T const& {
     BASALT_ASSERT(type == T::TYPE, "invalid command cast");
-    return *static_cast<const T*>(this);
+    return *static_cast<T const*>(this);
   }
 
 protected:
-  constexpr explicit Command(const CommandType t) noexcept : type {t} {
+  constexpr explicit Command(CommandType const t) noexcept : type{t} {
   }
 };
 
 template <CommandType Type>
 struct CommandT : Command {
-  static constexpr CommandType TYPE {Type};
+  static constexpr auto TYPE = Type;
 
-  constexpr CommandT() noexcept : Command {TYPE} {
+  constexpr CommandT() noexcept : Command{TYPE} {
   }
 };
 
@@ -75,13 +75,13 @@ struct CommandClearAttachments final : CommandT<CommandType::ClearAttachments> {
   f32 depth;
   u32 stencil;
 
-  constexpr CommandClearAttachments(const Attachments aAttachments,
-                                    const Color& aColor, const f32 aDepth,
-                                    const u32 aStencil) noexcept
-    : attachments {aAttachments}
-    , color {aColor}
-    , depth {aDepth}
-    , stencil {aStencil} {
+  constexpr CommandClearAttachments(Attachments const aAttachments,
+                                    Color const& aColor, f32 const aDepth,
+                                    u32 const aStencil) noexcept
+    : attachments{aAttachments}
+    , color{aColor}
+    , depth{aDepth}
+    , stencil{aStencil} {
   }
 };
 
@@ -89,9 +89,9 @@ struct CommandDraw final : CommandT<CommandType::Draw> {
   u32 firstVertex;
   u32 vertexCount;
 
-  constexpr CommandDraw(const u32 aFirstVertex, const u32 aVertexCount) noexcept
-    : firstVertex {aFirstVertex}
-    , vertexCount {aVertexCount} {
+  constexpr CommandDraw(u32 const aFirstVertex, u32 const aVertexCount) noexcept
+    : firstVertex{aFirstVertex}
+    , vertexCount{aVertexCount} {
   }
 };
 
@@ -102,22 +102,22 @@ struct CommandDrawIndexed final : CommandT<CommandType::DrawIndexed> {
   u32 firstIndex;
   u32 indexCount;
 
-  constexpr CommandDrawIndexed(const i32 aVertexOffset, const u32 aMinIndex,
-                               const u32 aNumVertices, const u32 aFirstIndex,
-                               const u32 aIndexCount) noexcept
-    : vertexOffset {aVertexOffset}
-    , minIndex {aMinIndex}
-    , numVertices {aNumVertices}
-    , firstIndex {aFirstIndex}
-    , indexCount {aIndexCount} {
+  constexpr CommandDrawIndexed(i32 const aVertexOffset, u32 const aMinIndex,
+                               u32 const aNumVertices, u32 const aFirstIndex,
+                               u32 const aIndexCount) noexcept
+    : vertexOffset{aVertexOffset}
+    , minIndex{aMinIndex}
+    , numVertices{aNumVertices}
+    , firstIndex{aFirstIndex}
+    , indexCount{aIndexCount} {
   }
 };
 
 struct CommandBindPipeline final : CommandT<CommandType::BindPipeline> {
   Pipeline pipelineId;
 
-  constexpr explicit CommandBindPipeline(const Pipeline aPipelineId) noexcept
-    : pipelineId {aPipelineId} {
+  constexpr explicit CommandBindPipeline(Pipeline const aPipelineId) noexcept
+    : pipelineId{aPipelineId} {
   }
 };
 
@@ -125,10 +125,10 @@ struct CommandBindVertexBuffer final : CommandT<CommandType::BindVertexBuffer> {
   VertexBuffer vertexBufferId;
   uDeviceSize offsetInBytes;
 
-  constexpr CommandBindVertexBuffer(const VertexBuffer aVertexBufferId,
-                                    const uDeviceSize aOffsetInBytes) noexcept
-    : vertexBufferId {aVertexBufferId}
-    , offsetInBytes {aOffsetInBytes} {
+  constexpr CommandBindVertexBuffer(VertexBuffer const aVertexBufferId,
+                                    uDeviceSize const aOffsetInBytes) noexcept
+    : vertexBufferId{aVertexBufferId}
+    , offsetInBytes{aOffsetInBytes} {
   }
 };
 
@@ -136,8 +136,8 @@ struct CommandBindIndexBuffer final : CommandT<CommandType::BindIndexBuffer> {
   IndexBuffer indexBufferId;
 
   constexpr explicit CommandBindIndexBuffer(
-    const IndexBuffer aIndexBufferId) noexcept
-    : indexBufferId {aIndexBufferId} {
+    IndexBuffer const aIndexBufferId) noexcept
+    : indexBufferId{aIndexBufferId} {
   }
 };
 
@@ -145,10 +145,10 @@ struct CommandBindSampler final : CommandT<CommandType::BindSampler> {
   u8 slot;
   Sampler samplerId;
 
-  constexpr CommandBindSampler(const u8 aSlot,
-                               const Sampler aSamplerId) noexcept
-    : slot {aSlot}
-    , samplerId {aSamplerId} {
+  constexpr CommandBindSampler(u8 const aSlot,
+                               Sampler const aSamplerId) noexcept
+    : slot{aSlot}
+    , samplerId{aSamplerId} {
   }
 };
 
@@ -156,10 +156,10 @@ struct CommandBindTexture final : CommandT<CommandType::BindTexture> {
   u8 slot;
   Texture textureId;
 
-  constexpr CommandBindTexture(const u8 aSlot,
-                               const Texture aTextureId) noexcept
-    : slot {aSlot}
-    , textureId {aTextureId} {
+  constexpr CommandBindTexture(u8 const aSlot,
+                               Texture const aTextureId) noexcept
+    : slot{aSlot}
+    , textureId{aTextureId} {
   }
 };
 
@@ -167,8 +167,8 @@ struct CommandSetStencilReference final
   : CommandT<CommandType::SetStencilReference> {
   u32 value;
 
-  constexpr explicit CommandSetStencilReference(const u32 aValue) noexcept
-    : value {aValue} {
+  constexpr explicit CommandSetStencilReference(u32 const aValue) noexcept
+    : value{aValue} {
   }
 };
 
@@ -176,8 +176,8 @@ struct CommandSetStencilReadMask final
   : CommandT<CommandType::SetStencilReadMask> {
   u32 value;
 
-  constexpr explicit CommandSetStencilReadMask(const u32 aValue) noexcept
-    : value {aValue} {
+  constexpr explicit CommandSetStencilReadMask(u32 const aValue) noexcept
+    : value{aValue} {
   }
 };
 
@@ -185,16 +185,16 @@ struct CommandSetStencilWriteMask final
   : CommandT<CommandType::SetStencilWriteMask> {
   u32 value;
 
-  constexpr explicit CommandSetStencilWriteMask(const u32 aValue) noexcept
-    : value {aValue} {
+  constexpr explicit CommandSetStencilWriteMask(u32 const aValue) noexcept
+    : value{aValue} {
   }
 };
 
 struct CommandSetBlendConstant final : CommandT<CommandType::SetBlendConstant> {
   Color value;
 
-  constexpr explicit CommandSetBlendConstant(const Color& aValue) noexcept
-    : value {aValue} {
+  constexpr explicit CommandSetBlendConstant(Color const& aValue) noexcept
+    : value{aValue} {
   }
 };
 
@@ -202,27 +202,27 @@ struct CommandSetTransform final : CommandT<CommandType::SetTransform> {
   TransformState transformState;
   Matrix4x4f32 transform;
 
-  constexpr CommandSetTransform(const TransformState aTransformState,
-                                const Matrix4x4f32& aTransform) noexcept
-    : transformState {aTransformState}
-    , transform {aTransform} {
+  constexpr CommandSetTransform(TransformState const aTransformState,
+                                Matrix4x4f32 const& aTransform) noexcept
+    : transformState{aTransformState}
+    , transform{aTransform} {
   }
 };
 
 struct CommandSetAmbientLight final : CommandT<CommandType::SetAmbientLight> {
   Color ambient;
 
-  constexpr explicit CommandSetAmbientLight(const Color& aAmbient) noexcept
-    : ambient {aAmbient} {
+  constexpr explicit CommandSetAmbientLight(Color const& aAmbient) noexcept
+    : ambient{aAmbient} {
   }
 };
 
 struct CommandSetLights final : CommandT<CommandType::SetLights> {
-  gsl::span<const LightData> lights;
+  gsl::span<LightData const> lights;
 
   constexpr explicit CommandSetLights(
-    const gsl::span<const LightData> aLights) noexcept
-    : lights {aLights} {
+    gsl::span<LightData const> const aLights) noexcept
+    : lights{aLights} {
   }
 };
 
@@ -233,14 +233,14 @@ struct CommandSetMaterial final : CommandT<CommandType::SetMaterial> {
   Color specular;
   f32 specularPower;
 
-  constexpr CommandSetMaterial(const Color& aDiffuse, const Color& aAmbient,
-                               const Color& aEmissive, const Color& aSpecular,
-                               const f32 aSpecularPower) noexcept
-    : diffuse {aDiffuse}
-    , ambient {aAmbient}
-    , emissive {aEmissive}
-    , specular {aSpecular}
-    , specularPower {aSpecularPower} {
+  constexpr CommandSetMaterial(Color const& aDiffuse, Color const& aAmbient,
+                               Color const& aEmissive, Color const& aSpecular,
+                               f32 const aSpecularPower) noexcept
+    : diffuse{aDiffuse}
+    , ambient{aAmbient}
+    , emissive{aEmissive}
+    , specular{aSpecular}
+    , specularPower{aSpecularPower} {
   }
 };
 
@@ -250,12 +250,12 @@ struct CommandSetFogParameters final : CommandT<CommandType::SetFogParameters> {
   f32 end;
   f32 density;
 
-  constexpr CommandSetFogParameters(const Color& aColor, const f32 aStart,
-                                    const f32 aEnd, const f32 aDensity) noexcept
-    : color {aColor}
-    , start {aStart}
-    , end {aEnd}
-    , density {aDensity} {
+  constexpr CommandSetFogParameters(Color const& aColor, f32 const aStart,
+                                    f32 const aEnd, f32 const aDensity) noexcept
+    : color{aColor}
+    , start{aStart}
+    , end{aEnd}
+    , density{aDensity} {
   }
 };
 
@@ -263,8 +263,8 @@ struct CommandSetReferenceAlpha final
   : CommandT<CommandType::SetReferenceAlpha> {
   u8 value;
 
-  constexpr explicit CommandSetReferenceAlpha(const u8 aValue) noexcept
-    : value {aValue} {
+  constexpr explicit CommandSetReferenceAlpha(u8 const aValue) noexcept
+    : value{aValue} {
   }
 };
 
@@ -272,8 +272,8 @@ struct CommandSetTextureFactor final : CommandT<CommandType::SetTextureFactor> {
   Color textureFactor;
 
   constexpr explicit CommandSetTextureFactor(
-    const Color& aTextureFactor) noexcept
-    : textureFactor {aTextureFactor} {
+    Color const& aTextureFactor) noexcept
+    : textureFactor{aTextureFactor} {
   }
 };
 
@@ -282,10 +282,10 @@ struct CommandSetTextureStageConstant final
   u8 stageId;
   Color constant;
 
-  constexpr CommandSetTextureStageConstant(const u8 aStageId,
-                                           const Color& aConstant) noexcept
-    : stageId {aStageId}
-    , constant {aConstant} {
+  constexpr CommandSetTextureStageConstant(u8 const aStageId,
+                                           Color const& aConstant) noexcept
+    : stageId{aStageId}
+    , constant{aConstant} {
   }
 };
 
@@ -295,7 +295,7 @@ struct CommandSetTextureStageConstant final
     return
 
 template <typename Visitor>
-auto visit(const Command& cmd, Visitor&& visitor) -> void {
+auto visit(Command const& cmd, Visitor&& visitor) -> void {
   switch (cmd.type) {
     VISIT(CommandClearAttachments);
     VISIT(CommandDraw);
@@ -332,8 +332,8 @@ namespace ext {
 struct CommandDrawXMesh final : CommandT<CommandType::ExtDrawXMesh> {
   XMesh xMeshId;
 
-  constexpr explicit CommandDrawXMesh(const XMesh aXMeshId) noexcept
-    : xMeshId {aXMeshId} {
+  constexpr explicit CommandDrawXMesh(XMesh const aXMeshId) noexcept
+    : xMeshId{aXMeshId} {
   }
 };
 
@@ -344,7 +344,7 @@ struct CommandBeginEffect final : CommandT<CommandType::ExtBeginEffect> {
   EffectId effect;
 
   constexpr explicit CommandBeginEffect(EffectId const aEffect) noexcept
-    : effect {aEffect} {
+    : effect{aEffect} {
   }
 };
 
@@ -355,7 +355,7 @@ struct CommandBeginEffectPass final
   u32 passIndex;
 
   constexpr explicit CommandBeginEffectPass(u32 const aPassIndex) noexcept
-    : passIndex {aPassIndex} {
+    : passIndex{aPassIndex} {
   }
 };
 

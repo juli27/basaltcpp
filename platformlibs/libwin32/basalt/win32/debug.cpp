@@ -9,7 +9,10 @@
 namespace basalt {
 namespace {
 
-constexpr std::array<std::string_view, 0x50> MESSAGE_NAMES {
+using std::array;
+using std::string_view;
+
+constexpr auto MESSAGE_NAMES = array<string_view, 0x50>{
   "WM_NULL",
   "WM_CREATE",
   "WM_DESTROY",
@@ -89,19 +92,20 @@ constexpr std::array<std::string_view, 0x50> MESSAGE_NAMES {
   "unknown(0x4C)",
   "unknown(0x4D)",
   "WM_NOTIFY",
-  "unknown(0x4F)"};
+  "unknown(0x4F)",
+};
 
-std::string_view size_w_param_to_string(WPARAM wParam);
-std::string_view wa_w_param_status_to_string(WORD status);
-std::string_view sw_l_param_to_string(LPARAM lParam);
-std::string_view ht_to_string(WORD hitTestResult);
-std::string get_message_name_or_hex_id(UINT message);
-std::string to_string(POINT point);
+auto size_w_param_to_string(WPARAM wParam) -> std::string_view;
+auto wa_w_param_status_to_string(WORD status) -> std::string_view;
+auto sw_l_param_to_string(LPARAM lParam) -> std::string_view;
+auto ht_to_string(WORD hitTestResult) -> std::string_view;
+auto get_message_name_or_hex_id(UINT message) -> std::string;
+auto to_string(POINT point) -> std::string;
 
 } // namespace
 
-auto message_to_string(const UINT message, const WPARAM wParam,
-                       const LPARAM lParam) -> std::string {
+auto message_to_string(UINT const message, WPARAM const wParam,
+                       LPARAM const lParam) -> std::string {
   switch (message) {
   case WM_NULL:
     break;
@@ -149,11 +153,11 @@ auto message_to_string(const UINT message, const WPARAM wParam,
   case WM_SETTEXT:
     return fmt::format(
       "{} text={}", MESSAGE_NAMES[message],
-      create_utf8_from_wide(reinterpret_cast<const wchar_t*>(lParam)));
+      create_utf8_from_wide(reinterpret_cast<wchar_t const*>(lParam)));
 
   case WM_GETTEXT:
     return fmt::format("{} n={} buffer={}", MESSAGE_NAMES[message], wParam,
-                       fmt::ptr(reinterpret_cast<const wchar_t*>(lParam)));
+                       fmt::ptr(reinterpret_cast<wchar_t const*>(lParam)));
 
   case WM_QUERYENDSESSION:
     return fmt::format("{} flags={:#x}", MESSAGE_NAMES[message], lParam);
@@ -176,12 +180,12 @@ auto message_to_string(const UINT message, const WPARAM wParam,
   case WM_SETTINGCHANGE:
     return fmt::format(
       "{} wParam={:#x} lParamString={}", MESSAGE_NAMES[message], wParam,
-      create_utf8_from_wide(reinterpret_cast<const wchar_t*>(lParam)));
+      create_utf8_from_wide(reinterpret_cast<wchar_t const*>(lParam)));
 
   case WM_DEVMODECHANGE:
     return fmt::format(
       "{} deviceName={}", MESSAGE_NAMES[message],
-      create_utf8_from_wide(reinterpret_cast<const wchar_t*>(lParam)));
+      create_utf8_from_wide(reinterpret_cast<wchar_t const*>(lParam)));
 
   case WM_ACTIVATEAPP:
     return fmt::format("{} activated={} threadId={}", MESSAGE_NAMES[message],
@@ -200,7 +204,7 @@ auto message_to_string(const UINT message, const WPARAM wParam,
       get_message_name_or_hex_id(HIWORD(lParam)));
 
   case WM_GETMINMAXINFO: {
-    const auto* const minMaxInfo = reinterpret_cast<MINMAXINFO*>(lParam);
+    auto const* const minMaxInfo = reinterpret_cast<MINMAXINFO*>(lParam);
     return fmt::format(
       "{} maxSize={} maxPos={} minTrackSize={} maxTrackSize={}",
       MESSAGE_NAMES[message], to_string(minMaxInfo->ptMaxSize),
@@ -282,7 +286,7 @@ namespace {
   case value:                                                                  \
     return #value;
 
-std::string_view size_w_param_to_string(const WPARAM wParam) {
+auto size_w_param_to_string(WPARAM const wParam) -> std::string_view {
   switch (wParam) {
     HANDLE_CASE(SIZE_RESTORED)
     HANDLE_CASE(SIZE_MINIMIZED)
@@ -294,7 +298,7 @@ std::string_view size_w_param_to_string(const WPARAM wParam) {
   }
 }
 
-std::string_view wa_w_param_status_to_string(const WORD status) {
+auto wa_w_param_status_to_string(WORD const status) -> std::string_view {
   switch (status) {
     HANDLE_CASE(WA_INACTIVE)
     HANDLE_CASE(WA_ACTIVE)
@@ -304,7 +308,7 @@ std::string_view wa_w_param_status_to_string(const WORD status) {
   }
 }
 
-std::string_view sw_l_param_to_string(const LPARAM lParam) {
+auto sw_l_param_to_string(LPARAM const lParam) -> std::string_view {
   switch (lParam) {
   case 0:
     return "ShowWindow";
@@ -317,7 +321,7 @@ std::string_view sw_l_param_to_string(const LPARAM lParam) {
   }
 }
 
-std::string_view ht_to_string(const WORD hitTestResult) {
+auto ht_to_string(WORD const hitTestResult) -> std::string_view {
   switch (hitTestResult) {
     HANDLE_CASE(HTERROR)
     HANDLE_CASE(HTTRANSPARENT)
@@ -348,15 +352,15 @@ std::string_view ht_to_string(const WORD hitTestResult) {
   }
 }
 
-std::string get_message_name_or_hex_id(const UINT message) {
+auto get_message_name_or_hex_id(UINT const message) -> std::string {
   if (message < MESSAGE_NAMES.size()) {
-    return std::string {MESSAGE_NAMES[message]};
+    return std::string{MESSAGE_NAMES[message]};
   }
 
   return fmt::format("{:#x}", message);
 }
 
-std::string to_string(const POINT point) {
+auto to_string(POINT const point) -> std::string {
   return fmt::format("{}x{}", point.x, point.y);
 }
 

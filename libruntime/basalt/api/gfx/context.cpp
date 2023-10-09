@@ -16,7 +16,7 @@ auto Context::create(DevicePtr device, SwapChainPtr swapChain, Info info)
                                    std::move(info));
 }
 
-auto Context::gfx_info() const noexcept -> const Info& {
+auto Context::gfx_info() const noexcept -> Info const& {
   return mInfo;
 }
 
@@ -24,23 +24,24 @@ auto Context::create_resource_cache() const -> ResourceCachePtr {
   return ResourceCache::create(mDevice);
 }
 
-auto Context::submit(const gsl::span<const CommandList> cmdLists) const -> void {
+auto Context::submit(gsl::span<CommandList const> const cmdLists) const
+  -> void {
   mDevice->submit(cmdLists);
 }
 
 Context::Context(DevicePtr device, SwapChainPtr swapChain, Info info)
-  : mDevice {std::move(device)}
-  , mSwapChain {std::move(swapChain)}
-  , mInfo {std::move(info)} {
+  : mDevice{std::move(device)}
+  , mSwapChain{std::move(swapChain)}
+  , mInfo{std::move(info)} {
   BASALT_ASSERT(mDevice);
   BASALT_ASSERT(mSwapChain);
 }
 
-auto Context::device() const noexcept -> const DevicePtr& {
+auto Context::device() const noexcept -> DevicePtr const& {
   return mDevice;
 }
 
-auto Context::swap_chain() const noexcept -> const SwapChainPtr& {
+auto Context::swap_chain() const noexcept -> SwapChainPtr const& {
   return mSwapChain;
 }
 

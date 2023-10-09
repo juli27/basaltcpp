@@ -20,7 +20,7 @@
 
 namespace basalt::gfx {
 
-constexpr auto to_device_status(const HRESULT hr) -> DeviceStatus {
+constexpr auto to_device_status(HRESULT const hr) -> DeviceStatus {
   if (SUCCEEDED(hr)) {
     return DeviceStatus::Ok;
   }
@@ -37,34 +37,34 @@ constexpr auto to_device_status(const HRESULT hr) -> DeviceStatus {
   }
 }
 
-constexpr auto to_d3d_color(const Color& color) noexcept -> D3DCOLOR {
+constexpr auto to_d3d_color(Color const& color) noexcept -> D3DCOLOR {
   return enum_cast(color.to_argb());
 }
 
-constexpr auto to_d3d_color_value(const Color& color) noexcept
+constexpr auto to_d3d_color_value(Color const& color) noexcept
   -> D3DCOLORVALUE {
-  return D3DCOLORVALUE {color.r(), color.g(), color.b(), color.a()};
+  return D3DCOLORVALUE{color.r(), color.g(), color.b(), color.a()};
 }
 
-constexpr auto to_color(const D3DCOLORVALUE& color) -> Color {
+constexpr auto to_color(D3DCOLORVALUE const& color) -> Color {
   return Color::from_non_linear(color.r, color.g, color.b, color.a);
 }
 
-constexpr auto to_d3d(const Matrix4x4f32& mat) noexcept -> D3DMATRIX {
+constexpr auto to_d3d(Matrix4x4f32 const& mat) noexcept -> D3DMATRIX {
   // clang-format off
-  return D3DMATRIX {mat.m11, mat.m12, mat.m13, mat.m14,
-                    mat.m21, mat.m22, mat.m23, mat.m24,
-                    mat.m31, mat.m32, mat.m33, mat.m34,
-                    mat.m41, mat.m42, mat.m43, mat.m44};
+  return D3DMATRIX{mat.m11, mat.m12, mat.m13, mat.m14,
+                   mat.m21, mat.m22, mat.m23, mat.m24,
+                   mat.m31, mat.m32, mat.m33, mat.m34,
+                   mat.m41, mat.m42, mat.m43, mat.m44};
   // clang-format on
 }
 
-constexpr auto to_d3d(const Vector3f32& vec) noexcept -> D3DVECTOR {
-  return D3DVECTOR {vec.x(), vec.y(), vec.z()};
+constexpr auto to_d3d(Vector3f32 const& vec) noexcept -> D3DVECTOR {
+  return D3DVECTOR{vec.x(), vec.y(), vec.z()};
 }
 
-inline auto to_d3d(const BlendFactor factor) -> D3DBLEND {
-  static constexpr EnumArray<BlendFactor, D3DBLEND, 8> TO_D3D {
+inline auto to_d3d(BlendFactor const factor) -> D3DBLEND {
+  static constexpr auto TO_D3D = EnumArray<BlendFactor, D3DBLEND, 8>{
     {BlendFactor::Zero, D3DBLEND_ZERO},
     {BlendFactor::One, D3DBLEND_ONE},
     {BlendFactor::SrcColor, D3DBLEND_SRCCOLOR},
@@ -79,8 +79,8 @@ inline auto to_d3d(const BlendFactor factor) -> D3DBLEND {
   return TO_D3D[factor];
 }
 
-inline auto to_d3d(const BlendOp op) -> D3DBLENDOP {
-  static constexpr EnumArray<BlendOp, D3DBLENDOP, 3> TO_D3D {
+inline auto to_d3d(BlendOp const op) -> D3DBLENDOP {
+  static constexpr auto TO_D3D = EnumArray<BlendOp, D3DBLENDOP, 3>{
     {BlendOp::Add, D3DBLENDOP_ADD},
     {BlendOp::Subtract, D3DBLENDOP_SUBTRACT},
     {BlendOp::ReverseSubtract, D3DBLENDOP_REVSUBTRACT},
@@ -90,8 +90,8 @@ inline auto to_d3d(const BlendOp op) -> D3DBLENDOP {
   return TO_D3D[op];
 }
 
-inline auto to_d3d(const CullMode mode) -> D3DCULL {
-  static constexpr EnumArray<CullMode, D3DCULL, 3> TO_D3D {
+inline auto to_d3d(CullMode const mode) -> D3DCULL {
+  static constexpr auto TO_D3D = EnumArray<CullMode, D3DCULL, 3>{
     {CullMode::None, D3DCULL_NONE},
     {CullMode::Clockwise, D3DCULL_CW},
     {CullMode::CounterClockwise, D3DCULL_CCW},
@@ -101,8 +101,8 @@ inline auto to_d3d(const CullMode mode) -> D3DCULL {
   return TO_D3D[mode];
 }
 
-inline auto to_d3d(const FillMode mode) -> D3DFILLMODE {
-  static constexpr EnumArray<FillMode, D3DFILLMODE, 3> TO_D3D {
+inline auto to_d3d(FillMode const mode) -> D3DFILLMODE {
+  static constexpr auto TO_D3D = EnumArray<FillMode, D3DFILLMODE, 3>{
     {FillMode::Point, D3DFILL_POINT},
     {FillMode::Wireframe, D3DFILL_WIREFRAME},
     {FillMode::Solid, D3DFILL_SOLID},
@@ -112,8 +112,8 @@ inline auto to_d3d(const FillMode mode) -> D3DFILLMODE {
   return TO_D3D[mode];
 }
 
-inline auto to_d3d(const FogMode mode) -> D3DFOGMODE {
-  static constexpr EnumArray<FogMode, D3DFOGMODE, 4> TO_D3D {
+inline auto to_d3d(FogMode const mode) -> D3DFOGMODE {
+  static constexpr auto TO_D3D = EnumArray<FogMode, D3DFOGMODE, 4>{
     {FogMode::None, D3DFOG_NONE},
     {FogMode::Linear, D3DFOG_LINEAR},
     {FogMode::Exponential, D3DFOG_EXP},
@@ -124,8 +124,8 @@ inline auto to_d3d(const FogMode mode) -> D3DFOGMODE {
   return TO_D3D[mode];
 }
 
-inline auto to_d3d(const ImageFormat format) -> D3DFORMAT {
-  static constexpr EnumArray<ImageFormat, D3DFORMAT, 11> TO_D3D {
+inline auto to_d3d(ImageFormat const format) -> D3DFORMAT {
+  static constexpr auto TO_D3D = EnumArray<ImageFormat, D3DFORMAT, 11>{
     {ImageFormat::Unknown, D3DFMT_UNKNOWN},
     {ImageFormat::B5G6R5, D3DFMT_R5G6B5},
     {ImageFormat::B5G5R5X1, D3DFMT_X1R5G5B5},
@@ -143,7 +143,7 @@ inline auto to_d3d(const ImageFormat format) -> D3DFORMAT {
   return TO_D3D[format];
 }
 
-constexpr auto to_image_format(const D3DFORMAT format) noexcept -> ImageFormat {
+constexpr auto to_image_format(D3DFORMAT const format) noexcept -> ImageFormat {
   switch (format) {
   case D3DFMT_A8R8G8B8:
     return ImageFormat::B8G8R8A8;
@@ -183,8 +183,8 @@ constexpr auto to_image_format(const D3DFORMAT format) noexcept -> ImageFormat {
   return ImageFormat::Unknown;
 }
 
-inline auto to_d3d(const IndexType type) -> D3DFORMAT {
-  static constexpr EnumArray<IndexType, D3DFORMAT, 2> TO_D3D {
+inline auto to_d3d(IndexType const type) -> D3DFORMAT {
+  static constexpr auto TO_D3D = EnumArray<IndexType, D3DFORMAT, 2>{
     {IndexType::U16, D3DFMT_INDEX16},
     {IndexType::U32, D3DFMT_INDEX32},
   };
@@ -193,29 +193,31 @@ inline auto to_d3d(const IndexType type) -> D3DFORMAT {
   return TO_D3D[type];
 }
 
-inline auto to_d3d(const MaterialColorSource mcs) -> D3DMATERIALCOLORSOURCE {
-  static constexpr EnumArray<MaterialColorSource, D3DMATERIALCOLORSOURCE, 3>
-    TO_D3D {{MaterialColorSource::DiffuseVertexColor, D3DMCS_COLOR1},
-            {MaterialColorSource::SpecularVertexColor, D3DMCS_COLOR2},
-            {MaterialColorSource::Material, D3DMCS_MATERIAL}};
+inline auto to_d3d(MaterialColorSource const mcs) -> D3DMATERIALCOLORSOURCE {
+  static constexpr auto TO_D3D =
+    EnumArray<MaterialColorSource, D3DMATERIALCOLORSOURCE, 3>{
+      {MaterialColorSource::DiffuseVertexColor, D3DMCS_COLOR1},
+      {MaterialColorSource::SpecularVertexColor, D3DMCS_COLOR2},
+      {MaterialColorSource::Material, D3DMCS_MATERIAL}};
   static_assert(TO_D3D.size() == MATERIAL_COLOR_SOURCE_COUNT);
 
   return TO_D3D[mcs];
 }
 
-inline auto to_d3d(const MultiSampleCount sampleCount) -> D3DMULTISAMPLE_TYPE {
-  static constexpr EnumArray<MultiSampleCount, D3DMULTISAMPLE_TYPE, 4> TO_D3D {
-    {MultiSampleCount::One, D3DMULTISAMPLE_NONE},
-    {MultiSampleCount::Two, D3DMULTISAMPLE_2_SAMPLES},
-    {MultiSampleCount::Four, D3DMULTISAMPLE_4_SAMPLES},
-    {MultiSampleCount::Eight, D3DMULTISAMPLE_8_SAMPLES},
-  };
+inline auto to_d3d(MultiSampleCount const sampleCount) -> D3DMULTISAMPLE_TYPE {
+  static constexpr auto TO_D3D =
+    EnumArray<MultiSampleCount, D3DMULTISAMPLE_TYPE, 4>{
+      {MultiSampleCount::One, D3DMULTISAMPLE_NONE},
+      {MultiSampleCount::Two, D3DMULTISAMPLE_2_SAMPLES},
+      {MultiSampleCount::Four, D3DMULTISAMPLE_4_SAMPLES},
+      {MultiSampleCount::Eight, D3DMULTISAMPLE_8_SAMPLES},
+    };
   static_assert(TO_D3D.size() == MULTI_SAMPLE_COUNT_COUNT);
 
   return TO_D3D[sampleCount];
 }
 
-inline auto to_multi_sample_count(const D3DMULTISAMPLE_TYPE sampleType)
+inline auto to_multi_sample_count(D3DMULTISAMPLE_TYPE const sampleType)
   -> MultiSampleCount {
   switch (sampleType) {
   case D3DMULTISAMPLE_NONE:
@@ -233,8 +235,8 @@ inline auto to_multi_sample_count(const D3DMULTISAMPLE_TYPE sampleType)
   BASALT_CRASH("unknown multisample type");
 }
 
-inline auto to_d3d(const PrimitiveType primitiveType) -> D3DPRIMITIVETYPE {
-  static constexpr EnumArray<PrimitiveType, D3DPRIMITIVETYPE, 6> TO_D3D {
+inline auto to_d3d(PrimitiveType const primitiveType) -> D3DPRIMITIVETYPE {
+  static constexpr auto TO_D3D = EnumArray<PrimitiveType, D3DPRIMITIVETYPE, 6>{
     {PrimitiveType::PointList, D3DPT_POINTLIST},
     {PrimitiveType::LineList, D3DPT_LINELIST},
     {PrimitiveType::LineStrip, D3DPT_LINESTRIP},
@@ -247,8 +249,8 @@ inline auto to_d3d(const PrimitiveType primitiveType) -> D3DPRIMITIVETYPE {
   return TO_D3D[primitiveType];
 }
 
-inline auto to_d3d(const ShadeMode mode) -> D3DSHADEMODE {
-  static constexpr EnumArray<ShadeMode, D3DSHADEMODE, 2> TO_D3D {
+inline auto to_d3d(ShadeMode const mode) -> D3DSHADEMODE {
+  static constexpr auto TO_D3D = EnumArray<ShadeMode, D3DSHADEMODE, 2>{
     {ShadeMode::Flat, D3DSHADE_FLAT},
     {ShadeMode::Gouraud, D3DSHADE_GOURAUD},
   };
@@ -257,8 +259,8 @@ inline auto to_d3d(const ShadeMode mode) -> D3DSHADEMODE {
   return TO_D3D[mode];
 }
 
-inline auto to_d3d(const StencilOp op) -> D3DSTENCILOP {
-  static constexpr EnumArray<StencilOp, D3DSTENCILOP, 8> TO_D3D {
+inline auto to_d3d(StencilOp const op) -> D3DSTENCILOP {
+  static constexpr auto TO_D3D = EnumArray<StencilOp, D3DSTENCILOP, 8>{
     {StencilOp::Keep, D3DSTENCILOP_KEEP},
     {StencilOp::Zero, D3DSTENCILOP_ZERO},
     {StencilOp::Replace, D3DSTENCILOP_REPLACE},
@@ -273,8 +275,8 @@ inline auto to_d3d(const StencilOp op) -> D3DSTENCILOP {
   return TO_D3D[op];
 }
 
-inline auto to_d3d(const TestPassCond function) -> D3DCMPFUNC {
-  static constexpr EnumArray<TestPassCond, D3DCMPFUNC, 8> TO_D3D {
+inline auto to_d3d(TestPassCond const function) -> D3DCMPFUNC {
+  static constexpr auto TO_D3D = EnumArray<TestPassCond, D3DCMPFUNC, 8>{
     {TestPassCond::Never, D3DCMP_NEVER},
     {TestPassCond::IfEqual, D3DCMP_EQUAL},
     {TestPassCond::IfNotEqual, D3DCMP_NOTEQUAL},
@@ -289,21 +291,22 @@ inline auto to_d3d(const TestPassCond function) -> D3DCMPFUNC {
   return TO_D3D[function];
 }
 
-inline auto to_d3d(const TextureAddressMode mode) -> D3DTEXTUREADDRESS {
-  static constexpr EnumArray<TextureAddressMode, D3DTEXTUREADDRESS, 5> TO_D3D {
-    {TextureAddressMode::Repeat, D3DTADDRESS_WRAP},
-    {TextureAddressMode::Mirror, D3DTADDRESS_MIRROR},
-    {TextureAddressMode::ClampToEdge, D3DTADDRESS_CLAMP},
-    {TextureAddressMode::ClampToBorder, D3DTADDRESS_BORDER},
-    {TextureAddressMode::MirrorOnceClampToEdge, D3DTADDRESS_MIRRORONCE},
-  };
+inline auto to_d3d(TextureAddressMode const mode) -> D3DTEXTUREADDRESS {
+  static constexpr auto TO_D3D =
+    EnumArray<TextureAddressMode, D3DTEXTUREADDRESS, 5>{
+      {TextureAddressMode::Repeat, D3DTADDRESS_WRAP},
+      {TextureAddressMode::Mirror, D3DTADDRESS_MIRROR},
+      {TextureAddressMode::ClampToEdge, D3DTADDRESS_CLAMP},
+      {TextureAddressMode::ClampToBorder, D3DTADDRESS_BORDER},
+      {TextureAddressMode::MirrorOnceClampToEdge, D3DTADDRESS_MIRRORONCE},
+    };
   static_assert(TEXTURE_ADDRESS_MODE_COUNT == TO_D3D.size());
 
   return TO_D3D[mode];
 }
 
-inline auto to_d3d(const TextureCoordinateSrc src) -> DWORD {
-  static constexpr EnumArray<TextureCoordinateSrc, DWORD, 4> TO_D3D {
+inline auto to_d3d(TextureCoordinateSrc const src) -> DWORD {
+  static constexpr auto TO_D3D = EnumArray<TextureCoordinateSrc, DWORD, 4>{
     {TextureCoordinateSrc::Vertex, D3DTSS_TCI_PASSTHRU},
     {TextureCoordinateSrc::PositionInViewSpace, D3DTSS_TCI_CAMERASPACEPOSITION},
     {TextureCoordinateSrc::NormalInViewSpace, D3DTSS_TCI_CAMERASPACENORMAL},
@@ -315,30 +318,32 @@ inline auto to_d3d(const TextureCoordinateSrc src) -> DWORD {
   return TO_D3D[src];
 }
 
-inline auto to_d3d(const TextureFilter filter) -> D3DTEXTUREFILTERTYPE {
-  static constexpr EnumArray<TextureFilter, D3DTEXTUREFILTERTYPE, 3> TO_D3D {
-    {TextureFilter::Point, D3DTEXF_POINT},
-    {TextureFilter::Bilinear, D3DTEXF_LINEAR},
-    {TextureFilter::Anisotropic, D3DTEXF_ANISOTROPIC},
-  };
+inline auto to_d3d(TextureFilter const filter) -> D3DTEXTUREFILTERTYPE {
+  static constexpr auto TO_D3D =
+    EnumArray<TextureFilter, D3DTEXTUREFILTERTYPE, 3>{
+      {TextureFilter::Point, D3DTEXF_POINT},
+      {TextureFilter::Bilinear, D3DTEXF_LINEAR},
+      {TextureFilter::Anisotropic, D3DTEXF_ANISOTROPIC},
+    };
   static_assert(TEXTURE_FILTER_COUNT == TO_D3D.size());
 
   return TO_D3D[filter];
 }
 
-inline auto to_d3d(const TextureMipFilter filter) -> D3DTEXTUREFILTERTYPE {
-  static constexpr EnumArray<TextureMipFilter, D3DTEXTUREFILTERTYPE, 3> TO_D3D {
-    {TextureMipFilter::None, D3DTEXF_NONE},
-    {TextureMipFilter::Point, D3DTEXF_POINT},
-    {TextureMipFilter::Linear, D3DTEXF_LINEAR},
-  };
+inline auto to_d3d(TextureMipFilter const filter) -> D3DTEXTUREFILTERTYPE {
+  static constexpr auto TO_D3D =
+    EnumArray<TextureMipFilter, D3DTEXTUREFILTERTYPE, 3>{
+      {TextureMipFilter::None, D3DTEXF_NONE},
+      {TextureMipFilter::Point, D3DTEXF_POINT},
+      {TextureMipFilter::Linear, D3DTEXF_LINEAR},
+    };
   static_assert(TEXTURE_MIP_FILTER_COUNT == TO_D3D.size());
 
   return TO_D3D[filter];
 }
 
-inline auto to_d3d(const TextureOp op) -> D3DTEXTUREOP {
-  static constexpr EnumArray<TextureOp, D3DTEXTUREOP, 24> TO_D3D {
+inline auto to_d3d(TextureOp const op) -> D3DTEXTUREOP {
+  static constexpr auto TO_D3D = EnumArray<TextureOp, D3DTEXTUREOP, 24>{
     {TextureOp::Replace, D3DTOP_SELECTARG1},
     {TextureOp::Modulate, D3DTOP_MODULATE},
     {TextureOp::Modulate2X, D3DTOP_MODULATE2X},
@@ -369,8 +374,8 @@ inline auto to_d3d(const TextureOp op) -> D3DTEXTUREOP {
   return TO_D3D[op];
 }
 
-inline auto to_d3d(const TextureStageSrc src) -> DWORD {
-  static constexpr EnumArray<TextureStageSrc, DWORD, 7> TO_D3D {
+inline auto to_d3d(TextureStageSrc const src) -> DWORD {
+  static constexpr auto TO_D3D = EnumArray<TextureStageSrc, DWORD, 7>{
     {TextureStageSrc::Current, D3DTA_CURRENT},
     {TextureStageSrc::Diffuse, D3DTA_DIFFUSE},
     {TextureStageSrc::Specular, D3DTA_SPECULAR},
@@ -384,8 +389,8 @@ inline auto to_d3d(const TextureStageSrc src) -> DWORD {
   return TO_D3D[src];
 }
 
-inline auto to_d3d(const TextureStageSrcMod modifier) -> DWORD {
-  static constexpr EnumArray<TextureStageSrcMod, DWORD, 3> TO_D3D {
+inline auto to_d3d(TextureStageSrcMod const modifier) -> DWORD {
+  static constexpr auto TO_D3D = EnumArray<TextureStageSrcMod, DWORD, 3>{
     {TextureStageSrcMod::None, 0},
     {TextureStageSrcMod::Complement, D3DTA_COMPLEMENT},
     {TextureStageSrcMod::AlphaReplicate, D3DTA_ALPHAREPLICATE},
@@ -395,12 +400,12 @@ inline auto to_d3d(const TextureStageSrcMod modifier) -> DWORD {
   return TO_D3D[modifier];
 }
 
-inline auto to_d3d(const TextureStageArgument& arg) -> DWORD {
+inline auto to_d3d(TextureStageArgument const& arg) -> DWORD {
   return to_d3d(arg.src) | to_d3d(arg.modifier);
 }
 
-inline auto to_d3d(const TextureStageDestination dest) -> DWORD {
-  static constexpr EnumArray<TextureStageDestination, DWORD, 2> TO_D3D {
+inline auto to_d3d(TextureStageDestination const dest) -> DWORD {
+  static constexpr auto TO_D3D = EnumArray<TextureStageDestination, DWORD, 2>{
     {TextureStageDestination::Current, D3DTA_CURRENT},
     {TextureStageDestination::Temporary, D3DTA_TEMP},
   };
@@ -409,11 +414,10 @@ inline auto to_d3d(const TextureStageDestination dest) -> DWORD {
   return TO_D3D[dest];
 }
 
-inline auto to_d3d(const TextureCoordinateTransformMode mode)
+inline auto to_d3d(TextureCoordinateTransformMode const mode)
   -> D3DTEXTURETRANSFORMFLAGS {
-  static constexpr EnumArray<TextureCoordinateTransformMode,
-                             D3DTEXTURETRANSFORMFLAGS, 5>
-    TO_D3D {
+  static constexpr auto TO_D3D =
+    EnumArray<TextureCoordinateTransformMode, D3DTEXTURETRANSFORMFLAGS, 5>{
       {TextureCoordinateTransformMode::Disabled, D3DTTFF_DISABLE},
       {TextureCoordinateTransformMode::Count1, D3DTTFF_COUNT1},
       {TextureCoordinateTransformMode::Count2, D3DTTFF_COUNT2},
@@ -425,32 +429,33 @@ inline auto to_d3d(const TextureCoordinateTransformMode mode)
   return TO_D3D[mode];
 }
 
-inline auto to_d3d(const TransformState state) -> D3DTRANSFORMSTATETYPE {
-  static constexpr EnumArray<TransformState, D3DTRANSFORMSTATETYPE, 11> TO_D3D {
-    {TransformState::ViewToClip, D3DTS_PROJECTION},
-    {TransformState::WorldToView, D3DTS_VIEW},
-    {TransformState::LocalToWorld, D3DTS_WORLDMATRIX(0)},
-    {TransformState::Texture0, D3DTS_TEXTURE0},
-    {TransformState::Texture1, D3DTS_TEXTURE1},
-    {TransformState::Texture2, D3DTS_TEXTURE2},
-    {TransformState::Texture3, D3DTS_TEXTURE3},
-    {TransformState::Texture4, D3DTS_TEXTURE4},
-    {TransformState::Texture5, D3DTS_TEXTURE5},
-    {TransformState::Texture6, D3DTS_TEXTURE6},
-    {TransformState::Texture7, D3DTS_TEXTURE7},
-  };
+inline auto to_d3d(TransformState const state) -> D3DTRANSFORMSTATETYPE {
+  static constexpr auto TO_D3D =
+    EnumArray<TransformState, D3DTRANSFORMSTATETYPE, 11>{
+      {TransformState::ViewToClip, D3DTS_PROJECTION},
+      {TransformState::WorldToView, D3DTS_VIEW},
+      {TransformState::LocalToWorld, D3DTS_WORLDMATRIX(0)},
+      {TransformState::Texture0, D3DTS_TEXTURE0},
+      {TransformState::Texture1, D3DTS_TEXTURE1},
+      {TransformState::Texture2, D3DTS_TEXTURE2},
+      {TransformState::Texture3, D3DTS_TEXTURE3},
+      {TransformState::Texture4, D3DTS_TEXTURE4},
+      {TransformState::Texture5, D3DTS_TEXTURE5},
+      {TransformState::Texture6, D3DTS_TEXTURE6},
+      {TransformState::Texture7, D3DTS_TEXTURE7},
+    };
   static_assert(TRANSFORM_STATE_COUNT == TO_D3D.size());
 
   return TO_D3D[state];
 }
 
-inline auto to_d3d(const BorderColor borderColor, const Color& custom)
+inline auto to_d3d(BorderColor const borderColor, Color const& custom)
   -> D3DCOLOR {
   if (borderColor == BorderColor::Custom) {
     return to_d3d_color(custom);
   }
 
-  static constexpr EnumArray<BorderColor, D3DCOLOR, 3> TO_D3D {
+  static constexpr auto TO_D3D = EnumArray<BorderColor, D3DCOLOR, 3>{
     {BorderColor::BlackTransparent, D3DCOLOR_ARGB(0, 0, 0, 0)},
     {BorderColor::BlackOpaque, D3DCOLOR_ARGB(255, 0, 0, 0)},
     {BorderColor::WhiteOpaque, D3DCOLOR_ARGB(255, 255, 255, 255)},
@@ -461,15 +466,15 @@ inline auto to_d3d(const BorderColor borderColor, const Color& custom)
   return TO_D3D[borderColor];
 }
 
-constexpr auto to_d3d_fvf(const VertexLayout layout) -> DWORD {
+constexpr auto to_d3d_fvf(VertexLayout const layout) -> DWORD {
   // TODO: needs some form of validation
 
-  DWORD fvf {0ul};
+  auto fvf = DWORD{0};
 
   // TODO: values >= 8 invalidate the fvf
-  i32 numTexCoords {0};
+  auto numTexCoords = i32{0};
 
-  for (const VertexElement& element : layout) {
+  for (auto const& element : layout) {
     switch (element) {
     case VertexElement::Position3F32:
       fvf |= D3DFVF_XYZ;
@@ -522,8 +527,8 @@ constexpr auto to_d3d_fvf(const VertexLayout layout) -> DWORD {
   return fvf;
 }
 
-inline auto to_d3d(const DirectionalLightData& light) -> D3DLIGHT9 {
-  D3DLIGHT9 d3dLight {};
+inline auto to_d3d(DirectionalLightData const& light) -> D3DLIGHT9 {
+  auto d3dLight = D3DLIGHT9{};
   d3dLight.Type = D3DLIGHT_DIRECTIONAL;
   d3dLight.Diffuse = to_d3d_color_value(light.diffuse);
   d3dLight.Specular = to_d3d_color_value(light.specular);
@@ -533,8 +538,8 @@ inline auto to_d3d(const DirectionalLightData& light) -> D3DLIGHT9 {
   return d3dLight;
 }
 
-inline auto to_d3d(const PointLightData& light) -> D3DLIGHT9 {
-  D3DLIGHT9 d3dLight {};
+inline auto to_d3d(PointLightData const& light) -> D3DLIGHT9 {
+  auto d3dLight = D3DLIGHT9{};
   d3dLight.Type = D3DLIGHT_POINT;
   d3dLight.Diffuse = to_d3d_color_value(light.diffuse);
   d3dLight.Specular = to_d3d_color_value(light.specular);
@@ -548,8 +553,8 @@ inline auto to_d3d(const PointLightData& light) -> D3DLIGHT9 {
   return d3dLight;
 }
 
-inline auto to_d3d(const SpotLightData& light) -> D3DLIGHT9 {
-  D3DLIGHT9 d3dLight {};
+inline auto to_d3d(SpotLightData const& light) -> D3DLIGHT9 {
+  auto d3dLight = D3DLIGHT9{};
   d3dLight.Type = D3DLIGHT_SPOT;
   d3dLight.Diffuse = to_d3d_color_value(light.diffuse);
   d3dLight.Specular = to_d3d_color_value(light.specular);

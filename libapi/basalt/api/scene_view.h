@@ -19,12 +19,12 @@ public:
   static auto create(ScenePtr, gfx::ResourceCachePtr, EntityId cameraEntity)
     -> SceneViewPtr;
 
-  SceneView(const SceneView&) = delete;
+  SceneView(SceneView const&) = delete;
   SceneView(SceneView&&) noexcept = default;
 
   ~SceneView() noexcept override = default;
 
-  auto operator=(const SceneView&) -> SceneView& = delete;
+  auto operator=(SceneView const&) -> SceneView& = delete;
   auto operator=(SceneView&&) noexcept -> SceneView& = default;
 
   explicit SceneView(ScenePtr, gfx::ResourceCachePtr);
@@ -38,7 +38,7 @@ private:
 
   auto update_debug_ui(Config& config) -> void;
 
-  auto on_input(const InputEvent&) -> InputEventHandled override;
+  auto on_input(InputEvent const&) -> InputEventHandled override;
   auto on_update(UpdateContext&) -> void override;
 };
 

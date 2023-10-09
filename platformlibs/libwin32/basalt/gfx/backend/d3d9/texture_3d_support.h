@@ -14,7 +14,7 @@ class D3D9Texture3DSupport final : public Texture3DSupport {
 public:
   static auto create(D3D9Device*) -> D3D9Texture3DSupportPtr;
 
-  [[nodiscard]] auto load(const std::filesystem::path&) -> Texture override;
+  [[nodiscard]] auto load(std::filesystem::path const&) -> Texture override;
 
   explicit D3D9Texture3DSupport(D3D9Device*);
 

@@ -26,21 +26,21 @@ public:
 
   Scene() = default;
 
-  Scene(const Scene&) = delete;
+  Scene(Scene const&) = delete;
   Scene(Scene&&) = delete;
 
   ~Scene() noexcept = default;
 
-  auto operator=(const Scene&) -> Scene& = delete;
+  auto operator=(Scene const&) -> Scene& = delete;
   auto operator=(Scene&&) -> Scene& = delete;
 
-  [[nodiscard]] auto entity_registry() const -> const EntityRegistry&;
+  [[nodiscard]] auto entity_registry() const -> EntityRegistry const&;
   [[nodiscard]] auto entity_registry() -> EntityRegistry&;
 
   [[nodiscard]] auto
-  create_entity(const Vector3f32& position = Vector3f32 {0.0f},
-                const Vector3f32& rotation = Vector3f32 {0.0f},
-                const Vector3f32& scale = Vector3f32 {1.0f}) -> Entity;
+  create_entity(Vector3f32 const& position = Vector3f32{0.0f},
+                Vector3f32 const& rotation = Vector3f32{0.0f},
+                Vector3f32 const& scale = Vector3f32{1.0f}) -> Entity;
   [[nodiscard]] auto get_handle(EntityId) -> Entity;
 
   template <typename T, typename... Args>
@@ -51,13 +51,14 @@ public:
     using UpdateBefore = typename SystemTraits<T>::UpdateBefore;
     using UpdateAfter = typename SystemTraits<T>::UpdateAfter;
 
-    const entt::id_type typeId {entt::type_hash<T>::value()};
-    const entt::id_type updateBefore {entt::type_hash<UpdateBefore>::value()};
-    const entt::id_type updateAfter {entt::type_hash<UpdateAfter>::value()};
+    auto const typeId = entt::type_hash<T>::value();
+    auto const updateBefore = entt::type_hash<UpdateBefore>::value();
+    auto const updateAfter = entt::type_hash<UpdateAfter>::value();
 
-    auto system {std::make_unique<T>(std::forward<Args>(args)...)};
+    auto system = std::make_unique<T>(std::forward<Args>(args)...);
 
-    return add_system(std::move(system), {typeId, updateBefore, updateAfter});
+    return add_system(std::move(system),
+                      SystemInfo{typeId, updateBefore, updateAfter});
   }
 
   auto destroy_system(SystemId) -> void;
@@ -66,7 +67,7 @@ public:
     SecondsF32 deltaTime;
   };
 
-  auto on_update(const UpdateContext&) -> void;
+  auto on_update(UpdateContext const&) -> void;
 
 private:
   using SystemTypeId = entt::id_type;
@@ -91,9 +92,9 @@ private:
   std::unordered_map<SystemId, SystemTypeId> mSystemIdToSystemType;
   std::unordered_map<SystemTypeId, SystemTypeInfo> mSystemTypes;
 
-  SecondsF32 mTime {};
+  SecondsF32 mTime{};
 
-  [[nodiscard]] auto add_system(SystemPtr, const SystemInfo&) -> SystemId;
+  [[nodiscard]] auto add_system(SystemPtr, SystemInfo const&) -> SystemId;
   [[nodiscard]] auto compute_update_order() const -> std::vector<SystemId>;
 };
 

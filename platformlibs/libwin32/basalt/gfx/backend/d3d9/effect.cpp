@@ -43,7 +43,7 @@ auto D3D9XEffects::execute(CommandBeginEffectPass const& cmd) -> void {
 }
 
 auto D3D9XEffects::execute(CommandEndEffectPass const&) -> void {
-  auto const& effect {mEffects[mActiveEffect]};
+  auto const& effect{mEffects[mActiveEffect]};
   effect.end_pass();
 }
 
@@ -60,17 +60,17 @@ auto D3D9XEffects::on_device_reset() const -> void {
 }
 
 auto D3D9XEffects::compile(path const& filePath) -> CompileResult {
-  auto effect = ID3DXEffectPtr {};
-  auto compilationErrors = ID3DXBufferPtr {};
+  auto effect = ID3DXEffectPtr{};
+  auto compilationErrors = ID3DXBufferPtr{};
   if (FAILED(D3DXCreateEffectFromFileW(mDevice->device().Get(),
                                        filePath.c_str(), nullptr, nullptr, 0,
                                        nullptr, &effect, &compilationErrors))) {
     if (compilationErrors) {
-      return string {
+      return string{
         static_cast<char const*>(compilationErrors->GetBufferPointer())};
     }
 
-    throw std::runtime_error {"failed to load effect file"};
+    throw std::runtime_error{"failed to load effect file"};
   }
 
   return mEffects.allocate(std::move(effect), mDevice);
@@ -84,16 +84,16 @@ auto D3D9XEffects::get(EffectId const id) -> Effect& {
   return mEffects[id];
 }
 
-D3D9XEffects::D3D9XEffects(D3D9Device* device) : mDevice {device} {
+D3D9XEffects::D3D9XEffects(D3D9Device* device) : mDevice{device} {
 }
 
 D3D9XEffect::D3D9XEffect(ID3DXEffectPtr effect, D3D9Device* device)
-  : mEffect {std::move(effect)}
-  , mDevice {device} {
+  : mEffect{std::move(effect)}
+  , mDevice{device} {
 }
 
 auto D3D9XEffect::begin() const -> void {
-  auto unused = UINT {};
+  auto unused = UINT{};
   D3D9CHECK(mEffect->Begin(&unused, 0));
 }
 
@@ -118,7 +118,7 @@ auto D3D9XEffect::on_device_reset() const -> void {
 }
 
 auto D3D9XEffect::get_num_techniques() const -> u32 {
-  auto desc = D3DXEFFECT_DESC {};
+  auto desc = D3DXEFFECT_DESC{};
   D3D9CHECK(mEffect->GetDesc(&desc));
 
   return desc.Techniques;
@@ -171,10 +171,10 @@ auto D3D9XEffect::set_technique(EffectTechniqueHandle const handle) const
 
 auto D3D9XEffect::get_string(czstring const parameter) const
   -> optional<string> {
-  auto value = czstring {};
+  auto value = czstring{};
 
   if (SUCCEEDED(mEffect->GetString(parameter, &value))) {
-    return string {value};
+    return string{value};
   }
 
   return nullopt;
@@ -187,15 +187,15 @@ auto D3D9XEffect::set_string(czstring const parameter,
 
 auto D3D9XEffect::set_texture(czstring const parameter, Texture const id) const
   -> bool {
-  auto const texture = id ? mDevice->get_d3d9(id) : IDirect3DBaseTexture9Ptr {};
+  auto const texture = id ? mDevice->get_d3d9(id) : IDirect3DBaseTexture9Ptr{};
 
   return SUCCEEDED(mEffect->SetTexture(parameter, texture.Get()));
 }
 
 auto D3D9XEffect::get_technique_desc(EffectTechniqueHandle const handle) const
   -> D3DXTECHNIQUE_DESC {
-  auto const technique = handle ? mTechniques[handle] : D3DXHANDLE {};
-  auto desc = D3DXTECHNIQUE_DESC {};
+  auto const technique = handle ? mTechniques[handle] : D3DXHANDLE{};
+  auto desc = D3DXTECHNIQUE_DESC{};
   D3D9CHECK(mEffect->GetTechniqueDesc(technique, &desc));
 
   return desc;

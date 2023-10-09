@@ -2,34 +2,34 @@
 
 namespace basalt::gfx {
 
-auto Environment::background() const noexcept -> const Color& {
+auto Environment::background() const noexcept -> Color const& {
   return mBackground;
 }
 
-auto Environment::set_background(const Color& background) noexcept -> void {
+auto Environment::set_background(Color const& background) noexcept -> void {
   mBackground = background;
 }
 
-auto Environment::ambient_light() const noexcept -> const Color& {
+auto Environment::ambient_light() const noexcept -> Color const& {
   return mAmbientLight;
 }
 
-auto Environment::set_ambient_light(const Color& ambientLight) noexcept
+auto Environment::set_ambient_light(Color const& ambientLight) noexcept
   -> void {
   mAmbientLight = ambientLight;
 }
 
 auto Environment::directional_lights() const noexcept
-  -> gsl::span<const DirectionalLight> {
+  -> gsl::span<DirectionalLight const> {
   return mDirectionalLights;
 }
 
-auto Environment::add_directional_light(const Vector3f32& direction,
-                                        const Color& diffuse,
-                                        const Color& specular,
-                                        const Color& ambient) -> void {
+auto Environment::add_directional_light(Vector3f32 const& direction,
+                                        Color const& diffuse,
+                                        Color const& specular,
+                                        Color const& ambient) -> void {
   mDirectionalLights.push_back(
-    DirectionalLight {diffuse, specular, ambient, direction});
+    DirectionalLight{diffuse, specular, ambient, direction});
 }
 
 auto Environment::clear_directional_lights() noexcept -> void {

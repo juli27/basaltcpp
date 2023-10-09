@@ -13,15 +13,15 @@ namespace basalt::gfx {
 
 // perspective camera
 struct Camera final {
-  Camera(const Vector3f32& lookAt, const Vector3f32& up, Angle fov,
+  Camera(Vector3f32 const& lookAt, Vector3f32 const& up, Angle fov,
          f32 nearPlane, f32 farPlane) noexcept;
 
   Vector3f32 lookAt;
   Vector3f32 up;
   Angle fov;
-  f32 aspectRatio {};
-  f32 nearPlane {};
-  f32 farPlane {};
+  f32 aspectRatio{};
+  f32 nearPlane{};
+  f32 farPlane{};
 };
 
 class CameraEntity final {

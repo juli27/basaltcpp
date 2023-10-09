@@ -12,7 +12,7 @@ using namespace std::string_literals;
 
 namespace basalt {
 
-auto Engine::config() const noexcept -> const Config& {
+auto Engine::config() const noexcept -> Config const& {
   return mConfig;
 }
 
@@ -24,7 +24,7 @@ auto Engine::gfx_context() const noexcept -> gfx::Context& {
   return *mGfxContext;
 }
 
-auto Engine::gfx_info() const noexcept -> const gfx::Info& {
+auto Engine::gfx_info() const noexcept -> gfx::Info const& {
   return mGfxContext->gfx_info();
 }
 
@@ -40,7 +40,7 @@ auto Engine::gfx_resource_cache() noexcept -> gfx::ResourceCache& {
   return *mGfxResourceCache;
 }
 
-auto Engine::root() const -> const ViewPtr& {
+auto Engine::root() const -> ViewPtr const& {
   return mRoot;
 }
 
@@ -52,30 +52,30 @@ auto Engine::mouse_cursor() const noexcept -> MouseCursor {
   return mMouseCursor;
 }
 
-void Engine::set_mouse_cursor(const MouseCursor mouseCursor) noexcept {
+auto Engine::set_mouse_cursor(MouseCursor const mouseCursor) noexcept -> void {
   mMouseCursor = mouseCursor;
   mIsDirty = true;
 }
 
-void Engine::set_window_mode(const WindowMode windowMode) noexcept {
+auto Engine::set_window_mode(WindowMode const windowMode) noexcept -> void {
   mConfig.set_enum("window.mode"s, windowMode);
   mIsDirty = true;
 }
 
 Engine::Engine(Config& config, gfx::ContextPtr gfxContext) noexcept
-  : mResourceRegistry {std::make_shared<ResourceRegistry>()}
-  , mGfxContext {std::move(gfxContext)}
-  , mGfxResourceCache {mGfxContext->create_resource_cache()}
-  , mConfig {config} {
+  : mResourceRegistry{std::make_shared<ResourceRegistry>()}
+  , mGfxContext{std::move(gfxContext)}
+  , mGfxResourceCache{mGfxContext->create_resource_cache()}
+  , mConfig{config} {
 }
 
-auto Engine::is_loaded(const ResourceId id) const -> bool {
+auto Engine::is_loaded(ResourceId const id) const -> bool {
   return mTextures.find(id) != mTextures.end() ||
          mXModels.find(id) != mXModels.end();
 }
 
 template <>
-auto Engine::get_or_load(const Resource resource) -> gfx::ext::XModel {
+auto Engine::get_or_load(Resource const resource) -> gfx::ext::XModel {
   if (!mResourceRegistry->has_resource(resource)) {
     mResourceRegistry->register_resource(resource);
   }
@@ -84,13 +84,13 @@ auto Engine::get_or_load(const Resource resource) -> gfx::ext::XModel {
     return mXModels[resource];
   }
 
-  const auto& path {mResourceRegistry->get_path(resource)};
+  auto const& path = mResourceRegistry->get_path(resource);
 
   return mXModels[resource] = mGfxResourceCache->load_x_model(path);
 }
 
 template <>
-auto Engine::get_or_load(const Resource resource) -> gfx::Texture {
+auto Engine::get_or_load(Resource const resource) -> gfx::Texture {
   if (!mResourceRegistry->has_resource(resource)) {
     mResourceRegistry->register_resource(resource);
   }
@@ -99,7 +99,7 @@ auto Engine::get_or_load(const Resource resource) -> gfx::Texture {
     return mTextures[resource];
   }
 
-  const auto& path {mResourceRegistry->get_path(resource)};
+  auto const& path = mResourceRegistry->get_path(resource);
 
   return mTextures[resource] = mGfxResourceCache->load_texture(path);
 }

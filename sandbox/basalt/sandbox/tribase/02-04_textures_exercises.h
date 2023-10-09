@@ -14,15 +14,15 @@ namespace tribase {
 
 class TexturesExercises final : public basalt::View {
 public:
-  explicit TexturesExercises(basalt::Engine&);
+  explicit TexturesExercises(basalt::Engine const&);
 
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;
+  basalt::gfx::Sampler mSampler;
   basalt::gfx::Texture mTexture;
   basalt::gfx::VertexBuffer mVertexBuffer;
   basalt::gfx::Pipeline mPipeline;
-  basalt::gfx::Sampler mSampler;
-  basalt::i32 mCurrentExercise {0};
+  basalt::i32 mCurrentExercise{0};
 
   auto on_update(UpdateContext&) -> void override;
 };

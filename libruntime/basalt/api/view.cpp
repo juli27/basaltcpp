@@ -7,7 +7,7 @@ using std::vector;
 
 namespace basalt {
 
-auto View::input_state() const noexcept -> const InputState& {
+auto View::input_state() const noexcept -> InputState const& {
   return mInputState;
 }
 
@@ -15,11 +15,11 @@ auto View::pointer_position() const noexcept -> PointerPosition {
   return mInputState.pointerPos;
 }
 
-auto View::is_mouse_button_down(const MouseButton button) const -> bool {
+auto View::is_mouse_button_down(MouseButton const button) const -> bool {
   return mInputState.is_mouse_button_down(button);
 }
 
-auto View::is_key_down(const Key key) const -> bool {
+auto View::is_key_down(Key const key) const -> bool {
   return mInputState.is_key_down(key);
 }
 
@@ -31,13 +31,13 @@ auto View::add_child_bottom(ViewPtr view) -> void {
   mChildren.emplace_back(std::move(view));
 }
 
-auto View::add_child_above(ViewPtr view, const ViewPtr& before) -> void {
+auto View::add_child_above(ViewPtr view, ViewPtr const& before) -> void {
   mChildren.emplace(std::find(mChildren.begin(), mChildren.end(), before),
                     std::move(view));
 }
 
-auto View::add_child_below(ViewPtr view, const ViewPtr& after) -> void {
-  auto it {std::find(mChildren.begin(), mChildren.end(), after)};
+auto View::add_child_below(ViewPtr view, ViewPtr const& after) -> void {
+  auto it = std::find(mChildren.begin(), mChildren.end(), after);
 
   if (it != mChildren.end()) {
     ++it;
@@ -46,21 +46,21 @@ auto View::add_child_below(ViewPtr view, const ViewPtr& after) -> void {
   mChildren.emplace(it, std::move(view));
 }
 
-auto View::remove_child(const ViewPtr& view) -> void {
+auto View::remove_child(ViewPtr const& view) -> void {
   mChildren.erase(std::remove(mChildren.begin(), mChildren.end(), view),
                   mChildren.end());
 }
 
-auto View::handle_input(const InputEvent& e) -> bool {
+auto View::handle_input(InputEvent const& e) -> bool {
   if (on_input(e) == InputEventHandled::Yes) {
     mInputState.update(e);
 
     return true;
   }
 
-  const vector views {mChildren};
+  auto const views = vector{mChildren};
 
-  return std::any_of(views.begin(), views.end(), [&](const ViewPtr& view) {
+  return std::any_of(views.begin(), views.end(), [&](ViewPtr const& view) {
     return view->handle_input(e);
   });
 }
@@ -68,9 +68,9 @@ auto View::handle_input(const InputEvent& e) -> bool {
 auto View::update(UpdateContext& ctx) -> void {
   on_update(ctx);
 
-  const vector views {mChildren};
+  auto const views = vector{mChildren};
 
-  for (const ViewPtr& view : views) {
+  for (auto const& view : views) {
     view->update(ctx);
   }
 }
@@ -78,7 +78,7 @@ auto View::update(UpdateContext& ctx) -> void {
 auto View::on_update(UpdateContext&) -> void {
 }
 
-auto View::on_input(const InputEvent&) -> InputEventHandled {
+auto View::on_input(InputEvent const&) -> InputEventHandled {
   return InputEventHandled::No;
 }
 

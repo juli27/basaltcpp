@@ -19,27 +19,29 @@ struct EnumArray {
 
   constexpr EnumArray() noexcept = default;
 
-  constexpr explicit EnumArray(std::initializer_list<std::pair<K, V>> init) {
+  constexpr explicit EnumArray(
+    std::initializer_list<std::pair<K, V>> const init) {
     for (auto& pair : init) {
       mStorage[enum_cast(pair.first)] = std::move(pair.second);
     }
   }
 
-  [[nodiscard]] constexpr auto size() const noexcept -> uSize {
+  [[nodiscard]]
+  constexpr auto size() const noexcept -> uSize {
     return Size;
   }
 
-  [[nodiscard]] constexpr auto operator[](const K key) const noexcept
-    -> const V& {
+  [[nodiscard]] constexpr auto operator[](K const key) const noexcept
+    -> V const& {
     return mStorage[enum_cast(key)];
   }
 
-  [[nodiscard]] constexpr auto operator[](const K key) noexcept -> V& {
+  [[nodiscard]] constexpr auto operator[](K const key) noexcept -> V& {
     return mStorage[enum_cast(key)];
   }
 
 private:
-  std::array<V, Size> mStorage {};
+  std::array<V, Size> mStorage{};
 };
 
 // can not make it work in MSVC. Is MSVC not implementing CWG 1591?

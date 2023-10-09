@@ -33,9 +33,9 @@ template <class>
 inline constexpr bool always_false_v = false;
 
 auto record_camera(FilteringCommandList& cmdList, Scene& scene,
-                   const f32 aspectRatio) -> void {
-  EntityRegistry& entities {scene.entity_registry()};
-  const CameraEntity cameraEntity {
+                   f32 const aspectRatio) -> void {
+  auto& entities = scene.entity_registry();
+  auto const cameraEntity = CameraEntity{
     scene.get_handle(entities.ctx().get<EntityId>(GfxSystem::sMainCamera))};
 
   cameraEntity.get_camera().aspectRatio = aspectRatio;
@@ -46,9 +46,9 @@ auto record_camera(FilteringCommandList& cmdList, Scene& scene,
                         cameraEntity.world_to_view());
 }
 
-auto record_material(FilteringCommandList& cmdList, const ResourceCache& cache,
-                     const Material id) -> void {
-  const MaterialData& data {cache.get(id)};
+auto record_material(FilteringCommandList& cmdList, ResourceCache const& cache,
+                     Material const id) -> void {
+  auto const& data = cache.get(id);
 
   cmdList.bind_pipeline(data.pipeline);
   cmdList.bind_texture(0, data.texture);
@@ -61,15 +61,15 @@ auto record_material(FilteringCommandList& cmdList, const ResourceCache& cache,
 }
 
 auto record_render_component(FilteringCommandList& cmdList,
-                             const ResourceCache& cache,
-                             const LocalToWorld& localToWorld,
-                             const RenderComponent& renderComponent) {
+                             ResourceCache const& cache,
+                             LocalToWorld const& localToWorld,
+                             RenderComponent const& renderComponent) {
   record_material(cmdList, cache, renderComponent.material);
 
   cmdList.set_transform(TransformState::Texture0, renderComponent.texTransform);
   cmdList.set_transform(TransformState::LocalToWorld, localToWorld.matrix);
 
-  const auto& meshData = cache.get(renderComponent.mesh);
+  auto const& meshData = cache.get(renderComponent.mesh);
   cmdList.bind_vertex_buffer(meshData.vertexBuffer);
 
   if (meshData.indexBuffer) {
@@ -82,45 +82,45 @@ auto record_render_component(FilteringCommandList& cmdList,
 
 } // namespace
 
-auto GfxSystem::on_update(const UpdateContext& ctx) -> void {
-  Scene& scene {ctx.scene};
-  EntityRegistry& entities {scene.entity_registry()};
-  const auto& ecsCtx {entities.ctx()};
+auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
+  auto& scene = ctx.scene;
+  auto& entities = scene.entity_registry();
+  auto const& ecsCtx{entities.ctx()};
 
-  const auto& drawCtx {ecsCtx.get<const View::DrawContext>()};
-  const auto& cache {ecsCtx.get<const ResourceCache>()};
-  const auto& env {ecsCtx.get<const Environment>()};
+  auto const& drawCtx = ecsCtx.get<View::DrawContext const>();
+  auto const& cache = ecsCtx.get<ResourceCache const>();
+  auto const& env = ecsCtx.get<Environment const>();
 
-  FilteringCommandList cmdList;
+  auto cmdList = FilteringCommandList{};
   cmdList.clear_attachments(
-    Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
+    Attachments{Attachment::RenderTarget, Attachment::DepthBuffer},
     env.background(), 1.0f);
 
-  const f32 aspectRatio {drawCtx.viewport.aspect_ratio()};
+  auto const aspectRatio = drawCtx.viewport.aspect_ratio();
   record_camera(cmdList, scene, aspectRatio);
 
   cmdList.set_ambient_light(env.ambient_light());
 
-  vector<LightData> lights;
-  const span directionalLights {env.directional_lights()};
+  auto lights = vector<LightData>{};
+  auto const directionalLights = env.directional_lights();
   if (!directionalLights.empty()) {
     lights.insert(lights.end(), directionalLights.begin(),
                   directionalLights.end());
   }
 
   // TODO: this should use LocalToWorld
-  entities.view<const Transform, const Light>().each(
-    [&](const Transform& transform, const Light& light) {
+  entities.view<Transform const, Light const>().each(
+    [&](Transform const& transform, Light const& light) {
       std::visit(
         [&](auto&& l) {
           using T = std::decay_t<decltype(l)>;
 
           if constexpr (std::is_same_v<T, PointLight>) {
-            lights.emplace_back(PointLightData {
+            lights.emplace_back(PointLightData{
               l.diffuse, l.specular, l.ambient, transform.position, l.range,
               l.attenuation0, l.attenuation1, l.attenuation2});
           } else if constexpr (std::is_same_v<T, SpotLight>) {
-            lights.emplace_back(SpotLightData {
+            lights.emplace_back(SpotLightData{
               l.diffuse, l.specular, l.ambient, transform.position, l.direction,
               l.range, l.attenuation0, l.attenuation1, l.attenuation2,
               l.falloff, l.phi, l.theta});
@@ -133,15 +133,15 @@ auto GfxSystem::on_update(const UpdateContext& ctx) -> void {
 
   cmdList.set_lights(lights);
 
-  entities.view<const LocalToWorld, const ext::XModel>().each(
-    [&](const LocalToWorld& localToWorld, const ext::XModel& model) {
+  entities.view<LocalToWorld const, ext::XModel const>().each(
+    [&](LocalToWorld const& localToWorld, ext::XModel const& model) {
       cmdList.set_transform(TransformState::LocalToWorld, localToWorld.matrix);
 
-      const auto& modelData {cache.get(model)};
+      auto const& modelData = cache.get(model);
 
-      const auto numMaterials {static_cast<u32>(modelData.materials.size())};
+      auto const numMaterials = static_cast<u32>(modelData.materials.size());
 
-      for (u32 i {0}; i < numMaterials; ++i) {
+      for (auto i = uSize{0}; i < numMaterials; ++i) {
         record_material(cmdList, cache, modelData.materials[i]);
 
         ext::XMeshCommandEncoder::draw_x_mesh(cmdList.cmd_list(),
@@ -149,9 +149,9 @@ auto GfxSystem::on_update(const UpdateContext& ctx) -> void {
       }
     });
 
-  entities.view<const LocalToWorld, const RenderComponent>().each(
-    [&](const LocalToWorld& localToWorld,
-        const RenderComponent& renderComponent) {
+  entities.view<LocalToWorld const, RenderComponent const>().each(
+    [&](LocalToWorld const& localToWorld,
+        RenderComponent const& renderComponent) {
       record_render_component(cmdList, cache, localToWorld, renderComponent);
     });
 

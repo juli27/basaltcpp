@@ -16,7 +16,7 @@ namespace tribase {
 
 class EnvMapping final : public basalt::View {
 public:
-  explicit EnvMapping(const basalt::Engine&);
+  explicit EnvMapping(basalt::Engine const&);
 
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;
@@ -30,12 +30,13 @@ private:
   basalt::gfx::ext::XModel mSphere;
   basalt::gfx::VertexBuffer mSkyBoxVb;
   basalt::gfx::IndexBuffer mSkyBoxIb;
-  basalt::Vector3f32 mCameraPos {};
-  basalt::Angle mCameraAngleY {};
-  basalt::f32 mCameraUpDown {};
+  basalt::Vector3f32 mCameraPos{};
+  basalt::Angle mCameraAngleY{};
+  basalt::f32 mCameraUpDown{};
 
   auto on_update(UpdateContext&) -> void override;
-  auto on_input(const basalt::InputEvent&) -> basalt::InputEventHandled override;
+  auto on_input(basalt::InputEvent const&)
+    -> basalt::InputEventHandled override;
 };
 
 } // namespace tribase

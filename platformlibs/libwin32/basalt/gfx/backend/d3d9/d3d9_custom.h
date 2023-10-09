@@ -43,7 +43,7 @@ using ID3DXMeshPtr = Microsoft::WRL::ComPtr<ID3DXMesh>;
 
 #define D3D9CHECK(x)                                                           \
   do {                                                                         \
-    if (const HRESULT macroHr {x}; FAILED(macroHr)) {                          \
+    if (const HRESULT macroHr = (x); FAILED(macroHr)) {                        \
       DXTraceW(__FILE__, __LINE__, macroHr, nullptr, TRUE);                    \
     }                                                                          \
   } while (false)

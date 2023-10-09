@@ -25,46 +25,47 @@ auto D3D9XModelSupport::create(IDirect3DDevice9Ptr device)
   return std::make_shared<D3D9XModelSupport>(std::move(device));
 }
 
-auto D3D9XModelSupport::execute(const CommandDrawXMesh& cmd) const -> void {
-  const auto& meshData {mMeshes[cmd.xMeshId]};
+auto D3D9XModelSupport::execute(CommandDrawXMesh const& cmd) const -> void {
+  auto const& meshData = mMeshes[cmd.xMeshId];
 
   D3D9CHECK(meshData.mesh->DrawSubset(meshData.attributeId));
 }
 
-auto D3D9XModelSupport::load(const path& filepath) -> XModelData {
-  ID3DXMeshPtr mesh;
+auto D3D9XModelSupport::load(path const& filepath) -> XModelData {
+  auto mesh = ID3DXMeshPtr{};
 
-  ID3DXBufferPtr materialBuffer;
-  DWORD numMaterials {};
+  auto materialBuffer = ID3DXBufferPtr{};
+  auto numMaterials = DWORD{0};
   if (FAILED(D3DXLoadMeshFromXW(filepath.c_str(), D3DXMESH_MANAGED,
                                 mDevice.Get(), nullptr, &materialBuffer,
                                 nullptr, &numMaterials, &mesh))) {
-    throw std::runtime_error {"loading mesh file failed"};
+    throw std::runtime_error{"loading mesh file failed"};
   }
 
   BASALT_ASSERT(materialBuffer->GetBufferSize() / sizeof(D3DXMATERIAL) >=
                 numMaterials);
 
-  const span<const D3DXMATERIAL> d3dxMaterials {
-    static_cast<const D3DXMATERIAL*>(materialBuffer->GetBufferPointer()),
+  auto const d3dxMaterials = span<D3DXMATERIAL const>{
+    static_cast<D3DXMATERIAL const*>(materialBuffer->GetBufferPointer()),
     numMaterials};
-  vector<XMesh> meshes;
+  auto meshes = vector<XMesh>{};
   meshes.reserve(d3dxMaterials.size());
-  vector<XModelData::Material> materials;
+  auto materials = vector<XModelData::Material>{};
   materials.reserve(d3dxMaterials.size());
-  DWORD attributeId {0};
-  for (const auto& [d3dMaterial, texFileName] : d3dxMaterials) {
-    const XMesh meshHandle {mMeshes.allocate(XMeshData {mesh, attributeId++})};
+  auto attributeId = DWORD{0};
+  for (auto const& [d3dMaterial, texFileName] : d3dxMaterials) {
+    auto const meshHandle = mMeshes.allocate(XMeshData{mesh, attributeId++});
     meshes.push_back(meshHandle);
 
-    const string_view textureFileName {texFileName ? texFileName : ""};
-    path texturePath {
-      !textureFileName.empty() ? filepath.parent_path() / textureFileName : ""};
+    auto const textureFileName = texFileName ? string_view{texFileName} : ""sv;
+    auto texturePath = !textureFileName.empty()
+                         ? filepath.parent_path() / textureFileName
+                         : path{""};
 
     // d3dx meshes only have a face color instead of diffuse and ambient color,
     // so we will use it for both
-    const Color faceColor {to_color(d3dMaterial.Diffuse)};
-    materials.emplace_back(XModelData::Material {
+    auto const faceColor = to_color(d3dMaterial.Diffuse);
+    materials.emplace_back(XModelData::Material{
       faceColor,
       faceColor,
       to_color(d3dMaterial.Emissive),
@@ -74,15 +75,15 @@ auto D3D9XModelSupport::load(const path& filepath) -> XModelData {
     });
   }
 
-  return XModelData {std::move(meshes), std::move(materials)};
+  return XModelData{std::move(meshes), std::move(materials)};
 }
 
-auto D3D9XModelSupport::destroy(const XMesh handle) noexcept -> void {
+auto D3D9XModelSupport::destroy(XMesh const handle) noexcept -> void {
   mMeshes.deallocate(handle);
 }
 
 D3D9XModelSupport::D3D9XModelSupport(IDirect3DDevice9Ptr device)
-  : mDevice {std::move(device)} {
+  : mDevice{std::move(device)} {
 }
 
 } // namespace basalt::gfx::ext

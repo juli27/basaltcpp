@@ -20,6 +20,7 @@ using entt::adjacency_matrix;
 using entt::directed_tag;
 
 using std::forward_list;
+using std::unordered_map;
 using std::vector;
 
 namespace basalt {
@@ -33,12 +34,12 @@ enum class Visited : u8 {
 };
 
 // helper for Scene::compute_update_order
-auto depth_first_search(const uSize vertex, const AdjacencyMatrix& adj,
+auto depth_first_search(uSize const vertex, AdjacencyMatrix const& adj,
                         vector<Visited>& visited, forward_list<uSize>& order)
   -> void {
   visited[vertex] = Visited::Visiting;
 
-  for (const auto [lhs, rhs] : adj.out_edges(vertex)) {
+  for (auto const [lhs, rhs] : adj.out_edges(vertex)) {
     if (visited[rhs] == Visited::Visiting) {
       // TODO: give more info about which systems are causing the cycle?
       // TODO: maybe make this less fatal
@@ -57,14 +58,14 @@ auto depth_first_search(const uSize vertex, const AdjacencyMatrix& adj,
 }
 
 auto Scene::create() -> ScenePtr {
-  auto scene {std::make_shared<Scene>()};
+  auto scene = std::make_shared<Scene>();
   scene->create_system<ParentSystem>();
   scene->create_system<TransformSystem>();
 
   return scene;
 }
 
-auto Scene::entity_registry() const -> const EntityRegistry& {
+auto Scene::entity_registry() const -> EntityRegistry const& {
   return mEntityRegistry;
 }
 
@@ -72,22 +73,22 @@ auto Scene::entity_registry() -> EntityRegistry& {
   return mEntityRegistry;
 }
 
-auto Scene::create_entity(const Vector3f32& position,
-                          const Vector3f32& rotation, const Vector3f32& scale)
+auto Scene::create_entity(Vector3f32 const& position,
+                          Vector3f32 const& rotation, Vector3f32 const& scale)
   -> Entity {
-  const EntityId id {mEntityRegistry.create()};
+  auto const id = mEntityRegistry.create();
   mEntityRegistry.emplace<LocalToWorld>(id);
   mEntityRegistry.emplace<Transform>(id, position, rotation, scale);
 
-  return Entity {mEntityRegistry, id};
+  return Entity{mEntityRegistry, id};
 }
 
-auto Scene::get_handle(const EntityId entity) -> Entity {
-  return Entity {mEntityRegistry, entity};
+auto Scene::get_handle(EntityId const entity) -> Entity {
+  return Entity{mEntityRegistry, entity};
 }
 
-auto Scene::destroy_system(const SystemId id) -> void {
-  const SystemTypeId typeId {mSystemIdToSystemType[id]};
+auto Scene::destroy_system(SystemId const id) -> void {
+  auto const typeId = mSystemIdToSystemType[id];
   mSystemTypes.at(typeId).id = SystemId::null();
   mSystemIdToSystemType.erase(id);
   mSystems.deallocate(id);
@@ -96,17 +97,17 @@ auto Scene::destroy_system(const SystemId id) -> void {
                      mUpdateOrder.end());
 }
 
-auto Scene::on_update(const UpdateContext& ctx) -> void {
+auto Scene::on_update(UpdateContext const& ctx) -> void {
   mTime += ctx.deltaTime;
 
-  for (const SystemId systemId : mUpdateOrder) {
-    const System::UpdateContext systemCtx {ctx.deltaTime, mTime, *this};
+  for (auto const systemId : mUpdateOrder) {
+    auto const systemCtx = System::UpdateContext{ctx.deltaTime, mTime, *this};
 
     mSystems[systemId]->on_update(systemCtx);
   }
 }
 
-auto Scene::add_system(SystemPtr system, const SystemInfo& info) -> SystemId {
+auto Scene::add_system(SystemPtr system, SystemInfo const& info) -> SystemId {
   if (info.updateAfterTypeId != sVoidId) {
     mSystemTypes[info.updateAfterTypeId].updatedAfter.push_back(info.typeId);
   }
@@ -115,7 +116,7 @@ auto Scene::add_system(SystemPtr system, const SystemInfo& info) -> SystemId {
     mSystemTypes[info.typeId].updatedAfter.push_back(info.updateBeforeTypeId);
   }
 
-  const SystemId id {mSystems.allocate(std::move(system))};
+  auto const id = mSystems.allocate(std::move(system));
   mSystemIdToSystemType[id] = info.typeId;
   mSystemTypes[info.typeId].id = id;
 
@@ -125,62 +126,62 @@ auto Scene::add_system(SystemPtr system, const SystemInfo& info) -> SystemId {
 }
 
 // this topologically sorts the systems + their dependencies as a DAG
-auto Scene::compute_update_order() const -> std::vector<SystemId> {
-  const vector allSystems(mSystems.begin(), mSystems.end());
+auto Scene::compute_update_order() const -> vector<SystemId> {
+  auto const allSystems = vector(mSystems.begin(), mSystems.end());
 
-  const std::unordered_map typeToVertex {[&] {
-    std::unordered_map<SystemTypeId, uSize> map;
-    uSize nextIndex {0};
+  auto const typeToVertex = [&] {
+    auto map = unordered_map<SystemTypeId, uSize>{};
+    auto nextIndex = uSize{0};
 
-    for (const SystemId systemId : allSystems) {
-      const SystemTypeId systemTypeId {mSystemIdToSystemType.at(systemId)};
+    for (auto const systemId : allSystems) {
+      auto const systemTypeId = mSystemIdToSystemType.at(systemId);
 
       map[systemTypeId] = nextIndex++;
     }
 
     return map;
-  }()};
+  }();
 
-  const auto numSystems {static_cast<uSize>(
-    std::abs(std::distance(mSystems.begin(), mSystems.end())))};
+  auto const numSystems = static_cast<uSize>(
+    std::abs(std::distance(mSystems.begin(), mSystems.end())));
   // lhs -> rhs means lhs updates before rhs
-  adjacency_matrix<directed_tag> systemUpdateDag {numSystems};
+  auto systemUpdateDag = adjacency_matrix<directed_tag>{numSystems};
 
-  for (const auto& [systemType, typeInfo] : mSystemTypes) {
+  for (auto const& [systemType, typeInfo] : mSystemTypes) {
     // if we haven't assigned a SystemId to a system type, that means that a
     // system with this type is not part of this scene. So we don't have to
     // include it into our DAG
     if (typeInfo.id.is_null()) {
       continue;
     }
-    const uSize systemIndex {typeToVertex.at(systemType)};
+    auto const systemIndex = typeToVertex.at(systemType);
 
-    for (const SystemTypeId updatedAfter : typeInfo.updatedAfter) {
+    for (auto const updatedAfterType : typeInfo.updatedAfter) {
       // see comment above
-      if (!typeToVertex.count(updatedAfter)) {
+      if (!typeToVertex.count(updatedAfterType)) {
         continue;
       }
-      const uSize updatedAfterIndex {typeToVertex.at(updatedAfter)};
+      auto const updatedAfterIndex = typeToVertex.at(updatedAfterType);
 
       systemUpdateDag.insert(systemIndex, updatedAfterIndex);
     }
   }
 
-  vector visited(systemUpdateDag.size(), Visited::No);
-  forward_list<uSize> order;
+  auto visited = vector(systemUpdateDag.size(), Visited::No);
+  auto order = forward_list<uSize>{};
 
-  for (const uSize vertex : systemUpdateDag.vertices()) {
+  for (auto const vertex : systemUpdateDag.vertices()) {
     if (visited[vertex] == Visited::No) {
       depth_first_search(vertex, systemUpdateDag, visited, order);
     }
   }
 
-  vector<SystemId> updateOrder;
+  auto updateOrder = vector<SystemId>{};
   updateOrder.reserve(numSystems);
 
   std::transform(
     order.begin(), order.end(), std::back_inserter(updateOrder),
-    [&](const uSize systemIndex) { return allSystems[systemIndex]; });
+    [&](uSize const systemIndex) { return allSystems[systemIndex]; });
 
   return updateOrder;
 }

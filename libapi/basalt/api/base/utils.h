@@ -7,13 +7,13 @@
 namespace basalt {
 
 template <typename E, std::enable_if_t<std::is_enum_v<E>, int> = 0>
-constexpr auto enum_cast(const E e) noexcept {
+constexpr auto enum_cast(E const e) noexcept {
   return static_cast<std::underlying_type_t<E>>(e);
 }
 
 // TODO: optimize unsigned -> unsigned conversion (same min value)
 template <typename T, typename U>
-constexpr auto saturated_cast(const U value) -> T {
+constexpr auto saturated_cast(U const value) -> T {
   using Limits = std::numeric_limits<T>;
 
   return static_cast<T>(

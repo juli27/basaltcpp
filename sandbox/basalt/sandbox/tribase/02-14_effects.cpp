@@ -71,42 +71,40 @@ using basalt::gfx::ext::XModel;
 namespace {
 
 struct Vertex {
-  Vector4f32 pos {};
-  Vector2f32 tex {};
+  Vector4f32 pos{};
+  Vector2f32 tex{};
 
-  static constexpr auto sLayout = array {VertexElement::PositionTransformed4F32,
-                                         VertexElement::TextureCoords2F32};
+  static constexpr auto sLayout = array{
+    VertexElement::PositionTransformed4F32,
+    VertexElement::TextureCoords2F32,
+  };
 };
 
-constexpr array RECT_VERTICES {
-  Vertex {{0, 1, 1, 1}, {0, 1}},
-  Vertex {{0, 0, 1, 1}, {0, 0}},
-  Vertex {{1, 1, 1, 1}, {1, 1}},
-  Vertex {{1, 0, 1, 1}, {1, 0}},
+constexpr auto RECT_VERTICES = array{
+  Vertex{{0, 1, 1, 1}, {0, 1}},
+  Vertex{{0, 0, 1, 1}, {0, 0}},
+  Vertex{{1, 1, 1, 1}, {1, 1}},
+  Vertex{{1, 0, 1, 1}, {1, 0}},
 };
 
-constexpr auto DATA_PATH {"data/tribase/02-14_effects"sv};
-constexpr auto EFFECT_FILENAME {"Wire-Frame.fx"sv};
-constexpr auto SPHERE_FILENAME {"Sphere.x"sv};
+constexpr auto DATA_PATH = "data/tribase/02-14_effects"sv;
+constexpr auto EFFECT_FILENAME = "Wire-Frame.fx"sv;
+constexpr auto SPHERE_FILENAME = "Sphere.x"sv;
 
 } // namespace
 
 Effects::Effects(Engine const& engine)
-  : mGfxCache {engine.gfx_context().create_resource_cache()} {
-  list_effect_files();
-  mEffectFilePath = mEffectFilePaths.at(0);
-  mLoadedEffect = LoadedEffect::compile(mEffectFilePath, engine).value();
-
-  mRectVb = mGfxCache->create_vertex_buffer(
-    {RECT_VERTICES.size() * sizeof(Vertex), Vertex::sLayout});
-  mLinearSampler =
-    mGfxCache->create_sampler({TextureFilter::Bilinear, TextureFilter::Bilinear,
-                               TextureMipFilter::Linear});
-  mBackgroundPipeline = [&] {
-    constexpr auto textureStages = array {TextureStage {}};
-    auto fs = FixedFragmentShaderCreateInfo {};
+  : mGfxCache{engine.gfx_context().create_resource_cache()}
+  , mRectVb{mGfxCache->create_vertex_buffer(
+      {RECT_VERTICES.size() * sizeof(Vertex), Vertex::sLayout})}
+  , mLinearSampler{mGfxCache->create_sampler({TextureFilter::Bilinear,
+                                              TextureFilter::Bilinear,
+                                              TextureMipFilter::Linear})}
+  , mBackgroundPipeline{[&] {
+    constexpr auto textureStages = array{TextureStage{}};
+    auto fs = FixedFragmentShaderCreateInfo{};
     fs.textureStages = textureStages;
-    auto pipelineDesc = PipelineDescriptor {};
+    auto pipelineDesc = PipelineDescriptor{};
     pipelineDesc.fragmentShader = &fs;
     pipelineDesc.vertexLayout = Vertex::sLayout;
     pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
@@ -114,14 +112,14 @@ Effects::Effects(Engine const& engine)
     pipelineDesc.dithering = true;
 
     return mGfxCache->create_pipeline(pipelineDesc);
-  }();
-  mDefaultPipeline = [&] {
-    auto vs = FixedVertexShaderCreateInfo {};
+  }()}
+  , mDefaultPipeline{[&] {
+    auto vs = FixedVertexShaderCreateInfo{};
     vs.lightingEnabled = true;
-    auto fs = FixedFragmentShaderCreateInfo {};
-    constexpr auto textureStages = array {TextureStage {}};
+    auto fs = FixedFragmentShaderCreateInfo{};
+    constexpr auto textureStages = array{TextureStage{}};
     fs.textureStages = textureStages;
-    auto pipelineDesc = PipelineDescriptor {};
+    auto pipelineDesc = PipelineDescriptor{};
     pipelineDesc.vertexShader = &vs;
     pipelineDesc.fragmentShader = &fs;
     pipelineDesc.cullMode = CullMode::CounterClockwise;
@@ -130,7 +128,10 @@ Effects::Effects(Engine const& engine)
     pipelineDesc.dithering = true;
 
     return mGfxCache->create_pipeline(pipelineDesc);
-  }();
+  }()} {
+  list_effect_files();
+  mEffectFilePath = mEffectFilePaths.at(0);
+  mLoadedEffect = LoadedEffect::compile(mEffectFilePath, engine).value();
 }
 
 auto Effects::LoadedEffect::compile(path const& filePath, Engine const& engine)
@@ -153,7 +154,7 @@ auto Effects::LoadedEffect::compile(path const& filePath, Engine const& engine)
       return *std::move(maybeDescription);
     }
 
-    return string {EFFECT_FILENAME};
+    return string{EFFECT_FILENAME};
   }();
 
   auto const dataPath = filePath.parent_path();
@@ -174,8 +175,8 @@ auto Effects::LoadedEffect::compile(path const& filePath, Engine const& engine)
     return gfxCache->load_x_model(dataPath / SPHERE_FILENAME);
   }();
 
-  auto textures = array<Texture, 4> {};
-  for (auto i = i32 {0}; i < 4; ++i) {
+  auto textures = array<Texture, 4>{};
+  for (auto i = i32{0}; i < 4; ++i) {
     auto const parameter = fmt::format(FMT_STRING("TextureFilename{}"), i + 1);
     if (auto const maybeTextureFilename =
           effect.get_string(parameter.c_str())) {
@@ -190,7 +191,7 @@ auto Effects::LoadedEffect::compile(path const& filePath, Engine const& engine)
 
   effect.set_technique([&] {
     // search for a valid technique
-    for (auto i = u32 {0}; i < effect.get_num_techniques(); ++i) {
+    for (auto i = u32{0}; i < effect.get_num_techniques(); ++i) {
       if (auto const handle = effect.get_technique(i);
           effect.validate_technique(handle)) {
         return handle;
@@ -203,14 +204,14 @@ auto Effects::LoadedEffect::compile(path const& filePath, Engine const& engine)
   auto const activeTechniqueName = effect.get_technique_name();
   auto const activeTechniqueNumPasses = effect.get_technique_num_passes();
 
-  return LoadedEffect {std::move(gfxCache),     id,    std::move(description),
-                       backgroundTexture,       model, activeTechniqueName,
-                       activeTechniqueNumPasses};
+  return LoadedEffect{std::move(gfxCache),     id,    std::move(description),
+                      backgroundTexture,       model, activeTechniqueName,
+                      activeTechniqueNumPasses};
 }
 
 auto Effects::list_effect_files() -> void {
-  auto const dataPath = path {DATA_PATH};
-  for (auto const& entry : directory_iterator {dataPath}) {
+  auto const dataPath = path{DATA_PATH};
+  for (auto const& entry : directory_iterator{dataPath}) {
     if (auto const& entryPath = entry.path(); entryPath.extension() == ".fx") {
       mEffectFilePaths.push_back(entryPath);
     }
@@ -227,7 +228,7 @@ auto Effects::on_update(UpdateContext& ctx) -> void {
     ImGui::Text("Description: %s", mLoadedEffect.description.c_str());
     ImGui::Text("Technique: %s", mLoadedEffect.activeTechniqueName);
 
-    if (ImGui::BeginListBox("##Effects", ImVec2 {-1, 0})) {
+    if (ImGui::BeginListBox("##Effects", ImVec2{-1, 0})) {
       for (auto const& effectPath : mEffectFilePaths) {
         auto const selected = effectPath == mEffectFilePath;
         auto const fileName = effectPath.filename().u8string();
@@ -244,16 +245,16 @@ auto Effects::on_update(UpdateContext& ctx) -> void {
   }
   ImGui::End();
 
-  auto cmdList = CommandList {};
+  auto cmdList = CommandList{};
   cmdList.clear_attachments(
-    Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
+    Attachments{Attachment::RenderTarget, Attachment::DepthBuffer},
     Color::from_non_linear_rgba8(0, 0, 127), 1);
 
   if (mBackgroundTex) {
     mGfxCache->with_mapping_of(
       mRectVb, [viewport = ctx.drawCtx.viewport](span<byte> const vbData) {
-        auto const vb = span<Vertex> {reinterpret_cast<Vertex*>(vbData.data()),
-                                      vbData.size() / sizeof(Vertex)};
+        auto const vb = span<Vertex>{reinterpret_cast<Vertex*>(vbData.data()),
+                                     vbData.size() / sizeof(Vertex)};
         std::copy(RECT_VERTICES.begin(), RECT_VERTICES.end(), vb.begin());
 
         for (auto& vertex : vb) {
@@ -289,7 +290,7 @@ auto Effects::on_update(UpdateContext& ctx) -> void {
   EffectCommandEncoder::begin_effect(cmdList, mLoadedEffect.id);
 
   auto const modelData = mLoadedEffect.gfxCache->get(mLoadedEffect.model);
-  for (auto i = u32 {0}; i < mLoadedEffect.activeTechniqueNumPasses; ++i) {
+  for (auto i = u32{0}; i < mLoadedEffect.activeTechniqueNumPasses; ++i) {
     EffectCommandEncoder::begin_effect_pass(cmdList, i);
     XMeshCommandEncoder::draw_x_mesh(cmdList, modelData.meshes[0]);
     EffectCommandEncoder::end_effect_pass(cmdList);

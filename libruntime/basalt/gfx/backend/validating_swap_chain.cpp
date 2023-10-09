@@ -19,7 +19,7 @@ auto ValidatingSwapChain::get_info() const noexcept -> Info {
   return mSwapChain->get_info();
 }
 
-auto ValidatingSwapChain::reset(const ResetDesc& desc) -> void {
+auto ValidatingSwapChain::reset(ResetDesc const& desc) -> void {
   mSwapChain->reset(desc);
 }
 
@@ -28,8 +28,8 @@ auto ValidatingSwapChain::present() -> PresentResult {
 }
 
 ValidatingSwapChain::ValidatingSwapChain(SwapChainPtr swapChain)
-  : mSwapChain {std::move(swapChain)}
-  , mValidatingDevice {ValidatingDevice::wrap(mSwapChain->device())} {
+  : mSwapChain{std::move(swapChain)}
+  , mValidatingDevice{ValidatingDevice::wrap(mSwapChain->device())} {
 }
 
 } // namespace basalt::gfx

@@ -36,7 +36,7 @@ public:
 private:
   D3D9Device* mDevice;
   HandlePool<D3D9XEffect, EffectId> mEffects;
-  EffectId mActiveEffect {};
+  EffectId mActiveEffect{};
 };
 
 class D3D9XEffect final : public Effect {

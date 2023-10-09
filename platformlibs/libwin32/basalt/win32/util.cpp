@@ -28,7 +28,7 @@ namespace basalt {
  * \param src the wide string to convert.
  * \return the wide string converted to UTF-8.
  */
-auto create_utf8_from_wide(const wstring_view src) noexcept -> string {
+auto create_utf8_from_wide(wstring_view const src) noexcept -> string {
   // Don't use asserts/log because this function is used before the log
   // is initialized
 
@@ -39,7 +39,7 @@ auto create_utf8_from_wide(const wstring_view src) noexcept -> string {
 
   // WideCharToMultiByte fails when size is 0
   if (src.empty()) {
-    return string {};
+    return string{};
   }
 
   // use the size of the string view because the input string
@@ -48,15 +48,15 @@ auto create_utf8_from_wide(const wstring_view src) noexcept -> string {
     return u8"create_utf8_from_wide: string to convert is too large"s;
   }
 
-  const auto srcSize {static_cast<int>(src.size())};
-  int dstSize {WideCharToMultiByte(CP_UTF8, 0u, src.data(), srcSize, nullptr, 0,
-                                   nullptr, nullptr)};
+  auto const srcSize = static_cast<int>(src.size());
+  auto dstSize = WideCharToMultiByte(CP_UTF8, 0u, src.data(), srcSize, nullptr,
+                                     0, nullptr, nullptr);
 
   if (dstSize == 0) {
     return u8"WideCharToMultiByte returned 0"s;
   }
 
-  string dst(dstSize, '\0');
+  auto dst = string(dstSize, '\0');
   dstSize = WideCharToMultiByte(CP_UTF8, 0u, src.data(), srcSize, dst.data(),
                                 static_cast<int>(dst.size()), nullptr, nullptr);
   if (dstSize == 0) {
@@ -72,28 +72,28 @@ auto create_utf8_from_wide(const wstring_view src) noexcept -> string {
  * \param errorCode Windows API error code.
  * \return description string of the error.
  */
-auto create_win32_error_message(const DWORD errorCode) noexcept -> string {
-  WCHAR* buffer {nullptr};
-  const DWORD numChars {FormatMessageW(
+auto create_win32_error_message(DWORD const errorCode) noexcept -> string {
+  WCHAR* buffer = nullptr;
+  auto const numChars = FormatMessageW(
     FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
       FORMAT_MESSAGE_IGNORE_INSERTS,
-    nullptr, errorCode, 0u, reinterpret_cast<WCHAR*>(&buffer), 0u, nullptr)};
+    nullptr, errorCode, 0u, reinterpret_cast<WCHAR*>(&buffer), 0u, nullptr);
 
   if (numChars == 0u) {
     return u8"FormatMessageW failed"s;
   }
 
   // use numChars because the buffer is NOT null terminated
-  string message {create_utf8_from_wide({buffer, numChars})};
+  auto message = create_utf8_from_wide({buffer, numChars});
 
   LocalFree(buffer);
 
   return message;
 }
 
-auto load_system_cursor(const WORD id, const int width, const int height,
-                        const UINT flags) noexcept -> HCURSOR {
-  constexpr UINT commonFlags {LR_SHARED};
+auto load_system_cursor(WORD const id, int const width, int const height,
+                        UINT const flags) noexcept -> HCURSOR {
+  constexpr auto commonFlags = u32{LR_SHARED};
 
   return static_cast<HCURSOR>(LoadImageW(nullptr, MAKEINTRESOURCEW(id),
                                          IMAGE_CURSOR, width, height,
@@ -104,7 +104,7 @@ auto load_system_cursor(const WORD id, const int width, const int height,
 
 namespace detail {
 
-auto verify_win32_bool(const BOOL result) -> BOOL {
+auto verify_win32_bool(BOOL const result) -> BOOL {
   if (!result) {
     BASALT_LOG_ERROR("win32 error: {}",
                      create_win32_error_message(GetLastError()));

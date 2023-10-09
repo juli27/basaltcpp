@@ -46,20 +46,23 @@ using basalt::gfx::ext::XMeshCommandEncoder;
 namespace {
 
 struct Vertex {
-  Vector3f32 pos {};
-  ColorEncoding::A8R8G8B8 diffuse {};
+  Vector3f32 pos{};
+  ColorEncoding::A8R8G8B8 diffuse{};
 
-  static constexpr array sLayout {VertexElement::Position3F32,
-                                  VertexElement::ColorDiffuse1U32A8R8G8B8};
+  static constexpr auto sLayout = array{
+    VertexElement::Position3F32,
+    VertexElement::ColorDiffuse1U32A8R8G8B8,
+  };
 };
 
-constexpr auto THING_PATH {"data/tribase/Thing.x"sv};
+constexpr auto THING_PATH = "data/tribase/Thing.x"sv;
 
 } // namespace
 
-StencilBuffer::StencilBuffer(const Engine& engine)
-  : mGfxCache {engine.gfx_context().create_resource_cache()} {
-  PipelineDescriptor pipelineDesc;
+StencilBuffer::StencilBuffer(Engine const& engine)
+  : mGfxCache{engine.gfx_context().create_resource_cache()}
+  , mThing{mGfxCache->load_x_model(THING_PATH)} {
+  auto pipelineDesc = PipelineDescriptor{};
   pipelineDesc.depthTest = TestPassCond::Never;
   pipelineDesc.frontFaceStencilOp.test = TestPassCond::Always;
   pipelineDesc.frontFaceStencilOp.passDepthFailOp = StencilOp::IncrementClamp;
@@ -78,52 +81,45 @@ StencilBuffer::StencilBuffer(const Engine& engine)
   pipelineDesc.backFaceStencilOp.test = TestPassCond::IfLessEqual;
   mOverdrawPipeline2 = mGfxCache->create_pipeline(pipelineDesc);
 
-  mThing = mGfxCache->load_x_model(THING_PATH);
-
-  array rectsVertices {Vertex {{-100, -100, 1}}, Vertex {{-100, 100, 1}},
-                       Vertex {{100, -100, 1}},  Vertex {{100, 100, 1}},
-                       Vertex {{-100, -100, 1}}, Vertex {{-100, 100, 1}},
-                       Vertex {{100, -100, 1}},  Vertex {{100, 100, 1}},
-                       Vertex {{-100, -100, 1}}, Vertex {{-100, 100, 1}},
-                       Vertex {{100, -100, 1}},  Vertex {{100, 100, 1}},
-                       Vertex {{-100, -100, 1}}, Vertex {{-100, 100, 1}},
-                       Vertex {{100, -100, 1}},  Vertex {{100, 100, 1}},
-                       Vertex {{-100, -100, 1}}, Vertex {{-100, 100, 1}},
-                       Vertex {{100, -100, 1}},  Vertex {{100, 100, 1}},
-                       Vertex {{-100, -100, 1}}, Vertex {{-100, 100, 1}},
-                       Vertex {{100, -100, 1}},  Vertex {{100, 100, 1}},
-                       Vertex {{-100, -100, 1}}, Vertex {{-100, 100, 1}},
-                       Vertex {{100, -100, 1}},  Vertex {{100, 100, 1}},
-                       Vertex {{-100, -100, 1}}, Vertex {{-100, 100, 1}},
-                       Vertex {{100, -100, 1}},  Vertex {{100, 100, 1}},
-                       Vertex {{-100, -100, 1}}, Vertex {{-100, 100, 1}},
-                       Vertex {{100, -100, 1}},  Vertex {{100, 100, 1}},
-                       Vertex {{-100, -100, 1}}, Vertex {{-100, 100, 1}},
-                       Vertex {{100, -100, 1}},  Vertex {{100, 100, 1}}};
-  for (uSize i {0}; i < 10; ++i) {
-    const ColorEncoding::A8R8G8B8 color {
+  auto rectsVertices = array{
+    Vertex{{-100, -100, 1}}, Vertex{{-100, 100, 1}},  Vertex{{100, -100, 1}},
+    Vertex{{100, 100, 1}},   Vertex{{-100, -100, 1}}, Vertex{{-100, 100, 1}},
+    Vertex{{100, -100, 1}},  Vertex{{100, 100, 1}},   Vertex{{-100, -100, 1}},
+    Vertex{{-100, 100, 1}},  Vertex{{100, -100, 1}},  Vertex{{100, 100, 1}},
+    Vertex{{-100, -100, 1}}, Vertex{{-100, 100, 1}},  Vertex{{100, -100, 1}},
+    Vertex{{100, 100, 1}},   Vertex{{-100, -100, 1}}, Vertex{{-100, 100, 1}},
+    Vertex{{100, -100, 1}},  Vertex{{100, 100, 1}},   Vertex{{-100, -100, 1}},
+    Vertex{{-100, 100, 1}},  Vertex{{100, -100, 1}},  Vertex{{100, 100, 1}},
+    Vertex{{-100, -100, 1}}, Vertex{{-100, 100, 1}},  Vertex{{100, -100, 1}},
+    Vertex{{100, 100, 1}},   Vertex{{-100, -100, 1}}, Vertex{{-100, 100, 1}},
+    Vertex{{100, -100, 1}},  Vertex{{100, 100, 1}},   Vertex{{-100, -100, 1}},
+    Vertex{{-100, 100, 1}},  Vertex{{100, -100, 1}},  Vertex{{100, 100, 1}},
+    Vertex{{-100, -100, 1}}, Vertex{{-100, 100, 1}},  Vertex{{100, -100, 1}},
+    Vertex{{100, 100, 1}}};
+  for (auto i = uSize{0}; i < 10; ++i) {
+    auto const color =
       Color::from_non_linear(static_cast<f32>(i) / 9.0f,
                              1.0f - static_cast<f32>(i) / 9.0f, 0)
-        .to_argb()};
+        .to_argb();
     rectsVertices[4 * i].diffuse = color;
     rectsVertices[4 * i + 1].diffuse = color;
     rectsVertices[4 * i + 2].diffuse = color;
     rectsVertices[4 * i + 3].diffuse = color;
   }
 
-  const auto rectsVertexData {as_bytes(span {rectsVertices})};
+  auto const rectsVertexData = as_bytes(span{rectsVertices});
   mRectanglesVb = mGfxCache->create_vertex_buffer(
     {rectsVertexData.size_bytes(), Vertex::sLayout}, rectsVertexData);
 }
 
 auto StencilBuffer::on_update(UpdateContext& ctx) -> void {
   mTime += ctx.deltaTime;
-  const f32 t {mTime.count()};
+  auto const t = mTime.count();
 
-  CommandList cmdList;
-  cmdList.clear_attachments(Attachments {Attachment::StencilBuffer}, {}, 0, 0);
+  auto cmdList = CommandList{};
+  cmdList.clear_attachments(Attachments{Attachment::StencilBuffer}, {}, 0, 0);
 
-  const auto& thingData {mGfxCache->get(mThing)};
+  auto const& thingData = mGfxCache->get(mThing);
   cmdList.bind_pipeline(mPrePassPipeline);
   cmdList.set_stencil_write_mask(~0u);
   cmdList.set_transform(
@@ -156,7 +152,7 @@ auto StencilBuffer::on_update(UpdateContext& ctx) -> void {
   cmdList.bind_vertex_buffer(mRectanglesVb);
   cmdList.set_stencil_read_mask(~0u);
   cmdList.set_transform(TransformState::LocalToWorld, Matrix4x4f32::identity());
-  for (u32 i {0}; i < 10; ++i) {
+  for (auto i = u32{0}; i < 10; ++i) {
     if (i == 9) {
       cmdList.bind_pipeline(mOverdrawPipeline2);
     }

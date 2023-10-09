@@ -6,12 +6,12 @@ namespace basalt::gfx::ext {
 
 class DeviceExtension {
 public:
-  DeviceExtension(const DeviceExtension&) = delete;
+  DeviceExtension(DeviceExtension const&) = delete;
   DeviceExtension(DeviceExtension&&) = delete;
 
   virtual ~DeviceExtension() noexcept = default;
 
-  auto operator=(const DeviceExtension&) -> DeviceExtension& = delete;
+  auto operator=(DeviceExtension const&) -> DeviceExtension& = delete;
   auto operator=(DeviceExtension&&) -> DeviceExtension& = delete;
 
 protected:

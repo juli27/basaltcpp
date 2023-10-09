@@ -31,7 +31,7 @@ namespace basalt::gfx {
 
 namespace {
 
-bool sShowCompositeDebugUi {false};
+auto sShowCompositeDebugUi = false;
 
 #define ENUM_TO_STRING(e)                                                      \
   case e:                                                                      \
@@ -41,8 +41,8 @@ bool sShowCompositeDebugUi {false};
   case e::v:                                                                   \
     return #v
 
-constexpr auto enumerator_to_string(const CommandType type) noexcept -> const
-  char* {
+constexpr auto enumerator_to_string(CommandType const type) noexcept
+  -> char const* {
   switch (type) {
     ENUMERATOR_TO_STRING(CommandType, ClearAttachments);
     ENUMERATOR_TO_STRING(CommandType, Draw);
@@ -75,7 +75,7 @@ constexpr auto enumerator_to_string(const CommandType type) noexcept -> const
   return "(unknown)";
 }
 
-constexpr auto to_string(const Attachment attachment) noexcept -> const char* {
+constexpr auto to_string(Attachment const attachment) noexcept -> char const* {
   switch (attachment) {
     ENUM_TO_STRING(Attachment::RenderTarget);
     ENUM_TO_STRING(Attachment::DepthBuffer);
@@ -85,7 +85,7 @@ constexpr auto to_string(const Attachment attachment) noexcept -> const char* {
   return "(unknown)";
 }
 
-constexpr auto to_string(const CullMode mode) noexcept -> const char* {
+constexpr auto to_string(CullMode const mode) noexcept -> char const* {
   switch (mode) {
     ENUM_TO_STRING(CullMode::None);
     ENUM_TO_STRING(CullMode::Clockwise);
@@ -95,7 +95,7 @@ constexpr auto to_string(const CullMode mode) noexcept -> const char* {
   return "(unknown)";
 }
 
-constexpr auto to_string(const TestPassCond func) noexcept -> const char* {
+constexpr auto to_string(TestPassCond const func) noexcept -> char const* {
   switch (func) {
     ENUM_TO_STRING(TestPassCond::Never);
     ENUM_TO_STRING(TestPassCond::IfEqual);
@@ -110,7 +110,7 @@ constexpr auto to_string(const TestPassCond func) noexcept -> const char* {
   return "(unknown)";
 }
 
-constexpr auto to_string(const FillMode mode) noexcept -> const char* {
+constexpr auto to_string(FillMode const mode) noexcept -> char const* {
   switch (mode) {
     ENUM_TO_STRING(FillMode::Point);
     ENUM_TO_STRING(FillMode::Wireframe);
@@ -120,8 +120,8 @@ constexpr auto to_string(const FillMode mode) noexcept -> const char* {
   return "(unknown)";
 }
 
-constexpr auto to_string(const PrimitiveType primitiveType) noexcept -> const
-  char* {
+constexpr auto to_string(PrimitiveType const primitiveType) noexcept
+  -> char const* {
   switch (primitiveType) {
     ENUM_TO_STRING(PrimitiveType::PointList);
     ENUM_TO_STRING(PrimitiveType::LineList);
@@ -134,7 +134,7 @@ constexpr auto to_string(const PrimitiveType primitiveType) noexcept -> const
   return "(unknown)";
 }
 
-constexpr auto to_string(const ShadeMode mode) noexcept -> const char* {
+constexpr auto to_string(ShadeMode const mode) noexcept -> char const* {
   switch (mode) {
     ENUM_TO_STRING(ShadeMode::Flat);
     ENUM_TO_STRING(ShadeMode::Gouraud);
@@ -143,7 +143,7 @@ constexpr auto to_string(const ShadeMode mode) noexcept -> const char* {
   return "(unknown)";
 }
 
-constexpr auto to_string(const TransformState state) noexcept -> const char* {
+constexpr auto to_string(TransformState const state) noexcept -> char const* {
   switch (state) {
     ENUM_TO_STRING(TransformState::ViewToClip);
     ENUM_TO_STRING(TransformState::WorldToView);
@@ -164,15 +164,15 @@ constexpr auto to_string(const TransformState state) noexcept -> const char* {
 #undef ENUMERATOR_TO_STRING
 #undef ENUM_TO_STRING
 
-void display_vec3(const char* label, const Vector3f32& vec) {
-  array<f32, 3> vecArr {vec.x(), vec.y(), vec.z()};
+auto display_vec3(char const* label, Vector3f32 const& vec) -> void {
+  auto vecArr = array<f32, 3>{vec.x(), vec.y(), vec.z()};
 
   ImGui::InputFloat3(label, vecArr.data(), "%.3f",
                      ImGuiInputTextFlags_ReadOnly);
 }
 
-void display_color4(const char* label, const Color& color) {
-  array<float, 4> colorArray {color.r(), color.g(), color.b(), color.a()};
+auto display_color4(char const* label, Color const& color) -> void {
+  auto colorArray = array{color.r(), color.g(), color.b(), color.a()};
 
   ImGui::ColorEdit4(label, colorArray.data(),
                     ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoPicker |
@@ -180,7 +180,7 @@ void display_color4(const char* label, const Color& color) {
                       ImGuiColorEditFlags_NoDragDrop);
 }
 
-void display(const CommandClearAttachments& cmd) {
+auto display(CommandClearAttachments const& cmd) -> void {
   if (cmd.attachments.has(Attachment::RenderTarget)) {
     ImGui::TextUnformatted(to_string(Attachment::RenderTarget));
     display_color4("color", cmd.color);
@@ -197,12 +197,12 @@ void display(const CommandClearAttachments& cmd) {
   }
 }
 
-void display(const CommandDraw& cmd) {
+auto display(CommandDraw const& cmd) -> void {
   ImGui::Text("firstVertex = %u", cmd.firstVertex);
   ImGui::Text("vertexCount = %u", cmd.vertexCount);
 }
 
-void display(const CommandDrawIndexed& cmd) {
+auto display(CommandDrawIndexed const& cmd) -> void {
   ImGui::Text("vertexOffset = %i", cmd.vertexOffset);
   ImGui::Text("minIndex = %u", cmd.minIndex);
   ImGui::Text("numVertices = %u", cmd.numVertices);
@@ -210,46 +210,46 @@ void display(const CommandDrawIndexed& cmd) {
   ImGui::Text("indexCount = %u", cmd.indexCount);
 }
 
-void display(const CommandBindPipeline& cmd) {
+auto display(CommandBindPipeline const& cmd) -> void {
   ImGui::Text("pipelineId = %#x", cmd.pipelineId.value());
 }
 
-void display(const CommandBindVertexBuffer& cmd) {
+auto display(CommandBindVertexBuffer const& cmd) -> void {
   ImGui::Text("vertexBufferId = %#x", cmd.vertexBufferId.value());
   ImGui::Text("offsetInBytes = %llu", cmd.offsetInBytes);
 }
 
-void display(const CommandBindIndexBuffer& cmd) {
+auto display(CommandBindIndexBuffer const& cmd) -> void {
   ImGui::Text("indexBufferId = %#x", cmd.indexBufferId.value());
 }
 
-void display(const CommandBindSampler& cmd) {
+auto display(CommandBindSampler const& cmd) -> void {
   ImGui::Text("slot = %u", cmd.slot);
   ImGui::Text("samplerId = %#x", cmd.samplerId.value());
 }
 
-void display(const CommandBindTexture& cmd) {
+auto display(CommandBindTexture const& cmd) -> void {
   ImGui::Text("slot = %u", cmd.slot);
   ImGui::Text("textureId = %#x", cmd.textureId.value());
 }
 
-auto display(const CommandSetStencilReference& cmd) {
+auto display(CommandSetStencilReference const& cmd) {
   ImGui::Text("value = %u", cmd.value);
 }
 
-auto display(const CommandSetStencilReadMask& cmd) {
+auto display(CommandSetStencilReadMask const& cmd) {
   ImGui::Text("value = %u", cmd.value);
 }
 
-auto display(const CommandSetStencilWriteMask& cmd) {
+auto display(CommandSetStencilWriteMask const& cmd) {
   ImGui::Text("value = %u", cmd.value);
 }
 
-auto display(const CommandSetBlendConstant& cmd) {
+auto display(CommandSetBlendConstant const& cmd) {
   display_color4("value", cmd.value);
 }
 
-auto display(const PointLightData& light) -> void {
+auto display(PointLightData const& light) -> void {
   ImGui::SeparatorText("PointLightData");
 
   display_color4("diffuse", light.diffuse);
@@ -258,7 +258,7 @@ auto display(const PointLightData& light) -> void {
 
   display_vec3("position", light.positionInWorld);
 
-  float f {light.rangeInWorld};
+  auto f = light.rangeInWorld;
   ImGui::InputFloat("range", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
   f = light.attenuation0;
   ImGui::InputFloat("attenuation0", &f, 0, 0, "%.3f",
@@ -271,7 +271,7 @@ auto display(const PointLightData& light) -> void {
                     ImGuiInputTextFlags_ReadOnly);
 }
 
-auto display(const SpotLightData& light) -> void {
+auto display(SpotLightData const& light) -> void {
   ImGui::SeparatorText("SpotLightData");
 
   display_color4("diffuse", light.diffuse);
@@ -281,7 +281,7 @@ auto display(const SpotLightData& light) -> void {
   display_vec3("position", light.positionInWorld);
   display_vec3("direction", light.directionInWorld);
 
-  float f {light.rangeInWorld};
+  auto f = light.rangeInWorld;
   ImGui::InputFloat("range", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
   f = light.attenuation0;
   ImGui::InputFloat("attenuation0", &f, 0, 0, "%.3f",
@@ -300,7 +300,7 @@ auto display(const SpotLightData& light) -> void {
   ImGui::InputFloat("theta", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
 }
 
-auto display(const DirectionalLightData& light) -> void {
+auto display(DirectionalLightData const& light) -> void {
   ImGui::SeparatorText("DirectionalLightData");
   display_color4("diffuse", light.diffuse);
   display_color4("specular", light.specular);
@@ -309,24 +309,24 @@ auto display(const DirectionalLightData& light) -> void {
   display_vec3("direction", light.directionInWorld);
 }
 
-auto display(const CommandSetLights& cmd) -> void {
-  for (const LightData& l : cmd.lights) {
+auto display(CommandSetLights const& cmd) -> void {
+  for (auto const& l : cmd.lights) {
     ImGui::PushID(&l);
     visit([](auto&& light) { display(light); }, l);
     ImGui::PopID();
   }
 }
 
-void display(const CommandSetAmbientLight& cmd) {
+auto display(CommandSetAmbientLight const& cmd) -> void {
   display_color4("color", cmd.ambient);
 }
 
-void display(const CommandSetTransform& cmd) {
+auto display(CommandSetTransform const& cmd) -> void {
   ImGui::Text("transformState = %s", to_string(cmd.transformState));
   DebugUi::display_matrix4x4("##transform", cmd.transform);
 }
 
-void display(const CommandSetMaterial& cmd) {
+auto display(CommandSetMaterial const& cmd) -> void {
   display_color4("diffuse", cmd.diffuse);
   display_color4("ambient", cmd.ambient);
   display_color4("emissive", cmd.emissive);
@@ -334,9 +334,9 @@ void display(const CommandSetMaterial& cmd) {
   ImGui::Text("specularPower = %.3f", static_cast<f64>(cmd.specularPower));
 }
 
-auto display(const CommandSetFogParameters& cmd) -> void {
+auto display(CommandSetFogParameters const& cmd) -> void {
   display_color4("color", cmd.color);
-  float f {cmd.start};
+  auto f = cmd.start;
   ImGui::InputFloat("start", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
   f = cmd.end;
   ImGui::InputFloat("end", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
@@ -344,20 +344,20 @@ auto display(const CommandSetFogParameters& cmd) -> void {
   ImGui::InputFloat("density", &f, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
 }
 
-auto display(const CommandSetReferenceAlpha& cmd) -> void {
+auto display(CommandSetReferenceAlpha const& cmd) -> void {
   ImGui::Text("value = %u", cmd.value);
 }
 
-auto display(const CommandSetTextureFactor& cmd) -> void {
+auto display(CommandSetTextureFactor const& cmd) -> void {
   display_color4("texture factor", cmd.textureFactor);
 }
 
-auto display(const CommandSetTextureStageConstant& cmd) -> void {
+auto display(CommandSetTextureStageConstant const& cmd) -> void {
   ImGui::Text("stageId = %u", cmd.stageId);
   display_color4("texture factor", cmd.constant);
 }
 
-void display(const ext::CommandDrawXMesh& cmd) {
+auto display(ext::CommandDrawXMesh const& cmd) -> void {
   ImGui::Text("mesh = %#x", cmd.xMeshId.value());
 }
 
@@ -393,14 +393,14 @@ auto display(Command const& cmd) -> void {
   }
 }
 
-void draw_composite_inspector(const Composite& composite) {
-  ImGui::SetNextWindowSize(ImVec2 {500, 350}, ImGuiCond_FirstUseEver);
+auto draw_composite_inspector(Composite const& composite) -> void {
+  ImGui::SetNextWindowSize(ImVec2{500, 350}, ImGuiCond_FirstUseEver);
   if (!ImGui::Begin("Composite Inspector", &sShowCompositeDebugUi)) {
     ImGui::End();
     return;
   }
 
-  if (!ImGui::BeginChild("commands", ImVec2 {200, 0})) {
+  if (!ImGui::BeginChild("commands", ImVec2{200, 0})) {
     ImGui::EndChild();
     ImGui::End();
     return;
@@ -409,14 +409,14 @@ void draw_composite_inspector(const Composite& composite) {
   // TODO: Fix ImGuiCond_Appearing has the same effect as Once
   ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 
-  i32 id {0};
-  const Command* hoveredCommand {};
-  for (const auto& cmdList : composite) {
+  auto id = i32{0};
+  Command const* hoveredCommand = {};
+  for (auto const& cmdList : composite) {
     ImGui::PushID(id++);
 
     if (ImGui::TreeNode("Part", "Command List (%llu commands)",
                         cmdList.size())) {
-      std::for_each(cmdList.begin(), cmdList.end(), [&](const Command* cmd) {
+      std::for_each(cmdList.begin(), cmdList.end(), [&](Command const* cmd) {
         ImGui::TextUnformatted(enumerator_to_string(cmd->type));
 
         if (ImGui::IsItemHovered()) {
@@ -452,7 +452,7 @@ void draw_composite_inspector(const Composite& composite) {
 
 } // namespace
 
-void Debug::update(const Composite& composite) {
+auto Debug::update(Composite const& composite) -> void {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("View")) {
       ImGui::MenuItem("Composite Inspector", nullptr, &sShowCompositeDebugUi);

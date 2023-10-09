@@ -4,7 +4,7 @@
 
 namespace basalt::gfx {
 
-auto to_string(const ImageFormat format) noexcept -> const char* {
+auto to_string(ImageFormat const format) noexcept -> char const* {
   switch (format) {
   case ImageFormat::Unknown:
     return "Unknown";

@@ -20,11 +20,11 @@ public:
 
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;
-  basalt::SecondsF32 mTime {};
-  basalt::Entity mCenter {};
-  std::array<basalt::Entity, 10> mSpheres {};
-  basalt::Entity mGround {};
-  basalt::Entity mLight {};
+  basalt::SecondsF32 mTime{};
+  basalt::Entity mCenter{};
+  std::array<basalt::Entity, 10> mSpheres{};
+  basalt::Entity mGround{};
+  basalt::Entity mLight{};
 
   auto on_update(UpdateContext&) -> void override;
 };

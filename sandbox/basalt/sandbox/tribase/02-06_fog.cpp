@@ -9,6 +9,7 @@
 
 #include <basalt/api/math/angle.h>
 #include <basalt/api/math/matrix4x4.h>
+#include <basalt/api/math/vector2.h>
 #include <basalt/api/math/vector3.h>
 
 #include <fmt/format.h>
@@ -24,6 +25,7 @@ using namespace basalt::literals;
 using basalt::DebugUi;
 using basalt::Engine;
 using basalt::Matrix4x4f32;
+using basalt::Vector2f32;
 using basalt::Vector3f32;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
@@ -36,6 +38,7 @@ using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::SamplerDescriptor;
 using basalt::gfx::TestPassCond;
+using basalt::gfx::Texture;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
 using basalt::gfx::TextureStage;
@@ -53,70 +56,83 @@ namespace {
 
 struct Vertex final {
   Vector3f32 pos;
-  ColorEncoding::A8R8G8B8 diffuse {};
-  array<f32, 2> uv {};
+  ColorEncoding::A8R8G8B8 diffuse{};
+  Vector2f32 uv{};
 
-  static constexpr array sLayout {VertexElement::Position3F32,
-                                  VertexElement::ColorDiffuse1U32A8R8G8B8,
-                                  VertexElement::TextureCoords2F32};
+  static constexpr auto sLayout = array{
+    VertexElement::Position3F32,
+    VertexElement::ColorDiffuse1U32A8R8G8B8,
+    VertexElement::TextureCoords2F32,
+  };
 };
 
 } // namespace
 
-Fog::Fog(Engine& engine) : mGfxCache {engine.create_gfx_resource_cache()} {
+Fog::Fog(Engine const& engine)
+  : mGfxCache{engine.create_gfx_resource_cache()}
+  , mVertexBuffer{[&] {
+    constexpr auto vertices = array{
+      Vertex{{-1.0f, -1.0f, 0.0f},
+             ColorEncoding::pack_a8r8g8b8_u32(191, 255, 255),
+             {0.0f, 1.0f}},
+      Vertex{{-1.0f, 1.0f, 0.0f},
+             ColorEncoding::pack_a8r8g8b8_u32(255, 191, 255),
+             {0.0f, 0.0f}},
+      Vertex{{1.0f, -1.0f, 0.0f},
+             ColorEncoding::pack_a8r8g8b8_u32(255, 255, 191),
+             {1.0f, 1.0f}},
+      Vertex{{1.0f, 1.0f, 0.0f},
+             ColorEncoding::pack_a8r8g8b8_u32(255, 255, 255),
+             {1.0f, 0.0f}},
+    };
+    auto const vertexData = as_bytes(span{vertices});
+
+    return mGfxCache->create_vertex_buffer(
+      {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
+  }()}
+  , mSampler{[&] {
+    auto desc = SamplerDescriptor{};
+    desc.magFilter = TextureFilter::Bilinear;
+    desc.minFilter = TextureFilter::Bilinear;
+    desc.mipFilter = TextureMipFilter::Linear;
+
+    return mGfxCache->create_sampler(desc);
+  }()}
+  , mTextures{[&] {
+    auto textures = array<Texture, sNumTextures>{};
+
+    for (auto i = uSize{0}; i < sNumTextures; i++) {
+      auto const fileName =
+        fmt::format(FMT_STRING("data/tribase/02-06_fog/Texture{}.bmp"), i + 1);
+      textures[i] = mGfxCache->load_texture(fileName);
+    }
+
+    return textures;
+  }()} {
   update_pipeline();
-
-  array vertices {Vertex {{-1.0f, -1.0f, 0.0f},
-                          ColorEncoding::pack_a8r8g8b8_u32(191, 255, 255),
-                          {0.0f, 1.0f}},
-                  Vertex {{-1.0f, 1.0f, 0.0f},
-                          ColorEncoding::pack_a8r8g8b8_u32(255, 191, 255),
-                          {0.0f, 0.0f}},
-                  Vertex {{1.0f, -1.0f, 0.0f},
-                          ColorEncoding::pack_a8r8g8b8_u32(255, 255, 191),
-                          {1.0f, 1.0f}},
-                  Vertex {{1.0f, 1.0f, 0.0f},
-                          ColorEncoding::pack_a8r8g8b8_u32(255, 255, 255),
-                          {1.0f, 0.0f}}};
-  const span vertexData {as_bytes(span {vertices})};
-  mVertexBuffer = mGfxCache->create_vertex_buffer(
-    {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
-
-  SamplerDescriptor samplerDesc;
-  samplerDesc.magFilter = TextureFilter::Bilinear;
-  samplerDesc.minFilter = TextureFilter::Bilinear;
-  samplerDesc.mipFilter = TextureMipFilter::Linear;
-  mSampler = mGfxCache->create_sampler(samplerDesc);
-
-  for (i32 i {0}; i < sNumTextures; i++) {
-    string fileName {
-      fmt::format("data/tribase/02-06_fog/Texture{}.bmp", i + 1)};
-    mTextures[i] = mGfxCache->load_texture(fileName);
-  }
 }
 
 auto Fog::update_pipeline() -> void {
   mGfxCache->destroy(mPipeline);
 
-  FixedVertexShaderCreateInfo vs;
+  auto vs = FixedVertexShaderCreateInfo{};
   vs.fog = mFogMode;
   vs.fogRangeBased = mVertexFogRangeBased;
 
-  FixedFragmentShaderCreateInfo fs;
-  array textureStages {TextureStage {}};
-  fs.textureStages = textureStages;
-  fs.fog = mFragmentFog ? mFogMode : FogMode::None;
+  constexpr auto textureStages = array{TextureStage{}};
+  auto const fogMode = mFragmentFog ? mFogMode : FogMode::None;
+  auto const fs = FixedFragmentShaderCreateInfo{textureStages, fogMode};
 
-  PipelineDescriptor pipelineDesc;
-  pipelineDesc.vertexShader = &vs;
-  pipelineDesc.fragmentShader = &fs;
-  pipelineDesc.vertexLayout = Vertex::sLayout;
-  pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
-  pipelineDesc.cullMode = CullMode::CounterClockwise;
-  pipelineDesc.depthTest = TestPassCond::IfLessEqual;
-  pipelineDesc.depthWriteEnable = true;
-  pipelineDesc.dithering = true;
-  mPipeline = mGfxCache->create_pipeline(pipelineDesc);
+  auto desc = PipelineDescriptor{};
+  desc.vertexShader = &vs;
+  desc.fragmentShader = &fs;
+  desc.vertexLayout = Vertex::sLayout;
+  desc.primitiveType = PrimitiveType::TriangleStrip;
+  desc.cullMode = CullMode::CounterClockwise;
+  desc.depthTest = TestPassCond::IfLessEqual;
+  desc.depthWriteEnable = true;
+  desc.dithering = true;
+  mPipeline = mGfxCache->create_pipeline(desc);
 }
 
 auto Fog::render_ui() -> void {
@@ -178,40 +194,42 @@ auto Fog::render_ui() -> void {
 auto Fog::on_update(UpdateContext& ctx) -> void {
   render_ui();
 
-  CommandList cmdList;
+  auto cmdList = CommandList{};
   cmdList.clear_attachments(
-    Attachments {Attachment::RenderTarget, Attachment::DepthBuffer}, mFogColor,
+    Attachments{Attachment::RenderTarget, Attachment::DepthBuffer}, mFogColor,
     1.0f);
 
   cmdList.bind_pipeline(mPipeline);
   cmdList.bind_sampler(0, mSampler);
-  cmdList.bind_vertex_buffer(mVertexBuffer);
   cmdList.set_fog_parameters(mFogColor, mFogStart, mFogEnd, mFogDensity);
 
-  const DrawContext drawCtx {ctx.drawCtx};
+  auto const drawCtx = ctx.drawCtx;
 
-  const f32 aspectRatio {drawCtx.viewport.aspect_ratio()};
-  const auto viewToClip {
-    Matrix4x4f32::perspective_projection(120_deg, aspectRatio, 0.1f, 100.0f)};
-  cmdList.set_transform(TransformState::ViewToClip, viewToClip);
+  auto const aspectRatio = drawCtx.viewport.aspect_ratio();
+  cmdList.set_transform(
+    TransformState::ViewToClip,
+    Matrix4x4f32::perspective_projection(120_deg, aspectRatio, 0.1f, 100.0f));
+
   cmdList.set_transform(TransformState::WorldToView, Matrix4x4f32::identity());
+  
+  cmdList.bind_vertex_buffer(mVertexBuffer);
 
   // draw signs
-  for (i32 i {0}; i < 5; i++) {
-    const auto localToWorld {
+  for (auto i = uSize{0}; i < 5; i++) {
+    auto const localToWorld =
       Matrix4x4f32::scaling(7.5f) *
       Matrix4x4f32::translation(-10.0f, 0.0f, static_cast<f32>(i + 1) * 10.0f) *
-      Matrix4x4f32::translation(static_cast<f32>(i * i) * 5.0f, 0.0f, 0.0f)};
-
+      Matrix4x4f32::translation(static_cast<f32>(i * i) * 5.0f, 0.0f, 0.0f);
     cmdList.set_transform(TransformState::LocalToWorld, localToWorld);
+
     cmdList.bind_texture(0, mTextures[i]);
     cmdList.draw(0, 4);
   }
 
   // draw ground
-  const auto localToWorld {Matrix4x4f32::scaling(75.0f) *
-                           Matrix4x4f32::rotation_x(90_deg) *
-                           Matrix4x4f32::translation(0.0f, -7.5f, 75.0f)};
+  auto const localToWorld = Matrix4x4f32::scaling(75.0f) *
+                            Matrix4x4f32::rotation_x(90_deg) *
+                            Matrix4x4f32::translation(0.0f, -7.5f, 75.0f);
   cmdList.set_transform(TransformState::LocalToWorld, localToWorld);
   cmdList.bind_texture(0, mTextures[5]);
   cmdList.draw(0, 4);

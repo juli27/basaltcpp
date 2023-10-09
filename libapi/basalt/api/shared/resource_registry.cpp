@@ -4,16 +4,16 @@
 
 namespace basalt {
 
-auto ResourceRegistry::register_resource(const Resource resource) -> void {
+auto ResourceRegistry::register_resource(Resource const resource) -> void {
   mResources[resource] = resource.data();
 }
 
-auto ResourceRegistry::has_resource(const ResourceId id) const -> bool {
+auto ResourceRegistry::has_resource(ResourceId const id) const -> bool {
   return mResources.find(id) != mResources.end();
 }
 
-auto ResourceRegistry::get_path(const ResourceId id) const
-  -> const std::filesystem::path& {
+auto ResourceRegistry::get_path(ResourceId const id) const
+  -> std::filesystem::path const& {
   BASALT_ASSERT(mResources.find(id) != mResources.end(), "invalid ResourceId");
 
   return mResources.at(id);

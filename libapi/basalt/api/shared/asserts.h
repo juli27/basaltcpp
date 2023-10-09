@@ -3,16 +3,17 @@
 namespace basalt::detail {
 
 #if BASALT_DEV_BUILD
-auto report_assert_failed(const char* message, const char* file, int line,
-                          const char* func) -> void;
+auto report_assert_failed(char const* message, char const* file, int line,
+                          char const* func) -> void;
 #endif
 
-auto report_crash(const char* message, const char* file, int line,
-                  const char* func) -> void;
+auto report_crash(char const* message, char const* file, int line,
+                  char const* func) -> void;
 
 auto should_break_debugger() -> bool;
 
-[[noreturn]] auto crash() -> void;
+[[noreturn]]
+auto crash() -> void;
 
 } // namespace basalt::detail
 

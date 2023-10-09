@@ -12,9 +12,9 @@ auto D3D9ImGuiRenderer::create(IDirect3DDevice9Ptr device)
   return std::make_shared<D3D9ImGuiRenderer>(std::move(device));
 }
 
-auto D3D9ImGuiRenderer::execute(const CommandRenderDearImGui&) const -> void {
+auto D3D9ImGuiRenderer::execute(CommandRenderDearImGui const&) const -> void {
   ImGui::Render();
-  if (auto* drawData {ImGui::GetDrawData()}) {
+  if (auto* drawData = ImGui::GetDrawData()) {
     // the imgui d3d9 renderer doesn't set its coordinate source
     // and texture coords transform flags
     D3D9CHECK(mDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX,
@@ -48,7 +48,7 @@ auto D3D9ImGuiRenderer::new_frame() -> void {
 }
 
 D3D9ImGuiRenderer::D3D9ImGuiRenderer(IDirect3DDevice9Ptr device)
-  : mDevice {std::move(device)} {
+  : mDevice{std::move(device)} {
 }
 
 } // namespace basalt::gfx::ext

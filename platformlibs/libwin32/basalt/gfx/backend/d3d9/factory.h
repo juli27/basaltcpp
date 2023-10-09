@@ -14,17 +14,17 @@ public:
   // returns null on failure
   static auto create() -> D3D9FactoryPtr;
 
-  D3D9Factory(const D3D9Factory&) = delete;
+  D3D9Factory(D3D9Factory const&) = delete;
   D3D9Factory(D3D9Factory&&) = delete;
 
   ~D3D9Factory() noexcept override = default;
 
-  auto operator=(const D3D9Factory&) -> D3D9Factory& = delete;
+  auto operator=(D3D9Factory const&) -> D3D9Factory& = delete;
   auto operator=(D3D9Factory&&) -> D3D9Factory& = delete;
 
   [[nodiscard]] auto get_adapter_monitor(Adapter) const -> HMONITOR;
 
-  [[nodiscard]] auto adapters() const -> const AdapterList& override;
+  [[nodiscard]] auto adapters() const -> AdapterList const& override;
 
   // don't use. Use create function instead
   D3D9Factory(IDirect3D9Ptr, AdapterList);
@@ -34,7 +34,7 @@ private:
   AdapterList mAdapters;
 
   auto do_create_device_and_swap_chain(HWND,
-                                       const DeviceAndSwapChainDesc&) const
+                                       DeviceAndSwapChainDesc const&) const
     -> DeviceAndSwapChain override;
 };
 

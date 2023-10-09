@@ -13,7 +13,7 @@ namespace tribase {
 
 class StencilBuffer final : public basalt::View {
 public:
-  explicit StencilBuffer(const basalt::Engine&);
+  explicit StencilBuffer(basalt::Engine const&);
 
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;
@@ -22,7 +22,7 @@ private:
   basalt::gfx::Pipeline mOverdrawPipeline2;
   basalt::gfx::ext::XModel mThing;
   basalt::gfx::VertexBuffer mRectanglesVb;
-  basalt::SecondsF32 mTime {};
+  basalt::SecondsF32 mTime{};
 
   auto on_update(UpdateContext&) -> void override;
 };

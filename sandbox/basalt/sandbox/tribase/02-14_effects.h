@@ -45,7 +45,7 @@ private:
   basalt::gfx::Texture mBackgroundTex;
   basalt::gfx::Pipeline mBackgroundPipeline;
   basalt::gfx::Pipeline mDefaultPipeline;
-  basalt::SecondsF32 mTime = basalt::SecondsF32 {0};
+  basalt::SecondsF32 mTime{0};
 
   auto list_effect_files() -> void;
 

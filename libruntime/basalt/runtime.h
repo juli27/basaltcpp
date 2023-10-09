@@ -12,13 +12,13 @@ namespace basalt {
 
 class Runtime : public Engine {
 public:
-  [[nodiscard]] auto dear_imgui() const -> const DearImGuiPtr&;
+  [[nodiscard]] auto dear_imgui() const -> DearImGuiPtr const&;
 
   struct UpdateContext final {
     SecondsF32 deltaTime;
   };
 
-  auto update(const UpdateContext&) -> void;
+  auto update(UpdateContext const&) -> void;
 
 protected:
   Runtime(Config&, gfx::ContextPtr, DearImGuiPtr);

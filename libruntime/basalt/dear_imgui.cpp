@@ -29,7 +29,7 @@ using gfx::ext::DearImGuiRenderer;
 namespace {
 
 // TODO: left <-> right variants
-constexpr EnumArray<Key, ImGuiKey, 102> KEY_TO_IMGUI_KEY {
+constexpr auto KEY_TO_IMGUI_KEY = EnumArray<Key, ImGuiKey, 102>{
   {Key::Unknown, ImGuiKey_None},
   {Key::F1, ImGuiKey_F1},
   {Key::F2, ImGuiKey_F2},
@@ -135,7 +135,7 @@ constexpr EnumArray<Key, ImGuiKey, 102> KEY_TO_IMGUI_KEY {
 };
 static_assert(KEY_TO_IMGUI_KEY.size() == KEY_COUNT);
 
-constexpr auto to_imgui_key(const Key key) -> ImGuiKey {
+constexpr auto to_imgui_key(Key const key) -> ImGuiKey {
   return KEY_TO_IMGUI_KEY[key];
 }
 
@@ -145,14 +145,13 @@ auto DearImGui::create(gfx::Context& gfxContext, void* const rawWindowHandle)
   -> DearImGuiPtr {
   IMGUI_CHECKVERSION();
 
-  auto* const ctx {ImGui::CreateContext()};
+  auto* const ctx = ImGui::CreateContext();
   ImGui::SetCurrentContext(ctx);
 
   ImGui::GetMainViewport()->PlatformHandleRaw = rawWindowHandle;
 
-  auto renderer {
-    gfxContext.device()->query_extension<DearImGuiRenderer>().value_or(
-      nullptr)};
+  auto renderer =
+    gfxContext.device()->query_extension<DearImGuiRenderer>().value_or(nullptr);
 
   return std::make_shared<DearImGui>(std::move(renderer));
 }
@@ -165,7 +164,7 @@ DearImGui::~DearImGui() noexcept {
   ImGui::DestroyContext();
 }
 
-auto DearImGui::new_frame(const UpdateContext& ctx) const -> void {
+auto DearImGui::new_frame(UpdateContext const& ctx) const -> void {
   static_assert(ImGuiMouseButton_COUNT == MOUSE_BUTTON_COUNT);
   static_assert(KEY_COUNT <= 512);
 
@@ -173,21 +172,21 @@ auto DearImGui::new_frame(const UpdateContext& ctx) const -> void {
     mRenderer->new_frame();
   }
 
-  ImGuiIO& io {ImGui::GetIO()};
+  auto& io = ImGui::GetIO();
 
-  const Size2Du16 displaySize {ctx.drawCtx.viewport};
+  auto const displaySize = ctx.drawCtx.viewport;
   io.DisplaySize.x = static_cast<float>(displaySize.width());
   io.DisplaySize.y = static_cast<float>(displaySize.height());
   io.DeltaTime = ctx.deltaTime.count();
 
-  Engine& engine {ctx.engine};
+  auto& engine = ctx.engine;
 
   static_assert(ImGuiMouseCursor_COUNT == 9);
   if (!(io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)) {
-    const ImGuiMouseCursor cursor = ImGui::GetMouseCursor();
+    auto const cursor = ImGui::GetMouseCursor();
     // TODO: no mouse cursor / imgui cursor drawing
     if (cursor != ImGuiMouseCursor_None) {
-      const auto mouseCursor {MouseCursor {static_cast<u8>(cursor)}};
+      auto const mouseCursor = MouseCursor{static_cast<u8>(cursor)};
       if (mouseCursor != engine.mouse_cursor()) {
         engine.set_mouse_cursor(mouseCursor);
       }
@@ -198,8 +197,8 @@ auto DearImGui::new_frame(const UpdateContext& ctx) const -> void {
 }
 
 DearImGui::DearImGui(std::shared_ptr<DearImGuiRenderer> renderer)
-  : mRenderer {std::move(renderer)} {
-  auto& io {ImGui::GetIO()};
+  : mRenderer{std::move(renderer)} {
+  auto& io = ImGui::GetIO();
 
   io.BackendPlatformName = "Basalt";
   io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
@@ -222,18 +221,18 @@ auto DearImGui::on_update(UpdateContext& ctx) -> void {
     return;
   }
 
-  CommandList commandList {};
+  auto commandList = CommandList{};
   DearImGuiCommandEncoder::render_dear_imgui(commandList);
 
   ctx.drawCtx.commandLists.push_back(std::move(commandList));
 }
 
-auto DearImGui::on_input(const InputEvent& e) -> InputEventHandled {
-  ImGuiIO& io {ImGui::GetIO()};
+auto DearImGui::on_input(InputEvent const& e) -> InputEventHandled {
+  auto& io = ImGui::GetIO();
 
   switch (e.type) {
   case InputEventType::MouseMoved: {
-    const PointerPosition& pointerPos {e.as<MouseMoved>().position};
+    auto const& pointerPos = e.as<MouseMoved>().position;
     io.AddMousePosEvent(static_cast<float>(pointerPos.x()),
                         static_cast<float>(pointerPos.y()));
 
@@ -263,8 +262,8 @@ auto DearImGui::on_input(const InputEvent& e) -> InputEventHandled {
                                   : InputEventHandled::No;
 
   case InputEventType::KeyDown: {
-    const Key key {e.as<KeyDown>().key};
-    const ImGuiKey imguiKey {to_imgui_key(key)};
+    auto const key = e.as<KeyDown>().key;
+    auto const imguiKey = to_imgui_key(key);
 
     if (key == Key::Shift) {
       io.AddKeyEvent(ImGuiMod_Shift, true);
@@ -282,8 +281,8 @@ auto DearImGui::on_input(const InputEvent& e) -> InputEventHandled {
   }
 
   case InputEventType::KeyUp: {
-    const Key key {e.as<KeyUp>().key};
-    const ImGuiKey imguiKey {to_imgui_key(key)};
+    auto const key = e.as<KeyUp>().key;
+    auto const imguiKey = to_imgui_key(key);
 
     if (key == Key::Shift) {
       io.AddKeyEvent(ImGuiMod_Shift, false);
@@ -301,8 +300,8 @@ auto DearImGui::on_input(const InputEvent& e) -> InputEventHandled {
   }
 
   case InputEventType::CharacterTyped: {
-    const auto charTyped = e.as<CharacterTyped>().character;
-    std::array<char, 5> nullTerminatedChar {};
+    auto const& charTyped = e.as<CharacterTyped>().character;
+    auto nullTerminatedChar = std::array<char, 5>{};
     std::copy(charTyped.begin(), charTyped.end(), nullTerminatedChar.begin());
     io.AddInputCharactersUTF8(nullTerminatedChar.data());
 

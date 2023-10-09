@@ -14,7 +14,7 @@ public:
   [[nodiscard]] auto device() const noexcept -> DevicePtr override;
   [[nodiscard]] auto get_info() const noexcept -> Info override;
 
-  auto reset(const ResetDesc&) -> void override;
+  auto reset(ResetDesc const&) -> void override;
 
   auto present() -> PresentResult override;
 

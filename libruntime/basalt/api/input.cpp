@@ -6,15 +6,15 @@
 
 namespace basalt {
 
-auto InputState::is_mouse_button_down(const MouseButton button) const -> bool {
+auto InputState::is_mouse_button_down(MouseButton const button) const -> bool {
   return mouseButtonsDown[enum_cast(button)];
 }
 
-auto InputState::is_key_down(const Key key) const -> bool {
+auto InputState::is_key_down(Key const key) const -> bool {
   return keysDown[enum_cast(key)];
 }
 
-auto InputState::update(const InputEvent& e) -> void {
+auto InputState::update(InputEvent const& e) -> void {
   switch (e.type) {
   case InputEventType::MouseMoved:
     pointerPos = e.as<MouseMoved>().position;

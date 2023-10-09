@@ -61,11 +61,13 @@ namespace {
 using Distribution = uniform_real_distribution<float>;
 
 struct StarVertex {
-  Vector3f32 position {};
-  ColorEncoding::A8R8G8B8 diffuse {};
+  Vector3f32 position{};
+  ColorEncoding::A8R8G8B8 diffuse{};
 
-  static constexpr array sLayout {VertexElement::Position3F32,
-                                  VertexElement::ColorDiffuse1U32A8R8G8B8};
+  static constexpr auto sLayout = array{
+    VertexElement::Position3F32,
+    VertexElement::ColorDiffuse1U32A8R8G8B8,
+  };
 };
 
 struct Planet {
@@ -75,118 +77,149 @@ struct Planet {
   u8 type;
 };
 
-constexpr Color BACKGROUND {Colors::BLACK};
-constexpr u32 NUM_STARS {1024};
+constexpr auto BACKGROUND = Colors::BLACK;
+constexpr auto NUM_STARS = u32{1024};
 
-auto generate_stars(const span<StarVertex> stars) -> void {
-  default_random_engine randomEngine {random_device {}()};
-  Distribution rng1 {-1.0f, 1.0f};
-  Distribution rng2 {0.1f, 1.0f};
+auto generate_stars(span<StarVertex> const stars) -> void {
+  auto randomEngine = default_random_engine{random_device{}()};
+  auto rng1 = Distribution{-1.0f, 1.0f};
+  auto rng2 = Distribution{0.1f, 1.0f};
 
-  const auto normalizedRandomVector {[&] {
+  auto const normalizedRandomVector = [&] {
     return Vector3f32::normalize(rng1(randomEngine), rng1(randomEngine),
                                  rng1(randomEngine));
-  }};
+  };
 
   for (auto& starVertex : stars) {
     starVertex.position = normalizedRandomVector() * 100.0f;
 
-    const f32 c {rng2(randomEngine)};
-    starVertex.diffuse = Color::from_non_linear(c, c, c).to_argb();
+    auto const diffuse = rng2(randomEngine);
+    starVertex.diffuse =
+      Color::from_non_linear(diffuse, diffuse, diffuse).to_argb();
   }
 }
 
 // this is not a complete vector transform function (only considers upper-left
 // 3x3 matrix)
-auto operator*(const Vector3f32& v, const Matrix4x4f32& m) -> Vector3f32 {
+auto operator*(Vector3f32 const& v, Matrix4x4f32 const& m) -> Vector3f32 {
   return {v.x() * m.m11 + v.y() * m.m21 + v.z() * m.m31,
           v.x() * m.m12 + v.y() * m.m22 + v.z() * m.m32,
           v.x() * m.m13 + v.y() * m.m23 + v.z() * m.m33};
 }
 
-auto update_planets(const span<Planet, 6> planets, const f32 t) -> void {
+auto update_planets(span<Planet, 6> const planets, f32 const t) -> void {
   // the sun
-  auto& planet0 {planets[0]};
+  auto& planet0 = planets[0];
   planet0.position = {};
   planet0.radius = 7;
 
-  auto& planet1 {planets[1]};
+  auto& planet1 = planets[1];
   planet1.position =
-    10.0f * Vector3f32 {std::sin(1.5f * t), 0, std::cos(1.5f * t)};
+    10.0f * Vector3f32{std::sin(1.5f * t), 0, std::cos(1.5f * t)};
   planet1.radius = 1;
 
   // elliptical orbit and 20 degree tilt
-  auto& planet2 {planets[2]};
+  auto& planet2 = planets[2];
   planet2.position =
-    16.0f * Vector3f32 {0.8f * std::sin(0.75f * t), 0, std::cos(0.75f * t)} *
+    16.0f * Vector3f32{0.8f * std::sin(0.75f * t), 0, std::cos(0.75f * t)} *
     Matrix4x4f32::rotation_x(20_deg);
   planet2.radius = 1.5f;
 
   // elliptical orbit and 30 degree tilt
-  auto& planet3 {planets[3]};
+  auto& planet3 = planets[3];
   planet3.position =
-    22.0f * Vector3f32 {std::sin(0.5f * t), 0, 0.75f * std::cos(0.5f * t)} *
+    22.0f * Vector3f32{std::sin(0.5f * t), 0, 0.75f * std::cos(0.5f * t)} *
     Matrix4x4f32::rotation_z(30_deg);
   planet3.radius = 2.0f;
 
-  auto& planet4 {planets[4]};
+  auto& planet4 = planets[4];
   planet4.position =
-    30.0f * Vector3f32 {std::sin(0.25f * t), 0, std::cos(0.25f * t)};
+    30.0f * Vector3f32{std::sin(0.25f * t), 0, std::cos(0.25f * t)};
   planet4.radius = 3.0f;
 
   // elliptical orbit
-  auto& planet5 {planets[5]};
+  auto& planet5 = planets[5];
   planet5.position =
-    70.0f * Vector3f32 {std::sin(0.75f * t), 0, 0.5f * std::cos(0.75f * t)};
+    70.0f * Vector3f32{std::sin(0.75f * t), 0, 0.5f * std::cos(0.75f * t)};
   planet5.radius = 1.5f;
 }
 
-auto rotation_axis(Vector3f32 axis, const Angle angle) -> Matrix4x4f32 {
-  const float sin = std::sin(-angle.radians());
-  const float cos = std::cos(-angle.radians());
-  const float oneMinusCos = 1.0f - cos;
+auto rotation_axis(Vector3f32 axis, Angle const angle) -> Matrix4x4f32 {
+  auto const sin = std::sin(-angle.radians());
+  auto const cos = std::cos(-angle.radians());
+  auto const oneMinusCos = 1.0f - cos;
 
   axis = axis.normalize();
 
-  return {(axis.x() * axis.x()) * oneMinusCos + cos,
-          (axis.x() * axis.y()) * oneMinusCos - (axis.z() * sin),
-          (axis.x() * axis.z()) * oneMinusCos + (axis.y() * sin),
-          0.0f,
+  return Matrix4x4f32{axis.x() * axis.x() * oneMinusCos + cos,
+                      axis.x() * axis.y() * oneMinusCos - axis.z() * sin,
+                      axis.x() * axis.z() * oneMinusCos + axis.y() * sin,
+                      0.0f,
 
-          (axis.y() * axis.x()) * oneMinusCos + (axis.z() * sin),
-          (axis.y() * axis.y()) * oneMinusCos + cos,
-          (axis.y() * axis.z()) * oneMinusCos - (axis.x() * sin),
-          0.0f,
+                      axis.y() * axis.x() * oneMinusCos + axis.z() * sin,
+                      axis.y() * axis.y() * oneMinusCos + cos,
+                      axis.y() * axis.z() * oneMinusCos - axis.x() * sin,
+                      0.0f,
 
-          (axis.z() * axis.x()) * oneMinusCos - (axis.y() * sin),
-          (axis.z() * axis.y()) * oneMinusCos + (axis.x() * sin),
-          (axis.z() * axis.z()) * oneMinusCos + cos,
-          0.0f,
+                      axis.z() * axis.x() * oneMinusCos - axis.y() * sin,
+                      axis.z() * axis.y() * oneMinusCos + axis.x() * sin,
+                      axis.z() * axis.z() * oneMinusCos + cos,
+                      0.0f,
 
-          0.0f,
-          0.0f,
-          0.0f,
-          1.0f};
+                      0.0f,
+                      0.0f,
+                      0.0f,
+                      1.0f};
 }
 
 } // namespace
 
-Blending::Blending(const Engine& engine)
-  : mGfxCache {engine.create_gfx_resource_cache()} {
-  PipelineDescriptor starPipelineDesc {};
-  starPipelineDesc.vertexLayout = StarVertex::sLayout;
-  starPipelineDesc.dithering = true;
-  mStarPipeline = mGfxCache->create_pipeline(starPipelineDesc);
+Blending::Blending(Engine const& engine)
+  : mGfxCache{engine.create_gfx_resource_cache()}
+  , mStarPipeline{[&] {
+    auto desc = PipelineDescriptor{};
+    desc.vertexLayout = StarVertex::sLayout;
+    desc.dithering = true;
 
-  FixedVertexShaderCreateInfo vs;
+    return mGfxCache->create_pipeline(desc);
+  }()}
+  , mSampler{[&] {
+    auto desc = SamplerDescriptor{};
+    desc.magFilter = TextureFilter::Bilinear;
+    desc.minFilter = TextureFilter::Bilinear;
+    desc.mipFilter = TextureMipFilter::Linear;
+
+    return mGfxCache->create_sampler(desc);
+  }()}
+  , mPlanetTextures{[&] {
+    auto textures = array<basalt::gfx::Texture, sNumPlanetTextures>{};
+    for (auto i = uSize{0}; i < sNumPlanetTextures; i++) {
+      textures[i] = mGfxCache->load_texture(
+        fmt::format(FMT_STRING("data/tribase/02-08_blending/Planet{}.dds"), i));
+    }
+
+    return textures;
+  }()}
+  , mPlanetModel{mGfxCache->load_x_model(
+      "data/tribase/02-08_blending/Planet.x"sv)}
+  , mSunModel{mGfxCache->load_x_model("data/tribase/02-08_blending/Sun.x"sv)}
+  , mStarsVb{[&] {
+    auto starVertices = vector<StarVertex>{NUM_STARS};
+    generate_stars(starVertices);
+    auto const starVertexData = as_bytes(span{starVertices});
+
+    return mGfxCache->create_vertex_buffer(
+      {starVertexData.size_bytes(), StarVertex::sLayout}, starVertexData);
+  }()} {
+  auto vs = FixedVertexShaderCreateInfo{};
   vs.lightingEnabled = true;
 
-  FixedFragmentShaderCreateInfo fs;
-  array textureStages {TextureStage {}};
+  auto fs = FixedFragmentShaderCreateInfo{};
+  auto textureStages = array{TextureStage{}};
   std::get<0>(textureStages).alphaOp = TextureOp::Modulate;
   fs.textureStages = textureStages;
 
-  PipelineDescriptor planetPipelineDesc {};
+  auto planetPipelineDesc = PipelineDescriptor{};
   planetPipelineDesc.vertexShader = &vs;
   planetPipelineDesc.fragmentShader = &fs;
   planetPipelineDesc.cullMode = CullMode::Clockwise;
@@ -196,58 +229,37 @@ Blending::Blending(const Engine& engine)
   mPlanetPipelineCw = mGfxCache->create_pipeline(planetPipelineDesc);
   planetPipelineDesc.cullMode = CullMode::CounterClockwise;
   mPlanetPipelineCcw = mGfxCache->create_pipeline(planetPipelineDesc);
-
-  SamplerDescriptor samplerDesc {};
-  samplerDesc.magFilter = TextureFilter::Bilinear;
-  samplerDesc.minFilter = TextureFilter::Bilinear;
-  samplerDesc.mipFilter = TextureMipFilter::Linear;
-  mSampler = mGfxCache->create_sampler(samplerDesc);
-
-  for (u32 i {0}; i < mPlanetTextures.size(); i++) {
-    mPlanetTextures[i] = mGfxCache->load_texture(
-      fmt::format(FMT_STRING("data/tribase/02-08_blending/Planet{}.dds"), i));
-  }
-
-  mPlanetModel =
-    mGfxCache->load_x_model("data/tribase/02-08_blending/Planet.x"sv);
-  mSunModel = mGfxCache->load_x_model("data/tribase/02-08_blending/Sun.x"sv);
-
-  vector<StarVertex> starVertices(NUM_STARS);
-  generate_stars(starVertices);
-  const auto starVertexData {as_bytes(span {starVertices})};
-  mStarsVb = mGfxCache->create_vertex_buffer(
-    {starVertexData.size(), StarVertex::sLayout}, starVertexData);
 }
 
 auto Blending::on_update(UpdateContext& ctx) -> void {
   mTime += ctx.deltaTime;
-  const f32 t {mTime.count()};
+  auto const t = mTime.count();
 
-  const Vector3f32 cameraPos {50.0f * std::sin(0.35f * t),
-                              50.0f * std::cos(0.2f * t),
-                              40.0f * std::sin(0.1f * t) - 10.0f};
+  auto const cameraPos =
+    Vector3f32{50.0f * std::sin(0.35f * t), 50.0f * std::cos(0.2f * t),
+               40.0f * std::sin(0.1f * t) - 10.0f};
 
-  array<Planet, 6> planets {};
+  auto planets = array<Planet, 6>{};
   update_planets(planets, t);
 
-  for (u32 i {0}; i < planets.size(); ++i) {
+  for (auto i = uSize{0}; i < planets.size(); ++i) {
     planets[i].type = static_cast<u8>(i);
     planets[i].distanceToCamera = (planets[i].position - cameraPos).length();
   }
 
   // sort the transparent planets from back to front
   std::sort(planets.begin(), planets.end(),
-            [](const Planet& p1, const Planet& p2) {
-              const f32 diff {p1.distanceToCamera - p2.distanceToCamera};
+            [](Planet const& p1, Planet const& p2) {
+              auto const diff = p1.distanceToCamera - p2.distanceToCamera;
 
               // if p1 is further away from the camera than p2 then render p1
               // before p2
               return diff > 0.0f;
             });
 
-  const auto& drawCtx {ctx.drawCtx};
-  CommandList cmdList;
-  cmdList.clear_attachments(Attachments {Attachment::RenderTarget}, BACKGROUND);
+  auto const& drawCtx = ctx.drawCtx;
+  auto cmdList = CommandList{};
+  cmdList.clear_attachments(Attachments{Attachment::RenderTarget}, BACKGROUND);
 
   cmdList.bind_pipeline(mStarPipeline);
   cmdList.set_transform(TransformState::ViewToClip,
@@ -262,26 +274,26 @@ auto Blending::on_update(UpdateContext& ctx) -> void {
 
   cmdList.bind_sampler(0, mSampler);
 
-  constexpr array<LightData, 1> lights {
-    PointLightData {Color::from_non_linear(1.0f, 1.0f, 0.75f),
-                    {},
-                    Color::from_non_linear(1.0f, 1.0f, 0.75f),
-                    {},
-                    1000,
-                    1.0f,
-                    0,
-                    0}};
+  constexpr auto lights = array<LightData, 1>{
+    PointLightData{Color::from_non_linear(1.0f, 1.0f, 0.75f),
+                   {},
+                   Color::from_non_linear(1.0f, 1.0f, 0.75f),
+                   {},
+                   1000,
+                   1.0f,
+                   0,
+                   0}};
   cmdList.set_lights(lights);
 
-  const auto& planetModel {mGfxCache->get(mPlanetModel)};
-  for (const auto& planet : planets) {
+  auto const& planetModel = mGfxCache->get(mPlanetModel);
+  for (auto const& planet : planets) {
     if (planet.type == 0) {
       // this is the sun
 
-      default_random_engine randomEngine {random_device {}()};
-      Distribution rng {0.0f, 0.025f};
-      for (i32 i {0}; i < 21; i++) {
-        const auto localToWorld {
+      auto randomEngine = default_random_engine{random_device{}()};
+      auto rng = Distribution{0.0f, 0.025f};
+      for (auto i = i32{0}; i < 21; i++) {
+        auto const localToWorld =
           Matrix4x4f32::rotation_x(Angle::radians(
             (static_cast<f32>(i - 10) + rng(randomEngine)) * t / 20.0f)) *
           Matrix4x4f32::rotation_y(Angle::radians(
@@ -289,8 +301,8 @@ auto Blending::on_update(UpdateContext& ctx) -> void {
           Matrix4x4f32::rotation_z(Angle::radians(
             (static_cast<f32>(i - 10) + rng(randomEngine)) * t / 20.0f)) *
           Matrix4x4f32::scaling(
-            Vector3f32 {planet.radius + static_cast<f32>(i) / 10.0f} +
-            Vector3f32 {0.25f * std::sin(4.0f * t)})};
+            Vector3f32{planet.radius + static_cast<f32>(i) / 10.0f} +
+            Vector3f32{0.25f * std::sin(4.0f * t)});
         cmdList.set_transform(TransformState::LocalToWorld, localToWorld);
         cmdList.set_material(
           Color::from_non_linear(0, 0, 0, 1.1f - static_cast<f32>(i) / 20.0f),
@@ -298,7 +310,7 @@ auto Blending::on_update(UpdateContext& ctx) -> void {
 
         cmdList.bind_texture(0, std::get<0>(mPlanetTextures));
 
-        const auto& sunModel {mGfxCache->get(mSunModel)};
+        auto const& sunModel = mGfxCache->get(mSunModel);
         cmdList.bind_pipeline(mPlanetPipelineCw);
         XMeshCommandEncoder::draw_x_mesh(cmdList, sunModel.meshes[0]);
         cmdList.bind_pipeline(mPlanetPipelineCcw);
@@ -308,10 +320,10 @@ auto Blending::on_update(UpdateContext& ctx) -> void {
       continue;
     }
 
-    const auto localToWorld {
+    auto const localToWorld =
       Matrix4x4f32::scaling(planet.radius) *
       rotation_axis({0.5f, 1.0f, 0.25f}, Angle::radians(t)) *
-      Matrix4x4f32::translation(planet.position)};
+      Matrix4x4f32::translation(planet.position);
     cmdList.set_transform(TransformState::LocalToWorld, localToWorld);
     cmdList.set_material(Colors::WHITE,
                          Color::from_non_linear(0.25f, 0.25f, 0.25f));

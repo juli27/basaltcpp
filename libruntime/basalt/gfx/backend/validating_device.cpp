@@ -54,19 +54,19 @@ public:
     return std::make_shared<ValidatingTexture3DSupport>(device);
   }
 
-  auto load(const path& path) -> Texture override {
+  auto load(path const& path) -> Texture override {
     return mDevice->load_texture_3d(path);
   }
 
   explicit ValidatingTexture3DSupport(ValidatingDevice* device)
-    : mDevice {device} {
+    : mDevice{device} {
   }
 
 private:
-  ValidatingDevice* mDevice {};
+  ValidatingDevice* mDevice{};
 };
 
-auto check(const string_view description, const bool value) -> bool {
+auto check(string_view const description, bool const value) -> bool {
   if (!value) {
     BASALT_LOG_ERROR("check failed: {}", description);
 
@@ -77,33 +77,33 @@ auto check(const string_view description, const bool value) -> bool {
 }
 
 template <typename Fn>
-auto check(const string_view description, Fn&& fn) -> bool {
+auto check(string_view const description, Fn&& fn) -> bool {
   return check(description, fn());
 }
 
-auto check_vertex_layout(const VertexLayout layout) -> bool {
+auto check_vertex_layout(VertexLayout const layout) -> bool {
   return check(
     "can't use transformed positions with untransformed positions or "
     "normals"sv,
     [&] {
-      const bool hasTransformedPosition {
+      auto const hasTransformedPosition =
         std::find(layout.begin(), layout.end(),
-                  VertexElement::PositionTransformed4F32) != layout.end()};
+                  VertexElement::PositionTransformed4F32) != layout.end();
 
-      const bool hasUntransformedPosition {
+      auto const hasUntransformedPosition =
         std::find(layout.begin(), layout.end(), VertexElement::Position3F32) !=
-        layout.end()};
-      const bool hasNormals {
+        layout.end();
+      auto const hasNormals =
         std::find(layout.begin(), layout.end(), VertexElement::Normal3F32) !=
-        layout.end()};
+        layout.end();
 
       return !hasTransformedPosition ||
              (!hasUntransformedPosition && !hasNormals);
     });
 }
 
-auto get_size(const VertexElement vertexElement) -> uDeviceSize {
-  static constexpr EnumArray<VertexElement, uDeviceSize, 10> SIZES {
+auto get_size(VertexElement const vertexElement) -> uDeviceSize {
+  static constexpr auto SIZES = EnumArray<VertexElement, uDeviceSize, 10>{
     {VertexElement::Position3F32, 3 * sizeof(f32)},
     {VertexElement::PositionTransformed4F32, 4 * sizeof(f32)},
     {VertexElement::Normal3F32, 3 * sizeof(f32)},
@@ -120,10 +120,10 @@ auto get_size(const VertexElement vertexElement) -> uDeviceSize {
   return SIZES[vertexElement];
 }
 
-auto get_vertex_size(const VertexLayout vertexLayout) -> uDeviceSize {
+auto get_vertex_size(VertexLayout const vertexLayout) -> uDeviceSize {
   return std::accumulate(
-    vertexLayout.begin(), vertexLayout.end(), uDeviceSize {0},
-    [](const uDeviceSize size, const VertexElement element) {
+    vertexLayout.begin(), vertexLayout.end(), uDeviceSize{0},
+    [](uDeviceSize const size, VertexElement const element) {
       return size + get_size(element);
     });
 }
@@ -135,20 +135,20 @@ auto ValidatingDevice::wrap(DevicePtr device) -> ValidatingDevicePtr {
 }
 
 ValidatingDevice::ValidatingDevice(DevicePtr device)
-  : mDevice {std::move(device)}
-  , mCaps {mDevice->capabilities()} {
+  : mDevice{std::move(device)}
+  , mCaps{mDevice->capabilities()} {
   mExtensions[ext::DeviceExtensionId::Texture3DSupport] =
     ValidatingTexture3DSupport::create(this);
 }
 
-auto ValidatingDevice::load_texture_3d(const path& path) -> Texture {
-  const Texture id {
-    mDevice->query_extension<ext::Texture3DSupport>().value()->load(path)};
+auto ValidatingDevice::load_texture_3d(path const& path) -> Texture {
+  auto const id =
+    mDevice->query_extension<ext::Texture3DSupport>().value()->load(path);
 
-  return mTextures.allocate(TextureData {id});
+  return mTextures.allocate(TextureData{id});
 }
 
-auto ValidatingDevice::capabilities() const -> const DeviceCaps& {
+auto ValidatingDevice::capabilities() const -> DeviceCaps const& {
   return mDevice->capabilities();
 }
 
@@ -160,7 +160,7 @@ auto ValidatingDevice::reset() -> void {
   mDevice->reset();
 }
 
-auto ValidatingDevice::create_pipeline(const PipelineDescriptor& desc)
+auto ValidatingDevice::create_pipeline(PipelineDescriptor const& desc)
   -> Pipeline {
   check_vertex_layout(desc.vertexLayout);
   if (desc.fragmentShader) {
@@ -169,25 +169,25 @@ auto ValidatingDevice::create_pipeline(const PipelineDescriptor& desc)
             mCaps.maxTextureBlendStages);
   }
 
-  const Pipeline pipelineId {mDevice->create_pipeline(desc)};
+  auto const pipelineId = mDevice->create_pipeline(desc);
 
-  vector<VertexElement> vertexInputLayout {desc.vertexLayout.begin(),
-                                           desc.vertexLayout.end()};
+  auto vertexInputLayout =
+    vector(desc.vertexLayout.begin(), desc.vertexLayout.end());
 
-  return mPipelines.allocate(PipelineData {
+  return mPipelines.allocate(PipelineData{
     pipelineId,
     std::move(vertexInputLayout),
     desc.primitiveType,
   });
 }
 
-auto ValidatingDevice::destroy(const Pipeline id) noexcept -> void {
+auto ValidatingDevice::destroy(Pipeline const id) noexcept -> void {
   if (!mPipelines.is_valid(id)) {
     return;
   }
 
   {
-    const auto& data {mPipelines[id]};
+    auto const& data = mPipelines[id];
 
     mDevice->destroy(data.originalId);
   }
@@ -195,40 +195,40 @@ auto ValidatingDevice::destroy(const Pipeline id) noexcept -> void {
   mPipelines.deallocate(id);
 }
 
-auto ValidatingDevice::create_vertex_buffer(const VertexBufferDescriptor& desc,
-                                            const span<const byte> initialData)
+auto ValidatingDevice::create_vertex_buffer(VertexBufferDescriptor const& desc,
+                                            span<byte const> const initialData)
   -> VertexBuffer {
   check("non empty layout"sv, !desc.layout.empty());
   check_vertex_layout(desc.layout);
 
-  const DeviceCaps& caps {mDevice->capabilities()};
+  auto const& caps = mDevice->capabilities();
   check("not larger than max size"sv,
         desc.sizeInBytes <= caps.maxVertexBufferSizeInBytes);
 
   // From D3D9: FVF vertex buffers must be large enough to contain at least one
   // vertex, but it need not be a multiple of the vertex size
-  const uDeviceSize minSize {get_vertex_size(desc.layout)};
+  auto const minSize = get_vertex_size(desc.layout);
   check("minimum size", desc.sizeInBytes >= minSize);
 
   check("initial data fits"sv, initialData.size() <= desc.sizeInBytes);
 
-  const VertexBuffer id {mDevice->create_vertex_buffer(desc, initialData)};
-  vector<VertexElement> layout {desc.layout.begin(), desc.layout.end()};
+  auto const id = mDevice->create_vertex_buffer(desc, initialData);
+  auto layout = vector(desc.layout.begin(), desc.layout.end());
 
-  return mVertexBuffers.allocate(VertexBufferData {
+  return mVertexBuffers.allocate(VertexBufferData{
     id,
     std::move(layout),
     desc.sizeInBytes,
   });
 }
 
-auto ValidatingDevice::destroy(const VertexBuffer id) noexcept -> void {
+auto ValidatingDevice::destroy(VertexBuffer const id) noexcept -> void {
   if (!mVertexBuffers.is_valid(id)) {
     return;
   }
 
   {
-    const auto& data {mVertexBuffers[id]};
+    auto const& data = mVertexBuffers[id];
 
     mDevice->destroy(data.originalId);
   }
@@ -236,54 +236,54 @@ auto ValidatingDevice::destroy(const VertexBuffer id) noexcept -> void {
   mVertexBuffers.deallocate(id);
 }
 
-auto ValidatingDevice::map(const VertexBuffer id, const uDeviceSize offset,
-                           const uDeviceSize size) -> span<byte> {
+auto ValidatingDevice::map(VertexBuffer const id, uDeviceSize const offset,
+                           uDeviceSize const size) -> span<byte> {
   if (!check("valid vertex buffer id", mVertexBuffers.is_valid(id))) {
     return {};
   }
 
-  const auto& data {mVertexBuffers[id]};
+  auto const& data = mVertexBuffers[id];
   check("offset less than size", offset < data.sizeInBytes);
   check("mapped region within bounds", offset + size <= data.sizeInBytes);
 
   return mDevice->map(data.originalId, offset, size);
 }
 
-auto ValidatingDevice::unmap(const VertexBuffer id) noexcept -> void {
+auto ValidatingDevice::unmap(VertexBuffer const id) noexcept -> void {
   if (!check("valid vertex buffer id", mVertexBuffers.is_valid(id))) {
     return;
   }
 
-  const auto& data {mVertexBuffers[id]};
+  auto const& data = mVertexBuffers[id];
 
   mDevice->unmap(data.originalId);
 }
 
-auto ValidatingDevice::create_index_buffer(const IndexBufferDescriptor& desc,
-                                           const span<const byte> initialData)
+auto ValidatingDevice::create_index_buffer(IndexBufferDescriptor const& desc,
+                                           span<byte const> const initialData)
   -> IndexBuffer {
-  const DeviceCaps& caps {mDevice->capabilities()};
+  auto const& caps = mDevice->capabilities();
   check("not larger than max size"sv,
         desc.sizeInBytes <= caps.maxIndexBufferSizeInBytes);
   check("index type supported", caps.supportedIndexTypes[desc.type]);
 
   check("initial data fits"sv, initialData.size() <= desc.sizeInBytes);
 
-  const IndexBuffer id {mDevice->create_index_buffer(desc, initialData)};
+  auto const id = mDevice->create_index_buffer(desc, initialData);
 
-  return mIndexBuffers.allocate(IndexBufferData {
+  return mIndexBuffers.allocate(IndexBufferData{
     id,
     desc.sizeInBytes,
   });
 }
 
-auto ValidatingDevice::destroy(const IndexBuffer id) noexcept -> void {
+auto ValidatingDevice::destroy(IndexBuffer const id) noexcept -> void {
   if (!mIndexBuffers.is_valid(id)) {
     return;
   }
 
   {
-    const auto& data {mIndexBuffers[id]};
+    auto const& data = mIndexBuffers[id];
 
     mDevice->destroy(data.originalId);
   }
@@ -291,14 +291,14 @@ auto ValidatingDevice::destroy(const IndexBuffer id) noexcept -> void {
   mIndexBuffers.deallocate(id);
 }
 
-auto ValidatingDevice::map(const IndexBuffer id,
-                           const uDeviceSize offsetInBytes,
-                           const uDeviceSize sizeInBytes) -> span<byte> {
+auto ValidatingDevice::map(IndexBuffer const id,
+                           uDeviceSize const offsetInBytes,
+                           uDeviceSize const sizeInBytes) -> span<byte> {
   if (!check("valid vertex buffer id", mIndexBuffers.is_valid(id))) {
     return {};
   }
 
-  const auto& data {mIndexBuffers[id]};
+  auto const& data = mIndexBuffers[id];
   check("offset less than size", offsetInBytes < data.sizeInBytes);
   check("mapped region within bounds",
         offsetInBytes + sizeInBytes <= data.sizeInBytes);
@@ -306,37 +306,37 @@ auto ValidatingDevice::map(const IndexBuffer id,
   return mDevice->map(data.originalId, offsetInBytes, sizeInBytes);
 }
 
-auto ValidatingDevice::unmap(const IndexBuffer id) noexcept -> void {
+auto ValidatingDevice::unmap(IndexBuffer const id) noexcept -> void {
   if (!check("valid vertex buffer id", mIndexBuffers.is_valid(id))) {
     return;
   }
 
-  const auto& data {mIndexBuffers[id]};
+  auto const& data = mIndexBuffers[id];
 
   mDevice->unmap(data.originalId);
 }
 
-auto ValidatingDevice::load_texture(const path& path) -> Texture {
-  const Texture id {mDevice->load_texture(path)};
+auto ValidatingDevice::load_texture(path const& path) -> Texture {
+  auto const id = mDevice->load_texture(path);
 
-  return mTextures.allocate(TextureData {
+  return mTextures.allocate(TextureData{
     id,
   });
 }
 
-auto ValidatingDevice::load_cube_texture(const path& path) -> Texture {
-  const Texture id {mDevice->load_cube_texture(path)};
+auto ValidatingDevice::load_cube_texture(path const& path) -> Texture {
+  auto const id = mDevice->load_cube_texture(path);
 
-  return mTextures.allocate(TextureData {id});
+  return mTextures.allocate(TextureData{id});
 }
 
-auto ValidatingDevice::destroy(const Texture id) noexcept -> void {
+auto ValidatingDevice::destroy(Texture const id) noexcept -> void {
   if (!mTextures.is_valid(id)) {
     return;
   }
 
   {
-    const auto& data {mTextures[id]};
+    auto const& data = mTextures[id];
 
     mDevice->destroy(data.originalId);
   }
@@ -344,22 +344,22 @@ auto ValidatingDevice::destroy(const Texture id) noexcept -> void {
   mTextures.deallocate(id);
 }
 
-auto ValidatingDevice::create_sampler(const SamplerDescriptor& desc)
+auto ValidatingDevice::create_sampler(SamplerDescriptor const& desc)
   -> Sampler {
-  const Sampler id {mDevice->create_sampler(desc)};
+  auto const id = mDevice->create_sampler(desc);
 
-  return mSamplers.allocate(SamplerData {
+  return mSamplers.allocate(SamplerData{
     id,
   });
 }
 
-auto ValidatingDevice::destroy(const Sampler id) noexcept -> void {
+auto ValidatingDevice::destroy(Sampler const id) noexcept -> void {
   if (!mSamplers.is_valid(id)) {
     return;
   }
 
   {
-    const auto& data {mSamplers[id]};
+    auto const& data = mSamplers[id];
 
     mDevice->destroy(data.originalId);
   }
@@ -367,117 +367,118 @@ auto ValidatingDevice::destroy(const Sampler id) noexcept -> void {
   mSamplers.deallocate(id);
 }
 
-auto ValidatingDevice::submit(const span<const CommandList> commandLists)
+auto ValidatingDevice::submit(span<CommandList const> const commandLists)
   -> void {
-  Composite patchedComposite;
-  for (const CommandList& cmdList : commandLists) {
+  auto patchedComposite = Composite{};
+  patchedComposite.reserve(commandLists.size());
+  for (auto const& cmdList : commandLists) {
     patchedComposite.emplace_back(validate(cmdList));
   }
 
   mDevice->submit(patchedComposite);
 }
 
-auto ValidatingDevice::query_extension(const ext::DeviceExtensionId id)
+auto ValidatingDevice::query_extension(ext::DeviceExtensionId const id)
   -> optional<ext::DeviceExtensionPtr> {
-  if (const auto entry = mExtensions.find(id); entry != mExtensions.end()) {
+  if (auto const entry = mExtensions.find(id); entry != mExtensions.end()) {
     return entry->second;
   }
 
   return mDevice->query_extension(id);
 }
 
-auto ValidatingDevice::validate(const CommandList& cmdList) -> CommandList {
-  CommandList patched;
+auto ValidatingDevice::validate(CommandList const& cmdList) -> CommandList {
+  auto patched = CommandList{};
 
-  auto visitor {[&](auto&& cmd) {
+  auto visitor = [&](auto&& cmd) {
     this->validate(std::forward<decltype(cmd)>(cmd));
     this->patch(patched, std::forward<decltype(cmd)>(cmd));
-  }};
+  };
 
   std::for_each(cmdList.begin(), cmdList.end(),
-                [&](const Command* cmd) { visit(*cmd, visitor); });
+                [&](Command const* cmd) { visit(*cmd, visitor); });
 
   return patched;
 }
 
-auto ValidatingDevice::validate(const Command&) -> void {
+auto ValidatingDevice::validate(Command const&) -> void {
 }
 
-auto ValidatingDevice::validate(const CommandClearAttachments& cmd) -> void {
+auto ValidatingDevice::validate(CommandClearAttachments const& cmd) -> void {
   if (cmd.attachments[Attachment::DepthBuffer]) {
     check("depth clear range", cmd.depth >= 0.0f && cmd.depth <= 1.0f);
   }
 }
 
-auto ValidatingDevice::validate(const CommandDraw&) -> void {
+auto ValidatingDevice::validate(CommandDraw const&) -> void {
   check("no pipeline bound"sv, mPipelines.is_valid(mBoundPipeline));
 }
 
-auto ValidatingDevice::validate(const CommandDrawIndexed&) -> void {
+auto ValidatingDevice::validate(CommandDrawIndexed const&) -> void {
   check("no indexed point list",
         mCurrentPrimitiveType != PrimitiveType::PointList);
 }
 
-auto ValidatingDevice::validate(const CommandBindPipeline& cmd) -> void {
+auto ValidatingDevice::validate(CommandBindPipeline const& cmd) -> void {
   if (!check("valid pipeline id", mPipelines.is_valid(cmd.pipelineId))) {
     return;
   }
 
   mBoundPipeline = cmd.pipelineId;
 
-  const PipelineData& data {mPipelines[cmd.pipelineId]};
+  auto const& data = mPipelines[cmd.pipelineId];
   mCurrentPrimitiveType = data.primitiveType;
 }
 
-auto ValidatingDevice::validate(const CommandBindVertexBuffer& cmd) -> void {
+auto ValidatingDevice::validate(CommandBindVertexBuffer const& cmd) -> void {
   if (!check("valid vertex buffer id",
              mVertexBuffers.is_valid(cmd.vertexBufferId))) {
     return;
   }
 
-  const auto& data {mVertexBuffers[cmd.vertexBufferId]};
-  const uDeviceSize vertexSize {get_vertex_size(data.layout)};
-  const uDeviceSize maxOffset {data.sizeInBytes - vertexSize};
+  auto const& data = mVertexBuffers[cmd.vertexBufferId];
+  auto const vertexSize = get_vertex_size(data.layout);
+  auto const maxOffset = data.sizeInBytes - vertexSize;
   check("max offset", cmd.offsetInBytes < maxOffset);
 }
 
-auto ValidatingDevice::validate(const CommandBindIndexBuffer& cmd) -> void {
+auto ValidatingDevice::validate(CommandBindIndexBuffer const& cmd) -> void {
   check("valid index buffer id", mIndexBuffers.is_valid(cmd.indexBufferId));
 }
 
-auto ValidatingDevice::validate(const CommandBindSampler& cmd) -> void {
+auto ValidatingDevice::validate(CommandBindSampler const& cmd) -> void {
   check("valid sampler id", mSamplers.is_valid(cmd.samplerId));
 }
 
-auto ValidatingDevice::validate(const CommandBindTexture& cmd) -> void {
+auto ValidatingDevice::validate(CommandBindTexture const& cmd) -> void {
   check("valid texture id", mTextures.is_valid(cmd.textureId));
 }
 
-auto ValidatingDevice::validate(const CommandSetTransform& cmd) -> void {
+auto ValidatingDevice::validate(CommandSetTransform const& cmd) -> void {
   if (cmd.transformState == TransformState::ViewToClip) {
     check("(3,4) can't be negative in a projection matrix",
           cmd.transform.m34 >= 0);
   }
 }
 
-auto ValidatingDevice::validate(const CommandSetAmbientLight&) -> void {
+auto ValidatingDevice::validate(CommandSetAmbientLight const&) -> void {
 }
 
-auto ValidatingDevice::validate(const CommandSetLights& cmd) -> void {
-  const DeviceCaps& caps {mDevice->capabilities()};
+auto ValidatingDevice::validate(CommandSetLights const& cmd) -> void {
+  auto const& caps = mDevice->capabilities();
   check("max lights", cmd.lights.size() <= caps.maxLights);
 }
 
-auto ValidatingDevice::validate(const CommandSetMaterial&) -> void {
+auto ValidatingDevice::validate(CommandSetMaterial const&) -> void {
 }
 
-auto ValidatingDevice::validate(const CommandSetFogParameters&) -> void {
+auto ValidatingDevice::validate(CommandSetFogParameters const&) -> void {
 }
 
-auto ValidatingDevice::patch(CommandList& cmdList, const Command& cmd) -> void {
+auto ValidatingDevice::patch(CommandList& cmdList, Command const& cmd) -> void {
   switch (cmd.type) {
   case CommandType::ExtDrawXMesh: {
-    const auto& drawCmd {cmd.as<ext::CommandDrawXMesh>()};
+    auto const& drawCmd = cmd.as<ext::CommandDrawXMesh>();
     ext::XMeshCommandEncoder::draw_x_mesh(cmdList, drawCmd.xMeshId);
 
     break;
@@ -518,130 +519,130 @@ auto ValidatingDevice::patch(CommandList& cmdList, const Command& cmd) -> void {
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandClearAttachments& cmd) -> void {
+                             CommandClearAttachments const& cmd) -> void {
   cmdList.clear_attachments(cmd.attachments, cmd.color, cmd.depth, cmd.stencil);
 }
 
-auto ValidatingDevice::patch(CommandList& cmdList, const CommandDraw& cmd)
+auto ValidatingDevice::patch(CommandList& cmdList, CommandDraw const& cmd)
   -> void {
   cmdList.draw(cmd.firstVertex, cmd.vertexCount);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandDrawIndexed& cmd) -> void {
+                             CommandDrawIndexed const& cmd) -> void {
   cmdList.draw_indexed(cmd.vertexOffset, cmd.minIndex, cmd.numVertices,
                        cmd.firstIndex, cmd.indexCount);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandBindPipeline& cmd) -> void {
+                             CommandBindPipeline const& cmd) -> void {
   if (!mPipelines.is_valid(cmd.pipelineId)) {
     return;
   }
 
-  const Pipeline originalId {mPipelines[cmd.pipelineId].originalId};
+  auto const originalId = mPipelines[cmd.pipelineId].originalId;
 
   cmdList.bind_pipeline(originalId);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandBindVertexBuffer& cmd) -> void {
+                             CommandBindVertexBuffer const& cmd) -> void {
   if (!mVertexBuffers.is_valid(cmd.vertexBufferId)) {
     return;
   }
 
-  const VertexBuffer originalId {mVertexBuffers[cmd.vertexBufferId].originalId};
+  auto const originalId = mVertexBuffers[cmd.vertexBufferId].originalId;
 
   cmdList.bind_vertex_buffer(originalId, cmd.offsetInBytes);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandBindIndexBuffer& cmd) -> void {
+                             CommandBindIndexBuffer const& cmd) -> void {
   if (!mIndexBuffers.is_valid(cmd.indexBufferId)) {
     return;
   }
 
-  const IndexBuffer originalId {mIndexBuffers[cmd.indexBufferId].originalId};
+  auto const originalId = mIndexBuffers[cmd.indexBufferId].originalId;
 
   cmdList.bind_index_buffer(originalId);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandBindSampler& cmd) -> void {
+                             CommandBindSampler const& cmd) -> void {
   if (!mSamplers.is_valid(cmd.samplerId)) {
     return;
   }
 
-  const Sampler originalId {mSamplers[cmd.samplerId].originalId};
+  auto const originalId = mSamplers[cmd.samplerId].originalId;
 
   cmdList.bind_sampler(cmd.slot, originalId);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandBindTexture& cmd) -> void {
-  const Texture originalId {mTextures[cmd.textureId].originalId};
+                             CommandBindTexture const& cmd) -> void {
+  auto const originalId = mTextures[cmd.textureId].originalId;
 
   cmdList.bind_texture(cmd.slot, originalId);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandSetStencilReference& cmd) -> void {
+                             CommandSetStencilReference const& cmd) -> void {
   cmdList.set_stencil_reference(cmd.value);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandSetStencilReadMask& cmd) -> void {
+                             CommandSetStencilReadMask const& cmd) -> void {
   cmdList.set_stencil_read_mask(cmd.value);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandSetStencilWriteMask& cmd) -> void {
+                             CommandSetStencilWriteMask const& cmd) -> void {
   cmdList.set_stencil_write_mask(cmd.value);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandSetBlendConstant& cmd) -> void {
+                             CommandSetBlendConstant const& cmd) -> void {
   cmdList.set_blend_constant(cmd.value);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandSetTransform& cmd) -> void {
+                             CommandSetTransform const& cmd) -> void {
   cmdList.set_transform(cmd.transformState, cmd.transform);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandSetAmbientLight& cmd) -> void {
+                             CommandSetAmbientLight const& cmd) -> void {
   cmdList.set_ambient_light(cmd.ambient);
 }
 
-auto ValidatingDevice::patch(CommandList& cmdList, const CommandSetLights& cmd)
+auto ValidatingDevice::patch(CommandList& cmdList, CommandSetLights const& cmd)
   -> void {
   cmdList.set_lights(cmd.lights);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandSetMaterial& cmd) -> void {
+                             CommandSetMaterial const& cmd) -> void {
   cmdList.set_material(cmd.diffuse, cmd.ambient, cmd.emissive, cmd.specular,
                        cmd.specularPower);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandSetFogParameters& cmd) -> void {
+                             CommandSetFogParameters const& cmd) -> void {
   cmdList.set_fog_parameters(cmd.color, cmd.start, cmd.end, cmd.density);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandSetReferenceAlpha& cmd) -> void {
+                             CommandSetReferenceAlpha const& cmd) -> void {
   cmdList.set_reference_alpha(cmd.value);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandSetTextureFactor& cmd) -> void {
+                             CommandSetTextureFactor const& cmd) -> void {
   cmdList.set_texture_factor(cmd.textureFactor);
 }
 
 auto ValidatingDevice::patch(CommandList& cmdList,
-                             const CommandSetTextureStageConstant& cmd)
+                             CommandSetTextureStageConstant const& cmd)
   -> void {
   cmdList.set_texture_stage_constant(cmd.stageId, cmd.constant);
 }

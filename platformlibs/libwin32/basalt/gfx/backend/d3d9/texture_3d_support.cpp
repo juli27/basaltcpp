@@ -11,12 +11,12 @@ auto D3D9Texture3DSupport::create(D3D9Device* device)
   return std::make_shared<D3D9Texture3DSupport>(device);
 }
 
-auto D3D9Texture3DSupport::load(const path& path) -> Texture {
+auto D3D9Texture3DSupport::load(path const& path) -> Texture {
   return mDevice->load_texture_3d(path);
 }
 
 D3D9Texture3DSupport::D3D9Texture3DSupport(D3D9Device* device)
-  : mDevice {device} {
+  : mDevice{device} {
 }
 
 } // namespace basalt::gfx::ext

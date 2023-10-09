@@ -22,13 +22,13 @@ struct DeviceStateCache final {
   auto update(IndexBuffer) noexcept -> bool;
   auto update(u8 slot, Sampler) noexcept -> bool;
   auto update(u8 slot, Texture) noexcept -> bool;
-  auto update(TransformState, const Matrix4x4f32&) noexcept -> bool;
-  auto update_ambient_light(const Color&) noexcept -> bool;
-  auto update(const Color& diffuse, const Color& ambient, const Color& emissive,
-              const Color& specular, f32 specularPower) noexcept -> bool;
-  auto update_fog_parameters(const Color&, f32 start, f32 end, f32 density)
+  auto update(TransformState, Matrix4x4f32 const&) noexcept -> bool;
+  auto update_ambient_light(Color const&) noexcept -> bool;
+  auto update(Color const& diffuse, Color const& ambient, Color const& emissive,
+              Color const& specular, f32 specularPower) noexcept -> bool;
+  auto update_fog_parameters(Color const&, f32 start, f32 end, f32 density)
     -> bool;
-  auto update_blend_constant(const Color&) -> bool;
+  auto update_blend_constant(Color const&) -> bool;
   auto update_reference_alpha(u8) -> bool;
 
 private:
@@ -37,30 +37,30 @@ private:
     Color ambient;
     Color emissive;
     Color specular;
-    f32 specularPower {};
+    f32 specularPower{};
   };
 
   struct FogParams final {
     Color color;
-    f32 start {};
-    f32 end {};
-    f32 density {};
+    f32 start{};
+    f32 end{};
+    f32 density{};
   };
 
   using MaybeMatrix = std::optional<Matrix4x4f32>;
 
-  EnumArray<TransformState, MaybeMatrix, TRANSFORM_STATE_COUNT> mTransforms {};
+  EnumArray<TransformState, MaybeMatrix, TRANSFORM_STATE_COUNT> mTransforms{};
   std::optional<Color> mAmbientLight;
   std::optional<Material> mMaterial;
   std::optional<FogParams> mFogParams;
   std::optional<Color> mBlendConstant;
   std::optional<u8> mReferenceAlpha;
-  Pipeline mBoundPipeline {Pipeline::null()};
-  VertexBuffer mBoundVertexBuffer {VertexBuffer::null()};
-  u64 mVertexBufferOffset {0ull};
-  IndexBuffer mBoundIndexBuffer {IndexBuffer::null()};
-  std::array<Sampler, 8> mBoundSamplers {};
-  std::array<Texture, 8> mBoundTextures {};
+  Pipeline mBoundPipeline{Pipeline::null()};
+  VertexBuffer mBoundVertexBuffer{VertexBuffer::null()};
+  u64 mVertexBufferOffset{0ull};
+  IndexBuffer mBoundIndexBuffer{IndexBuffer::null()};
+  std::array<Sampler, 8> mBoundSamplers{};
+  std::array<Texture, 8> mBoundTextures{};
 };
 
 } // namespace basalt::gfx

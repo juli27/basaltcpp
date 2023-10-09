@@ -55,22 +55,22 @@ using basalt::gfx::ext::XModel;
 
 namespace {
 
-constexpr Color BACKGROUND {Color::from_non_linear_rgba8(0, 0, 63)};
+constexpr auto BACKGROUND = Color::from_non_linear_rgba8(0, 0, 63);
 
 } // namespace
 
 Lighting::Lighting(Engine& engine)
-  : mGfxCache {engine.create_gfx_resource_cache()} {
-  FixedVertexShaderCreateInfo vs;
+  : mGfxCache{engine.create_gfx_resource_cache()} {
+  auto vs = FixedVertexShaderCreateInfo{};
   vs.lightingEnabled = true;
   vs.specularEnabled = true;
   vs.fog = FogMode::Exponential;
 
-  FixedFragmentShaderCreateInfo fs;
-  array textureStages {TextureStage {}};
+  auto fs = FixedFragmentShaderCreateInfo{};
+  constexpr auto textureStages = array{TextureStage{}};
   fs.textureStages = textureStages;
 
-  PipelineDescriptor pipelineDesc;
+  auto pipelineDesc = PipelineDescriptor{};
   pipelineDesc.vertexShader = &vs;
   pipelineDesc.fragmentShader = &fs;
   pipelineDesc.cullMode = CullMode::CounterClockwise;
@@ -79,19 +79,19 @@ Lighting::Lighting(Engine& engine)
   pipelineDesc.dithering = true;
 
   // sphere models
-  const auto sphereTexture =
+  auto const sphereTexture =
     mGfxCache->load_texture("data/tribase/02-07_lighting/Sphere.bmp"sv);
-  array<MaterialDescriptor, 1> materials {};
-  MaterialDescriptor& materialDesc {std::get<0>(materials)};
+  auto materials = array<MaterialDescriptor, 1>{};
+  auto& materialDesc = std::get<0>(materials);
   materialDesc.pipelineDesc = &pipelineDesc;
   materialDesc.sampledTexture.texture = sphereTexture;
   materialDesc.sampledTexture.filter = TextureFilter::Bilinear;
   materialDesc.sampledTexture.mipFilter = TextureMipFilter::Linear;
   materialDesc.fogColor = BACKGROUND;
   materialDesc.fogDensity = 0.01f;
-  array<XModel, 10> sphereModels {};
-  for (i32 i {0}; i < 10; i++) {
-    const f32 perSphereFactor {static_cast<f32>(i)};
+  auto sphereModels = array<XModel, 10>{};
+  for (auto i = uSize{0}; i < 10; i++) {
+    auto const perSphereFactor = static_cast<f32>(i);
     materialDesc.diffuse = Color::from_non_linear(0.75f, 0.75f, 0.75f);
     materialDesc.ambient = Color::from_non_linear(0.25f, 0.25f, 0.25f);
     materialDesc.emissive = Colors::BLACK;
@@ -99,12 +99,12 @@ Lighting::Lighting(Engine& engine)
     materialDesc.specularPower = 5 * perSphereFactor;
 
     sphereModels[i] = mGfxCache->load_x_model(
-      XModelDescriptor {"data/tribase/02-07_lighting/Sphere.x"sv, materials});
+      XModelDescriptor{"data/tribase/02-07_lighting/Sphere.x"sv, materials});
   }
 
   // ground model
-  const auto groundTexture {
-    mGfxCache->load_texture("data/tribase/02-07_lighting/Ground.bmp"sv)};
+  auto const groundTexture =
+    mGfxCache->load_texture("data/tribase/02-07_lighting/Ground.bmp"sv);
   materialDesc.diffuse = Color::from_non_linear(0.75f, 0.75f, 0.75f);
   materialDesc.ambient = Color::from_non_linear(0.25f, 0.25f, 0.25f);
   materialDesc.emissive = Colors::BLACK;
@@ -113,8 +113,8 @@ Lighting::Lighting(Engine& engine)
   materialDesc.sampledTexture.texture = groundTexture;
   materialDesc.sampledTexture.filter = TextureFilter::Bilinear;
   materialDesc.sampledTexture.mipFilter = TextureMipFilter::Linear;
-  const auto groundModel {mGfxCache->load_x_model(
-    XModelDescriptor {"data/tribase/02-07_lighting/Ground.x"sv, materials})};
+  auto const groundModel = mGfxCache->load_x_model(
+    XModelDescriptor{"data/tribase/02-07_lighting/Ground.x"sv, materials});
 
   // light model
   fs.textureStages = {};
@@ -124,26 +124,26 @@ Lighting::Lighting(Engine& engine)
   materialDesc.emissive = Colors::WHITE;
   materialDesc.specular = Colors::WHITE;
   materialDesc.specularPower = 1.0f;
-  const auto lightModel {mGfxCache->load_x_model(
-    XModelDescriptor {"data/tribase/02-07_lighting/Sphere.x"sv, materials})};
+  auto const lightModel = mGfxCache->load_x_model(
+    XModelDescriptor{"data/tribase/02-07_lighting/Sphere.x"sv, materials});
 
-  auto scene {Scene::create()};
-  auto& gfxEnv {scene->entity_registry().ctx().emplace<Environment>()};
+  auto scene = Scene::create();
+  auto& gfxEnv = scene->entity_registry().ctx().emplace<Environment>();
   gfxEnv.set_background(BACKGROUND);
   gfxEnv.set_ambient_light(Color::from_non_linear(0.25f, 0, 0));
 
   mCenter = scene->create_entity();
   mCenter.emplace<EntityName>("Center"s);
 
-  for (i32 i {0}; i < 10; i++) {
-    const f32 perSphereFactor {static_cast<f32>(i)};
+  for (auto i = uSize{0}; i < 10; i++) {
+    auto const perSphereFactor = static_cast<f32>(i);
 
     // evenly space out the spheres at the edge of a circle with radius 10
     // around the center
-    Angle angle {Angle::degrees(36 * perSphereFactor)};
-    Vector3f32 pos {10 * angle.cos(), 0, 10 * angle.sin()};
+    auto const angle = Angle::degrees(36 * perSphereFactor);
+    auto const pos = Vector3f32{10 * angle.cos(), 0, 10 * angle.sin()};
     // make the spheres point inward
-    Vector3f32 rotation {0, -1 * angle.radians(), 0};
+    auto const rotation = Vector3f32{0, -1 * angle.radians(), 0};
     mSpheres[i] = scene->create_entity(pos, rotation);
     mSpheres[i].emplace<EntityName>(
       fmt::format(FMT_STRING("Sphere {}"), i + 1));
@@ -159,25 +159,24 @@ Lighting::Lighting(Engine& engine)
   mLight = scene->create_entity();
   mLight.emplace<EntityName>("Light"s);
   (void)mLight.emplace<XModel>(lightModel);
-  mLight.emplace<Light>(PointLight {Colors::WHITE, Colors::WHITE, Colors::WHITE,
-                                    1000.0f, 0.0f, 0.025f, 0.0f});
+  mLight.emplace<Light>(PointLight{Colors::WHITE, Colors::WHITE, Colors::WHITE,
+                                   1000.0f, 0.0f, 0.025f, 0.0f});
 
-  const auto cameraEntity {scene->create_entity({5, 7.5f, -15})};
+  auto const cameraEntity = scene->create_entity({5, 7.5f, -15});
   cameraEntity.emplace<EntityName>("Camera"s);
-  cameraEntity.emplace<Camera>(
-    Camera {{}, Vector3f32::up(), 90_deg, 0.1f, 500});
+  cameraEntity.emplace<Camera>(Camera{{}, Vector3f32::up(), 90_deg, 0.1f, 500});
 
   add_child_top(SceneView::create(std::move(scene), mGfxCache, cameraEntity));
 }
 
 auto Lighting::on_update(UpdateContext& ctx) -> void {
   mTime += ctx.deltaTime;
-  const f32 t {mTime.count()};
+  auto const t = mTime.count();
 
   mCenter.get<Transform>().rotation.y() = Angle::degrees(t * 10).radians();
 
-  for (i32 i {0}; i < 10; i++) {
-    const f32 perSphereFactor {static_cast<f32>(i)};
+  for (auto i = uSize{0}; i < 10; i++) {
+    auto const perSphereFactor = static_cast<f32>(i);
 
     mSpheres[i].get<Transform>().position.y() =
       std::sin(perSphereFactor + t * 2);

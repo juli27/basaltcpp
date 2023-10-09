@@ -24,6 +24,10 @@ namespace ext {
 
 static_assert(sizeof(CommandDrawXMesh) == 8);
 static_assert(sizeof(CommandRenderDearImGui) == 1);
+static_assert(sizeof(CommandBeginEffect) == 8);
+static_assert(sizeof(CommandEndEffect) == 1);
+static_assert(sizeof(CommandBeginEffectPass) == 8);
+static_assert(sizeof(CommandEndEffectPass) == 1);
 
 } // namespace ext
 

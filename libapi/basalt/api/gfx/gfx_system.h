@@ -10,13 +10,12 @@ namespace basalt::gfx {
 class GfxSystem final : public System {
 public:
   using UpdateAfter = TransformSystem;
-  
-  static constexpr entt::id_type sMainCamera {
-    entt::hashed_string {"main camera"}};
+
+  static constexpr auto sMainCamera = entt::hashed_string::value("main camera");
 
   GfxSystem() noexcept = default;
 
-  auto on_update(const UpdateContext&) -> void override;
+  auto on_update(UpdateContext const&) -> void override;
 };
 
 } // namespace basalt::gfx

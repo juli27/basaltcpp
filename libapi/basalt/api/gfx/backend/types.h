@@ -33,14 +33,14 @@ enum class BlendFactor : u8 {
   Constant,
   OneMinusConstant,
 };
-constexpr u8 BLEND_FACTOR_COUNT {8};
+constexpr auto BLEND_FACTOR_COUNT = u8{8};
 
 enum class BlendOp : u8 {
   Add,
   Subtract,
   ReverseSubtract,
 };
-constexpr u8 BLEND_OP_COUNT {3};
+constexpr auto BLEND_OP_COUNT = u8{3};
 
 enum class BorderColor : u8 {
   BlackTransparent,
@@ -50,14 +50,14 @@ enum class BorderColor : u8 {
   // DeviceCaps.samplerCustomBorderColor
   Custom,
 };
-constexpr u8 BORDER_COLOR_COUNT {4u};
+constexpr auto BORDER_COLOR_COUNT = u8{4};
 
 enum class CullMode : u8 {
   None,
   Clockwise,
   CounterClockwise,
 };
-constexpr u8 CULL_MODE_COUNT {3u};
+constexpr auto CULL_MODE_COUNT = u8{3};
 
 enum class TestPassCond : u8 {
   Never,
@@ -69,14 +69,14 @@ enum class TestPassCond : u8 {
   IfGreaterEqual,
   Always,
 };
-constexpr u8 TEST_PASS_COND_COUNT {8u};
+constexpr auto TEST_PASS_COND_COUNT = u8{8};
 
 enum class FillMode : u8 {
   Point,
   Wireframe,
   Solid,
 };
-constexpr u8 FILL_MODE_COUNT {3};
+constexpr auto FILL_MODE_COUNT = u8{3};
 
 enum class PrimitiveType : u8 {
   PointList,
@@ -86,13 +86,13 @@ enum class PrimitiveType : u8 {
   TriangleStrip,
   TriangleFan,
 };
-constexpr u8 PRIMITIVE_TYPE_COUNT {6u};
+constexpr auto PRIMITIVE_TYPE_COUNT = u8{6};
 
 enum class ShadeMode : u8 {
   Flat,
   Gouraud,
 };
-constexpr u8 SHADE_MODE_COUNT {2};
+constexpr auto SHADE_MODE_COUNT = u8{2};
 
 enum class FogMode : u8 {
   None,
@@ -100,7 +100,7 @@ enum class FogMode : u8 {
   Exponential,
   ExponentialSquared,
 };
-constexpr u8 FOG_MODE_COUNT {4};
+constexpr auto FOG_MODE_COUNT = u8{4};
 
 enum class TextureAddressMode : u8 {
   Repeat,
@@ -112,7 +112,7 @@ enum class TextureAddressMode : u8 {
   // DeviceCaps.samplerMirrorOnceClampToEdge
   MirrorOnceClampToEdge,
 };
-constexpr u8 TEXTURE_ADDRESS_MODE_COUNT {5u};
+constexpr auto TEXTURE_ADDRESS_MODE_COUNT = u8{5};
 
 enum class TextureCoordinateSrc : u8 {
   Vertex,
@@ -120,7 +120,7 @@ enum class TextureCoordinateSrc : u8 {
   NormalInViewSpace,
   ReflectionVectorInViewSpace,
 };
-constexpr u8 TEXTURE_COORDINATE_SOURCE_COUNT {4};
+constexpr auto TEXTURE_COORDINATE_SOURCE_COUNT = u8{4};
 
 enum class TextureFilter : u8 {
   Point,
@@ -130,14 +130,14 @@ enum class TextureFilter : u8 {
   // DeviceCaps.samplerMagFilterAnisotropic
   Anisotropic,
 };
-constexpr u8 TEXTURE_FILTER_COUNT {3u};
+constexpr auto TEXTURE_FILTER_COUNT = u8{3};
 
 enum class TextureMipFilter : u8 {
   None,
   Point,
   Linear,
 };
-constexpr u8 TEXTURE_MIP_FILTER_COUNT {3u};
+constexpr auto TEXTURE_MIP_FILTER_COUNT = u8{3};
 
 enum class TextureOp : u8 {
   // r = arg1
@@ -193,7 +193,7 @@ enum class TextureOp : u8 {
   // r.rgba = arg1 * arg2 + (1 - arg1) * arg3
   Interpolate,
 };
-constexpr u8 TEXTURE_OP_COUNT {24};
+constexpr auto TEXTURE_OP_COUNT = u8{24};
 using TextureOps = EnumSet<TextureOp, TextureOp::Interpolate>;
 
 enum class TextureStageSrc : u8 {
@@ -207,20 +207,20 @@ enum class TextureStageSrc : u8 {
   // DeviceCaps.perTextureStageConstant
   StageConstant,
 };
-constexpr u8 TEXTURE_STAGE_SRC_COUNT {7};
+constexpr auto TEXTURE_STAGE_SRC_COUNT = u8{7};
 
 enum class TextureStageSrcMod : u8 {
   None,
   Complement,
   AlphaReplicate,
 };
-constexpr u8 TEXTURE_STAGE_SRC_MOD_COUNT {3};
+constexpr auto TEXTURE_STAGE_SRC_MOD_COUNT = u8{3};
 
 enum class TextureStageDestination : u8 {
   Current,
   Temporary,
 };
-constexpr u8 TEXTURE_STAGE_DESTINATION_COUNT {2};
+constexpr auto TEXTURE_STAGE_DESTINATION_COUNT = u8{2};
 
 enum class TextureCoordinateTransformMode : u8 {
   Disabled,
@@ -229,7 +229,7 @@ enum class TextureCoordinateTransformMode : u8 {
   Count3,
   Count4,
 };
-constexpr u8 TEXTURE_COORDINATE_TRANSFORM_MODE_COUNT {5};
+constexpr auto TEXTURE_COORDINATE_TRANSFORM_MODE_COUNT = u8{5};
 
 enum class TransformState : u8 {
   ViewToClip,
@@ -244,7 +244,7 @@ enum class TransformState : u8 {
   Texture6,
   Texture7,
 };
-constexpr u8 TRANSFORM_STATE_COUNT {11};
+constexpr auto TRANSFORM_STATE_COUNT = u8{11};
 
 enum class VertexElement : u8 {
   Position3F32,
@@ -258,14 +258,14 @@ enum class VertexElement : u8 {
   TextureCoords3F32,
   TextureCoords4F32,
 };
-constexpr u8 VERTEX_ELEMENT_COUNT {10u};
-using VertexLayout = gsl::span<const VertexElement>;
+constexpr auto VERTEX_ELEMENT_COUNT = u8{10};
+using VertexLayout = gsl::span<VertexElement const>;
 
 enum class IndexType : u8 {
   U16,
   U32,
 };
-constexpr u8 INDEX_TYPE_COUNT {2u};
+constexpr auto INDEX_TYPE_COUNT = u8{2};
 
 using IndexTypes = EnumSet<IndexType, IndexType::U32>;
 
@@ -294,39 +294,39 @@ using SwapChainPtr = std::shared_ptr<SwapChain>;
 using uDeviceSize = u64;
 
 struct DeviceCaps final {
-  uDeviceSize maxVertexBufferSizeInBytes {};
-  uDeviceSize maxIndexBufferSizeInBytes {};
-  IndexTypes supportedIndexTypes {IndexType::U16};
-  u32 maxLights {1};
-  u32 maxTextureBlendStages {1};
-  u32 maxBoundSampledTextures {1};
-  bool samplerClampToBorder {false};
-  bool samplerCustomBorderColor {false};
-  bool samplerMirrorOnceClampToEdge {false};
-  bool samplerMinFilterAnisotropic {false};
-  bool samplerMagFilterAnisotropic {false};
-  bool samplerCubeMinFilterAnisotropic {false};
-  bool samplerCubeMagFilterAnisotropic {false};
-  bool sampler3DMinFilterAnisotropic {false};
-  bool sampler3DMagFilterAnisotropic {false};
-  u8 samplerMaxAnisotropy {1};
-  bool perTextureStageConstant {false};
+  uDeviceSize maxVertexBufferSizeInBytes{};
+  uDeviceSize maxIndexBufferSizeInBytes{};
+  IndexTypes supportedIndexTypes{IndexType::U16};
+  u32 maxLights{1};
+  u32 maxTextureBlendStages{1};
+  u32 maxBoundSampledTextures{1};
+  bool samplerClampToBorder{false};
+  bool samplerCustomBorderColor{false};
+  bool samplerMirrorOnceClampToEdge{false};
+  bool samplerMinFilterAnisotropic{false};
+  bool samplerMagFilterAnisotropic{false};
+  bool samplerCubeMinFilterAnisotropic{false};
+  bool samplerCubeMagFilterAnisotropic{false};
+  bool sampler3DMinFilterAnisotropic{false};
+  bool sampler3DMagFilterAnisotropic{false};
+  u8 samplerMaxAnisotropy{1};
+  bool perTextureStageConstant{false};
   TextureOps supportedColorOps;
   TextureOps supportedAlphaOps;
 };
 
 struct TextureStageArgument {
-  TextureStageSrc src {TextureStageSrc::Current};
-  TextureStageSrcMod modifier {TextureStageSrcMod::None};
+  TextureStageSrc src{TextureStageSrc::Current};
+  TextureStageSrcMod modifier{TextureStageSrcMod::None};
 };
 
 struct TextureCoordinateSet {
-  u8 stageIndex {};
-  TextureCoordinateSrc src {TextureCoordinateSrc::Vertex};
-  u8 srcIndex {};
-  TextureCoordinateTransformMode transformMode {
+  u8 stageIndex{};
+  TextureCoordinateSrc src{TextureCoordinateSrc::Vertex};
+  u8 srcIndex{};
+  TextureCoordinateTransformMode transformMode{
     TextureCoordinateTransformMode::Disabled};
-  bool projected {false};
+  bool projected{false};
 };
 
 enum class MaterialColorSource : u8 {
@@ -334,47 +334,47 @@ enum class MaterialColorSource : u8 {
   SpecularVertexColor,
   Material,
 };
-constexpr u8 MATERIAL_COLOR_SOURCE_COUNT {3};
+constexpr auto MATERIAL_COLOR_SOURCE_COUNT = u8{3};
 
 // or enum set with wanted features
 struct FixedVertexShaderCreateInfo {
-  gsl::span<const TextureCoordinateSet> textureCoordinateSets {};
-  ShadeMode shadeMode {ShadeMode::Gouraud};
-  bool lightingEnabled {false};
-  bool specularEnabled {false};
-  bool vertexColorEnabled {true};
-  bool normalizeViewSpaceNormals {false};
-  MaterialColorSource diffuseSource {MaterialColorSource::DiffuseVertexColor};
-  MaterialColorSource specularSource {MaterialColorSource::SpecularVertexColor};
-  MaterialColorSource ambientSource {MaterialColorSource::Material};
-  MaterialColorSource emissiveSource {MaterialColorSource::Material};
-  FogMode fog {FogMode::None};
-  bool fogRangeBased {false};
+  gsl::span<TextureCoordinateSet const> textureCoordinateSets{};
+  ShadeMode shadeMode{ShadeMode::Gouraud};
+  bool lightingEnabled{false};
+  bool specularEnabled{false};
+  bool vertexColorEnabled{true};
+  bool normalizeViewSpaceNormals{false};
+  MaterialColorSource diffuseSource{MaterialColorSource::DiffuseVertexColor};
+  MaterialColorSource specularSource{MaterialColorSource::SpecularVertexColor};
+  MaterialColorSource ambientSource{MaterialColorSource::Material};
+  MaterialColorSource emissiveSource{MaterialColorSource::Material};
+  FogMode fog{FogMode::None};
+  bool fogRangeBased{false};
 };
 
 struct TextureStage {
-  TextureOp colorOp {TextureOp::Modulate};
-  TextureStageArgument colorArg1 {TextureStageSrc::SampledTexture};
-  TextureStageArgument colorArg2 {};
-  TextureStageArgument colorArg3 {};
-  TextureOp alphaOp {TextureOp::Replace};
-  TextureStageArgument alphaArg1 {TextureStageSrc::SampledTexture};
-  TextureStageArgument alphaArg2 {};
-  TextureStageArgument alphaArg3 {};
-  TextureStageDestination dest {TextureStageDestination::Current};
+  TextureOp colorOp{TextureOp::Modulate};
+  TextureStageArgument colorArg1{TextureStageSrc::SampledTexture};
+  TextureStageArgument colorArg2{};
+  TextureStageArgument colorArg3{};
+  TextureOp alphaOp{TextureOp::Replace};
+  TextureStageArgument alphaArg1{TextureStageSrc::SampledTexture};
+  TextureStageArgument alphaArg2{};
+  TextureStageArgument alphaArg3{};
+  TextureStageDestination dest{TextureStageDestination::Current};
   // TODO: replace with Matrix2x2
-  f32 bumpEnvMat00 {1};
-  f32 bumpEnvMat01 {0};
-  f32 bumpEnvMat10 {0};
-  f32 bumpEnvMat11 {1};
-  f32 bumpEnvLuminanceScale {1};
-  f32 bumpEnvLuminanceOffset {0};
+  f32 bumpEnvMat00{1};
+  f32 bumpEnvMat01{0};
+  f32 bumpEnvMat10{0};
+  f32 bumpEnvMat11{1};
+  f32 bumpEnvLuminanceScale{1};
+  f32 bumpEnvLuminanceOffset{0};
 };
 
 struct FixedFragmentShaderCreateInfo {
-  gsl::span<const TextureStage> textureStages {};
+  gsl::span<TextureStage const> textureStages{};
   // this overrides vertex fog
-  FogMode fog {FogMode::None};
+  FogMode fog{FogMode::None};
 };
 
 enum class StencilOp : u8 {
@@ -387,59 +387,59 @@ enum class StencilOp : u8 {
   IncrementWrap,
   DecrementWrap,
 };
-constexpr u8 STENCIL_OP_COUNT {8};
+constexpr auto STENCIL_OP_COUNT = u8{8};
 
 struct StencilOpState {
-  TestPassCond test {TestPassCond::Always};
-  StencilOp failOp {StencilOp::Keep};
-  StencilOp passDepthFailOp {StencilOp::Keep};
-  StencilOp passDepthPassOp {StencilOp::Keep};
+  TestPassCond test{TestPassCond::Always};
+  StencilOp failOp{StencilOp::Keep};
+  StencilOp passDepthFailOp{StencilOp::Keep};
+  StencilOp passDepthPassOp{StencilOp::Keep};
 };
 
 struct PipelineDescriptor final {
   // null -> default fixed vertex shader
-  const FixedVertexShaderCreateInfo* vertexShader {};
+  FixedVertexShaderCreateInfo const* vertexShader{};
   // null -> default fixed fragment shader
-  const FixedFragmentShaderCreateInfo* fragmentShader {};
-  VertexLayout vertexLayout {};
-  PrimitiveType primitiveType {PrimitiveType::PointList};
-  CullMode cullMode {CullMode::None};
-  FillMode fillMode {FillMode::Solid};
-  TestPassCond depthTest {TestPassCond::Always};
-  bool depthWriteEnable {false};
-  StencilOpState frontFaceStencilOp {};
-  StencilOpState backFaceStencilOp {};
-  bool dithering {false};
-  TestPassCond alphaTest {TestPassCond::Always};
-  BlendFactor srcBlendFactor {BlendFactor::One};
-  BlendFactor destBlendFactor {BlendFactor::Zero};
-  BlendOp blendOp {BlendOp::Add};
+  FixedFragmentShaderCreateInfo const* fragmentShader{};
+  VertexLayout vertexLayout{};
+  PrimitiveType primitiveType{PrimitiveType::PointList};
+  CullMode cullMode{CullMode::None};
+  FillMode fillMode{FillMode::Solid};
+  TestPassCond depthTest{TestPassCond::Always};
+  bool depthWriteEnable{false};
+  StencilOpState frontFaceStencilOp{};
+  StencilOpState backFaceStencilOp{};
+  bool dithering{false};
+  TestPassCond alphaTest{TestPassCond::Always};
+  BlendFactor srcBlendFactor{BlendFactor::One};
+  BlendFactor destBlendFactor{BlendFactor::Zero};
+  BlendOp blendOp{BlendOp::Add};
 };
 
 struct SamplerDescriptor final {
-  TextureFilter magFilter {TextureFilter::Point};
-  TextureFilter minFilter {TextureFilter::Point};
-  TextureMipFilter mipFilter {TextureMipFilter::None};
-  TextureAddressMode addressModeU {TextureAddressMode::Repeat};
-  TextureAddressMode addressModeV {TextureAddressMode::Repeat};
-  TextureAddressMode addressModeW {TextureAddressMode::Repeat};
+  TextureFilter magFilter{TextureFilter::Point};
+  TextureFilter minFilter{TextureFilter::Point};
+  TextureMipFilter mipFilter{TextureMipFilter::None};
+  TextureAddressMode addressModeU{TextureAddressMode::Repeat};
+  TextureAddressMode addressModeV{TextureAddressMode::Repeat};
+  TextureAddressMode addressModeW{TextureAddressMode::Repeat};
 
   // DeviceCaps.samplerClampToBorder
-  BorderColor borderColor {BorderColor::BlackTransparent};
+  BorderColor borderColor{BorderColor::BlackTransparent};
   // DeviceCaps.samplerCustomBorderColor
-  Color customBorderColor {};
+  Color customBorderColor{};
   // DeviceCaps.samplerMaxAnisotropy
-  u8 maxAnisotropy {1};
+  u8 maxAnisotropy{1};
 };
 
 struct VertexBufferDescriptor final {
-  uDeviceSize sizeInBytes {};
-  VertexLayout layout {};
+  uDeviceSize sizeInBytes{};
+  VertexLayout layout{};
 };
 
 struct IndexBufferDescriptor final {
-  uDeviceSize sizeInBytes {};
-  IndexType type {IndexType::U16};
+  uDeviceSize sizeInBytes{};
+  IndexType type{IndexType::U16};
 };
 
 struct DirectionalLightData final {
@@ -454,10 +454,10 @@ struct PointLightData final {
   Color specular;
   Color ambient;
   Vector3f32 positionInWorld;
-  f32 rangeInWorld {};
-  f32 attenuation0 {};
-  f32 attenuation1 {};
-  f32 attenuation2 {};
+  f32 rangeInWorld{};
+  f32 attenuation0{};
+  f32 attenuation1{};
+  f32 attenuation2{};
 };
 
 struct SpotLightData final {
@@ -466,11 +466,11 @@ struct SpotLightData final {
   Color ambient;
   Vector3f32 positionInWorld;
   Vector3f32 directionInWorld;
-  f32 rangeInWorld {};
-  f32 attenuation0 {};
-  f32 attenuation1 {};
-  f32 attenuation2 {};
-  f32 falloff {};
+  f32 rangeInWorld{};
+  f32 attenuation0{};
+  f32 attenuation1{};
+  f32 attenuation2{};
+  f32 falloff{};
   Angle phi;
   Angle theta;
 };

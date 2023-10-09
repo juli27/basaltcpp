@@ -10,12 +10,12 @@ namespace basalt::gfx {
 namespace {
 
 // 128 KiB
-constexpr uSize INITIAL_COMMAND_BUFFER_SIZE {128 * 1024};
+constexpr auto INITIAL_COMMAND_BUFFER_SIZE = uSize{128 * 1024};
 
 } // namespace
 
 CommandList::CommandList()
-  : mBuffer {std::make_unique<CommandBuffer>(INITIAL_COMMAND_BUFFER_SIZE)} {
+  : mBuffer{std::make_unique<CommandBuffer>(INITIAL_COMMAND_BUFFER_SIZE)} {
 }
 
 auto CommandList::size() const noexcept -> uSize {
@@ -30,97 +30,97 @@ auto CommandList::end() const -> const_iterator {
   return mCommands.end();
 }
 
-auto CommandList::clear_attachments(const Attachments attachments,
-                                    const Color& color, const f32 depth,
-                                    const u32 stencil) -> void {
+auto CommandList::clear_attachments(Attachments const attachments,
+                                    Color const& color, f32 const depth,
+                                    u32 const stencil) -> void {
   add<CommandClearAttachments>(attachments, color, depth, stencil);
 }
 
-auto CommandList::draw(const u32 firstVertex, const u32 vertexCount) -> void {
+auto CommandList::draw(u32 const firstVertex, u32 const vertexCount) -> void {
   add<CommandDraw>(firstVertex, vertexCount);
 }
 
-auto CommandList::draw_indexed(const i32 vertexOffset, const u32 minIndex,
-                               const u32 numVertices, const u32 firstIndex,
-                               const u32 indexCount) -> void {
+auto CommandList::draw_indexed(i32 const vertexOffset, u32 const minIndex,
+                               u32 const numVertices, u32 const firstIndex,
+                               u32 const indexCount) -> void {
   add<CommandDrawIndexed>(vertexOffset, minIndex, numVertices, firstIndex,
                           indexCount);
 }
 
-auto CommandList::bind_pipeline(const Pipeline pipelineId) -> void {
+auto CommandList::bind_pipeline(Pipeline const pipelineId) -> void {
   add<CommandBindPipeline>(pipelineId);
 }
 
-auto CommandList::bind_vertex_buffer(const VertexBuffer vertexBufferId,
-                                     const u64 offsetInBytes) -> void {
+auto CommandList::bind_vertex_buffer(VertexBuffer const vertexBufferId,
+                                     u64 const offsetInBytes) -> void {
   add<CommandBindVertexBuffer>(vertexBufferId, offsetInBytes);
 }
 
-auto CommandList::bind_index_buffer(const IndexBuffer indexBufferId) -> void {
+auto CommandList::bind_index_buffer(IndexBuffer const indexBufferId) -> void {
   add<CommandBindIndexBuffer>(indexBufferId);
 }
 
-auto CommandList::bind_sampler(const u8 slot, const Sampler samplerId) -> void {
+auto CommandList::bind_sampler(u8 const slot, Sampler const samplerId) -> void {
   add<CommandBindSampler>(slot, samplerId);
 }
 
-auto CommandList::bind_texture(const u8 slot, const Texture textureId) -> void {
+auto CommandList::bind_texture(u8 const slot, Texture const textureId) -> void {
   add<CommandBindTexture>(slot, textureId);
 }
 
-auto CommandList::set_stencil_reference(const u32 value) -> void {
+auto CommandList::set_stencil_reference(u32 const value) -> void {
   add<CommandSetStencilReference>(value);
 }
 
-auto CommandList::set_stencil_read_mask(const u32 value) -> void {
+auto CommandList::set_stencil_read_mask(u32 const value) -> void {
   add<CommandSetStencilReadMask>(value);
 }
 
-auto CommandList::set_stencil_write_mask(const u32 value) -> void {
+auto CommandList::set_stencil_write_mask(u32 const value) -> void {
   add<CommandSetStencilWriteMask>(value);
 }
 
-auto CommandList::set_blend_constant(const Color& c) -> void {
+auto CommandList::set_blend_constant(Color const& c) -> void {
   add<CommandSetBlendConstant>(c);
 }
 
-auto CommandList::set_transform(const TransformState transformState,
-                                const Matrix4x4f32& transform) -> void {
+auto CommandList::set_transform(TransformState const transformState,
+                                Matrix4x4f32 const& transform) -> void {
   add<CommandSetTransform>(transformState, transform);
 }
 
-auto CommandList::set_ambient_light(const Color& ambientColor) -> void {
+auto CommandList::set_ambient_light(Color const& ambientColor) -> void {
   add<CommandSetAmbientLight>(ambientColor);
 }
 
-auto CommandList::set_lights(const span<const LightData> lights) -> void {
-  span lightsCopy {allocate<LightData>(lights.size())};
+auto CommandList::set_lights(span<LightData const> const lights) -> void {
+  auto const lightsCopy = allocate<LightData>(lights.size());
   std::uninitialized_copy(lights.begin(), lights.end(), lightsCopy.begin());
 
   add<CommandSetLights>(lightsCopy);
 }
 
-auto CommandList::set_material(const Color& diffuse, const Color& ambient,
-                               const Color& emissive, const Color& specular,
-                               const f32 specularPower) -> void {
+auto CommandList::set_material(Color const& diffuse, Color const& ambient,
+                               Color const& emissive, Color const& specular,
+                               f32 const specularPower) -> void {
   add<CommandSetMaterial>(diffuse, ambient, emissive, specular, specularPower);
 }
 
-auto CommandList::set_fog_parameters(const Color& color, f32 start, f32 end,
+auto CommandList::set_fog_parameters(Color const& color, f32 start, f32 end,
                                      f32 density) -> void {
   add<CommandSetFogParameters>(color, start, end, density);
 }
 
-auto CommandList::set_reference_alpha(const u8 alpha) -> void {
+auto CommandList::set_reference_alpha(u8 const alpha) -> void {
   add<CommandSetReferenceAlpha>(alpha);
 }
 
-auto CommandList::set_texture_factor(const Color& textureFactor) -> void {
+auto CommandList::set_texture_factor(Color const& textureFactor) -> void {
   add<CommandSetTextureFactor>(textureFactor);
 }
 
-auto CommandList::set_texture_stage_constant(const u8 stageId,
-                                             const Color& constant) -> void {
+auto CommandList::set_texture_stage_constant(u8 const stageId,
+                                             Color const& constant) -> void {
   add<CommandSetTextureStageConstant>(stageId, constant);
 }
 

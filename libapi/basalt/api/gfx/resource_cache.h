@@ -20,27 +20,27 @@ class ResourceCache final {
 public:
   static auto create(DevicePtr) -> ResourceCachePtr;
 
-  ResourceCache(const ResourceCache&) = delete;
+  ResourceCache(ResourceCache const&) = delete;
   ResourceCache(ResourceCache&&) = delete;
 
   ~ResourceCache() noexcept;
 
-  auto operator=(const ResourceCache&) -> ResourceCache& = delete;
+  auto operator=(ResourceCache const&) -> ResourceCache& = delete;
   auto operator=(ResourceCache&&) -> ResourceCache& = delete;
 
-  [[nodiscard]] auto create_pipeline(const PipelineDescriptor&) -> Pipeline;
+  [[nodiscard]] auto create_pipeline(PipelineDescriptor const&) -> Pipeline;
   auto destroy(Pipeline) noexcept -> void;
 
   [[nodiscard]] auto
-  create_vertex_buffer(const VertexBufferDescriptor&,
-                       gsl::span<const std::byte> initialData = {})
+  create_vertex_buffer(VertexBufferDescriptor const&,
+                       gsl::span<std::byte const> initialData = {})
     -> VertexBuffer;
   auto destroy(VertexBuffer) noexcept -> void;
 
   // span is empty on failure
   // F = void(gsl::span<std::byte>)
   template <typename F>
-  auto with_mapping_of(const VertexBuffer handle, F&& func) -> void {
+  auto with_mapping_of(VertexBuffer const handle, F&& func) -> void {
     with_mapping_of(handle, 0ull, 0ull, std::forward<F>(func));
   }
 
@@ -49,8 +49,8 @@ public:
   // span is empty on failure
   // F = void(gsl::span<std::byte>)
   template <typename F>
-  auto with_mapping_of(const VertexBuffer handle, const uDeviceSize offset,
-                       const uDeviceSize size, F&& func) -> void {
+  auto with_mapping_of(VertexBuffer const handle, uDeviceSize const offset,
+                       uDeviceSize const size, F&& func) -> void {
     // TODO: how should this handle map failure? right now its passing the empty
     // span to the function
     func(map(handle, offset, size));
@@ -59,15 +59,15 @@ public:
   }
 
   [[nodiscard]] auto
-  create_index_buffer(const IndexBufferDescriptor&,
-                      gsl::span<const std::byte> initialData = {})
+  create_index_buffer(IndexBufferDescriptor const&,
+                      gsl::span<std::byte const> initialData = {})
     -> IndexBuffer;
   auto destroy(IndexBuffer) noexcept -> void;
 
   // span is empty on failure
   // F = void(gsl::span<std::byte>)
   template <typename F>
-  auto with_mapping_of(const IndexBuffer handle, F&& func) -> void {
+  auto with_mapping_of(IndexBuffer const handle, F&& func) -> void {
     with_mapping_of(handle, 0ull, 0ull, std::forward<F>(func));
   }
 
@@ -76,9 +76,9 @@ public:
   // span is empty on failure
   // F = void(gsl::span<std::byte>)
   template <typename F>
-  auto with_mapping_of(const IndexBuffer handle,
-                       const uDeviceSize offsetInBytes,
-                       const uDeviceSize sizeInBytes, F&& func) -> void {
+  auto with_mapping_of(IndexBuffer const handle,
+                       uDeviceSize const offsetInBytes,
+                       uDeviceSize const sizeInBytes, F&& func) -> void {
     // TODO: how should this handle map failure? right now its passing the empty
     // span to the function
     func(map(handle, offsetInBytes, sizeInBytes));
@@ -86,27 +86,27 @@ public:
     unmap(handle);
   }
 
-  [[nodiscard]] auto create_sampler(const SamplerDescriptor&) -> Sampler;
+  [[nodiscard]] auto create_sampler(SamplerDescriptor const&) -> Sampler;
   auto destroy(Sampler) noexcept -> void;
 
-  [[nodiscard]] auto load_texture(const std::filesystem::path&) -> Texture;
-  [[nodiscard]] auto load_cube_texture(const std::filesystem::path&) -> Texture;
+  [[nodiscard]] auto load_texture(std::filesystem::path const&) -> Texture;
+  [[nodiscard]] auto load_cube_texture(std::filesystem::path const&) -> Texture;
   auto destroy(Texture) noexcept -> void;
 
-  auto load_texture_3d(const std::filesystem::path&) -> Texture;
+  auto load_texture_3d(std::filesystem::path const&) -> Texture;
 
-  [[nodiscard]] auto load_x_model(const std::filesystem::path&) -> ext::XModel;
-  [[nodiscard]] auto load_x_model(const XModelDescriptor&) -> ext::XModel;
+  [[nodiscard]] auto load_x_model(std::filesystem::path const&) -> ext::XModel;
+  [[nodiscard]] auto load_x_model(XModelDescriptor const&) -> ext::XModel;
   auto destroy(ext::XModel) noexcept -> void;
-  [[nodiscard]] auto get(ext::XModel) const -> const XModelData&;
+  [[nodiscard]] auto get(ext::XModel) const -> XModelData const&;
 
-  [[nodiscard]] auto create_mesh(const MeshDescriptor&) -> Mesh;
+  [[nodiscard]] auto create_mesh(MeshDescriptor const&) -> Mesh;
   auto destroy(Mesh) noexcept -> void;
-  [[nodiscard]] auto get(Mesh) const -> const MeshData&;
+  [[nodiscard]] auto get(Mesh) const -> MeshData const&;
 
-  [[nodiscard]] auto create_material(const MaterialDescriptor&) -> Material;
+  [[nodiscard]] auto create_material(MaterialDescriptor const&) -> Material;
   auto destroy(Material) noexcept -> void;
-  [[nodiscard]] auto get(Material) const -> const MaterialData&;
+  [[nodiscard]] auto get(Material) const -> MaterialData const&;
 
   [[nodiscard]] auto compile_effect(std::filesystem::path const&)
     -> ext::CompileResult;

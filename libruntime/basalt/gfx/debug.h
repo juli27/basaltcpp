@@ -7,15 +7,15 @@ namespace basalt::gfx {
 struct Debug final {
   Debug() = delete;
 
-  Debug(const Debug&) = delete;
+  Debug(Debug const&) = delete;
   Debug(Debug&&) = delete;
 
   ~Debug() = delete;
 
-  auto operator=(const Debug&) -> Debug& = delete;
+  auto operator=(Debug const&) -> Debug& = delete;
   auto operator=(Debug&&) -> Debug& = delete;
 
-  static void update(const Composite&);
+  static auto update(Composite const&) -> void;
 };
 
 } // namespace basalt::gfx

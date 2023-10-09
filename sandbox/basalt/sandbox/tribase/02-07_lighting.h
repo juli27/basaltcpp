@@ -13,7 +13,7 @@ namespace tribase {
 
 class Lighting final : public basalt::View {
 public:
-  explicit Lighting(basalt::Engine&);
+  explicit Lighting(basalt::Engine const&);
 
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;
@@ -24,7 +24,7 @@ private:
   basalt::gfx::Pipeline mPipeline;
   basalt::gfx::Pipeline mNoTexturePipeline;
   basalt::gfx::Sampler mSampler;
-  basalt::SecondsF32 mTime {};
+  basalt::SecondsF32 mTime{};
 
   auto on_update(UpdateContext&) -> void override;
 };

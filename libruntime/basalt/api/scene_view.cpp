@@ -29,66 +29,66 @@ using namespace entt::literals;
 // TODO: make gfxCache somehow bound to the GfxSystem
 
 auto SceneView::create(ScenePtr scene, gfx::ResourceCachePtr gfxCache,
-                       const EntityId cameraEntity) -> SceneViewPtr {
+                       EntityId const cameraEntity) -> SceneViewPtr {
   scene->create_system<gfx::GfxSystem>();
 
-  auto& ctx {scene->entity_registry().ctx()};
+  auto& ctx = scene->entity_registry().ctx();
   ctx.emplace_as<EntityId>(gfx::GfxSystem::sMainCamera, cameraEntity);
 
   return std::make_shared<SceneView>(std::move(scene), std::move(gfxCache));
 }
 
 SceneView::SceneView(ScenePtr scene, gfx::ResourceCachePtr gfxCache)
-  : mScene {std::move(scene)}
-  , mGfxCache {std::move(gfxCache)}
-  , mSelectedEntity {entt::null} {
-  auto& ctx {mScene->entity_registry().ctx()};
-  ctx.emplace<const InputState&>(input_state());
+  : mScene{std::move(scene)}
+  , mGfxCache{std::move(gfxCache)}
+  , mSelectedEntity{entt::null} {
+  auto& ctx = mScene->entity_registry().ctx();
+  ctx.emplace<InputState const&>(input_state());
   ctx.emplace<gfx::ResourceCache&>(*mGfxCache);
 
   mComponentUis.push_back({
     entt::type_hash<Transform>::value(),
     "Transform"s,
-    [](const Entity& entity) { DebugUi::transform(entity.get<Transform>()); },
+    [](Entity const& entity) { DebugUi::transform(entity.get<Transform>()); },
   });
   mComponentUis.push_back({
     entt::type_hash<LocalToWorld>::value(),
     "LocalToWorld"s,
-    [](const Entity& entity) {
+    [](Entity const& entity) {
       DebugUi::local_to_world(entity.get<LocalToWorld>());
     },
   });
   mComponentUis.push_back({
     entt::type_hash<gfx::Camera>::value(),
     "gfx::Camera"s,
-    [](const Entity& entity) { DebugUi::camera(entity.get<gfx::Camera>()); },
+    [](Entity const& entity) { DebugUi::camera(entity.get<gfx::Camera>()); },
   });
   mComponentUis.push_back({
     entt::type_hash<gfx::RenderComponent>::value(),
     "gfx::RenderComponent"s,
-    [](const Entity& entity) {
-      DebugUi::render_component(entity.get<const gfx::RenderComponent>());
+    [](Entity const& entity) {
+      DebugUi::render_component(entity.get<gfx::RenderComponent const>());
     },
   });
   mComponentUis.push_back({
     entt::type_hash<gfx::Light>::value(),
     "gfx::Light"s,
-    [](const Entity& entity) { DebugUi::light(entity.get<gfx::Light>()); },
+    [](Entity const& entity) { DebugUi::light(entity.get<gfx::Light>()); },
   });
   mComponentUis.push_back({
     entt::type_hash<gfx::ext::XModel>::value(),
     "gfx::ext::XModel"s,
-    [](const Entity& entity) {
-      DebugUi::x_model(entity.get<const gfx::ext::XModel>());
+    [](Entity const& entity) {
+      DebugUi::x_model(entity.get<gfx::ext::XModel const>());
     },
   });
 }
 
 auto SceneView::update_debug_ui(Config& config) -> void {
-  if (bool sceneInspectorOpen {
-        config.get_bool("debug.scene_inspector.visible"s)}) {
-    const auto& state {mScene->entity_registry().ctx().insert_or_assign(
-      DebugUi::SceneInspectorState {mSelectedEntity, mComponentUis})};
+  if (auto sceneInspectorOpen =
+        config.get_bool("debug.scene_inspector.visible"s)) {
+    auto const& state = mScene->entity_registry().ctx().insert_or_assign(
+      DebugUi::SceneInspectorState{mSelectedEntity, mComponentUis});
     DebugUi::scene_inspector(*mScene, sceneInspectorOpen);
     mSelectedEntity = state.selected;
 
@@ -96,20 +96,20 @@ auto SceneView::update_debug_ui(Config& config) -> void {
   }
 }
 
-auto SceneView::on_input(const InputEvent&) -> InputEventHandled {
+auto SceneView::on_input(InputEvent const&) -> InputEventHandled {
   return InputEventHandled::Yes;
 }
 
 auto SceneView::on_update(UpdateContext& ctx) -> void {
-  Engine& engine {ctx.engine};
+  auto& engine = ctx.engine;
 
-  auto& ecsCtx {mScene->entity_registry().ctx()};
-  ecsCtx.insert_or_assign<const DrawContext&>(ctx.drawCtx);
+  auto& ecsCtx = mScene->entity_registry().ctx();
+  ecsCtx.insert_or_assign<DrawContext const&>(ctx.drawCtx);
 
-  const Scene::UpdateContext sceneCtx {ctx.deltaTime};
+  auto const sceneCtx = Scene::UpdateContext{ctx.deltaTime};
   mScene->on_update(sceneCtx);
 
-  if (auto& config {engine.config()};
+  if (auto& config = engine.config();
       config.get_bool("runtime.debugUI.enabled"s)) {
     update_debug_ui(config);
   }

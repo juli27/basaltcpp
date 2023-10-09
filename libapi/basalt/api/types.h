@@ -37,7 +37,7 @@ enum class InputEventType : u8 {
 };
 
 enum class MouseButton : u8 { Left, Right, Middle, Button4, Button5 };
-constexpr uSize MOUSE_BUTTON_COUNT = 5u;
+constexpr auto MOUSE_BUTTON_COUNT = u8{5};
 
 enum class MouseCursor : u8 {
   Arrow,
@@ -50,14 +50,16 @@ enum class MouseCursor : u8 {
   Hand,
   NotAllowed
 };
-constexpr uSize MOUSE_CURSOR_COUNT = 9u;
+constexpr auto MOUSE_CURSOR_COUNT = u8{9};
 
 struct PointerPosition : vec<PointerPosition, i32, 2> {
-  [[nodiscard]] constexpr auto x() const noexcept -> i32 {
+  [[nodiscard]]
+  constexpr auto x() const noexcept -> i32 {
     return std::get<0>(elements);
   }
 
-  [[nodiscard]] constexpr auto y() const noexcept -> i32 {
+  [[nodiscard]]
+  constexpr auto y() const noexcept -> i32 {
     return std::get<1>(elements);
   }
 };
@@ -87,6 +89,6 @@ enum class Key : u8 {
   // clang-format on
 };
 
-constexpr uSize KEY_COUNT = 102u;
+constexpr auto KEY_COUNT = u8{102};
 
 } // namespace basalt

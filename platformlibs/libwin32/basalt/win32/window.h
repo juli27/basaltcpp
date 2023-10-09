@@ -25,25 +25,25 @@ public:
   struct CreateInfo final {
     std::string title;
     int showCommand;
-    Size2Du16 preferredClientAreaSize {Size2Du16::dont_care()};
-    WindowMode mode {WindowMode::Windowed};
-    bool resizeable {true};
+    Size2Du16 preferredClientAreaSize{Size2Du16::dont_care()};
+    WindowMode mode{WindowMode::Windowed};
+    bool resizeable{true};
   };
 
   // throws std::system_error on failure
-  [[nodiscard]] static auto create(HMODULE, const CreateInfo&,
-                                   const gfx::Win32GfxFactory&) -> WindowPtr;
+  [[nodiscard]] static auto create(HMODULE, CreateInfo const&,
+                                   gfx::Win32GfxFactory const&) -> WindowPtr;
 
-  Window(const Window&) = delete;
+  Window(Window const&) = delete;
   Window(Window&&) = delete;
 
   ~Window();
 
-  auto operator=(const Window&) -> Window& = delete;
+  auto operator=(Window const&) -> Window& = delete;
   auto operator=(Window&&) -> Window& = delete;
 
   [[nodiscard]] auto handle() const noexcept -> HWND;
-  [[nodiscard]] auto gfx_context() const noexcept -> const gfx::ContextPtr&;
+  [[nodiscard]] auto gfx_context() const noexcept -> gfx::ContextPtr const&;
   [[nodiscard]] auto input_manager() noexcept -> InputManager&;
   [[nodiscard]] auto client_area_size() const noexcept -> Size2Du16;
   [[nodiscard]] auto mode() const noexcept -> WindowMode;
@@ -53,29 +53,29 @@ public:
 
   // don't call directly. Use the create function instead
   Window(HMODULE, ATOM classAtom, HWND, Size2Du16 clientAreaSize,
-         const gfx::AdapterList&);
+         gfx::AdapterList const&);
 
 private:
   struct SavedWindowInfo final {
-    DWORD style {};
-    RECT windowRect {}; // in screen coordinates
+    DWORD style{};
+    RECT windowRect{}; // in screen coordinates
   };
 
-  HMODULE mModuleHandle {};
-  ATOM mClassAtom {};
-  HWND mHandle {};
-  const gfx::AdapterList& mAdapters;
+  HMODULE mModuleHandle{};
+  ATOM mClassAtom{};
+  HWND mHandle{};
+  gfx::AdapterList const& mAdapters;
   gfx::ContextPtr mGfxContext;
   gfx::SwapChainPtr mSwapChain;
   InputManager mInputManager;
   SavedWindowInfo mSavedWindowInfo;
-  Size2Du16 mClientAreaSize {Size2Du16::dont_care()};
-  WindowMode mCurrentMode {WindowMode::Windowed};
-  MouseCursor mCurrentCursor {MouseCursor::Arrow};
-  std::array<HCURSOR, MOUSE_CURSOR_COUNT> mLoadedCursors {};
-  bool mIsInSizeMoveModalLoop {false};
+  Size2Du16 mClientAreaSize{Size2Du16::dont_care()};
+  WindowMode mCurrentMode{WindowMode::Windowed};
+  MouseCursor mCurrentCursor{MouseCursor::Arrow};
+  std::array<HCURSOR, MOUSE_CURSOR_COUNT> mLoadedCursors{};
+  bool mIsInSizeMoveModalLoop{false};
 
-  auto init_gfx_context(const gfx::Win32GfxFactory&) -> void;
+  auto init_gfx_context(gfx::Win32GfxFactory const&) -> void;
   auto shutdown_gfx_context() -> void;
 
   auto resize(Size2Du16 newClientAreaSize) -> void;

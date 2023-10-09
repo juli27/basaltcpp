@@ -15,16 +15,16 @@ namespace tribase {
 
 class MultiTexturing final : public basalt::View {
 public:
-  explicit MultiTexturing(const basalt::Engine&);
+  explicit MultiTexturing(basalt::Engine const&);
 
 private:
   basalt::gfx::ResourceCachePtr mGfxCache;
-  std::array<basalt::gfx::Pipeline, 12> mPipelines {};
+  std::array<basalt::gfx::Pipeline, 12> mPipelines{};
   basalt::gfx::Sampler mSampler;
   basalt::gfx::Texture mTexture0;
   basalt::gfx::Texture mTexture1;
   basalt::gfx::ext::XModel mCube;
-  basalt::SecondsF32 mTime {};
+  basalt::SecondsF32 mTime{};
 
   auto on_update(UpdateContext&) -> void override;
 };

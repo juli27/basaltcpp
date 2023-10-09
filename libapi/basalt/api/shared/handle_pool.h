@@ -34,22 +34,22 @@ public:
 
   HandlePool() noexcept = default;
 
-  HandlePool(const HandlePool&) = delete;
+  HandlePool(HandlePool const&) = delete;
   HandlePool(HandlePool&&) noexcept = default;
 
   ~HandlePool() noexcept = default;
 
-  auto operator=(const HandlePool&) -> HandlePool& = delete;
+  auto operator=(HandlePool const&) -> HandlePool& = delete;
   auto operator=(HandlePool&&) noexcept -> HandlePool& = default;
 
-  [[nodiscard]] auto is_valid(const Handle handle) const noexcept -> bool {
+  [[nodiscard]] auto is_valid(Handle const handle) const noexcept -> bool {
     return is_allocated(handle) &&
            mBookkeeping[handle.value()].handle == handle;
   }
 
   // handle must be valid
-  [[nodiscard]] auto operator[](const Handle handle) const noexcept
-    -> const T& {
+  [[nodiscard]] auto operator[](Handle const handle) const noexcept
+    -> T const& {
     BASALT_ASSERT(is_valid(handle));
 
     return *mBookkeeping[handle.value()].data;
@@ -70,31 +70,28 @@ public:
   template <typename... Args>
   [[nodiscard]] auto allocate(Args&&... args) -> Handle {
     if (mFreeSlotIndex != sInvalidIndex) {
-      SlotData& slot {mBookkeeping[mFreeSlotIndex]};
+      auto& slot = mBookkeeping[mFreeSlotIndex];
 
       AllocatorTraits::construct(mAllocator, slot.data,
                                  std::forward<Args>(args)...);
 
-      slot.handle = Handle {mFreeSlotIndex};
+      slot.handle = Handle{mFreeSlotIndex};
       mFreeSlotIndex = std::exchange(slot.nextFreeSlot, sInvalidIndex);
 
       return slot.handle;
     }
 
-    const uSize nextIndex {mBookkeeping.size()};
+    auto const nextIndex = mBookkeeping.size();
     BASALT_ASSERT(nextIndex < std::numeric_limits<IndexType>::max());
 
-    const auto index {static_cast<IndexType>(nextIndex)};
+    auto const index = static_cast<IndexType>(nextIndex);
 
-    T* element {AllocatorTraits::allocate(mAllocator, 1)};
+    auto* element = AllocatorTraits::allocate(mAllocator, 1);
     AllocatorTraits::construct(mAllocator, element,
                                std::forward<Args>(args)...);
 
-    SlotData& slot {mBookkeeping.emplace_back(SlotData {
-      element,
-      Handle {index},
-      sInvalidIndex,
-    })};
+    auto& slot = mBookkeeping.emplace_back(
+      SlotData{element, Handle{index}, sInvalidIndex});
 
     mActiveSlots.emplace_back(slot.handle);
 
@@ -102,20 +99,20 @@ public:
   }
 
   // ignores invalid handles
-  auto deallocate(const Handle handle) noexcept -> void {
+  auto deallocate(Handle const handle) noexcept -> void {
     if (!is_valid(handle)) {
       return;
     }
 
     mActiveSlots.erase(
       std::remove_if(mActiveSlots.begin(), mActiveSlots.end(),
-                     [handle](const Handle& h) { return h == handle; }),
+                     [handle](Handle const& h) { return h == handle; }),
       mActiveSlots.end());
 
-    const auto index {handle.value()};
+    auto const index = handle.value();
 
-    SlotData& slot {mBookkeeping[index]};
-    slot.handle = Handle {};
+    auto& slot = mBookkeeping[index];
+    slot.handle = Handle{};
 
     AllocatorTraits::destroy(mAllocator, slot.data);
 
@@ -154,15 +151,15 @@ private:
 
   using MemoryResource = std::pmr::unsynchronized_pool_resource;
 
-  std::unique_ptr<MemoryResource> mMemory {
-    std::make_unique<MemoryResource>(std::pmr::pool_options {0, sizeof(T)})};
-  std::pmr::polymorphic_allocator<T> mAllocator {mMemory.get()};
+  std::unique_ptr<MemoryResource> mMemory{
+    std::make_unique<MemoryResource>(std::pmr::pool_options{0, sizeof(T)})};
+  std::pmr::polymorphic_allocator<T> mAllocator{mMemory.get()};
   std::vector<SlotData> mBookkeeping;
   ActiveSlotsList mActiveSlots;
-  IndexType mFreeSlotIndex {sInvalidIndex};
+  IndexType mFreeSlotIndex{sInvalidIndex};
 
   // handle must be < size
-  [[nodiscard]] auto is_allocated(const Handle handle) const noexcept -> bool {
+  [[nodiscard]] auto is_allocated(Handle const handle) const noexcept -> bool {
     return handle.value() < mBookkeeping.size();
   }
 };

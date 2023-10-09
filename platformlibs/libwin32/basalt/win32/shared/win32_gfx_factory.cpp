@@ -7,9 +7,9 @@
 namespace basalt::gfx {
 
 auto Win32GfxFactory::create_device_and_swap_chain(
-  const HWND window, const DeviceAndSwapChainDesc& desc) const
+  HWND const window, DeviceAndSwapChainDesc const& desc) const
   -> DeviceAndSwapChain {
-  DeviceAndSwapChain res {do_create_device_and_swap_chain(window, desc)};
+  auto res = do_create_device_and_swap_chain(window, desc);
 
 #if BASALT_DEV_BUILD
   res.swapChain = ValidatingSwapChain::wrap(res.swapChain);

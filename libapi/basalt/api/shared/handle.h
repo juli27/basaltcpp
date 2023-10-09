@@ -15,8 +15,8 @@ struct HandleBase {
 
   constexpr HandleBase() noexcept = default;
 
-  constexpr explicit HandleBase(const ValueType value) noexcept
-    : mValue {value} {
+  constexpr explicit HandleBase(ValueType const value) noexcept
+    : mValue{value} {
     BASALT_ASSERT(mValue != NULL_VALUE, "null handle value");
   }
 
@@ -24,11 +24,11 @@ struct HandleBase {
     return !is_null();
   }
 
-  constexpr auto operator==(const HandleBase& rhs) const noexcept -> bool {
+  constexpr auto operator==(HandleBase const& rhs) const noexcept -> bool {
     return mValue == rhs.mValue;
   }
 
-  constexpr auto operator!=(const HandleBase& rhs) const noexcept -> bool {
+  constexpr auto operator!=(HandleBase const& rhs) const noexcept -> bool {
     return !(*this == rhs);
   }
 
@@ -41,9 +41,9 @@ struct HandleBase {
   }
 
 private:
-  static constexpr ValueType NULL_VALUE {std::numeric_limits<ValueType>::max()};
+  static constexpr auto NULL_VALUE = std::numeric_limits<ValueType>::max();
 
-  ValueType mValue {NULL_VALUE};
+  ValueType mValue{NULL_VALUE};
 };
 
 } // namespace detail
@@ -54,7 +54,7 @@ struct Handle final : detail::HandleBase {
   using HandleBase::HandleBase;
 
   static constexpr auto null() noexcept -> Handle {
-    return Handle {};
+    return Handle{};
   }
 };
 
@@ -62,7 +62,7 @@ struct Handle final : detail::HandleBase {
 
 template <typename T>
 struct std::hash<basalt::Handle<T>> {
-  auto operator()(const basalt::Handle<T>& handle) const -> std::size_t {
-    return std::hash<typename basalt::Handle<T>::ValueType> {}(handle.value());
+  auto operator()(basalt::Handle<T> const& handle) const -> std::size_t {
+    return std::hash<typename basalt::Handle<T>::ValueType>{}(handle.value());
   }
 };

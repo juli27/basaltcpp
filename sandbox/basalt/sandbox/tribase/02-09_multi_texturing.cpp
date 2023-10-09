@@ -51,9 +51,9 @@ using basalt::gfx::ext::XMeshCommandEncoder;
 
 namespace {
 
-constexpr auto to_matrix3x3(const Matrix4x4f32& m) -> Matrix4x4f32 {
+constexpr auto to_matrix3x3(Matrix4x4f32 const& m) -> Matrix4x4f32 {
   // clang-format off
-  return Matrix4x4f32 {
+  return Matrix4x4f32{
     m.m11, m.m12, m.m14, 0,
     m.m21, m.m22, m.m24, 0,
     m.m41, m.m42, m.m44, 0,
@@ -64,20 +64,28 @@ constexpr auto to_matrix3x3(const Matrix4x4f32& m) -> Matrix4x4f32 {
 
 } // namespace
 
-MultiTexturing::MultiTexturing(const Engine& engine)
-  : mGfxCache {engine.create_gfx_resource_cache()} {
-  FixedVertexShaderCreateInfo vs;
-  array textureCoordinateSets {TextureCoordinateSet {1}};
-  textureCoordinateSets[0].transformMode =
+MultiTexturing::MultiTexturing(Engine const& engine)
+  : mGfxCache{engine.create_gfx_resource_cache()}
+  , mSampler{mGfxCache->create_sampler({TextureFilter::Bilinear,
+                                        TextureFilter::Bilinear,
+                                        TextureMipFilter::Linear})}
+  , mTexture0{mGfxCache->load_texture(
+      "data/tribase/02-09_multi_tex/Texture1.jpg"sv)}
+  , mTexture1{mGfxCache->load_texture(
+      "data/tribase/02-09_multi_tex/Texture2.jpg"sv)}
+  , mCube{mGfxCache->load_x_model("data/tribase/02-09_multi_tex/Cube.x"sv)} {
+  auto vs = FixedVertexShaderCreateInfo{};
+  auto textureCoordinateSets = array{TextureCoordinateSet{1}};
+  std::get<0>(textureCoordinateSets).transformMode =
     TextureCoordinateTransformMode::Count2;
   vs.textureCoordinateSets = textureCoordinateSets;
   vs.lightingEnabled = true;
 
-  FixedFragmentShaderCreateInfo fs;
-  array textureStages {TextureStage {}, TextureStage {}};
+  auto fs = FixedFragmentShaderCreateInfo{};
+  auto textureStages = array{TextureStage{}, TextureStage{}};
   fs.textureStages = textureStages;
 
-  PipelineDescriptor pipelineDesc;
+  auto pipelineDesc = PipelineDescriptor{};
   pipelineDesc.vertexShader = &vs;
   pipelineDesc.fragmentShader = &fs;
   pipelineDesc.cullMode = CullMode::CounterClockwise;
@@ -117,33 +125,23 @@ MultiTexturing::MultiTexturing(const Engine& engine)
   mPipelines[10] = mGfxCache->create_pipeline(pipelineDesc);
 
   // disable second stage
-  fs.textureStages = span {textureStages}.subspan(0, 1);
+  fs.textureStages = span{textureStages}.subspan(0, 1);
   mPipelines[11] = mGfxCache->create_pipeline(pipelineDesc);
-
-  mSampler =
-    mGfxCache->create_sampler({TextureFilter::Bilinear, TextureFilter::Bilinear,
-                               TextureMipFilter::Linear});
-
-  mTexture0 =
-    mGfxCache->load_texture("data/tribase/02-09_multi_tex/Texture1.jpg"sv);
-  mTexture1 =
-    mGfxCache->load_texture("data/tribase/02-09_multi_tex/Texture2.jpg"sv);
-  mCube = mGfxCache->load_x_model("data/tribase/02-09_multi_tex/Cube.x"sv);
 }
 
 auto MultiTexturing::on_update(UpdateContext& ctx) -> void {
   mTime += ctx.deltaTime;
-  const f32 t {mTime.count()};
+  auto const t = mTime.count();
 
-  const auto& drawCtx {ctx.drawCtx};
-  CommandList cmdList;
+  auto const& drawCtx = ctx.drawCtx;
+  auto cmdList = CommandList{};
   cmdList.clear_attachments(
-    Attachments {Attachment::RenderTarget, Attachment::DepthBuffer},
+    Attachments{Attachment::RenderTarget, Attachment::DepthBuffer},
     Color::from_non_linear_rgba8(0, 63, 0), 1.0f);
 
-  const Vector3f32 lightDir {std::sin(t), std::cos(t), 1.0f};
-  array<LightData, 1> lightData {
-    DirectionalLightData {Colors::WHITE, {}, Colors::WHITE, lightDir}};
+  auto const lightDir = Vector3f32{std::sin(t), std::cos(t), 1.0f};
+  auto lightData = array<LightData, 1>{
+    DirectionalLightData{Colors::WHITE, {}, Colors::WHITE, lightDir}};
   cmdList.set_lights(lightData);
 
   cmdList.set_transform(TransformState::ViewToClip,
@@ -166,13 +164,14 @@ auto MultiTexturing::on_update(UpdateContext& ctx) -> void {
   cmdList.set_texture_factor(Color::from_non_linear_rgba8(
     0, 0, 0, static_cast<u8>(127.0f + 127.0f * std::sin(t))));
 
-  const auto& cubeData {mGfxCache->get(mCube)};
+  auto const& cubeData = mGfxCache->get(mCube);
 
-  for (i32 i {0}; i < 12; ++i) {
+  for (auto i = uSize{0}; i < 12; ++i) {
     cmdList.bind_pipeline(mPipelines[i]);
 
-    const Vector3f32 cubePos {7.0f * (static_cast<f32>(i % 3) - 1.0f),
-                              4.5f * (-static_cast<f32>(i / 3) + 1.5f), 10};
+    auto const cubePos =
+      Vector3f32{7.0f * (static_cast<f32>(i % 3) - 1.0f),
+                 4.5f * (-static_cast<f32>(i / 3) + 1.5f), 10};
 
     cmdList.set_transform(
       TransformState::LocalToWorld,

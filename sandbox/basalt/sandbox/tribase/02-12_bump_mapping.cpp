@@ -59,29 +59,68 @@ using basalt::gfx::ext::XMeshCommandEncoder;
 namespace {
 
 struct Vertex {
-  Vector3f32 pos {};
-  Vector3f32 tex0 {};
+  Vector3f32 pos{};
+  Vector3f32 tex0{};
 
-  static constexpr array sLayout {VertexElement::Position3F32,
-                                  VertexElement::TextureCoords3F32};
+  static constexpr auto sLayout = array{
+    VertexElement::Position3F32,
+    VertexElement::TextureCoords3F32,
+  };
 };
 
-constexpr auto ENV_TEXTURE_PATH {"data/tribase/02-11_env_mapping/EnvMap.dds"sv};
-constexpr auto TEXTURE_PATH {"data/tribase/02-12_bump_mapping/Texture.jpg"sv};
-constexpr auto BUMP_MAP_PATH {"data/tribase/02-12_bump_mapping/BumpMap.dds"sv};
-constexpr auto CUBE_PATH {"data/tribase/02-09_multi_tex/Cube.x"sv};
+constexpr auto ENV_TEXTURE_PATH = "data/tribase/02-11_env_mapping/EnvMap.dds"sv;
+constexpr auto TEXTURE_PATH = "data/tribase/02-12_bump_mapping/Texture.jpg"sv;
+constexpr auto BUMP_MAP_PATH = "data/tribase/02-12_bump_mapping/BumpMap.dds"sv;
+constexpr auto CUBE_PATH = "data/tribase/02-09_multi_tex/Cube.x"sv;
 
 } // namespace
 
-BumpMapping::BumpMapping(const Engine& engine)
-  : mGfxCache {engine.gfx_context().create_resource_cache()} {
-  array textureStages {TextureStage {}, TextureStage {TextureOp::BumpEnvMap},
-                       TextureStage {TextureOp::Add}};
+BumpMapping::BumpMapping(Engine const& engine)
+  : mGfxCache{engine.gfx_context().create_resource_cache()}
+  , mSampler{mGfxCache->create_sampler({TextureFilter::Bilinear,
+                                        TextureFilter::Bilinear,
+                                        TextureMipFilter::Linear})}
+  , mEnvTexture{mGfxCache->load_cube_texture(ENV_TEXTURE_PATH)}
+  , mBaseTexture{mGfxCache->load_texture(TEXTURE_PATH)}
+  , mBumpMap{mGfxCache->load_texture(BUMP_MAP_PATH)}
+  , mCube{mGfxCache->load_x_model(CUBE_PATH)}
+  , mSkyBoxVb{[&] {
+    constexpr auto skyBoxVertices =
+      array{Vertex{{-1.0f, 1.0f, 1.0f}, {-1.0f, 1.0f, 1.0f}},
+            Vertex{{1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
+            Vertex{{1.0f, 1.0f, -1.0f}, {1.0f, 1.0f, -1.0f}},
+            Vertex{{-1.0f, 1.0f, -1.0f}, {-1.0f, 1.0f, -1.0f}},
+            Vertex{{-1.0f, -1.0f, 1.0f}, {-1.0f, -1.0f, 1.0f}},
+            Vertex{{1.0f, -1.0f, 1.0f}, {1.0f, -1.0f, 1.0f}},
+            Vertex{{1.0f, -1.0f, -1.0f}, {1.0f, -1.0f, -1.0f}},
+            Vertex{{-1.0f, -1.0f, -1.0f}, {-1.0f, -1.0f, -1.0f}}};
+    auto const skyBoxVertexData = as_bytes(span{skyBoxVertices});
 
-  FixedFragmentShaderCreateInfo fs;
-  fs.textureStages = span {textureStages}.subspan(0, 1);
+    return mGfxCache->create_vertex_buffer(
+      {skyBoxVertexData.size_bytes(), Vertex::sLayout}, skyBoxVertexData);
+  }()}
+  , mSkyBoxIb{[&] {
+    constexpr auto skyBoxIndices = array<u16, 36>{
+      7, 3, 0, 4, 7, 0, // front
+      5, 1, 2, 6, 5, 2, // back
+      4, 0, 1, 5, 4, 1, // left
+      6, 2, 3, 7, 6, 3, // right
+      2, 1, 0, 3, 2, 0, // top
+      4, 5, 6, 7, 4, 6, // bottom
+    };
+    auto const skyBoxIndexData = as_bytes(span{skyBoxIndices});
 
-  PipelineDescriptor pipelineDesc;
+    return mGfxCache->create_index_buffer({skyBoxIndexData.size_bytes()},
+                                          skyBoxIndexData);
+  }()} {
+  auto textureStages =
+    array{TextureStage{}, TextureStage{TextureOp::BumpEnvMap},
+          TextureStage{TextureOp::Add}};
+
+  auto fs = FixedFragmentShaderCreateInfo{};
+  fs.textureStages = span{textureStages}.subspan(0, 1);
+
+  auto pipelineDesc = PipelineDescriptor{};
   pipelineDesc.fragmentShader = &fs;
   pipelineDesc.vertexLayout = Vertex::sLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleList;
@@ -89,11 +128,11 @@ BumpMapping::BumpMapping(const Engine& engine)
   pipelineDesc.dithering = true;
   mSkyBoxPipeline = mGfxCache->create_pipeline(pipelineDesc);
 
-  array textureCoordinateSets {
-    TextureCoordinateSet {2, TextureCoordinateSrc::ReflectionVectorInViewSpace,
-                          0, TextureCoordinateTransformMode::Count3}};
+  auto textureCoordinateSets = array{
+    TextureCoordinateSet{2, TextureCoordinateSrc::ReflectionVectorInViewSpace,
+                         0, TextureCoordinateTransformMode::Count3}};
 
-  FixedVertexShaderCreateInfo vs;
+  auto vs = FixedVertexShaderCreateInfo{};
   vs.textureCoordinateSets = textureCoordinateSets;
   vs.lightingEnabled = true;
 
@@ -106,47 +145,14 @@ BumpMapping::BumpMapping(const Engine& engine)
 
   std::get<1>(textureStages) = std::get<2>(textureStages);
   std::get<0>(textureCoordinateSets).stageIndex = 1;
-  fs.textureStages = span {textureStages}.subspan(0, 2);
+  fs.textureStages = span{textureStages}.subspan(0, 2);
   mCube2Pipeline = mGfxCache->create_pipeline(pipelineDesc);
-
-  mSampler =
-    mGfxCache->create_sampler({TextureFilter::Bilinear, TextureFilter::Bilinear,
-                               TextureMipFilter::Linear});
-  mEnvTexture = mGfxCache->load_cube_texture(ENV_TEXTURE_PATH);
-  mBaseTexture = mGfxCache->load_texture(TEXTURE_PATH);
-  mBumpMap = mGfxCache->load_texture(BUMP_MAP_PATH);
-  mCube = mGfxCache->load_x_model(CUBE_PATH);
-
-  constexpr array skyBoxVertices {
-    Vertex {{-1.0f, 1.0f, 1.0f}, {-1.0f, 1.0f, 1.0f}},
-    Vertex {{1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
-    Vertex {{1.0f, 1.0f, -1.0f}, {1.0f, 1.0f, -1.0f}},
-    Vertex {{-1.0f, 1.0f, -1.0f}, {-1.0f, 1.0f, -1.0f}},
-    Vertex {{-1.0f, -1.0f, 1.0f}, {-1.0f, -1.0f, 1.0f}},
-    Vertex {{1.0f, -1.0f, 1.0f}, {1.0f, -1.0f, 1.0f}},
-    Vertex {{1.0f, -1.0f, -1.0f}, {1.0f, -1.0f, -1.0f}},
-    Vertex {{-1.0f, -1.0f, -1.0f}, {-1.0f, -1.0f, -1.0f}}};
-  const auto skyBoxVertexData {as_bytes(span {skyBoxVertices})};
-  mSkyBoxVb = mGfxCache->create_vertex_buffer(
-    {skyBoxVertexData.size_bytes(), Vertex::sLayout}, skyBoxVertexData);
-
-  constexpr array<u16, 36> skyBoxIndices {
-    7, 3, 0, 4, 7, 0, // front
-    5, 1, 2, 6, 5, 2, // back
-    4, 0, 1, 5, 4, 1, // left
-    6, 2, 3, 7, 6, 3, // right
-    2, 1, 0, 3, 2, 0, // top
-    4, 5, 6, 7, 4, 6, // bottom
-  };
-  const auto skyBoxIndexData {as_bytes(span {skyBoxIndices})};
-  mSkyBoxIb = mGfxCache->create_index_buffer({skyBoxIndexData.size_bytes()},
-                                             skyBoxIndexData);
 }
 
 auto BumpMapping::on_update(UpdateContext& ctx) -> void {
   mTime += ctx.deltaTime;
-  const f32 t {mTime.count()};
-  const f32 dt {ctx.deltaTime.count()};
+  auto const t = mTime.count();
+  auto const dt = ctx.deltaTime.count();
 
   if (is_key_down(Key::LeftArrow)) {
     mCameraAngleY -= Angle::degrees(45.0f * dt);
@@ -155,7 +161,8 @@ auto BumpMapping::on_update(UpdateContext& ctx) -> void {
     mCameraAngleY += Angle::degrees(45.0f * dt);
   }
 
-  const Vector3f32 cameraDir {mCameraAngleY.sin(), 0, mCameraAngleY.cos()};
+  auto const cameraDir =
+    Vector3f32{mCameraAngleY.sin(), 0, mCameraAngleY.cos()};
   if (is_key_down(Key::UpArrow)) {
     mCameraPos += cameraDir * 5.0f * dt;
   }
@@ -172,8 +179,8 @@ auto BumpMapping::on_update(UpdateContext& ctx) -> void {
 
   mCameraUpDown = std::clamp(mCameraUpDown, -2.5f, 2.5f);
 
-  CommandList cmdList;
-  cmdList.clear_attachments(Attachments {Attachment::DepthBuffer}, {}, 1.0f);
+  auto cmdList = CommandList{};
+  cmdList.clear_attachments(Attachments{Attachment::DepthBuffer}, {}, 1.0f);
   cmdList.bind_pipeline(mSkyBoxPipeline);
   cmdList.bind_sampler(0, mSampler);
   cmdList.bind_texture(0, mEnvTexture);
@@ -185,7 +192,7 @@ auto BumpMapping::on_update(UpdateContext& ctx) -> void {
   cmdList.set_transform(
     TransformState::WorldToView,
     Matrix4x4f32::look_at_lh(
-      mCameraPos, mCameraPos + cameraDir + Vector3f32 {0, mCameraUpDown, 0},
+      mCameraPos, mCameraPos + cameraDir + Vector3f32{0, mCameraUpDown, 0},
       Vector3f32::up()));
   cmdList.set_transform(TransformState::LocalToWorld,
                         Matrix4x4f32::translation(mCameraPos));
@@ -194,7 +201,7 @@ auto BumpMapping::on_update(UpdateContext& ctx) -> void {
   cmdList.bind_index_buffer(mSkyBoxIb);
   cmdList.draw_indexed(0, 0, 8, 0, 36);
 
-  const auto& cubeData {mGfxCache->get(mCube)};
+  auto const& cubeData = mGfxCache->get(mCube);
   cmdList.bind_pipeline(mCube1Pipeline);
   cmdList.bind_texture(0, mBaseTexture);
   cmdList.bind_sampler(1, mSampler);
@@ -202,8 +209,8 @@ auto BumpMapping::on_update(UpdateContext& ctx) -> void {
   cmdList.bind_sampler(2, mSampler);
   cmdList.bind_texture(2, mEnvTexture);
 
-  array lights {LightData {
-    DirectionalLightData {Colors::WHITE, {}, Colors::WHITE, Vector3f32 {1}}}};
+  auto lights = array<LightData, 1>{
+    DirectionalLightData{Colors::WHITE, {}, Colors::WHITE, Vector3f32{1}}};
   cmdList.set_lights(lights);
   cmdList.set_material(Color::from_non_linear(0.75f, 0.75f, 0.75f),
                        Color::from_non_linear(0.25f, 0.25f, 0.25f));
@@ -224,7 +231,7 @@ auto BumpMapping::on_update(UpdateContext& ctx) -> void {
   ctx.drawCtx.commandLists.push_back(std::move(cmdList));
 }
 
-auto BumpMapping::on_input(const InputEvent&) -> InputEventHandled {
+auto BumpMapping::on_input(InputEvent const&) -> InputEventHandled {
   return InputEventHandled::Yes;
 }
 

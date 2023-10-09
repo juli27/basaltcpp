@@ -23,17 +23,17 @@ namespace basalt {
 
 using namespace std::literals;
 
-auto Runtime::dear_imgui() const -> const DearImGuiPtr& {
+auto Runtime::dear_imgui() const -> DearImGuiPtr const& {
   return mDearImGui;
 }
 
-auto Runtime::update(const UpdateContext& ctx) -> void {
-  gfx::Composite composite;
-  const View::DrawContext drawCtx {
+auto Runtime::update(UpdateContext const& ctx) -> void {
+  auto composite = gfx::Composite{};
+  auto const drawCtx = View::DrawContext{
     composite,
     mGfxContext->swap_chain()->get_info().backBufferSize,
   };
-  View::UpdateContext updateCtx {*this, drawCtx, ctx.deltaTime};
+  auto updateCtx = View::UpdateContext{*this, drawCtx, ctx.deltaTime};
 
   mDearImGui->new_frame(updateCtx);
   root()->update(updateCtx);
@@ -52,8 +52,8 @@ auto Runtime::update(const UpdateContext& ctx) -> void {
 
 Runtime::Runtime(Config& config, gfx::ContextPtr gfxContext,
                  DearImGuiPtr dearImGui)
-  : Engine {config, std::move(gfxContext)}
-  , mDearImGui {std::move(dearImGui)} {
+  : Engine{config, std::move(gfxContext)}
+  , mDearImGui{std::move(dearImGui)} {
   ClientApp::bootstrap(*this);
 }
 
