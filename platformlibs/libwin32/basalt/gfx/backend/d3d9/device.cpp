@@ -3,7 +3,6 @@
 #include <basalt/gfx/backend/d3d9/conversions.h>
 #include <basalt/gfx/backend/d3d9/dear_imgui_renderer.h>
 #include <basalt/gfx/backend/d3d9/effect.h>
-#include <basalt/gfx/backend/d3d9/texture_3d_support.h>
 #include <basalt/gfx/backend/d3d9/x_model_support.h>
 
 #include <basalt/gfx/backend/commands.h>
@@ -32,7 +31,6 @@ using namespace std::literals;
 using std::array;
 using std::bad_alloc;
 using std::numeric_limits;
-using std::optional;
 using std::filesystem::path;
 
 using gsl::span;
@@ -127,15 +125,6 @@ auto D3D9Device::create(IDirect3DDevice9Ptr device) -> D3D9DevicePtr {
 D3D9Device::D3D9Device(IDirect3DDevice9Ptr device)
   : mDevice{std::move(device)} {
   BASALT_ASSERT(mDevice);
-
-  mExtensions[ext::DeviceExtensionId::DearImGuiRenderer] =
-    ext::D3D9ImGuiRenderer::create(mDevice);
-  mExtensions[ext::DeviceExtensionId::XModelSupport] =
-    ext::D3D9XModelSupport::create(mDevice);
-  mExtensions[ext::DeviceExtensionId::Texture3DSupport] =
-    ext::D3D9Texture3DSupport::create(this);
-  mExtensions[ext::DeviceExtensionId::Effects] =
-    ext::D3D9XEffects::create(this);
 
   auto d3d9Caps = D3DCAPS9{};
   D3D9CHECK(mDevice->GetDeviceCaps(&d3d9Caps));
@@ -272,6 +261,10 @@ auto D3D9Device::load_texture_3d(path const& path) -> Texture {
 
 auto D3D9Device::get_d3d9(Texture const id) const -> IDirect3DBaseTexture9Ptr {
   return mTextures[id];
+}
+
+auto D3D9Device::set_extensions(ext::DeviceExtensions extensions) -> void {
+  mExtensions = std::move(extensions);
 }
 
 auto D3D9Device::capabilities() const -> DeviceCaps const& {
@@ -491,15 +484,6 @@ auto D3D9Device::submit(span<CommandList const> const commandLists) -> void {
   PIX_END_EVENT();
 
   D3D9CHECK(mDevice->EndScene());
-}
-
-auto D3D9Device::query_extension(ext::DeviceExtensionId const id)
-  -> optional<ext::DeviceExtensionPtr> {
-  if (auto const entry = mExtensions.find(id); entry != mExtensions.end()) {
-    return entry->second;
-  }
-
-  return std::nullopt;
 }
 
 auto D3D9Device::execute(Command const& cmd) -> void {

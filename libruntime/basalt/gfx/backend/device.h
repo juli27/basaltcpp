@@ -7,9 +7,6 @@
 
 #include <cstddef>
 #include <filesystem>
-#include <memory>
-#include <optional>
-#include <type_traits>
 
 namespace basalt::gfx {
 
@@ -95,21 +92,6 @@ public:
   virtual auto destroy(Sampler) noexcept -> void = 0;
 
   virtual auto submit(gsl::span<CommandList const>) -> void = 0;
-
-  virtual auto query_extension(ext::DeviceExtensionId)
-    -> std::optional<ext::DeviceExtensionPtr> = 0;
-
-  template <typename T>
-  [[nodiscard]] auto query_extension() -> std::optional<std::shared_ptr<T>> {
-    static_assert(std::is_base_of_v<ext::DeviceExtension, T>);
-
-    auto maybeExt = query_extension(T::ID);
-    if (!maybeExt) {
-      return std::nullopt;
-    }
-
-    return std::static_pointer_cast<T>(std::move(maybeExt).value());
-  }
 
 protected:
   Device() noexcept = default;

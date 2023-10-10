@@ -31,6 +31,7 @@ using gsl::span;
 using namespace std::literals;
 using std::byte;
 using std::optional;
+using std::shared_ptr;
 using std::string_view;
 using std::vector;
 using std::filesystem::path;
@@ -49,20 +50,26 @@ using ValidatingTexture3DSupportPtr =
 
 class ValidatingTexture3DSupport final : public ext::Texture3DSupport {
 public:
-  static auto create(ValidatingDevice* device)
-    -> ValidatingTexture3DSupportPtr {
-    return std::make_shared<ValidatingTexture3DSupport>(device);
+  static auto wrap(shared_ptr<Texture3DSupport> extension,
+                   ValidatingDevice* device) -> ValidatingTexture3DSupportPtr {
+    return std::make_shared<ValidatingTexture3DSupport>(std::move(extension),
+                                                        device);
   }
 
   auto load(path const& path) -> Texture override {
-    return mDevice->load_texture_3d(path);
+    auto const id = mExtension->load(path);
+
+    return mDevice->construct_texture(id);
   }
 
-  explicit ValidatingTexture3DSupport(ValidatingDevice* device)
-    : mDevice{device} {
+  explicit ValidatingTexture3DSupport(shared_ptr<Texture3DSupport> extension,
+                                      ValidatingDevice* device)
+    : mExtension{std::move(extension)}
+    , mDevice{device} {
   }
 
 private:
+  shared_ptr<Texture3DSupport> mExtension;
   ValidatingDevice* mDevice{};
 };
 
@@ -137,15 +144,21 @@ auto ValidatingDevice::wrap(DevicePtr device) -> ValidatingDevicePtr {
 ValidatingDevice::ValidatingDevice(DevicePtr device)
   : mDevice{std::move(device)}
   , mCaps{mDevice->capabilities()} {
-  mExtensions[ext::DeviceExtensionId::Texture3DSupport] =
-    ValidatingTexture3DSupport::create(this);
 }
 
-auto ValidatingDevice::load_texture_3d(path const& path) -> Texture {
-  auto const id =
-    mDevice->query_extension<ext::Texture3DSupport>().value()->load(path);
+auto ValidatingDevice::wrap_extensions(ext::DeviceExtensions& deviceExtensions)
+  -> void {
+  if (deviceExtensions.count(ext::DeviceExtensionId::Texture3DSupport)) {
+    auto ext = std::static_pointer_cast<ext::Texture3DSupport>(
+      deviceExtensions.at(ext::DeviceExtensionId::Texture3DSupport));
 
-  return mTextures.allocate(TextureData{id});
+    deviceExtensions[ext::DeviceExtensionId::Texture3DSupport] =
+      ValidatingTexture3DSupport::wrap(std::move(ext), this);
+  }
+}
+
+auto ValidatingDevice::construct_texture(Texture const original) -> Texture {
+  return mTextures.allocate(TextureData{original});
 }
 
 auto ValidatingDevice::capabilities() const -> DeviceCaps const& {
@@ -376,15 +389,6 @@ auto ValidatingDevice::submit(span<CommandList const> const commandLists)
   }
 
   mDevice->submit(patchedComposite);
-}
-
-auto ValidatingDevice::query_extension(ext::DeviceExtensionId const id)
-  -> optional<ext::DeviceExtensionPtr> {
-  if (auto const entry = mExtensions.find(id); entry != mExtensions.end()) {
-    return entry->second;
-  }
-
-  return mDevice->query_extension(id);
 }
 
 auto ValidatingDevice::validate(CommandList const& cmdList) -> CommandList {

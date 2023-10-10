@@ -37,6 +37,7 @@ public:
 protected:
   struct DeviceAndSwapChain {
     DevicePtr device;
+    ext::DeviceExtensions deviceExtensions;
     SwapChainPtr swapChain;
   };
 

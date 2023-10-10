@@ -13,7 +13,6 @@
 
 #include <filesystem>
 #include <memory>
-#include <unordered_map>
 
 namespace basalt::gfx {
 
@@ -31,6 +30,8 @@ public:
 
   [[nodiscard]] auto load_texture_3d(std::filesystem::path const&) -> Texture;
   [[nodiscard]] auto get_d3d9(Texture) const -> IDirect3DBaseTexture9Ptr;
+
+  auto set_extensions(ext::DeviceExtensions) -> void;
 
   [[nodiscard]] auto capabilities() const -> DeviceCaps const& override;
   [[nodiscard]] auto get_status() const noexcept -> DeviceStatus override;
@@ -80,13 +81,7 @@ public:
 
   auto submit(gsl::span<CommandList const>) -> void override;
 
-  auto query_extension(ext::DeviceExtensionId)
-    -> std::optional<ext::DeviceExtensionPtr> override;
-
 private:
-  using Extensions =
-    std::unordered_map<ext::DeviceExtensionId, ext::DeviceExtensionPtr>;
-
   struct SamplerData final {
     D3DTEXTUREFILTERTYPE magFilter{D3DTEXF_POINT};
     D3DTEXTUREFILTERTYPE minFilter{D3DTEXF_POINT};
@@ -100,7 +95,7 @@ private:
 
   IDirect3DDevice9Ptr mDevice;
 
-  Extensions mExtensions;
+  ext::DeviceExtensions mExtensions;
 
   HandlePool<D3D9Pipeline, Pipeline> mPipelines{};
   HandlePool<IDirect3DVertexBuffer9Ptr, VertexBuffer> mVertexBuffers{};

@@ -5,6 +5,8 @@
 #include <basalt/gfx/backend/ext/texture_3d_support.h>
 #include <basalt/gfx/backend/ext/x_model_support.h>
 
+#include <basalt/api/gfx/context.h>
+
 #include <basalt/api/base/types.h>
 
 #include <algorithm>
@@ -22,13 +24,13 @@ using gsl::span;
 
 namespace basalt::gfx {
 
-auto ResourceCache::create(DevicePtr device) -> ResourceCachePtr {
-  return std::make_shared<ResourceCache>(std::move(device));
+auto ResourceCache::create(ContextPtr context) -> ResourceCachePtr {
+  return std::make_shared<ResourceCache>(std::move(context));
 }
 
 ResourceCache::~ResourceCache() noexcept {
   if (auto const ext =
-        mDevice->query_extension<ext::Effects>().value_or(nullptr)) {
+        mContext->query_device_extension<ext::Effects>().value_or(nullptr)) {
     for (auto const id : mEffects) {
       ext->destroy(id);
     }
@@ -155,7 +157,7 @@ auto ResourceCache::destroy(Texture const handle) noexcept -> void {
 auto ResourceCache::load_texture_3d(path const& path) -> Texture {
   // throws std::bad_optional_access if extension not present
   auto const tex3dExt =
-    mDevice->query_extension<ext::Texture3DSupport>().value();
+    mContext->query_device_extension<ext::Texture3DSupport>().value();
   auto const handle = tex3dExt->load(path);
   mTextures.push_back(handle);
 
@@ -164,7 +166,8 @@ auto ResourceCache::load_texture_3d(path const& path) -> Texture {
 
 auto ResourceCache::load_x_model(path const& path) -> ext::XModel {
   // throws std::bad_optional_access if extension not present
-  auto const modelExt = mDevice->query_extension<ext::XModelSupport>().value();
+  auto const modelExt =
+    mContext->query_device_extension<ext::XModelSupport>().value();
 
   auto xModel = modelExt->load(path);
 
@@ -207,7 +210,8 @@ auto ResourceCache::load_x_model(path const& path) -> ext::XModel {
 
 auto ResourceCache::load_x_model(XModelDescriptor const& desc) -> ext::XModel {
   // throws std::bad_optional_access if extension not present
-  auto const modelExt = mDevice->query_extension<ext::XModelSupport>().value();
+  auto const modelExt =
+    mContext->query_device_extension<ext::XModelSupport>().value();
 
   auto xModel = modelExt->load(desc.modelPath);
 
@@ -335,7 +339,7 @@ auto ResourceCache::get(Material const material) const -> MaterialData const& {
 
 auto ResourceCache::compile_effect(path const& filePath) -> ext::CompileResult {
   // throws std::bad_optional_access if extension not present
-  auto const ext = mDevice->query_extension<ext::Effects>().value();
+  auto const ext = mContext->query_device_extension<ext::Effects>().value();
 
   auto result = ext->compile(filePath);
   if (auto const* id = std::get_if<ext::EffectId>(&result)) {
@@ -350,13 +354,13 @@ auto ResourceCache::destroy(ext::EffectId const id) noexcept -> void {
                  mEffects.end());
 
   // throws std::bad_optional_access if extension not present
-  auto const ext = mDevice->query_extension<ext::Effects>().value();
+  auto const ext = mContext->query_device_extension<ext::Effects>().value();
   ext->destroy(id);
 }
 
 auto ResourceCache::get(ext::EffectId const id) const -> ext::Effect& {
   // throws std::bad_optional_access if extension not present
-  auto const ext = mDevice->query_extension<ext::Effects>().value();
+  auto const ext = mContext->query_device_extension<ext::Effects>().value();
 
   return ext->get(id);
 }
@@ -367,7 +371,9 @@ auto ResourceCache::destroy(Material const handle) noexcept -> void {
   mMaterials.deallocate(handle);
 }
 
-ResourceCache::ResourceCache(DevicePtr device) : mDevice{std::move(device)} {
+ResourceCache::ResourceCache(ContextPtr context)
+  : mContext{std::move(context)}
+  , mDevice{mContext->device()} {
 }
 
 auto ResourceCache::map(VertexBuffer const vb, uDeviceSize const offset,
@@ -401,7 +407,8 @@ auto ResourceCache::destroy_data(ext::XModel const handle) noexcept -> void {
   }
 
   // throws std::bad_optional_access if extension not present
-  auto const modelExt = mDevice->query_extension<ext::XModelSupport>().value();
+  auto const modelExt =
+    mContext->query_device_extension<ext::XModelSupport>().value();
   for (auto const meshId : data.meshes) {
     modelExt->destroy(meshId);
   }

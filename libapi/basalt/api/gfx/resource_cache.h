@@ -18,7 +18,7 @@ namespace basalt::gfx {
 
 class ResourceCache final {
 public:
-  static auto create(DevicePtr) -> ResourceCachePtr;
+  static auto create(ContextPtr) -> ResourceCachePtr;
 
   ResourceCache(ResourceCache const&) = delete;
   ResourceCache(ResourceCache&&) = delete;
@@ -113,9 +113,11 @@ public:
   auto destroy(ext::EffectId) noexcept -> void;
   [[nodiscard]] auto get(ext::EffectId) const -> ext::Effect&;
 
-  explicit ResourceCache(DevicePtr);
+  // don't use. Call create() instead
+  explicit ResourceCache(ContextPtr);
 
 private:
+  ContextPtr mContext;
   DevicePtr mDevice;
 
   // owned resources

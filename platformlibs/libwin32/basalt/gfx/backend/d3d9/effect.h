@@ -15,7 +15,7 @@ namespace basalt::gfx::ext {
 
 class D3D9XEffects final : public Effects {
 public:
-  static auto create(D3D9Device*) -> D3D9XEffectsPtr;
+  static auto create(D3D9DevicePtr) -> D3D9XEffectsPtr;
 
   auto execute(CommandBeginEffect const&) -> void;
   auto execute(CommandEndEffect const&) -> void;
@@ -31,17 +31,17 @@ public:
   auto destroy(EffectId) noexcept -> void override;
   [[nodiscard]] auto get(EffectId) -> Effect& override;
 
-  explicit D3D9XEffects(D3D9Device*);
+  explicit D3D9XEffects(D3D9DevicePtr);
 
 private:
-  D3D9Device* mDevice;
+  D3D9DevicePtr mDevice;
   HandlePool<D3D9XEffect, EffectId> mEffects;
   EffectId mActiveEffect{};
 };
 
 class D3D9XEffect final : public Effect {
 public:
-  explicit D3D9XEffect(ID3DXEffectPtr, D3D9Device* device);
+  explicit D3D9XEffect(ID3DXEffectPtr, D3D9DevicePtr device);
 
   auto begin() const -> void;
   auto end() const -> void;
@@ -70,7 +70,7 @@ public:
 
 private:
   ID3DXEffectPtr mEffect;
-  D3D9Device* mDevice;
+  D3D9DevicePtr mDevice;
   HandlePool<D3DXHANDLE, EffectTechniqueHandle> mTechniques;
 
   [[nodiscard]] auto get_technique_desc(EffectTechniqueHandle = {}) const

@@ -19,8 +19,8 @@ using std::optional;
 using std::string;
 using std::filesystem::path;
 
-auto D3D9XEffects::create(D3D9Device* device) -> D3D9XEffectsPtr {
-  return std::make_shared<D3D9XEffects>(device);
+auto D3D9XEffects::create(D3D9DevicePtr device) -> D3D9XEffectsPtr {
+  return std::make_shared<D3D9XEffects>(std::move(device));
 }
 
 auto D3D9XEffects::execute(CommandBeginEffect const& cmd) -> void {
@@ -84,12 +84,12 @@ auto D3D9XEffects::get(EffectId const id) -> Effect& {
   return mEffects[id];
 }
 
-D3D9XEffects::D3D9XEffects(D3D9Device* device) : mDevice{device} {
+D3D9XEffects::D3D9XEffects(D3D9DevicePtr device) : mDevice{std::move(device)} {
 }
 
-D3D9XEffect::D3D9XEffect(ID3DXEffectPtr effect, D3D9Device* device)
+D3D9XEffect::D3D9XEffect(ID3DXEffectPtr effect, D3D9DevicePtr device)
   : mEffect{std::move(effect)}
-  , mDevice{device} {
+  , mDevice{std::move(device)} {
 }
 
 auto D3D9XEffect::begin() const -> void {

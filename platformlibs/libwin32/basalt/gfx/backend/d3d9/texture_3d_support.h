@@ -12,14 +12,14 @@ namespace basalt::gfx::ext {
 
 class D3D9Texture3DSupport final : public Texture3DSupport {
 public:
-  static auto create(D3D9Device*) -> D3D9Texture3DSupportPtr;
+  static auto create(D3D9DevicePtr) -> D3D9Texture3DSupportPtr;
 
   [[nodiscard]] auto load(std::filesystem::path const&) -> Texture override;
 
-  explicit D3D9Texture3DSupport(D3D9Device*);
+  explicit D3D9Texture3DSupport(D3D9DevicePtr);
 
 private:
-  D3D9Device* mDevice;
+  D3D9DevicePtr mDevice;
 };
 
 } // namespace basalt::gfx::ext

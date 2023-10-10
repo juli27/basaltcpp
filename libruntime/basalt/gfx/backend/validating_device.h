@@ -7,76 +7,79 @@
 
 #include <basalt/api/shared/handle_pool.h>
 
-#include <unordered_map>
 #include <vector>
 
 namespace basalt::gfx {
 
 class ValidatingDevice final : public Device {
+  struct TextureData;
+
 public:
   static auto wrap(DevicePtr) -> ValidatingDevicePtr;
 
   // don't use directly
   explicit ValidatingDevice(DevicePtr);
 
-  [[nodiscard]] auto load_texture_3d(std::filesystem::path const&) -> Texture;
+  auto wrap_extensions(ext::DeviceExtensions&) -> void;
 
-  [[nodiscard]] auto capabilities() const -> DeviceCaps const& override;
-  [[nodiscard]] auto get_status() const noexcept -> DeviceStatus override;
+  [[nodiscard]]
+  auto construct_texture(Texture original) -> Texture;
+
+  [[nodiscard]]
+  auto capabilities() const -> DeviceCaps const& override;
+
+  [[nodiscard]]
+  auto get_status() const noexcept -> DeviceStatus override;
 
   auto reset() -> void override;
 
-  [[nodiscard]] auto create_pipeline(PipelineDescriptor const&)
-    -> Pipeline override;
+  [[nodiscard]]
+  auto create_pipeline(PipelineDescriptor const&) -> Pipeline override;
 
   auto destroy(Pipeline) noexcept -> void override;
 
-  [[nodiscard]] auto
-  create_vertex_buffer(VertexBufferDescriptor const&,
-                       gsl::span<std::byte const> initialData)
+  [[nodiscard]]
+  auto create_vertex_buffer(VertexBufferDescriptor const&,
+                            gsl::span<std::byte const> initialData)
     -> VertexBuffer override;
 
   auto destroy(VertexBuffer) noexcept -> void override;
 
-  [[nodiscard]] auto map(VertexBuffer, uDeviceSize offset, uDeviceSize size)
+  [[nodiscard]]
+  auto map(VertexBuffer, uDeviceSize offset, uDeviceSize size)
     -> gsl::span<std::byte> override;
 
   auto unmap(VertexBuffer) noexcept -> void override;
 
-  [[nodiscard]] auto create_index_buffer(IndexBufferDescriptor const&,
-                                         gsl::span<std::byte const> initialData)
+  [[nodiscard]]
+  auto create_index_buffer(IndexBufferDescriptor const&,
+                           gsl::span<std::byte const> initialData)
     -> IndexBuffer override;
 
   auto destroy(IndexBuffer) noexcept -> void override;
 
-  [[nodiscard]] auto map(IndexBuffer, uDeviceSize offsetInBytes,
-                         uDeviceSize sizeInBytes)
+  [[nodiscard]]
+  auto map(IndexBuffer, uDeviceSize offsetInBytes, uDeviceSize sizeInBytes)
     -> gsl::span<std::byte> override;
 
   auto unmap(IndexBuffer) noexcept -> void override;
 
-  [[nodiscard]] auto load_texture(std::filesystem::path const&)
-    -> Texture override;
+  [[nodiscard]]
+  auto load_texture(std::filesystem::path const&) -> Texture override;
 
-  [[nodiscard]] auto load_cube_texture(std::filesystem::path const&)
-    -> Texture override;
+  [[nodiscard]]
+  auto load_cube_texture(std::filesystem::path const&) -> Texture override;
 
   auto destroy(Texture) noexcept -> void override;
 
-  [[nodiscard]] auto create_sampler(SamplerDescriptor const&)
-    -> Sampler override;
+  [[nodiscard]]
+  auto create_sampler(SamplerDescriptor const&) -> Sampler override;
 
   auto destroy(Sampler) noexcept -> void override;
 
   auto submit(gsl::span<CommandList const>) -> void override;
 
-  auto query_extension(ext::DeviceExtensionId)
-    -> std::optional<ext::DeviceExtensionPtr> override;
-
 private:
-  using Extensions =
-    std::unordered_map<ext::DeviceExtensionId, ext::DeviceExtensionPtr>;
-
   struct PipelineData final {
     Pipeline originalId;
     std::vector<VertexElement> vertexInputLayout;
@@ -104,7 +107,6 @@ private:
 
   DevicePtr mDevice;
   DeviceCaps mCaps;
-  Extensions mExtensions;
   HandlePool<PipelineData, Pipeline> mPipelines;
   HandlePool<VertexBufferData, VertexBuffer> mVertexBuffers;
   HandlePool<IndexBufferData, IndexBuffer> mIndexBuffers;

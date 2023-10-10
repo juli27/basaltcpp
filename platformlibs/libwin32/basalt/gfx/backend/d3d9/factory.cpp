@@ -1,8 +1,12 @@
 #include <basalt/gfx/backend/d3d9/factory.h>
 
 #include <basalt/gfx/backend/d3d9/conversions.h>
+#include <basalt/gfx/backend/d3d9/dear_imgui_renderer.h>
 #include <basalt/gfx/backend/d3d9/device.h>
+#include <basalt/gfx/backend/d3d9/effect.h>
 #include <basalt/gfx/backend/d3d9/swap_chain.h>
+#include <basalt/gfx/backend/d3d9/texture_3d_support.h>
+#include <basalt/gfx/backend/d3d9/x_model_support.h>
 
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/log.h>
@@ -622,15 +626,28 @@ auto D3D9Factory::do_create_device_and_swap_chain(
   auto d3d9Device = IDirect3DDevice9Ptr{};
   D3D9CHECK(mInstance->CreateDevice(adapterOrdinal, DEVICE_TYPE, window,
                                     DEVICE_CREATE_FLAGS, &pp, &d3d9Device));
-  auto implicitSwapChain = IDirect3DSwapChain9Ptr{};
-  D3D9CHECK(d3d9Device->GetSwapChain(0, &implicitSwapChain));
 
   // TODO: verify the five caps which differ?
 
-  auto device = D3D9Device::create(std::move(d3d9Device));
+  auto device = D3D9Device::create(d3d9Device);
+  auto deviceExtensions = ext::DeviceExtensions{
+    {ext::DeviceExtensionId::DearImGuiRenderer,
+     ext::D3D9ImGuiRenderer::create(d3d9Device)},
+    {ext::DeviceExtensionId::Effects, ext::D3D9XEffects::create(device)},
+    {ext::DeviceExtensionId::Texture3DSupport,
+     ext::D3D9Texture3DSupport::create(device)},
+    {ext::DeviceExtensionId::XModelSupport,
+     ext::D3D9XModelSupport::create(d3d9Device)},
+  };
+  device->set_extensions(deviceExtensions);
+
+  auto implicitSwapChain = IDirect3DSwapChain9Ptr{};
+  D3D9CHECK(d3d9Device->GetSwapChain(0, &implicitSwapChain));
+
   auto swapChain = D3D9SwapChain::create(device, std::move(implicitSwapChain));
 
-  return DeviceAndSwapChain{std::move(device), std::move(swapChain)};
+  return DeviceAndSwapChain{std::move(device), std::move(deviceExtensions),
+                            std::move(swapChain)};
 }
 
 } // namespace basalt::gfx
