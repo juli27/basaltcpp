@@ -10,7 +10,7 @@ namespace basalt::gfx {
 
 class ValidatingSwapChain final : public SwapChain {
 public:
-  static auto wrap(SwapChainPtr) -> ValidatingSwapChainPtr;
+  static auto wrap(SwapChainPtr, ValidatingDevicePtr) -> ValidatingSwapChainPtr;
 
   [[nodiscard]] auto device() const noexcept -> DevicePtr override;
   [[nodiscard]] auto get_info() const noexcept -> Info override;
@@ -20,7 +20,7 @@ public:
   [[nodiscard]] auto present() -> PresentResult override;
 
   // don't use. use the wrap() function instead
-  explicit ValidatingSwapChain(SwapChainPtr);
+  ValidatingSwapChain(SwapChainPtr, ValidatingDevicePtr);
 
 private:
   SwapChainPtr mSwapChain;

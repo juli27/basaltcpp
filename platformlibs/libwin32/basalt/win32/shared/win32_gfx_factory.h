@@ -20,11 +20,6 @@ public:
     bool exclusive{false};
   };
 
-  struct DeviceAndSwapChain final {
-    DevicePtr device;
-    SwapChainPtr swapChain;
-  };
-
   Win32GfxFactory(Win32GfxFactory const&) = delete;
   Win32GfxFactory(Win32GfxFactory&&) = delete;
 
@@ -33,12 +28,18 @@ public:
   auto operator=(Win32GfxFactory const&) -> Win32GfxFactory& = delete;
   auto operator=(Win32GfxFactory&&) -> Win32GfxFactory& = delete;
 
-  [[nodiscard]] virtual auto adapters() const -> AdapterList const& = 0;
+  [[nodiscard]]
+  virtual auto adapters() const -> AdapterList const& = 0;
 
-  auto create_device_and_swap_chain(HWND, DeviceAndSwapChainDesc const&) const
-    -> DeviceAndSwapChain;
+  [[nodiscard]]
+  auto create_context(HWND, DeviceAndSwapChainDesc const&) const -> ContextPtr;
 
 protected:
+  struct DeviceAndSwapChain {
+    DevicePtr device;
+    SwapChainPtr swapChain;
+  };
+
   Win32GfxFactory() noexcept = default;
 
   virtual auto

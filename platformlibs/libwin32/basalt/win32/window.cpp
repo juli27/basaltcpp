@@ -366,16 +366,7 @@ auto Window::init_gfx_context(gfx::Win32GfxFactory const& gfxFactory) -> void {
     gfx::MultiSampleCount::One, mCurrentMode == WindowMode::FullscreenExclusive,
   };
 
-  auto [device, swapChain] =
-    gfxFactory.create_device_and_swap_chain(mHandle, contextDesc);
-
-  auto const gfxDevice = swapChain->device();
-  mGfxContext = gfx::Context::create(gfxDevice, std::move(swapChain),
-                                     gfx::Info{
-                                       gfxDevice->capabilities(),
-                                       gfxFactory.adapters(),
-                                       gfx::BackendApi::Direct3D9,
-                                     });
+  mGfxContext = gfxFactory.create_context(mHandle, contextDesc);
   mSwapChain = mGfxContext->swap_chain();
 
   BASALT_LOG_INFO("Direct3D9 context created: adapter={}, driver={}",

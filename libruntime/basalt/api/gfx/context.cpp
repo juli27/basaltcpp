@@ -3,6 +3,11 @@
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/gfx/backend/device.h>
 
+#if BASALT_DEV_BUILD
+#include <basalt/gfx/backend/validating_device.h>
+#include <basalt/gfx/backend/validating_swap_chain.h>
+#endif
+
 #include <basalt/api/shared/asserts.h>
 
 #include <memory>
@@ -35,6 +40,13 @@ Context::Context(DevicePtr device, SwapChainPtr swapChain, Info info)
   , mInfo{std::move(info)} {
   BASALT_ASSERT(mDevice);
   BASALT_ASSERT(mSwapChain);
+
+#if BASALT_DEV_BUILD
+  auto wrappedDevice = ValidatingDevice::wrap(std::move(mDevice));
+  mDevice = wrappedDevice;
+  mSwapChain =
+    ValidatingSwapChain::wrap(std::move(mSwapChain), std::move(wrappedDevice));
+#endif
 }
 
 auto Context::device() const noexcept -> DevicePtr const& {

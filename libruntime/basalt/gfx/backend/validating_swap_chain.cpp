@@ -6,9 +6,11 @@
 
 namespace basalt::gfx {
 
-auto ValidatingSwapChain::wrap(SwapChainPtr swapChain)
+auto ValidatingSwapChain::wrap(SwapChainPtr swapChain,
+                               ValidatingDevicePtr device)
   -> ValidatingSwapChainPtr {
-  return std::make_shared<ValidatingSwapChain>(std::move(swapChain));
+  return std::make_shared<ValidatingSwapChain>(std::move(swapChain),
+                                               std::move(device));
 }
 
 auto ValidatingSwapChain::device() const noexcept -> DevicePtr {
@@ -27,9 +29,10 @@ auto ValidatingSwapChain::present() -> PresentResult {
   return mSwapChain->present();
 }
 
-ValidatingSwapChain::ValidatingSwapChain(SwapChainPtr swapChain)
+ValidatingSwapChain::ValidatingSwapChain(SwapChainPtr swapChain,
+                                         ValidatingDevicePtr device)
   : mSwapChain{std::move(swapChain)}
-  , mValidatingDevice{ValidatingDevice::wrap(mSwapChain->device())} {
+  , mValidatingDevice{std::move(device)} {
 }
 
 } // namespace basalt::gfx
