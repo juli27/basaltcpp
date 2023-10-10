@@ -19,7 +19,6 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
-#include <limits>
 #include <memory>
 #include <new>
 #include <stdexcept>
@@ -30,7 +29,6 @@ using namespace std::literals;
 
 using std::array;
 using std::bad_alloc;
-using std::numeric_limits;
 using std::filesystem::path;
 
 using gsl::span;
@@ -118,99 +116,15 @@ auto calculate_primitive_count(D3DPRIMITIVETYPE const type,
 
 } // namespace
 
-auto D3D9Device::create(IDirect3DDevice9Ptr device) -> D3D9DevicePtr {
-  return std::make_shared<D3D9Device>(std::move(device));
+auto D3D9Device::create(IDirect3DDevice9Ptr device, DeviceCaps const& caps)
+  -> D3D9DevicePtr {
+  return std::make_shared<D3D9Device>(std::move(device), caps);
 }
 
-D3D9Device::D3D9Device(IDirect3DDevice9Ptr device)
-  : mDevice{std::move(device)} {
+D3D9Device::D3D9Device(IDirect3DDevice9Ptr device, DeviceCaps const& caps)
+  : mDevice{std::move(device)}
+  , mCaps{caps} {
   BASALT_ASSERT(mDevice);
-
-  auto d3d9Caps = D3DCAPS9{};
-  D3D9CHECK(mDevice->GetDeviceCaps(&d3d9Caps));
-
-  mCaps.maxVertexBufferSizeInBytes = numeric_limits<UINT>::max();
-  mCaps.maxIndexBufferSizeInBytes = numeric_limits<UINT>::max();
-
-  if (d3d9Caps.MaxVertexIndex > 0xffff) {
-    mCaps.supportedIndexTypes.set(IndexType::U32);
-  }
-
-  mCaps.maxLights = d3d9Caps.MaxActiveLights;
-  mCaps.maxTextureBlendStages = d3d9Caps.MaxTextureBlendStages;
-  mCaps.maxBoundSampledTextures = d3d9Caps.MaxSimultaneousTextures;
-
-  mCaps.samplerClampToBorder =
-    d3d9Caps.TextureAddressCaps & D3DPTADDRESSCAPS_BORDER &&
-    d3d9Caps.VolumeTextureAddressCaps & D3DPTADDRESSCAPS_BORDER;
-  mCaps.samplerCustomBorderColor = mCaps.samplerClampToBorder;
-  mCaps.samplerMirrorOnceClampToEdge =
-    d3d9Caps.TextureAddressCaps & D3DPTADDRESSCAPS_MIRRORONCE &&
-    d3d9Caps.VolumeTextureAddressCaps & D3DPTADDRESSCAPS_MIRRORONCE;
-
-  mCaps.samplerMinFilterAnisotropic =
-    d3d9Caps.TextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC;
-  mCaps.samplerMagFilterAnisotropic =
-    d3d9Caps.TextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC;
-  mCaps.samplerCubeMinFilterAnisotropic =
-    d3d9Caps.CubeTextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC;
-  mCaps.samplerCubeMagFilterAnisotropic =
-    d3d9Caps.CubeTextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC;
-  mCaps.sampler3DMinFilterAnisotropic =
-    d3d9Caps.VolumeTextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC;
-  mCaps.sampler3DMagFilterAnisotropic =
-    d3d9Caps.VolumeTextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC;
-  mCaps.samplerMaxAnisotropy = saturated_cast<u8>(d3d9Caps.MaxAnisotropy);
-  mCaps.perTextureStageConstant =
-    d3d9Caps.PrimitiveMiscCaps & D3DPMISCCAPS_PERSTAGECONSTANT;
-  mCaps.supportedColorOps = TextureOps{
-    TextureOp::Replace,
-    TextureOp::Modulate,
-    TextureOp::Modulate2X,
-    TextureOp::Modulate4X,
-    TextureOp::Add,
-    TextureOp::AddSigned,
-    TextureOp::AddSigned2X,
-    TextureOp::Subtract,
-    TextureOp::AddSmooth,
-    TextureOp::BlendDiffuseAlpha,
-    TextureOp::BlendTextureAlpha,
-    TextureOp::BlendFactorAlpha,
-    TextureOp::BlendCurrentAlpha,
-    TextureOp::BlendTextureAlphaPm,
-    TextureOp::ModulateAlphaAddColor,
-    TextureOp::ModulateColorAddAlpha,
-    TextureOp::ModulateInvAlphaAddColor,
-    TextureOp::ModulateInvColorAddAlpha,
-    TextureOp::BumpEnvMap,
-    TextureOp::BumpEnvMapLuminance,
-    TextureOp::DotProduct3,
-    TextureOp::MultiplyAdd,
-    TextureOp::Interpolate,
-  };
-  mCaps.supportedAlphaOps = TextureOps{
-    TextureOp::Replace,
-    TextureOp::Modulate,
-    TextureOp::Modulate2X,
-    TextureOp::Modulate4X,
-    TextureOp::Add,
-    TextureOp::AddSigned,
-    TextureOp::AddSigned2X,
-    TextureOp::Subtract,
-    TextureOp::AddSmooth,
-    TextureOp::BlendDiffuseAlpha,
-    TextureOp::BlendTextureAlpha,
-    TextureOp::BlendFactorAlpha,
-    TextureOp::BlendCurrentAlpha,
-    TextureOp::BlendTextureAlphaPm,
-    TextureOp::MultiplyAdd,
-    TextureOp::Interpolate,
-  };
-
-  if (d3d9Caps.TextureOpCaps & D3DTEXOPCAPS_PREMODULATE) {
-    mCaps.supportedColorOps.set(TextureOp::PreModulate);
-    // TODO: can TextureOp::PreModulate be an alpha op too?
-  }
 }
 
 auto D3D9Device::device() const noexcept -> IDirect3DDevice9Ptr const& {

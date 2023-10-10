@@ -18,9 +18,9 @@ namespace basalt::gfx {
 
 class D3D9Device final : public Device {
 public:
-  static auto create(IDirect3DDevice9Ptr) -> D3D9DevicePtr;
+  static auto create(IDirect3DDevice9Ptr, DeviceCaps const&) -> D3D9DevicePtr;
 
-  explicit D3D9Device(IDirect3DDevice9Ptr);
+  explicit D3D9Device(IDirect3DDevice9Ptr, DeviceCaps const&);
 
   [[nodiscard]]
   auto device() const noexcept -> IDirect3DDevice9Ptr const&;

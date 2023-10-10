@@ -17,6 +17,7 @@
 #include <fmt/format.h>
 
 #include <array>
+#include <limits>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -27,6 +28,7 @@ namespace basalt::gfx {
 
 using namespace std::literals;
 using std::array;
+using std::numeric_limits;
 using std::string;
 using std::string_view;
 using std::vector;
@@ -552,6 +554,94 @@ auto enum_suitable_adapters(IDirect3D9& instance) -> AdapterList {
   return adapters;
 }
 
+auto get_device_caps(IDirect3DDevice9& device) -> DeviceCaps {
+  DeviceCaps caps;
+
+  auto d3d9Caps = D3DCAPS9{};
+  D3D9CHECK(device.GetDeviceCaps(&d3d9Caps));
+
+  caps.maxVertexBufferSizeInBytes = numeric_limits<UINT>::max();
+  caps.maxIndexBufferSizeInBytes = numeric_limits<UINT>::max();
+
+  if (d3d9Caps.MaxVertexIndex > 0xffff) {
+    caps.supportedIndexTypes.set(IndexType::U32);
+  }
+
+  caps.maxLights = d3d9Caps.MaxActiveLights;
+  caps.maxTextureBlendStages = d3d9Caps.MaxTextureBlendStages;
+  caps.maxBoundSampledTextures = d3d9Caps.MaxSimultaneousTextures;
+
+  caps.samplerClampToBorder =
+    d3d9Caps.TextureAddressCaps & D3DPTADDRESSCAPS_BORDER &&
+    d3d9Caps.VolumeTextureAddressCaps & D3DPTADDRESSCAPS_BORDER;
+  caps.samplerCustomBorderColor = caps.samplerClampToBorder;
+  caps.samplerMirrorOnceClampToEdge =
+    d3d9Caps.TextureAddressCaps & D3DPTADDRESSCAPS_MIRRORONCE &&
+    d3d9Caps.VolumeTextureAddressCaps & D3DPTADDRESSCAPS_MIRRORONCE;
+
+  caps.samplerMinFilterAnisotropic =
+    d3d9Caps.TextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC;
+  caps.samplerMagFilterAnisotropic =
+    d3d9Caps.TextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC;
+  caps.samplerCubeMinFilterAnisotropic =
+    d3d9Caps.CubeTextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC;
+  caps.samplerCubeMagFilterAnisotropic =
+    d3d9Caps.CubeTextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC;
+  caps.sampler3DMinFilterAnisotropic =
+    d3d9Caps.VolumeTextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC;
+  caps.sampler3DMagFilterAnisotropic =
+    d3d9Caps.VolumeTextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC;
+  caps.samplerMaxAnisotropy = saturated_cast<u8>(d3d9Caps.MaxAnisotropy);
+  caps.perTextureStageConstant =
+    d3d9Caps.PrimitiveMiscCaps & D3DPMISCCAPS_PERSTAGECONSTANT;
+  caps.supportedColorOps = TextureOps{TextureOp::Replace,
+                                      TextureOp::Modulate,
+                                      TextureOp::Modulate2X,
+                                      TextureOp::Modulate4X,
+                                      TextureOp::Add,
+                                      TextureOp::AddSigned,
+                                      TextureOp::AddSigned2X,
+                                      TextureOp::Subtract,
+                                      TextureOp::AddSmooth,
+                                      TextureOp::BlendDiffuseAlpha,
+                                      TextureOp::BlendTextureAlpha,
+                                      TextureOp::BlendFactorAlpha,
+                                      TextureOp::BlendCurrentAlpha,
+                                      TextureOp::BlendTextureAlphaPm,
+                                      TextureOp::ModulateAlphaAddColor,
+                                      TextureOp::ModulateColorAddAlpha,
+                                      TextureOp::ModulateInvAlphaAddColor,
+                                      TextureOp::ModulateInvColorAddAlpha,
+                                      TextureOp::BumpEnvMap,
+                                      TextureOp::BumpEnvMapLuminance,
+                                      TextureOp::DotProduct3,
+                                      TextureOp::MultiplyAdd,
+                                      TextureOp::Interpolate};
+  caps.supportedAlphaOps = TextureOps{TextureOp::Replace,
+                                      TextureOp::Modulate,
+                                      TextureOp::Modulate2X,
+                                      TextureOp::Modulate4X,
+                                      TextureOp::Add,
+                                      TextureOp::AddSigned,
+                                      TextureOp::AddSigned2X,
+                                      TextureOp::Subtract,
+                                      TextureOp::AddSmooth,
+                                      TextureOp::BlendDiffuseAlpha,
+                                      TextureOp::BlendTextureAlpha,
+                                      TextureOp::BlendFactorAlpha,
+                                      TextureOp::BlendCurrentAlpha,
+                                      TextureOp::BlendTextureAlphaPm,
+                                      TextureOp::MultiplyAdd,
+                                      TextureOp::Interpolate};
+
+  if (d3d9Caps.TextureOpCaps & D3DTEXOPCAPS_PREMODULATE) {
+    caps.supportedColorOps.set(TextureOp::PreModulate);
+    // TODO: can TextureOp::PreModulate be an alpha op too?
+  }
+
+  return caps;
+}
+
 } // namespace
 
 auto D3D9Factory::create() -> D3D9FactoryPtr {
@@ -628,8 +718,9 @@ auto D3D9Factory::do_create_device_and_swap_chain(
                                     DEVICE_CREATE_FLAGS, &pp, &d3d9Device));
 
   // TODO: verify the five caps which differ?
-
-  auto device = D3D9Device::create(d3d9Device);
+  
+  auto const deviceCaps = get_device_caps(*d3d9Device.Get());
+  auto device = D3D9Device::create(d3d9Device, deviceCaps);
   auto deviceExtensions = ext::DeviceExtensions{
     {ext::DeviceExtensionId::DearImGuiRenderer,
      ext::D3D9ImGuiRenderer::create(d3d9Device)},
