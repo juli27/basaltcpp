@@ -22,60 +22,65 @@ public:
 
   explicit D3D9Device(IDirect3DDevice9Ptr);
 
-  [[nodiscard]] auto device() const noexcept -> IDirect3DDevice9Ptr const&;
+  [[nodiscard]]
+  auto device() const noexcept -> IDirect3DDevice9Ptr const&;
 
   auto reset(D3DPRESENT_PARAMETERS&) const -> void;
 
   auto execute(CommandList const&) -> void;
 
-  [[nodiscard]] auto load_texture_3d(std::filesystem::path const&) -> Texture;
+  [[nodiscard]] auto add_texture(IDirect3DBaseTexture9Ptr) -> Texture;
   [[nodiscard]] auto get_d3d9(Texture) const -> IDirect3DBaseTexture9Ptr;
 
   auto set_extensions(ext::DeviceExtensions) -> void;
 
-  [[nodiscard]] auto capabilities() const -> DeviceCaps const& override;
-  [[nodiscard]] auto get_status() const noexcept -> DeviceStatus override;
+  [[nodiscard]]
+  auto capabilities() const -> DeviceCaps const& override;
+  [[nodiscard]]
+  auto get_status() const noexcept -> DeviceStatus override;
 
   auto reset() -> void override;
 
-  [[nodiscard]] auto create_pipeline(PipelineDescriptor const&)
-    -> Pipeline override;
+  [[nodiscard]]
+  auto create_pipeline(PipelineDescriptor const&) -> Pipeline override;
 
   auto destroy(Pipeline) noexcept -> void override;
 
-  [[nodiscard]] auto
-  create_vertex_buffer(VertexBufferDescriptor const&,
-                       gsl::span<std::byte const> initialData)
+  [[nodiscard]]
+  auto create_vertex_buffer(VertexBufferDescriptor const&,
+                            gsl::span<std::byte const> initialData)
     -> VertexBuffer override;
 
   auto destroy(VertexBuffer) noexcept -> void override;
 
-  [[nodiscard]] auto map(VertexBuffer, uDeviceSize offset, uDeviceSize size)
+  [[nodiscard]]
+  auto map(VertexBuffer, uDeviceSize offset, uDeviceSize size)
     -> gsl::span<std::byte> override;
   auto unmap(VertexBuffer) noexcept -> void override;
 
-  [[nodiscard]] auto create_index_buffer(IndexBufferDescriptor const&,
-                                         gsl::span<std::byte const> initialData)
+  [[nodiscard]]
+  auto create_index_buffer(IndexBufferDescriptor const&,
+                           gsl::span<std::byte const> initialData)
     -> IndexBuffer override;
 
   auto destroy(IndexBuffer) noexcept -> void override;
 
-  [[nodiscard]] auto map(IndexBuffer, uDeviceSize offsetInBytes,
-                         uDeviceSize sizeInBytes)
+  [[nodiscard]]
+  auto map(IndexBuffer, uDeviceSize offsetInBytes, uDeviceSize sizeInBytes)
     -> gsl::span<std::byte> override;
 
   auto unmap(IndexBuffer) noexcept -> void override;
 
-  [[nodiscard]] auto load_texture(std::filesystem::path const&)
-    -> Texture override;
+  [[nodiscard]]
+  auto load_texture(std::filesystem::path const&) -> Texture override;
 
-  [[nodiscard]] auto load_cube_texture(std::filesystem::path const&)
-    -> Texture override;
+  [[nodiscard]]
+  auto load_cube_texture(std::filesystem::path const&) -> Texture override;
 
   auto destroy(Texture) noexcept -> void override;
 
-  [[nodiscard]] auto create_sampler(SamplerDescriptor const&)
-    -> Sampler override;
+  [[nodiscard]]
+  auto create_sampler(SamplerDescriptor const&) -> Sampler override;
 
   auto destroy(Sampler) noexcept -> void override;
 
@@ -130,7 +135,8 @@ private:
   auto execute(CommandSetTextureStageConstant const&) -> void;
 
   template <typename T>
-  [[nodiscard]] auto get_extension() const -> std::shared_ptr<T>;
+  [[nodiscard]]
+  auto get_extension() const -> std::shared_ptr<T>;
 };
 
 } // namespace basalt::gfx

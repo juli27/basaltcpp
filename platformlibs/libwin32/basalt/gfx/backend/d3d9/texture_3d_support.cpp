@@ -2,6 +2,8 @@
 
 #include <basalt/gfx/backend/d3d9/device.h>
 
+#include <basalt/gfx/backend/d3d9/d3d9_custom.h>
+
 #include <utility>
 
 namespace basalt::gfx::ext {
@@ -14,7 +16,17 @@ auto D3D9Texture3DSupport::create(D3D9DevicePtr device)
 }
 
 auto D3D9Texture3DSupport::load(path const& path) -> Texture {
-  return mDevice->load_texture_3d(path);
+  auto texture = IDirect3DVolumeTexture9Ptr{};
+
+  // TODO: Mip map count is fixed to 1
+  if (FAILED(D3DXCreateVolumeTextureFromFileExW(
+        mDevice->device().Get(), path.c_str(), D3DX_DEFAULT, D3DX_DEFAULT,
+        D3DX_DEFAULT, 1, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT,
+        D3DX_DEFAULT, 0, nullptr, nullptr, &texture))) {
+    throw std::runtime_error{"loading texture file failed"};
+  }
+
+  return mDevice->add_texture(std::move(texture));
 }
 
 D3D9Texture3DSupport::D3D9Texture3DSupport(D3D9DevicePtr device)
