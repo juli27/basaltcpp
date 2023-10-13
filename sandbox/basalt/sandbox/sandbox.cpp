@@ -5,7 +5,6 @@
 #include <basalt/sandbox/samples/samples.h>
 #include <basalt/sandbox/tribase/tribase_examples.h>
 
-#include <basalt/api/client_app.h>
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 
@@ -22,20 +21,19 @@ using std::function;
 using std::string;
 using namespace std::literals;
 
-using basalt::ClientApp;
 using basalt::Config;
 using basalt::Engine;
 using basalt::ViewPtr;
 using basalt::WindowMode;
 
-auto ClientApp::bootstrap(Engine& engine) -> void {
-  engine.set_root(std::make_shared<SandboxView>(engine));
-}
-
 struct SandboxView::Example final {
   string name;
   function<ViewPtr(Engine&)> factory;
 };
+
+auto SandboxView::create(Engine& engine) -> ViewPtr {
+  return std::make_shared<SandboxView>(engine);
+}
 
 SandboxView::SandboxView(Engine& engine) {
   mExamples.reserve(23);
@@ -200,7 +198,7 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
         shouldOpenPopup = OpenPopup::GfxInfo;
       }
 
-      auto sceneInspectorEnabled = 
+      auto sceneInspectorEnabled =
         config.get_bool("debug.scene_inspector.visible"s);
 
       ImGui::MenuItem("Scene Inspector", nullptr, &sceneInspectorEnabled);

@@ -10,6 +10,8 @@
 #include <vector>
 
 struct SandboxView final : basalt::View {
+  static auto create(basalt::Engine&) -> basalt::ViewPtr;
+
   explicit SandboxView(basalt::Engine&);
 
 protected:

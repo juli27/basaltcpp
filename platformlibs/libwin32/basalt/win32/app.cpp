@@ -16,6 +16,8 @@
 
 #include <basalt/dear_imgui.h>
 
+#include <basalt/api/bootstrap.h>
+
 #include <basalt/gfx/backend/device.h>
 #include <basalt/gfx/backend/swap_chain.h>
 #include <basalt/gfx/backend/types.h>
@@ -46,18 +48,22 @@ auto dump_config(Config const& config) -> void {
   BASALT_LOG_INFO("config"sv);
   BASALT_LOG_INFO("\truntime.debugUI.enabled = {}"sv,
                   config.get_bool("runtime.debugUI.enabled"s));
-  BASALT_LOG_INFO("\tgfx.backend.api = {}"sv,
-                  config.get_i32("gfx.backend.api"s));
-  BASALT_LOG_INFO("\twindow.title = {}"sv, config.get_string("window.title"s));
-  BASALT_LOG_INFO("\twindow.size = {{.width = {}, .height = {}}}"sv,
-                  config.get_i32("window.size.width"),
-                  config.get_i32("window.size.height"));
-  BASALT_LOG_INFO("\twindow.mode = {}"sv, config.get_i32("window.mode"s));
-  BASALT_LOG_INFO("\twindow.resizeable = {}"sv,
-                  config.get_bool("window.resizeable"s));
 }
 
-[[nodiscard]] auto poll_messages() -> bool {
+[[nodiscard]]
+auto create_gfx_factory(gfx::BackendApi const backendApi)
+  -> gfx::Win32GfxFactoryPtr {
+  switch (backendApi) {
+  case gfx::BackendApi::Default:
+  case gfx::BackendApi::Direct3D9:
+    return gfx::D3D9Factory::create();
+  }
+
+  BASALT_CRASH("unsupported gfx backend api");
+}
+
+[[nodiscard]]
+auto poll_messages() -> bool {
   auto msg = MSG{};
   while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
     TranslateMessage(&msg);
@@ -78,7 +84,8 @@ auto dump_config(Config const& config) -> void {
   return true;
 }
 
-[[nodiscard]] auto wait_for_messages() -> bool {
+[[nodiscard]]
+auto wait_for_messages() -> bool {
   auto msg = MSG{};
   auto const ret = GetMessageW(&msg, nullptr, 0u, 0u);
   if (ret == -1) {
@@ -123,28 +130,21 @@ auto run_lost_device_loop(gfx::Device& gfxDevice) -> bool {
 
 } // namespace
 
-auto App::run(Config& config, HMODULE const moduleHandle, int const showCommand)
-  -> void {
+auto App::run(HMODULE const moduleHandle, int const showCommand) -> void {
+  auto clientApp = bootstrap_app();
+  auto& config = clientApp.config;
   dump_config(config);
 
-  auto const gfxFactory = gfx::Win32GfxFactoryPtr{gfx::D3D9Factory::create()};
+  auto const gfxFactory = create_gfx_factory(clientApp.gfxBackendApi);
   if (!gfxFactory) {
-    BASALT_LOG_FATAL("couldn't create any gfx factory");
-
-    return;
+    BASALT_CRASH("couldn't create any gfx factory");
   }
 
   auto const window = [&] {
-    auto const windowedSurfaceSize = Size2Du16{
-      static_cast<u16>(config.get_i32("window.size.width"s)),
-      static_cast<u16>(config.get_i32("window.size.height"s)),
-    };
     auto const windowInfo = Window::CreateInfo{
-      config.get_string("window.title"s),
-      showCommand,
-      windowedSurfaceSize,
-      config.get_enum("window.mode"s, to_window_mode),
-      config.get_bool("window.resizeable"s),
+      clientApp.windowTitle,        showCommand,
+      clientApp.canvasSize,         clientApp.windowMode,
+      clientApp.isCanvasResizeable,
     };
 
     return Window::create(moduleHandle, windowInfo, *gfxFactory);
@@ -159,6 +159,7 @@ auto App::run(Config& config, HMODULE const moduleHandle, int const showCommand)
   };
 
   window->input_manager().set_overlay(app.dear_imgui());
+  app.set_root(clientApp.createRootView(app));
 
   using Clock = steady_clock;
   auto startTime = Clock::now();
@@ -170,9 +171,7 @@ auto App::run(Config& config, HMODULE const moduleHandle, int const showCommand)
       window->set_mode(mode);
     }
 
-    auto const& rootView = app.root();
-
-    window->input_manager().dispatch_pending(rootView);
+    window->input_manager().dispatch_pending(app.root());
 
     auto const runtimeCtx = UpdateContext{deltaTime};
     app.update(runtimeCtx);

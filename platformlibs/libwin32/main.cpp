@@ -3,9 +3,6 @@
 #include <basalt/win32/shared/utils.h>
 #include <basalt/win32/shared/Windows_custom.h>
 
-#include <config_defaults.h>
-
-#include <basalt/api/shared/config.h>
 #include <basalt/api/shared/log.h>
 
 #include <exception>
@@ -17,7 +14,6 @@ using std::exception;
 using std::wstring;
 
 using basalt::App;
-using basalt::Config;
 using basalt::Log;
 
 _Use_decl_annotations_ auto WINAPI wWinMain(HINSTANCE const hInstance,
@@ -26,9 +22,7 @@ _Use_decl_annotations_ auto WINAPI wWinMain(HINSTANCE const hInstance,
   Log::init();
 
   try {
-    auto config = Config{BASALT_CONFIG_DEFAULTS};
-
-    App::run(config, hInstance, nShowCmd);
+    App::run(hInstance, nShowCmd);
   } catch (exception const& ex) {
     BASALT_LOG_FATAL("unhandled exception: {}", ex.what());
     Log::shutdown();

@@ -9,9 +9,8 @@ target_link_libraries(${CURRENT_TARGET} PRIVATE
   ControlFlowGuard
 )
 
-target_include_directories(${CURRENT_TARGET} PUBLIC
-  "${CMAKE_CURRENT_SOURCE_DIR}"
-)
+target_include_directories(${CURRENT_TARGET}
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 
 target_compile_definitions(${CURRENT_TARGET} PRIVATE
   "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:BASALT_DEV_BUILD>"
@@ -35,6 +34,5 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/basalt/sandbox"
   FILES ${TARGET_SOURCES}
 )
 
-target_sources(${CURRENT_TARGET} PRIVATE
-  "config_defaults.h"
-)
+target_sources(${CURRENT_TARGET} PRIVATE "bootstrap.cpp")
+source_group("" FILES "bootstrap.cpp")

@@ -82,12 +82,11 @@ enum class ImageFormat : u8 {
 };
 constexpr u8 IMAGE_FORMAT_COUNT {11};
 
-// SERIALIZED
 enum class BackendApi : u8 {
-  Default = 0,
-  Direct3D9 = 1,
+  Default,
+  Direct3D9,
 };
-constexpr uSize BACKEND_API_COUNT {2u};
+constexpr auto BACKEND_API_COUNT = u8{2};
 
 enum class MultiSampleCount : u8 {
   One,

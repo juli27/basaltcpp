@@ -1,5 +1,5 @@
 target_sources(${CURRENT_TARGET} PRIVATE
-  "client_app.h"
+  "bootstrap.h"
   "debug_ui.h"
   "engine.h"
   "input.h"

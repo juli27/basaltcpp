@@ -8,7 +8,6 @@
 #include <basalt/gfx/backend/swap_chain.h>
 #include <basalt/gfx/backend/types.h>
 
-#include <basalt/api/client_app.h>
 #include <basalt/api/view.h>
 
 #include <basalt/api/gfx/context.h>
@@ -54,7 +53,6 @@ Runtime::Runtime(Config& config, gfx::ContextPtr gfxContext,
                  DearImGuiPtr dearImGui)
   : Engine{config, std::move(gfxContext)}
   , mDearImGui{std::move(dearImGui)} {
-  ClientApp::bootstrap(*this);
 }
 
 } // namespace basalt

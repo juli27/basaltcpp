@@ -59,11 +59,21 @@ function(basalt_add_app APP_NAME)
     VS_JUST_MY_CODE_DEBUGGING "$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>"
   )
 
-  target_sources(${CURRENT_TARGET} PRIVATE
-    "${CMAKE_SOURCE_DIR}/launchers/win32/App.manifest"
-    "${CMAKE_SOURCE_DIR}/launchers/win32/main.cpp"
-  )
+  set(BASALT_WIN32_MANIFEST_APP_NAME "basalt.${APP_NAME}")
+  configure_file("${PROJECT_SOURCE_DIR}/platformlibs/libwin32/app.manifest.in"
+    "app.manifest"
+    @ONLY)
 
-  get_target_property(TARGET_SOURCES ${CURRENT_TARGET} SOURCES)
-  source_group(TREE "${CMAKE_SOURCE_DIR}/launchers/win32" FILES ${TARGET_SOURCES})
+  configure_file("${PROJECT_SOURCE_DIR}/platformlibs/libwin32/main.cpp"
+    "main.cpp"
+    COPYONLY)
+
+  target_sources(${CURRENT_TARGET}
+    PRIVATE
+      "${CMAKE_CURRENT_BINARY_DIR}/app.manifest"
+      "${CMAKE_CURRENT_BINARY_DIR}/main.cpp")
+  source_group(""
+    FILES
+      "${CMAKE_CURRENT_BINARY_DIR}/app.manifest"
+      "${CMAKE_CURRENT_BINARY_DIR}/main.cpp")
 endfunction()
