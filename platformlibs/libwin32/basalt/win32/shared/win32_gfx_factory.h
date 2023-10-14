@@ -11,7 +11,7 @@ namespace basalt::gfx {
 
 class Win32GfxFactory {
 public:
-  struct DeviceAndSwapChainDesc final {
+  struct DeviceAndSwapChainCreateInfo final {
     Adapter adapter;
     DisplayMode exclusiveDisplayMode;
     ImageFormat renderTargetFormat{ImageFormat::Unknown};
@@ -32,7 +32,8 @@ public:
   virtual auto adapters() const -> AdapterList const& = 0;
 
   [[nodiscard]]
-  auto create_context(HWND, DeviceAndSwapChainDesc const&) const -> ContextPtr;
+  auto create_context(HWND, DeviceAndSwapChainCreateInfo const&) const
+    -> ContextPtr;
 
 protected:
   struct DeviceAndSwapChain {
@@ -43,9 +44,8 @@ protected:
 
   Win32GfxFactory() noexcept = default;
 
-  virtual auto
-  do_create_device_and_swap_chain(HWND, DeviceAndSwapChainDesc const&) const
-    -> DeviceAndSwapChain = 0;
+  virtual auto do_create_device_and_swap_chain(
+    HWND, DeviceAndSwapChainCreateInfo const&) const -> DeviceAndSwapChain = 0;
 };
 
 } // namespace basalt::gfx

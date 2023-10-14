@@ -11,6 +11,17 @@
 
 namespace basalt::gfx {
 
+struct ContextCreateInfo {
+  [[nodiscard]]
+  static auto create_default(AdapterList const&) -> ContextCreateInfo;
+
+  Adapter adapter;
+  DisplayMode exclusiveDisplayMode;
+  ImageFormat renderTargetFormat;
+  ImageFormat depthStencilFormat;
+  MultiSampleCount sampleCount;
+};
+
 class Context final : public std::enable_shared_from_this<Context> {
 public:
   static auto create(DevicePtr, ext::DeviceExtensions, SwapChainPtr, Info)

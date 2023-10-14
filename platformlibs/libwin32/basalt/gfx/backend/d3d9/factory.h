@@ -33,8 +33,9 @@ private:
   IDirect3D9Ptr mInstance;
   AdapterList mAdapters;
 
-  auto do_create_device_and_swap_chain(HWND,
-                                       DeviceAndSwapChainDesc const&) const
+  auto
+  do_create_device_and_swap_chain(HWND,
+                                  DeviceAndSwapChainCreateInfo const&) const
     -> DeviceAndSwapChain override;
 };
 

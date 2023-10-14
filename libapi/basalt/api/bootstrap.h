@@ -15,6 +15,8 @@ namespace basalt {
 
 using ViewFactory = ViewPtr(Engine&);
 
+using ConfigureGfxContext = gfx::ContextCreateInfo(gfx::AdapterList const&);
+
 struct BasaltApp {
   std::function<ViewFactory> createRootView;
   Config config;
@@ -23,6 +25,7 @@ struct BasaltApp {
   WindowMode windowMode{WindowMode::Windowed};
   std::string windowTitle{};
   gfx::BackendApi gfxBackendApi{gfx::BackendApi::Default};
+  std::function<ConfigureGfxContext> gfxContextConfig{};
 };
 
 auto bootstrap_app() -> BasaltApp;

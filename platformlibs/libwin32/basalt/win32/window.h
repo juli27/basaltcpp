@@ -3,12 +3,14 @@
 #include <basalt/win32/types.h>
 
 #include <basalt/win32/shared/types.h>
+#include <basalt/win32/shared/win32_gfx_factory.h>
 #include <basalt/win32/shared/Windows_custom.h>
 
 #include <basalt/input_manager.h>
 
 #include <basalt/api/types.h>
 
+#include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/types.h>
 #include <basalt/api/gfx/backend/types.h>
 
@@ -22,17 +24,19 @@ namespace basalt {
 
 class Window final {
 public:
-  struct CreateInfo final {
+  struct CreateInfo {
     std::string title;
     int showCommand;
     Size2Du16 preferredClientAreaSize{Size2Du16::dont_care()};
     WindowMode mode{WindowMode::Windowed};
     bool resizeable{true};
+    gfx::ContextCreateInfo gfxContextCreateInfo;
   };
 
   // throws std::system_error on failure
-  [[nodiscard]] static auto create(HMODULE, CreateInfo const&,
-                                   gfx::Win32GfxFactory const&) -> WindowPtr;
+  [[nodiscard]]
+  static auto create(HMODULE, CreateInfo const&, gfx::Win32GfxFactory const&)
+    -> WindowPtr;
 
   Window(Window const&) = delete;
   Window(Window&&) = delete;
@@ -42,11 +46,20 @@ public:
   auto operator=(Window const&) -> Window& = delete;
   auto operator=(Window&&) -> Window& = delete;
 
-  [[nodiscard]] auto handle() const noexcept -> HWND;
-  [[nodiscard]] auto gfx_context() const noexcept -> gfx::ContextPtr const&;
-  [[nodiscard]] auto input_manager() noexcept -> InputManager&;
-  [[nodiscard]] auto client_area_size() const noexcept -> Size2Du16;
-  [[nodiscard]] auto mode() const noexcept -> WindowMode;
+  [[nodiscard]]
+  auto handle() const noexcept -> HWND;
+
+  [[nodiscard]]
+  auto gfx_context() const noexcept -> gfx::ContextPtr const&;
+
+  [[nodiscard]]
+  auto input_manager() noexcept -> InputManager&;
+
+  [[nodiscard]]
+  auto client_area_size() const noexcept -> Size2Du16;
+
+  [[nodiscard]]
+  auto mode() const noexcept -> WindowMode;
 
   auto set_mode(WindowMode) -> void;
   auto set_cursor(MouseCursor) noexcept -> void;
@@ -75,26 +88,40 @@ private:
   std::array<HCURSOR, MOUSE_CURSOR_COUNT> mLoadedCursors{};
   bool mIsInSizeMoveModalLoop{false};
 
-  auto init_gfx_context(gfx::Win32GfxFactory const&) -> void;
+  auto init_gfx_context(gfx::ContextCreateInfo const&,
+                        gfx::Win32GfxFactory const&) -> void;
+
   auto shutdown_gfx_context() -> void;
 
   auto resize(Size2Du16 newClientAreaSize) -> void;
 
-  [[nodiscard]] auto handle_message(UINT message, WPARAM, LPARAM) -> LRESULT;
+  [[nodiscard]]
+  auto handle_message(UINT message, WPARAM, LPARAM) -> LRESULT;
+
   auto on_size(WPARAM resizeType, Size2Du16 newClientAreaSize) -> void;
-  [[nodiscard]] auto on_keyboard_focus(UINT message, HWND other) -> LRESULT;
-  [[nodiscard]] auto on_close() -> LRESULT;
-  [[nodiscard]] auto on_set_cursor(HWND windowUnderCursor, SHORT hitTestResult,
-                                   USHORT triggerMessage) -> LRESULT;
-  [[nodiscard]] auto on_key(WPARAM virtualKeyCode, WORD repeatCount, WORD info)
-    -> LRESULT;
-  [[nodiscard]] auto on_char(WPARAM characterCode, WORD repeatCount, WORD info)
-    -> LRESULT;
+
+  [[nodiscard]]
+  auto on_keyboard_focus(UINT message, HWND other) -> LRESULT;
+
+  [[nodiscard]]
+  auto on_close() -> LRESULT;
+
+  [[nodiscard]]
+  auto on_set_cursor(HWND windowUnderCursor, SHORT hitTestResult,
+                     USHORT triggerMessage) -> LRESULT;
+  [[nodiscard]]
+  auto on_key(WPARAM virtualKeyCode, WORD repeatCount, WORD info) -> LRESULT;
+
+  [[nodiscard]]
+  auto on_char(WPARAM characterCode, WORD repeatCount, WORD info) -> LRESULT;
+
   [[nodiscard]] auto on_mouse_move(WPARAM, PointerPosition) -> LRESULT;
-  [[nodiscard]] auto on_mouse_button(UINT message, WPARAM, PointerPosition)
-    -> LRESULT;
-  [[nodiscard]] auto on_mouse_wheel(SHORT delta, WPARAM states, PointerPosition)
-    -> LRESULT;
+
+  [[nodiscard]]
+  auto on_mouse_button(UINT message, WPARAM, PointerPosition) -> LRESULT;
+
+  [[nodiscard]]
+  auto on_mouse_wheel(SHORT delta, WPARAM states, PointerPosition) -> LRESULT;
 
   auto process_mouse_message_states(WPARAM) -> void;
 

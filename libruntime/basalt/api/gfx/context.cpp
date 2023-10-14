@@ -20,6 +20,16 @@ using gsl::span;
 using std::nullopt;
 using std::optional;
 
+auto ContextCreateInfo::create_default(AdapterList const& adapters)
+  -> ContextCreateInfo {
+  auto const& adapter = adapters[0];
+
+  return ContextCreateInfo{
+    adapter.handle,       adapter.displayMode,   adapter.displayFormat,
+    ImageFormat::Unknown, MultiSampleCount::One,
+  };
+}
+
 auto Context::create(DevicePtr device, ext::DeviceExtensions deviceExtensions,
                      SwapChainPtr swapChain, Info info) -> ContextPtr {
   return std::make_shared<Context>(std::move(device),

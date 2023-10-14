@@ -688,29 +688,29 @@ D3D9Factory::D3D9Factory(IDirect3D9Ptr instance, AdapterList adapters)
 }
 
 auto D3D9Factory::do_create_device_and_swap_chain(
-  HWND const window, DeviceAndSwapChainDesc const& desc) const
+  HWND const window, DeviceAndSwapChainCreateInfo const& info) const
   -> DeviceAndSwapChain {
-  auto const adapterOrdinal = desc.adapter.value();
+  auto const adapterOrdinal = info.adapter.value();
   BASALT_ASSERT(adapterOrdinal < mInstance->GetAdapterCount());
 
   auto pp = D3DPRESENT_PARAMETERS{};
-  pp.BackBufferFormat = to_d3d(desc.renderTargetFormat);
+  pp.BackBufferFormat = to_d3d(info.renderTargetFormat);
   pp.BackBufferCount = 1;
-  pp.MultiSampleType = to_d3d(desc.sampleCount);
+  pp.MultiSampleType = to_d3d(info.sampleCount);
   pp.MultiSampleQuality = 0;
   pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
   pp.hDeviceWindow = window;
-  pp.Windowed = !desc.exclusive;
-  pp.EnableAutoDepthStencil = desc.depthStencilFormat != ImageFormat::Unknown;
-  pp.AutoDepthStencilFormat = to_d3d(desc.depthStencilFormat);
+  pp.Windowed = !info.exclusive;
+  pp.EnableAutoDepthStencil = info.depthStencilFormat != ImageFormat::Unknown;
+  pp.AutoDepthStencilFormat = to_d3d(info.depthStencilFormat);
   pp.Flags =
     pp.EnableAutoDepthStencil ? D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL : 0;
   pp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
 
-  if (desc.exclusive) {
-    pp.BackBufferWidth = desc.exclusiveDisplayMode.width;
-    pp.BackBufferHeight = desc.exclusiveDisplayMode.height;
-    pp.FullScreen_RefreshRateInHz = desc.exclusiveDisplayMode.refreshRate;
+  if (info.exclusive) {
+    pp.BackBufferWidth = info.exclusiveDisplayMode.width;
+    pp.BackBufferHeight = info.exclusiveDisplayMode.height;
+    pp.FullScreen_RefreshRateInHz = info.exclusiveDisplayMode.refreshRate;
   }
 
   auto d3d9Device = IDirect3DDevice9Ptr{};
@@ -718,7 +718,7 @@ auto D3D9Factory::do_create_device_and_swap_chain(
                                     DEVICE_CREATE_FLAGS, &pp, &d3d9Device));
 
   // TODO: verify the five caps which differ?
-  
+
   auto const deviceCaps = get_device_caps(*d3d9Device.Get());
   auto device = D3D9Device::create(d3d9Device, deviceCaps);
   auto deviceExtensions = ext::DeviceExtensions{

@@ -27,6 +27,7 @@ struct Camera;
 
 class Context;
 using ContextPtr = std::shared_ptr<Context>;
+struct ContextCreateInfo;
 
 class Environment;
 class GfxSystem;
@@ -80,7 +81,7 @@ enum class ImageFormat : u8 {
   D24X8,
   D24S8,
 };
-constexpr u8 IMAGE_FORMAT_COUNT {11};
+constexpr auto IMAGE_FORMAT_COUNT = u8{11};
 
 enum class BackendApi : u8 {
   Default,
@@ -94,20 +95,20 @@ enum class MultiSampleCount : u8 {
   Four,
   Eight,
 };
-constexpr u8 MULTI_SAMPLE_COUNT_COUNT {4};
+constexpr auto MULTI_SAMPLE_COUNT_COUNT = u8{4};
 
 using MultiSampleCounts = EnumSet<MultiSampleCount, MultiSampleCount::Eight>;
 
 struct BackBufferFormat final {
-  ImageFormat renderTargetFormat {ImageFormat::Unknown};
-  ImageFormat depthStencilFormat {ImageFormat::Unknown};
+  ImageFormat renderTargetFormat{ImageFormat::Unknown};
+  ImageFormat depthStencilFormat{ImageFormat::Unknown};
   MultiSampleCounts supportedSampleCounts;
 };
 
 struct DisplayMode final {
-  u32 width {};
-  u32 height {};
-  u32 refreshRate {};
+  u32 width{};
+  u32 height{};
+  u32 refreshRate{};
 };
 
 using DisplayModeList = std::vector<DisplayMode>;
@@ -115,18 +116,18 @@ using DisplayModeList = std::vector<DisplayMode>;
 struct AdapterModes final {
   std::vector<BackBufferFormat> backBufferFormats;
   DisplayModeList displayModes;
-  ImageFormat displayFormat {ImageFormat::Unknown};
+  ImageFormat displayFormat{ImageFormat::Unknown};
 };
 
 using AdapterModeList = std::vector<AdapterModes>;
 
 struct AdapterInfo final {
-  std::string displayName {};
-  std::string driverInfo {};
-  AdapterModeList adapterModes {};
+  std::string displayName{};
+  std::string driverInfo{};
+  AdapterModeList adapterModes{};
   std::vector<BackBufferFormat> backBufferFormats;
   DisplayMode displayMode;
-  ImageFormat displayFormat {ImageFormat::Unknown};
+  ImageFormat displayFormat{ImageFormat::Unknown};
   Adapter handle;
 };
 
@@ -135,45 +136,45 @@ using AdapterList = std::vector<AdapterInfo>;
 struct Info final {
   // HACK: caps for the current device only
   DeviceCaps currentDeviceCaps;
-  AdapterList adapters {};
-  BackendApi backendApi {BackendApi::Default};
+  AdapterList adapters{};
+  BackendApi backendApi{BackendApi::Default};
 };
 
 struct MeshDescriptor final {
-  gsl::span<const std::byte> vertexData;
-  u32 vertexCount {};
+  gsl::span<std::byte const> vertexData;
+  u32 vertexCount{};
   VertexLayout layout;
-  gsl::span<const std::byte> indexData;
-  u32 indexCount {};
-  IndexType indexType {IndexType::U16};
+  gsl::span<std::byte const> indexData;
+  u32 indexCount{};
+  IndexType indexType{IndexType::U16};
 };
 
 struct SampledTextureDescriptor final {
-  Texture texture {Texture::null()};
-  TextureFilter filter {TextureFilter::Point};
-  TextureMipFilter mipFilter {TextureMipFilter::None};
-  TextureAddressMode addressModeU {TextureAddressMode::Repeat};
-  TextureAddressMode addressModeV {TextureAddressMode::Repeat};
+  Texture texture{Texture::null()};
+  TextureFilter filter{TextureFilter::Point};
+  TextureMipFilter mipFilter{TextureMipFilter::None};
+  TextureAddressMode addressModeU{TextureAddressMode::Repeat};
+  TextureAddressMode addressModeV{TextureAddressMode::Repeat};
 };
 
 struct MaterialDescriptor final {
-  PipelineDescriptor* pipelineDesc {};
+  PipelineDescriptor* pipelineDesc{};
   Color diffuse;
   Color ambient;
   Color emissive;
   Color specular;
-  f32 specularPower {};
+  f32 specularPower{};
   SampledTextureDescriptor sampledTexture;
   Color fogColor;
-  f32 fogStart {};
-  f32 fogEnd {};
-  f32 fogDensity {};
+  f32 fogStart{};
+  f32 fogEnd{};
+  f32 fogDensity{};
 };
 
 struct RenderComponent final {
-  Mesh mesh {Mesh::null()};
-  Material material {Material::null()};
-  Matrix4x4f32 texTransform {Matrix4x4f32::identity()};
+  Mesh mesh{Mesh::null()};
+  Material material{Material::null()};
+  Matrix4x4f32 texTransform{Matrix4x4f32::identity()};
 };
 
 static_assert(sizeof(RenderComponent) == 72);
@@ -184,10 +185,10 @@ struct PointLight {
   Color diffuse;
   Color specular;
   Color ambient;
-  f32 range {};
-  f32 attenuation0 {};
-  f32 attenuation1 {};
-  f32 attenuation2 {};
+  f32 range{};
+  f32 attenuation0{};
+  f32 attenuation1{};
+  f32 attenuation2{};
 };
 
 struct SpotLight {
@@ -195,11 +196,11 @@ struct SpotLight {
   Color specular;
   Color ambient;
   Vector3f32 direction;
-  f32 range {};
-  f32 attenuation0 {};
-  f32 attenuation1 {};
-  f32 attenuation2 {};
-  f32 falloff {};
+  f32 range{};
+  f32 attenuation0{};
+  f32 attenuation1{};
+  f32 attenuation2{};
+  f32 falloff{};
   Angle phi;
   Angle theta;
 };
@@ -208,10 +209,10 @@ using Light = std::variant<PointLight, SpotLight>;
 
 struct MeshData final {
   VertexBuffer vertexBuffer;
-  u32 startVertex {};
-  u32 vertexCount {};
+  u32 startVertex{};
+  u32 vertexCount{};
   IndexBuffer indexBuffer;
-  u32 indexCount {};
+  u32 indexCount{};
 };
 
 struct MaterialData final {
@@ -219,11 +220,11 @@ struct MaterialData final {
   Color ambient;
   Color emissive;
   Color specular;
-  f32 specularPower {};
+  f32 specularPower{};
   Color fogColor;
-  f32 fogStart {};
-  f32 fogEnd {};
-  f32 fogDensity {};
+  f32 fogStart{};
+  f32 fogEnd{};
+  f32 fogDensity{};
 
   Pipeline pipeline;
   Texture texture;
@@ -234,7 +235,7 @@ struct XModelDescriptor final {
   std::filesystem::path modelPath;
 
   // optional materials to override (in order of the model)
-  gsl::span<MaterialDescriptor> materials {};
+  gsl::span<MaterialDescriptor> materials{};
 };
 
 struct XModelData final {

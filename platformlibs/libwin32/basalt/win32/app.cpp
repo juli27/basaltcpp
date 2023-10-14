@@ -12,7 +12,6 @@
 #include <basalt/gfx/backend/d3d9/factory.h>
 
 #include <basalt/win32/shared/types.h>
-#include <basalt/win32/shared/win32_gfx_factory.h>
 
 #include <basalt/dear_imgui.h>
 
@@ -23,12 +22,10 @@
 #include <basalt/gfx/backend/types.h>
 
 #include <basalt/api/gfx/context.h>
-#include <basalt/api/gfx/types.h>
 #include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/shared/config.h>
 #include <basalt/api/shared/log.h>
-#include <basalt/api/shared/size2d.h>
 
 #include <chrono>
 #include <string>
@@ -141,10 +138,16 @@ auto App::run(HMODULE const moduleHandle, int const showCommand) -> void {
   }
 
   auto const window = [&] {
+    auto const& adapters = gfxFactory->adapters();
+    auto const gfxContextConfig =
+      clientApp.gfxContextConfig
+        ? clientApp.gfxContextConfig(adapters)
+        : gfx::ContextCreateInfo::create_default(adapters);
+
     auto const windowInfo = Window::CreateInfo{
       clientApp.windowTitle,        showCommand,
       clientApp.canvasSize,         clientApp.windowMode,
-      clientApp.isCanvasResizeable,
+      clientApp.isCanvasResizeable, gfxContextConfig,
     };
 
     return Window::create(moduleHandle, windowInfo, *gfxFactory);

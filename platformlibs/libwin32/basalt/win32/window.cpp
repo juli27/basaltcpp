@@ -11,7 +11,6 @@
 #include <basalt/win32/shared/utils.h>
 #include <basalt/win32/shared/win32_gfx_factory.h>
 
-#include <basalt/gfx/backend/device.h>
 #include <basalt/gfx/backend/swap_chain.h>
 
 #include <basalt/api/gfx/context.h>
@@ -19,8 +18,6 @@
 #include <basalt/api/shared/log.h>
 
 #include <basalt/api/base/utils.h>
-
-#include <gsl/zstring>
 
 #include <windowsx.h>
 
@@ -198,7 +195,7 @@ auto Window::create(HMODULE const moduleHandle, CreateInfo const& info,
   // TODO: find a better workaround
   window->set_mode(info.mode);
 
-  window->init_gfx_context(gfxFactory);
+  window->init_gfx_context(info.gfxContextCreateInfo, gfxFactory);
 
   return window;
 }
@@ -357,17 +354,20 @@ Window::Window(HMODULE const moduleHandle, ATOM const classAtom,
     loadCursor(OCR_NO);
 }
 
-auto Window::init_gfx_context(gfx::Win32GfxFactory const& gfxFactory) -> void {
-  auto const& adapterInfo = mAdapters[0];
-
-  auto const contextDesc = gfx::Win32GfxFactory::DeviceAndSwapChainDesc{
-    adapterInfo.handle,         adapterInfo.displayMode,
-    adapterInfo.displayFormat,  gfx::ImageFormat::D24S8,
-    gfx::MultiSampleCount::One, mCurrentMode == WindowMode::FullscreenExclusive,
-  };
-
-  mGfxContext = gfxFactory.create_context(mHandle, contextDesc);
+auto Window::init_gfx_context(gfx::ContextCreateInfo const& createInfo,
+                              gfx::Win32GfxFactory const& gfxFactory) -> void {
+  mGfxContext = gfxFactory.create_context(
+    mHandle, {
+               createInfo.adapter,
+               createInfo.exclusiveDisplayMode,
+               createInfo.renderTargetFormat,
+               createInfo.depthStencilFormat,
+               createInfo.sampleCount,
+               mCurrentMode == WindowMode::FullscreenExclusive,
+             });
   mSwapChain = mGfxContext->swap_chain();
+
+  auto const& adapterInfo = gfxFactory.adapters()[createInfo.adapter.value()];
 
   BASALT_LOG_INFO("Direct3D9 context created: adapter={}, driver={}",
                   adapterInfo.displayName, adapterInfo.driverInfo);
