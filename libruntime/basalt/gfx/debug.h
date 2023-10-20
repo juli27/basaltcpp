@@ -4,16 +4,8 @@
 
 namespace basalt::gfx {
 
-struct Debug final {
+struct Debug {
   Debug() = delete;
-
-  Debug(Debug const&) = delete;
-  Debug(Debug&&) = delete;
-
-  ~Debug() = delete;
-
-  auto operator=(Debug const&) -> Debug& = delete;
-  auto operator=(Debug&&) -> Debug& = delete;
 
   static auto update(Composite const&) -> void;
 };

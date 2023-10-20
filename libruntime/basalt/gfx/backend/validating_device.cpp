@@ -45,8 +45,7 @@ namespace basalt::gfx {
 namespace {
 
 class ValidatingTexture3DSupport;
-using ValidatingTexture3DSupportPtr =
-  std::shared_ptr<ValidatingTexture3DSupport>;
+using ValidatingTexture3DSupportPtr = shared_ptr<ValidatingTexture3DSupport>;
 
 class ValidatingTexture3DSupport final : public ext::Texture3DSupport {
 public:
@@ -399,8 +398,9 @@ auto ValidatingDevice::validate(CommandList const& cmdList) -> CommandList {
     this->patch(patched, std::forward<decltype(cmd)>(cmd));
   };
 
-  std::for_each(cmdList.begin(), cmdList.end(),
-                [&](Command const* cmd) { visit(*cmd, visitor); });
+  for (auto const* cmd : cmdList) {
+    visit(*cmd, visitor);
+  }
 
   return patched;
 }

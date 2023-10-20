@@ -1,14 +1,10 @@
 #include <basalt/gfx/debug.h>
 
-#include <basalt/gfx/utils.h>
-
 #include <basalt/gfx/backend/commands.h>
 
 #include <basalt/api/debug_ui.h>
 
 #include <basalt/api/gfx/backend/command_list.h>
-
-#include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/shared/color.h>
 
@@ -18,7 +14,6 @@
 
 #include <imgui/imgui.h>
 
-#include <algorithm>
 #include <array>
 #include <string>
 #include <utility>
@@ -397,12 +392,14 @@ auto draw_composite_inspector(Composite const& composite) -> void {
   ImGui::SetNextWindowSize(ImVec2{500, 350}, ImGuiCond_FirstUseEver);
   if (!ImGui::Begin("Composite Inspector", &sShowCompositeDebugUi)) {
     ImGui::End();
+    
     return;
   }
 
   if (!ImGui::BeginChild("commands", ImVec2{200, 0})) {
     ImGui::EndChild();
     ImGui::End();
+
     return;
   }
 
@@ -416,13 +413,13 @@ auto draw_composite_inspector(Composite const& composite) -> void {
 
     if (ImGui::TreeNode("Part", "Command List (%llu commands)",
                         cmdList.size())) {
-      std::for_each(cmdList.begin(), cmdList.end(), [&](Command const* cmd) {
+      for (auto const* cmd : cmdList) {
         ImGui::TextUnformatted(enumerator_to_string(cmd->type));
 
         if (ImGui::IsItemHovered()) {
           hoveredCommand = cmd;
         }
-      });
+      }
 
       ImGui::TreePop();
     }
@@ -433,7 +430,6 @@ auto draw_composite_inspector(Composite const& composite) -> void {
   ImGui::EndChild();
 
   ImGui::SameLine();
-
   if (!ImGui::BeginChild("command data")) {
     ImGui::EndChild();
     ImGui::End();
@@ -444,6 +440,8 @@ auto draw_composite_inspector(Composite const& composite) -> void {
   if (hoveredCommand) {
     visit(*hoveredCommand,
           [](auto&& cmd) { display(std::forward<decltype(cmd)>(cmd)); });
+  } else {
+    ImGui::TextUnformatted("(hover over a command to see data)");
   }
 
   ImGui::EndChild();
