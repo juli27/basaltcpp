@@ -1,4 +1,4 @@
-#include <basalt/sandbox/samples/simple_scene.h>
+#include <basalt/sandbox/samples/samples.h>
 
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
@@ -19,8 +19,7 @@
 #include <gsl/span>
 
 #include <array>
-
-namespace samples {
+#include <utility>
 
 using std::array;
 
@@ -36,6 +35,7 @@ using basalt::SceneView;
 using basalt::System;
 using basalt::Transform;
 using basalt::Vector3f32;
+using basalt::ViewPtr;
 using basalt::gfx::Camera;
 using basalt::gfx::Environment;
 using basalt::gfx::MaterialDescriptor;
@@ -77,24 +77,17 @@ public:
   }
 };
 
-auto add_camera(Scene& scene) -> Entity {
-  auto const camera = scene.create_entity();
-  camera.emplace<Camera>(Vector3f32::forward(), Vector3f32::up(), 90_deg, 0.1f,
-                         100.0f);
-
-  return camera;
-}
-
 } // namespace
 
-SimpleScene::SimpleScene(Engine const& engine)
-  : mGfxCache{engine.create_gfx_resource_cache()} {
+auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
+  auto gfxCache = engine.create_gfx_resource_cache();
+
   constexpr auto vertices =
     array{Vertex{{-1.0f, -1.0f, 0.0f}, 0xffff0000_a8r8g8b8},
           Vertex{{1.0f, -1.0f, 0.0f}, 0xff0000ff_a8r8g8b8},
           Vertex{{0.0f, 1.0f, 0.0f}, 0xffffffff_a8r8g8b8}};
 
-  auto const mesh = mGfxCache->create_mesh({
+  auto const mesh = gfxCache->create_mesh({
     as_bytes(span{vertices}),
     static_cast<u32>(vertices.size()),
     Vertex::sLayout,
@@ -107,9 +100,9 @@ SimpleScene::SimpleScene(Engine const& engine)
   pipelineDesc.depthWriteEnable = true;
   auto materialDesc = MaterialDescriptor{};
   materialDesc.pipelineDesc = &pipelineDesc;
-  auto const material = mGfxCache->create_material(materialDesc);
+  auto const material = gfxCache->create_material(materialDesc);
 
-  auto const scene = Scene::create();
+  auto scene = Scene::create();
   auto& gfxEnv = scene->entity_registry().ctx().emplace<Environment>();
   gfxEnv.set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
 
@@ -117,10 +110,15 @@ SimpleScene::SimpleScene(Engine const& engine)
   triangle.emplace<RotationSpeed>(360.0f);
   triangle.emplace<RenderComponent>(mesh, material);
 
-  auto const camera = add_camera(*scene);
-
   scene->create_system<RotationSpeedSystem>();
-  add_child_top(SceneView::create(scene, mGfxCache, camera.entity()));
-}
 
-} // namespace samples
+  auto const cameraId = [&] {
+    auto const camera = scene->create_entity();
+    camera.emplace<Camera>(Vector3f32::forward(), Vector3f32::up(), 90_deg,
+                           0.1f, 100.0f);
+
+    return camera.entity();
+  }();
+
+  return SceneView::create(std::move(scene), std::move(gfxCache), cameraId);
+}

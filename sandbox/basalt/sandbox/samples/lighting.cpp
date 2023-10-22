@@ -1,4 +1,5 @@
 #include <basalt/sandbox/samples/lighting.h>
+#include <basalt/sandbox/samples/samples.h>
 
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
@@ -22,8 +23,6 @@
 #include <string_view>
 #include <utility>
 
-namespace samples {
-
 using namespace std::literals;
 using std::array;
 
@@ -36,6 +35,7 @@ using basalt::Scene;
 using basalt::SceneView;
 using basalt::Transform;
 using basalt::Vector3f32;
+using basalt::ViewPtr;
 using basalt::gfx::Camera;
 using basalt::gfx::CullMode;
 using basalt::gfx::Environment;
@@ -58,6 +58,8 @@ namespace {
 constexpr auto BACKGROUND = Color::from_non_linear_rgba8(0, 0, 63);
 
 } // namespace
+
+namespace samples {
 
 Lighting::Lighting(Engine& engine)
   : mGfxCache{engine.create_gfx_resource_cache()} {
@@ -187,3 +189,7 @@ auto Lighting::on_update(UpdateContext& ctx) -> void {
 }
 
 } // namespace samples
+
+auto Samples::new_lighting_sample(Engine& engine) -> ViewPtr {
+  return std::make_shared<samples::Lighting>(engine);
+}

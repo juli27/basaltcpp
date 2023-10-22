@@ -1,4 +1,4 @@
-#include <basalt/sandbox/samples/textures.h>
+#include <basalt/sandbox/samples/samples.h>
 
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
@@ -23,6 +23,7 @@
 
 #include <array>
 #include <string_view>
+#include <utility>
 
 using namespace std::literals;
 using std::array;
@@ -39,6 +40,7 @@ using basalt::SceneView;
 using basalt::System;
 using basalt::Vector2f32;
 using basalt::Vector3f32;
+using basalt::ViewPtr;
 using basalt::gfx::Camera;
 using basalt::gfx::Environment;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
@@ -52,8 +54,6 @@ using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
 using basalt::gfx::TextureStage;
 using basalt::gfx::VertexElement;
-
-namespace samples {
 
 namespace {
 
@@ -88,7 +88,7 @@ public:
     auto firstEntity = true;
 
     ctx.scene.entity_registry().view<RenderComponent, SamplerSettings>().each(
-      [&](EntityId const entity, RenderComponent& renderComponent,
+      [&](EntityId const entityId, RenderComponent& renderComponent,
           SamplerSettings& samplerSettings) {
         constexpr auto filterMask = u8{0x3};
         constexpr auto mipFilterShift = u8{0};
@@ -100,14 +100,14 @@ public:
         auto mipFilter = static_cast<i32>(
           samplerSettings.chosenMaterial >> mipFilterShift & filterMask);
 
-        ImGui::PushID(static_cast<int>(to_integral(entity)));
+        ImGui::PushID(static_cast<int>(to_integral(entityId)));
 
         if (firstEntity) {
           firstEntity = false;
           ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         }
 
-        if (ImGui::TreeNode("Entity", "Entity %d", to_integral(entity))) {
+        if (ImGui::TreeNode("Entity", "Entity %d", to_integral(entityId))) {
           ImGui::TextUnformatted("Filter");
           ImGui::PushID("Filter");
           ImGui::RadioButton("Point", &minFilter, 0);
@@ -143,29 +143,24 @@ public:
   }
 };
 
-auto add_camera(Scene& scene) -> Entity {
-  auto const camera = scene.create_entity();
-  camera.emplace<Camera>(Vector3f32::forward(), Vector3f32::up(), 90_deg, 0.1f,
-                         100.0f);
-
-  return camera;
-}
-
 } // namespace
 
-Textures::Textures(Engine& engine)
-  : mGfxCache{engine.create_gfx_resource_cache()} {
+// TODO: when supporting dynamic buffers: texture coordinate modification and
+// address mode demo
+auto Samples::new_textures_sample(Engine& engine) -> ViewPtr {
+  auto gfxCache = engine.create_gfx_resource_cache();
+
   constexpr auto vertices = array{Vertex{{-1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
                                   Vertex{{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
                                   Vertex{{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},
                                   Vertex{{1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}}};
-  auto const mesh = mGfxCache->create_mesh({
+  auto const mesh = gfxCache->create_mesh({
     as_bytes(span{vertices}),
     static_cast<u32>(vertices.size()),
     Vertex::sLayout,
   });
 
-  auto const scene = Scene::create();
+  auto scene = Scene::create();
   auto& gfxEnv = scene->entity_registry().ctx().emplace<Environment>();
   gfxEnv.set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
 
@@ -188,7 +183,7 @@ Textures::Textures(Engine& engine)
   auto materialDesc = MaterialDescriptor{};
   materialDesc.pipelineDesc = &pipelineDesc;
   materialDesc.sampledTexture.texture =
-    mGfxCache->load_texture("data/Tiger.bmp"sv);
+    gfxCache->load_texture("data/Tiger.bmp"sv);
   auto& materials = samplerSettings.materials;
   auto i = u32{0};
   for (auto const filter : {TextureFilter::Point, TextureFilter::Bilinear,
@@ -199,15 +194,20 @@ Textures::Textures(Engine& engine)
          {TextureMipFilter::None, TextureMipFilter::Point,
           TextureMipFilter::Linear}) {
       materialDesc.sampledTexture.mipFilter = mipFilter;
-      materials[i] = mGfxCache->create_material(materialDesc);
+      materials[i] = gfxCache->create_material(materialDesc);
       ++i;
     }
   }
 
-  auto const camera = add_camera(*scene);
-
   scene->create_system<SamplerSettingsSystem>();
-  add_child_top(SceneView::create(scene, mGfxCache, camera.entity()));
-}
 
-} // namespace samples
+  auto const cameraId = [&] {
+    auto const camera = scene->create_entity();
+    camera.emplace<Camera>(Vector3f32::forward(), Vector3f32::up(), 90_deg,
+                           0.1f, 100.0f);
+
+    return camera.entity();
+  }();
+
+  return SceneView::create(std::move(scene), std::move(gfxCache), cameraId);
+}

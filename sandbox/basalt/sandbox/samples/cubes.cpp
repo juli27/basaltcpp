@@ -1,4 +1,4 @@
-#include <basalt/sandbox/samples/cubes.h>
+#include <basalt/sandbox/samples/samples.h>
 
 #include <basalt/api/engine.h>
 #include <basalt/api/input.h>
@@ -25,9 +25,8 @@
 #include <random>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
-
-namespace samples {
 
 using namespace std::literals;
 using std::array;
@@ -41,6 +40,7 @@ using gsl::span;
 
 using namespace basalt::literals;
 using basalt::Angle;
+using basalt::Engine;
 using basalt::EntityId;
 using basalt::EntityName;
 using basalt::InputState;
@@ -50,6 +50,7 @@ using basalt::SceneView;
 using basalt::System;
 using basalt::Vector2f32;
 using basalt::Vector3f32;
+using basalt::ViewPtr;
 using basalt::gfx::Camera;
 using basalt::gfx::CameraEntity;
 using basalt::gfx::Environment;
@@ -276,8 +277,9 @@ public:
 
 } // namespace
 
-Cubes::Cubes(basalt::Engine& engine)
-  : mGfxCache{engine.create_gfx_resource_cache()} {
+auto Samples::new_cubes_sample(Engine& engine) -> ViewPtr {
+  auto gfxCache = engine.create_gfx_resource_cache();
+
   constexpr auto vertexCount = NUM_VERTICES_PER_CUBE * NUM_CUBES;
   constexpr auto indexCount = NUM_INDICES_PER_CUBE * NUM_CUBES;
   auto vertices = vector<Vertex>{vertexCount};
@@ -286,7 +288,7 @@ Cubes::Cubes(basalt::Engine& engine)
 
   auto const vertexData = as_bytes(span{vertices});
   auto const indexData = as_bytes(span{indices});
-  auto const mesh = mGfxCache->create_mesh(
+  auto const mesh = gfxCache->create_mesh(
     {vertexData, vertexCount, Vertex::sLayout, indexData, indexCount});
 
   auto vs = FixedVertexShaderCreateInfo{};
@@ -307,12 +309,12 @@ Cubes::Cubes(basalt::Engine& engine)
   auto matDesc = MaterialDescriptor{};
   matDesc.pipelineDesc = &pipelineDesc;
   matDesc.sampledTexture.texture =
-    mGfxCache->load_texture("data/tribase/Texture2.bmp"sv);
+    gfxCache->load_texture("data/tribase/Texture2.bmp"sv);
   matDesc.sampledTexture.filter = TextureFilter::Bilinear;
   matDesc.sampledTexture.mipFilter = TextureMipFilter::Linear;
-  auto const material = mGfxCache->create_material(matDesc);
+  auto const material = gfxCache->create_material(matDesc);
 
-  auto const scene = Scene::create();
+  auto scene = Scene::create();
   scene->create_system<RotatingLightSystem>();
   scene->create_system<CameraController>();
   auto& gfxEnv = scene->entity_registry().ctx().emplace<Environment>();
@@ -346,7 +348,6 @@ Cubes::Cubes(basalt::Engine& engine)
 
   entities.ctx().emplace_as<EntityId>(CONTROLLED_CAMERA, camera.entity());
 
-  add_child_bottom(SceneView::create(scene, mGfxCache, camera.entity()));
+  return SceneView::create(std::move(scene), std::move(gfxCache),
+                           camera.entity());
 }
-
-} // namespace samples
