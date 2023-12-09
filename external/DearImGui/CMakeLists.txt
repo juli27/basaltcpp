@@ -3,51 +3,47 @@ if (NOT dearimgui_POPULATED)
   FetchContent_Populate(DearImGui)
 
   add_library(DearImGui STATIC)
-  set(CURRENT_TARGET DearImGui)
 
-  target_link_libraries(${CURRENT_TARGET}
+  target_link_libraries(DearImGui
     PRIVATE
       Cpp17Conformance
       CommonPrivate
       ControlFlowGuard
   )
 
-  target_include_directories(${CURRENT_TARGET}
+  target_include_directories(DearImGui
     PRIVATE "${dearimgui_SOURCE_DIR}"
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}"
     INTERFACE "${dearimgui_BINARY_DIR}"
   )
 
-  target_compile_definitions(${CURRENT_TARGET}
-    PUBLIC
-      "IMGUI_USER_CONFIG=\"basalt_imconfig.h\""
+  target_compile_definitions(DearImGui
+    PUBLIC "IMGUI_USER_CONFIG=\"basalt_imconfig.h\""
   )
 
-  target_compile_features(${CURRENT_TARGET} PRIVATE cxx_std_17)
-  target_compile_options(${CURRENT_TARGET}
-    PRIVATE
-      "/Zc:twoPhase-"
-  )
+  target_compile_features(DearImGui PRIVATE cxx_std_17)
+  target_compile_options(DearImGui PRIVATE "/Zc:twoPhase-")
 
-  set_target_properties(${CURRENT_TARGET} PROPERTIES
+  set_target_properties(DearImGui PROPERTIES
     FOLDER "external"
     STATIC_LIBRARY_OPTIONS "/WX"
   )
 
-  target_sources(${CURRENT_TARGET} PRIVATE
-    "${dearimgui_SOURCE_DIR}/imconfig.h"
-    "${dearimgui_SOURCE_DIR}/imgui.cpp"
-    "${dearimgui_SOURCE_DIR}/imgui.h"
-    "${dearimgui_SOURCE_DIR}/imgui_demo.cpp"
-    "${dearimgui_SOURCE_DIR}/imgui_draw.cpp"
-    "${dearimgui_SOURCE_DIR}/imgui_internal.h"
-    "${dearimgui_SOURCE_DIR}/imgui_widgets.cpp"
-    "${dearimgui_SOURCE_DIR}/imstb_rectpack.h"
-    "${dearimgui_SOURCE_DIR}/imgui_tables.cpp"
-    "${dearimgui_SOURCE_DIR}/imstb_textedit.h"
-    "${dearimgui_SOURCE_DIR}/imstb_truetype.h"
-    "${dearimgui_SOURCE_DIR}/backends/imgui_impl_dx9.cpp"
-    "${dearimgui_SOURCE_DIR}/backends/imgui_impl_dx9.h"
+  target_sources(DearImGui
+    PRIVATE
+      "${dearimgui_SOURCE_DIR}/imconfig.h"
+      "${dearimgui_SOURCE_DIR}/imgui.cpp"
+      "${dearimgui_SOURCE_DIR}/imgui.h"
+      "${dearimgui_SOURCE_DIR}/imgui_demo.cpp"
+      "${dearimgui_SOURCE_DIR}/imgui_draw.cpp"
+      "${dearimgui_SOURCE_DIR}/imgui_internal.h"
+      "${dearimgui_SOURCE_DIR}/imgui_widgets.cpp"
+      "${dearimgui_SOURCE_DIR}/imstb_rectpack.h"
+      "${dearimgui_SOURCE_DIR}/imgui_tables.cpp"
+      "${dearimgui_SOURCE_DIR}/imstb_textedit.h"
+      "${dearimgui_SOURCE_DIR}/imstb_truetype.h"
+      "${dearimgui_SOURCE_DIR}/backends/imgui_impl_dx9.cpp"
+      "${dearimgui_SOURCE_DIR}/backends/imgui_impl_dx9.h"
   )
 
   file(
@@ -59,10 +55,9 @@ if (NOT dearimgui_POPULATED)
       "${dearimgui_BINARY_DIR}/imgui"
   )
 
-  get_target_property(TARGET_SOURCES ${CURRENT_TARGET} SOURCES)
+  get_target_property(TARGET_SOURCES DearImGui SOURCES)
   source_group(TREE "${dearimgui_SOURCE_DIR}" FILES ${TARGET_SOURCES})
 
-  target_sources(${CURRENT_TARGET} PRIVATE
-    "basalt_imconfig.h"
-  )
+  target_sources(DearImGui PRIVATE "basalt_imconfig.h")
+  source_group("" FILES "basalt_imconfig.h")
 endif()

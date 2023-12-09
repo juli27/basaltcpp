@@ -210,7 +210,7 @@ auto DebugUi::entities(EntityRegistry& entities) -> void {
 
   ImGui::SameLine();
 
-  if (ImGui::BeginChild("components", {}, false, childFlags)) {
+  if (ImGui::BeginChild("components", {}, 0, childFlags)) {
     entity_components(Entity{entities, state.selected}, state.componentUis);
   }
   ImGui::EndChild();
