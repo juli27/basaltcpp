@@ -165,51 +165,7 @@ auto ResourceCache::load_texture_3d(path const& path) -> Texture {
 }
 
 auto ResourceCache::load_x_model(path const& path) -> ext::XModel {
-  // throws std::bad_optional_access if extension not present
-  auto const modelExt =
-    mContext->query_device_extension<ext::XModelSupport>().value();
-
-  auto xModel = modelExt->load(path);
-
-  auto materials = vector<Material>{};
-  materials.reserve(xModel.materials.size());
-
-  auto const pipeline = [&] {
-    auto vs = FixedVertexShaderCreateInfo{};
-    vs.lightingEnabled = true;
-
-    auto fs = FixedFragmentShaderCreateInfo{};
-    auto textureStages = array{TextureStage{}};
-    fs.textureStages = textureStages;
-
-    auto pipelineDesc = PipelineDescriptor{};
-    pipelineDesc.vertexShader = &vs;
-    pipelineDesc.fragmentShader = &fs;
-    pipelineDesc.cullMode = CullMode::CounterClockwise;
-    pipelineDesc.depthTest = TestPassCond::IfLessEqual;
-    pipelineDesc.depthWriteEnable = true;
-
-    return create_pipeline(pipelineDesc);
-  }();
-
-  for (auto const& material : xModel.materials) {
-    auto desc = MaterialDescriptor{};
-    desc.pipeline = pipeline;
-    desc.diffuse = material.diffuse;
-    desc.ambient = material.ambient;
-    desc.emissive = material.emissive;
-    desc.specular = material.specular;
-    desc.specularPower = material.specularPower;
-
-    if (!material.textureFile.empty()) {
-      desc.sampledTexture.texture = load_texture(material.textureFile);
-    }
-
-    materials.push_back(create_material(desc));
-  }
-
-  return mXModels.allocate(
-    XModelData{std::move(xModel.meshes), std::move(materials)});
+  return load_x_model({path, {}});
 }
 
 auto ResourceCache::load_x_model(XModelDescriptor const& desc) -> ext::XModel {
