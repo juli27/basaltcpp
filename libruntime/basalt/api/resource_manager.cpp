@@ -1,51 +1,38 @@
 #include <basalt/api/resource_manager.h>
 
-#include <basalt/api/resource_registry.h>
-
 #include <basalt/api/gfx/resource_cache.h>
 
+#include <filesystem>
 #include <utility>
 
 namespace basalt {
 
-ResourceManager::ResourceManager(ResourceRegistryPtr registry,
-                                 gfx::ResourceCachePtr gfxResources)
-  : mResourceRegistry{std::move(registry)}
-  , mGfxResources{std::move(gfxResources)} {
+using std::filesystem::path;
+
+ResourceManager::ResourceManager(gfx::ResourceCachePtr gfxResources)
+  : mGfxResources{std::move(gfxResources)} {
 }
 
-auto ResourceManager::load_texture(Resource const resource) -> gfx::Texture {
-  if (!mResourceRegistry->has_resource(resource)) {
-    mResourceRegistry->register_resource(resource);
+auto ResourceManager::load_texture(path const& filePath) -> gfx::Texture {
+  if (is_loaded(filePath)) {
+    return mTextures[filePath];
   }
 
-  if (is_loaded(resource)) {
-    return mTextures[resource];
-  }
-
-  auto const& path{mResourceRegistry->get_path(resource)};
-
-  return mTextures[resource] = mGfxResources->load_texture(path);
+  return mTextures[filePath] = mGfxResources->load_texture(filePath);
 }
 
-auto ResourceManager::load_x_model(Resource const resource)
+auto ResourceManager::load_x_model(path const& filePath)
   -> gfx::ext::XModel {
-  if (!mResourceRegistry->has_resource(resource)) {
-    mResourceRegistry->register_resource(resource);
+  if (is_loaded(filePath)) {
+    return mXModels[filePath];
   }
 
-  if (is_loaded(resource)) {
-    return mXModels[resource];
-  }
-
-  auto const& path{mResourceRegistry->get_path(resource)};
-
-  return mXModels[resource] = mGfxResources->load_x_model(path);
+  return mXModels[filePath] = mGfxResources->load_x_model(filePath);
 }
 
-auto ResourceManager::is_loaded(ResourceId const id) const -> bool {
-  return mTextures.find(id) != mTextures.end() ||
-         mXModels.find(id) != mXModels.end();
+auto ResourceManager::is_loaded(path const& filePath) const -> bool {
+  return mTextures.find(filePath) != mTextures.end() ||
+         mXModels.find(filePath) != mXModels.end();
 }
 
 } // namespace basalt

@@ -1,7 +1,5 @@
 #include <basalt/api/engine.h>
 
-#include <basalt/api/resource_registry.h>
-
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
 
@@ -31,10 +29,6 @@ auto Engine::gfx_info() const noexcept -> gfx::Info const& {
 
 auto Engine::create_gfx_resource_cache() const -> gfx::ResourceCachePtr {
   return mGfxContext->create_resource_cache();
-}
-
-auto Engine::resource_registry() const noexcept -> ResourceRegistry& {
-  return *mResourceRegistry;
 }
 
 auto Engine::resource_manager() noexcept -> ResourceManager& {
@@ -68,10 +62,9 @@ auto Engine::set_window_mode(WindowMode const windowMode) noexcept -> void {
 }
 
 Engine::Engine(Config& config, gfx::ContextPtr gfxContext) noexcept
-  : mResourceRegistry{std::make_shared<ResourceRegistry>()}
-  , mGfxContext{std::move(gfxContext)}
+  : mGfxContext{std::move(gfxContext)}
   , mGfxResourceCache{mGfxContext->create_resource_cache()}
-  , mResourceManager{mResourceRegistry, mGfxResourceCache}
+  , mResourceManager{mGfxResourceCache}
   , mConfig{config} {
 
 }

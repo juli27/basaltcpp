@@ -6,8 +6,6 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "input_events.h"
   "prelude.h"
   "resource_manager.h"
-  "resource_registry.cpp"
-  "resource_registry.h"
   "scene_view.h"
   "types.h"
   "view.h"

@@ -26,7 +26,6 @@ struct Engine {
   [[nodiscard]] auto gfx_info() const noexcept -> gfx::Info const&;
   [[nodiscard]] auto create_gfx_resource_cache() const -> gfx::ResourceCachePtr;
 
-  [[nodiscard]] auto resource_registry() const noexcept -> ResourceRegistry&;
   [[nodiscard]] auto resource_manager() noexcept -> ResourceManager&;
   [[nodiscard]] auto gfx_resource_cache() noexcept -> gfx::ResourceCache&;
 
@@ -39,8 +38,6 @@ struct Engine {
   auto set_window_mode(WindowMode) noexcept -> void;
 
 protected:
-  ResourceRegistryPtr mResourceRegistry{};
-
   gfx::ContextPtr mGfxContext;
   gfx::ResourceCachePtr mGfxResourceCache;
 

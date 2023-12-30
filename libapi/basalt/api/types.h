@@ -5,8 +5,6 @@
 #include <basalt/api/base/types.h>
 #include <basalt/api/base/vec.h>
 
-#include <entt/core/hashed_string.hpp>
-
 #include <memory>
 
 namespace basalt {
@@ -18,13 +16,7 @@ using InputEventPtr = std::unique_ptr<InputEvent>;
 
 struct InputState;
 
-using Resource = entt::hashed_string;
-using ResourceId = entt::hashed_string::hash_type;
-
 class ResourceManager;
-
-class ResourceRegistry;
-using ResourceRegistryPtr = std::shared_ptr<ResourceRegistry>;
 
 class SceneView;
 using SceneViewPtr = std::shared_ptr<SceneView>;
