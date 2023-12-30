@@ -93,13 +93,16 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
     Vertex::sLayout,
   });
 
-  auto pipelineDesc = PipelineDescriptor{};
-  pipelineDesc.vertexLayout = Vertex::sLayout;
-  pipelineDesc.primitiveType = PrimitiveType::TriangleList;
-  pipelineDesc.depthTest = TestPassCond::IfLessEqual;
-  pipelineDesc.depthWriteEnable = true;
   auto materialDesc = MaterialDescriptor{};
-  materialDesc.pipelineDesc = &pipelineDesc;
+  materialDesc.pipeline = [&] {
+    auto pipelineDesc = PipelineDescriptor{};
+    pipelineDesc.vertexLayout = Vertex::sLayout;
+    pipelineDesc.primitiveType = PrimitiveType::TriangleList;
+    pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+    pipelineDesc.depthWriteEnable = true;
+
+    return gfxCache->create_pipeline(pipelineDesc);
+  }();
   auto const material = gfxCache->create_material(materialDesc);
 
   auto scene = Scene::create();

@@ -174,23 +174,27 @@ auto ResourceCache::load_x_model(path const& path) -> ext::XModel {
   auto materials = vector<Material>{};
   materials.reserve(xModel.materials.size());
 
-  auto vs = FixedVertexShaderCreateInfo{};
-  vs.lightingEnabled = true;
+  auto const pipeline = [&] {
+    auto vs = FixedVertexShaderCreateInfo{};
+    vs.lightingEnabled = true;
 
-  auto fs = FixedFragmentShaderCreateInfo{};
-  auto textureStages = array{TextureStage{}};
-  fs.textureStages = textureStages;
+    auto fs = FixedFragmentShaderCreateInfo{};
+    auto textureStages = array{TextureStage{}};
+    fs.textureStages = textureStages;
 
-  auto pipelineDesc = PipelineDescriptor{};
-  pipelineDesc.vertexShader = &vs;
-  pipelineDesc.fragmentShader = &fs;
-  pipelineDesc.cullMode = CullMode::CounterClockwise;
-  pipelineDesc.depthTest = TestPassCond::IfLessEqual;
-  pipelineDesc.depthWriteEnable = true;
+    auto pipelineDesc = PipelineDescriptor{};
+    pipelineDesc.vertexShader = &vs;
+    pipelineDesc.fragmentShader = &fs;
+    pipelineDesc.cullMode = CullMode::CounterClockwise;
+    pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+    pipelineDesc.depthWriteEnable = true;
+
+    return create_pipeline(pipelineDesc);
+  }();
 
   for (auto const& material : xModel.materials) {
     auto desc = MaterialDescriptor{};
-    desc.pipelineDesc = &pipelineDesc;
+    desc.pipeline = pipeline;
     desc.diffuse = material.diffuse;
     desc.ambient = material.ambient;
     desc.emissive = material.emissive;
@@ -227,24 +231,28 @@ auto ResourceCache::load_x_model(XModelDescriptor const& desc) -> ext::XModel {
   // if the model has more materials than are provided in the XModelDescriptor
   // then use those
   if (desc.materials.size() < numModelMaterials) {
-    auto vs = FixedVertexShaderCreateInfo{};
-    vs.lightingEnabled = true;
+    auto const pipeline = [&] {
+      auto vs = FixedVertexShaderCreateInfo{};
+      vs.lightingEnabled = true;
 
-    auto fs = FixedFragmentShaderCreateInfo{};
-    auto textureStages = array{TextureStage{}};
-    fs.textureStages = textureStages;
+      auto fs = FixedFragmentShaderCreateInfo{};
+      auto textureStages = array{TextureStage{}};
+      fs.textureStages = textureStages;
 
-    auto pipelineDesc = PipelineDescriptor{};
-    pipelineDesc.vertexShader = &vs;
-    pipelineDesc.fragmentShader = &fs;
-    pipelineDesc.cullMode = CullMode::CounterClockwise;
-    pipelineDesc.depthTest = TestPassCond::IfLessEqual;
-    pipelineDesc.depthWriteEnable = true;
+      auto pipelineDesc = PipelineDescriptor{};
+      pipelineDesc.vertexShader = &vs;
+      pipelineDesc.fragmentShader = &fs;
+      pipelineDesc.cullMode = CullMode::CounterClockwise;
+      pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+      pipelineDesc.depthWriteEnable = true;
+
+      return create_pipeline(pipelineDesc);
+    }();
 
     for (auto i = desc.materials.size(); i < numModelMaterials; ++i) {
       auto const& material = xModel.materials[i];
       auto materialDesc = MaterialDescriptor{};
-      materialDesc.pipelineDesc = &pipelineDesc;
+      materialDesc.pipeline = pipeline;
       materialDesc.diffuse = material.diffuse;
       materialDesc.ambient = material.ambient;
 
@@ -296,9 +304,6 @@ auto ResourceCache::destroy(Mesh const handle) noexcept -> void {
 
 auto ResourceCache::create_material(MaterialDescriptor const& desc)
   -> Material {
-  // TODO: cache pipelines
-  auto const pipeline = create_pipeline(*desc.pipelineDesc);
-
   auto const maxAnisotropy =
     desc.sampledTexture.filter == TextureFilter::Anisotropic
       ? mDevice->capabilities().samplerMaxAnisotropy
@@ -327,7 +332,7 @@ auto ResourceCache::create_material(MaterialDescriptor const& desc)
     desc.fogStart,
     desc.fogEnd,
     desc.fogDensity,
-    pipeline,
+    desc.pipeline,
     desc.sampledTexture.texture,
     sampler,
   });

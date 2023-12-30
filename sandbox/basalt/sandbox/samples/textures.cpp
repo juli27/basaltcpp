@@ -170,18 +170,21 @@ auto Samples::new_textures_sample(Engine& engine) -> ViewPtr {
 
   auto& samplerSettings = quad.emplace<SamplerSettings>();
 
-  auto fs = FixedFragmentShaderCreateInfo{};
-  constexpr auto textureStages = array{TextureStage{}};
-  fs.textureStages = textureStages;
-
-  auto pipelineDesc = PipelineDescriptor{};
-  pipelineDesc.fragmentShader = &fs;
-  pipelineDesc.vertexLayout = Vertex::sLayout;
-  pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
-  pipelineDesc.depthTest = TestPassCond::IfLessEqual;
-  pipelineDesc.depthWriteEnable = true;
   auto materialDesc = MaterialDescriptor{};
-  materialDesc.pipelineDesc = &pipelineDesc;
+  materialDesc.pipeline = [&] {
+    auto fs = FixedFragmentShaderCreateInfo{};
+    constexpr auto textureStages = array{TextureStage{}};
+    fs.textureStages = textureStages;
+
+    auto pipelineDesc = PipelineDescriptor{};
+    pipelineDesc.fragmentShader = &fs;
+    pipelineDesc.vertexLayout = Vertex::sLayout;
+    pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
+    pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+    pipelineDesc.depthWriteEnable = true;
+
+    return gfxCache->create_pipeline(pipelineDesc);
+  }();
   materialDesc.sampledTexture.texture =
     gfxCache->load_texture("data/Tiger.bmp"sv);
   auto& materials = samplerSettings.materials;

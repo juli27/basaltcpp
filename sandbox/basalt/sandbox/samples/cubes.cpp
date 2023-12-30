@@ -291,23 +291,26 @@ auto Samples::new_cubes_sample(Engine& engine) -> ViewPtr {
   auto const mesh = gfxCache->create_mesh(
     {vertexData, vertexCount, Vertex::sLayout, indexData, indexCount});
 
-  auto vs = FixedVertexShaderCreateInfo{};
-  vs.lightingEnabled = true;
-  vs.ambientSource = MaterialColorSource::DiffuseVertexColor;
-
-  auto fs = FixedFragmentShaderCreateInfo{};
-  constexpr auto textureStages = array{TextureStage{}};
-  fs.textureStages = textureStages;
-
-  auto pipelineDesc = PipelineDescriptor{};
-  pipelineDesc.vertexShader = &vs;
-  pipelineDesc.fragmentShader = &fs;
-  pipelineDesc.vertexLayout = Vertex::sLayout;
-  pipelineDesc.primitiveType = PrimitiveType::TriangleList;
-  pipelineDesc.depthTest = TestPassCond::IfLessEqual;
-  pipelineDesc.depthWriteEnable = true;
   auto matDesc = MaterialDescriptor{};
-  matDesc.pipelineDesc = &pipelineDesc;
+  matDesc.pipeline = [&] {
+    auto vs = FixedVertexShaderCreateInfo{};
+    vs.lightingEnabled = true;
+    vs.ambientSource = MaterialColorSource::DiffuseVertexColor;
+
+    auto fs = FixedFragmentShaderCreateInfo{};
+    constexpr auto textureStages = array{TextureStage{}};
+    fs.textureStages = textureStages;
+    
+    auto pipelineDesc = PipelineDescriptor{};
+    pipelineDesc.vertexShader = &vs;
+    pipelineDesc.fragmentShader = &fs;
+    pipelineDesc.vertexLayout = Vertex::sLayout;
+    pipelineDesc.primitiveType = PrimitiveType::TriangleList;
+    pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+    pipelineDesc.depthWriteEnable = true;
+
+    return gfxCache->create_pipeline(pipelineDesc);
+  }();
   matDesc.sampledTexture.texture =
     gfxCache->load_texture("data/tribase/Texture2.bmp"sv);
   matDesc.sampledTexture.filter = TextureFilter::Bilinear;

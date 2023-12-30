@@ -158,7 +158,7 @@ struct SampledTextureDescriptor final {
 };
 
 struct MaterialDescriptor final {
-  PipelineDescriptor* pipelineDesc{};
+  Pipeline pipeline;
   Color diffuse;
   Color ambient;
   Color emissive;

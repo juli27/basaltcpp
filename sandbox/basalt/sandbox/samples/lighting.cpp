@@ -63,29 +63,31 @@ namespace samples {
 
 Lighting::Lighting(Engine& engine)
   : mGfxCache{engine.create_gfx_resource_cache()} {
-  auto vs = FixedVertexShaderCreateInfo{};
-  vs.lightingEnabled = true;
-  vs.specularEnabled = true;
-  vs.fog = FogMode::Exponential;
-
-  auto fs = FixedFragmentShaderCreateInfo{};
-  constexpr auto textureStages = array{TextureStage{}};
-  fs.textureStages = textureStages;
-
-  auto pipelineDesc = PipelineDescriptor{};
-  pipelineDesc.vertexShader = &vs;
-  pipelineDesc.fragmentShader = &fs;
-  pipelineDesc.cullMode = CullMode::CounterClockwise;
-  pipelineDesc.depthTest = TestPassCond::IfLessEqual;
-  pipelineDesc.depthWriteEnable = true;
-  pipelineDesc.dithering = true;
-
   // sphere models
   auto const sphereTexture =
     mGfxCache->load_texture("data/tribase/02-07_lighting/Sphere.bmp"sv);
   auto materials = array<MaterialDescriptor, 1>{};
   auto& materialDesc = std::get<0>(materials);
-  materialDesc.pipelineDesc = &pipelineDesc;
+  materialDesc.pipeline = [&] {
+    auto vs = FixedVertexShaderCreateInfo{};
+    vs.lightingEnabled = true;
+    vs.specularEnabled = true;
+    vs.fog = FogMode::Exponential;
+
+    auto fs = FixedFragmentShaderCreateInfo{};
+    constexpr auto textureStages = array{TextureStage{}};
+    fs.textureStages = textureStages;
+
+    auto pipelineDesc = PipelineDescriptor{};
+    pipelineDesc.vertexShader = &vs;
+    pipelineDesc.fragmentShader = &fs;
+    pipelineDesc.cullMode = CullMode::CounterClockwise;
+    pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+    pipelineDesc.depthWriteEnable = true;
+    pipelineDesc.dithering = true;
+
+    return mGfxCache->create_pipeline(pipelineDesc);
+  }();
   materialDesc.sampledTexture.texture = sphereTexture;
   materialDesc.sampledTexture.filter = TextureFilter::Bilinear;
   materialDesc.sampledTexture.mipFilter = TextureMipFilter::Linear;
@@ -119,7 +121,21 @@ Lighting::Lighting(Engine& engine)
     XModelDescriptor{"data/tribase/02-07_lighting/Ground.x"sv, materials});
 
   // light model
-  fs.textureStages = {};
+  materialDesc.pipeline = [&] {
+    auto vs = FixedVertexShaderCreateInfo{};
+    vs.lightingEnabled = true;
+    vs.specularEnabled = true;
+    vs.fog = FogMode::Exponential;
+
+    auto pipelineDesc = PipelineDescriptor{};
+    pipelineDesc.vertexShader = &vs;
+    pipelineDesc.cullMode = CullMode::CounterClockwise;
+    pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+    pipelineDesc.depthWriteEnable = true;
+    pipelineDesc.dithering = true;
+
+    return mGfxCache->create_pipeline(pipelineDesc);
+  }();
   materialDesc.sampledTexture = {};
   materialDesc.diffuse = Color::from_non_linear(0.75f, 0.75f, 0.75f);
   materialDesc.ambient = Color::from_non_linear(0.25f, 0.25f, 0.25f);
