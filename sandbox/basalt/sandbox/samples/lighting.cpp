@@ -89,8 +89,9 @@ Lighting::Lighting(Engine& engine)
     return mGfxCache->create_pipeline(pipelineDesc);
   }();
   materialDesc.sampledTexture.texture = sphereTexture;
-  materialDesc.sampledTexture.filter = TextureFilter::Bilinear;
-  materialDesc.sampledTexture.mipFilter = TextureMipFilter::Linear;
+  materialDesc.sampledTexture.sampler =
+    mGfxCache->create_sampler({TextureFilter::Bilinear, TextureFilter::Bilinear,
+                               TextureMipFilter::Linear});
   materialDesc.fogColor = BACKGROUND;
   materialDesc.fogDensity = 0.01f;
   auto sphereModels = array<XModel, 10>{};
@@ -115,8 +116,6 @@ Lighting::Lighting(Engine& engine)
   materialDesc.specular = Colors::WHITE;
   materialDesc.specularPower = 1.0f;
   materialDesc.sampledTexture.texture = groundTexture;
-  materialDesc.sampledTexture.filter = TextureFilter::Bilinear;
-  materialDesc.sampledTexture.mipFilter = TextureMipFilter::Linear;
   auto const groundModel = mGfxCache->load_x_model(
     XModelDescriptor{"data/tribase/02-07_lighting/Ground.x"sv, materials});
 

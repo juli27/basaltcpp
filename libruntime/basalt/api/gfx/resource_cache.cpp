@@ -7,8 +7,6 @@
 
 #include <basalt/api/gfx/context.h>
 
-#include <basalt/api/base/types.h>
-
 #include <algorithm>
 #include <array>
 #include <memory>
@@ -28,6 +26,11 @@ auto ResourceCache::create(ContextPtr context) -> ResourceCachePtr {
   return std::make_shared<ResourceCache>(std::move(context));
 }
 
+ResourceCache::ResourceCache(ContextPtr context)
+  : mContext{std::move(context)}
+  , mDevice{mContext->device()} {
+}
+
 ResourceCache::~ResourceCache() noexcept {
   if (auto const ext =
         mContext->query_device_extension<ext::Effects>().value_or(nullptr)) {
@@ -42,10 +45,6 @@ ResourceCache::~ResourceCache() noexcept {
   }
 
   for (auto const handle : mMeshes) {
-    destroy_data(handle);
-  }
-
-  for (auto const handle : mMaterials) {
     destroy_data(handle);
   }
 
@@ -187,6 +186,7 @@ auto ResourceCache::load_x_model(XModelDescriptor const& desc) -> ext::XModel {
   // if the model has more materials than are provided in the XModelDescriptor
   // then use those
   if (desc.materials.size() < numModelMaterials) {
+    // TODO: cache pipelines
     auto const pipeline = [&] {
       auto vs = FixedVertexShaderCreateInfo{};
       vs.lightingEnabled = true;
@@ -215,6 +215,8 @@ auto ResourceCache::load_x_model(XModelDescriptor const& desc) -> ext::XModel {
       if (!material.textureFile.empty()) {
         materialDesc.sampledTexture.texture =
           load_texture(material.textureFile);
+        // TODO: cache samplers
+        materialDesc.sampledTexture.sampler = create_sampler({});
       }
 
       materials.push_back(create_material(materialDesc));
@@ -260,24 +262,6 @@ auto ResourceCache::destroy(Mesh const handle) noexcept -> void {
 
 auto ResourceCache::create_material(MaterialDescriptor const& desc)
   -> Material {
-  auto const maxAnisotropy =
-    desc.sampledTexture.filter == TextureFilter::Anisotropic
-      ? mDevice->capabilities().samplerMaxAnisotropy
-      : u8{1};
-
-  // TODO: cache samplers
-  auto const sampler = create_sampler({
-    desc.sampledTexture.filter,
-    desc.sampledTexture.filter,
-    desc.sampledTexture.mipFilter,
-    desc.sampledTexture.addressModeU,
-    desc.sampledTexture.addressModeV,
-    TextureAddressMode::Repeat,
-    BorderColor::BlackTransparent,
-    Color{},
-    maxAnisotropy,
-  });
-
   return mMaterials.allocate(MaterialData{
     desc.diffuse,
     desc.ambient,
@@ -290,7 +274,7 @@ auto ResourceCache::create_material(MaterialDescriptor const& desc)
     desc.fogDensity,
     desc.pipeline,
     desc.sampledTexture.texture,
-    sampler,
+    desc.sampledTexture.sampler,
   });
 }
 
@@ -327,14 +311,7 @@ auto ResourceCache::get(ext::EffectId const id) const -> ext::Effect& {
 }
 
 auto ResourceCache::destroy(Material const handle) noexcept -> void {
-  destroy_data(handle);
-
   mMaterials.deallocate(handle);
-}
-
-ResourceCache::ResourceCache(ContextPtr context)
-  : mContext{std::move(context)}
-  , mDevice{mContext->device()} {
 }
 
 auto ResourceCache::map(VertexBuffer const vb, uDeviceSize const offset,
@@ -383,13 +360,6 @@ auto ResourceCache::destroy_data(Mesh const handle) noexcept -> void {
   auto& data = get(handle);
   destroy(data.vertexBuffer);
   destroy(data.indexBuffer);
-}
-
-auto ResourceCache::destroy_data(Material const handle) noexcept -> void {
-  auto const& data = get(handle);
-
-  destroy(data.sampler);
-  destroy(data.pipeline);
 }
 
 } // namespace basalt::gfx

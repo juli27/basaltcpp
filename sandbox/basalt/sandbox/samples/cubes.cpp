@@ -300,7 +300,7 @@ auto Samples::new_cubes_sample(Engine& engine) -> ViewPtr {
     auto fs = FixedFragmentShaderCreateInfo{};
     constexpr auto textureStages = array{TextureStage{}};
     fs.textureStages = textureStages;
-    
+
     auto pipelineDesc = PipelineDescriptor{};
     pipelineDesc.vertexShader = &vs;
     pipelineDesc.fragmentShader = &fs;
@@ -313,8 +313,9 @@ auto Samples::new_cubes_sample(Engine& engine) -> ViewPtr {
   }();
   matDesc.sampledTexture.texture =
     gfxCache->load_texture("data/tribase/Texture2.bmp"sv);
-  matDesc.sampledTexture.filter = TextureFilter::Bilinear;
-  matDesc.sampledTexture.mipFilter = TextureMipFilter::Linear;
+  matDesc.sampledTexture.sampler =
+    gfxCache->create_sampler({TextureFilter::Bilinear, TextureFilter::Bilinear,
+                              TextureMipFilter::Linear});
   auto const material = gfxCache->create_material(matDesc);
 
   auto scene = Scene::create();

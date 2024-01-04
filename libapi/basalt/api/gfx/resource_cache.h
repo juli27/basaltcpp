@@ -20,12 +20,17 @@ class ResourceCache final {
 public:
   static auto create(ContextPtr) -> ResourceCachePtr;
 
+  // don't use. Call create() instead
+  explicit ResourceCache(ContextPtr);
+
   ResourceCache(ResourceCache const&) = delete;
+
   ResourceCache(ResourceCache&&) = delete;
 
   ~ResourceCache() noexcept;
 
   auto operator=(ResourceCache const&) -> ResourceCache& = delete;
+
   auto operator=(ResourceCache&&) -> ResourceCache& = delete;
 
   [[nodiscard]] auto create_pipeline(PipelineDescriptor const&) -> Pipeline;
@@ -113,9 +118,6 @@ public:
   auto destroy(ext::EffectId) noexcept -> void;
   [[nodiscard]] auto get(ext::EffectId) const -> ext::Effect&;
 
-  // don't use. Call create() instead
-  explicit ResourceCache(ContextPtr);
-
 private:
   ContextPtr mContext;
   DevicePtr mDevice;
@@ -141,7 +143,6 @@ private:
 
   auto destroy_data(ext::XModel) noexcept -> void;
   auto destroy_data(Mesh) noexcept -> void;
-  auto destroy_data(Material) noexcept -> void;
 };
 
 } // namespace basalt::gfx

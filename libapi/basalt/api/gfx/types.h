@@ -150,15 +150,12 @@ struct MeshDescriptor final {
 };
 
 struct SampledTextureDescriptor final {
-  Texture texture{Texture::null()};
-  TextureFilter filter{TextureFilter::Point};
-  TextureMipFilter mipFilter{TextureMipFilter::None};
-  TextureAddressMode addressModeU{TextureAddressMode::Repeat};
-  TextureAddressMode addressModeV{TextureAddressMode::Repeat};
+  Texture texture = Texture::null();
+  Sampler sampler = Sampler::null();
 };
 
 struct MaterialDescriptor final {
-  Pipeline pipeline;
+  Pipeline pipeline = Pipeline::null();
   Color diffuse;
   Color ambient;
   Color emissive;

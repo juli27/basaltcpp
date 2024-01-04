@@ -49,6 +49,7 @@ using basalt::gfx::MaterialDescriptor;
 using basalt::gfx::PipelineDescriptor;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::RenderComponent;
+using basalt::gfx::SamplerDescriptor;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
@@ -187,16 +188,21 @@ auto Samples::new_textures_sample(Engine& engine) -> ViewPtr {
   }();
   materialDesc.sampledTexture.texture =
     gfxCache->load_texture("data/Tiger.bmp"sv);
+
+  auto const maxAnisotropy =
+    engine.gfx_info().currentDeviceCaps.samplerMaxAnisotropy;
   auto& materials = samplerSettings.materials;
   auto i = u32{0};
   for (auto const filter : {TextureFilter::Point, TextureFilter::Bilinear,
                             TextureFilter::Anisotropic}) {
-    materialDesc.sampledTexture.filter = filter;
-
     for (auto const mipFilter :
          {TextureMipFilter::None, TextureMipFilter::Point,
           TextureMipFilter::Linear}) {
-      materialDesc.sampledTexture.mipFilter = mipFilter;
+      auto samplerDesc = SamplerDescriptor{filter, filter, mipFilter};
+      samplerDesc.maxAnisotropy = filter == TextureFilter::Anisotropic ? maxAnisotropy : 1;
+      materialDesc.sampledTexture.sampler =
+        gfxCache->create_sampler(samplerDesc);
+
       materials[i] = gfxCache->create_material(materialDesc);
       ++i;
     }
