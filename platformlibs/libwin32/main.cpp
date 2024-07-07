@@ -13,8 +13,8 @@ using namespace std::literals;
 using std::exception;
 using std::wstring;
 
-using basalt::App;
 using basalt::Log;
+using basalt::Win32App;
 
 _Use_decl_annotations_ auto WINAPI wWinMain(HINSTANCE const hInstance,
                                             HINSTANCE, LPWSTR,
@@ -22,7 +22,8 @@ _Use_decl_annotations_ auto WINAPI wWinMain(HINSTANCE const hInstance,
   Log::init();
 
   try {
-    App::run(hInstance, nShowCmd);
+    auto app = Win32App::init(hInstance, nShowCmd);
+    app.run();
   } catch (exception const& ex) {
     BASALT_LOG_FATAL("unhandled exception: {}", ex.what());
     Log::shutdown();

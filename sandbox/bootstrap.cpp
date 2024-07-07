@@ -11,31 +11,16 @@
 
 using namespace std::literals;
 
-namespace gfx = basalt::gfx;
+auto basalt::bootstrap_app(Config& config) -> AppLaunchInfo {
+  config.set_bool("runtime.debugUI.enabled"s, true);
 
-namespace {
+  AppLaunchInfo info{&SandboxView::create, "Basalt Sandbox"s};
+  info.configureCanvas = [](gfx::AdapterList const&) {
+    auto canvasInfo = CanvasCreateInfo{};
+    canvasInfo.depthStencilFormat = gfx::ImageFormat::D24S8;
 
-auto configure_gfx_context(gfx::AdapterList const& adapters)
-  -> gfx::ContextCreateInfo {
-  auto contextConfig = gfx::ContextCreateInfo::create_default(adapters);
-  contextConfig.depthStencilFormat = gfx::ImageFormat::D24S8;
-
-  return contextConfig;
-}
-
-} // namespace
-
-auto basalt::bootstrap_app() -> BasaltApp {
-  BasaltApp app{
-    &SandboxView::create,
-    Config{
-      {"debug.scene_inspector.visible"s, false},
-      {"runtime.debugUI.enabled"s, true},
-    },
+    return canvasInfo;
   };
 
-  app.windowTitle = "Basalt Sandbox"s;
-  app.gfxContextConfig = &configure_gfx_context;
-
-  return app;
+  return info;
 }

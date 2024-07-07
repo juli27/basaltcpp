@@ -10,18 +10,23 @@
 
 namespace basalt {
 
-class Runtime : public Engine {
+class Runtime final : public Engine {
 public:
-  [[nodiscard]] auto dear_imgui() const -> DearImGuiPtr const&;
+  Runtime(Config, gfx::ContextPtr, DearImGuiPtr);
+
+  [[nodiscard]]
+  auto dear_imgui() const -> DearImGuiPtr const&;
+
+  [[nodiscard]]
+  auto is_dirty() const noexcept -> bool;
+
+  auto set_dirty(bool) noexcept -> void;
 
   struct UpdateContext final {
     SecondsF32 deltaTime;
   };
 
   auto update(UpdateContext const&) -> void;
-
-protected:
-  Runtime(Config&, gfx::ContextPtr, DearImGuiPtr);
 
 private:
   DearImGuiPtr mDearImGui;

@@ -8,4 +8,8 @@ auto Platform::is_debugger_attached() -> bool {
   return IsDebuggerPresent();
 }
 
+auto Platform::quit() -> void {
+  PostQuitMessage(0);
+}
+
 } // namespace basalt

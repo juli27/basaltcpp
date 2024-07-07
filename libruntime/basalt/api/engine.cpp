@@ -47,14 +47,13 @@ auto Engine::set_mouse_cursor(MouseCursor const mouseCursor) noexcept -> void {
   mIsDirty = true;
 }
 
-auto Engine::set_window_mode(WindowMode const windowMode) noexcept -> void {
-  mConfig.set_enum("window.mode"s, windowMode);
-  mIsDirty = true;
+auto Engine::set_window_mode(WindowMode const newCanvasMode) noexcept -> void {
+  mConfig.set_enum("window.mode"s, newCanvasMode);
 }
 
-Engine::Engine(Config& config, gfx::ContextPtr gfxContext) noexcept
+Engine::Engine(Config config, gfx::ContextPtr gfxContext) noexcept
   : mGfxContext{std::move(gfxContext)}
-  , mConfig{config} {
+  , mConfig{std::move(config)} {
 }
 
 } // namespace basalt

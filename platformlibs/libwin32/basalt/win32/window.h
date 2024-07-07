@@ -1,132 +1,95 @@
 #pragma once
 
-#include <basalt/win32/types.h>
-
-#include <basalt/win32/shared/types.h>
-#include <basalt/win32/shared/win32_gfx_factory.h>
-#include <basalt/win32/shared/Windows_custom.h>
+#include "types.h"
 
 #include <basalt/input_manager.h>
 
-#include <basalt/api/types.h>
-
-#include <basalt/api/gfx/context.h>
-#include <basalt/api/gfx/types.h>
-#include <basalt/api/gfx/backend/types.h>
-
-#include <basalt/api/shared/size2d.h>
 #include <basalt/api/shared/types.h>
 
-#include <array>
-#include <string>
+#include <basalt/win32/shared/Windows_custom.h>
 
 namespace basalt {
 
-class Window final {
+class Win32Window {
 public:
-  struct CreateInfo {
-    std::string title;
-    int showCommand;
-    Size2Du16 preferredClientAreaSize{Size2Du16::dont_care()};
-    WindowMode mode{WindowMode::Windowed};
-    bool resizeable{true};
-    gfx::ContextCreateInfo gfxContextCreateInfo;
-  };
+  Win32Window(Win32Window const&) = delete;
+  Win32Window(Win32Window&&) = delete;
 
-  // throws std::system_error on failure
+  auto operator=(Win32Window const&) -> Win32Window& = delete;
+  auto operator=(Win32Window&&) -> Win32Window& = delete;
+
   [[nodiscard]]
-  static auto create(HMODULE, CreateInfo const&, gfx::Win32GfxFactory const&)
-    -> WindowPtr;
+  auto message_queue() const noexcept -> Win32MessageQueuePtr const&;
 
-  Window(Window const&) = delete;
-  Window(Window&&) = delete;
-
-  ~Window();
-
-  auto operator=(Window const&) -> Window& = delete;
-  auto operator=(Window&&) -> Window& = delete;
+  [[nodiscard]]
+  auto clazz() const noexcept -> Win32WindowClassCPtr const&;
 
   [[nodiscard]]
   auto handle() const noexcept -> HWND;
 
   [[nodiscard]]
-  auto gfx_context() const noexcept -> gfx::ContextPtr const&;
+  auto client_area_size() const noexcept -> Size2Du16;
+
+  [[nodiscard]]
+  auto mouse_cursor() const noexcept -> HCURSOR;
+
+  auto set_mouse_cursor(HCURSOR) noexcept -> void;
 
   [[nodiscard]]
   auto input_manager() noexcept -> InputManager&;
 
-  [[nodiscard]]
-  auto client_area_size() const noexcept -> Size2Du16;
+protected:
+  Win32Window(HWND, Win32WindowClassCPtr, Win32MessageQueuePtr);
 
-  [[nodiscard]]
-  auto mode() const noexcept -> WindowMode;
-
-  auto set_mode(WindowMode) -> void;
-  auto set_cursor(MouseCursor) noexcept -> void;
-
-  // don't call directly. Use the create function instead
-  Window(HMODULE, ATOM classAtom, HWND, Size2Du16 clientAreaSize,
-         gfx::AdapterList const&);
+  ~Win32Window() noexcept;
 
 private:
-  struct SavedWindowInfo final {
-    DWORD style{};
-    RECT windowRect{}; // in screen coordinates
-  };
-
-  HMODULE mModuleHandle{};
-  ATOM mClassAtom{};
-  HWND mHandle{};
-  gfx::AdapterList const& mAdapters;
-  gfx::ContextPtr mGfxContext;
-  gfx::SwapChainPtr mSwapChain;
+  Win32MessageQueuePtr mMessageQueue;
+  Win32WindowClassCPtr mClass;
+  HWND mHandle;
+  HCURSOR mMouseCursor;
   InputManager mInputManager;
-  SavedWindowInfo mSavedWindowInfo;
-  Size2Du16 mClientAreaSize{Size2Du16::dont_care()};
-  WindowMode mCurrentMode{WindowMode::Windowed};
-  MouseCursor mCurrentCursor{MouseCursor::Arrow};
-  std::array<HCURSOR, MOUSE_CURSOR_COUNT> mLoadedCursors{};
-  bool mIsInSizeMoveModalLoop{false};
-
-  auto init_gfx_context(gfx::ContextCreateInfo const&,
-                        gfx::Win32GfxFactory const&) -> void;
-
-  auto shutdown_gfx_context() -> void;
-
-  auto resize(Size2Du16 newClientAreaSize) -> void;
 
   [[nodiscard]]
   auto handle_message(UINT message, WPARAM, LPARAM) -> LRESULT;
 
-  auto on_size(WPARAM resizeType, Size2Du16 newClientAreaSize) -> void;
+  [[nodiscard]]
+  auto on_set_cursor(HWND windowUnderCursor, WORD hitTestResult,
+                     WORD triggerMessage) -> LRESULT;
 
   [[nodiscard]]
-  auto on_keyboard_focus(UINT message, HWND other) -> LRESULT;
+  auto on_keyboard_focus_gained(HWND lostFocus) -> LRESULT;
 
   [[nodiscard]]
-  auto on_close() -> LRESULT;
+  auto on_keyboard_focus_lost(HWND gainedFocus) -> LRESULT;
 
   [[nodiscard]]
-  auto on_set_cursor(HWND windowUnderCursor, SHORT hitTestResult,
-                     USHORT triggerMessage) -> LRESULT;
-  [[nodiscard]]
-  auto on_key(WPARAM virtualKeyCode, WORD repeatCount, WORD info) -> LRESULT;
+  auto on_key_down(UINT virtualKeyCode, WORD repeatCount, WORD info) -> LRESULT;
 
   [[nodiscard]]
-  auto on_char(WPARAM characterCode, WORD repeatCount, WORD info) -> LRESULT;
-
-  [[nodiscard]] auto on_mouse_move(WPARAM, PointerPosition) -> LRESULT;
+  auto on_key_up(UINT virtualKeyCode, WORD repeatCount, WORD info) -> LRESULT;
 
   [[nodiscard]]
-  auto on_mouse_button(UINT message, WPARAM, PointerPosition) -> LRESULT;
+  auto on_char(WCHAR, WORD repeatCount, WORD info) -> LRESULT;
 
   [[nodiscard]]
-  auto on_mouse_wheel(SHORT delta, WPARAM states, PointerPosition) -> LRESULT;
+  auto on_mouse_move(WORD buttonStates, POINTS pointerPos) -> LRESULT;
 
-  auto process_mouse_message_states(WPARAM) -> void;
+  [[nodiscard]]
+  auto on_mouse_button(WORD buttonStates, POINTS pointerPos) -> LRESULT;
 
-  static auto CALLBACK window_proc(HWND, UINT message, WPARAM, LPARAM)
+  [[nodiscard]]
+  auto on_x_mouse_button(WORD buttonStates, POINTS pointerPos) -> LRESULT;
+
+  [[nodiscard]]
+  auto on_mouse_wheel(SHORT delta, WORD states, POINTS pointerPosScreen)
     -> LRESULT;
+
+  auto process_mouse_button_states(WORD buttonStates) -> void;
+
+  static auto instance(HWND) -> Win32Window*;
+
+  static auto CALLBACK wnd_proc(HWND, UINT, WPARAM, LPARAM) -> LRESULT;
 };
 
 } // namespace basalt

@@ -16,7 +16,7 @@
 #define NOSYSCOMMANDS
 #define NORASTEROPS
 //#define NOSHOWWINDOW
-#define OEMRESOURCE
+//#define OEMRESOURCE
 #define NOATOM
 #define NOCLIPBOARD
 //#define NOCOLOR

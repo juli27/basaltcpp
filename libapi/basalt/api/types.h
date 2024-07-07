@@ -1,7 +1,5 @@
 #pragma once
 
-#include <basalt/api/gfx/types.h>
-
 #include <basalt/api/base/types.h>
 #include <basalt/api/base/vec.h>
 

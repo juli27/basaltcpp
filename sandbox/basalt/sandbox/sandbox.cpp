@@ -11,6 +11,8 @@
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/config.h>
 
+#include <basalt/api/base/platform.h>
+
 #include <imgui/imgui.h>
 
 #include <functional>
@@ -23,6 +25,7 @@ using namespace std::literals;
 
 using basalt::Config;
 using basalt::Engine;
+using basalt::Platform;
 using basalt::ViewPtr;
 using basalt::WindowMode;
 
@@ -167,7 +170,7 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
       ImGui::Separator();
 
       if (ImGui::MenuItem("Exit", "Alt+F4")) {
-        basalt::quit();
+        Platform::quit();
       }
 
       ImGui::EndMenu();

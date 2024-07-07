@@ -1,7 +1,0 @@
-#pragma once
-
-#if BASALT_DEV_BUILD
-
-#define BASALT_TRACE_WINDOWS_MESSAGES 0
-
-#endif // BASALT_DEV_BUILD

@@ -50,9 +50,22 @@ auto D3D9SwapChain::reset(ResetDesc const& desc) -> void {
   pp.Windowed = !desc.exclusive;
 
   if (desc.exclusive) {
-    pp.BackBufferWidth = desc.exclusiveDisplayMode.width;
-    pp.BackBufferHeight = desc.exclusiveDisplayMode.height;
-    pp.FullScreen_RefreshRateInHz = desc.exclusiveDisplayMode.refreshRate;
+    auto displayMode = D3DDISPLAYMODE{};
+    D3D9CHECK(mSwapChain->GetDisplayMode(&displayMode));
+
+    if (desc.exclusiveDisplayMode.width != 0) {
+      pp.BackBufferWidth = desc.exclusiveDisplayMode.width;
+      pp.BackBufferHeight = desc.exclusiveDisplayMode.height;
+      pp.FullScreen_RefreshRateInHz = desc.exclusiveDisplayMode.refreshRate;
+    } else {
+      pp.BackBufferWidth = displayMode.Width;
+      pp.BackBufferHeight = displayMode.Height;
+      pp.FullScreen_RefreshRateInHz = displayMode.RefreshRate;
+    }
+
+    if (pp.BackBufferFormat == D3DFMT_UNKNOWN) {
+      pp.BackBufferFormat = displayMode.Format;
+    }
   } else {
     pp.BackBufferWidth = desc.windowBackBufferSize.width();
     pp.BackBufferHeight = desc.windowBackBufferSize.height();

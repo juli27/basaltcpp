@@ -1,32 +1,25 @@
-#include <basalt/win32/app.h>
+#include "app.h"
 
-#include <basalt/win32/build_config.h>
-#include <basalt/win32/types.h>
-#include <basalt/win32/util.h>
-#include <basalt/win32/window.h>
-
-#if BASALT_TRACE_WINDOWS_MESSAGES
-#include <basalt/win32/debug.h>
-#endif // BASALT_TRACE_WINDOWS_MESSAGES
-
-#include <basalt/gfx/backend/d3d9/factory.h>
-
-#include <basalt/win32/shared/types.h>
+#include "app_window.h"
+#include "message_queue.h"
+#include "util.h"
 
 #include <basalt/dear_imgui.h>
 
 #include <basalt/api/bootstrap.h>
+#include <basalt/api/types.h>
 
 #include <basalt/gfx/backend/device.h>
-#include <basalt/gfx/backend/swap_chain.h>
 #include <basalt/gfx/backend/types.h>
 
 #include <basalt/api/gfx/context.h>
-#include <basalt/api/gfx/backend/types.h>
-
+#include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/config.h>
 #include <basalt/api/shared/log.h>
 
+#include <basalt/api/base/platform.h>
+
+#include <array>
 #include <chrono>
 #include <string>
 #include <string_view>
@@ -48,63 +41,58 @@ auto dump_config(Config const& config) -> void {
 }
 
 [[nodiscard]]
-auto create_gfx_factory(gfx::BackendApi const backendApi)
-  -> gfx::Win32GfxFactoryPtr {
-  switch (backendApi) {
-  case gfx::BackendApi::Default:
-  case gfx::BackendApi::Direct3D9:
-    return gfx::D3D9Factory::create();
-  }
-
-  BASALT_CRASH("unsupported gfx backend api");
+auto load_system_cursor(WCHAR const* id) noexcept -> HCURSOR {
+  return static_cast<HCURSOR>(
+    LoadImageW(nullptr, id, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_SHARED));
 }
 
 [[nodiscard]]
-auto poll_messages() -> bool {
-  auto msg = MSG{};
-  while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
-    TranslateMessage(&msg);
-    DispatchMessageW(&msg);
+auto load_system_mouse_cursors() -> MouseCursors {
+  return MouseCursors{
+    {MouseCursor::Arrow, load_system_cursor(IDC_ARROW)},
+    {MouseCursor::TextInput, load_system_cursor(IDC_IBEAM)},
+    {MouseCursor::ResizeAll, load_system_cursor(IDC_SIZEALL)},
+    {MouseCursor::ResizeNS, load_system_cursor(IDC_SIZENS)},
+    {MouseCursor::ResizeEW, load_system_cursor(IDC_SIZEWE)},
+    {MouseCursor::ResizeNESW, load_system_cursor(IDC_SIZENESW)},
+    {MouseCursor::ResizeNWSE, load_system_cursor(IDC_SIZENWSE)},
+    {MouseCursor::Hand, load_system_cursor(IDC_HAND)},
+    {MouseCursor::NotAllowed, load_system_cursor(IDC_NO)},
+  };
+}
 
-    if (!msg.hwnd) {
-#if BASALT_TRACE_WINDOWS_MESSAGES
-      BASALT_LOG_TRACE("received thread message: {}",
-                       message_to_string(msg.message, msg.wParam, msg.lParam));
-#endif // BASALT_TRACE_WINDOWS_MESSAGES
-
-      if (msg.message == WM_QUIT) {
-        return false;
-      }
+[[nodiscard]]
+auto drain_message_queue(Win32MessageQueue const& messageQueue) -> bool {
+  while (auto message = messageQueue.poll()) {
+    if (message->message == WM_QUIT) {
+      return false;
     }
+
+    TranslateMessage(&*message);
+    DispatchMessageW(&*message);
   }
 
   return true;
 }
 
 [[nodiscard]]
-auto wait_for_messages() -> bool {
-  auto msg = MSG{};
-  auto const ret = GetMessageW(&msg, nullptr, 0u, 0u);
-  if (ret == -1) {
-    BASALT_LOG_FATAL(create_win32_error_message(GetLastError()));
-
+auto wait_for_messages(Win32MessageQueue const& messageQueue) -> bool {
+  auto message = messageQueue.take();
+  if (message.message == WM_QUIT) {
     return false;
   }
 
-  // received WM_QUIT
-  if (ret == 0) {
-    return false;
-  }
-
-  TranslateMessage(&msg);
-  DispatchMessageW(&msg);
+  TranslateMessage(&message);
+  DispatchMessageW(&message);
 
   // handle any remaining messages in the queue
-  return poll_messages();
+  return drain_message_queue(messageQueue);
 }
 
-auto run_lost_device_loop(gfx::Device& gfxDevice) -> bool {
-  while (wait_for_messages()) {
+[[nodiscard]]
+auto run_lost_device_loop(Win32MessageQueue const& messageQueue,
+                          gfx::Device& gfxDevice) -> bool {
+  while (wait_for_messages(messageQueue)) {
     switch (gfxDevice.get_status()) {
     case gfx::DeviceStatus::Ok:
       return true;
@@ -127,69 +115,60 @@ auto run_lost_device_loop(gfx::Device& gfxDevice) -> bool {
 
 } // namespace
 
-auto App::run(HMODULE const moduleHandle, int const showCommand) -> void {
-  auto clientApp = bootstrap_app();
-  auto& config = clientApp.config;
+auto Win32App::init(HMODULE const moduleHandle, int const showCommand)
+  -> Win32App {
+  auto config = Config{
+    {"debug.scene_inspector.visible"s, false},
+    {"runtime.debugUI.enabled"s, false},
+  };
+  auto clientApp = bootstrap_app(config);
   dump_config(config);
 
-  auto const gfxFactory = create_gfx_factory(clientApp.gfxBackendApi);
-  if (!gfxFactory) {
-    BASALT_CRASH("couldn't create any gfx factory");
-  }
+  auto appWindow = Win32AppWindow::create(moduleHandle, showCommand, clientApp);
+  // TODO: Hack! This doesn't belong here
+  config.set_enum("window.mode"s, appWindow->mode());
 
-  auto const window = [&] {
-    auto const& adapters = gfxFactory->adapters();
-    auto const gfxContextConfig =
-      clientApp.gfxContextConfig
-        ? clientApp.gfxContextConfig(adapters)
-        : gfx::ContextCreateInfo::create_default(adapters);
+  auto const& gfxContext = appWindow->gfx_context();
 
-    auto const windowInfo = Window::CreateInfo{
-      clientApp.windowTitle,        showCommand,
-      clientApp.canvasSize,         clientApp.windowMode,
-      clientApp.isCanvasResizeable, gfxContextConfig,
-    };
-
-    return Window::create(moduleHandle, windowInfo, *gfxFactory);
-  }();
-
-  auto& gfxContext = *window->gfx_context();
-
-  auto app = App{
-    config,
-    window->gfx_context(),
-    DearImGui::create(gfxContext, window->handle()),
+  auto runtime = Runtime{
+    std::move(config),
+    gfxContext,
+    DearImGui::create(*gfxContext, appWindow->handle()),
   };
 
-  window->input_manager().set_overlay(app.dear_imgui());
-  app.set_root(clientApp.createRootView(app));
+  appWindow->input_manager().set_overlay(runtime.dear_imgui());
+  runtime.set_root(clientApp.createRootView(runtime));
 
+  return Win32App{std::move(appWindow), std::move(runtime)};
+}
+
+Win32App::~Win32App() noexcept = default;
+
+auto Win32App::run() -> void {
   using Clock = steady_clock;
   auto startTime = Clock::now();
   auto deltaTime = SecondsF32{0s};
 
-  while (poll_messages()) {
-    if (auto const mode = config.get_enum("window.mode"s, to_window_mode);
-        mode != window->mode()) {
-      window->set_mode(mode);
+  while (drain_message_queue(*mMessageQueue)) {
+    if (auto const mode =
+          mRuntime.config().get_enum("window.mode"s, to_window_mode);
+        mode != mAppWindow->mode()) {
+      mAppWindow->set_mode(mode);
     }
 
-    window->input_manager().dispatch_pending(app.root());
+    mAppWindow->input_manager().dispatch_pending(mRuntime.root());
 
-    auto const runtimeCtx = UpdateContext{deltaTime};
-    app.update(runtimeCtx);
+    mRuntime.update({deltaTime});
 
-    if (app.mIsDirty) {
-      app.mIsDirty = false;
-      window->set_cursor(app.mMouseCursor);
+    if (mRuntime.is_dirty()) {
+      mRuntime.set_dirty(false);
+      mAppWindow->set_mouse_cursor(mMouseCursors[mRuntime.mouse_cursor()]);
     }
 
-    switch (app.mGfxContext->swap_chain()->present()) {
-    case gfx::PresentResult::Ok:
-      break;
-    case gfx::PresentResult::DeviceLost:
-      if (!run_lost_device_loop(*gfxContext.device())) {
-        quit();
+    if (mAppWindow->present() == gfx::PresentResult::DeviceLost) {
+      if (!run_lost_device_loop(*mMessageQueue,
+                                *mRuntime.gfx_context().device())) {
+        Platform::quit();
       }
 
       continue;
@@ -201,8 +180,13 @@ auto App::run(HMODULE const moduleHandle, int const showCommand) -> void {
   }
 }
 
-App::App(Config& config, gfx::ContextPtr gfxContext, DearImGuiPtr dearImGui)
-  : Runtime{config, std::move(gfxContext), std::move(dearImGui)} {
+Win32App::Win32App(Win32AppWindowPtr appWindow, Runtime runtime)
+  : mMessageQueue{appWindow->message_queue()}
+  , mMouseCursors{load_system_mouse_cursors()}
+  , mAppWindow{std::move(appWindow)}
+  , mRuntime{std::move(runtime)} {
+  BASALT_ASSERT(mMessageQueue);
+  BASALT_ASSERT(mAppWindow);
 }
 
 // namespace {

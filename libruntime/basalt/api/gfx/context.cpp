@@ -15,11 +15,11 @@
 #include <basalt/api/shared/asserts.h>
 
 #include <array>
+#include <cstddef>
 #include <filesystem>
 #include <memory>
 #include <optional>
 #include <utility>
-#include <variant>
 #include <vector>
 
 namespace basalt::gfx {
@@ -27,20 +27,11 @@ namespace basalt::gfx {
 using gsl::span;
 
 using std::array;
+using std::byte;
 using std::nullopt;
 using std::optional;
 using std::vector;
 using std::filesystem::path;
-
-auto ContextCreateInfo::create_default(AdapterList const& adapters)
-  -> ContextCreateInfo {
-  auto const& adapter = adapters[0];
-
-  return ContextCreateInfo{
-    adapter.handle,       adapter.displayMode,   adapter.displayFormat,
-    ImageFormat::Unknown, MultiSampleCount::One,
-  };
-}
 
 auto Context::create(DevicePtr device, ext::DeviceExtensions deviceExtensions,
                      SwapChainPtr swapChain, Info info) -> ContextPtr {
@@ -157,9 +148,9 @@ auto Context::get(ext::EffectId const effectHandle) const -> ext::Effect& {
   return ext->get(effectHandle);
 }
 
-auto Context::create_vertex_buffer(
-  VertexBufferCreateInfo const& createInfo,
-  span<std::byte const> const initialData) const -> VertexBufferHandle {
+auto Context::create_vertex_buffer(VertexBufferCreateInfo const& createInfo,
+                                   span<byte const> const initialData) const
+  -> VertexBufferHandle {
   return mDevice->create_vertex_buffer(createInfo, initialData);
 }
 
@@ -168,7 +159,7 @@ auto Context::destroy(VertexBufferHandle const handle) const noexcept -> void {
 }
 
 auto Context::create_index_buffer(IndexBufferCreateInfo const& createInfo,
-                                  span<std::byte const> const initialData) const
+                                  span<byte const> const initialData) const
   -> IndexBufferHandle {
   return mDevice->create_index_buffer(createInfo, initialData);
 }
@@ -327,7 +318,7 @@ auto Context::query_device_extension(ext::DeviceExtensionId const id) const
 }
 
 auto Context::map(VertexBufferHandle const vb, uDeviceSize const offsetInBytes,
-                  uDeviceSize const sizeInBytes) const -> span<std::byte> {
+                  uDeviceSize const sizeInBytes) const -> span<byte> {
   return mDevice->map(vb, offsetInBytes, sizeInBytes);
 }
 
@@ -336,7 +327,7 @@ auto Context::unmap(VertexBufferHandle const vb) const -> void {
 }
 
 auto Context::map(IndexBufferHandle const ib, uDeviceSize const offsetInBytes,
-                  uDeviceSize const sizeInBytes) const -> span<std::byte> {
+                  uDeviceSize const sizeInBytes) const -> span<byte> {
   return mDevice->map(ib, offsetInBytes, sizeInBytes);
 }
 

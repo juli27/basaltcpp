@@ -690,7 +690,7 @@ D3D9Factory::D3D9Factory(IDirect3D9Ptr instance, AdapterList adapters)
 auto D3D9Factory::do_create_device_and_swap_chain(
   HWND const window, DeviceAndSwapChainCreateInfo const& info) const
   -> DeviceAndSwapChain {
-  auto const adapterOrdinal = info.adapter.value();
+  auto const adapterOrdinal = info.adapter ? info.adapter.value() : 0;
   BASALT_ASSERT(adapterOrdinal < mInstance->GetAdapterCount());
 
   auto pp = D3DPRESENT_PARAMETERS{};
@@ -708,9 +708,22 @@ auto D3D9Factory::do_create_device_and_swap_chain(
   pp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
 
   if (info.exclusive) {
-    pp.BackBufferWidth = info.exclusiveDisplayMode.width;
-    pp.BackBufferHeight = info.exclusiveDisplayMode.height;
-    pp.FullScreen_RefreshRateInHz = info.exclusiveDisplayMode.refreshRate;
+    auto currentMode = D3DDISPLAYMODE{};
+    D3D9CHECK(mInstance->GetAdapterDisplayMode(adapterOrdinal, &currentMode));
+
+    if (info.exclusiveDisplayMode.width == 0) {
+      pp.BackBufferWidth = currentMode.Width;
+      pp.BackBufferHeight = currentMode.Height;
+      pp.FullScreen_RefreshRateInHz = currentMode.RefreshRate;
+    } else {
+      pp.BackBufferWidth = info.exclusiveDisplayMode.width;
+      pp.BackBufferHeight = info.exclusiveDisplayMode.height;
+      pp.FullScreen_RefreshRateInHz = info.exclusiveDisplayMode.refreshRate;
+    }
+
+    if (pp.BackBufferFormat == D3DFMT_UNKNOWN) {
+      pp.BackBufferFormat = currentMode.Format;
+    }
   }
 
   auto d3d9Device = IDirect3DDevice9Ptr{};

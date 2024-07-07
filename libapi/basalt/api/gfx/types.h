@@ -27,7 +27,6 @@ struct Camera;
 
 class Context;
 using ContextPtr = std::shared_ptr<Context>;
-struct ContextCreateInfo;
 
 class Environment;
 class GfxSystem;

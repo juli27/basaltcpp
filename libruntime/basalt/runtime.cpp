@@ -25,6 +25,14 @@ auto Runtime::dear_imgui() const -> DearImGuiPtr const& {
   return mDearImGui;
 }
 
+auto Runtime::is_dirty() const noexcept -> bool {
+  return mIsDirty;
+}
+
+auto Runtime::set_dirty(bool const isDirty) noexcept -> void {
+  mIsDirty = isDirty;
+}
+
 auto Runtime::update(UpdateContext const& ctx) -> void {
   auto composite = gfx::Composite{};
   auto const drawCtx = View::DrawContext{
@@ -48,9 +56,9 @@ auto Runtime::update(UpdateContext const& ctx) -> void {
   mGfxContext->submit(composite);
 }
 
-Runtime::Runtime(Config& config, gfx::ContextPtr gfxContext,
+Runtime::Runtime(Config config, gfx::ContextPtr gfxContext,
                  DearImGuiPtr dearImGui)
-  : Engine{config, std::move(gfxContext)}
+  : Engine{std::move(config), std::move(gfxContext)}
   , mDearImGui{std::move(dearImGui)} {
 }
 
