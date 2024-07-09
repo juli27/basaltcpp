@@ -2,7 +2,6 @@
 
 #include "app_window.h"
 #include "message_queue.h"
-#include "util.h"
 
 #include <basalt/dear_imgui.h>
 
@@ -19,7 +18,8 @@
 
 #include <basalt/api/base/platform.h>
 
-#include <array>
+#include <imgui/imgui.h>
+
 #include <chrono>
 #include <string>
 #include <string_view>
@@ -130,13 +130,11 @@ auto Win32App::init(HMODULE const moduleHandle, int const showCommand)
 
   auto const& gfxContext = appWindow->gfx_context();
 
-  auto runtime = Runtime{
-    std::move(config),
-    gfxContext,
-    DearImGui::create(*gfxContext, appWindow->handle()),
-  };
+  auto runtime = Runtime{std::move(config), gfxContext};
 
   appWindow->input_manager().set_overlay(runtime.dear_imgui());
+  ImGui::GetMainViewport()->PlatformHandleRaw = appWindow->handle();
+
   runtime.set_root(clientApp.createRootView(runtime));
 
   return Win32App{std::move(appWindow), std::move(runtime)};

@@ -17,7 +17,11 @@ namespace basalt {
 
 class DearImGui final : public View {
 public:
-  static auto create(gfx::Context&, void* rawWindowHandle) -> DearImGuiPtr;
+  [[nodiscard]]
+  static auto create(gfx::Context&) -> DearImGuiPtr;
+
+  // do not call directly. use the static create function instead
+  explicit DearImGui(std::shared_ptr<gfx::ext::DearImGuiRenderer>);
 
   DearImGui(DearImGui const&) = delete;
   DearImGui(DearImGui&&) = delete;
@@ -28,9 +32,6 @@ public:
   auto operator=(DearImGui&&) -> DearImGui& = delete;
 
   auto new_frame(UpdateContext const&) const -> void;
-
-  // do not call directly. use the static create function instead
-  explicit DearImGui(std::shared_ptr<gfx::ext::DearImGuiRenderer>);
 
 private:
   // can be null

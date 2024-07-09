@@ -17,9 +17,13 @@
 
 #include <algorithm>
 #include <array>
+#include <memory>
 #include <utility>
 
 namespace basalt {
+
+using std::array;
+using std::shared_ptr;
 
 using gfx::CommandList;
 using gfx::ext::DearImGuiCommandEncoder;
@@ -140,19 +144,34 @@ constexpr auto to_imgui_key(Key const key) -> ImGuiKey {
 
 } // namespace
 
-auto DearImGui::create(gfx::Context& gfxContext, void* const rawWindowHandle)
-  -> DearImGuiPtr {
+auto DearImGui::create(gfx::Context& gfxContext) -> DearImGuiPtr {
   IMGUI_CHECKVERSION();
 
   auto* const ctx = ImGui::CreateContext();
   ImGui::SetCurrentContext(ctx);
 
-  ImGui::GetMainViewport()->PlatformHandleRaw = rawWindowHandle;
-
   auto renderer =
     gfxContext.query_device_extension<DearImGuiRenderer>().value_or(nullptr);
 
   return std::make_shared<DearImGui>(std::move(renderer));
+}
+
+DearImGui::DearImGui(shared_ptr<DearImGuiRenderer> renderer)
+  : mRenderer{std::move(renderer)} {
+  auto& io = ImGui::GetIO();
+
+  io.BackendPlatformName = "Basalt";
+  io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
+
+  io.ConfigFlags = ImGuiConfigFlags_NavEnableKeyboard;
+
+  io.Fonts->AddFontDefault();
+  io.Fonts->Build();
+
+  if (mRenderer) {
+    // this also uploads the font texture
+    mRenderer->init();
+  }
 }
 
 DearImGui::~DearImGui() noexcept {
@@ -193,24 +212,6 @@ auto DearImGui::new_frame(UpdateContext const& ctx) const -> void {
   }
 
   ImGui::NewFrame();
-}
-
-DearImGui::DearImGui(std::shared_ptr<DearImGuiRenderer> renderer)
-  : mRenderer{std::move(renderer)} {
-  auto& io = ImGui::GetIO();
-
-  io.BackendPlatformName = "Basalt";
-  io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
-
-  io.ConfigFlags = ImGuiConfigFlags_NavEnableKeyboard;
-
-  io.Fonts->AddFontDefault();
-  io.Fonts->Build();
-
-  if (mRenderer) {
-    // this also uploads the font texture
-    mRenderer->init();
-  }
 }
 
 auto DearImGui::on_update(UpdateContext& ctx) -> void {
@@ -300,7 +301,7 @@ auto DearImGui::on_input(InputEvent const& e) -> InputEventHandled {
 
   case InputEventType::CharacterTyped: {
     auto const& charTyped = e.as<CharacterTyped>().character;
-    auto nullTerminatedChar = std::array<char, 5>{};
+    auto nullTerminatedChar = array<char, 5>{};
     std::copy(charTyped.begin(), charTyped.end(), nullTerminatedChar.begin());
     io.AddInputCharactersUTF8(nullTerminatedChar.data());
 

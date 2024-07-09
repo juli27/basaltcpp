@@ -12,7 +12,7 @@ namespace basalt {
 
 class Runtime final : public Engine {
 public:
-  Runtime(Config, gfx::ContextPtr, DearImGuiPtr);
+  Runtime(Config, gfx::ContextPtr);
 
   [[nodiscard]]
   auto dear_imgui() const -> DearImGuiPtr const&;

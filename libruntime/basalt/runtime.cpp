@@ -56,10 +56,9 @@ auto Runtime::update(UpdateContext const& ctx) -> void {
   mGfxContext->submit(composite);
 }
 
-Runtime::Runtime(Config config, gfx::ContextPtr gfxContext,
-                 DearImGuiPtr dearImGui)
+Runtime::Runtime(Config config, gfx::ContextPtr gfxContext)
   : Engine{std::move(config), std::move(gfxContext)}
-  , mDearImGui{std::move(dearImGui)} {
+  , mDearImGui{DearImGui::create(*mGfxContext)} {
 }
 
 } // namespace basalt
