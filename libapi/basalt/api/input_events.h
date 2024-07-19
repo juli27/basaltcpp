@@ -7,6 +7,7 @@
 #include "base/types.h"
 
 #include <array>
+#include <functional>
 
 namespace basalt {
 
@@ -14,7 +15,8 @@ struct InputEvent {
   InputEventType const type;
 
   template <typename T>
-  [[nodiscard]] auto as() const -> T const& {
+  [[nodiscard]]
+  auto as() const -> T const& {
     BASALT_ASSERT(type == T::TYPE, "invalid input event cast");
 
     return *static_cast<T const*>(this);
@@ -35,7 +37,7 @@ protected:
   }
 };
 
-// TODO: turn this into an relative mouse motion event.
+// TODO: turn this into a relative mouse motion event.
 //       The pointer position must be polled
 struct MouseMoved final : InputEventT<InputEventType::MouseMoved> {
   PointerPosition position;
@@ -100,5 +102,38 @@ struct CharacterTyped final : InputEventT<InputEventType::CharacterTyped> {
     : character{character} {
   }
 };
+
+template <typename... Ts>
+struct InputEventHandler : Ts... {
+  using Ts::operator()...;
+};
+
+template <typename... Ts>
+InputEventHandler(Ts...) -> InputEventHandler<Ts...>;
+
+auto inline constexpr ignoreOtherEvents = [](InputEvent const&) {};
+
+template <typename Handler>
+auto handle(InputEvent const& e, Handler&& handler) {
+#define VISIT(EventStruct)                                                     \
+  case EventStruct::TYPE:                                                      \
+    return std::invoke(handler, e.as<EventStruct>());
+
+  switch (e.type) {
+    VISIT(MouseMoved);
+    VISIT(MouseWheel);
+    VISIT(MouseButtonDown);
+    VISIT(MouseButtonUp);
+    VISIT(KeyboardFocusGained);
+    VISIT(KeyboardFocusLost);
+    VISIT(KeyDown);
+    VISIT(KeyUp);
+    VISIT(CharacterTyped);
+  }
+
+  BASALT_CRASH("unknown input event type");
+
+#undef VISIT
+}
 
 } // namespace basalt

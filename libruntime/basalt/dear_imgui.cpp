@@ -230,86 +230,71 @@ auto DearImGui::on_update(UpdateContext& ctx) -> void {
 auto DearImGui::on_input(InputEvent const& e) -> InputEventHandled {
   auto& io = ImGui::GetIO();
 
-  switch (e.type) {
-  case InputEventType::MouseMoved: {
-    auto const& pointerPos = e.as<MouseMoved>().position;
-    io.AddMousePosEvent(static_cast<float>(pointerPos.x()),
-                        static_cast<float>(pointerPos.y()));
-
-    return io.WantCaptureMouse ? InputEventHandled::Yes : InputEventHandled::No;
-  }
-
-  case InputEventType::MouseWheel:
-    io.AddMouseWheelEvent(0.0f, e.as<MouseWheel>().offset);
-
-    return io.WantCaptureMouse ? InputEventHandled::Yes : InputEventHandled::No;
-
-  case InputEventType::MouseButtonDown:
-    io.AddMouseButtonEvent(enum_cast(e.as<MouseButtonDown>().button), true);
-
-    return io.WantCaptureMouse ? InputEventHandled::Yes : InputEventHandled::No;
-
-  case InputEventType::MouseButtonUp:
-    io.AddMouseButtonEvent(enum_cast(e.as<MouseButtonUp>().button), false);
-
-    return io.WantCaptureMouse ? InputEventHandled::Yes : InputEventHandled::No;
-
-  case InputEventType::KeyboardFocusGained:
-  case InputEventType::KeyboardFocusLost:
-    io.AddFocusEvent(e.type == InputEventType::KeyboardFocusGained);
-
-    return io.WantCaptureKeyboard ? InputEventHandled::Yes
-                                  : InputEventHandled::No;
-
-  case InputEventType::KeyDown: {
-    auto const key = e.as<KeyDown>().key;
+  auto const handleKeyEvent = [&](auto const key, auto const isDown) {
     auto const imguiKey = to_imgui_key(key);
-
     if (key == Key::Shift) {
-      io.AddKeyEvent(ImGuiMod_Shift, true);
+      io.AddKeyEvent(ImGuiMod_Shift, isDown);
     } else if (key == Key::Control) {
-      io.AddKeyEvent(ImGuiMod_Ctrl, true);
+      io.AddKeyEvent(ImGuiMod_Ctrl, isDown);
     } else if (key == Key::Alt) {
-      io.AddKeyEvent(ImGuiMod_Alt, true);
+      io.AddKeyEvent(ImGuiMod_Alt, isDown);
     }
 
-    io.AddKeyEvent(imguiKey, true);
+    io.AddKeyEvent(imguiKey, isDown);
     io.SetKeyEventNativeData(imguiKey, enum_cast(key), 0);
 
-    return io.WantCaptureKeyboard ? InputEventHandled::Yes
-                                  : InputEventHandled::No;
-  }
+    return io.WantCaptureKeyboard;
+  };
 
-  case InputEventType::KeyUp: {
-    auto const key = e.as<KeyUp>().key;
-    auto const imguiKey = to_imgui_key(key);
+  auto const hasHandled = handle(
+    e,
+    InputEventHandler{
+      [&](MouseMoved const& mouseMoved) {
+        auto const& pointerPos = mouseMoved.position;
+        io.AddMousePosEvent(static_cast<float>(pointerPos.x()),
+                            static_cast<float>(pointerPos.y()));
 
-    if (key == Key::Shift) {
-      io.AddKeyEvent(ImGuiMod_Shift, false);
-    } else if (key == Key::Control) {
-      io.AddKeyEvent(ImGuiMod_Ctrl, false);
-    } else if (key == Key::Alt) {
-      io.AddKeyEvent(ImGuiMod_Alt, false);
-    }
+        return io.WantCaptureMouse;
+      },
+      [&](MouseWheel const& mouseWheel) {
+        io.AddMouseWheelEvent(0.0f, mouseWheel.offset);
 
-    io.AddKeyEvent(imguiKey, false);
-    io.SetKeyEventNativeData(imguiKey, enum_cast(key), 0);
+        return io.WantCaptureMouse;
+      },
+      [&](MouseButtonDown const& mouseButtonDown) {
+        io.AddMouseButtonEvent(enum_cast(mouseButtonDown.button), true);
 
-    return io.WantCaptureKeyboard ? InputEventHandled::Yes
-                                  : InputEventHandled::No;
-  }
+        return io.WantCaptureMouse;
+      },
+      [&](MouseButtonUp const& mouseButtonUp) {
+        io.AddMouseButtonEvent(enum_cast(mouseButtonUp.button), false);
 
-  case InputEventType::CharacterTyped: {
-    auto const& charTyped = e.as<CharacterTyped>().character;
-    auto nullTerminatedChar = array<char, 5>{};
-    std::copy(charTyped.begin(), charTyped.end(), nullTerminatedChar.begin());
-    io.AddInputCharactersUTF8(nullTerminatedChar.data());
+        return io.WantCaptureMouse;
+      },
+      [&](KeyDown const& keyDown) { return handleKeyEvent(keyDown.key, true); },
+      [&](KeyUp const& keyUp) { return handleKeyEvent(keyUp.key, false); },
+      [&](CharacterTyped const& characterTyped) {
+        auto const& charTyped = characterTyped.character;
+        auto nullTerminatedChar = array<char, 5>{};
+        std::copy(charTyped.begin(), charTyped.end(),
+                  nullTerminatedChar.begin());
+        io.AddInputCharactersUTF8(nullTerminatedChar.data());
 
-    return io.WantTextInput ? InputEventHandled::Yes : InputEventHandled::No;
-  }
-  }
+        return io.WantTextInput;
+      },
+      [&](KeyboardFocusGained const&) {
+        io.AddFocusEvent(true);
 
-  return InputEventHandled::No;
+        return io.WantCaptureKeyboard;
+      },
+      [&](KeyboardFocusLost const&) {
+        io.AddFocusEvent(false);
+
+        return io.WantCaptureKeyboard;
+      },
+    });
+
+  return hasHandled ? InputEventHandled::Yes : InputEventHandled::No;
 }
 
 } // namespace basalt

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <basalt/api/input.h>
-#include <basalt/api/types.h>
+#include "input.h"
+#include "types.h"
 
-#include <basalt/api/gfx/backend/types.h>
+#include "gfx/backend/types.h"
 
-#include <basalt/api/shared/size2d.h>
-#include <basalt/api/shared/types.h>
+#include "shared/size2d.h"
+#include "shared/types.h"
 
 #include <vector>
 
@@ -33,7 +33,8 @@ public:
   auto add_child_below(ViewPtr, ViewPtr const& after) -> void;
   auto remove_child(ViewPtr const&) -> void;
 
-  [[nodiscard]] auto handle_input(InputEvent const&) -> bool;
+  [[nodiscard]]
+  auto handle_input(InputEvent const&) -> bool;
 
   struct DrawContext final {
     std::vector<gfx::CommandList>& commandLists;
@@ -53,7 +54,8 @@ protected:
 
   virtual auto on_update(UpdateContext&) -> void;
 
-  [[nodiscard]] virtual auto on_input(InputEvent const&) -> InputEventHandled;
+  [[nodiscard]]
+  virtual auto on_input(InputEvent const&) -> InputEventHandled;
 
 private:
   // top to bottom order

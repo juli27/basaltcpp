@@ -14,31 +14,25 @@ auto InputState::is_key_down(Key const key) const -> bool {
   return keysDown[enum_cast(key)];
 }
 
-auto InputState::update(InputEvent const& e) -> void {
-  switch (e.type) {
-  case InputEventType::MouseMoved:
-    pointerPos = e.as<MouseMoved>().position;
-    break;
-
-  case InputEventType::MouseButtonDown:
-    mouseButtonsDown[enum_cast(e.as<MouseButtonDown>().button)] = true;
-    break;
-
-  case InputEventType::MouseButtonUp:
-    mouseButtonsDown[enum_cast(e.as<MouseButtonUp>().button)] = false;
-    break;
-
-  case InputEventType::KeyDown:
-    keysDown[enum_cast(e.as<KeyDown>().key)] = true;
-    break;
-
-  case InputEventType::KeyUp:
-    keysDown[enum_cast(e.as<KeyUp>().key)] = false;
-    break;
-
-  default:
-    break;
-  }
+auto InputState::update(InputEvent const& inputEvent) -> void {
+  handle(
+    inputEvent,
+    InputEventHandler{
+      [this](MouseMoved const& mouseMoved) {
+        pointerPos = mouseMoved.position;
+      },
+      [this](MouseButtonDown const& mouseButtonDown) {
+        mouseButtonsDown[enum_cast(mouseButtonDown.button)] = true;
+      },
+      [this](MouseButtonUp const& mouseButtonUp) {
+        mouseButtonsDown[enum_cast(mouseButtonUp.button)] = false;
+      },
+      [this](KeyDown const& keyDown) {
+        keysDown[enum_cast(keyDown.key)] = true;
+      },
+      [this](KeyUp const& keyUp) { keysDown[enum_cast(keyUp.key)] = false; },
+      ignoreOtherEvents,
+    });
 }
 
 } // namespace basalt
