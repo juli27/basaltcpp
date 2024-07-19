@@ -428,6 +428,8 @@ auto Win32AppWindow::on_enter_size_move() -> LRESULT {
 auto Win32AppWindow::on_exit_size_move() -> LRESULT {
   mIsInSizeMoveModalLoop = false;
 
+  on_size(client_area_size());
+
   return 0;
 }
 

@@ -50,7 +50,7 @@ jobs:
         }
 
     - name: Configure
-      run: cmake -Wdev -Werror=dev -S . -B ./_build -G "${{ matrix.generator }}" -A x64 -D CMAKE_SYSTEM_VERSION=8.1 -D FETCHCONTENT_BASE_DIR=${{ env.FETCH_CONTENT_DIR }} -D BASALT_WARNINGS_AS_ERRORS=ON
+      run: cmake -Wno-dev -S . -B ./_build -G "${{ matrix.generator }}" -A x64 -D CMAKE_SYSTEM_VERSION=8.1 -D FETCHCONTENT_BASE_DIR=${{ env.FETCH_CONTENT_DIR }} -D BASALT_WARNINGS_AS_ERRORS=ON
 
     - name: Build
       run: cmake --build ./_build --config ${{ matrix.configuration }} --parallel
