@@ -11,6 +11,7 @@
 #include <basalt/api/shared/size2d.h>
 
 #include <basalt/api/base/enum_array.h>
+#include <basalt/api/base/platform.h>
 #include <basalt/api/base/utils.h>
 
 #include <imgui/imgui.h>
@@ -164,6 +165,7 @@ DearImGui::DearImGui(shared_ptr<DearImGuiRenderer> renderer)
   io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 
   io.ConfigFlags = ImGuiConfigFlags_NavEnableKeyboard;
+  io.ConfigDebugIsDebuggerPresent = Platform::is_debugger_attached();
 
   io.Fonts->AddFontDefault();
   io.Fonts->Build();
