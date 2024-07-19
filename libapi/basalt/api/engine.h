@@ -5,7 +5,6 @@
 #include <basalt/api/gfx/types.h>
 
 #include <basalt/api/shared/config.h>
-#include <basalt/api/shared/types.h>
 
 #include <memory>
 
@@ -32,8 +31,6 @@ struct Engine {
   auto mouse_cursor() const noexcept -> MouseCursor;
 
   auto set_mouse_cursor(MouseCursor) noexcept -> void;
-
-  auto set_window_mode(WindowMode) noexcept -> void;
 
 protected:
   gfx::ContextPtr mGfxContext;

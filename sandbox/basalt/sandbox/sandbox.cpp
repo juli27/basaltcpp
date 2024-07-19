@@ -138,7 +138,6 @@ SandboxView::SandboxView(Engine& engine) {
 
 auto SandboxView::on_update(UpdateContext& ctx) -> void {
   auto& engine = ctx.engine;
-  auto& config = engine.config();
 
   // https://github.com/ocornut/imgui/issues/331
   enum class OpenPopup : u8 { None, GfxInfo };
@@ -177,22 +176,25 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
     }
 
     if (ImGui::BeginMenu("View")) {
+      auto& config = engine.config();
+
+      auto const canvasModeConfigKey = "window.mode"s;
       auto const currentMode =
-        config.get_enum("window.mode"s, basalt::to_window_mode);
+        config.get_enum(canvasModeConfigKey, basalt::to_window_mode);
       if (ImGui::MenuItem("Windowed", nullptr,
                           currentMode == WindowMode::Windowed,
                           currentMode != WindowMode::Windowed)) {
-        engine.set_window_mode(WindowMode::Windowed);
+        config.set_enum(canvasModeConfigKey, WindowMode::Windowed);
       }
       if (ImGui::MenuItem("Fullscreen", nullptr,
                           currentMode == WindowMode::Fullscreen,
                           currentMode != WindowMode::Fullscreen)) {
-        engine.set_window_mode(WindowMode::Fullscreen);
+        config.set_enum(canvasModeConfigKey, WindowMode::Fullscreen);
       }
       if (ImGui::MenuItem("Fullscreen (Exclusive)", nullptr,
                           currentMode == WindowMode::FullscreenExclusive,
                           currentMode != WindowMode::FullscreenExclusive)) {
-        engine.set_window_mode(WindowMode::FullscreenExclusive);
+        config.set_enum(canvasModeConfigKey, WindowMode::FullscreenExclusive);
       }
 
       ImGui::Separator();
