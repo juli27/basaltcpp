@@ -2,11 +2,11 @@ include(FetchContent)
 
 FetchContent_Declare(DearImGui
   GIT_REPOSITORY https://github.com/ocornut/imgui.git
-  GIT_TAG        277ae93c41314ba5f4c7444f37c4319cdf07e8cf # v1.90.4
+  GIT_TAG        231cbee0fc4f59dbe5b8b853a11b08dc84e57c65 # v1.90.5
 )
 FetchContent_Declare(EnTT
   GIT_REPOSITORY https://github.com/skypjack/entt.git
-  GIT_TAG        2909e7ab1f1e73a36f778319070695611e3fa47b # v3.13.1
+  GIT_TAG        78213075654a688e9da6bc49f7f873d25c26d12c # v3.13.2
 )
 FetchContent_Declare(fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
@@ -18,7 +18,7 @@ FetchContent_Declare(GSL
 )
 FetchContent_Declare(spdlog
   GIT_REPOSITORY https://github.com/gabime/spdlog.git
-  GIT_TAG        7c02e204c92545f869e2f04edaab1f19fe8b19fd # v1.13.0
+  GIT_TAG        27cb4c76708608465c413f6d0e6b8d99a4d84302 # v1.14.1
 )
 
 add_subdirectory("DearImGui")
