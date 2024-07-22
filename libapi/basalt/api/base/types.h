@@ -7,7 +7,7 @@ namespace basalt {
 
 using uSize = std::size_t;
 
-template <typename K, typename V, uSize Size>
+template <typename Enum, typename T, uSize Size>
 struct EnumArray;
 
 template <typename E, E MaxEnumValue>

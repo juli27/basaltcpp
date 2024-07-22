@@ -4,6 +4,7 @@
 #include <basalt/api/base/utils.h>
 
 #include <array>
+#include <cstddef>
 #include <initializer_list>
 #include <type_traits>
 #include <utility>
@@ -11,18 +12,30 @@
 namespace basalt {
 
 // The enum *must not* have values larger than Size
-// The enum *must not* have any negative values
 // The enum *should* be contiguous (0, 1, 2,...)
-template <typename K, typename V, uSize Size>
+template <typename Enum, typename T, uSize Size>
 struct EnumArray {
-  static_assert(std::is_enum_v<K>);
+private:
+  using StorageType = std::array<T, Size>;
+
+public:
+  static_assert(std::is_enum_v<Enum>);
+  static_assert(std::is_unsigned_v<std::underlying_type_t<Enum>>);
+
+  using value_type = T;
+  using reference = value_type&;
+  using const_reference = value_type const&;
+  using iterator = typename StorageType::iterator;
+  using const_iterator = typename StorageType::const_iterator;
+  using difference_type = std::ptrdiff_t;
+  using size_type = uSize;
 
   constexpr EnumArray() noexcept = default;
 
   constexpr explicit EnumArray(
-    std::initializer_list<std::pair<K, V>> const init) {
-    for (auto& pair : init) {
-      mStorage[enum_cast(pair.first)] = std::move(pair.second);
+    std::initializer_list<std::pair<Enum const, T>> const init) {
+    for (auto& [e, v] : init) {
+      mStorage[enum_cast(e)] = std::move(v);
     }
   }
 
@@ -31,22 +44,52 @@ struct EnumArray {
     return Size;
   }
 
-  [[nodiscard]] constexpr auto operator[](K const key) const noexcept
-    -> V const& {
-    return mStorage[enum_cast(key)];
+  [[nodiscard]]
+  constexpr auto
+  operator[](Enum const e) const noexcept -> T const& {
+    return mStorage[enum_cast(e)];
   }
 
-  [[nodiscard]] constexpr auto operator[](K const key) noexcept -> V& {
-    return mStorage[enum_cast(key)];
+  [[nodiscard]]
+  constexpr auto
+  operator[](Enum const e) noexcept -> T& {
+    return mStorage[enum_cast(e)];
+  }
+
+  auto begin() noexcept -> iterator {
+    return mStorage.begin();
+  }
+
+  auto begin() const noexcept -> const_iterator {
+    return mStorage.begin();
+  }
+
+  auto end() noexcept -> iterator {
+    return mStorage.end();
+  }
+
+  auto end() const noexcept -> const_iterator {
+    return mStorage.end();
+  }
+
+  auto cbegin() const noexcept -> const_iterator {
+    return mStorage.begin();
+  }
+
+  auto cend() const noexcept -> const_iterator {
+    return mStorage.end();
+  }
+
+  auto data() noexcept -> T* {
+    return mStorage.data();
+  }
+
+  auto data() const noexcept -> T const* {
+    return mStorage.data();
   }
 
 private:
-  std::array<V, Size> mStorage{};
+  StorageType mStorage{};
 };
-
-// can not make it work in MSVC. Is MSVC not implementing CWG 1591?
-// TODO: submit feedback
-// template <class K, typename V, uSize N>
-// EnumArray(std::pair<K, V>(&&)[N]) -> EnumArray<K, V, N>;
 
 } // namespace basalt
