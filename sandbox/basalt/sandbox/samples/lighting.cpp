@@ -29,7 +29,6 @@ using std::array;
 using namespace basalt::literals;
 using basalt::Angle;
 using basalt::Engine;
-using basalt::EntityName;
 using basalt::Parent;
 using basalt::Scene;
 using basalt::SceneView;
@@ -153,38 +152,34 @@ Lighting::Lighting(Engine& engine)
   gfxEnv.set_background(BACKGROUND);
   gfxEnv.set_ambient_light(Color::from_non_linear(0.25f, 0, 0));
 
-  mCenter = scene->create_entity();
-  mCenter.emplace<EntityName>("Center"s);
+  mCenter = scene->create_entity("Center"s);
 
   for (auto i = uSize{0}; i < 10; i++) {
     auto const perSphereFactor = static_cast<f32>(i);
 
+    auto sphereName = fmt::format(FMT_STRING("Sphere {}"), i + 1);
     // evenly space out the spheres at the edge of a circle with radius 10
     // around the center
     auto const angle = Angle::degrees(36 * perSphereFactor);
     auto const pos = Vector3f32{10 * angle.cos(), 0, 10 * angle.sin()};
     // make the spheres point inward
     auto const rotation = Vector3f32{0, -1 * angle.radians(), 0};
-    mSpheres[i] = scene->create_entity(pos, rotation);
-    mSpheres[i].emplace<EntityName>(
-      fmt::format(FMT_STRING("Sphere {}"), i + 1));
+    mSpheres[i] = scene->create_entity(std::move(sphereName), pos, rotation);
     mSpheres[i].emplace<Parent>(mCenter.entity());
 
     mSpheres[i].emplace<XModelHandle>(sphereModels[i]);
   }
 
-  mGround = scene->create_entity({0, -50, 0});
-  mGround.emplace<EntityName>("Ground"s);
+  mGround = scene->create_entity("Ground"s, Vector3f32{0, -50, 0});
   (void)mGround.emplace<XModelHandle>(groundModel);
 
-  mLight = scene->create_entity();
-  mLight.emplace<EntityName>("Light"s);
+  mLight = scene->create_entity("Light"s);
   (void)mLight.emplace<XModelHandle>(lightModel);
   mLight.emplace<Light>(PointLight{Colors::WHITE, Colors::WHITE, Colors::WHITE,
                                    1000.0f, 0.0f, 0.025f, 0.0f});
 
-  auto const cameraEntity = scene->create_entity({5, 7.5f, -15});
-  cameraEntity.emplace<EntityName>("Camera"s);
+  auto const cameraEntity =
+    scene->create_entity("Camera"s, Vector3f32{5, 7.5f, -15});
   cameraEntity.emplace<Camera>(Camera{{}, Vector3f32::up(), 90_deg, 0.1f, 500});
 
   add_child_top(SceneView::create(std::move(scene), mGfxCache, cameraEntity));

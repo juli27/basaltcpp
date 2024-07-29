@@ -167,7 +167,7 @@ auto Samples::new_textures_sample(Engine& engine) -> ViewPtr {
   auto& gfxEnv = scene->entity_registry().ctx().emplace<Environment>();
   gfxEnv.set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
 
-  auto const quad = scene->create_entity({0.0f, 0.0f, 1.5f});
+  auto const quad = scene->create_entity(Vector3f32{0.0f, 0.0f, 1.5f});
   // material is set in SamplerSettingsSystem
   quad.emplace<RenderComponent>(mesh, MaterialHandle::null());
 

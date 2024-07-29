@@ -42,7 +42,6 @@ using namespace basalt::literals;
 using basalt::Angle;
 using basalt::Engine;
 using basalt::EntityId;
-using basalt::EntityName;
 using basalt::InputState;
 using basalt::Key;
 using basalt::Scene;
@@ -328,12 +327,10 @@ auto Samples::new_cubes_sample(Engine& engine) -> ViewPtr {
   gfxEnv.set_ambient_light(Color::from_non_linear(0.2f, 0.2f, 0.2f));
   auto& entities = scene->entity_registry();
 
-  auto const cubes = scene->create_entity();
-  cubes.emplace<EntityName>("Cubes"s);
+  auto const cubes = scene->create_entity("Cubes"s);
   cubes.emplace<RenderComponent>(mesh, material);
 
-  auto const light = scene->create_entity();
-  light.emplace<EntityName>("SpotLight"s);
+  auto const light = scene->create_entity("SpotLight"s);
   light.emplace<Light>(SpotLight{Colors::WHITE,
                                  {},
                                  {},
@@ -346,8 +343,7 @@ auto Samples::new_cubes_sample(Engine& engine) -> ViewPtr {
                                  45_deg,
                                  15_deg});
 
-  auto const camera = scene->create_entity();
-  camera.emplace<EntityName>("Camera"s);
+  auto const camera = scene->create_entity("Camera"s);
   camera.emplace<Camera>(Vector3f32::forward(), Vector3f32::up(), 90_deg, 0.1f,
                          250.0f);
   camera.emplace<CameraControllerData>(CameraControllerData{0_deg});

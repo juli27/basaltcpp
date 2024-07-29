@@ -15,6 +15,7 @@
 #include <forward_list>
 #include <iterator>
 #include <memory>
+#include <utility>
 
 using entt::adjacency_matrix;
 using entt::directed_tag;
@@ -71,6 +72,15 @@ auto Scene::entity_registry() const -> EntityRegistry const& {
 
 auto Scene::entity_registry() -> EntityRegistry& {
   return mEntityRegistry;
+}
+
+auto Scene::create_entity(std::string name, Vector3f32 const& position,
+                          Vector3f32 const& rotation, Vector3f32 const& scale)
+  -> Entity {
+  auto entity = create_entity(position, rotation, scale);
+  entity.emplace<EntityName>(std::move(name));
+
+  return entity;
 }
 
 auto Scene::create_entity(Vector3f32 const& position,
