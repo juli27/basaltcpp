@@ -47,20 +47,19 @@ public:
   auto destroy(PipelineHandle) noexcept -> void override;
 
   [[nodiscard]]
-  auto create_vertex_buffer(VertexBufferCreateInfo const&,
-                            gsl::span<std::byte const> initialData)
+  auto create_vertex_buffer(VertexBufferCreateInfo const&)
     -> VertexBufferHandle override;
 
   auto destroy(VertexBufferHandle) noexcept -> void override;
 
   [[nodiscard]]
-  auto map(VertexBufferHandle, uDeviceSize offset, uDeviceSize size)
-    -> gsl::span<std::byte> override;
+  auto map(VertexBufferHandle, uDeviceSize offsetInBytes,
+           uDeviceSize sizeInBytes) -> gsl::span<std::byte> override;
+
   auto unmap(VertexBufferHandle) noexcept -> void override;
 
   [[nodiscard]]
-  auto create_index_buffer(IndexBufferCreateInfo const&,
-                           gsl::span<std::byte const> initialData)
+  auto create_index_buffer(IndexBufferCreateInfo const&)
     -> IndexBufferHandle override;
 
   auto destroy(IndexBufferHandle) noexcept -> void override;

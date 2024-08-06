@@ -117,12 +117,12 @@ SandboxView::SandboxView(Engine& engine) {
     &TribaseExamples::new_02_14_effects,
   });
   mExamples.emplace_back(Example{
-    "Textures"s,
-    &Samples::new_textures_sample,
-  });
-  mExamples.emplace_back(Example{
     "Simple Scene"s,
     &Samples::new_simple_scene_sample,
+  });
+  mExamples.emplace_back(Example{
+    "Textures"s,
+    &Samples::new_textures_sample,
   });
   mExamples.emplace_back(Example{
     "Cubes"s,
@@ -147,7 +147,7 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
     if (ImGui::BeginMenu("File")) {
       for (auto i = uSize{0}; i < mExamples.size(); i++) {
         auto const isCurrent = mCurrentExampleIndex == i;
-        if (ImGui::MenuItem(mExamples[i].name.data(), nullptr, isCurrent,
+        if (ImGui::MenuItem(mExamples[i].name.c_str(), nullptr, isCurrent,
                             !isCurrent)) {
           set_scene(i, engine);
         }

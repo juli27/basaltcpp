@@ -41,27 +41,25 @@ public:
   // TODO: method to retrieve a preferred vertex layout ?
 
   // throws std::bad_alloc
-  [[nodiscard]] virtual auto
-  create_vertex_buffer(VertexBufferCreateInfo const&,
-                       gsl::span<std::byte const> initialData = {})
+  [[nodiscard]]
+  virtual auto create_vertex_buffer(VertexBufferCreateInfo const&)
     -> VertexBufferHandle = 0;
 
   virtual auto destroy(VertexBufferHandle) noexcept -> void = 0;
 
-  // offset = 0 && size = 0 maps entire buffer
-  // size = 0 maps from offset until the end of the buffer
+  // offsetInBytes = 0 && sizeInBytes = 0 maps entire buffer
+  // sizeInBytes = 0 maps from offsetInBytes until the end of the buffer
   // can return empty span
   // TODO: come up with a safer API
-  [[nodiscard]] virtual auto map(VertexBufferHandle, uDeviceSize offset = 0,
-                                 uDeviceSize size = 0)
-    -> gsl::span<std::byte> = 0;
+  [[nodiscard]]
+  virtual auto map(VertexBufferHandle, uDeviceSize offsetInBytes = 0,
+                   uDeviceSize sizeInBytes = 0) -> gsl::span<std::byte> = 0;
 
   virtual auto unmap(VertexBufferHandle) noexcept -> void = 0;
 
   // throws std::bad_alloc
-  [[nodiscard]] virtual auto
-  create_index_buffer(IndexBufferCreateInfo const&,
-                      gsl::span<std::byte const> initialData = {})
+  [[nodiscard]]
+  virtual auto create_index_buffer(IndexBufferCreateInfo const&)
     -> IndexBufferHandle = 0;
 
   virtual auto destroy(IndexBufferHandle) noexcept -> void = 0;
@@ -70,10 +68,9 @@ public:
   // sizeInBytes = 0 maps from offsetInBytes until the end of the buffer
   // can return empty span
   // TODO: come up with a safer API
-  [[nodiscard]] virtual auto map(IndexBufferHandle,
-                                 uDeviceSize offsetInBytes = 0,
-                                 uDeviceSize sizeInBytes = 0)
-    -> gsl::span<std::byte> = 0;
+  [[nodiscard]]
+  virtual auto map(IndexBufferHandle, uDeviceSize offsetInBytes = 0,
+                   uDeviceSize sizeInBytes = 0) -> gsl::span<std::byte> = 0;
 
   virtual auto unmap(IndexBufferHandle) noexcept -> void = 0;
 

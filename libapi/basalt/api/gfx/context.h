@@ -77,13 +77,13 @@ public:
 
   [[nodiscard]]
   auto create_vertex_buffer(VertexBufferCreateInfo const&,
-                            gsl::span<std::byte const> initialData = {}) const
+                            gsl::span<std::byte const> data = {}) const
     -> VertexBufferHandle;
 
   auto destroy(VertexBufferHandle) const noexcept -> void;
 
-  // span is empty on failure
   // F = void(gsl::span<std::byte>)
+  // span is empty on failure
   template <typename F>
   auto with_mapping_of(VertexBufferHandle const vb, F&& func) const -> void {
     with_mapping_of(vb, 0, 0, std::forward<F>(func));
@@ -91,8 +91,8 @@ public:
 
   // offset = 0 && sizeInBytes = 0 maps entire buffer
   // sizeInBytes = 0 maps from offset until the end of the buffer
-  // span is empty on failure
   // F = void(gsl::span<std::byte>)
+  // span is empty on failure
   template <typename F>
   auto with_mapping_of(VertexBufferHandle const vb, uDeviceSize const offset,
                        uDeviceSize const sizeInBytes, F&& func) const -> void {
@@ -105,7 +105,7 @@ public:
 
   [[nodiscard]]
   auto create_index_buffer(IndexBufferCreateInfo const&,
-                           gsl::span<std::byte const> initialData = {}) const
+                           gsl::span<std::byte const> data = {}) const
     -> IndexBufferHandle;
 
   auto destroy(IndexBufferHandle) const noexcept -> void;

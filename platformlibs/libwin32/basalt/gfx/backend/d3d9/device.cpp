@@ -29,64 +29,13 @@ using namespace std::literals;
 
 using std::array;
 using std::bad_alloc;
+using std::byte;
 using std::filesystem::path;
 
 using gsl::span;
 
 namespace basalt::gfx {
 namespace {
-
-auto map_impl(IDirect3DVertexBuffer9& vertexBuffer,
-              uDeviceSize const offset = 0, uDeviceSize size = 0)
-  -> span<std::byte> {
-  auto desc = D3DVERTEXBUFFER_DESC{};
-  D3D9CHECK(vertexBuffer.GetDesc(&desc));
-
-  if (size == 0) {
-    size = desc.Size - offset;
-  }
-
-  if (offset >= desc.Size || size + offset > desc.Size) {
-    return {};
-  }
-
-  void* vertexBufferData = {};
-  if (FAILED(vertexBuffer.Lock(static_cast<UINT>(offset),
-                               static_cast<UINT>(size), &vertexBufferData,
-                               0ul))) {
-    BASALT_LOG_ERROR("Failed to lock vertex buffer");
-
-    return {};
-  }
-
-  return {static_cast<std::byte*>(vertexBufferData), size};
-}
-
-auto map_impl(IDirect3DIndexBuffer9& indexBuffer,
-              uDeviceSize const offsetInBytes = 0, uDeviceSize sizeInBytes = 0)
-  -> span<std::byte> {
-  D3DINDEXBUFFER_DESC desc{};
-  D3D9CHECK(indexBuffer.GetDesc(&desc));
-
-  if (sizeInBytes == 0) {
-    sizeInBytes = desc.Size - offsetInBytes;
-  }
-
-  if (offsetInBytes >= desc.Size || sizeInBytes + offsetInBytes > desc.Size) {
-    return span<std::byte>{};
-  }
-
-  void* indexBufferData{};
-  if (FAILED(indexBuffer.Lock(static_cast<UINT>(offsetInBytes),
-                              static_cast<UINT>(sizeInBytes), &indexBufferData,
-                              0ul))) {
-    BASALT_LOG_ERROR("Failed to lock vertex buffer");
-
-    return span<std::byte>{};
-  }
-
-  return span<std::byte>{static_cast<std::byte*>(indexBufferData), sizeInBytes};
-}
 
 auto calculate_primitive_count(D3DPRIMITIVETYPE const type,
                                u32 const vertexCount) -> u32 {
@@ -200,8 +149,7 @@ auto D3D9Device::destroy(PipelineHandle const handle) noexcept -> void {
 
 // throws std::bad_alloc when requested size is too large and when d3d9
 // allocation fails
-auto D3D9Device::create_vertex_buffer(VertexBufferCreateInfo const& desc,
-                                      span<std::byte const> const initialData)
+auto D3D9Device::create_vertex_buffer(VertexBufferCreateInfo const& desc)
   -> VertexBufferHandle {
   if (desc.sizeInBytes > mCaps.maxVertexBufferSizeInBytes) {
     throw bad_alloc{};
@@ -211,24 +159,11 @@ auto D3D9Device::create_vertex_buffer(VertexBufferCreateInfo const& desc,
   auto const size = static_cast<UINT>(desc.sizeInBytes);
 
   auto vertexBuffer = IDirect3DVertexBuffer9Ptr{};
-  if (FAILED(mDevice->CreateVertexBuffer(size, 0ul, fvf, D3DPOOL_MANAGED,
+  if (FAILED(mDevice->CreateVertexBuffer(size, 0, fvf, D3DPOOL_MANAGED,
                                          &vertexBuffer, nullptr))) {
     BASALT_LOG_ERROR("failed to allocate vertex buffer");
 
     throw bad_alloc{};
-  }
-
-  if (!initialData.empty()) {
-    // TODO: should initialData.size() > size be an error?
-    // TODO: should failing to upload initial data be an error?
-    if (auto const vertexBufferData = map_impl(*vertexBuffer.Get());
-        !vertexBufferData.empty()) {
-      std::copy_n(initialData.begin(),
-                  std::min(initialData.size(), uSize{size}),
-                  vertexBufferData.begin());
-
-      D3D9CHECK(vertexBuffer->Unlock());
-    }
   }
 
   return mVertexBuffers.allocate(std::move(vertexBuffer));
@@ -238,15 +173,35 @@ auto D3D9Device::destroy(VertexBufferHandle const handle) noexcept -> void {
   mVertexBuffers.deallocate(handle);
 }
 
-auto D3D9Device::map(VertexBufferHandle const handle, uDeviceSize const offset,
-                     uDeviceSize const size) -> span<std::byte> {
+auto D3D9Device::map(VertexBufferHandle const handle,
+                     uDeviceSize const offsetInBytes, uDeviceSize sizeInBytes)
+  -> span<byte> {
   if (!mVertexBuffers.is_valid(handle)) {
     return {};
   }
 
   auto const& vertexBuffer = mVertexBuffers[handle];
+  auto desc = D3DVERTEXBUFFER_DESC{};
+  D3D9CHECK(vertexBuffer->GetDesc(&desc));
 
-  return map_impl(*vertexBuffer.Get(), offset, size);
+  if (sizeInBytes == 0) {
+    sizeInBytes = desc.Size - offsetInBytes;
+  }
+
+  if (offsetInBytes >= desc.Size || sizeInBytes + offsetInBytes > desc.Size) {
+    return {};
+  }
+
+  void* vertexBufferData = {};
+  if (FAILED(vertexBuffer->Lock(static_cast<UINT>(offsetInBytes),
+                                static_cast<UINT>(sizeInBytes),
+                                &vertexBufferData, 0))) {
+    BASALT_LOG_ERROR("Failed to lock vertex buffer");
+
+    return {};
+  }
+
+  return span{static_cast<byte*>(vertexBufferData), sizeInBytes};
 }
 
 auto D3D9Device::unmap(VertexBufferHandle const handle) noexcept -> void {
@@ -259,8 +214,7 @@ auto D3D9Device::unmap(VertexBufferHandle const handle) noexcept -> void {
   D3D9CHECK(vertexBuffer->Unlock());
 }
 
-auto D3D9Device::create_index_buffer(IndexBufferCreateInfo const& desc,
-                                     span<std::byte const> const initialData)
+auto D3D9Device::create_index_buffer(IndexBufferCreateInfo const& desc)
   -> IndexBufferHandle {
   if (desc.sizeInBytes > mCaps.maxIndexBufferSizeInBytes) {
     throw bad_alloc{};
@@ -270,24 +224,11 @@ auto D3D9Device::create_index_buffer(IndexBufferCreateInfo const& desc,
   auto const type = to_d3d(desc.type);
 
   auto indexBuffer = IDirect3DIndexBuffer9Ptr{};
-  if (FAILED(mDevice->CreateIndexBuffer(size, 0ul, type, D3DPOOL_MANAGED,
+  if (FAILED(mDevice->CreateIndexBuffer(size, 0, type, D3DPOOL_MANAGED,
                                         &indexBuffer, nullptr))) {
     BASALT_LOG_ERROR("failed to allocate index buffer");
 
     throw bad_alloc{};
-  }
-
-  if (!initialData.empty()) {
-    // TODO: should initialData.size() > size be an error?
-    // TODO: should failing to upload initial data be an error?
-    if (auto const indexBufferData = map_impl(*indexBuffer.Get());
-        !indexBufferData.empty()) {
-      std::copy_n(initialData.begin(),
-                  std::min(initialData.size(), uSize{size}),
-                  indexBufferData.begin());
-
-      D3D9CHECK(indexBuffer->Unlock());
-    }
   }
 
   return mIndexBuffers.allocate(std::move(indexBuffer));
@@ -298,15 +239,34 @@ auto D3D9Device::destroy(IndexBufferHandle const handle) noexcept -> void {
 }
 
 auto D3D9Device::map(IndexBufferHandle const handle,
-                     uDeviceSize const offsetInBytes,
-                     uDeviceSize const sizeInBytes) -> span<std::byte> {
+                     uDeviceSize const offsetInBytes, uDeviceSize sizeInBytes)
+  -> span<byte> {
   if (!mIndexBuffers.is_valid(handle)) {
     return {};
   }
 
   auto const& indexBuffer = mIndexBuffers[handle];
+  auto desc = D3DINDEXBUFFER_DESC{};
+  D3D9CHECK(indexBuffer->GetDesc(&desc));
 
-  return map_impl(*indexBuffer.Get(), offsetInBytes, sizeInBytes);
+  if (sizeInBytes == 0) {
+    sizeInBytes = desc.Size - offsetInBytes;
+  }
+
+  if (offsetInBytes >= desc.Size || sizeInBytes + offsetInBytes > desc.Size) {
+    return {};
+  }
+
+  void* indexBufferData{};
+  if (FAILED(indexBuffer->Lock(static_cast<UINT>(offsetInBytes),
+                               static_cast<UINT>(sizeInBytes), &indexBufferData,
+                               0))) {
+    BASALT_LOG_ERROR("Failed to lock vertex buffer");
+
+    return {};
+  }
+
+  return span{static_cast<byte*>(indexBufferData), sizeInBytes};
 }
 
 auto D3D9Device::unmap(IndexBufferHandle const handle) noexcept -> void {

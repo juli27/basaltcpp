@@ -14,6 +14,7 @@
 
 #include <basalt/api/shared/asserts.h>
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <filesystem>
@@ -149,9 +150,24 @@ auto Context::get(ext::EffectId const effectHandle) const -> ext::Effect& {
 }
 
 auto Context::create_vertex_buffer(VertexBufferCreateInfo const& createInfo,
-                                   span<byte const> const initialData) const
+                                   span<byte const> const data) const
   -> VertexBufferHandle {
-  return mDevice->create_vertex_buffer(createInfo, initialData);
+  BASALT_ASSERT(data.size() <= createInfo.sizeInBytes);
+
+  auto const vb = mDevice->create_vertex_buffer(createInfo);
+
+  if (!data.empty()) {
+    // TODO: should data.size() > size be an error?
+    // TODO: should failing to upload data be an error?
+    with_mapping_of(vb, [&](span<byte> mappedBuffer) {
+      auto const numBytesToCopy =
+        std::min(data.size(), uSize{createInfo.sizeInBytes});
+
+      std::copy_n(data.begin(), numBytesToCopy, mappedBuffer.begin());
+    });
+  }
+
+  return vb;
 }
 
 auto Context::destroy(VertexBufferHandle const handle) const noexcept -> void {
@@ -159,9 +175,24 @@ auto Context::destroy(VertexBufferHandle const handle) const noexcept -> void {
 }
 
 auto Context::create_index_buffer(IndexBufferCreateInfo const& createInfo,
-                                  span<byte const> const initialData) const
+                                  span<byte const> const data) const
   -> IndexBufferHandle {
-  return mDevice->create_index_buffer(createInfo, initialData);
+  BASALT_ASSERT(data.size() <= createInfo.sizeInBytes);
+
+  auto const ib = mDevice->create_index_buffer(createInfo);
+
+  if (!data.empty()) {
+    // TODO: should data.size() > size be an error?
+    // TODO: should failing to upload data be an error?
+    with_mapping_of(ib, [&](span<byte> mappedBuffer) {
+      auto const numBytesToCopy =
+        std::min(data.size(), uSize{createInfo.sizeInBytes});
+
+      std::copy_n(data.begin(), numBytesToCopy, mappedBuffer.begin());
+    });
+  }
+
+  return ib;
 }
 
 auto Context::destroy(IndexBufferHandle const handle) const noexcept -> void {

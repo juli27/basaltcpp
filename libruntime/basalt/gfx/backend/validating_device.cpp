@@ -208,8 +208,7 @@ auto ValidatingDevice::destroy(PipelineHandle const id) noexcept -> void {
   mPipelines.deallocate(id);
 }
 
-auto ValidatingDevice::create_vertex_buffer(VertexBufferCreateInfo const& desc,
-                                            span<byte const> const initialData)
+auto ValidatingDevice::create_vertex_buffer(VertexBufferCreateInfo const& desc)
   -> VertexBufferHandle {
   check("non empty layout"sv, !desc.layout.empty());
   check_vertex_layout(desc.layout);
@@ -223,9 +222,7 @@ auto ValidatingDevice::create_vertex_buffer(VertexBufferCreateInfo const& desc,
   auto const minSize = get_vertex_size(desc.layout);
   check("minimum size", desc.sizeInBytes >= minSize);
 
-  check("initial data fits"sv, initialData.size() <= desc.sizeInBytes);
-
-  auto const id = mDevice->create_vertex_buffer(desc, initialData);
+  auto const id = mDevice->create_vertex_buffer(desc);
   auto layout = vector(desc.layout.begin(), desc.layout.end());
 
   return mVertexBuffers.allocate(VertexBufferData{
@@ -250,17 +247,18 @@ auto ValidatingDevice::destroy(VertexBufferHandle const id) noexcept -> void {
 }
 
 auto ValidatingDevice::map(VertexBufferHandle const id,
-                           uDeviceSize const offset, uDeviceSize const size)
-  -> span<byte> {
+                           uDeviceSize const offsetInBytes,
+                           uDeviceSize const sizeInBytes) -> span<byte> {
   if (!check("valid vertex buffer id", mVertexBuffers.is_valid(id))) {
     return {};
   }
 
   auto const& data = mVertexBuffers[id];
-  check("offset less than size", offset < data.sizeInBytes);
-  check("mapped region within bounds", offset + size <= data.sizeInBytes);
+  check("offset less than size", offsetInBytes < data.sizeInBytes);
+  check("mapped region within bounds",
+        offsetInBytes + sizeInBytes <= data.sizeInBytes);
 
-  return mDevice->map(data.originalId, offset, size);
+  return mDevice->map(data.originalId, offsetInBytes, sizeInBytes);
 }
 
 auto ValidatingDevice::unmap(VertexBufferHandle const id) noexcept -> void {
@@ -273,17 +271,14 @@ auto ValidatingDevice::unmap(VertexBufferHandle const id) noexcept -> void {
   mDevice->unmap(data.originalId);
 }
 
-auto ValidatingDevice::create_index_buffer(IndexBufferCreateInfo const& desc,
-                                           span<byte const> const initialData)
+auto ValidatingDevice::create_index_buffer(IndexBufferCreateInfo const& desc)
   -> IndexBufferHandle {
   auto const& caps = mDevice->capabilities();
   check("not larger than max size"sv,
         desc.sizeInBytes <= caps.maxIndexBufferSizeInBytes);
   check("index type supported", caps.supportedIndexTypes[desc.type]);
 
-  check("initial data fits"sv, initialData.size() <= desc.sizeInBytes);
-
-  auto const id = mDevice->create_index_buffer(desc, initialData);
+  auto const id = mDevice->create_index_buffer(desc);
 
   return mIndexBuffers.allocate(IndexBufferData{
     id,
