@@ -7,6 +7,7 @@
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/command_list.h>
+#include <basalt/api/gfx/backend/vertex_layout.h>
 
 #include <basalt/api/math/matrix4x4.h>
 #include <basalt/api/math/vector2.h>
@@ -66,11 +67,10 @@ struct Vertex final {
   ColorEncoding::A8R8G8B8 diffuse{};
   Vector2f32 uv{};
 
-  static constexpr auto sLayout = array{
-    VertexElement::Position3F32,
-    VertexElement::ColorDiffuse1U32A8R8G8B8,
-    VertexElement::TextureCoords2F32,
-  };
+  static constexpr auto sLayout =
+    basalt::gfx::make_vertex_layout<VertexElement::Position3F32,
+                                    VertexElement::ColorDiffuse1U32A8R8G8B8,
+                                    VertexElement::TextureCoords2F32>();
 };
 
 constexpr auto TEXTURE_FILE_PATH = "data/tribase/Texture2.bmp"sv;

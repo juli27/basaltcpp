@@ -6,6 +6,7 @@
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/command_list.h>
+#include <basalt/api/gfx/backend/vertex_layout.h>
 
 #include <basalt/api/math/angle.h>
 #include <basalt/api/math/matrix4x4.h>
@@ -50,10 +51,9 @@ struct Vertex {
   Vector3f32 pos;
   Vector3f32 tex1;
 
-  static constexpr auto sLayout = array{
-    VertexElement::Position3F32,
-    VertexElement::TextureCoords3F32,
-  };
+  static constexpr auto sLayout =
+    basalt::gfx::make_vertex_layout<VertexElement::Position3F32,
+                                    VertexElement::TextureCoords3F32>();
 };
 
 } // namespace

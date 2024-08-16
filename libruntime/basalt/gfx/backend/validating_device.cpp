@@ -1,39 +1,31 @@
-#include <basalt/gfx/backend/validating_device.h>
+#include "validating_device.h"
 
-#include <basalt/gfx/backend/commands.h>
-#include <basalt/gfx/backend/ext/dear_imgui_renderer.h>
-#include <basalt/gfx/backend/ext/texture_3d_support.h>
+#include "commands.h"
+#include "ext/dear_imgui_renderer.h"
+#include "ext/texture_3d_support.h"
 
 #include <basalt/api/gfx/backend/command_list.h>
+#include <basalt/api/gfx/backend/vertex_layout.h>
 #include <basalt/api/gfx/backend/ext/effect.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/log.h>
 
-#include <basalt/api/base/enum_array.h>
-#include <basalt/api/base/types.h>
-
 #include <gsl/span>
 
-#include <algorithm>
 #include <cstddef>
 #include <filesystem>
 #include <memory>
-#include <numeric>
-#include <optional>
 #include <string_view>
 #include <utility>
-#include <vector>
 
 using gsl::span;
 
 using namespace std::literals;
 using std::byte;
-using std::optional;
 using std::shared_ptr;
 using std::string_view;
-using std::vector;
 using std::filesystem::path;
 
 // TODO: expand validation
@@ -87,53 +79,6 @@ auto check(string_view const description, Fn&& fn) -> bool {
   return check(description, fn());
 }
 
-auto check_vertex_layout(VertexLayout const layout) -> bool {
-  return check(
-    "can't use transformed positions with untransformed positions or "
-    "normals"sv,
-    [&] {
-      auto const hasTransformedPosition =
-        std::find(layout.begin(), layout.end(),
-                  VertexElement::PositionTransformed4F32) != layout.end();
-
-      auto const hasUntransformedPosition =
-        std::find(layout.begin(), layout.end(), VertexElement::Position3F32) !=
-        layout.end();
-      auto const hasNormals =
-        std::find(layout.begin(), layout.end(), VertexElement::Normal3F32) !=
-        layout.end();
-
-      return !hasTransformedPosition ||
-             (!hasUntransformedPosition && !hasNormals);
-    });
-}
-
-auto get_size(VertexElement const vertexElement) -> uDeviceSize {
-  static constexpr auto SIZES = EnumArray<VertexElement, uDeviceSize, 10>{
-    {VertexElement::Position3F32, 3 * sizeof(f32)},
-    {VertexElement::PositionTransformed4F32, 4 * sizeof(f32)},
-    {VertexElement::Normal3F32, 3 * sizeof(f32)},
-    {VertexElement::PointSize1F32, sizeof(f32)},
-    {VertexElement::ColorDiffuse1U32A8R8G8B8, sizeof(u32)},
-    {VertexElement::ColorSpecular1U32A8R8G8B8, sizeof(u32)},
-    {VertexElement::TextureCoords1F32, sizeof(f32)},
-    {VertexElement::TextureCoords2F32, 2 * sizeof(f32)},
-    {VertexElement::TextureCoords3F32, 3 * sizeof(f32)},
-    {VertexElement::TextureCoords4F32, 4 * sizeof(f32)},
-  };
-  static_assert(SIZES.size() == VERTEX_ELEMENT_COUNT);
-
-  return SIZES[vertexElement];
-}
-
-auto get_vertex_size(VertexLayout const vertexLayout) -> uDeviceSize {
-  return std::accumulate(
-    vertexLayout.begin(), vertexLayout.end(), uDeviceSize{0},
-    [](uDeviceSize const size, VertexElement const element) {
-      return size + get_size(element);
-    });
-}
-
 } // namespace
 
 auto ValidatingDevice::wrap(DevicePtr device) -> ValidatingDevicePtr {
@@ -175,7 +120,6 @@ auto ValidatingDevice::reset() -> void {
 
 auto ValidatingDevice::create_pipeline(PipelineCreateInfo const& desc)
   -> PipelineHandle {
-  check_vertex_layout(desc.vertexLayout);
   if (desc.fragmentShader) {
     check("too many texture stages"sv,
           desc.fragmentShader->textureStages.size() <=
@@ -184,12 +128,9 @@ auto ValidatingDevice::create_pipeline(PipelineCreateInfo const& desc)
 
   auto const pipelineId = mDevice->create_pipeline(desc);
 
-  auto vertexInputLayout =
-    vector(desc.vertexLayout.begin(), desc.vertexLayout.end());
-
   return mPipelines.allocate(PipelineData{
     pipelineId,
-    std::move(vertexInputLayout),
+    VertexLayoutVector{desc.vertexLayout},
     desc.primitiveType,
   });
 }
@@ -211,7 +152,6 @@ auto ValidatingDevice::destroy(PipelineHandle const id) noexcept -> void {
 auto ValidatingDevice::create_vertex_buffer(VertexBufferCreateInfo const& desc)
   -> VertexBufferHandle {
   check("non empty layout"sv, !desc.layout.empty());
-  check_vertex_layout(desc.layout);
 
   auto const& caps = mDevice->capabilities();
   check("not larger than max size"sv,
@@ -219,15 +159,14 @@ auto ValidatingDevice::create_vertex_buffer(VertexBufferCreateInfo const& desc)
 
   // From D3D9: FVF vertex buffers must be large enough to contain at least one
   // vertex, but it need not be a multiple of the vertex size
-  auto const minSize = get_vertex_size(desc.layout);
+  auto const minSize = get_vertex_size_in_bytes(desc.layout);
   check("minimum size", desc.sizeInBytes >= minSize);
 
   auto const id = mDevice->create_vertex_buffer(desc);
-  auto layout = vector(desc.layout.begin(), desc.layout.end());
 
   return mVertexBuffers.allocate(VertexBufferData{
     id,
-    std::move(layout),
+    VertexLayoutVector{desc.layout},
     desc.sizeInBytes,
   });
 }
@@ -438,7 +377,7 @@ auto ValidatingDevice::validate(CommandBindVertexBuffer const& cmd) -> void {
   }
 
   auto const& data = mVertexBuffers[cmd.vertexBufferId];
-  auto const vertexSize = get_vertex_size(data.layout);
+  auto const vertexSize = get_vertex_size_in_bytes(data.layout);
   auto const maxOffset = data.sizeInBytes - vertexSize;
   check("max offset", cmd.offsetInBytes < maxOffset);
 }

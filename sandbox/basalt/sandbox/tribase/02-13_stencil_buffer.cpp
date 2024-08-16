@@ -6,6 +6,7 @@
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/command_list.h>
+#include <basalt/api/gfx/backend/vertex_layout.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/math/angle.h>
@@ -49,10 +50,9 @@ struct Vertex {
   Vector3f32 pos{};
   ColorEncoding::A8R8G8B8 diffuse{};
 
-  static constexpr auto sLayout = array{
-    VertexElement::Position3F32,
-    VertexElement::ColorDiffuse1U32A8R8G8B8,
-  };
+  static constexpr auto sLayout =
+    basalt::gfx::make_vertex_layout<VertexElement::Position3F32,
+                                    VertexElement::ColorDiffuse1U32A8R8G8B8>();
 };
 
 constexpr auto THING_PATH = "data/tribase/Thing.x"sv;

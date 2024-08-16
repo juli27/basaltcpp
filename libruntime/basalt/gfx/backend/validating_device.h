@@ -1,9 +1,11 @@
 #pragma once
 
-#include <basalt/gfx/backend/device.h>
+#include "device.h"
 
-#include <basalt/gfx/backend/types.h>
-#include <basalt/gfx/backend/ext/types.h>
+#include "types.h"
+#include "ext/types.h"
+
+#include <basalt/api/gfx/backend/vertex_layout.h>
 
 #include <basalt/api/shared/handle_pool.h>
 
@@ -12,8 +14,6 @@
 namespace basalt::gfx {
 
 class ValidatingDevice final : public Device {
-  struct TextureData;
-
 public:
   static auto wrap(DevicePtr) -> ValidatingDevicePtr;
 
@@ -81,13 +81,13 @@ public:
 private:
   struct PipelineData final {
     PipelineHandle originalId;
-    std::vector<VertexElement> vertexInputLayout;
+    VertexLayoutVector vertexInputLayout;
     PrimitiveType primitiveType;
   };
 
   struct VertexBufferData final {
     VertexBufferHandle originalId;
-    std::vector<VertexElement> layout;
+    VertexLayoutVector layout;
     uDeviceSize sizeInBytes;
   };
 

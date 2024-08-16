@@ -1,18 +1,20 @@
 #pragma once
 
-#include <basalt/api/shared/color.h>
-#include <basalt/api/shared/handle.h>
+#include "basalt/api/shared/color.h"
+#include "basalt/api/shared/handle.h"
 
-#include <basalt/api/math/angle.h>
-#include <basalt/api/math/vector3.h>
+#include "basalt/api/math/angle.h"
+#include "basalt/api/math/vector3.h"
 
-#include <basalt/api/base/enum_set.h>
-#include <basalt/api/base/types.h>
+#include "basalt/api/base/enum_set.h"
+#include "basalt/api/base/types.h"
 
 #include <gsl/span>
 
+#include <array>
 #include <memory>
 #include <variant>
+#include <vector>
 
 namespace basalt::gfx {
 
@@ -246,20 +248,50 @@ enum class TransformState : u8 {
 };
 constexpr auto TRANSFORM_STATE_COUNT = u8{11};
 
-enum class VertexElement : u8 {
-  Position3F32,
-  PositionTransformed4F32,
-  Normal3F32,
-  PointSize1F32,
-  ColorDiffuse1U32A8R8G8B8,
-  ColorSpecular1U32A8R8G8B8,
-  TextureCoords1F32,
-  TextureCoords2F32,
-  TextureCoords3F32,
-  TextureCoords4F32,
+enum class VertexElement : u8;
+
+template <typename Container>
+class VertexLayout;
+
+template <uSize Num>
+using VertexLayoutArray = VertexLayout<std::array<VertexElement, Num>>;
+
+using VertexLayoutVector = VertexLayout<std::vector<VertexElement>>;
+
+// TODO: move this to vertex_layout.h
+class VertexLayoutSpan {
+  using SpanType = gsl::span<VertexElement const>;
+
+public:
+  using iterator = typename SpanType::iterator;
+
+  constexpr VertexLayoutSpan() = default;
+
+  template <typename Container>
+  /* implicit */ constexpr VertexLayoutSpan(
+    VertexLayout<Container> const& layout)
+    : mAttributes{layout.attributes()} {
+  }
+
+  /* implicit */ constexpr operator gsl::span<VertexElement const>() {
+    return mAttributes;
+  }
+
+  constexpr auto empty() const -> bool {
+    return mAttributes.empty();
+  }
+
+  constexpr auto begin() const -> iterator {
+    return mAttributes.begin();
+  }
+
+  constexpr auto end() const -> iterator {
+    return mAttributes.end();
+  }
+
+private:
+  gsl::span<VertexElement const> mAttributes;
 };
-constexpr auto VERTEX_ELEMENT_COUNT = u8{10};
-using VertexLayout = gsl::span<VertexElement const>;
 
 enum class IndexType : u8 {
   U16,
@@ -401,7 +433,7 @@ struct PipelineCreateInfo final {
   FixedVertexShaderCreateInfo const* vertexShader{};
   // null -> default fixed fragment shader
   FixedFragmentShaderCreateInfo const* fragmentShader{};
-  VertexLayout vertexLayout{};
+  VertexLayoutSpan vertexLayout;
   PrimitiveType primitiveType{PrimitiveType::PointList};
   CullMode cullMode{CullMode::None};
   FillMode fillMode{FillMode::Solid};
@@ -434,7 +466,7 @@ struct SamplerCreateInfo final {
 
 struct VertexBufferCreateInfo final {
   uDeviceSize sizeInBytes{};
-  VertexLayout layout{};
+  VertexLayoutSpan layout;
 };
 
 struct IndexBufferCreateInfo final {

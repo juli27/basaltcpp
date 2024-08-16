@@ -1,11 +1,12 @@
 #pragma once
 
-#include <basalt/gfx/backend/d3d9/d3d9_custom.h>
+#include "d3d9_custom.h"
 
 #include <basalt/gfx/backend/types.h>
 
 #include <basalt/api/gfx/types.h>
 #include <basalt/api/gfx/backend/types.h>
+#include <basalt/api/gfx/backend/vertex_layout.h>
 
 #include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/color.h>
@@ -466,9 +467,7 @@ inline auto to_d3d(BorderColor const borderColor, Color const& custom)
   return TO_D3D[borderColor];
 }
 
-constexpr auto to_d3d_fvf(VertexLayout const layout) -> DWORD {
-  // TODO: needs some form of validation
-
+constexpr auto to_d3d_fvf(VertexLayoutSpan const layout) -> DWORD {
   auto fvf = DWORD{0};
 
   // TODO: values >= 8 invalidate the fvf

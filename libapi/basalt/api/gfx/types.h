@@ -1,16 +1,16 @@
 #pragma once
 
-#include <basalt/api/gfx/backend/types.h>
-#include <basalt/api/gfx/backend/ext/types.h>
+#include "backend/types.h"
+#include "backend/ext/types.h"
 
-#include <basalt/api/math/angle.h>
-#include <basalt/api/math/matrix4x4.h>
+#include "basalt/api/math/angle.h"
+#include "basalt/api/math/matrix4x4.h"
 
-#include <basalt/api/shared/color.h>
-#include <basalt/api/shared/handle.h>
+#include "basalt/api/shared/color.h"
+#include "basalt/api/shared/handle.h"
 
-#include <basalt/api/base/enum_set.h>
-#include <basalt/api/base/types.h>
+#include "basalt/api/base/enum_set.h"
+#include "basalt/api/base/types.h"
 
 #include <gsl/span>
 
@@ -38,17 +38,12 @@ namespace detail {
 
 struct MeshTag;
 struct MaterialTag;
+struct AdapterTag;
 
 } // namespace detail
 
 using MeshHandle = Handle<detail::MeshTag>;
 using MaterialHandle = Handle<detail::MaterialTag>;
-
-namespace detail {
-
-struct AdapterTag;
-
-}
 
 using Adapter = Handle<detail::AdapterTag>;
 
@@ -142,7 +137,7 @@ struct Info final {
 struct MeshCreateInfo final {
   gsl::span<std::byte const> vertexData;
   u32 vertexCount{};
-  VertexLayout layout;
+  VertexLayoutSpan layout;
   gsl::span<std::byte const> indexData;
   u32 indexCount{};
   IndexType indexType{IndexType::U16};

@@ -30,16 +30,6 @@ public:
 
   virtual auto destroy(PipelineHandle) noexcept -> void = 0;
 
-  // TODO: noexcept method to validate the layout for the device requirements
-  //       bool Device::ValidateVertexLayout(const VertexLayout&)
-  //       Writes problematic vertex elements to log. Should it also change the
-  //       layout (non const ref) to the closest valid layout?
-  //       (what does "closest" mean?)
-  //       and / or method to validate a single vertex element (usage and type)
-  //       or an API to get a list of supported usages and types
-
-  // TODO: method to retrieve a preferred vertex layout ?
-
   // throws std::bad_alloc
   [[nodiscard]]
   virtual auto create_vertex_buffer(VertexBufferCreateInfo const&)

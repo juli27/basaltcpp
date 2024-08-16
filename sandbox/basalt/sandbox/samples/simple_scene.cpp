@@ -7,6 +7,7 @@
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/environment.h>
 #include <basalt/api/gfx/resource_cache.h>
+#include <basalt/api/gfx/backend/vertex_layout.h>
 
 #include <basalt/api/scene/ecs.h>
 #include <basalt/api/scene/scene.h>
@@ -51,10 +52,9 @@ struct Vertex final {
   Vector3f32 pos{};
   ColorEncoding::A8R8G8B8 color{};
 
-  static constexpr auto sLayout = array{
-    VertexElement::Position3F32,
-    VertexElement::ColorDiffuse1U32A8R8G8B8,
-  };
+  static constexpr auto sLayout =
+    basalt::gfx::make_vertex_layout<VertexElement::Position3F32,
+                                    VertexElement::ColorDiffuse1U32A8R8G8B8>();
 };
 
 struct RotationSpeed final {

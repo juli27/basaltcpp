@@ -7,6 +7,7 @@
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/command_list.h>
+#include <basalt/api/gfx/backend/vertex_layout.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
@@ -86,10 +87,9 @@ class Vertices final : public View {
     Vector4f32 pos{};
     ColorEncoding::A8R8G8B8 color{};
 
-    static constexpr auto sLayout = array{
+    static constexpr auto sLayout = basalt::gfx::make_vertex_layout<
       VertexElement::PositionTransformed4F32,
-      VertexElement::ColorDiffuse1U32A8R8G8B8,
-    };
+      VertexElement::ColorDiffuse1U32A8R8G8B8>();
   };
 
 public:
@@ -139,10 +139,8 @@ class Matrices final : public View {
     Vector3f32 pos{};
     ColorEncoding::A8R8G8B8 color{};
 
-    static constexpr auto sLayout = array{
-      VertexElement::Position3F32,
-      VertexElement::ColorDiffuse1U32A8R8G8B8,
-    };
+    static constexpr auto sLayout = basalt::gfx::make_vertex_layout<
+      VertexElement::Position3F32, VertexElement::ColorDiffuse1U32A8R8G8B8>();
   };
 
 public:
@@ -204,10 +202,9 @@ class Lights final : public View {
     Vector3f32 pos{};
     Vector3f32 normal{};
 
-    static constexpr auto sLayout = array{
-      VertexElement::Position3F32,
-      VertexElement::Normal3F32,
-    };
+    static constexpr auto sLayout =
+      basalt::gfx::make_vertex_layout<VertexElement::Position3F32,
+                                      VertexElement::Normal3F32>();
   };
 
 public:
@@ -295,11 +292,10 @@ class Textures final : public View {
     ColorEncoding::A8R8G8B8 color{};
     Vector2f32 uv{};
 
-    static constexpr auto sLayout = array{
-      VertexElement::Position3F32,
-      VertexElement::ColorDiffuse1U32A8R8G8B8,
-      VertexElement::TextureCoords2F32,
-    };
+    static constexpr auto sLayout =
+      basalt::gfx::make_vertex_layout<VertexElement::Position3F32,
+                                      VertexElement::ColorDiffuse1U32A8R8G8B8,
+                                      VertexElement::TextureCoords2F32>();
   };
 
 public:

@@ -7,6 +7,7 @@
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/command_list.h>
+#include <basalt/api/gfx/backend/vertex_layout.h>
 
 #include <basalt/api/math/angle.h>
 #include <basalt/api/math/matrix4x4.h>
@@ -60,11 +61,10 @@ struct Vertex final {
   ColorEncoding::A8R8G8B8 diffuse{};
   Vector2f32 uv{};
 
-  static constexpr auto sLayout = array{
-    VertexElement::Position3F32,
-    VertexElement::ColorDiffuse1U32A8R8G8B8,
-    VertexElement::TextureCoords2F32,
-  };
+  static constexpr auto sLayout =
+    basalt::gfx::make_vertex_layout<VertexElement::Position3F32,
+                                    VertexElement::ColorDiffuse1U32A8R8G8B8,
+                                    VertexElement::TextureCoords2F32>();
 };
 
 } // namespace
@@ -120,7 +120,7 @@ auto Fog::update_pipeline(basalt::gfx::Context& gfxCtx) -> void {
   vs.fog = mFogMode;
   vs.fogRangeBased = mVertexFogRangeBased;
 
-  constexpr auto textureStages = array{TextureStage{}};
+  auto constexpr textureStages = array{TextureStage{}};
   auto const fogMode = mFragmentFog ? mFogMode : FogMode::None;
   auto const fs = FixedFragmentShaderCreateInfo{textureStages, fogMode};
 
