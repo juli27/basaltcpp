@@ -2,7 +2,7 @@ include(FetchContent)
 
 FetchContent_Declare(DearImGui
   GIT_REPOSITORY https://github.com/ocornut/imgui.git
-  GIT_TAG        231cbee0fc4f59dbe5b8b853a11b08dc84e57c65 # v1.90.5
+  GIT_TAG        6f7b5d0ee2fe9948ab871a530888a6dc5c960700 # v1.90.8
 )
 FetchContent_Declare(EnTT
   GIT_REPOSITORY https://github.com/skypjack/entt.git

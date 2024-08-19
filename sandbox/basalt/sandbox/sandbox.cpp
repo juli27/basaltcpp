@@ -264,13 +264,14 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
     ImGui::ShowAboutWindow(&mShowAbout);
   }
 
-  if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_R)) {
+  if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_R,
+                      ImGuiInputFlags_RouteGlobal)) {
     reload_scene(engine);
   }
 
-  if (ImGui::IsKeyPressed(ImGuiKey_PageDown)) {
+  if (ImGui::Shortcut(ImGuiKey_PageDown, ImGuiInputFlags_RouteGlobal)) {
     next_scene(engine);
-  } else if (ImGui::IsKeyPressed(ImGuiKey_PageUp)) {
+  } else if (ImGui::Shortcut(ImGuiKey_PageUp, ImGuiInputFlags_RouteGlobal)) {
     prev_scene(engine);
   }
 }
