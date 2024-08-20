@@ -16,6 +16,8 @@
 #include <basalt/api/scene/transform.h>
 #include <basalt/api/scene/types.h>
 
+#include <basalt/api/base/functional.h>
+
 #include <gsl/span>
 
 #include <variant>
@@ -110,22 +112,19 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
   // TODO: this should use LocalToWorld
   entities.view<Transform const, Light const>().each(
     [&](Transform const& transform, Light const& light) {
-      std::visit(
-        [&](auto&& l) {
-          using T = std::decay_t<decltype(l)>;
-
-          if constexpr (std::is_same_v<T, PointLight>) {
+      std::visit(Overloaded{
+                   [&](PointLight const& l) {
             lights.emplace_back(PointLightData{
-              l.diffuse, l.specular, l.ambient, transform.position, l.range,
-              l.attenuation0, l.attenuation1, l.attenuation2});
-          } else if constexpr (std::is_same_v<T, SpotLight>) {
+                       l.diffuse, l.specular, l.ambient, transform.position,
+                       l.range, l.attenuation0, l.attenuation1,
+                       l.attenuation2});
+                   },
+                   [&](SpotLight const& l) {
             lights.emplace_back(SpotLightData{
-              l.diffuse, l.specular, l.ambient, transform.position, l.direction,
-              l.range, l.attenuation0, l.attenuation1, l.attenuation2,
-              l.falloff, l.phi, l.theta});
-          } else {
-            static_assert(always_false_v<T>, "non-exhaustive visitor");
-          }
+                       l.diffuse, l.specular, l.ambient, transform.position,
+                       l.direction, l.range, l.attenuation0, l.attenuation1,
+                       l.attenuation2, l.falloff, l.phi, l.theta});
+                   },
         },
         light);
     });
