@@ -1,6 +1,6 @@
 #include <basalt/api/debug_ui.h>
 
-#include <basalt/gfx/utils.h>
+#include "gfx/utils.h"
 
 #include <basalt/api/scene/ecs.h>
 #include <basalt/api/scene/scene.h>

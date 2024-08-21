@@ -1,6 +1,6 @@
 #include <basalt/api/gfx/gfx_system.h>
 
-#include <basalt/gfx/filtering_command_list.h>
+#include "filtering_command_list.h"
 
 #include <basalt/api/view.h> // for DrawContext ...
 

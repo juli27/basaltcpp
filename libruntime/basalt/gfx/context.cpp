@@ -1,13 +1,13 @@
 #include <basalt/api/gfx/context.h>
 
-#include <basalt/gfx/backend/device.h>
-#include <basalt/gfx/backend/ext/effect.h>
-#include <basalt/gfx/backend/ext/texture_3d_support.h>
-#include <basalt/gfx/backend/ext/x_model_support.h>
+#include "backend/device.h"
+#include "backend/ext/effect.h"
+#include "backend/ext/texture_3d_support.h"
+#include "backend/ext/x_model_support.h"
 
 #if BASALT_DEV_BUILD
-#include <basalt/gfx/backend/validating_device.h>
-#include <basalt/gfx/backend/validating_swap_chain.h>
+#include "backend/validating_device.h"
+#include "backend/validating_swap_chain.h"
 #endif
 
 #include <basalt/api/gfx/resource_cache.h>

@@ -1,4 +1,5 @@
 target_sources(${CURRENT_TARGET} PRIVATE
+  "command_list.cpp"
   "command_list.h"
   "commands.cpp"
   "commands.h"

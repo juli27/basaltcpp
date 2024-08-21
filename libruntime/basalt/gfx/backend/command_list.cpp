@@ -1,7 +1,6 @@
-#include <basalt/api/gfx/backend/command_list.h>
+#include "command_list.h"
 
-#include <basalt/gfx/backend/commands.h>
-#include <basalt/gfx/backend/command_list.h>
+#include "commands.h"
 
 using gsl::span;
 
