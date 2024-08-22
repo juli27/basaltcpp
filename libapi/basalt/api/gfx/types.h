@@ -4,7 +4,6 @@
 #include "backend/ext/types.h"
 
 #include "basalt/api/math/angle.h"
-#include "basalt/api/math/matrix4x4.h"
 
 #include "basalt/api/shared/color.h"
 #include "basalt/api/shared/handle.h"
@@ -165,10 +164,7 @@ struct MaterialCreateInfo final {
 struct RenderComponent final {
   MeshHandle mesh;
   MaterialHandle material;
-  Matrix4x4f32 texTransform{Matrix4x4f32::identity()};
 };
-
-static_assert(sizeof(RenderComponent) == 72);
 
 using DirectionalLight = DirectionalLightData;
 

@@ -31,9 +31,6 @@ namespace basalt::gfx {
 
 namespace {
 
-template <class>
-inline constexpr bool always_false_v = false;
-
 auto record_camera(FilteringCommandList& cmdList, Scene& scene,
                    f32 const aspectRatio) -> void {
   auto& entities = scene.entity_registry();
@@ -67,7 +64,6 @@ auto record_render_component(FilteringCommandList& cmdList, Context const& ctx,
                              RenderComponent const& renderComponent) {
   record_material(cmdList, ctx, renderComponent.material);
 
-  cmdList.set_transform(TransformState::Texture0, renderComponent.texTransform);
   cmdList.set_transform(TransformState::LocalToWorld, localToWorld.matrix);
 
   auto const& meshData = ctx.get(renderComponent.mesh);
