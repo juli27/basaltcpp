@@ -164,7 +164,7 @@ auto Effects::LoadedEffect::compile(path const& filePath, Engine const& engine)
       return gfxCache->load_texture_2d(dataPath / *maybeBackgroundTexture);
     }
 
-    return TextureHandle::null();
+    return TextureHandle{};
   }();
 
   auto const& xModelData = [&] {

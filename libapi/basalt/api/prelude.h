@@ -30,3 +30,4 @@ using basalt::uSize;
 using basalt::Color;
 using basalt::ColorEncoding;
 using basalt::Colors;
+using basalt::nullhdl;

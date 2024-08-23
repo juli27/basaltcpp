@@ -55,10 +55,10 @@ private:
   std::optional<FogParams> mFogParams;
   std::optional<Color> mBlendConstant;
   std::optional<u8> mReferenceAlpha;
-  PipelineHandle mBoundPipeline{PipelineHandle::null()};
-  VertexBufferHandle mBoundVertexBuffer{VertexBufferHandle::null()};
-  u64 mVertexBufferOffset{0ull};
-  IndexBufferHandle mBoundIndexBuffer{IndexBufferHandle::null()};
+  PipelineHandle mBoundPipeline;
+  VertexBufferHandle mBoundVertexBuffer;
+  u64 mVertexBufferOffset{};
+  IndexBufferHandle mBoundIndexBuffer;
   std::array<SamplerHandle, 8> mBoundSamplers{};
   std::array<TextureHandle, 8> mBoundTextures{};
 };

@@ -143,12 +143,12 @@ struct MeshCreateInfo final {
 };
 
 struct SampledTexture final {
-  TextureHandle texture = TextureHandle::null();
-  SamplerHandle sampler = SamplerHandle::null();
+  TextureHandle texture;
+  SamplerHandle sampler;
 };
 
 struct MaterialCreateInfo final {
-  PipelineHandle pipeline = PipelineHandle::null();
+  PipelineHandle pipeline;
   Color diffuse;
   Color ambient;
   Color emissive;

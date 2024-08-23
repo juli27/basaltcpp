@@ -169,7 +169,7 @@ auto Samples::new_textures_sample(Engine& engine) -> ViewPtr {
 
   auto const quad = scene->create_entity(Vector3f32{0.0f, 0.0f, 1.5f});
   // material is set in SamplerSettingsSystem
-  quad.emplace<RenderComponent>(mesh, MaterialHandle::null());
+  quad.emplace<RenderComponent>(mesh, nullhdl);
 
   auto& samplerSettings = quad.emplace<SamplerSettings>();
 

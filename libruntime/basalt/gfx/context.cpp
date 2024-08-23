@@ -207,7 +207,7 @@ auto Context::create_mesh(MeshCreateInfo const& createInfo) -> MeshHandle {
                     ? create_index_buffer({createInfo.indexData.size_bytes(),
                                            createInfo.indexType},
                                           createInfo.indexData)
-                    : IndexBufferHandle::null();
+                    : nullhdl;
 
   return mMeshes.allocate(
     MeshData{vb, 0u, createInfo.vertexCount, ib, createInfo.indexCount});

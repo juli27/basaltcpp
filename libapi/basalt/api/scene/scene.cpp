@@ -99,7 +99,7 @@ auto Scene::get_handle(EntityId const entity) -> Entity {
 
 auto Scene::destroy_system(SystemId const id) -> void {
   auto const typeId = mSystemIdToSystemType[id];
-  mSystemTypes.at(typeId).id = SystemId::null();
+  mSystemTypes.at(typeId).id = nullhdl;
   mSystemIdToSystemType.erase(id);
   mSystems.deallocate(id);
 

@@ -8,12 +8,25 @@
 #include <limits>
 
 namespace basalt {
+
+struct NullHdl {
+  struct Tag {};
+
+  constexpr explicit NullHdl(Tag) {
+  }
+};
+
+inline constexpr NullHdl nullhdl{NullHdl::Tag{}};
+
 namespace detail {
 
 struct HandleBase {
   using ValueType = u32;
 
   constexpr HandleBase() noexcept = default;
+
+  constexpr HandleBase(NullHdl) noexcept {
+  }
 
   constexpr explicit HandleBase(ValueType const value) noexcept
     : mValue{value} {
@@ -52,10 +65,6 @@ template <typename Tag>
 struct Handle final : detail::HandleBase {
   // inherit base class constructors
   using HandleBase::HandleBase;
-
-  static constexpr auto null() noexcept -> Handle {
-    return Handle{};
-  }
 };
 
 } // namespace basalt

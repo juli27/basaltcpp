@@ -15,7 +15,7 @@ namespace basalt {
 using ViewFactory = ViewPtr(Engine&);
 
 struct CanvasCreateInfo {
-  gfx::Adapter adapter{gfx::Adapter::null()};
+  gfx::Adapter adapter;
   gfx::DisplayMode exclusiveFullscreenMode{};
   Size2Du16 size{Size2Du16::dont_care()};
   gfx::ImageFormat renderTargetFormat{gfx::ImageFormat::Unknown};

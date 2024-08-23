@@ -34,7 +34,7 @@ auto D3D9XEffects::execute(CommandEndEffect const&) -> void {
   auto const& effect = mEffects[mActiveEffect];
   effect.end();
 
-  mActiveEffect = EffectId::null();
+  mActiveEffect = nullhdl;
 }
 
 auto D3D9XEffects::execute(CommandBeginEffectPass const& cmd) -> void {
@@ -127,7 +127,7 @@ auto D3D9XEffect::get_num_techniques() const -> u32 {
 auto D3D9XEffect::get_technique(u32 const index) -> EffectTechniqueHandle {
   auto const technique = mEffect->GetTechnique(index);
   if (!technique) {
-    return EffectTechniqueHandle::null();
+    return nullhdl;
   }
 
   if (auto const it = std::find_if(mTechniques.begin(), mTechniques.end(),
