@@ -301,19 +301,11 @@ constexpr auto INDEX_TYPE_COUNT = u8{2};
 
 using IndexTypes = EnumSet<IndexType, IndexType::U32>;
 
-namespace detail {
-struct PipelineTag;
-struct SamplerTag;
-struct TextureTag;
-struct VertexBufferTag;
-struct IndexBufferTag;
-} // namespace detail
-
-using PipelineHandle = Handle<detail::PipelineTag>;
-using SamplerHandle = Handle<detail::SamplerTag>;
-using TextureHandle = Handle<detail::TextureTag>;
-using VertexBufferHandle = Handle<detail::VertexBufferTag>;
-using IndexBufferHandle = Handle<detail::IndexBufferTag>;
+BASALT_DEFINE_HANDLE(PipelineHandle);
+BASALT_DEFINE_HANDLE(SamplerHandle);
+BASALT_DEFINE_HANDLE(TextureHandle);
+BASALT_DEFINE_HANDLE(VertexBufferHandle);
+BASALT_DEFINE_HANDLE(IndexBufferHandle);
 
 struct Command;
 class CommandList;

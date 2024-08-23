@@ -61,17 +61,15 @@ private:
 
 } // namespace detail
 
-template <typename Tag>
-struct Handle final : detail::HandleBase {
+template <typename H>
+struct Handle : detail::HandleBase {
   // inherit base class constructors
   using HandleBase::HandleBase;
 };
 
 } // namespace basalt
 
-template <typename T>
-struct std::hash<basalt::Handle<T>> {
-  auto operator()(basalt::Handle<T> const& handle) const -> std::size_t {
-    return std::hash<typename basalt::Handle<T>::ValueType>{}(handle.value());
+#define BASALT_DEFINE_HANDLE(name)                                             \
+  struct name : basalt::Handle<name> {                                         \
+    using Handle::Handle;                                                      \
   }
-};

@@ -33,18 +33,10 @@ class GfxSystem;
 class ResourceCache;
 using ResourceCachePtr = std::shared_ptr<ResourceCache>;
 
-namespace detail {
+BASALT_DEFINE_HANDLE(MeshHandle);
+BASALT_DEFINE_HANDLE(MaterialHandle);
 
-struct MeshTag;
-struct MaterialTag;
-struct AdapterTag;
-
-} // namespace detail
-
-using MeshHandle = Handle<detail::MeshTag>;
-using MaterialHandle = Handle<detail::MaterialTag>;
-
-using Adapter = Handle<detail::AdapterTag>;
+BASALT_DEFINE_HANDLE(Adapter);
 
 // listed from left to right, in c-array order if power of 2 aligned,
 // lsb to msb otherwise

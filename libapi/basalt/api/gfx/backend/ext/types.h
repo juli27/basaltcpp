@@ -19,22 +19,14 @@ enum class DeviceExtensionId : u8;
 using DeviceExtensions =
   std::unordered_map<DeviceExtensionId, DeviceExtensionPtr>;
 
-namespace detail {
-
-struct XMeshTag;
-struct XModelTag;
-struct EffectTechniqueTag;
-
-} // namespace detail
-
-using XMeshHandle = Handle<detail::XMeshTag>;
-using XModelHandle = Handle<detail::XModelTag>;
+BASALT_DEFINE_HANDLE(XMeshHandle);
+BASALT_DEFINE_HANDLE(XModelHandle);
 
 class XMeshCommandEncoder;
 
 class Effect;
-using EffectId = Handle<Effect>;
-using EffectTechniqueHandle = Handle<detail::EffectTechniqueTag>;
+BASALT_DEFINE_HANDLE(EffectId);
+BASALT_DEFINE_HANDLE(EffectTechniqueHandle);
 using CompileResult = std::variant<std::string, EffectId>;
 
 } // namespace basalt::gfx::ext

@@ -23,7 +23,7 @@ using ScenePtr = std::shared_ptr<Scene>;
 struct SceneContext;
 
 class System;
-using SystemId = Handle<System>;
+BASALT_DEFINE_HANDLE(SystemId);
 using SystemPtr = std::unique_ptr<System>;
 
 struct Transform;
@@ -32,3 +32,10 @@ class TransformSystem;
 class ParentSystem;
 
 } // namespace basalt
+
+template <>
+struct std::hash<basalt::SystemId> {
+  auto operator()(basalt::SystemId const& handle) const -> std::size_t {
+    return std::hash<typename basalt::SystemId::ValueType>{}(handle.value());
+  }
+};
