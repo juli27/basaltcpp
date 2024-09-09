@@ -11,6 +11,7 @@
 #endif
 
 #include <basalt/api/gfx/resource_cache.h>
+#include <basalt/api/gfx/resources.h>
 
 #include <basalt/api/shared/asserts.h>
 
@@ -67,37 +68,36 @@ auto Context::create_resource_cache() -> ResourceCachePtr {
   return ResourceCache::create(shared_from_this());
 }
 
-auto Context::create_pipeline(PipelineCreateInfo const& createInfo) const
-  -> PipelineHandle {
-  return mDevice->create_pipeline(createInfo);
+auto Context::create_pipeline(PipelineCreateInfo const& createInfo)
+  -> Pipeline {
+  return Pipeline{mDevice->create_pipeline(createInfo), make_deleter()};
 }
 
 auto Context::destroy(PipelineHandle const handle) const noexcept -> void {
   mDevice->destroy(handle);
 }
 
-auto Context::create_sampler(SamplerCreateInfo const& createInfo) const
-  -> SamplerHandle {
-  return mDevice->create_sampler(createInfo);
+auto Context::create_sampler(SamplerCreateInfo const& createInfo) -> Sampler {
+  return Sampler{mDevice->create_sampler(createInfo), make_deleter()};
 }
 
 auto Context::destroy(SamplerHandle const handle) const noexcept -> void {
   mDevice->destroy(handle);
 }
 
-auto Context::load_texture_2d(path const& filePath) const -> TextureHandle {
-  return mDevice->load_texture(filePath);
+auto Context::load_texture_2d(path const& filePath) -> Texture {
+  return Texture{mDevice->load_texture(filePath), make_deleter()};
 }
 
-auto Context::load_texture_cube(path const& filePath) const -> TextureHandle {
-  return mDevice->load_cube_texture(filePath);
+auto Context::load_texture_cube(path const& filePath) -> Texture {
+  return Texture{mDevice->load_cube_texture(filePath), make_deleter()};
 }
 
-auto Context::load_texture_3d(path const& filePath) const -> TextureHandle {
+auto Context::load_texture_3d(path const& filePath) -> Texture {
   // throws when absent
   auto const tex3dExt = query_device_extension<ext::Texture3DSupport>().value();
 
-  return tex3dExt->load(filePath);
+  return Texture{tex3dExt->load(filePath), make_deleter()};
 }
 
 auto Context::destroy(TextureHandle const handle) const noexcept -> void {
@@ -105,21 +105,22 @@ auto Context::destroy(TextureHandle const handle) const noexcept -> void {
 }
 
 auto Context::create_material(MaterialCreateInfo const& createInfo)
-  -> MaterialHandle {
-  return mMaterials.allocate(MaterialData{
-    createInfo.diffuse,
-    createInfo.ambient,
-    createInfo.emissive,
-    createInfo.specular,
-    createInfo.specularPower,
-    createInfo.fogColor,
-    createInfo.fogStart,
-    createInfo.fogEnd,
-    createInfo.fogDensity,
-    createInfo.pipeline,
-    createInfo.sampledTexture.texture,
-    createInfo.sampledTexture.sampler,
-  });
+  -> Material {
+  return Material{mMaterials.allocate(MaterialData{
+                    createInfo.diffuse,
+                    createInfo.ambient,
+                    createInfo.emissive,
+                    createInfo.specular,
+                    createInfo.specularPower,
+                    createInfo.fogColor,
+                    createInfo.fogStart,
+                    createInfo.fogEnd,
+                    createInfo.fogDensity,
+                    createInfo.pipeline,
+                    createInfo.sampledTexture.texture,
+                    createInfo.sampledTexture.sampler,
+                  }),
+                  make_deleter()};
 }
 
 auto Context::destroy(MaterialHandle const handle) noexcept -> void {
@@ -150,8 +151,8 @@ auto Context::get(ext::EffectId const effectHandle) const -> ext::Effect& {
 }
 
 auto Context::create_vertex_buffer(VertexBufferCreateInfo const& createInfo,
-                                   span<byte const> const data) const
-  -> VertexBufferHandle {
+                                   span<byte const> const data)
+  -> VertexBuffer {
   BASALT_ASSERT(data.size() <= createInfo.sizeInBytes);
 
   auto const vb = mDevice->create_vertex_buffer(createInfo);
@@ -167,7 +168,7 @@ auto Context::create_vertex_buffer(VertexBufferCreateInfo const& createInfo,
     });
   }
 
-  return vb;
+  return VertexBuffer{vb, make_deleter()};
 }
 
 auto Context::destroy(VertexBufferHandle const handle) const noexcept -> void {
@@ -175,8 +176,7 @@ auto Context::destroy(VertexBufferHandle const handle) const noexcept -> void {
 }
 
 auto Context::create_index_buffer(IndexBufferCreateInfo const& createInfo,
-                                  span<byte const> const data) const
-  -> IndexBufferHandle {
+                                  span<byte const> const data) -> IndexBuffer {
   BASALT_ASSERT(data.size() <= createInfo.sizeInBytes);
 
   auto const ib = mDevice->create_index_buffer(createInfo);
@@ -192,25 +192,28 @@ auto Context::create_index_buffer(IndexBufferCreateInfo const& createInfo,
     });
   }
 
-  return ib;
+  return IndexBuffer{ib, make_deleter()};
 }
 
 auto Context::destroy(IndexBufferHandle const handle) const noexcept -> void {
   mDevice->destroy(handle);
 }
 
-auto Context::create_mesh(MeshCreateInfo const& createInfo) -> MeshHandle {
+auto Context::create_mesh(MeshCreateInfo const& createInfo) -> Mesh {
   auto const vb = create_vertex_buffer(
-    {createInfo.vertexData.size_bytes(), createInfo.layout},
-    createInfo.vertexData);
+                    {createInfo.vertexData.size_bytes(), createInfo.layout},
+                    createInfo.vertexData)
+                    .release();
   auto const ib = !createInfo.indexData.empty()
                     ? create_index_buffer({createInfo.indexData.size_bytes(),
                                            createInfo.indexType},
                                           createInfo.indexData)
+                        .release()
                     : nullhdl;
 
-  return mMeshes.allocate(
-    MeshData{vb, 0u, createInfo.vertexCount, ib, createInfo.indexCount});
+  return Mesh{mMeshes.allocate(MeshData{vb, 0u, createInfo.vertexCount, ib,
+                                        createInfo.indexCount}),
+              make_deleter()};
 }
 
 auto Context::destroy(MeshHandle const meshHandle) noexcept -> void {
@@ -251,7 +254,7 @@ auto Context::load_x_model(XModelLoadInfo const& loadInfo)
   // then use those
   if (overrideMaterials.size() < numModelMaterials) {
     // TODO: cache pipelines
-    auto const pipeline = [&] {
+    auto pipeline = [&] {
       auto vs = FixedVertexShaderCreateInfo{};
       vs.lightingEnabled = true;
 
@@ -272,18 +275,18 @@ auto Context::load_x_model(XModelLoadInfo const& loadInfo)
     for (auto i = overrideMaterials.size(); i < numModelMaterials; ++i) {
       auto const& material = xModel.materials[i];
       auto materialDesc = MaterialCreateInfo{};
-      materialDesc.pipeline = pipeline;
+      materialDesc.pipeline = pipeline.release();
       materialDesc.diffuse = material.diffuse;
       materialDesc.ambient = material.ambient;
 
       if (!material.textureFile.empty()) {
         materialDesc.sampledTexture.texture =
-          load_texture_2d(material.textureFile);
+          load_texture_2d(material.textureFile).release();
         // TODO: cache samplers
-        materialDesc.sampledTexture.sampler = create_sampler({});
+        materialDesc.sampledTexture.sampler = create_sampler({}).release();
       }
 
-      materials.push_back(create_material(materialDesc));
+      materials.push_back(create_material(materialDesc).release());
     }
   }
 
@@ -336,6 +339,10 @@ auto Context::device() const noexcept -> DevicePtr const& {
 
 auto Context::swap_chain() const noexcept -> SwapChainPtr const& {
   return mSwapChain;
+}
+
+auto Context::make_deleter() -> ContextResourceDeleter {
+  return ContextResourceDeleter{shared_from_this()};
 }
 
 auto Context::query_device_extension(ext::DeviceExtensionId const id) const

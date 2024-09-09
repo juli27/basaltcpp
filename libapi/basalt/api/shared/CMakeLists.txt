@@ -11,4 +11,5 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "log.h"
   "size2d.h"
   "types.h"
+  "unique_handle.h"
 )

@@ -7,5 +7,6 @@ target_sources(${CURRENT_TARGET} PRIVATE
   "environment.h"
   "gfx_system.h"
   "resource_cache.h"
+  "resources.h"
   "types.h"
 )

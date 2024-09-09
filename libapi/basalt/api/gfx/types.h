@@ -7,6 +7,7 @@
 
 #include "basalt/api/shared/color.h"
 #include "basalt/api/shared/handle.h"
+#include "basalt/api/shared/types.h"
 
 #include "basalt/api/base/enum_set.h"
 #include "basalt/api/base/types.h"
@@ -27,14 +28,25 @@ struct Camera;
 class Context;
 using ContextPtr = std::shared_ptr<Context>;
 
+class ContextResourceDeleter;
+
 class Environment;
 class GfxSystem;
 
 class ResourceCache;
 using ResourceCachePtr = std::shared_ptr<ResourceCache>;
 
+using Pipeline = UniqueHandle<PipelineHandle, ContextResourceDeleter>;
+using Sampler = UniqueHandle<SamplerHandle, ContextResourceDeleter>;
+using Texture = UniqueHandle<TextureHandle, ContextResourceDeleter>;
+using VertexBuffer = UniqueHandle<VertexBufferHandle, ContextResourceDeleter>;
+using IndexBuffer = UniqueHandle<IndexBufferHandle, ContextResourceDeleter>;
+
 BASALT_DEFINE_HANDLE(MeshHandle);
+using Mesh = UniqueHandle<MeshHandle, ContextResourceDeleter>;
+
 BASALT_DEFINE_HANDLE(MaterialHandle);
+using Material = UniqueHandle<MaterialHandle, ContextResourceDeleter>;
 
 BASALT_DEFINE_HANDLE(Adapter);
 

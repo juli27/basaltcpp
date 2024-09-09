@@ -1,6 +1,6 @@
 #pragma once
 
-#include <basalt/api/base/types.h>
+#include "basalt/api/base/types.h"
 
 #include <chrono>
 
@@ -11,6 +11,9 @@ class Config;
 
 template <typename T, typename Handle>
 class HandlePool;
+
+template <typename Handle, typename Deleter>
+class UniqueHandle;
 
 template <typename T>
 class Size2D;

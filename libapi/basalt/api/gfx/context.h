@@ -1,10 +1,10 @@
 #pragma once
 
-#include <basalt/api/gfx/types.h>
-#include <basalt/api/gfx/backend/types.h>
-#include <basalt/api/gfx/backend/ext/types.h>
+#include "types.h"
+#include "backend/types.h"
+#include "backend/ext/types.h"
 
-#include <basalt/api/shared/handle_pool.h>
+#include "basalt/api/shared/handle_pool.h"
 
 #include <gsl/span>
 
@@ -41,28 +41,28 @@ public:
   auto create_resource_cache() -> ResourceCachePtr;
 
   [[nodiscard]]
-  auto create_pipeline(PipelineCreateInfo const&) const -> PipelineHandle;
+  auto create_pipeline(PipelineCreateInfo const&) -> Pipeline;
 
   auto destroy(PipelineHandle) const noexcept -> void;
 
   [[nodiscard]]
-  auto create_sampler(SamplerCreateInfo const&) const -> SamplerHandle;
+  auto create_sampler(SamplerCreateInfo const&) -> Sampler;
 
   auto destroy(SamplerHandle) const noexcept -> void;
 
   [[nodiscard]]
-  auto load_texture_2d(std::filesystem::path const&) const -> TextureHandle;
+  auto load_texture_2d(std::filesystem::path const&) -> Texture;
 
   [[nodiscard]]
-  auto load_texture_cube(std::filesystem::path const&) const -> TextureHandle;
+  auto load_texture_cube(std::filesystem::path const&) -> Texture;
 
   [[nodiscard]]
-  auto load_texture_3d(std::filesystem::path const&) const -> TextureHandle;
+  auto load_texture_3d(std::filesystem::path const&) -> Texture;
 
   auto destroy(TextureHandle) const noexcept -> void;
 
   [[nodiscard]]
-  auto create_material(MaterialCreateInfo const&) -> MaterialHandle;
+  auto create_material(MaterialCreateInfo const&) -> Material;
 
   auto destroy(MaterialHandle) noexcept -> void;
 
@@ -77,8 +77,8 @@ public:
 
   [[nodiscard]]
   auto create_vertex_buffer(VertexBufferCreateInfo const&,
-                            gsl::span<std::byte const> data = {}) const
-    -> VertexBufferHandle;
+                            gsl::span<std::byte const> data = {})
+    -> VertexBuffer;
 
   auto destroy(VertexBufferHandle) const noexcept -> void;
 
@@ -105,8 +105,7 @@ public:
 
   [[nodiscard]]
   auto create_index_buffer(IndexBufferCreateInfo const&,
-                           gsl::span<std::byte const> data = {}) const
-    -> IndexBufferHandle;
+                           gsl::span<std::byte const> data = {}) -> IndexBuffer;
 
   auto destroy(IndexBufferHandle) const noexcept -> void;
 
@@ -133,7 +132,7 @@ public:
   }
 
   [[nodiscard]]
-  auto create_mesh(MeshCreateInfo const&) -> MeshHandle;
+  auto create_mesh(MeshCreateInfo const&) -> Mesh;
 
   auto destroy(MeshHandle) noexcept -> void;
 
@@ -177,6 +176,8 @@ private:
   HandlePool<MaterialData, MaterialHandle> mMaterials;
   HandlePool<MeshData, MeshHandle> mMeshes;
   HandlePool<XModelData, ext::XModelHandle> mXModels;
+
+  auto make_deleter() -> ContextResourceDeleter;
 
   auto query_device_extension(ext::DeviceExtensionId) const
     -> std::optional<ext::DeviceExtensionPtr>;
