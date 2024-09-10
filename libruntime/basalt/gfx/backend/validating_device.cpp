@@ -103,7 +103,7 @@ auto ValidatingDevice::wrap_extensions(ext::DeviceExtensions& deviceExtensions)
 
 auto ValidatingDevice::construct_texture(TextureHandle const original)
   -> TextureHandle {
-  return mTextures.allocate(TextureData{original});
+  return mTextures.allocate(original, TextureData{});
 }
 
 auto ValidatingDevice::capabilities() const -> DeviceCaps const& {
@@ -126,27 +126,17 @@ auto ValidatingDevice::create_pipeline(PipelineCreateInfo const& desc)
             mCaps.maxTextureBlendStages);
   }
 
-  auto const pipelineId = mDevice->create_pipeline(desc);
+  auto const handle = mDevice->create_pipeline(desc);
 
-  return mPipelines.allocate(PipelineData{
-    pipelineId,
-    VertexLayoutVector{desc.vertexLayout},
-    desc.primitiveType,
-  });
+  return mPipelines.allocate(handle, PipelineData{
+                                       VertexLayoutVector{desc.vertexLayout},
+                                       desc.primitiveType,
+                                     });
 }
 
 auto ValidatingDevice::destroy(PipelineHandle const id) noexcept -> void {
-  if (!mPipelines.is_valid(id)) {
-    return;
-  }
-
-  {
-    auto const& data = mPipelines[id];
-
-    mDevice->destroy(data.originalId);
-  }
-
   mPipelines.deallocate(id);
+  mDevice->destroy(id);
 }
 
 auto ValidatingDevice::create_vertex_buffer(VertexBufferCreateInfo const& desc)
@@ -164,25 +154,15 @@ auto ValidatingDevice::create_vertex_buffer(VertexBufferCreateInfo const& desc)
 
   auto const id = mDevice->create_vertex_buffer(desc);
 
-  return mVertexBuffers.allocate(VertexBufferData{
-    id,
-    VertexLayoutVector{desc.layout},
-    desc.sizeInBytes,
-  });
+  return mVertexBuffers.allocate(id, VertexBufferData{
+                                       VertexLayoutVector{desc.layout},
+                                       desc.sizeInBytes,
+                                     });
 }
 
 auto ValidatingDevice::destroy(VertexBufferHandle const id) noexcept -> void {
-  if (!mVertexBuffers.is_valid(id)) {
-    return;
-  }
-
-  {
-    auto const& data = mVertexBuffers[id];
-
-    mDevice->destroy(data.originalId);
-  }
-
   mVertexBuffers.deallocate(id);
+  mDevice->destroy(id);
 }
 
 auto ValidatingDevice::map(VertexBufferHandle const id,
@@ -197,7 +177,7 @@ auto ValidatingDevice::map(VertexBufferHandle const id,
   check("mapped region within bounds",
         offsetInBytes + sizeInBytes <= data.sizeInBytes);
 
-  return mDevice->map(data.originalId, offsetInBytes, sizeInBytes);
+  return mDevice->map(id, offsetInBytes, sizeInBytes);
 }
 
 auto ValidatingDevice::unmap(VertexBufferHandle const id) noexcept -> void {
@@ -205,9 +185,7 @@ auto ValidatingDevice::unmap(VertexBufferHandle const id) noexcept -> void {
     return;
   }
 
-  auto const& data = mVertexBuffers[id];
-
-  mDevice->unmap(data.originalId);
+  mDevice->unmap(id);
 }
 
 auto ValidatingDevice::create_index_buffer(IndexBufferCreateInfo const& desc)
@@ -219,24 +197,12 @@ auto ValidatingDevice::create_index_buffer(IndexBufferCreateInfo const& desc)
 
   auto const id = mDevice->create_index_buffer(desc);
 
-  return mIndexBuffers.allocate(IndexBufferData{
-    id,
-    desc.sizeInBytes,
-  });
+  return mIndexBuffers.allocate(id, IndexBufferData{desc.sizeInBytes});
 }
 
 auto ValidatingDevice::destroy(IndexBufferHandle const id) noexcept -> void {
-  if (!mIndexBuffers.is_valid(id)) {
-    return;
-  }
-
-  {
-    auto const& data = mIndexBuffers[id];
-
-    mDevice->destroy(data.originalId);
-  }
-
   mIndexBuffers.deallocate(id);
+  mDevice->destroy(id);
 }
 
 auto ValidatingDevice::map(IndexBufferHandle const id,
@@ -251,7 +217,7 @@ auto ValidatingDevice::map(IndexBufferHandle const id,
   check("mapped region within bounds",
         offsetInBytes + sizeInBytes <= data.sizeInBytes);
 
-  return mDevice->map(data.originalId, offsetInBytes, sizeInBytes);
+  return mDevice->map(id, offsetInBytes, sizeInBytes);
 }
 
 auto ValidatingDevice::unmap(IndexBufferHandle const id) noexcept -> void {
@@ -259,86 +225,55 @@ auto ValidatingDevice::unmap(IndexBufferHandle const id) noexcept -> void {
     return;
   }
 
-  auto const& data = mIndexBuffers[id];
-
-  mDevice->unmap(data.originalId);
+  mDevice->unmap(id);
 }
 
 auto ValidatingDevice::load_texture(path const& path) -> TextureHandle {
   auto const id = mDevice->load_texture(path);
 
-  return mTextures.allocate(TextureData{
-    id,
-  });
+  return mTextures.allocate(id, TextureData{});
 }
 
 auto ValidatingDevice::load_cube_texture(path const& path) -> TextureHandle {
   auto const id = mDevice->load_cube_texture(path);
 
-  return mTextures.allocate(TextureData{id});
+  return mTextures.allocate(id, TextureData{});
 }
 
 auto ValidatingDevice::destroy(TextureHandle const id) noexcept -> void {
-  if (!mTextures.is_valid(id)) {
-    return;
-  }
-
-  {
-    auto const& data = mTextures[id];
-
-    mDevice->destroy(data.originalId);
-  }
-
   mTextures.deallocate(id);
+  mDevice->destroy(id);
 }
 
 auto ValidatingDevice::create_sampler(SamplerCreateInfo const& desc)
   -> SamplerHandle {
   auto const id = mDevice->create_sampler(desc);
 
-  return mSamplers.allocate(SamplerData{
-    id,
-  });
+  return mSamplers.allocate(id, SamplerData{});
 }
 
 auto ValidatingDevice::destroy(SamplerHandle const id) noexcept -> void {
-  if (!mSamplers.is_valid(id)) {
-    return;
-  }
-
-  {
-    auto const& data = mSamplers[id];
-
-    mDevice->destroy(data.originalId);
-  }
-
   mSamplers.deallocate(id);
+  mDevice->destroy(id);
 }
 
 auto ValidatingDevice::submit(span<CommandList const> const commandLists)
   -> void {
-  auto patchedComposite = Composite{};
-  patchedComposite.reserve(commandLists.size());
   for (auto const& cmdList : commandLists) {
-    patchedComposite.emplace_back(validate(cmdList));
+    validate(cmdList);
   }
 
-  mDevice->submit(patchedComposite);
+  mDevice->submit(commandLists);
 }
 
-auto ValidatingDevice::validate(CommandList const& cmdList) -> CommandList {
-  auto patched = CommandList{};
-
+auto ValidatingDevice::validate(CommandList const& cmdList) -> void {
   auto visitor = [&](auto&& cmd) {
     this->validate(std::forward<decltype(cmd)>(cmd));
-    this->patch(patched, std::forward<decltype(cmd)>(cmd));
   };
 
   for (auto const* cmd : cmdList) {
     visit(*cmd, visitor);
   }
-
-  return patched;
 }
 
 auto ValidatingDevice::validate(Command const&) -> void {
@@ -413,178 +348,6 @@ auto ValidatingDevice::validate(CommandSetMaterial const&) -> void {
 }
 
 auto ValidatingDevice::validate(CommandSetFogParameters const&) -> void {
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList, Command const& cmd) -> void {
-  switch (cmd.type) {
-  case CommandType::ExtDrawXMesh: {
-    auto const& drawCmd = cmd.as<ext::CommandDrawXMesh>();
-    ext::XMeshCommandEncoder::draw_x_mesh(cmdList, drawCmd.xMeshId);
-
-    break;
-  }
-
-  case CommandType::ExtRenderDearImGui:
-    ext::DearImGuiCommandEncoder::render_dear_imgui(cmdList);
-
-    break;
-
-  case CommandType::ExtBeginEffect: {
-    auto const& beginCmd = cmd.as<ext::CommandBeginEffect>();
-    ext::EffectCommandEncoder::begin_effect(cmdList, beginCmd.effect);
-
-    break;
-  }
-
-  case CommandType::ExtEndEffect:
-    ext::EffectCommandEncoder::end_effect(cmdList);
-
-    break;
-
-  case CommandType::ExtBeginEffectPass: {
-    auto const& beginCmd = cmd.as<ext::CommandBeginEffectPass>();
-    ext::EffectCommandEncoder::begin_effect_pass(cmdList, beginCmd.passIndex);
-
-    break;
-  }
-
-  case CommandType::ExtEndEffectPass:
-    ext::EffectCommandEncoder::end_effect_pass(cmdList);
-
-    break;
-
-  default:
-    BASALT_CRASH("validating device can't handle this command");
-  }
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandClearAttachments const& cmd) -> void {
-  cmdList.clear_attachments(cmd.attachments, cmd.color, cmd.depth, cmd.stencil);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList, CommandDraw const& cmd)
-  -> void {
-  cmdList.draw(cmd.firstVertex, cmd.vertexCount);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandDrawIndexed const& cmd) -> void {
-  cmdList.draw_indexed(cmd.vertexOffset, cmd.minIndex, cmd.numVertices,
-                       cmd.firstIndex, cmd.indexCount);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandBindPipeline const& cmd) -> void {
-  if (!mPipelines.is_valid(cmd.pipelineId)) {
-    return;
-  }
-
-  auto const originalId = mPipelines[cmd.pipelineId].originalId;
-
-  cmdList.bind_pipeline(originalId);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandBindVertexBuffer const& cmd) -> void {
-  if (!mVertexBuffers.is_valid(cmd.vertexBufferId)) {
-    return;
-  }
-
-  auto const originalId = mVertexBuffers[cmd.vertexBufferId].originalId;
-
-  cmdList.bind_vertex_buffer(originalId, cmd.offsetInBytes);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandBindIndexBuffer const& cmd) -> void {
-  if (!mIndexBuffers.is_valid(cmd.indexBufferId)) {
-    return;
-  }
-
-  auto const originalId = mIndexBuffers[cmd.indexBufferId].originalId;
-
-  cmdList.bind_index_buffer(originalId);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandBindSampler const& cmd) -> void {
-  if (!mSamplers.is_valid(cmd.samplerId)) {
-    return;
-  }
-
-  auto const originalId = mSamplers[cmd.samplerId].originalId;
-
-  cmdList.bind_sampler(cmd.slot, originalId);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandBindTexture const& cmd) -> void {
-  auto const originalId = mTextures[cmd.textureId].originalId;
-
-  cmdList.bind_texture(cmd.slot, originalId);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandSetStencilReference const& cmd) -> void {
-  cmdList.set_stencil_reference(cmd.value);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandSetStencilReadMask const& cmd) -> void {
-  cmdList.set_stencil_read_mask(cmd.value);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandSetStencilWriteMask const& cmd) -> void {
-  cmdList.set_stencil_write_mask(cmd.value);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandSetBlendConstant const& cmd) -> void {
-  cmdList.set_blend_constant(cmd.value);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandSetTransform const& cmd) -> void {
-  cmdList.set_transform(cmd.transformState, cmd.transform);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandSetAmbientLight const& cmd) -> void {
-  cmdList.set_ambient_light(cmd.ambient);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList, CommandSetLights const& cmd)
-  -> void {
-  cmdList.set_lights(cmd.lights);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandSetMaterial const& cmd) -> void {
-  cmdList.set_material(cmd.diffuse, cmd.ambient, cmd.emissive, cmd.specular,
-                       cmd.specularPower);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandSetFogParameters const& cmd) -> void {
-  cmdList.set_fog_parameters(cmd.color, cmd.start, cmd.end, cmd.density);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandSetReferenceAlpha const& cmd) -> void {
-  cmdList.set_reference_alpha(cmd.value);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandSetTextureFactor const& cmd) -> void {
-  cmdList.set_texture_factor(cmd.textureFactor);
-}
-
-auto ValidatingDevice::patch(CommandList& cmdList,
-                             CommandSetTextureStageConstant const& cmd)
-  -> void {
-  cmdList.set_texture_stage_constant(cmd.stageId, cmd.constant);
 }
 
 } // namespace basalt::gfx

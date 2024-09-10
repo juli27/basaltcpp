@@ -1,9 +1,9 @@
 #pragma once
 
-#include <basalt/api/shared/asserts.h>
-#include <basalt/api/shared/handle.h>
+#include "asserts.h"
+#include "handle.h"
 
-#include <basalt/api/base/types.h>
+#include "basalt/api/base/types.h"
 
 #include <algorithm>
 #include <limits>
@@ -16,7 +16,7 @@
 namespace basalt {
 
 template <typename T, typename Handle>
-class HandlePool final {
+class HandlePool {
   static_assert(std::is_base_of_v<detail::HandleBase, Handle>);
 
   using ActiveSlotsList = std::vector<Handle>;
@@ -32,7 +32,7 @@ public:
   using iterator = typename ActiveSlotsList::iterator;
   using const_iterator = typename ActiveSlotsList::const_iterator;
 
-  HandlePool() noexcept = default;
+  HandlePool() = default;
 
   HandlePool(HandlePool const&) = delete;
   HandlePool(HandlePool&&) noexcept = default;
@@ -42,60 +42,119 @@ public:
   auto operator=(HandlePool const&) -> HandlePool& = delete;
   auto operator=(HandlePool&&) noexcept -> HandlePool& = default;
 
-  [[nodiscard]] auto is_valid(Handle const handle) const noexcept -> bool {
-    return is_allocated(handle) &&
-           mBookkeeping[handle.value()].handle == handle;
+  [[nodiscard]]
+  auto is_valid(Handle const handle) const noexcept -> bool {
+    return is_allocated(handle) && is_active(handle);
   }
 
   // handle must be valid
-  [[nodiscard]] auto operator[](Handle const handle) const noexcept
-    -> T const& {
+  [[nodiscard]]
+  auto
+  operator[](Handle const handle) const noexcept -> T const& {
     BASALT_ASSERT(is_valid(handle));
 
     return *mBookkeeping[handle.value()].data;
   }
 
   // handle must be valid
-  [[nodiscard]] auto operator[](Handle const handle) noexcept -> T& {
+  [[nodiscard]]
+  auto
+  operator[](Handle const handle) noexcept -> T& {
     BASALT_ASSERT(is_valid(handle));
 
     return *mBookkeeping[handle.value()].data;
   }
 
   template <typename... Args>
-  [[nodiscard]] auto emplace(Args&&... args) -> Handle {
+  [[nodiscard]]
+  auto emplace(Args&&... args) -> Handle {
     return allocate(std::forward<Args>(args)...);
   }
 
   template <typename... Args>
-  [[nodiscard]] auto allocate(Args&&... args) -> Handle {
+  [[nodiscard]]
+  auto allocate(Args&&... args) -> Handle {
+    auto* data = AllocatorTraits::allocate(mAllocator, 1);
+    AllocatorTraits::construct(mAllocator, data, std::forward<Args>(args)...);
+
     if (mFreeSlotIndex != sInvalidIndex) {
-      auto& slot = mBookkeeping[mFreeSlotIndex];
+      auto const index = mFreeSlotIndex;
+      auto& slot = mBookkeeping[index];
+      mFreeSlotIndex = slot.nextFreeSlot;
 
-      AllocatorTraits::construct(mAllocator, slot.data,
-                                 std::forward<Args>(args)...);
+      auto const handle = Handle{index};
 
-      slot.handle = Handle{mFreeSlotIndex};
-      mFreeSlotIndex = std::exchange(slot.nextFreeSlot, sInvalidIndex);
+      slot = SlotData{data, sInvalidIndex};
+      mActiveSlots.emplace_back(handle);
 
-      return slot.handle;
+      return handle;
     }
 
-    auto const nextIndex = mBookkeeping.size();
-    BASALT_ASSERT(nextIndex < std::numeric_limits<IndexType>::max());
+    auto const handle = [&] {
+      auto const index = mBookkeeping.size();
+      BASALT_ASSERT(index < std::numeric_limits<IndexType>::max());
 
-    auto const index = static_cast<IndexType>(nextIndex);
+      return Handle{static_cast<IndexType>(index)};
+    }();
 
-    auto* element = AllocatorTraits::allocate(mAllocator, 1);
-    AllocatorTraits::construct(mAllocator, element,
+    mBookkeeping.emplace_back(SlotData{data, sInvalidIndex});
+    mActiveSlots.emplace_back(handle);
+
+    return handle;
+  }
+
+  template <typename... Args>
+  [[nodiscard]]
+  auto allocate(Handle const hint, Args&&... args) -> Handle {
+    if (is_valid(hint)) {
+      return allocate(std::forward<Args>(args)...);
+    }
+
+    auto const index = hint.value();
+    auto& slot = [&]() -> SlotData& {
+      if (!is_allocated(hint)) {
+        auto const oldSize = mBookkeeping.size();
+        mBookkeeping.resize(index + 1);
+
+        // add new unused slots to the free list
+        auto const newSize = mBookkeeping.size();
+        for (auto i = oldSize; i < newSize - 1; i++) {
+          auto& slot = mBookkeeping[i];
+          slot.nextFreeSlot =
+            std::exchange(mFreeSlotIndex, static_cast<IndexType>(i));
+        };
+      } else {
+        // patch free list
+
+        if (mFreeSlotIndex == index) {
+          mFreeSlotIndex = std::exchange(
+            mBookkeeping[mFreeSlotIndex].nextFreeSlot, sInvalidIndex);
+        } else {
+          for (auto freeSlotIndex = mBookkeeping[mFreeSlotIndex].nextFreeSlot;
+               freeSlotIndex != sInvalidIndex;
+               freeSlotIndex = mBookkeeping[freeSlotIndex].nextFreeSlot) {
+            if (mBookkeeping[freeSlotIndex].nextFreeSlot == index) {
+              mBookkeeping[freeSlotIndex].nextFreeSlot =
+                std::exchange(mBookkeeping[index].nextFreeSlot, sInvalidIndex);
+            }
+          }
+        }
+      }
+
+      return mBookkeeping[index];
+    }();
+    if (!slot.data) {
+      slot.data = AllocatorTraits::allocate(mAllocator, 1);
+    }
+
+    auto const handle = Handle{index};
+
+    AllocatorTraits::construct(mAllocator, slot.data,
                                std::forward<Args>(args)...);
 
-    auto& slot = mBookkeeping.emplace_back(
-      SlotData{element, Handle{index}, sInvalidIndex});
+    mActiveSlots.emplace_back(handle);
 
-    mActiveSlots.emplace_back(slot.handle);
-
-    return slot.handle;
+    return handle;
   }
 
   // ignores invalid handles
@@ -105,48 +164,49 @@ public:
     }
 
     mActiveSlots.erase(
-      std::remove_if(mActiveSlots.begin(), mActiveSlots.end(),
-                     [handle](Handle const& h) { return h == handle; }),
+      std::remove(mActiveSlots.begin(), mActiveSlots.end(), handle),
       mActiveSlots.end());
 
     auto const index = handle.value();
-
     auto& slot = mBookkeeping[index];
-    slot.handle = Handle{};
+    auto* data = slot.data;
 
-    AllocatorTraits::destroy(mAllocator, slot.data);
+    AllocatorTraits::destroy(mAllocator, data);
+    AllocatorTraits::deallocate(mAllocator, data, 1);
 
     // don't add to freelist if last element is de-allocated
     if (index == mBookkeeping.size() - 1) {
-      AllocatorTraits::deallocate(mAllocator, slot.data, 1);
-
       mBookkeeping.pop_back();
     } else {
+      slot = SlotData{};
       slot.nextFreeSlot = std::exchange(mFreeSlotIndex, index);
     }
   }
 
-  [[nodiscard]] auto begin() -> iterator {
+  [[nodiscard]]
+  auto begin() -> iterator {
     return mActiveSlots.begin();
   }
 
-  [[nodiscard]] auto begin() const -> const_iterator {
+  [[nodiscard]]
+  auto begin() const -> const_iterator {
     return mActiveSlots.begin();
   }
 
-  [[nodiscard]] auto end() -> iterator {
+  [[nodiscard]]
+  auto end() -> iterator {
     return mActiveSlots.end();
   }
 
-  [[nodiscard]] auto end() const -> const_iterator {
+  [[nodiscard]]
+  auto end() const -> const_iterator {
     return mActiveSlots.end();
   }
 
 private:
-  struct SlotData final {
-    T* data;
-    Handle handle;
-    IndexType nextFreeSlot;
+  struct SlotData {
+    T* data{};
+    IndexType nextFreeSlot = sInvalidIndex;
   };
 
   using MemoryResource = std::pmr::unsynchronized_pool_resource;
@@ -158,9 +218,15 @@ private:
   ActiveSlotsList mActiveSlots;
   IndexType mFreeSlotIndex{sInvalidIndex};
 
-  // handle must be < size
-  [[nodiscard]] auto is_allocated(Handle const handle) const noexcept -> bool {
+  [[nodiscard]]
+  auto is_allocated(Handle const handle) const noexcept -> bool {
     return handle.value() < mBookkeeping.size();
+  }
+
+  [[nodiscard]]
+  auto is_active(Handle const handle) const noexcept -> bool {
+    return std::find(mActiveSlots.begin(), mActiveSlots.end(), handle) !=
+           mActiveSlots.end();
   }
 };
 

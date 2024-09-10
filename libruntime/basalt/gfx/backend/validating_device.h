@@ -80,29 +80,22 @@ public:
 
 private:
   struct PipelineData final {
-    PipelineHandle originalId;
     VertexLayoutVector vertexInputLayout;
     PrimitiveType primitiveType;
   };
 
   struct VertexBufferData final {
-    VertexBufferHandle originalId;
     VertexLayoutVector layout;
     uDeviceSize sizeInBytes;
   };
 
   struct IndexBufferData final {
-    IndexBufferHandle originalId;
     uDeviceSize sizeInBytes;
   };
 
-  struct TextureData final {
-    TextureHandle originalId;
-  };
+  struct TextureData final {};
 
-  struct SamplerData final {
-    SamplerHandle originalId;
-  };
+  struct SamplerData final {};
 
   DevicePtr mDevice;
   DeviceCaps mCaps;
@@ -115,7 +108,7 @@ private:
 
   PrimitiveType mCurrentPrimitiveType{PrimitiveType::PointList};
 
-  auto validate(CommandList const&) -> CommandList;
+  auto validate(CommandList const&) -> void;
   auto validate(Command const&) -> void;
   auto validate(CommandClearAttachments const&) -> void;
   auto validate(CommandDraw const&) -> void;
@@ -130,28 +123,6 @@ private:
   auto validate(CommandSetLights const&) -> void;
   auto validate(CommandSetMaterial const&) -> void;
   auto validate(CommandSetFogParameters const&) -> void;
-
-  auto patch(CommandList&, Command const&) -> void;
-  auto patch(CommandList&, CommandClearAttachments const&) -> void;
-  auto patch(CommandList&, CommandDraw const&) -> void;
-  auto patch(CommandList&, CommandDrawIndexed const&) -> void;
-  auto patch(CommandList&, CommandBindPipeline const&) -> void;
-  auto patch(CommandList&, CommandBindVertexBuffer const&) -> void;
-  auto patch(CommandList&, CommandBindIndexBuffer const&) -> void;
-  auto patch(CommandList&, CommandBindSampler const&) -> void;
-  auto patch(CommandList&, CommandBindTexture const&) -> void;
-  auto patch(CommandList&, CommandSetStencilReference const&) -> void;
-  auto patch(CommandList&, CommandSetStencilReadMask const&) -> void;
-  auto patch(CommandList&, CommandSetStencilWriteMask const&) -> void;
-  auto patch(CommandList&, CommandSetBlendConstant const&) -> void;
-  auto patch(CommandList&, CommandSetTransform const&) -> void;
-  auto patch(CommandList&, CommandSetAmbientLight const&) -> void;
-  auto patch(CommandList&, CommandSetLights const&) -> void;
-  auto patch(CommandList&, CommandSetMaterial const&) -> void;
-  auto patch(CommandList&, CommandSetFogParameters const&) -> void;
-  auto patch(CommandList&, CommandSetReferenceAlpha const&) -> void;
-  auto patch(CommandList&, CommandSetTextureFactor const&) -> void;
-  auto patch(CommandList&, CommandSetTextureStageConstant const&) -> void;
 };
 
 } // namespace basalt::gfx
