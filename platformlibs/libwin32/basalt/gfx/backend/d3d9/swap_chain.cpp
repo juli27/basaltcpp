@@ -1,15 +1,14 @@
-#include <basalt/gfx/backend/d3d9/swap_chain.h>
+#include "swap_chain.h"
 
-#include <basalt/gfx/backend/d3d9/conversions.h>
-#include <basalt/gfx/backend/d3d9/device.h>
+#include "conversions.h"
+#include "device.h"
 
 #include <basalt/gfx/backend/types.h>
 
 #include <basalt/api/gfx/backend/command_list.h>
 
-#include <basalt/api/shared/asserts.h>
-#include <basalt/api/shared/log.h>
-
+#include <basalt/api/base/asserts.h>
+#include <basalt/api/base/log.h>
 #include <basalt/api/base/utils.h>
 
 #include <memory>

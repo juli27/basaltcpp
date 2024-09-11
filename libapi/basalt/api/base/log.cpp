@@ -1,4 +1,4 @@
-#include <basalt/api/shared/log.h>
+#include "log.h"
 
 #include <spdlog/sinks/basic_file_sink.h>
 
@@ -9,7 +9,7 @@
 
 #if BASALT_DEV_BUILD
 
-#include <basalt/api/base/platform.h>
+#include "platform.h"
 
 #include <spdlog/sinks/msvc_sink.h>
 

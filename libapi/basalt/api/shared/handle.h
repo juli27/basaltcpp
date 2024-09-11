@@ -1,8 +1,7 @@
 #pragma once
 
-#include <basalt/api/shared/asserts.h>
-
-#include <basalt/api/base/types.h>
+#include "basalt/api/base/asserts.h"
+#include "basalt/api/base/types.h"
 
 #include <functional>
 #include <limits>

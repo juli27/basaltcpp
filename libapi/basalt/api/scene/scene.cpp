@@ -1,12 +1,11 @@
-#include <basalt/api/scene/scene.h>
+#include "scene.h"
 
-#include <basalt/api/scene/parent_system.h>
-#include <basalt/api/scene/transform.h>
-#include <basalt/api/scene/transform_system.h>
+#include "parent_system.h"
+#include "transform.h"
+#include "transform_system.h"
 
-#include <basalt/api/shared/asserts.h>
-
-#include <basalt/api/base/types.h>
+#include "basalt/api/base/asserts.h"
+#include "basalt/api/base/types.h"
 
 #include <entt/graph/adjacency_matrix.hpp>
 

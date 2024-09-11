@@ -12,10 +12,11 @@
 #include <basalt/gfx/backend/types.h>
 
 #include <basalt/api/gfx/context.h>
-#include <basalt/api/shared/asserts.h>
-#include <basalt/api/shared/config.h>
-#include <basalt/api/shared/log.h>
 
+#include <basalt/api/shared/config.h>
+
+#include <basalt/api/base/asserts.h>
+#include <basalt/api/base/log.h>
 #include <basalt/api/base/platform.h>
 
 #include <imgui/imgui.h>

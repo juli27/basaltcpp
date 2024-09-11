@@ -1,6 +1,6 @@
 #include <basalt/gfx/utils.h>
 
-#include <basalt/api/shared/asserts.h>
+#include <basalt/api/base/asserts.h>
 
 namespace basalt::gfx {
 

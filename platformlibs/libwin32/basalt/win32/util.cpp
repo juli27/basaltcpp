@@ -2,9 +2,8 @@
 
 #include "shared/utils.h"
 
-#include <basalt/api/shared/asserts.h>
-#include <basalt/api/shared/log.h>
-
+#include <basalt/api/base/asserts.h>
+#include <basalt/api/base/log.h>
 #include <basalt/api/base/platform.h>
 
 #include <string>

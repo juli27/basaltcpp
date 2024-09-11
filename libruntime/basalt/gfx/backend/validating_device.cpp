@@ -9,8 +9,8 @@
 #include <basalt/api/gfx/backend/ext/effect.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
-#include <basalt/api/shared/asserts.h>
-#include <basalt/api/shared/log.h>
+#include <basalt/api/base/asserts.h>
+#include <basalt/api/base/log.h>
 
 #include <gsl/span>
 

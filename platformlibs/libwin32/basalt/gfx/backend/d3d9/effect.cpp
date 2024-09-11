@@ -1,9 +1,10 @@
-#include <basalt/gfx/backend/d3d9/effect.h>
+#include "effect.h"
+
+#include "device.h"
 
 #include <basalt/gfx/backend/commands.h>
-#include <basalt/gfx/backend/d3d9/device.h>
 
-#include <basalt/api/shared/log.h>
+#include <basalt/api/base/log.h>
 
 #include <gsl/zstring>
 

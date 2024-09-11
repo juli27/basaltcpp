@@ -8,12 +8,12 @@
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
 
-#include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/color.h>
 
 #include <basalt/api/math/matrix4x4.h>
 #include <basalt/api/math/vector3.h>
 
+#include <basalt/api/base/asserts.h>
 #include <basalt/api/base/enum_array.h>
 #include <basalt/api/base/utils.h>
 

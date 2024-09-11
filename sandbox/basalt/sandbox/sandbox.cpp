@@ -1,16 +1,15 @@
-#include <basalt/sandbox/sandbox.h>
+#include "sandbox.h"
 
-#include <basalt/sandbox/d3d9_tutorials.h>
-
-#include <basalt/sandbox/samples/samples.h>
-#include <basalt/sandbox/tribase/tribase_examples.h>
+#include "d3d9_tutorials.h"
+#include "samples/samples.h"
+#include "tribase/tribase_examples.h"
 
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 
-#include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/config.h>
 
+#include <basalt/api/base/asserts.h>
 #include <basalt/api/base/platform.h>
 
 #include <imgui/imgui.h>

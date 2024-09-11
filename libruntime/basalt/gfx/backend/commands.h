@@ -5,9 +5,9 @@
 
 #include <basalt/api/math/matrix4x4.h>
 
-#include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/color.h>
 
+#include <basalt/api/base/asserts.h>
 #include <basalt/api/base/types.h>
 
 #include <gsl/span>

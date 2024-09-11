@@ -4,8 +4,8 @@
 
 #include <basalt/win32/shared/Windows_custom.h>
 
-#include <basalt/api/shared/asserts.h>
-#include <basalt/api/shared/log.h>
+#include <basalt/api/base/asserts.h>
+#include <basalt/api/base/log.h>
 
 #include <memory>
 #include <optional>

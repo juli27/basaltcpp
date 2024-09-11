@@ -1,4 +1,4 @@
-#include <basalt/sandbox/tribase/02-14_effects.h>
+#include "02-14_effects.h"
 
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
@@ -10,12 +10,12 @@
 #include <basalt/api/gfx/backend/ext/effect.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
-#include <basalt/api/shared/log.h>
-
 #include <basalt/api/math/angle.h>
 #include <basalt/api/math/matrix4x4.h>
 #include <basalt/api/math/vector2.h>
 #include <basalt/api/math/vector4.h>
+
+#include <basalt/api/base/log.h>
 
 #include <fmt/format.h>
 #include <gsl/span>

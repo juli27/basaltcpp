@@ -1,4 +1,4 @@
-#include <basalt/sandbox/samples/samples.h>
+#include "samples.h"
 
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
@@ -12,8 +12,6 @@
 #include <basalt/api/scene/ecs.h>
 #include <basalt/api/scene/scene.h>
 #include <basalt/api/scene/system.h>
-
-#include <basalt/api/shared/log.h>
 
 #include <basalt/api/math/angle.h>
 #include <basalt/api/math/vector2.h>

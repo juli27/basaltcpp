@@ -3,7 +3,7 @@
 #include <basalt/win32/shared/utils.h>
 #include <basalt/win32/shared/Windows_custom.h>
 
-#include <basalt/api/shared/log.h>
+#include <basalt/api/base/log.h>
 
 #include <exception>
 #include <string>

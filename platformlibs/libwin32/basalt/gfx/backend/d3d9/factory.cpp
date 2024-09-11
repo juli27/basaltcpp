@@ -1,17 +1,16 @@
-#include <basalt/gfx/backend/d3d9/factory.h>
+#include "factory.h"
 
-#include <basalt/gfx/backend/d3d9/conversions.h>
-#include <basalt/gfx/backend/d3d9/dear_imgui_renderer.h>
-#include <basalt/gfx/backend/d3d9/device.h>
-#include <basalt/gfx/backend/d3d9/effect.h>
-#include <basalt/gfx/backend/d3d9/swap_chain.h>
-#include <basalt/gfx/backend/d3d9/texture_3d_support.h>
-#include <basalt/gfx/backend/d3d9/x_model_support.h>
+#include "conversions.h"
+#include "dear_imgui_renderer.h"
+#include "device.h"
+#include "effect.h"
+#include "swap_chain.h"
+#include "texture_3d_support.h"
+#include "x_model_support.h"
 
-#include <basalt/api/shared/asserts.h>
-#include <basalt/api/shared/log.h>
-
+#include <basalt/api/base/asserts.h>
 #include <basalt/api/base/enum_array.h>
+#include <basalt/api/base/log.h>
 #include <basalt/api/base/types.h>
 
 #include <fmt/format.h>

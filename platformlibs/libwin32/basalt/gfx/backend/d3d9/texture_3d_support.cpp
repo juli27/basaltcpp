@@ -1,8 +1,7 @@
-#include <basalt/gfx/backend/d3d9/texture_3d_support.h>
+#include "texture_3d_support.h"
 
-#include <basalt/gfx/backend/d3d9/device.h>
-
-#include <basalt/gfx/backend/d3d9/d3d9_custom.h>
+#include "device.h"
+#include "d3d9_custom.h"
 
 #include <utility>
 

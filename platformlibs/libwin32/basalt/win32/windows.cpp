@@ -7,10 +7,10 @@
 
 #include <basalt/win32/shared/utils.h>
 
-#include <basalt/api/shared/asserts.h>
 #include <basalt/api/shared/size2d.h>
 #include <basalt/api/shared/types.h>
 
+#include <basalt/api/base/asserts.h>
 #include <basalt/api/base/types.h>
 
 #include <basalt/win32/shared/Windows_custom.h>

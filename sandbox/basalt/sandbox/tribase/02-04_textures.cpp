@@ -1,4 +1,4 @@
-#include <basalt/sandbox/tribase/02-04_textures.h>
+#include "02-04_textures.h"
 
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
@@ -8,12 +8,12 @@
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
 
-#include <basalt/api/shared/asserts.h>
-
 #include <basalt/api/math/angle.h>
 #include <basalt/api/math/matrix4x4.h>
 #include <basalt/api/math/vector2.h>
 #include <basalt/api/math/vector3.h>
+
+#include <basalt/api/base/asserts.h>
 
 #include <gsl/span>
 #include <imgui/imgui.h>

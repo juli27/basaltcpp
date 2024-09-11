@@ -13,8 +13,7 @@
 
 #include <basalt/gfx/backend/swap_chain.h>
 
-#include <basalt/api/shared/log.h>
-
+#include <basalt/api/base/log.h>
 #include <basalt/api/base/utils.h>
 
 #include <basalt/win32/shared/Windows_custom.h>

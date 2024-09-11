@@ -13,7 +13,7 @@
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/resources.h>
 
-#include <basalt/api/shared/asserts.h>
+#include <basalt/api/base/asserts.h>
 
 #include <algorithm>
 #include <array>

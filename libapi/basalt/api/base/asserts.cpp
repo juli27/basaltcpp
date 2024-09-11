@@ -1,8 +1,7 @@
-#include <basalt/api/shared/asserts.h>
+#include "asserts.h"
 
-#include <basalt/api/shared/log.h>
-
-#include <basalt/api/base/platform.h>
+#include "log.h"
+#include "platform.h"
 
 #include <cstdlib>
 
