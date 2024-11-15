@@ -22,7 +22,7 @@ if (NOT dearimgui_POPULATED)
   )
 
   target_compile_features(DearImGui PRIVATE cxx_std_17)
-  target_compile_options(DearImGui PRIVATE "/Zc:twoPhase-" "/wd4505" "/WX-")
+  target_compile_options(DearImGui PRIVATE "/Zc:twoPhase-" "/wd4505" "/wd4189")
 
   set_target_properties(DearImGui PROPERTIES
     FOLDER "external"
