@@ -134,7 +134,9 @@ auto Win32App::init(HMODULE const moduleHandle, int const showCommand)
   auto runtime = Runtime{std::move(config), gfxContext};
 
   appWindow->input_manager().set_overlay(runtime.dear_imgui());
-  ImGui::GetMainViewport()->PlatformHandleRaw = appWindow->handle();
+  auto* imguiViewport = ImGui::GetMainViewport();
+  imguiViewport->PlatformHandle = appWindow->handle();
+  imguiViewport->PlatformHandleRaw = imguiViewport->PlatformHandle;
 
   runtime.set_root(clientApp.createRootView(runtime));
 

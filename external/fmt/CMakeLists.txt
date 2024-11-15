@@ -11,6 +11,8 @@ if (NOT fmt_POPULATED)
 
   target_include_directories(fmt PUBLIC "${fmt_SOURCE_DIR}/include")
 
+  target_compile_options(fmt PUBLIC "/utf-8")
+
   set_target_properties(fmt PROPERTIES
     FOLDER "external"
     STATIC_LIBRARY_OPTIONS "/WX"
@@ -19,6 +21,7 @@ if (NOT fmt_POPULATED)
   target_sources(fmt
     PRIVATE
       "${fmt_SOURCE_DIR}/include/fmt/args.h"
+      "${fmt_SOURCE_DIR}/include/fmt/base.h"
       "${fmt_SOURCE_DIR}/include/fmt/chrono.h"
       "${fmt_SOURCE_DIR}/include/fmt/color.h"
       "${fmt_SOURCE_DIR}/include/fmt/compile.h"
