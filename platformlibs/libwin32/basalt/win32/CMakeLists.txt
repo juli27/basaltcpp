@@ -1,6 +1,6 @@
 add_subdirectory("shared")
 
-target_sources(${CURRENT_TARGET} PRIVATE
+target_sources(LibWin32 PRIVATE
   "app.cpp"
   "app.h"
   "app_window.cpp"

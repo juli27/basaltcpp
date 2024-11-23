@@ -1,4 +1,4 @@
-target_sources(${CURRENT_TARGET} PRIVATE
+target_sources(LibWin32 PRIVATE
   "conversions.h"
   "d3d9_custom.h"
   "data.cpp"

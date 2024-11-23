@@ -1,4 +1,4 @@
-target_sources(${CURRENT_TARGET} PRIVATE
+target_sources(LibRuntime PRIVATE
   "dear_imgui_renderer.cpp"
   "dear_imgui_renderer.h"
   "effect.cpp"

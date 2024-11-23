@@ -1,4 +1,4 @@
-target_sources(${CURRENT_TARGET} PRIVATE
+target_sources(Sandbox PRIVATE
   "02-03_first_triangle.cpp"
   "02-03_first_triangle.h"
   "02-04_textures.cpp"

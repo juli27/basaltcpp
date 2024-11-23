@@ -24,10 +24,8 @@ if (NOT dearimgui_POPULATED)
   target_compile_features(DearImGui PRIVATE cxx_std_17)
   target_compile_options(DearImGui PRIVATE "/Zc:twoPhase-" "/wd4505" "/wd4189")
 
-  set_target_properties(DearImGui PROPERTIES
-    FOLDER "external"
-    STATIC_LIBRARY_OPTIONS "/WX"
-  )
+  set_property(TARGET DearImGui PROPERTY FOLDER "external")
+  set_property(TARGET DearImGui PROPERTY STATIC_LIBRARY_OPTIONS "/WX")
 
   target_sources(DearImGui
     PRIVATE
@@ -55,7 +53,7 @@ if (NOT dearimgui_POPULATED)
       "${dearimgui_BINARY_DIR}/imgui"
   )
 
-  get_target_property(TARGET_SOURCES DearImGui SOURCES)
+  get_property(TARGET_SOURCES TARGET DearImGui PROPERTY SOURCES)
   source_group(TREE "${dearimgui_SOURCE_DIR}" FILES ${TARGET_SOURCES})
 
   target_sources(DearImGui PRIVATE "basalt_imconfig.h")

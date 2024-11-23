@@ -1,4 +1,4 @@
-target_sources(${CURRENT_TARGET} PRIVATE
+target_sources(LibRuntime PRIVATE
   "command_list.cpp"
   "command_list.h"
   "commands.cpp"

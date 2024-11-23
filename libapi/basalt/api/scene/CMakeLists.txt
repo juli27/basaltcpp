@@ -1,4 +1,4 @@
-target_sources(${CURRENT_TARGET} PRIVATE
+target_sources(LibAPI PRIVATE
   "ecs.h"
   "parent_system.h"
   "scene.cpp"

@@ -1,4 +1,4 @@
-target_sources(${CURRENT_TARGET} PRIVATE
+target_sources(LibAPI PRIVATE
   "asserts.cpp"
   "asserts.h"
   "enum_array.h"

@@ -1,7 +1,7 @@
 add_subdirectory("scene")
 add_subdirectory("gfx")
 
-target_sources(${CURRENT_TARGET} PRIVATE
+target_sources(LibRuntime PRIVATE
   "dear_imgui.cpp"
   "dear_imgui.h"
   "debug_ui.cpp"

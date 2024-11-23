@@ -4,9 +4,8 @@ if (NOT spdlog_POPULATED)
 
   add_library(spdlog STATIC)
   add_library(spdlog::spdlog ALIAS spdlog)
-  set(CURRENT_TARGET spdlog)
 
-  target_link_libraries(${CURRENT_TARGET}
+  target_link_libraries(spdlog
     PUBLIC
       fmt::fmt
     PRIVATE
@@ -15,19 +14,17 @@ if (NOT spdlog_POPULATED)
       ControlFlowGuard
   )
 
-  target_include_directories(${CURRENT_TARGET} PUBLIC
+  target_include_directories(spdlog PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/include" # override tweakme.h
     "${spdlog_SOURCE_DIR}/include"
   )
 
-  target_compile_definitions(${CURRENT_TARGET} PUBLIC "SPDLOG_COMPILED_LIB")
+  target_compile_definitions(spdlog PUBLIC "SPDLOG_COMPILED_LIB")
 
-  set_target_properties(${CURRENT_TARGET} PROPERTIES
-    FOLDER "external"
-    STATIC_LIBRARY_OPTIONS "/WX"
-  )
+  set_property(TARGET spdlog PROPERTY FOLDER "external")
+  set_property(TARGET spdlog PROPERTY STATIC_LIBRARY_OPTIONS "/WX")
 
-  target_sources(${CURRENT_TARGET} PRIVATE
+  target_sources(spdlog PRIVATE
     "${spdlog_SOURCE_DIR}/src/async.cpp"
     "${spdlog_SOURCE_DIR}/src/cfg.cpp"
     "${spdlog_SOURCE_DIR}/src/color_sinks.cpp"
@@ -36,10 +33,10 @@ if (NOT spdlog_POPULATED)
     "${spdlog_SOURCE_DIR}/src/stdout_sinks.cpp"
   )
 
-  get_target_property(TARGET_SOURCES ${CURRENT_TARGET} SOURCES)
+  get_property(TARGET_SOURCES TARGET spdlog PROPERTY SOURCES)
   source_group(TREE "${spdlog_SOURCE_DIR}" FILES ${TARGET_SOURCES})
 
-  target_sources(${CURRENT_TARGET} PRIVATE
+  target_sources(spdlog PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/include/spdlog/tweakme.h"
   )
 endif()

@@ -1,4 +1,4 @@
-target_sources(${CURRENT_TARGET} PRIVATE
+target_sources(Sandbox PRIVATE
   "cubes.cpp"
   "lighting.cpp"
   "lighting.h"

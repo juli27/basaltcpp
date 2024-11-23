@@ -1,8 +1,7 @@
 add_library(LibAPI STATIC)
 add_library(Basalt::LibAPI ALIAS LibAPI)
-set(CURRENT_TARGET LibAPI)
 
-target_link_libraries(${CURRENT_TARGET}
+target_link_libraries(LibAPI
   PUBLIC
     DearImGui
     EnTT::EnTT
@@ -15,31 +14,29 @@ target_link_libraries(${CURRENT_TARGET}
     ControlFlowGuard
 )
 
-target_include_directories(${CURRENT_TARGET} PUBLIC
+target_include_directories(LibAPI PUBLIC
   "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
-target_compile_definitions(${CURRENT_TARGET} PRIVATE
+target_compile_definitions(LibAPI PRIVATE
   "BASALT_BUILD"
   "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:BASALT_DEV_BUILD>"
   "$<$<CONFIG:Debug>:BASALT_DEBUG_BUILD>"
 )
 
-target_compile_features(${CURRENT_TARGET} INTERFACE cxx_std_17)
-target_compile_options(${CURRENT_TARGET} PRIVATE
+target_compile_features(LibAPI PUBLIC cxx_std_17)
+target_compile_options(LibAPI PRIVATE
   "/w44062" "/w14165" "/w34191" "/w44242"
 )
 
-set_target_properties(${CURRENT_TARGET} PROPERTIES
-  STATIC_LIBRARY_OPTIONS "/WX"
-  VS_JUST_MY_CODE_DEBUGGING "$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>"
-)
+set_property(TARGET LibAPI PROPERTY STATIC_LIBRARY_OPTIONS "/WX")
+set_property(TARGET LibAPI PROPERTY VS_JUST_MY_CODE_DEBUGGING
+              "$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>")
 
 add_subdirectory("basalt/api")
 
-get_target_property(TARGET_SOURCES ${CURRENT_TARGET} SOURCES)
+get_property(TARGET_SOURCES TARGET LibAPI PROPERTY SOURCES)
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/basalt/api"
-  FILES ${TARGET_SOURCES}
-)
+             FILES ${TARGET_SOURCES})
 
-target_sources(${CURRENT_TARGET} PRIVATE "libapi.natvis")
+target_sources(LibAPI PRIVATE "libapi.natvis")

@@ -1,6 +1,5 @@
 add_library(LibWin32 STATIC)
 add_library(Basalt::LibWin32 ALIAS LibWin32)
-set(CURRENT_TARGET LibWin32)
 
 # Dependencies
 find_package(DirectXSDK MODULE REQUIRED "d3dx9" "dxerr")
@@ -11,7 +10,7 @@ set_package_properties(DirectXSDK PROPERTIES
   PURPOSE "Dependency of the Direct3D 9 gfx backend"
 )
 
-target_link_libraries(${CURRENT_TARGET}
+target_link_libraries(LibWin32
   PUBLIC
     Basalt::LibAPI
     Basalt::LibRuntime
@@ -24,18 +23,18 @@ target_link_libraries(${CURRENT_TARGET}
     "legacy_stdio_definitions"
 )
 
-target_include_directories(${CURRENT_TARGET} PUBLIC
+target_include_directories(LibWin32 PUBLIC
   "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
-target_compile_features(${CURRENT_TARGET} PUBLIC cxx_std_17)
-target_compile_definitions(${CURRENT_TARGET} PRIVATE
+target_compile_features(LibWin32 PUBLIC cxx_std_17)
+target_compile_definitions(LibWin32 PRIVATE
   "BASALT_BUILD"
   "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:BASALT_DEV_BUILD>"
   "$<$<CONFIG:Debug>:BASALT_DEBUG_BUILD>"
 )
 
-target_compile_options(${CURRENT_TARGET}
+target_compile_options(LibWin32
   PRIVATE
     "/w44062;/w14165;/w34191;/w44242"
     "/Zc:__cplusplus"
@@ -53,13 +52,12 @@ target_compile_options(${CURRENT_TARGET}
     "/Zc:throwingNew"
 )
 
-set_target_properties(${CURRENT_TARGET} PROPERTIES
-  FOLDER "platformlibs"
-  STATIC_LIBRARY_OPTIONS "/WX"
-  VS_JUST_MY_CODE_DEBUGGING "$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>"
-)
+set_property(TARGET LibWin32 PROPERTY FOLDER "platformlibs")
+set_property(TARGET LibWin32 PROPERTY STATIC_LIBRARY_OPTIONS "/WX")
+set_property(TARGET LibWin32 PROPERTY VS_JUST_MY_CODE_DEBUGGING
+              "$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>")
 
 add_subdirectory("basalt")
 
-get_target_property(TARGET_SOURCES ${CURRENT_TARGET} SOURCES)
+get_property(TARGET_SOURCES TARGET LibWin32 PROPERTY SOURCES)
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/basalt" FILES ${TARGET_SOURCES})

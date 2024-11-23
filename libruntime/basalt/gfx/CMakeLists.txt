@@ -1,6 +1,6 @@
 add_subdirectory("backend")
 
-target_sources(${CURRENT_TARGET} PRIVATE
+target_sources(LibRuntime PRIVATE
   "context.cpp"
   "debug.cpp"
   "debug.h"

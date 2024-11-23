@@ -13,10 +13,8 @@ if (NOT fmt_POPULATED)
 
   target_compile_options(fmt PUBLIC "/utf-8")
 
-  set_target_properties(fmt PROPERTIES
-    FOLDER "external"
-    STATIC_LIBRARY_OPTIONS "/WX"
-  )
+  set_property(TARGET fmt PROPERTY FOLDER "external")
+  set_property(TARGET fmt PROPERTY STATIC_LIBRARY_OPTIONS "/WX")
 
   target_sources(fmt
     PRIVATE
@@ -38,6 +36,6 @@ if (NOT fmt_POPULATED)
       "${fmt_SOURCE_DIR}/src/os.cc"
   )
 
-  get_target_property(TARGET_SOURCES fmt SOURCES)
+  get_property(TARGET_SOURCES TARGET fmt PROPERTY SOURCES)
   source_group(TREE "${fmt_SOURCE_DIR}" FILES ${TARGET_SOURCES})
 endif()
