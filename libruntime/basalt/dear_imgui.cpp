@@ -14,7 +14,7 @@
 #include <basalt/api/base/platform.h>
 #include <basalt/api/base/utils.h>
 
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 #include <algorithm>
 #include <array>

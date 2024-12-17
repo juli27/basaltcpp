@@ -13,7 +13,7 @@
 #include <basalt/api/math/vector3.h>
 
 #include <gsl/span>
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 #include <algorithm>
 #include <array>

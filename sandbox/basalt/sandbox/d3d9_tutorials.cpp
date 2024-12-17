@@ -22,7 +22,7 @@
 
 #include <gsl/span>
 
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 #include <array>
 #include <memory>

@@ -16,7 +16,7 @@
 #include <basalt/api/base/asserts.h>
 
 #include <gsl/span>
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 #include <array>
 #include <random>

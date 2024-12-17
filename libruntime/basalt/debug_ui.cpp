@@ -19,7 +19,7 @@
 #include <basalt/api/base/enum_array.h>
 
 #include <fmt/format.h>
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 #include <array>
 #include <numeric>

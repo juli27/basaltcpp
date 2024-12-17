@@ -19,7 +19,7 @@
 #include <basalt/api/base/log.h>
 #include <basalt/api/base/platform.h>
 
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 #include <chrono>
 #include <string>

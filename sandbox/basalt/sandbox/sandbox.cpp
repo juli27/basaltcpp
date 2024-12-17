@@ -12,7 +12,7 @@
 #include <basalt/api/base/asserts.h>
 #include <basalt/api/base/platform.h>
 
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 #include <functional>
 #include <memory>

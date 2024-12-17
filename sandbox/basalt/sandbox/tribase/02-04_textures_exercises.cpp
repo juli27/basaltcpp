@@ -15,7 +15,7 @@
 
 #include <gsl/span>
 
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 #include <algorithm>
 #include <array>
