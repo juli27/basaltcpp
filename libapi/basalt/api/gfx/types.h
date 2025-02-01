@@ -15,7 +15,6 @@
 #include <gsl/span>
 
 #include <cstddef>
-#include <filesystem>
 #include <memory>
 #include <string>
 #include <variant>
@@ -165,7 +164,7 @@ struct MaterialCreateInfo final {
   f32 fogDensity{};
 };
 
-struct RenderComponent final {
+struct Model {
   MeshHandle mesh;
   MaterialHandle material;
 };
@@ -222,24 +221,11 @@ struct MaterialData final {
   SamplerHandle sampler{};
 };
 
-struct XModelLoadInfo final {
-  std::filesystem::path filePath;
-
-  // optional materials to override (in order of the model)
-  gsl::span<MaterialHandle> materials{};
-};
-
-struct XModelData final {
-  // indices imply a 1:1 mapping between mesh and material
-  std::vector<ext::XMeshHandle> meshes;
-  std::vector<MaterialHandle> materials;
-};
-
 namespace ext {
 
-struct XModelCreateInfo {
-  gsl::span<XMeshHandle> meshes;
-  gsl::span<MaterialHandle> materials;
+struct XModel {
+  MaterialHandle material;
+  XMeshHandle mesh;
 };
 
 } // namespace ext

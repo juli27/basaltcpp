@@ -59,9 +59,9 @@ using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::Light;
 using basalt::gfx::MaterialColorSource;
 using basalt::gfx::MaterialCreateInfo;
+using basalt::gfx::Model;
 using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PrimitiveType;
-using basalt::gfx::RenderComponent;
 using basalt::gfx::SpotLight;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureFilter;
@@ -328,7 +328,7 @@ auto Samples::new_cubes_sample(Engine& engine) -> ViewPtr {
   auto& entities = scene->entity_registry();
 
   auto const cubes = scene->create_entity("Cubes"s);
-  cubes.emplace<RenderComponent>(mesh, material);
+  cubes.emplace<Model>(mesh, material);
 
   auto const light = scene->create_entity("SpotLight"s);
   light.emplace<Light>(SpotLight{Colors::WHITE,

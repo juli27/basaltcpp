@@ -110,11 +110,8 @@ EnvMapping::EnvMapping(Engine const& engine)
     return mGfxCache->create_index_buffer({skyBoxIndexData.size_bytes()},
                                           skyBoxIndexData);
   }()} {
-  auto const& gfxCtx = engine.gfx_context();
-
   mSphereMesh = [&] {
-    auto const xModelHandle = mGfxCache->load_x_model({SPHERE_PATH});
-    auto const& xModelData = gfxCtx.get(xModelHandle);
+    auto const xModelData = mGfxCache->load_x_meshes(SPHERE_PATH);
 
     return xModelData.meshes.front();
   }();

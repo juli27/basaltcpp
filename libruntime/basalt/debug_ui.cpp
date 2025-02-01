@@ -273,9 +273,8 @@ auto DebugUi::entity_hierarchy_panel(EntityRegistry& entities,
   }
 }
 
-auto DebugUi::entity_components(Entity const entity,
-                                gsl::span<ComponentUi> const componentUis)
-  -> void {
+auto DebugUi::entity_components(
+  Entity const entity, gsl::span<ComponentUi> const componentUis) -> void {
   if (entity.entity() == entt::null) {
     ImGui::TextUnformatted("no entity selected");
 
@@ -330,13 +329,14 @@ auto DebugUi::camera(gfx::Camera& camera) -> void {
                          &camera.farPlane);
 }
 
-auto DebugUi::render_component(gfx::RenderComponent const& rc) -> void {
-  ImGui::Text("Mesh: %#x", rc.mesh.value());
-  ImGui::Text("Material: %#x", rc.material.value());
+auto DebugUi::model(gfx::Model const& model) -> void {
+  ImGui::Text("Material: %#x", model.material.value());
+  ImGui::Text("Mesh: %#x", model.mesh.value());
 }
 
-auto DebugUi::x_model(gfx::ext::XModelHandle const& xModel) -> void {
-  ImGui::Text("handle = %d", xModel.value());
+auto DebugUi::x_model(gfx::ext::XModel const& model) -> void {
+  ImGui::Text("Material: %#x", model.material.value());
+  ImGui::Text("X Mesh: %#x", model.mesh.value());
 }
 
 auto DebugUi::light(gfx::Light& light) -> void {
@@ -415,8 +415,8 @@ auto DebugUi::edit_color4(char const* label, Color& color) -> void {
                            std::get<2>(colorArray), std::get<3>(colorArray));
 }
 
-auto DebugUi::display_matrix4x4(char const* label, Matrix4x4f32 const& mat)
-  -> void {
+auto DebugUi::display_matrix4x4(char const* label,
+                                Matrix4x4f32 const& mat) -> void {
   auto const labelString = string{label};
 
   ImGui::BeginDisabled();

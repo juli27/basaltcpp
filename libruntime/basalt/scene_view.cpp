@@ -66,10 +66,10 @@ SceneView::SceneView(ScenePtr scene, gfx::ResourceCachePtr gfxCache)
     [](Entity const& entity) { DebugUi::camera(entity.get<gfx::Camera>()); },
   });
   mComponentUis.push_back({
-    entt::type_hash<gfx::RenderComponent>::value(),
-    "gfx::RenderComponent"s,
+    entt::type_hash<gfx::Model>::value(),
+    "gfx::Model"s,
     [](Entity const& entity) {
-      DebugUi::render_component(entity.get<gfx::RenderComponent const>());
+      DebugUi::model(entity.get<gfx::Model const>());
     },
   });
   mComponentUis.push_back({
@@ -78,10 +78,10 @@ SceneView::SceneView(ScenePtr scene, gfx::ResourceCachePtr gfxCache)
     [](Entity const& entity) { DebugUi::light(entity.get<gfx::Light>()); },
   });
   mComponentUis.push_back({
-    entt::type_hash<gfx::ext::XModelHandle>::value(),
-    "gfx::ext::XModelHandle"s,
+    entt::type_hash<gfx::ext::XModel>::value(),
+    "gfx::ext::XModel"s,
     [](Entity const& entity) {
-      DebugUi::x_model(entity.get<gfx::ext::XModelHandle const>());
+      DebugUi::x_model(entity.get<gfx::ext::XModel const>());
     },
   });
 }

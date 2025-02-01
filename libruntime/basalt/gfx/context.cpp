@@ -22,7 +22,6 @@
 #include <memory>
 #include <optional>
 #include <utility>
-#include <vector>
 
 namespace basalt::gfx {
 
@@ -32,7 +31,6 @@ using std::array;
 using std::byte;
 using std::nullopt;
 using std::optional;
-using std::vector;
 using std::filesystem::path;
 
 auto Context::create(DevicePtr device, ext::DeviceExtensions deviceExtensions,
@@ -234,99 +232,18 @@ auto Context::get(MeshHandle const meshHandle) const -> MeshData const& {
   return mMeshes[meshHandle];
 }
 
-auto Context::load_x_model(XModelLoadInfo const& loadInfo)
-  -> ext::XModelHandle {
+auto Context::load_x_meshes(path const& filePath) -> ext::XModelData {
   // throws std::bad_optional_access if extension not present
   auto const modelExt = query_device_extension<ext::XModelSupport>().value();
 
-  auto xModel = modelExt->load(loadInfo.filePath);
-
-  auto const& overrideMaterials = loadInfo.materials;
-  auto const numModelMaterials =
-    std::max(xModel.materials.size(), overrideMaterials.size());
-  auto materials = vector<MaterialHandle>{};
-  materials.reserve(numModelMaterials);
-
-  std::copy(overrideMaterials.begin(), overrideMaterials.end(),
-            std::back_inserter(materials));
-
-  // if the model has more materials than are provided in the XModelDescriptor
-  // then use those
-  if (overrideMaterials.size() < numModelMaterials) {
-    // TODO: cache pipelines
-    auto pipeline = [&] {
-      auto vs = FixedVertexShaderCreateInfo{};
-      vs.lightingEnabled = true;
-
-      auto fs = FixedFragmentShaderCreateInfo{};
-      auto textureStages = array{TextureStage{}};
-      fs.textureStages = textureStages;
-
-      auto pipelineDesc = PipelineCreateInfo{};
-      pipelineDesc.vertexShader = &vs;
-      pipelineDesc.fragmentShader = &fs;
-      pipelineDesc.cullMode = CullMode::CounterClockwise;
-      pipelineDesc.depthTest = TestPassCond::IfLessEqual;
-      pipelineDesc.depthWriteEnable = true;
-
-      return create_pipeline(pipelineDesc);
-    }();
-
-    for (auto i = overrideMaterials.size(); i < numModelMaterials; ++i) {
-      auto const& material = xModel.materials[i];
-      auto materialDesc = MaterialCreateInfo{};
-      materialDesc.pipeline = pipeline.release();
-      materialDesc.diffuse = material.diffuse;
-      materialDesc.ambient = material.ambient;
-
-      if (!material.textureFile.empty()) {
-        materialDesc.sampledTexture.texture =
-          load_texture_2d(material.textureFile).release();
-        // TODO: cache samplers
-        materialDesc.sampledTexture.sampler = create_sampler({}).release();
-      }
-
-      materials.push_back(create_material(materialDesc).release());
-    }
-  }
-
-  return create_x_model({xModel.meshes, materials});
+  return modelExt->load(filePath);
 }
 
-auto Context::create_x_model(ext::XModelCreateInfo const& createInfo)
-  -> ext::XModelHandle {
-  auto meshes = vector<ext::XMeshHandle>{createInfo.meshes.begin(),
-                                         createInfo.meshes.end()};
-  auto materials = vector<MaterialHandle>{createInfo.materials.begin(),
-                                          createInfo.materials.end()};
+auto Context::destroy(ext::XMeshHandle handle) noexcept -> void {
+  // throws std::bad_optional_access if extension not present
+  auto const modelExt = query_device_extension<ext::XModelSupport>().value();
 
-  return mXModels.allocate(XModelData{std::move(meshes), std::move(materials)});
-}
-
-auto Context::destroy(ext::XModelHandle const xModelHandle) noexcept -> void {
-  if (!mXModels.is_valid(xModelHandle)) {
-    return;
-  }
-
-  {
-    auto const& data = get(xModelHandle);
-
-    for (auto const materialHandle : data.materials) {
-      destroy(materialHandle);
-    }
-
-    // throws std::bad_optional_access if extension not present
-    auto const modelExt = query_device_extension<ext::XModelSupport>().value();
-    for (auto const xMeshHandle : data.meshes) {
-      modelExt->destroy(xMeshHandle);
-    }
-  }
-
-  mXModels.deallocate(xModelHandle);
-}
-
-auto Context::get(ext::XModelHandle const handle) const -> XModelData const& {
-  return mXModels[handle];
+  modelExt->destroy(handle);
 }
 
 auto Context::submit(span<CommandList const> const cmdLists) const -> void {

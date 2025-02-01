@@ -40,9 +40,9 @@ using basalt::ViewPtr;
 using basalt::gfx::Camera;
 using basalt::gfx::Environment;
 using basalt::gfx::MaterialCreateInfo;
+using basalt::gfx::Model;
 using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PrimitiveType;
-using basalt::gfx::RenderComponent;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::VertexElement;
 
@@ -111,7 +111,7 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
 
   auto const triangle = scene->create_entity(Vector3f32::forward() * 2.5f);
   triangle.emplace<RotationSpeed>(360.0f);
-  triangle.emplace<RenderComponent>(mesh, material);
+  triangle.emplace<Model>(mesh, material);
 
   scene->create_system<RotationSpeedSystem>();
 

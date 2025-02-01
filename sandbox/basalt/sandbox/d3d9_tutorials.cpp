@@ -28,9 +28,11 @@
 #include <memory>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 using namespace std::literals;
 using std::array;
+using std::vector;
 
 using gsl::span;
 
@@ -47,10 +49,13 @@ using basalt::ViewPtr;
 using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
+using basalt::gfx::CullMode;
 using basalt::gfx::DirectionalLightData;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::LightData;
+using basalt::gfx::MaterialCreateInfo;
+using basalt::gfx::MaterialHandle;
 using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PipelineHandle;
 using basalt::gfx::PrimitiveType;
@@ -66,7 +71,7 @@ using basalt::gfx::TransformState;
 using basalt::gfx::VertexBufferHandle;
 using basalt::gfx::VertexElement;
 using basalt::gfx::ext::XMeshCommandEncoder;
-using basalt::gfx::ext::XModelHandle;
+using basalt::gfx::ext::XMeshHandle;
 
 namespace {
 
@@ -421,13 +426,54 @@ class Meshes final : public View {
 
 public:
   explicit Meshes(Engine const& engine)
-    : mGfxCache{engine.create_gfx_resource_cache()}
-    , mXModel{mGfxCache->load_x_model({sModelFilePath})} {
+    : mGfxCache{engine.create_gfx_resource_cache()} {
+    auto modelData = mGfxCache->load_x_meshes(sModelFilePath);
+    mMaterials = [&] {
+      auto materials = vector<MaterialHandle>{};
+
+      auto const pipeline = [&] {
+        auto vs = FixedVertexShaderCreateInfo{};
+        vs.lightingEnabled = true;
+
+        auto fs = FixedFragmentShaderCreateInfo{};
+        auto textureStages = array{TextureStage{}};
+        fs.textureStages = textureStages;
+
+        auto pipelineDesc = PipelineCreateInfo{};
+        pipelineDesc.vertexShader = &vs;
+        pipelineDesc.fragmentShader = &fs;
+        pipelineDesc.cullMode = CullMode::CounterClockwise;
+        pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+        pipelineDesc.depthWriteEnable = true;
+
+        return mGfxCache->create_pipeline(pipelineDesc);
+      }();
+
+      for (auto i = 0; i < modelData.materials.size(); i++) {
+        auto const& material = modelData.materials[i];
+        auto materialDesc = MaterialCreateInfo{};
+        materialDesc.pipeline = pipeline;
+        materialDesc.diffuse = material.diffuse;
+        materialDesc.ambient = material.ambient;
+
+        if (!material.textureFile.empty()) {
+          materialDesc.sampledTexture.texture =
+            mGfxCache->load_texture_2d(material.textureFile);
+          materialDesc.sampledTexture.sampler = mGfxCache->create_sampler({});
+        }
+
+        materials.push_back(mGfxCache->create_material(materialDesc));
+      }
+      
+      return materials;
+    }();
+    mMeshes = std::move(modelData.meshes);
   }
 
 private:
   ResourceCachePtr mGfxCache;
-  XModelHandle mXModel;
+  vector<MaterialHandle> mMaterials;
+  vector<XMeshHandle> mMeshes;
   Angle mRotationY;
 
   auto on_update(UpdateContext& ctx) -> void override {
@@ -448,11 +494,8 @@ private:
     cmdList.set_transform(TransformState::WorldToView,
                           create_world_to_view_transform());
 
-    auto const& modelData = gfxCtx.get(mXModel);
-    auto const& meshes = modelData.meshes;
-    auto const& materials = modelData.materials;
-    for (auto i = uSize{0}; i < materials.size(); ++i) {
-      auto const& materialData = gfxCtx.get(materials[i]);
+    for (auto i = uSize{0}; i < mMaterials.size(); ++i) {
+      auto const& materialData = gfxCtx.get(mMaterials[i]);
 
       cmdList.bind_pipeline(materialData.pipeline);
       cmdList.bind_sampler(0, materialData.sampler);
@@ -460,7 +503,7 @@ private:
       cmdList.set_material(materialData.diffuse, materialData.ambient);
       cmdList.set_transform(TransformState::LocalToWorld,
                             Matrix4x4f32::rotation_y(mRotationY));
-      XMeshCommandEncoder::draw_x_mesh(cmdList, meshes[i]);
+      XMeshCommandEncoder::draw_x_mesh(cmdList, mMeshes[i]);
     }
 
     ctx.drawCtx.commandLists.push_back(std::move(cmdList));

@@ -167,7 +167,7 @@ auto Effects::LoadedEffect::compile(path const& filePath, Engine const& engine)
     return TextureHandle{};
   }();
 
-  auto const& xModelData = [&] {
+  auto const xMesh = [&] {
     auto const xModelFilePath = [&] {
       if (auto const maybeModelFileName = effect.get_string("ModelFilename")) {
         return dataPath / *maybeModelFileName;
@@ -176,9 +176,9 @@ auto Effects::LoadedEffect::compile(path const& filePath, Engine const& engine)
       return dataPath / SPHERE_FILENAME;
     }();
 
-    auto const xModelHandle = gfxCache->load_x_model({xModelFilePath});
+    auto const xModelData = gfxCache->load_x_meshes(xModelFilePath);
 
-    return gfxCtx.get(xModelHandle);
+    return xModelData.meshes.front();
   }();
 
   auto textures = array<TextureHandle, 4>{};
@@ -210,9 +210,8 @@ auto Effects::LoadedEffect::compile(path const& filePath, Engine const& engine)
   auto const activeTechniqueName = effect.get_technique_name();
   auto const activeTechniqueNumPasses = effect.get_technique_num_passes();
 
-  return LoadedEffect{std::move(gfxCache),       id,
-                      std::move(description),    backgroundTexture,
-                      xModelData.meshes.front(), activeTechniqueName,
+  return LoadedEffect{std::move(gfxCache),     id,    std::move(description),
+                      backgroundTexture,       xMesh, activeTechniqueName,
                       activeTechniqueNumPasses};
 }
 

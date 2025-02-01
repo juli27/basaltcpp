@@ -1,16 +1,16 @@
 #pragma once
 
-#include <basalt/api/gfx/types.h>
-#include <basalt/api/gfx/backend/types.h>
-#include <basalt/api/gfx/backend/ext/types.h>
+#include "gfx/types.h"
+#include "gfx/backend/types.h"
+#include "gfx/backend/ext/types.h"
 
-#include <basalt/api/scene/types.h>
+#include "scene/types.h"
 
-#include <basalt/api/shared/types.h>
+#include "shared/types.h"
 
-#include <basalt/api/math/types.h>
+#include "math/types.h"
 
-#include <basalt/api/base/types.h>
+#include "base/types.h"
 
 #include <entt/core/fwd.hpp>
 #include <entt/entity/entity.hpp>
@@ -41,14 +41,14 @@ public:
 
   static auto scene_inspector(Scene&, bool& isOpen) -> void;
   static auto entities(EntityRegistry&) -> void;
-  static auto entity_hierarchy_panel(EntityRegistry&, EntityId& selected)
-    -> void;
+  static auto entity_hierarchy_panel(EntityRegistry&,
+                                     EntityId& selected) -> void;
   static auto entity_components(Entity, gsl::span<ComponentUi>) -> void;
   static auto transform(Transform&) -> void;
   static auto local_to_world(LocalToWorld const&) -> void;
   static auto camera(gfx::Camera&) -> void;
-  static auto render_component(gfx::RenderComponent const&) -> void;
-  static auto x_model(gfx::ext::XModelHandle const&) -> void;
+  static auto model(gfx::Model const&) -> void;
+  static auto x_model(gfx::ext::XModel const&) -> void;
   static auto light(gfx::Light&) -> void;
   static auto point_light(gfx::PointLight&) -> void;
   static auto spot_light(gfx::SpotLight&) -> void;

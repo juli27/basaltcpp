@@ -18,8 +18,8 @@ namespace basalt::gfx {
 
 class Context final : public std::enable_shared_from_this<Context> {
 public:
-  static auto create(DevicePtr, ext::DeviceExtensions, SwapChainPtr, Info)
-    -> ContextPtr;
+  static auto create(DevicePtr, ext::DeviceExtensions, SwapChainPtr,
+                     Info) -> ContextPtr;
 
   // don't use. Use create() function instead
   Context(DevicePtr, ext::DeviceExtensions, SwapChainPtr, Info);
@@ -76,9 +76,9 @@ public:
   [[nodiscard]] auto get(ext::EffectId) const -> ext::Effect&;
 
   [[nodiscard]]
-  auto create_vertex_buffer(VertexBufferCreateInfo const&,
-                            gsl::span<std::byte const> data = {})
-    -> VertexBuffer;
+  auto
+  create_vertex_buffer(VertexBufferCreateInfo const&,
+                       gsl::span<std::byte const> data = {}) -> VertexBuffer;
 
   auto destroy(VertexBufferHandle) const noexcept -> void;
 
@@ -139,14 +139,9 @@ public:
   [[nodiscard]] auto get(MeshHandle) const -> MeshData const&;
 
   [[nodiscard]]
-  auto load_x_model(XModelLoadInfo const&) -> ext::XModelHandle;
+  auto load_x_meshes(std::filesystem::path const&) -> ext::XModelData;
 
-  [[nodiscard]]
-  auto create_x_model(ext::XModelCreateInfo const&) -> ext::XModelHandle;
-
-  auto destroy(ext::XModelHandle) noexcept -> void;
-
-  auto get(ext::XModelHandle) const -> XModelData const&;
+  auto destroy(ext::XMeshHandle) noexcept -> void;
 
   auto submit(gsl::span<CommandList const>) const -> void;
 
@@ -175,7 +170,6 @@ private:
   Info mInfo;
   HandlePool<MaterialData, MaterialHandle> mMaterials;
   HandlePool<MeshData, MeshHandle> mMeshes;
-  HandlePool<XModelData, ext::XModelHandle> mXModels;
 
   auto make_deleter() -> ContextResourceDeleter;
 

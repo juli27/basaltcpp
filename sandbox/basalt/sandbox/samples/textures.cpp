@@ -45,9 +45,9 @@ using basalt::gfx::Environment;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::MaterialCreateInfo;
 using basalt::gfx::MaterialHandle;
+using basalt::gfx::Model;
 using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PrimitiveType;
-using basalt::gfx::RenderComponent;
 using basalt::gfx::SamplerCreateInfo;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureFilter;
@@ -88,8 +88,8 @@ public:
 
     auto firstEntity = true;
 
-    ctx.scene.entity_registry().view<RenderComponent, SamplerSettings>().each(
-      [&](EntityId const entityId, RenderComponent& renderComponent,
+    ctx.scene.entity_registry().view<Model, SamplerSettings>().each(
+      [&](EntityId const entityId, Model& renderComponent,
           SamplerSettings& samplerSettings) {
         constexpr auto filterMask = u8{0x3};
         constexpr auto mipFilterShift = u8{0};
@@ -167,7 +167,7 @@ auto Samples::new_textures_sample(Engine& engine) -> ViewPtr {
 
   auto const quad = scene->create_entity(Vector3f32{0.0f, 0.0f, 1.5f});
   // material is set in SamplerSettingsSystem
-  quad.emplace<RenderComponent>(mesh, nullhdl);
+  quad.emplace<Model>(mesh, nullhdl);
 
   auto& samplerSettings = quad.emplace<SamplerSettings>();
 

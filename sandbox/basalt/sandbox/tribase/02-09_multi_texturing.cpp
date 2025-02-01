@@ -78,11 +78,8 @@ MultiTexturing::MultiTexturing(Engine const& engine)
                                         TextureMipFilter::Linear})}
   , mTexture0{mGfxCache->load_texture_2d(TEXTURE1_FILE_PATH)}
   , mTexture1{mGfxCache->load_texture_2d(TEXTURE2_FILE_PATH)} {
-  auto const& gfxCtx = engine.gfx_context();
-
   mCubeMesh = [&] {
-    auto const xModelHandle = mGfxCache->load_x_model({CUBE_MODEL_FILE_PATH});
-    auto const& xModelData = gfxCtx.get(xModelHandle);
+    auto const xModelData = mGfxCache->load_x_meshes(CUBE_MODEL_FILE_PATH);
 
     return xModelData.meshes.front();
   }();

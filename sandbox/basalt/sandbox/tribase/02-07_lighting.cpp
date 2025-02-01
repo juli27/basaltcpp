@@ -106,16 +106,13 @@ Lighting::Lighting(Engine const& engine)
 
     return mGfxCache->create_sampler(desc);
   }()} {
-  auto const& gfxCtx = engine.gfx_context();
   mSphereMesh = [&] {
-    auto const xModelHandle = mGfxCache->load_x_model({SPHERE_MODEL_FILE_PATH});
-    auto const& xModelData = gfxCtx.get(xModelHandle);
+    auto const xModelData = mGfxCache->load_x_meshes(SPHERE_MODEL_FILE_PATH);
 
     return xModelData.meshes.front();
   }();
   mGroundMesh = [&] {
-    auto const xModelHandle = mGfxCache->load_x_model({GROUND_MODEL_FILE_PATH});
-    auto const& xModelData = gfxCtx.get(xModelHandle);
+    auto const xModelData = mGfxCache->load_x_meshes(GROUND_MODEL_FILE_PATH);
 
     return xModelData.meshes.front();
   }();

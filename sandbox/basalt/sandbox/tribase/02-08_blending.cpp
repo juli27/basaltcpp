@@ -214,17 +214,13 @@ Blending::Blending(Engine const& engine)
     return mGfxCache->create_vertex_buffer(
       {starVertexData.size_bytes(), StarVertex::sLayout}, starVertexData);
   }()} {
-  auto const& gfxCtx = engine.gfx_context();
-
   mPlanetMesh = [&] {
-    auto const xModelHandle = mGfxCache->load_x_model({PLANET_MODEL_FILE_PATH});
-    auto const& xModelData = gfxCtx.get(xModelHandle);
+    auto const xModelData = mGfxCache->load_x_meshes(PLANET_MODEL_FILE_PATH);
 
     return xModelData.meshes.front();
   }();
   mSunMesh = [&] {
-    auto const xModelHandle = mGfxCache->load_x_model({SUN_MODEL_FILE_PATH});
-    auto const& xModelData = gfxCtx.get(xModelHandle);
+    auto const xModelData = mGfxCache->load_x_meshes(SUN_MODEL_FILE_PATH);
 
     return xModelData.meshes.front();
   }();

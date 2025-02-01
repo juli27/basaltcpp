@@ -2,11 +2,14 @@
 
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resources.h>
+#include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <gsl/span>
 
+#include <algorithm>
 #include <cstddef>
 #include <filesystem>
+#include <iterator>
 #include <memory>
 #include <utility>
 #include <variant>
@@ -29,7 +32,7 @@ ResourceCache::ResourceCache(ContextPtr context)
 }
 
 ResourceCache::~ResourceCache() noexcept {
-  for (auto const handle : mXModels) {
+  for (auto const handle : mXMeshes) {
     mContext->destroy(handle);
   }
 
@@ -152,20 +155,13 @@ auto ResourceCache::create_mesh(MeshCreateInfo const& createInfo)
   return meshHandle;
 }
 
-auto ResourceCache::load_x_model(XModelLoadInfo const& loadInfo)
-  -> ext::XModelHandle {
-  auto const xModelHandle = mContext->load_x_model(loadInfo);
-  mXModels.push_back(xModelHandle);
+auto ResourceCache::load_x_meshes(path const& filePath) -> ext::XModelData {
+  auto data = mContext->load_x_meshes(filePath);
 
-  return xModelHandle;
-}
+  std::copy(data.meshes.begin(), data.meshes.end(),
+            std::back_inserter(mXMeshes));
 
-auto ResourceCache::create_x_model(ext::XModelCreateInfo const& createInfo)
-  -> ext::XModelHandle {
-  auto const xModelHandle = mContext->create_x_model(createInfo);
-  mXModels.push_back(xModelHandle);
-
-  return xModelHandle;
+  return data;
 }
 
 } // namespace basalt::gfx

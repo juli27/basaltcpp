@@ -61,11 +61,8 @@ constexpr auto THING_PATH = "data/tribase/Thing.x"sv;
 
 StencilBuffer::StencilBuffer(Engine const& engine)
   : mGfxCache{engine.gfx_context().create_resource_cache()} {
-  auto const& gfxCtx = engine.gfx_context();
-
   mThingMesh = [&] {
-    auto const xModelHandle = mGfxCache->load_x_model({THING_PATH});
-    auto const& xModelData = gfxCtx.get(xModelHandle);
+    auto const xModelData = mGfxCache->load_x_meshes(THING_PATH);
 
     return xModelData.meshes.front();
   }();

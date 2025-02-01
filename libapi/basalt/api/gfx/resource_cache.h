@@ -1,9 +1,10 @@
 #pragma once
 
-#include <basalt/api/gfx/types.h>
+#include "types.h"
 
-#include <basalt/api/gfx/backend/types.h>
-#include <basalt/api/gfx/backend/ext/types.h>
+#include "backend/types.h"
+#include "backend/ext/types.h"
+#include "backend/ext/x_model_support.h"
 
 #include <gsl/span>
 
@@ -68,10 +69,7 @@ public:
   auto create_mesh(MeshCreateInfo const&) -> MeshHandle;
 
   [[nodiscard]]
-  auto load_x_model(XModelLoadInfo const&) -> ext::XModelHandle;
-
-  [[nodiscard]]
-  auto create_x_model(ext::XModelCreateInfo const&) -> ext::XModelHandle;
+  auto load_x_meshes(std::filesystem::path const&) -> ext::XModelData;
 
 private:
   ContextPtr mContext;
@@ -85,7 +83,7 @@ private:
   std::vector<VertexBufferHandle> mVertexBuffers;
   std::vector<IndexBufferHandle> mIndexBuffers;
   std::vector<MeshHandle> mMeshes;
-  std::vector<ext::XModelHandle> mXModels;
+  std::vector<ext::XMeshHandle> mXMeshes;
 };
 
 } // namespace basalt::gfx

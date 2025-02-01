@@ -112,11 +112,8 @@ BumpMapping::BumpMapping(Engine const& engine)
     return mGfxCache->create_index_buffer({skyBoxIndexData.size_bytes()},
                                           skyBoxIndexData);
   }()} {
-  auto const& gfxCtx = engine.gfx_context();
-
   mCubeMesh = [&] {
-    auto const xModelHandle = mGfxCache->load_x_model({CUBE_PATH});
-    auto const& xModelData = gfxCtx.get(xModelHandle);
+    auto const xModelData = mGfxCache->load_x_meshes(CUBE_PATH);
 
     return xModelData.meshes.front();
   }();

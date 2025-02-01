@@ -20,9 +20,9 @@ using DeviceExtensions =
   std::unordered_map<DeviceExtensionId, DeviceExtensionPtr>;
 
 BASALT_DEFINE_HANDLE(XMeshHandle);
-BASALT_DEFINE_HANDLE(XModelHandle);
 
 class XMeshCommandEncoder;
+struct XModelData;
 
 class Effect;
 BASALT_DEFINE_HANDLE(EffectId);
