@@ -6,6 +6,7 @@
 
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/environment.h>
+#include <basalt/api/gfx/info.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
 
@@ -189,8 +190,9 @@ auto Samples::new_textures_sample(Engine& engine) -> ViewPtr {
   materialDesc.sampledTexture.texture =
     gfxCache->load_texture_2d(TEXTURE_FILE_PATH);
 
-  auto const maxAnisotropy =
-    engine.gfx_info().currentDeviceCaps.samplerMaxAnisotropy;
+  auto const& gfxInfo = engine.gfx_info();
+  auto const maxAnisotropy = gfxInfo.adapterInfos[gfxInfo.currentAdapter]
+                               .deviceCaps.samplerMaxAnisotropy;
   auto& materials = samplerSettings.materials;
   auto i = u32{0};
   for (auto const filter : {TextureFilter::Point, TextureFilter::Bilinear,

@@ -1,11 +1,15 @@
 #pragma once
 
-#include <basalt/api/types.h>
+#include "types.h"
 
-#include <basalt/api/gfx/types.h>
+#include "gfx/types.h"
+#include "gfx/backend/adapter.h"
+#include "gfx/backend/types.h"
 
-#include <basalt/api/shared/size2d.h>
-#include <basalt/api/shared/types.h>
+#include "shared/size2d.h"
+#include "shared/types.h"
+
+#include "base/types.h"
 
 #include <functional>
 #include <string>
@@ -15,7 +19,7 @@ namespace basalt {
 using ViewFactory = ViewPtr(Engine&);
 
 struct CanvasCreateInfo {
-  gfx::Adapter adapter;
+  u32 adapter{};
   gfx::DisplayMode exclusiveFullscreenMode{};
   Size2Du16 size{Size2Du16::dont_care()};
   gfx::ImageFormat renderTargetFormat{gfx::ImageFormat::Unknown};
@@ -25,7 +29,7 @@ struct CanvasCreateInfo {
   WindowMode initialMode{WindowMode::Windowed};
 };
 
-using ConfigureCanvas = CanvasCreateInfo(gfx::AdapterList const&);
+using ConfigureCanvas = CanvasCreateInfo(gfx::AdapterInfos const&);
 
 struct AppLaunchInfo {
   std::function<ViewFactory> createRootView;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gfx/info.h"
 #include "gfx/types.h"
 #include "gfx/backend/types.h"
 #include "gfx/backend/ext/types.h"
@@ -59,6 +60,7 @@ public:
 
 private:
   u32 mSelectedAdapterIndex{0};
+  uSize mSelectedModeIndex{};
   u8 mOverlayCorner{2u};
 };
 

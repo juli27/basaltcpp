@@ -4,6 +4,7 @@
 
 #include <basalt/api/gfx/types.h>
 
+#include <basalt/api/gfx/backend/adapter.h>
 #include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/shared/size2d.h>

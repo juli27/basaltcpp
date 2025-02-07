@@ -42,8 +42,8 @@ constexpr auto to_d3d_color(Color const& color) noexcept -> D3DCOLOR {
   return enum_cast(color.to_argb());
 }
 
-constexpr auto to_d3d_color_value(Color const& color) noexcept
-  -> D3DCOLORVALUE {
+constexpr auto
+to_d3d_color_value(Color const& color) noexcept -> D3DCOLORVALUE {
   return D3DCOLORVALUE{color.r(), color.g(), color.b(), color.a()};
 }
 
@@ -126,7 +126,7 @@ inline auto to_d3d(FogMode const mode) -> D3DFOGMODE {
 }
 
 inline auto to_d3d(ImageFormat const format) -> D3DFORMAT {
-  static constexpr auto TO_D3D = EnumArray<ImageFormat, D3DFORMAT, 11>{
+  static constexpr auto TO_D3D = EnumArray<ImageFormat, D3DFORMAT, 15>{
     {ImageFormat::Unknown, D3DFMT_UNKNOWN},
     {ImageFormat::B5G6R5, D3DFMT_R5G6B5},
     {ImageFormat::B5G5R5X1, D3DFMT_X1R5G5B5},
@@ -135,9 +135,13 @@ inline auto to_d3d(ImageFormat const format) -> D3DFORMAT {
     {ImageFormat::B8G8R8A8, D3DFMT_A8R8G8B8},
     {ImageFormat::B10G10R10A2, D3DFMT_A2R10G10B10},
     {ImageFormat::U8V8, D3DFMT_V8U8},
+    {ImageFormat::D15S1, D3DFMT_D15S1},
     {ImageFormat::D16, D3DFMT_D16},
     {ImageFormat::D24X8, D3DFMT_D24X8},
+    {ImageFormat::D24X4S4, D3DFMT_D24X4S4},
     {ImageFormat::D24S8, D3DFMT_D24S8},
+    {ImageFormat::D24FS8, D3DFMT_D24FS8},
+    {ImageFormat::D32, D3DFMT_D32},
   };
   static_assert(TO_D3D.size() == IMAGE_FORMAT_COUNT);
 
@@ -148,34 +152,32 @@ constexpr auto to_image_format(D3DFORMAT const format) noexcept -> ImageFormat {
   switch (format) {
   case D3DFMT_A8R8G8B8:
     return ImageFormat::B8G8R8A8;
-
   case D3DFMT_X8R8G8B8:
     return ImageFormat::B8G8R8X8;
-
   case D3DFMT_R5G6B5:
     return ImageFormat::B5G6R5;
-
   case D3DFMT_X1R5G5B5:
     return ImageFormat::B5G5R5X1;
-
   case D3DFMT_A1R5G5B5:
     return ImageFormat::B5G5R5A1;
-
   case D3DFMT_A2R10G10B10:
     return ImageFormat::B10G10R10A2;
-
   case D3DFMT_V8U8:
     return ImageFormat::U8V8;
-
+  case D3DFMT_D32:
+    return ImageFormat::D32;
+  case D3DFMT_D15S1:
+    return ImageFormat::D15S1;
   case D3DFMT_D24S8:
     return ImageFormat::D24S8;
-
   case D3DFMT_D24X8:
     return ImageFormat::D24X8;
-
+  case D3DFMT_D24X4S4:
+    return ImageFormat::D24X4S4;
+  case D3DFMT_D24FS8:
+    return ImageFormat::D24FS8;
   case D3DFMT_D16:
     return ImageFormat::D16;
-
   case D3DFMT_UNKNOWN:
   default:
     break;
@@ -207,12 +209,23 @@ inline auto to_d3d(MaterialColorSource const mcs) -> D3DMATERIALCOLORSOURCE {
 
 inline auto to_d3d(MultiSampleCount const sampleCount) -> D3DMULTISAMPLE_TYPE {
   static constexpr auto TO_D3D =
-    EnumArray<MultiSampleCount, D3DMULTISAMPLE_TYPE, 4>{
+    EnumArray<MultiSampleCount, D3DMULTISAMPLE_TYPE, 16>{
       {MultiSampleCount::One, D3DMULTISAMPLE_NONE},
       {MultiSampleCount::Two, D3DMULTISAMPLE_2_SAMPLES},
+      {MultiSampleCount::Three, D3DMULTISAMPLE_3_SAMPLES},
       {MultiSampleCount::Four, D3DMULTISAMPLE_4_SAMPLES},
+      {MultiSampleCount::Five, D3DMULTISAMPLE_5_SAMPLES},
+      {MultiSampleCount::Six, D3DMULTISAMPLE_6_SAMPLES},
+      {MultiSampleCount::Seven, D3DMULTISAMPLE_7_SAMPLES},
       {MultiSampleCount::Eight, D3DMULTISAMPLE_8_SAMPLES},
-    };
+      {MultiSampleCount::Nine, D3DMULTISAMPLE_9_SAMPLES},
+      {MultiSampleCount::Ten, D3DMULTISAMPLE_10_SAMPLES},
+      {MultiSampleCount::Eleven, D3DMULTISAMPLE_11_SAMPLES},
+      {MultiSampleCount::Twelve, D3DMULTISAMPLE_12_SAMPLES},
+      {MultiSampleCount::Thirteen, D3DMULTISAMPLE_13_SAMPLES},
+      {MultiSampleCount::Fourteen, D3DMULTISAMPLE_14_SAMPLES},
+      {MultiSampleCount::Fifteen, D3DMULTISAMPLE_15_SAMPLES},
+      {MultiSampleCount::Sixteen, D3DMULTISAMPLE_16_SAMPLES}};
   static_assert(TO_D3D.size() == MULTI_SAMPLE_COUNT_COUNT);
 
   return TO_D3D[sampleCount];
@@ -225,10 +238,34 @@ inline auto to_multi_sample_count(D3DMULTISAMPLE_TYPE const sampleType)
     return MultiSampleCount::One;
   case D3DMULTISAMPLE_2_SAMPLES:
     return MultiSampleCount::Two;
+  case D3DMULTISAMPLE_3_SAMPLES:
+    return MultiSampleCount::Three;
   case D3DMULTISAMPLE_4_SAMPLES:
     return MultiSampleCount::Four;
+  case D3DMULTISAMPLE_5_SAMPLES:
+    return MultiSampleCount::Five;
+  case D3DMULTISAMPLE_6_SAMPLES:
+    return MultiSampleCount::Six;
+  case D3DMULTISAMPLE_7_SAMPLES:
+    return MultiSampleCount::Seven;
   case D3DMULTISAMPLE_8_SAMPLES:
     return MultiSampleCount::Eight;
+  case D3DMULTISAMPLE_9_SAMPLES:
+    return MultiSampleCount::Nine;
+  case D3DMULTISAMPLE_10_SAMPLES:
+    return MultiSampleCount::Ten;
+  case D3DMULTISAMPLE_11_SAMPLES:
+    return MultiSampleCount::Eleven;
+  case D3DMULTISAMPLE_12_SAMPLES:
+    return MultiSampleCount::Twelve;
+  case D3DMULTISAMPLE_13_SAMPLES:
+    return MultiSampleCount::Thirteen;
+  case D3DMULTISAMPLE_14_SAMPLES:
+    return MultiSampleCount::Fourteen;
+  case D3DMULTISAMPLE_15_SAMPLES:
+    return MultiSampleCount::Fifteen;
+  case D3DMULTISAMPLE_16_SAMPLES:
+    return MultiSampleCount::Sixteen;
   default:
     break;
   }
@@ -415,8 +452,8 @@ inline auto to_d3d(TextureStageDestination const dest) -> DWORD {
   return TO_D3D[dest];
 }
 
-inline auto to_d3d(TextureCoordinateTransformMode const mode)
-  -> D3DTEXTURETRANSFORMFLAGS {
+inline auto
+to_d3d(TextureCoordinateTransformMode const mode) -> D3DTEXTURETRANSFORMFLAGS {
   static constexpr auto TO_D3D =
     EnumArray<TextureCoordinateTransformMode, D3DTEXTURETRANSFORMFLAGS, 5>{
       {TextureCoordinateTransformMode::Disabled, D3DTTFF_DISABLE},
@@ -450,8 +487,8 @@ inline auto to_d3d(TransformState const state) -> D3DTRANSFORMSTATETYPE {
   return TO_D3D[state];
 }
 
-inline auto to_d3d(BorderColor const borderColor, Color const& custom)
-  -> D3DCOLOR {
+inline auto to_d3d(BorderColor const borderColor,
+                   Color const& custom) -> D3DCOLOR {
   if (borderColor == BorderColor::Custom) {
     return to_d3d_color(custom);
   }

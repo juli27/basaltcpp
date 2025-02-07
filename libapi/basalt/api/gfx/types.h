@@ -16,9 +16,7 @@
 
 #include <cstddef>
 #include <memory>
-#include <string>
 #include <variant>
-#include <vector>
 
 namespace basalt::gfx {
 
@@ -31,6 +29,8 @@ class ContextResourceDeleter;
 
 class Environment;
 class GfxSystem;
+
+struct Info;
 
 class ResourceCache;
 using ResourceCachePtr = std::shared_ptr<ResourceCache>;
@@ -47,94 +47,11 @@ using Mesh = UniqueHandle<MeshHandle, ContextResourceDeleter>;
 BASALT_DEFINE_HANDLE(MaterialHandle);
 using Material = UniqueHandle<MaterialHandle, ContextResourceDeleter>;
 
-BASALT_DEFINE_HANDLE(Adapter);
-
-// listed from left to right, in c-array order if power of 2 aligned,
-// lsb to msb otherwise
-enum class ImageFormat : u8 {
-  Unknown,
-
-  // Color
-  // 16-bit
-  B5G6R5,
-  B5G5R5X1,
-  B5G5R5A1,
-
-  // 32-bit
-  B8G8R8X8,
-  B8G8R8A8,
-  B10G10R10A2,
-
-  // signed data
-  // 16-bit
-  U8V8,
-
-  // Depth-Stencil
-  // 16-bit
-  D16,
-
-  // 32-bit
-  D24X8,
-  D24S8,
-};
-constexpr auto IMAGE_FORMAT_COUNT = u8{11};
-
 enum class BackendApi : u8 {
   Default,
   Direct3D9,
 };
 constexpr auto BACKEND_API_COUNT = u8{2};
-
-enum class MultiSampleCount : u8 {
-  One,
-  Two,
-  Four,
-  Eight,
-};
-constexpr auto MULTI_SAMPLE_COUNT_COUNT = u8{4};
-
-using MultiSampleCounts = EnumSet<MultiSampleCount, MultiSampleCount::Eight>;
-
-struct BackBufferFormat final {
-  ImageFormat renderTargetFormat{ImageFormat::Unknown};
-  ImageFormat depthStencilFormat{ImageFormat::Unknown};
-  MultiSampleCounts supportedSampleCounts;
-};
-
-struct DisplayMode final {
-  u32 width{};
-  u32 height{};
-  u32 refreshRate{};
-};
-
-using DisplayModeList = std::vector<DisplayMode>;
-
-struct AdapterModes final {
-  std::vector<BackBufferFormat> backBufferFormats;
-  DisplayModeList displayModes;
-  ImageFormat displayFormat{ImageFormat::Unknown};
-};
-
-using AdapterModeList = std::vector<AdapterModes>;
-
-struct AdapterInfo final {
-  std::string displayName{};
-  std::string driverInfo{};
-  AdapterModeList adapterModes{};
-  std::vector<BackBufferFormat> backBufferFormats;
-  DisplayMode displayMode;
-  ImageFormat displayFormat{ImageFormat::Unknown};
-  Adapter handle;
-};
-
-using AdapterList = std::vector<AdapterInfo>;
-
-struct Info final {
-  // HACK: caps for the current device only
-  DeviceCaps currentDeviceCaps;
-  AdapterList adapters{};
-  BackendApi backendApi{BackendApi::Default};
-};
 
 struct MeshCreateInfo final {
   gsl::span<std::byte const> vertexData;

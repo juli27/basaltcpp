@@ -88,8 +88,9 @@ Textures::Textures(Engine& engine)
       SamplerCreateInfo{TextureFilter::Bilinear, TextureFilter::Anisotropic};
 
     auto const& gfxInfo = engine.gfx_info();
-    BASALT_ASSERT(gfxInfo.currentDeviceCaps.samplerMinFilterAnisotropic);
-    desc.maxAnisotropy = gfxInfo.currentDeviceCaps.samplerMaxAnisotropy;
+    auto const& caps = gfxInfo.adapterInfos[gfxInfo.currentAdapter].deviceCaps;
+    BASALT_ASSERT(caps.samplerMinFilterAnisotropic);
+    desc.maxAnisotropy = caps.samplerMaxAnisotropy;
 
     return mGfxCache->create_sampler(desc);
   }()}

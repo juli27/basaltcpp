@@ -2,41 +2,46 @@
 
 #include <basalt/win32/shared/win32_gfx_factory.h>
 
-#include <basalt/gfx/backend/d3d9/d3d9_custom.h>
-#include <basalt/gfx/backend/d3d9/types.h>
+#include "d3d9_custom.h"
+#include "types.h"
 
-#include <basalt/api/gfx/types.h>
+#include <optional>
+#include <vector>
 
 namespace basalt::gfx {
 
 class D3D9Factory final : public Win32GfxFactory {
 public:
-  // returns null on failure
-  static auto create() -> D3D9FactoryPtr;
-
-  D3D9Factory(D3D9Factory const&) = delete;
-  D3D9Factory(D3D9Factory&&) = delete;
-
-  ~D3D9Factory() noexcept override = default;
-
-  auto operator=(D3D9Factory const&) -> D3D9Factory& = delete;
-  auto operator=(D3D9Factory&&) -> D3D9Factory& = delete;
-
-  [[nodiscard]] auto get_adapter_monitor(Adapter) const -> HMONITOR;
-
-  [[nodiscard]] auto adapters() const -> AdapterList const& override;
+  static auto create() -> std::optional<D3D9FactoryPtr>;
 
   // don't use. Use create function instead
-  D3D9Factory(IDirect3D9Ptr, AdapterList);
+  D3D9Factory(IDirect3D9Ptr, std::vector<UINT> suitableAdapters);
+
+  [[nodiscard]]
+  auto adapter_count() const -> u32 override;
+
+  [[nodiscard]]
+  auto
+  get_adapter_identifier(u32 adapterIndex) const -> AdapterIdentifier override;
+
+  [[nodiscard]]
+  auto get_adapter_device_caps(u32 adapterIndex) const -> DeviceCaps override;
+
+  [[nodiscard]]
+  auto get_adapter_shared_mode_info(u32 adapterIndex) const
+    -> AdapterSharedModeInfo override;
+
+  [[nodiscard]]
+  auto enum_adapter_exclusive_mode_infos(u32 adapterIndex) const
+    -> AdapterExclusiveModeInfos override;
 
 private:
   IDirect3D9Ptr mInstance;
-  AdapterList mAdapters;
+  std::vector<UINT> mSuitableAdapters;
 
-  auto
-  do_create_device_and_swap_chain(HWND,
-                                  DeviceAndSwapChainCreateInfo const&) const
-    -> DeviceAndSwapChain override;
+  auto do_create_device_and_swap_chain(
+    HWND,
+    DeviceAndSwapChainCreateInfo const&) const -> DeviceAndSwapChain override;
 };
 
 } // namespace basalt::gfx

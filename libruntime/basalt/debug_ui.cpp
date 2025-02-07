@@ -7,6 +7,7 @@
 #include <basalt/api/scene/transform.h>
 
 #include <basalt/api/gfx/camera.h>
+#include <basalt/api/gfx/info.h>
 
 #include <basalt/api/shared/color.h>
 #include <basalt/api/shared/config.h>
@@ -46,32 +47,33 @@ auto to_string(gfx::BackendApi const api) -> string_view {
   return TO_STRING[api];
 }
 
-auto to_string(gfx::DisplayMode const& mode,
-               gfx::ImageFormat const format) noexcept -> string {
+auto to_string(gfx::DisplayMode const& mode) noexcept -> string {
   auto const gcd = std::gcd(mode.width, mode.height);
 
-  return fmt::format(FMT_STRING("{}x{} ({}:{}) {}Hz {}"), mode.width,
-                     mode.height, mode.width / gcd, mode.height / gcd,
-                     mode.refreshRate, to_string(format));
+  return fmt::format(FMT_STRING("{}x{} ({}:{}) {}Hz"), mode.width, mode.height,
+                     mode.width / gcd, mode.height / gcd, mode.refreshRate);
 }
 
 } // namespace
 
 auto DebugUi::show_gfx_info(gfx::Info const& gfxInfo) -> void {
-  auto const& selectedAdapter = gfxInfo.adapters[mSelectedAdapterIndex];
+  auto const& selectedAdapter = gfxInfo.adapterInfos[mSelectedAdapterIndex];
 
   ImGui::Text("Backend API: %s", to_string(gfxInfo.backendApi).data());
 
   ImGui::Separator();
 
-  if (ImGui::BeginCombo("Adapter", selectedAdapter.displayName.c_str())) {
-    for (auto const& adapter : gfxInfo.adapters) {
+  auto const& adapterIdentifier = selectedAdapter.identifier;
+
+  if (ImGui::BeginCombo("Adapter", adapterIdentifier.displayName.c_str())) {
+    for (auto const& adapter : gfxInfo.adapterInfos) {
       ImGui::PushID(&adapter);
 
-      auto const adapterIndex = adapter.handle.value();
+      auto const adapterIndex = adapter.index;
       auto const isSelected = adapterIndex == mSelectedAdapterIndex;
 
-      if (ImGui::Selectable(adapter.displayName.c_str(), isSelected)) {
+      if (ImGui::Selectable(adapterIdentifier.displayName.c_str(),
+                            isSelected)) {
         mSelectedAdapterIndex = adapterIndex;
       }
 
@@ -85,36 +87,58 @@ auto DebugUi::show_gfx_info(gfx::Info const& gfxInfo) -> void {
     ImGui::EndCombo();
   }
 
-  ImGui::Text("Driver: %s", selectedAdapter.driverInfo.c_str());
+  ImGui::Text("Driver: %s", adapterIdentifier.driverInfo.c_str());
 
   ImGui::Separator();
 
   ImGui::TextUnformatted("Adapter Modes");
 
+  auto const& sharedModeInfo = selectedAdapter.sharedModeInfo;
+  auto const& exclusiveModes = selectedAdapter.exclusiveModes;
+
+  if (ImGui::IsWindowAppearing()) {
+    for (auto i = uSize{}; i < exclusiveModes.size(); i++) {
+      if (exclusiveModes[i].displayFormat == sharedModeInfo.displayFormat) {
+        mSelectedModeIndex = i;
+      }
+    }
+  }
+
+  auto const& sharedDisplayMode = sharedModeInfo.displayMode;
+  auto const& selectedMode = exclusiveModes[mSelectedModeIndex];
+  if (ImGui::BeginCombo("Display Format",
+                        to_string(selectedMode.displayFormat))) {
+    for (auto i = uSize{}; i < exclusiveModes.size(); i++) {
+      auto const& mode = exclusiveModes[i];
+      auto const isSelected = i == mSelectedModeIndex;
+
+      if (ImGui::Selectable(to_string(mode.displayFormat), isSelected)) {
+        mSelectedModeIndex = i;
+      }
+
+      if (isSelected) {
+        ImGui::SetItemDefaultFocus();
+      }
+    }
+
+    ImGui::EndCombo();
+  }
+
   if (ImGui::BeginChild("modes")) {
-    auto const& adapterModes = selectedAdapter.adapterModes;
+    for (auto const& displayMode : selectedMode.displayModes) {
+      if (selectedMode.displayFormat == sharedModeInfo.displayFormat &&
+          displayMode.width == sharedDisplayMode.width &&
+          displayMode.height == sharedDisplayMode.height &&
+          displayMode.refreshRate == sharedDisplayMode.refreshRate) {
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{1.0f, 1.0f, 0.0f, 1.0f});
+        ImGui::TextUnformatted(to_string(displayMode).c_str());
+        ImGui::PopStyleColor();
 
-    for (auto i = uSize{0}; i < adapterModes.size(); ++i) {
-      auto const& adapterMode = adapterModes[i];
-
-      for (auto const& displayMode : adapterMode.displayModes) {
-        if (adapterMode.displayFormat == selectedAdapter.displayFormat &&
-            displayMode.width == selectedAdapter.displayMode.width &&
-            displayMode.height == selectedAdapter.displayMode.height &&
-            displayMode.refreshRate ==
-              selectedAdapter.displayMode.refreshRate) {
-          ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{1.0f, 1.0f, 0.0f, 1.0f});
-          ImGui::TextUnformatted(
-            to_string(displayMode, adapterMode.displayFormat).c_str());
-          ImGui::PopStyleColor();
-
-          if (ImGui::IsWindowAppearing()) {
-            ImGui::SetScrollHereY();
-          }
-        } else {
-          ImGui::TextUnformatted(
-            to_string(displayMode, adapterMode.displayFormat).c_str());
+        if (ImGui::IsWindowAppearing()) {
+          ImGui::SetScrollHereY();
         }
+      } else {
+        ImGui::TextUnformatted(to_string(displayMode).c_str());
       }
     }
   }

@@ -1,18 +1,21 @@
 #pragma once
 
-#include <basalt/win32/shared/Windows_custom.h>
+#include "Windows_custom.h"
 
+#include <basalt/gfx/backend/factory.h>
 #include <basalt/gfx/backend/types.h>
 
 #include <basalt/api/gfx/types.h>
 #include <basalt/api/gfx/backend/types.h>
 
+#include <basalt/api/base/types.h>
+
 namespace basalt::gfx {
 
-class Win32GfxFactory {
+class Win32GfxFactory : public Factory {
 public:
   struct DeviceAndSwapChainCreateInfo final {
-    Adapter adapter;
+    u32 adapter;
     DisplayMode exclusiveDisplayMode;
     ImageFormat renderTargetFormat{ImageFormat::Unknown};
     ImageFormat depthStencilFormat{ImageFormat::Unknown};
@@ -20,20 +23,9 @@ public:
     bool exclusive{false};
   };
 
-  Win32GfxFactory(Win32GfxFactory const&) = delete;
-  Win32GfxFactory(Win32GfxFactory&&) = delete;
-
-  virtual ~Win32GfxFactory() noexcept = default;
-
-  auto operator=(Win32GfxFactory const&) -> Win32GfxFactory& = delete;
-  auto operator=(Win32GfxFactory&&) -> Win32GfxFactory& = delete;
-
   [[nodiscard]]
-  virtual auto adapters() const -> AdapterList const& = 0;
-
-  [[nodiscard]]
-  auto create_context(HWND, DeviceAndSwapChainCreateInfo const&) const
-    -> ContextPtr;
+  auto create_context(HWND,
+                      DeviceAndSwapChainCreateInfo const&) const -> ContextPtr;
 
 protected:
   struct DeviceAndSwapChain {

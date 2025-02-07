@@ -22,12 +22,20 @@ auto to_string(ImageFormat const format) noexcept -> char const* {
     return "B10G10R10A2";
   case ImageFormat::U8V8:
     return "U8V8";
+  case ImageFormat::D15S1:
+    return "D15S1";
   case ImageFormat::D16:
     return "D16";
   case ImageFormat::D24X8:
     return "D24X8";
+  case ImageFormat::D24X4S4:
+    return "D24X4S4";
   case ImageFormat::D24S8:
     return "D24S8";
+  case ImageFormat::D24FS8:
+    return "D24FS8";
+  case ImageFormat::D32:
+    return "D32";
   }
 
   BASALT_CRASH("unhandled format");

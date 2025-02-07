@@ -18,6 +18,7 @@
 #include <array>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -27,7 +28,9 @@ namespace basalt::gfx {
 
 using namespace std::literals;
 using std::array;
+using std::nullopt;
 using std::numeric_limits;
+using std::optional;
 using std::string;
 using std::string_view;
 using std::vector;
@@ -37,22 +40,6 @@ namespace {
 constexpr auto DEVICE_TYPE = D3DDEVTYPE_HAL;
 constexpr auto DEVICE_CREATE_FLAGS =
   D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_DISABLE_DRIVER_MANAGEMENT;
-
-constexpr auto DISPLAY_FORMATS =
-  array{D3DFMT_X1R5G5B5, D3DFMT_R5G6B5, D3DFMT_X8R8G8B8, D3DFMT_A2R10G10B10};
-
-constexpr auto BACK_BUFFER_FORMATS =
-  array{D3DFMT_X1R5G5B5, D3DFMT_A1R5G5B5, D3DFMT_R5G6B5,
-        D3DFMT_X8R8G8B8, D3DFMT_A8R8G8B8, D3DFMT_A2R10G10B10};
-
-// unsupported formats: D3DFMT_D16_LOCKABLE, D3DFMT_D32, D3DFMT_D15S1,
-// D3DFMT_D24X4S4, D3DFMT_D32F_LOCKABLE, D3DFMT_D24FS8
-constexpr auto DEPTH_STENCIL_FORMATS =
-  array{D3DFMT_D16, D3DFMT_D24X8, D3DFMT_D24S8};
-
-constexpr auto MULTI_SAMPLE_TYPES =
-  array{D3DMULTISAMPLE_NONE, D3DMULTISAMPLE_2_SAMPLES, D3DMULTISAMPLE_4_SAMPLES,
-        D3DMULTISAMPLE_8_SAMPLES};
 
 struct Cap final {
   string_view name;
@@ -68,8 +55,8 @@ auto log_forbidden_cap(Cap const& cap) -> void {
 }
 
 template <typename MinCaps>
-[[nodiscard]] auto verify_caps_present(DWORD const caps, MinCaps const& minCaps)
-  -> bool {
+[[nodiscard]]
+auto verify_caps_present(DWORD const caps, MinCaps const& minCaps) -> bool {
   auto allCapsPresent = true;
 
   for (Cap const& cap : minCaps) {
@@ -319,22 +306,18 @@ auto verify_minimum_caps(D3DCAPS9 const& caps) -> bool {
 #undef MAKE_CAP
 
 auto enum_display_modes(IDirect3D9& instance, UINT const adapter,
-                        D3DFORMAT const displayFormat) -> DisplayModeList {
-  auto displayModes = DisplayModeList{};
+                        D3DFORMAT const displayFormat) -> DisplayModes {
+  auto displayModes = DisplayModes{};
 
   auto const modeCount = instance.GetAdapterModeCount(adapter, displayFormat);
   displayModes.reserve(modeCount);
 
-  for (auto modeIndex = UINT{0}; modeIndex < modeCount; ++modeIndex) {
+  for (auto i = UINT{}; i < modeCount; i++) {
     auto mode = D3DDISPLAYMODE{};
-    D3D9CHECK(
-      instance.EnumAdapterModes(adapter, displayFormat, modeIndex, &mode));
+    D3D9CHECK(instance.EnumAdapterModes(adapter, displayFormat, i, &mode));
 
-    displayModes.emplace_back(DisplayMode{
-      mode.Width,
-      mode.Height,
-      mode.RefreshRate,
-    });
+    displayModes.emplace_back(
+      DisplayMode{mode.Width, mode.Height, mode.RefreshRate});
   }
 
   return displayModes;
@@ -342,10 +325,15 @@ auto enum_display_modes(IDirect3D9& instance, UINT const adapter,
 
 auto enum_depth_stencil_formats(IDirect3D9& instance, UINT const adapter,
                                 D3DFORMAT const displayFormat)
-  -> vector<ImageFormat> {
-  auto depthStencilFormats = vector<ImageFormat>{};
+  -> vector<D3DFORMAT> {
+  // unsupported formats: D3DFMT_D32F_LOCKABLE, D3DFMT_D16_LOCKABLE
+  constexpr auto depthStencilFormatCandidates =
+    array{D3DFMT_D32,   D3DFMT_D24FS8, D3DFMT_D24S8, D3DFMT_D24X4S4,
+          D3DFMT_D24X8, D3DFMT_D16,    D3DFMT_D15S1};
 
-  for (auto const depthStencilFormat : DEPTH_STENCIL_FORMATS) {
+  auto depthStencilFormats = vector<D3DFORMAT>{};
+
+  for (auto const depthStencilFormat : depthStencilFormatCandidates) {
     auto const hr = instance.CheckDeviceFormat(
       adapter, DEVICE_TYPE, displayFormat, D3DUSAGE_DEPTHSTENCIL,
       D3DRTYPE_SURFACE, depthStencilFormat);
@@ -353,30 +341,38 @@ auto enum_depth_stencil_formats(IDirect3D9& instance, UINT const adapter,
     if (hr == D3DERR_NOTAVAILABLE) {
       continue;
     }
-
     D3D9CHECK(hr);
-
-    if (SUCCEEDED(hr)) {
-      depthStencilFormats.emplace_back(to_image_format(depthStencilFormat));
+    if (FAILED(hr)) {
+      continue;
     }
+
+    depthStencilFormats.emplace_back(depthStencilFormat);
   }
 
   return depthStencilFormats;
 }
 
 auto enum_multi_sample_counts(IDirect3D9& instance, UINT const adapter,
-                              D3DFORMAT const format, BOOL const windowed)
-  -> MultiSampleCounts {
-  MultiSampleCounts counts{};
+                              D3DFORMAT const format,
+                              BOOL const windowed) -> MultiSampleCounts {
+  // TODO: D3DMULTISAMPLE_NONMASKABLE
+  constexpr auto multisamplingTypes =
+    array{D3DMULTISAMPLE_NONE,       D3DMULTISAMPLE_2_SAMPLES,
+          D3DMULTISAMPLE_3_SAMPLES,  D3DMULTISAMPLE_4_SAMPLES,
+          D3DMULTISAMPLE_5_SAMPLES,  D3DMULTISAMPLE_6_SAMPLES,
+          D3DMULTISAMPLE_7_SAMPLES,  D3DMULTISAMPLE_8_SAMPLES,
+          D3DMULTISAMPLE_9_SAMPLES,  D3DMULTISAMPLE_10_SAMPLES,
+          D3DMULTISAMPLE_11_SAMPLES, D3DMULTISAMPLE_12_SAMPLES,
+          D3DMULTISAMPLE_13_SAMPLES, D3DMULTISAMPLE_14_SAMPLES,
+          D3DMULTISAMPLE_15_SAMPLES, D3DMULTISAMPLE_16_SAMPLES};
+  auto counts = MultiSampleCounts{};
 
-  for (auto const type : MULTI_SAMPLE_TYPES) {
+  for (auto const type : multisamplingTypes) {
     auto const hr = instance.CheckDeviceMultiSampleType(
       adapter, DEVICE_TYPE, format, windowed, type, nullptr);
-
     if (hr == D3DERR_NOTAVAILABLE) {
       continue;
     }
-
     D3D9CHECK(hr);
     if (FAILED(hr)) {
       continue;
@@ -390,58 +386,50 @@ auto enum_multi_sample_counts(IDirect3D9& instance, UINT const adapter,
 
 auto enum_back_buffer_formats(IDirect3D9& instance, UINT const adapter,
                               D3DFORMAT const displayFormat,
-                              BOOL const windowed) -> vector<BackBufferFormat> {
-  auto backBufferFormats = vector<BackBufferFormat>{};
-  backBufferFormats.reserve(BACK_BUFFER_FORMATS.size());
+                              BOOL const windowed) -> BackBufferFormats {
+  constexpr auto backBufferFormatsCandidates =
+    array{D3DFMT_A2R10G10B10, D3DFMT_A8R8G8B8, D3DFMT_X8R8G8B8,
+          D3DFMT_R5G6B5,      D3DFMT_A1R5G5B5, D3DFMT_X1R5G5B5};
+  auto backBufferFormats = BackBufferFormats{};
+  backBufferFormats.reserve(backBufferFormatsCandidates.size());
 
-  for (auto const backBufferFormat : BACK_BUFFER_FORMATS) {
+  for (auto const backBufferFormat : backBufferFormatsCandidates) {
     auto hr = instance.CheckDeviceType(adapter, DEVICE_TYPE, displayFormat,
                                        backBufferFormat, windowed);
-
     if (hr == D3DERR_NOTAVAILABLE) {
       continue;
     }
-
     // other errors codes are not expected
     D3D9CHECK(hr);
     if (FAILED(hr)) {
       continue;
     }
 
-    auto const depthStencilFormats =
-      enum_depth_stencil_formats(instance, adapter, displayFormat);
-
     auto multiSampleCounts =
       enum_multi_sample_counts(instance, adapter, backBufferFormat, windowed);
 
+    auto const depthStencilFormats =
+      enum_depth_stencil_formats(instance, adapter, displayFormat);
+
     for (auto const depthStencilFormat : depthStencilFormats) {
-      auto const format = to_d3d(depthStencilFormat);
-
-      hr = instance.CheckDepthStencilMatch(adapter, DEVICE_TYPE, displayFormat,
-                                           backBufferFormat, format);
-
+      hr =
+        instance.CheckDepthStencilMatch(adapter, DEVICE_TYPE, displayFormat,
+                                        backBufferFormat, depthStencilFormat);
       if (hr == D3DERR_NOTAVAILABLE) {
         continue;
       }
-
       // other errors codes are not expected
       D3D9CHECK(hr);
       if (FAILED(hr)) {
         continue;
       }
 
-      multiSampleCounts &=
-        enum_multi_sample_counts(instance, adapter, format, windowed);
-
-      if (!multiSampleCounts.has(MultiSampleCount::One)) {
-        continue;
-      }
+      multiSampleCounts &= enum_multi_sample_counts(
+        instance, adapter, depthStencilFormat, windowed);
 
       backBufferFormats.emplace_back(BackBufferFormat{
-        to_image_format(backBufferFormat),
-        depthStencilFormat,
-        multiSampleCounts,
-      });
+        to_image_format(backBufferFormat), to_image_format(depthStencilFormat),
+        multiSampleCounts});
     }
   }
 
@@ -450,114 +438,35 @@ auto enum_back_buffer_formats(IDirect3D9& instance, UINT const adapter,
   return backBufferFormats;
 }
 
-auto enum_suitable_adapter_modes(IDirect3D9& instance, UINT const adapter)
-  -> AdapterModeList {
-  auto adapterModes = AdapterModeList{};
-  adapterModes.reserve(DISPLAY_FORMATS.size());
-
-  for (auto const displayFormat : DISPLAY_FORMATS) {
-    auto backBufferFormats =
-      enum_back_buffer_formats(instance, adapter, displayFormat, FALSE);
-
-    if (backBufferFormats.empty()) {
-      continue;
-    }
-
-    auto displayModes = enum_display_modes(instance, adapter, displayFormat);
-
-    if (displayModes.empty()) {
-      continue;
-    }
-
-    adapterModes.emplace_back(AdapterModes{
-      std::move(backBufferFormats),
-      std::move(displayModes),
-      to_image_format(displayFormat),
-    });
-  }
-
-  adapterModes.shrink_to_fit();
-
-  return adapterModes;
-}
-
-auto enum_suitable_adapters(IDirect3D9& instance) -> AdapterList {
+// filter out adapters with insufficient caps
+auto enum_suitable_adapters(IDirect3D9& instance) -> vector<UINT> {
   auto const adapterCount = instance.GetAdapterCount();
-
-  BASALT_LOG_INFO("d3d9: testing {} adapters for suitability", adapterCount);
-
-  auto adapters = AdapterList{};
+  auto adapters = vector<UINT>{};
   adapters.reserve(adapterCount);
 
-  for (auto adapter = UINT{0}; adapter < adapterCount; ++adapter) {
+  for (auto i = UINT{}; i < adapterCount; i++) {
     // VertexProcessingCaps, MaxActiveLights, MaxUserClipPlanes,
     // MaxVertexBlendMatrices, MaxVertexBlendMatrixIndex depend on parameters
     // supplied to CreateDevice and should be queried on the device itself.
     auto caps = D3DCAPS9{};
-    D3D9CHECK(instance.GetDeviceCaps(adapter, DEVICE_TYPE, &caps));
-
+    D3D9CHECK(instance.GetDeviceCaps(i, DEVICE_TYPE, &caps));
     if (!verify_minimum_caps(caps)) {
-      BASALT_LOG_INFO("d3d9: adapter {} minimum device caps not present",
-                      adapter);
+      BASALT_LOG_INFO("d3d9: adapter {} minimum device caps not present", i);
 
       continue;
     }
 
-    auto adapterModes = enum_suitable_adapter_modes(instance, adapter);
-
-    if (adapterModes.empty()) {
-      BASALT_LOG_INFO("d3d9: adapter {} has no useable adapter mode", adapter);
-
-      continue;
-    }
-
-    auto adapterIdentifier = D3DADAPTER_IDENTIFIER9{};
-    D3D9CHECK(instance.GetAdapterIdentifier(adapter, 0ul, &adapterIdentifier));
-
-    auto const product = HIWORD(adapterIdentifier.DriverVersion.HighPart);
-    auto const version = LOWORD(adapterIdentifier.DriverVersion.HighPart);
-    auto const subVersion = HIWORD(adapterIdentifier.DriverVersion.LowPart);
-    auto const build = LOWORD(adapterIdentifier.DriverVersion.LowPart);
-
-    auto driverInfo =
-      fmt::format(FMT_STRING("{} ({}.{}.{}.{})"), adapterIdentifier.Driver,
-                  product, version, subVersion, build);
-
-    auto currentMode = D3DDISPLAYMODE{};
-    D3D9CHECK(instance.GetAdapterDisplayMode(adapter, &currentMode));
-
-    auto backBufferFormats =
-      enum_back_buffer_formats(instance, adapter, currentMode.Format, TRUE);
-
-    if (backBufferFormats.empty()) {
-      BASALT_LOG_INFO("d3d9: adapter {} has no back buffer formats", adapter);
-
-      continue;
-    }
-
-    adapters.emplace_back(AdapterInfo{
-      string{adapterIdentifier.Description},
-      std::move(driverInfo),
-      std::move(adapterModes),
-      std::move(backBufferFormats),
-      DisplayMode{
-        currentMode.Width,
-        currentMode.Height,
-        currentMode.RefreshRate,
-      },
-      to_image_format(currentMode.Format),
-      Adapter{adapter},
-    });
+    adapters.push_back(i);
   }
+
+  BASALT_LOG_INFO("d3d9: {} of {} adapters are suitable", adapters.size(),
+                  adapterCount);
 
   return adapters;
 }
 
-auto get_device_caps(IDirect3DDevice9& device) -> DeviceCaps {
-  DeviceCaps caps;
-
-  auto d3d9Caps = D3DCAPS9{};
-  D3D9CHECK(device.GetDeviceCaps(&d3d9Caps));
+auto to_device_caps(D3DCAPS9 const& d3d9Caps) -> DeviceCaps {
+  auto caps = DeviceCaps{};
 
   caps.maxVertexBufferSizeInBytes = numeric_limits<UINT>::max();
   caps.maxIndexBufferSizeInBytes = numeric_limits<UINT>::max();
@@ -641,55 +550,154 @@ auto get_device_caps(IDirect3DDevice9& device) -> DeviceCaps {
   return caps;
 }
 
+auto get_device_caps(IDirect3DDevice9& device) -> DeviceCaps {
+  auto d3d9Caps = D3DCAPS9{};
+  D3D9CHECK(device.GetDeviceCaps(&d3d9Caps));
+
+  return to_device_caps(d3d9Caps);
+}
+
 } // namespace
 
-auto D3D9Factory::create() -> D3D9FactoryPtr {
+auto D3D9Factory::create() -> optional<D3D9FactoryPtr> {
   auto instance = IDirect3D9Ptr{};
   instance.Attach(Direct3DCreate9(D3D_SDK_VERSION));
   if (!instance) {
-    BASALT_LOG_WARN("d3d9: not available");
+    BASALT_LOG_WARN("d3d9: IDirect3D9 creation failed");
 
-    return nullptr;
-  }
-
-  auto adapters = enum_suitable_adapters(*instance.Get());
-
-  if (adapters.empty()) {
-    BASALT_LOG_WARN("d3d9: no suitable adapter");
-
-    return nullptr;
+    return nullopt;
   }
 
   if (!D3DXCheckVersion(D3D_SDK_VERSION, D3DX_SDK_VERSION)) {
-    BASALT_LOG_WARN("D3DX version missmatch");
+    BASALT_LOG_WARN("d3d9: D3DX version check failed");
 
-    return nullptr;
+    return nullopt;
+  }
+
+  auto suitableAdapters = enum_suitable_adapters(*instance.Get());
+  if (suitableAdapters.empty()) {
+    BASALT_LOG_WARN("d3d9: no suitable adapter");
+
+    return nullopt;
   }
 
   return std::make_unique<D3D9Factory>(std::move(instance),
-                                       std::move(adapters));
+                                       std::move(suitableAdapters));
 }
 
-auto D3D9Factory::get_adapter_monitor(Adapter const adapter) const -> HMONITOR {
-  auto const adapterOrdinal = adapter.value();
-  BASALT_ASSERT(adapterOrdinal < mInstance->GetAdapterCount());
-
-  return mInstance->GetAdapterMonitor(adapterOrdinal);
-}
-
-auto D3D9Factory::adapters() const -> AdapterList const& {
-  return mAdapters;
-}
-
-D3D9Factory::D3D9Factory(IDirect3D9Ptr instance, AdapterList adapters)
+D3D9Factory::D3D9Factory(IDirect3D9Ptr instance,
+                         std::vector<UINT> suitableAdapters)
   : mInstance{std::move(instance)}
-  , mAdapters{std::move(adapters)} {
+  , mSuitableAdapters{std::move(suitableAdapters)} {
+}
+
+auto D3D9Factory::adapter_count() const -> u32 {
+  return static_cast<u32>(mSuitableAdapters.size());
+}
+
+auto D3D9Factory::get_adapter_identifier(u32 const adapterIndex) const
+  -> AdapterIdentifier {
+  auto const adapter = mSuitableAdapters.at(adapterIndex);
+
+  auto identifier = D3DADAPTER_IDENTIFIER9{};
+  D3D9CHECK(mInstance->GetAdapterIdentifier(adapter, 0, &identifier));
+
+  auto id = [&] {
+    auto const& guid = identifier.DeviceIdentifier;
+
+    return fmt::format(FMT_STRING("{:08X}-{:04X}-{:04X}-{:02X}{:02X}-"
+                                  "{:02X}{:02X}{:02X}{:02X}{:02X}{:02X}"),
+                       guid.Data1, guid.Data2, guid.Data3, guid.Data4[0],
+                       guid.Data4[1], guid.Data4[2], guid.Data4[3],
+                       guid.Data4[4], guid.Data4[5], guid.Data4[6],
+                       guid.Data4[7]);
+  }();
+
+  auto displayName = string{identifier.Description};
+  auto driverInfo = [&] {
+    auto const product = HIWORD(identifier.DriverVersion.HighPart);
+    auto const version = LOWORD(identifier.DriverVersion.HighPart);
+    auto const subVersion = HIWORD(identifier.DriverVersion.LowPart);
+    auto const build = LOWORD(identifier.DriverVersion.LowPart);
+
+    return fmt::format(FMT_STRING("{} v{}.{}.{}.{}"), identifier.Driver,
+                       product, version, subVersion, build);
+  }();
+
+  auto pciId = PciId{LOWORD(identifier.VendorId), LOWORD(identifier.DeviceId),
+                     LOBYTE(identifier.Revision), LOWORD(identifier.SubSysId),
+                     HIWORD(identifier.SubSysId)};
+
+  return AdapterIdentifier{std::move(id), std::move(displayName),
+                           std::move(driverInfo), pciId};
+}
+
+auto D3D9Factory::get_adapter_device_caps(u32 adapterIndex) const
+  -> DeviceCaps {
+  auto const adapter = mSuitableAdapters.at(adapterIndex);
+
+  // VertexProcessingCaps, MaxActiveLights, MaxUserClipPlanes,
+  // MaxVertexBlendMatrices, MaxVertexBlendMatrixIndex depend on parameters
+  // supplied to CreateDevice and should be queried on the device itself
+  auto caps = D3DCAPS9{};
+  D3D9CHECK(mInstance->GetDeviceCaps(adapter, DEVICE_TYPE, &caps));
+
+  return to_device_caps(caps);
+}
+
+auto D3D9Factory::get_adapter_shared_mode_info(u32 const adapterIndex) const
+  -> AdapterSharedModeInfo {
+  auto const adapter = mSuitableAdapters.at(adapterIndex);
+
+  auto mode = D3DDISPLAYMODE{};
+  D3D9CHECK(mInstance->GetAdapterDisplayMode(adapter, &mode));
+
+  auto backBufferFormats =
+    enum_back_buffer_formats(*mInstance.Get(), adapter, mode.Format, TRUE);
+
+  return AdapterSharedModeInfo{
+    std::move(backBufferFormats),
+    DisplayMode{mode.Width, mode.Height, mode.RefreshRate},
+    to_image_format(mode.Format)};
+}
+
+auto D3D9Factory::enum_adapter_exclusive_mode_infos(
+  u32 const adapterIndex) const -> AdapterExclusiveModeInfos {
+  auto const adapter = mSuitableAdapters.at(adapterIndex);
+
+  constexpr auto displayFormats =
+    array{D3DFMT_A2R10G10B10, D3DFMT_X8R8G8B8, D3DFMT_R5G6B5, D3DFMT_X1R5G5B5};
+
+  auto modes = AdapterExclusiveModeInfos{};
+  modes.reserve(displayFormats.size());
+
+  for (auto const displayFormat : displayFormats) {
+    auto displayModes =
+      enum_display_modes(*mInstance.Get(), adapter, displayFormat);
+    if (displayModes.empty()) {
+      continue;
+    }
+
+    auto backBufferFormats =
+      enum_back_buffer_formats(*mInstance.Get(), adapter, displayFormat, FALSE);
+    if (backBufferFormats.empty()) {
+      continue;
+    }
+
+    modes.emplace_back(AdapterExclusiveModeInfo{
+      std::move(backBufferFormats),
+      std::move(displayModes),
+      to_image_format(displayFormat),
+    });
+  }
+
+  return modes;
 }
 
 auto D3D9Factory::do_create_device_and_swap_chain(
-  HWND const window, DeviceAndSwapChainCreateInfo const& info) const
-  -> DeviceAndSwapChain {
-  auto const adapterOrdinal = info.adapter ? info.adapter.value() : 0;
+  HWND const window,
+  DeviceAndSwapChainCreateInfo const& info) const -> DeviceAndSwapChain {
+  auto const adapterOrdinal = mSuitableAdapters[info.adapter];
   BASALT_ASSERT(adapterOrdinal < mInstance->GetAdapterCount());
 
   auto pp = D3DPRESENT_PARAMETERS{};

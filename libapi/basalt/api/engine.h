@@ -1,10 +1,11 @@
 #pragma once
 
-#include <basalt/api/types.h>
+#include "types.h"
 
-#include <basalt/api/gfx/types.h>
+#include "gfx/info.h"
+#include "gfx/types.h"
 
-#include <basalt/api/shared/config.h>
+#include "shared/config.h"
 
 #include <memory>
 

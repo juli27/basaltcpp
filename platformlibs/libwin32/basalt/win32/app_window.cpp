@@ -13,6 +13,7 @@
 
 #include <basalt/gfx/backend/swap_chain.h>
 
+#include <basalt/api/base/asserts.h>
 #include <basalt/api/base/log.h>
 #include <basalt/api/base/utils.h>
 
@@ -20,12 +21,15 @@
 #include <windowsx.h>
 
 #include <algorithm>
+#include <optional>
 #include <string>
 #include <system_error>
 #include <utility>
 
 using namespace std::literals;
 
+using std::nullopt;
+using std::optional;
 using std::system_error;
 
 namespace basalt {
@@ -38,14 +42,17 @@ struct CreateParams final {
 
 [[nodiscard]]
 auto create_gfx_factory(gfx::BackendApi const backendApi)
-  -> gfx::Win32GfxFactoryPtr {
+  -> optional<gfx::Win32GfxFactoryPtr> {
   switch (backendApi) {
   case gfx::BackendApi::Default:
   case gfx::BackendApi::Direct3D9:
     return gfx::D3D9Factory::create();
-  }
 
-  BASALT_CRASH("unsupported gfx backend api");
+  default:
+    BASALT_LOG_ERROR("win32: no suitable graphics API available");
+
+    return nullopt;
+  }
 }
 
 // posX and posY: location of the upper left corner of the client area
@@ -54,18 +61,9 @@ auto create_gfx_factory(gfx::BackendApi const backendApi)
 // workArea in virtual-screen coords
 auto calc_window_rect(int const posX, int const posY, DWORD const style,
                       DWORD const styleEx, Size2Du16 const clientArea,
-                      Size2Du16 const monitorSize,
                       RECT const& workArea) noexcept -> RECT {
   // window dimensions in client coords
   auto rect = RECT{0l, 0l, clientArea.width(), clientArea.height()};
-
-  // the default size is two thirds of the current display mode
-  if (rect.right == 0l) {
-    rect.right = MulDiv(monitorSize.width(), 2, 3);
-  }
-  if (rect.bottom == 0l) {
-    rect.bottom = MulDiv(monitorSize.height(), 2, 3);
-  }
 
   OffsetRect(&rect, posX, posY);
 
@@ -92,8 +90,8 @@ auto calc_window_rect(int const posX, int const posY, DWORD const style,
 }
 
 auto CALLBACK bootstrap_proc(HWND const handle, UINT const message,
-                             WPARAM const wParam, LPARAM const lParam) noexcept
-  -> LRESULT {
+                             WPARAM const wParam,
+                             LPARAM const lParam) noexcept -> LRESULT {
   if (message == WM_CREATE) {
     auto const* cs = reinterpret_cast<CREATESTRUCTW const*>(lParam);
     auto const* const createParams =
@@ -107,14 +105,9 @@ auto CALLBACK bootstrap_proc(HWND const handle, UINT const message,
     auto topLeftClient = POINT{0, 0};
     ClientToScreen(handle, &topLeftClient);
 
-    auto const monitorSize = Size2Du16{
-      static_cast<u16>(mi.rcMonitor.right - mi.rcMonitor.left),
-      static_cast<u16>(mi.rcMonitor.bottom - mi.rcMonitor.top),
-    };
-
-    auto const rect = calc_window_rect(
-      topLeftClient.x, topLeftClient.y, cs->style, cs->dwExStyle,
-      createParams->clientAreaSize, monitorSize, mi.rcWork);
+    auto const rect =
+      calc_window_rect(topLeftClient.x, topLeftClient.y, cs->style,
+                       cs->dwExStyle, createParams->clientAreaSize, mi.rcWork);
 
     SetWindowPos(handle, nullptr, rect.left, rect.top, rect.right - rect.left,
                  rect.bottom - rect.top, SWP_NOZORDER | SWP_NOACTIVATE);
@@ -167,14 +160,32 @@ auto register_class(HMODULE const moduleHandle) -> Win32WindowClassCPtr {
 
 auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
                             AppLaunchInfo const& app) -> Win32AppWindowPtr {
-  auto const gfxFactory = create_gfx_factory(app.gfxBackendApi);
-  if (!gfxFactory) {
-    BASALT_CRASH("couldn't create d3d9 factory");
+  auto const gfxFactory = [&] {
+    auto maybeFactory = create_gfx_factory(app.gfxBackendApi);
+    if (!maybeFactory) {
+      BASALT_CRASH("win32: couldn't create a gfx factory");
+    }
+
+    return std::move(maybeFactory).value();
+  }();
+
+  auto const adapters = gfxFactory->enumerate_adapters();
+
+  // TODO: Add CanvasCreateInfo::default(AdapterList) -> CanvasCreateInfo;
+  auto canvasInfo =
+    app.configureCanvas ? app.configureCanvas(adapters) : CanvasCreateInfo{};
+  // the default size is two thirds of the current display mode
+  auto const& displayMode =
+    adapters[canvasInfo.adapter].sharedModeInfo.displayMode;
+  if (canvasInfo.size.width() == 0) {
+    canvasInfo.size.set_width(
+      static_cast<u16>(MulDiv(displayMode.width, 2, 3)));
+  }
+  if (canvasInfo.size.height() == 0) {
+    canvasInfo.size.set_height(
+      static_cast<u16>(MulDiv(displayMode.height, 2, 3)));
   }
 
-  auto const canvasInfo = app.configureCanvas
-                            ? app.configureCanvas(gfxFactory->adapters())
-                            : CanvasCreateInfo{};
   auto const [style, styleEx] = get_style_windowed(canvasInfo.isUserResizeable);
   auto const windowTitle = create_wide_from_utf8(app.appName);
   auto params = CreateParams{canvasInfo.size};
@@ -207,11 +218,10 @@ auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
 
   window->init_gfx_context(canvasInfo, *gfxFactory);
 
-  auto const& adapterInfo =
-    gfxFactory->adapters()[canvasInfo.adapter ? canvasInfo.adapter.value() : 0];
+  auto const& adapterIdentifier = adapters[canvasInfo.adapter].identifier;
 
   BASALT_LOG_INFO("Direct3D9 context created: adapter={}, driver={}",
-                  adapterInfo.displayName, adapterInfo.driverInfo);
+                  adapterIdentifier.displayName, adapterIdentifier.driverInfo);
 
   return window;
 }
@@ -363,8 +373,8 @@ auto Win32AppWindow::make_windowed() -> void {
 }
 
 auto Win32AppWindow::call_super_class_wnd_proc(
-  UINT const message, WPARAM const wParam, LPARAM const lParam) const noexcept
-  -> LRESULT {
+  UINT const message, WPARAM const wParam,
+  LPARAM const lParam) const noexcept -> LRESULT {
   return CallWindowProcW(mSuperClassWndProc, handle(), message, wParam, lParam);
 }
 
@@ -450,8 +460,8 @@ auto Win32AppWindow::instance(HWND const handle) -> Win32AppWindow* {
 }
 
 auto Win32AppWindow::wnd_proc(HWND const handle, UINT const message,
-                              WPARAM const wParam, LPARAM const lParam)
-  -> LRESULT {
+                              WPARAM const wParam,
+                              LPARAM const lParam) -> LRESULT {
   auto* const window = instance(handle);
   BASALT_ASSERT(window);
 

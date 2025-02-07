@@ -18,6 +18,14 @@
 
 namespace basalt::gfx {
 
+struct AdapterExclusiveModeInfo;
+struct AdapterIdentifier;
+struct AdapterInfo;
+struct AdapterSharedModeInfo;
+struct BackBufferFormat;
+struct DisplayMode;
+struct PciId;
+
 enum class Attachment : u8 {
   RenderTarget,
   DepthBuffer,
@@ -338,6 +346,60 @@ struct DeviceCaps final {
   TextureOps supportedColorOps;
   TextureOps supportedAlphaOps;
 };
+
+// listed from left to right, in c-array order if power of 2 aligned,
+// lsb to msb otherwise
+enum class ImageFormat : u8 {
+  Unknown,
+
+  // Color
+  // 16-bit
+  B5G6R5,
+  B5G5R5X1,
+  B5G5R5A1,
+
+  // 32-bit
+  B8G8R8X8,
+  B8G8R8A8,
+  B10G10R10A2,
+
+  // signed data
+  // 16-bit
+  U8V8,
+
+  // Depth-Stencil
+  // 16-bit
+  D15S1,
+  D16,
+
+  // 32-bit
+  D24X8,
+  D24X4S4,
+  D24S8,
+  D24FS8,
+  D32,
+};
+constexpr auto IMAGE_FORMAT_COUNT = u8{15};
+
+enum class MultiSampleCount : u8 {
+  One,
+  Two,
+  Three,
+  Four,
+  Five,
+  Six,
+  Seven,
+  Eight,
+  Nine,
+  Ten,
+  Eleven,
+  Twelve,
+  Thirteen,
+  Fourteen,
+  Fifteen,
+  Sixteen,
+};
+constexpr auto MULTI_SAMPLE_COUNT_COUNT = u8{16};
 
 struct TextureStageArgument {
   TextureStageSrc src{TextureStageSrc::Current};
