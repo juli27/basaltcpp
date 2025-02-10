@@ -1,8 +1,8 @@
 #pragma once
 
-#include <basalt/gfx/backend/swap_chain.h>
+#include "swap_chain.h"
 
-#include <basalt/gfx/backend/types.h>
+#include "types.h"
 
 #include <basalt/api/gfx/backend/types.h>
 
@@ -12,10 +12,13 @@ class ValidatingSwapChain final : public SwapChain {
 public:
   static auto wrap(SwapChainPtr, ValidatingDevicePtr) -> ValidatingSwapChainPtr;
 
-  [[nodiscard]] auto device() const noexcept -> DevicePtr override;
-  [[nodiscard]] auto get_info() const noexcept -> Info override;
+  [[nodiscard]]
+  auto device() const noexcept -> DevicePtr override;
 
-  auto reset(ResetDesc const&) -> void override;
+  [[nodiscard]]
+  auto get_info() const noexcept -> Info override;
+
+  auto reset(Info const&) -> void override;
 
   [[nodiscard]] auto present() -> PresentResult override;
 

@@ -9,15 +9,15 @@
 
 namespace basalt::gfx {
 
-auto Win32GfxFactory::create_context(
-  HWND const window,
-  DeviceAndSwapChainCreateInfo const& createInfo) const -> ContextPtr {
+auto Win32GfxFactory::create_context(HWND const window, u32 const adapter,
+                                     SwapChain::Info const& swapChainInfo) const
+  -> ContextPtr {
   auto [device, deviceExtensions, swapChain] =
-    do_create_device_and_swap_chain(window, createInfo);
+    do_create_device_and_swap_chain(window, adapter, swapChainInfo);
 
   auto info = Info{
     enumerate_adapters(),
-    createInfo.adapter,
+    adapter,
     BackendApi::Direct3D9,
   };
 

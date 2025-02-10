@@ -1,3 +1,5 @@
+#pragma once
+
 namespace basalt {
 
 template <typename... Ts>

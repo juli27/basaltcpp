@@ -6,6 +6,7 @@ target_sources(LibRuntime PRIVATE
   "device.h"
   "factory.cpp"
   "factory.h"
+  "swap_chain.cpp"
   "swap_chain.h"
   "types.h"
   "validating_device.cpp"

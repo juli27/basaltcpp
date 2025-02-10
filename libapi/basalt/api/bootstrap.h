@@ -12,30 +12,35 @@
 #include "base/types.h"
 
 #include <functional>
+#include <optional>
 #include <string>
 
 namespace basalt {
 
-using ViewFactory = ViewPtr(Engine&);
-
-struct CanvasCreateInfo {
+struct GfxContextCreateInfo {
   u32 adapter{};
-  gfx::DisplayMode exclusiveFullscreenMode{};
-  Size2Du16 size{Size2Du16::dont_care()};
-  gfx::ImageFormat renderTargetFormat{gfx::ImageFormat::Unknown};
-  gfx::ImageFormat depthStencilFormat{gfx::ImageFormat::Unknown};
-  gfx::MultiSampleCount sampleCount{gfx::MultiSampleCount::One};
-  bool isUserResizeable{true};
-  WindowMode initialMode{WindowMode::Windowed};
+  gfx::ImageFormat colorFormat;
+  std::optional<gfx::ImageFormat> depthStencilFormat;
+  gfx::MultiSampleCount sampleCount;
+  std::optional<gfx::DisplayMode> exclusiveDisplayMode;
 };
 
-using ConfigureCanvas = CanvasCreateInfo(gfx::AdapterInfos const&);
+using ConfigureGfxContextFn = GfxContextCreateInfo(gfx::AdapterInfos const&);
+
+struct CanvasCreateInfo {
+  Size2Du16 size;
+  bool isUserResizeable{true};
+  WindowMode mode{WindowMode::Windowed};
+  gfx::BackendApi gfxBackendApi{gfx::BackendApi::Default};
+  std::function<ConfigureGfxContextFn> configureGfxContext;
+};
+
+using ViewFactoryFn = ViewPtr(Engine&);
 
 struct AppLaunchInfo {
-  std::function<ViewFactory> createRootView;
-  std::string appName{};
-  gfx::BackendApi gfxBackendApi{gfx::BackendApi::Default};
-  std::function<ConfigureCanvas> configureCanvas{};
+  std::string appName;
+  CanvasCreateInfo canvasCreateInfo;
+  std::function<ViewFactoryFn> createRootView;
 };
 
 auto bootstrap_app(Config&) -> AppLaunchInfo;

@@ -350,8 +350,6 @@ struct DeviceCaps final {
 // listed from left to right, in c-array order if power of 2 aligned,
 // lsb to msb otherwise
 enum class ImageFormat : u8 {
-  Unknown,
-
   // Color
   // 16-bit
   B5G6R5,
@@ -379,7 +377,7 @@ enum class ImageFormat : u8 {
   D24FS8,
   D32,
 };
-constexpr auto IMAGE_FORMAT_COUNT = u8{15};
+constexpr auto IMAGE_FORMAT_COUNT = u8{14};
 
 enum class MultiSampleCount : u8 {
   One,

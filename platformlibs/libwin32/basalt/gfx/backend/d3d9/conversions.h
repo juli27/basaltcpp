@@ -18,6 +18,7 @@
 #include <basalt/api/base/utils.h>
 
 #include <algorithm>
+#include <optional>
 
 namespace basalt::gfx {
 
@@ -125,9 +126,9 @@ inline auto to_d3d(FogMode const mode) -> D3DFOGMODE {
   return TO_D3D[mode];
 }
 
+[[nodiscard]]
 inline auto to_d3d(ImageFormat const format) -> D3DFORMAT {
-  static constexpr auto TO_D3D = EnumArray<ImageFormat, D3DFORMAT, 15>{
-    {ImageFormat::Unknown, D3DFMT_UNKNOWN},
+  static constexpr auto TO_D3D = EnumArray<ImageFormat, D3DFORMAT, 14>{
     {ImageFormat::B5G6R5, D3DFMT_R5G6B5},
     {ImageFormat::B5G5R5X1, D3DFMT_X1R5G5B5},
     {ImageFormat::B5G5R5A1, D3DFMT_A1R5G5B5},
@@ -148,7 +149,9 @@ inline auto to_d3d(ImageFormat const format) -> D3DFORMAT {
   return TO_D3D[format];
 }
 
-constexpr auto to_image_format(D3DFORMAT const format) noexcept -> ImageFormat {
+[[nodiscard]]
+constexpr auto
+to_image_format(D3DFORMAT const format) noexcept -> std::optional<ImageFormat> {
   switch (format) {
   case D3DFMT_A8R8G8B8:
     return ImageFormat::B8G8R8A8;
@@ -183,7 +186,7 @@ constexpr auto to_image_format(D3DFORMAT const format) noexcept -> ImageFormat {
     break;
   }
 
-  return ImageFormat::Unknown;
+  return std::nullopt;
 }
 
 inline auto to_d3d(IndexType const type) -> D3DFORMAT {

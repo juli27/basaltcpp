@@ -5,20 +5,21 @@
 
 #include <basalt/gfx/backend/types.h>
 
-#include <basalt/api/gfx/backend/command_list.h>
-
 #include <basalt/api/base/asserts.h>
-#include <basalt/api/base/log.h>
-#include <basalt/api/base/utils.h>
+#include <basalt/api/base/functional.h>
 
 #include <memory>
+#include <optional>
 #include <utility>
+#include <variant>
 
 namespace basalt::gfx {
 
-auto D3D9SwapChain::create(D3D9DevicePtr device,
-                           IDirect3DSwapChain9Ptr swapChain)
-  -> D3D9SwapChainPtr {
+using std::nullopt;
+using std::optional;
+
+auto D3D9SwapChain::create(
+  D3D9DevicePtr device, IDirect3DSwapChain9Ptr swapChain) -> D3D9SwapChainPtr {
   return std::make_shared<D3D9SwapChain>(std::move(device),
                                          std::move(swapChain));
 }
@@ -31,45 +32,31 @@ auto D3D9SwapChain::get_info() const noexcept -> Info {
   auto pp = D3DPRESENT_PARAMETERS{};
   D3D9CHECK(mSwapChain->GetPresentParameters(&pp));
 
-  return Info{{saturated_cast<u16>(pp.BackBufferWidth),
-               saturated_cast<u16>(pp.BackBufferHeight)},
-              pp.FullScreen_RefreshRateInHz,
-              to_image_format(pp.BackBufferFormat),
-              to_multi_sample_count(pp.MultiSampleType),
-              !pp.Windowed};
+  auto modeInfo = pp.Windowed
+                    ? ModeInfo{SharedModeInfo{
+                        Size2Du16{static_cast<u16>(pp.BackBufferWidth),
+                                  static_cast<u16>(pp.BackBufferHeight)}}}
+                    : ModeInfo{ExclusiveModeInfo{
+                        DisplayMode{pp.BackBufferWidth, pp.BackBufferHeight,
+                                    pp.FullScreen_RefreshRateInHz}}};
+
+  return Info{
+    modeInfo,
+    to_image_format(pp.BackBufferFormat).value(),
+    pp.EnableAutoDepthStencil ? to_image_format(pp.AutoDepthStencilFormat)
+                              : nullopt,
+    to_multi_sample_count(pp.MultiSampleType),
+  };
 }
 
-auto D3D9SwapChain::reset(ResetDesc const& desc) -> void {
-  auto pp = D3DPRESENT_PARAMETERS{};
-  D3D9CHECK(mSwapChain->GetPresentParameters(&pp));
+auto D3D9SwapChain::reset(Info const& info) -> void {
+  auto prevPp = D3DPRESENT_PARAMETERS{};
+  D3D9CHECK(mSwapChain->GetPresentParameters(&prevPp));
 
-  pp.BackBufferFormat = to_d3d(desc.renderTargetFormat);
-  pp.MultiSampleType = to_d3d(desc.sampleCount);
-  pp.MultiSampleQuality = 0;
-  pp.Windowed = !desc.exclusive;
-
-  if (desc.exclusive) {
-    auto displayMode = D3DDISPLAYMODE{};
-    D3D9CHECK(mSwapChain->GetDisplayMode(&displayMode));
-
-    if (desc.exclusiveDisplayMode.width != 0) {
-      pp.BackBufferWidth = desc.exclusiveDisplayMode.width;
-      pp.BackBufferHeight = desc.exclusiveDisplayMode.height;
-      pp.FullScreen_RefreshRateInHz = desc.exclusiveDisplayMode.refreshRate;
-    } else {
-      pp.BackBufferWidth = displayMode.Width;
-      pp.BackBufferHeight = displayMode.Height;
-      pp.FullScreen_RefreshRateInHz = displayMode.RefreshRate;
-    }
-
-    if (pp.BackBufferFormat == D3DFMT_UNKNOWN) {
-      pp.BackBufferFormat = displayMode.Format;
-    }
-  } else {
-    pp.BackBufferWidth = desc.windowBackBufferSize.width();
-    pp.BackBufferHeight = desc.windowBackBufferSize.height();
-    pp.FullScreen_RefreshRateInHz = 0;
-  }
+  auto pp = to_present_parameters(info);
+  pp.SwapEffect = prevPp.SwapEffect;
+  pp.PresentationInterval = prevPp.PresentationInterval;
+  pp.hDeviceWindow = prevPp.hDeviceWindow;
 
   mDevice->reset(pp);
 }
@@ -86,6 +73,41 @@ auto D3D9SwapChain::present() -> PresentResult {
   }
 
   return PresentResult::Ok;
+}
+
+auto D3D9SwapChain::to_present_parameters(Info const& info)
+  -> D3DPRESENT_PARAMETERS {
+  auto pp = D3DPRESENT_PARAMETERS{};
+  pp.BackBufferCount = 1;
+  pp.BackBufferFormat = to_d3d(info.colorFormat);
+
+  auto const depthStencilFormat =
+    info.depthStencilFormat ? to_d3d(*info.depthStencilFormat) : D3DFMT_UNKNOWN;
+  pp.EnableAutoDepthStencil = depthStencilFormat != D3DFMT_UNKNOWN;
+  pp.AutoDepthStencilFormat = depthStencilFormat;
+
+  pp.MultiSampleType = to_d3d(info.sampleCount);
+  pp.MultiSampleQuality = 0;
+
+  pp.Flags =
+    pp.EnableAutoDepthStencil ? D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL : 0;
+
+  std::visit(Overloaded{
+               [&](SwapChain::SharedModeInfo const& info) {
+                 pp.BackBufferWidth = info.size.width();
+                 pp.BackBufferHeight = info.size.height();
+                 pp.Windowed = TRUE;
+               },
+               [&](SwapChain::ExclusiveModeInfo const& info) {
+                 pp.BackBufferWidth = info.displayMode.width;
+                 pp.BackBufferHeight = info.displayMode.height;
+                 pp.Windowed = FALSE;
+                 pp.FullScreen_RefreshRateInHz = info.displayMode.refreshRate;
+               },
+             },
+             info.modeInfo);
+
+  return pp;
 }
 
 D3D9SwapChain::D3D9SwapChain(D3D9DevicePtr device,

@@ -25,6 +25,7 @@
 #include <string>
 #include <system_error>
 #include <utility>
+#include <variant>
 
 using namespace std::literals;
 
@@ -156,12 +157,37 @@ auto register_class(HMODULE const moduleHandle) -> Win32WindowClassCPtr {
   return Win32WindowClass::register_class(windowClass);
 }
 
+auto get_default_gfx_context_info(gfx::AdapterInfos const& adapters)
+  -> GfxContextCreateInfo {
+  auto const& adapterInfo = adapters[0];
+  auto const backBufferFormat = [&] {
+    for (auto const& format : adapterInfo.sharedModeInfo.backBufferFormats) {
+      if (format.renderTargetFormat == gfx::ImageFormat::B8G8R8A8) {
+        return format;
+      }
+      if (format.renderTargetFormat == gfx::ImageFormat::B8G8R8X8) {
+        return format;
+      }
+    }
+
+    return adapterInfo.sharedModeInfo.backBufferFormats[0];
+  }();
+
+  return GfxContextCreateInfo{
+    0,
+    backBufferFormat.renderTargetFormat,
+    backBufferFormat.depthStencilFormat,
+    gfx::MultiSampleCount::One,
+  };
+}
+
 } // namespace
 
 auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
                             AppLaunchInfo const& app) -> Win32AppWindowPtr {
+  auto const& canvasInfo = app.canvasCreateInfo;
   auto const gfxFactory = [&] {
-    auto maybeFactory = create_gfx_factory(app.gfxBackendApi);
+    auto maybeFactory = create_gfx_factory(canvasInfo.gfxBackendApi);
     if (!maybeFactory) {
       BASALT_CRASH("win32: couldn't create a gfx factory");
     }
@@ -171,24 +197,29 @@ auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
 
   auto const adapters = gfxFactory->enumerate_adapters();
 
-  // TODO: Add CanvasCreateInfo::default(AdapterList) -> CanvasCreateInfo;
-  auto canvasInfo =
-    app.configureCanvas ? app.configureCanvas(adapters) : CanvasCreateInfo{};
+  auto gfxContextInfo = canvasInfo.configureGfxContext
+                          ? canvasInfo.configureGfxContext(adapters)
+                          : get_default_gfx_context_info(adapters);
+
   // the default size is two thirds of the current display mode
-  auto const& displayMode =
-    adapters[canvasInfo.adapter].sharedModeInfo.displayMode;
-  if (canvasInfo.size.width() == 0) {
-    canvasInfo.size.set_width(
-      static_cast<u16>(MulDiv(displayMode.width, 2, 3)));
-  }
-  if (canvasInfo.size.height() == 0) {
-    canvasInfo.size.set_height(
-      static_cast<u16>(MulDiv(displayMode.height, 2, 3)));
-  }
+  auto const windowSize = [&] {
+    auto const& sharedModeInfo =
+      adapters[gfxContextInfo.adapter].sharedModeInfo;
+    auto const& displayMode = sharedModeInfo.displayMode;
+    auto size = canvasInfo.size;
+    if (size.width() == 0) {
+      size.set_width(static_cast<u16>(MulDiv(displayMode.width, 2, 3)));
+    }
+    if (size.height() == 0) {
+      size.set_height(static_cast<u16>(MulDiv(displayMode.height, 2, 3)));
+    }
+
+    return size;
+  }();
 
   auto const [style, styleEx] = get_style_windowed(canvasInfo.isUserResizeable);
   auto const windowTitle = create_wide_from_utf8(app.appName);
-  auto params = CreateParams{canvasInfo.size};
+  auto params = CreateParams{windowSize};
 
   auto windowClass = register_class(moduleHandle);
   if (!windowClass) {
@@ -214,11 +245,11 @@ auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
   // would not appear in the titlebar if the application launches with
   // fullscreen and switches to windowed
   // TODO: find a better workaround
-  window->set_mode(canvasInfo.initialMode);
+  window->set_mode(canvasInfo.mode);
 
-  window->init_gfx_context(canvasInfo, *gfxFactory);
+  window->init_gfx_context(gfxContextInfo, *gfxFactory);
 
-  auto const& adapterIdentifier = adapters[canvasInfo.adapter].identifier;
+  auto const& adapterIdentifier = adapters[gfxContextInfo.adapter].identifier;
 
   BASALT_LOG_INFO("Direct3D9 context created: adapter={}, driver={}",
                   adapterIdentifier.displayName, adapterIdentifier.driverInfo);
@@ -266,8 +297,9 @@ auto Win32AppWindow::set_mode(WindowMode const newMode) -> void {
 
   // exclusive ownership of the output monitor needs to be released before
   // window changes can be made
-  if (mSwapChain->get_info().exclusive) {
-    mSwapChain->reset(gfx::SwapChain::ResetDesc{});
+  if (auto info = mSwapChain->get_info(); info.is_exclusive()) {
+    info.modeInfo = gfx::SwapChain::SharedModeInfo{client_area_size()};
+    mSwapChain->reset(info);
 
     // the d3d9 runtime leaves the window as topmost when exiting exclusive
     // fullscreen
@@ -291,9 +323,10 @@ auto Win32AppWindow::set_mode(WindowMode const newMode) -> void {
   case WindowMode::FullscreenExclusive: {
     make_fullscreen();
 
-    auto swapChainResetDesc = gfx::SwapChain::ResetDesc{};
-    swapChainResetDesc.exclusive = true;
-    mSwapChain->reset(swapChainResetDesc);
+    auto swapChainInfo = mSwapChain->get_info();
+    swapChainInfo.modeInfo =
+      gfx::SwapChain::ExclusiveModeInfo{mExclusiveDisplayMode.value()};
+    mSwapChain->reset(swapChainInfo);
 
     mMode = WindowMode::FullscreenExclusive;
 
@@ -306,19 +339,26 @@ auto Win32AppWindow::present() const -> gfx::PresentResult {
   return mSwapChain->present();
 }
 
-auto Win32AppWindow::init_gfx_context(CanvasCreateInfo const& createInfo,
+auto Win32AppWindow::init_gfx_context(GfxContextCreateInfo const& createInfo,
                                       gfx::Win32GfxFactory const& gfxFactory)
   -> void {
-  mGfxContext = gfxFactory.create_context(
-    handle(), {
-                createInfo.adapter,
-                createInfo.exclusiveFullscreenMode,
-                createInfo.renderTargetFormat,
-                createInfo.depthStencilFormat,
-                createInfo.sampleCount,
-                mMode == WindowMode::FullscreenExclusive,
-              });
+  auto const modeInfo =
+    mMode == WindowMode::FullscreenExclusive
+      ? gfx::SwapChain::ModeInfo{gfx::SwapChain::ExclusiveModeInfo{
+          createInfo.exclusiveDisplayMode.value()}}
+      : gfx::SwapChain::ModeInfo{
+          gfx::SwapChain::SharedModeInfo{client_area_size()}};
+  auto const swapChainInfo = gfx::SwapChain::Info{
+    modeInfo,
+    createInfo.colorFormat,
+    createInfo.depthStencilFormat,
+    createInfo.sampleCount,
+  };
+
+  mGfxContext =
+    gfxFactory.create_context(handle(), createInfo.adapter, swapChainInfo);
   mSwapChain = mGfxContext->swap_chain();
+  mExclusiveDisplayMode = createInfo.exclusiveDisplayMode;
 }
 
 auto Win32AppWindow::make_fullscreen() -> void {
@@ -400,13 +440,19 @@ auto Win32AppWindow::handle_message(UINT const message, WPARAM const wParam,
   return call_super_class_wnd_proc(message, wParam, lParam);
 }
 
-auto Win32AppWindow::on_size(Size2Du16 newClientAreaSize) -> void {
+auto Win32AppWindow::on_size(Size2Du16 const newClientAreaSize) -> void {
   // mSwapChain is null when this method is called from on_create through
   // SetWindowPos
   if (mSwapChain) {
-    if (mMode != WindowMode::FullscreenExclusive &&
-        newClientAreaSize != mSwapChain->get_info().backBufferSize) {
-      mSwapChain->reset(gfx::SwapChain::ResetDesc{});
+    auto swapChainInfo = mSwapChain->get_info();
+    if (auto* sharedModeInfo = std::get_if<gfx::SwapChain::SharedModeInfo>(
+          &swapChainInfo.modeInfo)) {
+      auto const currentSize = swapChainInfo.size();
+
+      if (newClientAreaSize != currentSize) {
+        sharedModeInfo->size = newClientAreaSize;
+        mSwapChain->reset(swapChainInfo);
+      }
     }
   }
 }

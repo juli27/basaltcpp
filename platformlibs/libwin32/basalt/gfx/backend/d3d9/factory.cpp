@@ -8,8 +8,7 @@
 #include "texture_3d_support.h"
 #include "x_model_support.h"
 
-#include <basalt/api/base/asserts.h>
-#include <basalt/api/base/enum_array.h>
+#include <basalt/api/base/functional.h>
 #include <basalt/api/base/log.h>
 #include <basalt/api/base/types.h>
 
@@ -22,6 +21,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace basalt::gfx {
@@ -38,8 +38,6 @@ using std::vector;
 namespace {
 
 constexpr auto DEVICE_TYPE = D3DDEVTYPE_HAL;
-constexpr auto DEVICE_CREATE_FLAGS =
-  D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_DISABLE_DRIVER_MANAGEMENT;
 
 struct Cap final {
   string_view name;
@@ -428,8 +426,8 @@ auto enum_back_buffer_formats(IDirect3D9& instance, UINT const adapter,
         instance, adapter, depthStencilFormat, windowed);
 
       backBufferFormats.emplace_back(BackBufferFormat{
-        to_image_format(backBufferFormat), to_image_format(depthStencilFormat),
-        multiSampleCounts});
+        to_image_format(backBufferFormat).value(),
+        to_image_format(depthStencilFormat).value(), multiSampleCounts});
     }
   }
 
@@ -658,7 +656,7 @@ auto D3D9Factory::get_adapter_shared_mode_info(u32 const adapterIndex) const
   return AdapterSharedModeInfo{
     std::move(backBufferFormats),
     DisplayMode{mode.Width, mode.Height, mode.RefreshRate},
-    to_image_format(mode.Format)};
+    to_image_format(mode.Format).value()};
 }
 
 auto D3D9Factory::enum_adapter_exclusive_mode_infos(
@@ -687,7 +685,7 @@ auto D3D9Factory::enum_adapter_exclusive_mode_infos(
     modes.emplace_back(AdapterExclusiveModeInfo{
       std::move(backBufferFormats),
       std::move(displayModes),
-      to_image_format(displayFormat),
+      to_image_format(displayFormat).value(),
     });
   }
 
@@ -695,47 +693,19 @@ auto D3D9Factory::enum_adapter_exclusive_mode_infos(
 }
 
 auto D3D9Factory::do_create_device_and_swap_chain(
-  HWND const window,
-  DeviceAndSwapChainCreateInfo const& info) const -> DeviceAndSwapChain {
-  auto const adapterOrdinal = mSuitableAdapters[info.adapter];
-  BASALT_ASSERT(adapterOrdinal < mInstance->GetAdapterCount());
+  HWND const window, u32 const adapter,
+  SwapChain::Info const& info) const -> DeviceAndSwapChain {
+  auto const adapterOrdinal = mSuitableAdapters.at(adapter);
 
-  auto pp = D3DPRESENT_PARAMETERS{};
-  pp.BackBufferFormat = to_d3d(info.renderTargetFormat);
-  pp.BackBufferCount = 1;
-  pp.MultiSampleType = to_d3d(info.sampleCount);
-  pp.MultiSampleQuality = 0;
+  auto pp = D3D9SwapChain::to_present_parameters(info);
   pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-  pp.hDeviceWindow = window;
-  pp.Windowed = !info.exclusive;
-  pp.EnableAutoDepthStencil = info.depthStencilFormat != ImageFormat::Unknown;
-  pp.AutoDepthStencilFormat = to_d3d(info.depthStencilFormat);
-  pp.Flags =
-    pp.EnableAutoDepthStencil ? D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL : 0;
   pp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+  pp.hDeviceWindow = window;
 
-  if (info.exclusive) {
-    auto currentMode = D3DDISPLAYMODE{};
-    D3D9CHECK(mInstance->GetAdapterDisplayMode(adapterOrdinal, &currentMode));
-
-    if (info.exclusiveDisplayMode.width == 0) {
-      pp.BackBufferWidth = currentMode.Width;
-      pp.BackBufferHeight = currentMode.Height;
-      pp.FullScreen_RefreshRateInHz = currentMode.RefreshRate;
-    } else {
-      pp.BackBufferWidth = info.exclusiveDisplayMode.width;
-      pp.BackBufferHeight = info.exclusiveDisplayMode.height;
-      pp.FullScreen_RefreshRateInHz = info.exclusiveDisplayMode.refreshRate;
-    }
-
-    if (pp.BackBufferFormat == D3DFMT_UNKNOWN) {
-      pp.BackBufferFormat = currentMode.Format;
-    }
-  }
-
+  constexpr auto createFlags = D3DCREATE_HARDWARE_VERTEXPROCESSING;
   auto d3d9Device = IDirect3DDevice9Ptr{};
   D3D9CHECK(mInstance->CreateDevice(adapterOrdinal, DEVICE_TYPE, window,
-                                    DEVICE_CREATE_FLAGS, &pp, &d3d9Device));
+                                    createFlags, &pp, &d3d9Device));
 
   // TODO: verify the five caps which differ?
 

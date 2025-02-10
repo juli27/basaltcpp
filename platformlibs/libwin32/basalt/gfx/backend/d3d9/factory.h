@@ -39,9 +39,9 @@ private:
   IDirect3D9Ptr mInstance;
   std::vector<UINT> mSuitableAdapters;
 
-  auto do_create_device_and_swap_chain(
-    HWND,
-    DeviceAndSwapChainCreateInfo const&) const -> DeviceAndSwapChain override;
+  auto do_create_device_and_swap_chain(HWND, u32 adapter,
+                                       SwapChain::Info const&) const
+    -> DeviceAndSwapChain override;
 };
 
 } // namespace basalt::gfx

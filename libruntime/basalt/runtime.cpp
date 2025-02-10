@@ -37,7 +37,7 @@ auto Runtime::update(UpdateContext const& ctx) -> void {
   auto composite = gfx::Composite{};
   auto const drawCtx = View::DrawContext{
     composite,
-    mGfxContext->swap_chain()->get_info().backBufferSize,
+    mGfxContext->swap_chain()->get_info().size(),
   };
   auto updateCtx = View::UpdateContext{*this, drawCtx, ctx.deltaTime};
 
