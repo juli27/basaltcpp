@@ -9,9 +9,7 @@ target_link_libraries(LibAPI
     fmt::fmt
     spdlog::spdlog
   PRIVATE
-    Cpp17Conformance
-    CommonPrivate
-    ControlFlowGuard
+    CommonFlags
 )
 
 target_include_directories(LibAPI PUBLIC
@@ -21,15 +19,16 @@ target_include_directories(LibAPI PUBLIC
 target_compile_definitions(LibAPI PRIVATE
   "BASALT_BUILD"
   "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:BASALT_DEV_BUILD>"
-  "$<$<CONFIG:Debug>:BASALT_DEBUG_BUILD>"
-)
+  "$<$<CONFIG:Debug>:BASALT_DEBUG_BUILD>")
 
 target_compile_features(LibAPI PUBLIC cxx_std_17)
-target_compile_options(LibAPI PRIVATE
-  "/w44062" "/w14165" "/w34191" "/w44242"
-)
 
-set_property(TARGET LibAPI PROPERTY STATIC_LIBRARY_OPTIONS "/WX")
+if(MSVC)
+  target_compile_options(LibAPI PRIVATE
+    "/permissive-"
+    "/Zc:preprocessor")
+endif()
+
 set_property(TARGET LibAPI PROPERTY VS_JUST_MY_CODE_DEBUGGING
               "$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>")
 

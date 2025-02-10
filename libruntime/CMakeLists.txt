@@ -5,9 +5,7 @@ target_link_libraries(LibRuntime
   PUBLIC
     Basalt::LibAPI
   PRIVATE
-    Cpp17Conformance
-    ControlFlowGuard
-    CommonPrivate
+    CommonFlags
 )
 
 target_include_directories(LibRuntime PUBLIC
@@ -21,11 +19,12 @@ target_compile_definitions(LibRuntime PRIVATE
   "$<$<CONFIG:Debug>:BASALT_DEBUG_BUILD>"
 )
 
-target_compile_options(LibRuntime PRIVATE
-  "/w44062;/w14165;/w34191;/w44242"
-)
+if(MSVC)
+  target_compile_options(LibRuntime PRIVATE
+    "/permissive-"
+    "/Zc:preprocessor")
+endif()
 
-set_property(TARGET LibRuntime PROPERTY STATIC_LIBRARY_OPTIONS "/WX")
 set_property(TARGET LibRuntime PROPERTY VS_JUST_MY_CODE_DEBUGGING
               "$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>")
 

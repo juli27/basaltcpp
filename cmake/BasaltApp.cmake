@@ -9,8 +9,7 @@ function(basalt_add_app APP_NAME)
   add_executable(${EXE_NAME} WIN32)
 
   target_link_libraries(${EXE_NAME} PRIVATE
-    ControlFlowGuard
-    CommonPrivate
+    CommonFlags
     ${APP_NAME}
     Basalt::LibAPI
     Basalt::LibRuntime
@@ -23,27 +22,9 @@ function(basalt_add_app APP_NAME)
   )
 
   target_compile_features(${EXE_NAME} PRIVATE cxx_std_17)
-  target_compile_options(${EXE_NAME}
-    PRIVATE
-      "/w44062;/w14165;/w34191;/w44242"
-      "/Zc:__cplusplus"
-      "/Zc:externC"
-      "/Zc:externConstexpr"
-      "/Zc:hiddenFriend"
-      "/Zc:inline"
-      "/Zc:lambda"
-      "/Zc:nrvo"
-      "/Zc:preprocessor-"
-      "/Zc:referenceBinding"
-      "/Zc:rvalueCast"
-      "/Zc:strictStrings"
-      "/Zc:ternary"
-      "/Zc:throwingNew"
-  )
 
   # TODO: /LTCG:incremental with ninja
   target_link_options(${EXE_NAME} PRIVATE
-    "/WX"
     "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:/DEBUG:FASTLINK>"
     "$<$<NOT:$<CONFIG:Debug>>:/OPT:REF;/OPT:ICF>"
     "$<$<CONFIG:Release>:/DEBUG:FULL>"
@@ -64,12 +45,10 @@ function(basalt_add_app APP_NAME)
     "main.cpp"
     COPYONLY)
 
-  target_sources(${EXE_NAME}
-    PRIVATE
-      "${CMAKE_CURRENT_BINARY_DIR}/app.manifest"
-      "${CMAKE_CURRENT_BINARY_DIR}/main.cpp")
-  source_group(""
-    FILES
-      "${CMAKE_CURRENT_BINARY_DIR}/app.manifest"
-      "${CMAKE_CURRENT_BINARY_DIR}/main.cpp")
+  target_sources(${EXE_NAME} PRIVATE
+    "${CMAKE_CURRENT_BINARY_DIR}/app.manifest"
+    "${CMAKE_CURRENT_BINARY_DIR}/main.cpp")
+  source_group("" FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/app.manifest"
+    "${CMAKE_CURRENT_BINARY_DIR}/main.cpp")
 endfunction()

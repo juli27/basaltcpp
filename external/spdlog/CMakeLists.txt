@@ -9,9 +9,7 @@ if (NOT spdlog_POPULATED)
     PUBLIC
       fmt::fmt
     PRIVATE
-      Cpp17Conformance
-      CommonPrivate
-      ControlFlowGuard
+      CommonFlags
   )
 
   target_include_directories(spdlog PUBLIC
@@ -20,9 +18,9 @@ if (NOT spdlog_POPULATED)
   )
 
   target_compile_definitions(spdlog PUBLIC "SPDLOG_COMPILED_LIB")
+  target_compile_options(spdlog PRIVATE "/permissive-")
 
   set_property(TARGET spdlog PROPERTY FOLDER "external")
-  set_property(TARGET spdlog PROPERTY STATIC_LIBRARY_OPTIONS "/WX")
 
   target_sources(spdlog PRIVATE
     "${spdlog_SOURCE_DIR}/src/async.cpp"

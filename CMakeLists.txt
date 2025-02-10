@@ -1,8 +1,5 @@
-cmake_minimum_required(VERSION 3.19...3.20 FATAL_ERROR)
-
+cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 project(Basalt VERSION 0.4 LANGUAGES CXX)
-
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 set(CMAKE_CXX_STANDARD "17" CACHE STRING
     "Default value for CXX_STANDARD property of targets")
@@ -12,10 +9,15 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON CACHE BOOL
     "Default value for INTERPROCEDURAL_OPTIMIZATION of targets")
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF CACHE BOOL
     "Default value for INTERPROCEDURAL_OPTIMIZATION_DEBUG of targets")
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL OFF CACHE BOOL
-    "Default value for INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL of targets")
+
+set(BASALT_BUILD_IS_DEVEL ON CACHE BOOL
+    "Configure a development or release build")
+set(BASALT_BUILD_WARNINGS_AS_ERRORS OFF CACHE BOOL
+    "Treat compiler and linker warnings as errors")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 include(Compiler)
 include(FeatureSummary)
