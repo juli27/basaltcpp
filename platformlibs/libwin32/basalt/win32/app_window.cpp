@@ -297,16 +297,19 @@ auto Win32AppWindow::set_mode(WindowMode const newMode) -> void {
 
   // exclusive ownership of the output monitor needs to be released before
   // window changes can be made
-  if (auto info = mSwapChain->get_info(); info.is_exclusive()) {
-    info.modeInfo = gfx::SwapChain::SharedModeInfo{client_area_size()};
-    mSwapChain->reset(info);
+  // is null when called before init_gfx_context
+  if (mSwapChain) {
+    if (auto info = mSwapChain->get_info(); info.is_exclusive()) {
+      info.modeInfo = gfx::SwapChain::SharedModeInfo{client_area_size()};
+      mSwapChain->reset(info);
 
-    // the d3d9 runtime leaves the window as topmost when exiting exclusive
-    // fullscreen
-    SetWindowPos(handle(), HWND_NOTOPMOST, 0, 0, 0, 0,
-                 SWP_NOSIZE | SWP_NOSIZE | SWP_NOACTIVATE);
+      // the d3d9 runtime leaves the window as topmost when exiting exclusive
+      // fullscreen
+      SetWindowPos(handle(), HWND_NOTOPMOST, 0, 0, 0, 0,
+                   SWP_NOSIZE | SWP_NOSIZE | SWP_NOACTIVATE);
 
-    mMode = WindowMode::Fullscreen;
+      mMode = WindowMode::Fullscreen;
+    }
   }
 
   switch (newMode) {
@@ -322,13 +325,15 @@ auto Win32AppWindow::set_mode(WindowMode const newMode) -> void {
 
   case WindowMode::FullscreenExclusive: {
     make_fullscreen();
-
-    auto swapChainInfo = mSwapChain->get_info();
-    swapChainInfo.modeInfo =
-      gfx::SwapChain::ExclusiveModeInfo{mExclusiveDisplayMode.value()};
-    mSwapChain->reset(swapChainInfo);
-
     mMode = WindowMode::FullscreenExclusive;
+
+    // is null when called before init_gfx_context
+    if (mSwapChain) {
+      auto swapChainInfo = mSwapChain->get_info();
+      swapChainInfo.modeInfo =
+        gfx::SwapChain::ExclusiveModeInfo{mExclusiveDisplayMode.value()};
+      mSwapChain->reset(swapChainInfo);
+    }
 
     break;
   }
