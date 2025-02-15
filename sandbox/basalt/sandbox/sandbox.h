@@ -1,5 +1,7 @@
 #pragma once
 
+#include "settings.h"
+
 #include <basalt/api/view.h>
 
 #include <basalt/api/debug_ui.h>
@@ -10,9 +12,9 @@
 #include <vector>
 
 struct SandboxView final : basalt::View {
-  static auto create(basalt::Engine&) -> basalt::ViewPtr;
+  static auto create(basalt::Engine&, Settings) -> basalt::ViewPtr;
 
-  explicit SandboxView(basalt::Engine&);
+  SandboxView(basalt::Engine&, Settings);
 
 protected:
   auto on_update(UpdateContext&) -> void override;
@@ -25,7 +27,9 @@ private:
   basalt::ViewPtr mCurrentExampleView;
 
   basalt::DebugUi mDebugUi{};
+  Settings mSettings;
 
+  bool mShowSettingsEditor{false};
   bool mShowDemo{false};
   bool mShowMetrics{false};
   bool mShowAbout{false};

@@ -3,7 +3,10 @@ include(BasaltApp)
 basalt_add_app(Sandbox)
 add_library(Basalt::Sandbox ALIAS Sandbox)
 
-target_link_libraries(Sandbox PRIVATE CommonFlags)
+target_link_libraries(Sandbox PRIVATE
+  CommonFlags
+  tomlplusplus::tomlplusplus
+)
 
 target_include_directories(Sandbox
   PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")

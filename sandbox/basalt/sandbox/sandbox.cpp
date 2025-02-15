@@ -1,5 +1,7 @@
 #include "sandbox.h"
 
+#include "settings_ui.h"
+
 #include "d3d9_tutorials.h"
 #include "samples/samples.h"
 #include "tribase/tribase_examples.h"
@@ -17,6 +19,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <utility>
 
 using std::function;
 using std::string;
@@ -33,11 +36,12 @@ struct SandboxView::Example final {
   function<ViewPtr(Engine&)> factory;
 };
 
-auto SandboxView::create(Engine& engine) -> ViewPtr {
-  return std::make_shared<SandboxView>(engine);
+auto SandboxView::create(Engine& engine, Settings settings) -> ViewPtr {
+  return std::make_shared<SandboxView>(engine, std::move(settings));
 }
 
-SandboxView::SandboxView(Engine& engine) {
+SandboxView::SandboxView(Engine& engine, Settings settings)
+  : mSettings{std::move(settings)} {
   mExamples.reserve(23);
   mExamples.emplace_back(Example{
     "Tutorial 2: Rendering Vertices"s,
@@ -210,6 +214,7 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
       config.set_bool("debug.scene_inspector.visible"s, sceneInspectorEnabled);
 
       ImGui::MenuItem("Performance Overlay", nullptr, &mShowOverlay);
+      ImGui::MenuItem("Settings", nullptr, &mShowSettingsEditor);
 
       if (config.get_bool("runtime.debugUI.enabled"s)) {
         ImGui::Separator();
@@ -247,6 +252,11 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
     }
 
     ImGui::EndPopup();
+  }
+
+  if (mShowSettingsEditor) {
+    SettingsUi::show_settings_editor(mSettings, engine.gfx_info(),
+                                     &mShowSettingsEditor);
   }
 
   if (mShowOverlay) {

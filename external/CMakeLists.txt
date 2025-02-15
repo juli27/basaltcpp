@@ -20,9 +20,14 @@ FetchContent_Declare(spdlog
   GIT_REPOSITORY https://github.com/gabime/spdlog.git
   GIT_TAG        27cb4c76708608465c413f6d0e6b8d99a4d84302 # v1.14.1
 )
+FetchContent_Declare(tomlplusplus
+  GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
+  GIT_TAG        30172438cee64926dc41fdd9c11fb3ba5b2ba9de # v3.4.0
+)
 
 add_subdirectory("DearImGui")
 FetchContent_MakeAvailable(EnTT)
 add_subdirectory("fmt")
 FetchContent_MakeAvailable(GSL)
 add_subdirectory("spdlog")
+FetchContent_MakeAvailable(tomlplusplus)
