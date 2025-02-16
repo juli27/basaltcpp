@@ -15,11 +15,13 @@ jobs:
       matrix:
         os: [windows-2022]
         configuration: [Debug, RelWithDebInfo]
+        buildDevel: [ON]
         include:
-          - buildDevel: ON
           - os: windows-2022
             preset: vs2022
-          - configuration: RelWithDebInfo
+          - os: windows-2022
+            preset: vs2022
+            configuration: RelWithDebInfo
             buildDevel: OFF
 
     runs-on: ${{ matrix.os }}
