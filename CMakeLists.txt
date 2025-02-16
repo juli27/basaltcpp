@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.21...3.22 FATAL_ERROR)
 project(Basalt VERSION 0.4 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD "17" CACHE STRING
@@ -9,8 +9,10 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON CACHE BOOL
     "Default value for INTERPROCEDURAL_OPTIMIZATION of targets")
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF CACHE BOOL
     "Default value for INTERPROCEDURAL_OPTIMIZATION_DEBUG of targets")
+set(CMAKE_OPTIMIZE_DEPENDENCIES ON CACHE BOOL
+    "Initializes the OPTIMIZE_DEPENDENCIES target property")
 
-set(BASALT_BUILD_IS_DEVEL ON CACHE BOOL
+set(BASALT_BUILD_DEVEL ON CACHE BOOL
     "Configure a development or release build")
 set(BASALT_BUILD_WARNINGS_AS_ERRORS OFF CACHE BOOL
     "Treat compiler and linker warnings as errors")

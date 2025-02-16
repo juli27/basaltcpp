@@ -14,10 +14,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-2022]
-        configuration: [Debug, RelWithDebInfo, Release]
+        configuration: [Debug, RelWithDebInfo]
         include:
+          - buildDevel: ON
           - os: windows-2022
-            generator: Visual Studio 17 2022
+            preset: vs2022
+          - configuration: RelWithDebInfo
+            buildDevel: OFF
 
     runs-on: ${{ matrix.os }}
 
@@ -56,7 +59,7 @@ jobs:
         }
 
     - name: Configure
-      run: cmake -Wno-dev -S . -B ./_build -G "${{ matrix.generator }}" -A x64 -D CMAKE_SYSTEM_VERSION=8.1 -D FETCHCONTENT_BASE_DIR=${{ env.FETCH_CONTENT_DIR }} -D BASALT_WARNINGS_AS_ERRORS=ON
+      run: cmake -Wno-dev --preset=${{ matrix.preset }} -D BASALT_BUILD_DEVEL=${{ matrix.buildDevel }} -D BASALT_WARNINGS_AS_ERRORS=ON -D FETCHCONTENT_BASE_DIR=${{ env.FETCH_CONTENT_DIR }}
 
     - name: Build
-      run: cmake --build ./_build --config ${{ matrix.configuration }} --parallel
+      run: cmake --build --preset=${{ matrix.preset }} --config ${{ matrix.configuration }} --parallel

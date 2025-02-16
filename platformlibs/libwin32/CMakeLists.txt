@@ -7,31 +7,29 @@ find_package(DirectXSDK MODULE REQUIRED "d3dx9" "dxerr")
 set_package_properties(DirectXSDK PROPERTIES
   DESCRIPTION "Microsoft DirectX SDK"
   URL "https://www.microsoft.com/en-us/download/details.aspx?id=6812"
-  PURPOSE "Dependency of the Direct3D 9 gfx backend")
+  PURPOSE "Dependency of the Direct3D 9 gfx backend"
+)
 
 target_link_libraries(LibWin32
-  PUBLIC
-    Basalt::LibAPI
-    Basalt::LibRuntime
+  PUBLIC Basalt::LibRuntime
   PRIVATE
     CommonFlags
     "d3d9"
     DirectXSDK::d3dx9
     DirectXSDK::dxerr
-    "legacy_stdio_definitions")
+    "legacy_stdio_definitions"
+)
 
-target_include_directories(LibWin32 PUBLIC
-  "${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories(LibWin32 PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+
+target_compile_definitions(LibWin32 PRIVATE "BASALT_BUILD")
 
 target_compile_features(LibWin32 PUBLIC cxx_std_17)
-target_compile_definitions(LibWin32 PRIVATE
-  "BASALT_BUILD"
-  "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:BASALT_DEV_BUILD>"
-  "$<$<CONFIG:Debug>:BASALT_DEBUG_BUILD>")
 
 set_property(TARGET LibWin32 PROPERTY FOLDER "platformlibs")
-set_property(TARGET LibWin32 PROPERTY VS_JUST_MY_CODE_DEBUGGING
-              "$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>")
+set_property(TARGET LibWin32 PROPERTY
+  VS_JUST_MY_CODE_DEBUGGING "$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>"
+)
 
 add_subdirectory("basalt")
 
