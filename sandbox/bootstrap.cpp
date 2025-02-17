@@ -48,7 +48,8 @@ auto basalt::bootstrap_app(Config& config) -> AppLaunchInfo {
   config.set_bool("runtime.debugUI.enabled"s, true);
 
   // TODO: verify compatibility with the current platform capabilities
-  auto settings = Settings::from_file("settings.toml"s).value_or(Settings{});
+  auto settings =
+    Settings::from_file("settings.toml"s).value_or(Settings{"settings.toml"s});
 
   auto canvasInfo = CanvasCreateInfo{};
   canvasInfo.mode = settings.windowMode;
