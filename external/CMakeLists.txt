@@ -2,11 +2,11 @@ include(FetchContent)
 
 FetchContent_Declare(DearImGui
   GIT_REPOSITORY https://github.com/ocornut/imgui.git
-  GIT_TAG        99109c0b3b052cffa154a9295440f68868a39f74 # v1.91.4
+  GIT_TAG        f401021d5a5d56fe2304056c391e78f81c8d4b8f # v1.91.5
 )
 FetchContent_Declare(EnTT
   GIT_REPOSITORY https://github.com/skypjack/entt.git
-  GIT_TAG        78213075654a688e9da6bc49f7f873d25c26d12c # v3.13.2
+  GIT_TAG        4a2d1a8541228a90e02a873dba6a980506c42c03 # v3.14.0
 )
 FetchContent_Declare(fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
