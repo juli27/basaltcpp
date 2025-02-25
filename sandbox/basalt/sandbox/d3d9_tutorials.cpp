@@ -18,7 +18,6 @@
 #include <basalt/api/math/matrix4x4.h>
 #include <basalt/api/math/vector2.h>
 #include <basalt/api/math/vector3.h>
-#include <basalt/api/math/vector4.h>
 
 #include <gsl/span>
 
@@ -43,7 +42,6 @@ using basalt::Matrix4x4f32;
 using basalt::PI;
 using basalt::Vector2f32;
 using basalt::Vector3f32;
-using basalt::Vector4f32;
 using basalt::View;
 using basalt::ViewPtr;
 using basalt::gfx::Attachment;
@@ -86,58 +84,6 @@ auto create_view_to_clip_transform(basalt::Size2Du16 const viewport) noexcept
   return Matrix4x4f32::perspective_projection(45_deg, viewport.aspect_ratio(),
                                               1.0f, 100.0f);
 }
-
-class Vertices final : public View {
-  struct Vertex {
-    Vector4f32 pos{};
-    ColorEncoding::A8R8G8B8 color{};
-
-    static constexpr auto sLayout = basalt::gfx::make_vertex_layout<
-      VertexElement::PositionTransformed4F32,
-      VertexElement::ColorDiffuse1U32A8R8G8B8>();
-  };
-
-public:
-  explicit Vertices(Engine const& engine)
-    : mGfxCache{engine.create_gfx_resource_cache()}
-    , mVertexBuffer{[&] {
-      constexpr auto vertices = array{
-        Vertex{{150.0f, 50.0f, 0.5f, 1.0f}, 0xffff0000_a8r8g8b8},
-        Vertex{{250.0f, 250.0f, 0.5f, 1.0f}, 0xff00ff00_a8r8g8b8},
-        Vertex{{50.0f, 250.0f, 0.5f, 1.0f}, 0xff00ffff_a8r8g8b8},
-      };
-
-      auto const vertexData = as_bytes(span{vertices});
-
-      return mGfxCache->create_vertex_buffer(
-        {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
-    }()}
-    , mPipeline{[&] {
-      auto desc = PipelineCreateInfo{};
-      desc.vertexLayout = Vertex::sLayout;
-      desc.primitiveType = PrimitiveType::TriangleList;
-
-      return mGfxCache->create_pipeline(desc);
-    }()} {
-  }
-
-protected:
-  auto on_update(UpdateContext& ctx) -> void override {
-    auto cmdList = CommandList{};
-    cmdList.clear_attachments(Attachments{Attachment::RenderTarget},
-                              Colors::BLUE);
-    cmdList.bind_pipeline(mPipeline);
-    cmdList.bind_vertex_buffer(mVertexBuffer);
-    cmdList.draw(0, 3);
-
-    ctx.drawCtx.commandLists.push_back(std::move(cmdList));
-  }
-
-private:
-  ResourceCachePtr mGfxCache;
-  VertexBufferHandle mVertexBuffer;
-  PipelineHandle mPipeline;
-};
 
 class Matrices final : public View {
   struct Vertex {
@@ -511,10 +457,6 @@ private:
 };
 
 } // namespace
-
-auto D3D9Tutorials::new_vertices_tutorial(Engine& engine) -> ViewPtr {
-  return std::make_shared<Vertices>(engine);
-}
 
 auto D3D9Tutorials::new_matrices_tutorial(Engine& engine) -> ViewPtr {
   return std::make_shared<Matrices>(engine);

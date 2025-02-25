@@ -44,10 +44,6 @@ SandboxView::SandboxView(Engine& engine, Settings settings)
   : mSettings{std::move(settings)} {
   mExamples.reserve(23);
   mExamples.emplace_back(Example{
-    "Tutorial 2: Rendering Vertices"s,
-    &D3D9Tutorials::new_vertices_tutorial,
-  });
-  mExamples.emplace_back(Example{
     "Tutorial 3: Using Matrices"s,
     &D3D9Tutorials::new_matrices_tutorial,
   });
@@ -118,6 +114,10 @@ SandboxView::SandboxView(Engine& engine, Settings settings)
   mExamples.emplace_back(Example{
     "Bsp. 02-14: Effekte"s,
     &TribaseExamples::new_02_14_effects,
+  });
+  mExamples.emplace_back(Example{
+    "Simple View Rendering"s,
+    &Samples::new_simple_view_rendering_sample,
   });
   mExamples.emplace_back(Example{
     "Simple Scene"s,
