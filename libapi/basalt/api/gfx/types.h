@@ -67,8 +67,9 @@ struct SampledTexture final {
   SamplerHandle sampler;
 };
 
-struct MaterialCreateInfo final {
+struct MaterialCreateInfo {
   PipelineHandle pipeline;
+  PipelineCreateInfo pipelineInfo;
   Color diffuse;
   Color ambient;
   Color emissive;
@@ -122,7 +123,18 @@ struct MeshData final {
   u32 indexCount{};
 };
 
-struct MaterialData final {
+enum class MaterialFeature : u8 {
+  Lighting,
+  UniformColors,
+  Fog,
+  Texturing,
+  DepthBuffer,
+};
+using MaterialFeatures = EnumSet<MaterialFeature, MaterialFeature::DepthBuffer>;
+
+struct MaterialData {
+  MaterialFeatures features;
+
   Color diffuse;
   Color ambient;
   Color emissive;

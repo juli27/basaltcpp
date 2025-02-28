@@ -104,7 +104,58 @@ auto Context::destroy(TextureHandle const handle) const noexcept -> void {
 
 auto Context::create_material(MaterialCreateInfo const& createInfo)
   -> Material {
+  auto const& pipelineInfo = createInfo.pipelineInfo;
+  auto features = MaterialFeatures{};
+  if (pipelineInfo.depthTest != TestPassCond::Always ||
+      pipelineInfo.depthWriteEnable) {
+    features.set(MaterialFeature::DepthBuffer);
+  }
+
+  if (pipelineInfo.vertexShader) {
+    auto const& vertexShader = *pipelineInfo.vertexShader;
+
+    if (vertexShader.lightingEnabled) {
+      features.set(MaterialFeature::Lighting);
+
+      if (vertexShader.diffuseSource == MaterialColorSource::Material ||
+          vertexShader.emissiveSource == MaterialColorSource::Material ||
+          vertexShader.ambientSource == MaterialColorSource::Material ||
+          (vertexShader.specularEnabled &&
+           vertexShader.specularSource == MaterialColorSource::Material)) {
+        features.set(MaterialFeature::UniformColors);
+      }
+    }
+
+    if (vertexShader.fog != FogMode::None) {
+      features.set(MaterialFeature::Fog);
+    }
+  }
+
+  if (pipelineInfo.fragmentShader) {
+    if (pipelineInfo.fragmentShader->fog != FogMode::None) {
+      features.set(MaterialFeature::Fog);
+    }
+
+    auto const stages = pipelineInfo.fragmentShader->textureStages;
+    auto needsTexture = false;
+    for (auto const& stage : stages) {
+      needsTexture = needsTexture ||
+                     stage.colorArg1.src == TextureStageSrc::SampledTexture ||
+                     stage.colorArg2.src == TextureStageSrc::SampledTexture ||
+                     stage.colorArg2.src == TextureStageSrc::SampledTexture ||
+                     stage.colorArg3.src == TextureStageSrc::SampledTexture ||
+                     stage.alphaArg1.src == TextureStageSrc::SampledTexture ||
+                     stage.alphaArg2.src == TextureStageSrc::SampledTexture ||
+                     stage.alphaArg3.src == TextureStageSrc::SampledTexture;
+    }
+
+    if (needsTexture) {
+      features.set(MaterialFeature::Texturing);
+    }
+  }
+
   return Material{mMaterials.allocate(MaterialData{
+                    features,
                     createInfo.diffuse,
                     createInfo.ambient,
                     createInfo.emissive,

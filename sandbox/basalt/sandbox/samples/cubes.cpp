@@ -292,8 +292,9 @@ auto Samples::new_cubes_sample(Engine& engine) -> ViewPtr {
   auto const mesh = gfxCache->create_mesh(
     {vertexData, vertexCount, Vertex::sLayout, indexData, indexCount});
 
-  auto matDesc = MaterialCreateInfo{};
-  matDesc.pipeline = [&] {
+  auto const material = [&] {
+    auto matDesc = MaterialCreateInfo{};
+
     auto vs = FixedVertexShaderCreateInfo{};
     vs.lightingEnabled = true;
     vs.ambientSource = MaterialColorSource::DiffuseVertexColor;
@@ -302,22 +303,22 @@ auto Samples::new_cubes_sample(Engine& engine) -> ViewPtr {
     constexpr auto textureStages = array{TextureStage{}};
     fs.textureStages = textureStages;
 
-    auto pipelineDesc = PipelineCreateInfo{};
+    auto& pipelineDesc = matDesc.pipelineInfo;
     pipelineDesc.vertexShader = &vs;
     pipelineDesc.fragmentShader = &fs;
     pipelineDesc.vertexLayout = Vertex::sLayout;
     pipelineDesc.primitiveType = PrimitiveType::TriangleList;
     pipelineDesc.depthTest = TestPassCond::IfLessEqual;
     pipelineDesc.depthWriteEnable = true;
+    matDesc.pipeline = gfxCache->create_pipeline(pipelineDesc);
 
-    return gfxCache->create_pipeline(pipelineDesc);
+    matDesc.sampledTexture.texture =
+      gfxCache->load_texture_2d(CUBE_TEXTURE_FILE_PATH);
+    matDesc.sampledTexture.sampler = gfxCache->create_sampler(
+      {TextureFilter::Bilinear, TextureFilter::Bilinear,
+       TextureMipFilter::Linear});
+    return gfxCache->create_material(matDesc);
   }();
-  matDesc.sampledTexture.texture =
-    gfxCache->load_texture_2d(CUBE_TEXTURE_FILE_PATH);
-  matDesc.sampledTexture.sampler =
-    gfxCache->create_sampler({TextureFilter::Bilinear, TextureFilter::Bilinear,
-                              TextureMipFilter::Linear});
-  auto const material = gfxCache->create_material(matDesc);
 
   auto scene = Scene::create();
   scene->create_system<RotatingLightSystem>();

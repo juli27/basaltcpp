@@ -76,26 +76,24 @@ public:
     gfxEnv.set_ambient_light(Color::from_non_linear(0.25f, 0, 0));
 
     auto materialDesc = MaterialCreateInfo{};
-    materialDesc.pipeline = [&] {
-      auto vs = FixedVertexShaderCreateInfo{};
-      vs.lightingEnabled = true;
-      vs.specularEnabled = true;
-      vs.fog = FogMode::Exponential;
+    auto vs = FixedVertexShaderCreateInfo{};
+    vs.lightingEnabled = true;
+    vs.specularEnabled = true;
+    vs.fog = FogMode::Exponential;
 
-      auto fs = FixedFragmentShaderCreateInfo{};
-      constexpr auto textureStages = array{TextureStage{}};
-      fs.textureStages = textureStages;
+    auto fs = FixedFragmentShaderCreateInfo{};
+    constexpr auto textureStages = array{TextureStage{}};
+    fs.textureStages = textureStages;
 
-      auto pipelineDesc = PipelineCreateInfo{};
-      pipelineDesc.vertexShader = &vs;
-      pipelineDesc.fragmentShader = &fs;
-      pipelineDesc.cullMode = CullMode::CounterClockwise;
-      pipelineDesc.depthTest = TestPassCond::IfLessEqual;
-      pipelineDesc.depthWriteEnable = true;
-      pipelineDesc.dithering = true;
+    auto& pipelineDesc = materialDesc.pipelineInfo;
+    pipelineDesc.vertexShader = &vs;
+    pipelineDesc.fragmentShader = &fs;
+    pipelineDesc.cullMode = CullMode::CounterClockwise;
+    pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+    pipelineDesc.depthWriteEnable = true;
+    pipelineDesc.dithering = true;
+    materialDesc.pipeline = mGfxCache->create_pipeline(pipelineDesc);
 
-      return mGfxCache->create_pipeline(pipelineDesc);
-    }();
     materialDesc.sampledTexture.sampler = mGfxCache->create_sampler(
       {TextureFilter::Bilinear, TextureFilter::Bilinear,
        TextureMipFilter::Linear});
@@ -179,7 +177,8 @@ public:
           vs.specularEnabled = true;
           vs.fog = FogMode::Exponential;
 
-          auto pipelineDesc = PipelineCreateInfo{};
+          auto& pipelineDesc = materialDesc.pipelineInfo;
+          pipelineDesc = PipelineCreateInfo{};
           pipelineDesc.vertexShader = &vs;
           pipelineDesc.cullMode = CullMode::CounterClockwise;
           pipelineDesc.depthTest = TestPassCond::IfLessEqual;

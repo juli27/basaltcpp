@@ -46,35 +46,34 @@ struct IndexBufferSlice {
   u32 count;
 };
 
-struct RenderMeshDrawCall {
-  LocalToWorld objectToScene;
-  MaterialHandle material;
+struct VbRenderMesh {
   VertexBufferSlice vbSlice;
 };
 
-struct IndexedRenderMeshDrawCall {
-  LocalToWorld objectToScene;
-  MaterialHandle material;
+struct IndexedVbRenderMesh {
   VertexBufferSlice vbSlice;
   IndexBufferSlice ibSlice;
 };
 
-struct XMeshDrawCall {
-  LocalToWorld objectToScene;
-  MaterialHandle material;
-  ext::XMeshHandle mesh;
-};
+using RenderMesh =
+  std::variant<VbRenderMesh, IndexedVbRenderMesh, ext::XMeshHandle>;
 
-using DrawCall =
-  std::variant<RenderMeshDrawCall, IndexedRenderMeshDrawCall, XMeshDrawCall>;
+struct DrawCall {
+  MaterialData materialData;
+  LocalToWorld objectToScene;
+  RenderMesh renderMesh;
+};
 
 } // namespace
 
 auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
   auto& scene = ctx.scene;
-  auto& entities = scene.entity_registry();
-  auto const& ecsCtx{entities.ctx()};
+  auto const& entities = scene.entity_registry();
+  auto const& ecsCtx = entities.ctx();
   auto const& gfxCtx = ecsCtx.get<Context const>();
+
+  auto needsDepth = false;
+  auto needsLights = false;
 
   auto const drawCalls = [&] {
     auto drawCalls = vector<DrawCall>();
@@ -82,39 +81,63 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
     entities.view<LocalToWorld const, ext::XModel const>().each(
       [&](LocalToWorld const& localToWorld, ext::XModel const& model) {
         drawCalls.push_back(
-          XMeshDrawCall{localToWorld, model.material, model.mesh});
+          DrawCall{gfxCtx.get(model.material), localToWorld, model.mesh});
+
+        auto const& drawCall = drawCalls.back();
+        auto const& materialFeatures = drawCall.materialData.features;
+
+        needsDepth |= materialFeatures.has(MaterialFeature::DepthBuffer);
+        needsLights |= materialFeatures.has(MaterialFeature::Lighting);
       });
 
     entities.view<LocalToWorld const, Model const>().each(
-      [&](LocalToWorld const& localToWorld,
-          Model const& renderComponent) {
-        auto const& meshData = gfxCtx.get(renderComponent.mesh);
+      [&](LocalToWorld const& localToWorld, Model const& model) {
+        auto const& meshData = gfxCtx.get(model.mesh);
 
-        if (meshData.indexBuffer) {
-          drawCalls.push_back(IndexedRenderMeshDrawCall{
-            localToWorld, renderComponent.material,
-            VertexBufferSlice{meshData.vertexBuffer, meshData.startVertex,
-                              meshData.vertexCount},
-            IndexBufferSlice{meshData.indexBuffer, 0, meshData.indexCount}});
-        } else {
-          drawCalls.push_back(RenderMeshDrawCall{
-            localToWorld, renderComponent.material,
-            VertexBufferSlice{meshData.vertexBuffer, meshData.startVertex,
-                              meshData.vertexCount}});
-        }
+        auto const renderMesh = [&]() -> RenderMesh {
+          if (meshData.indexBuffer) {
+            return IndexedVbRenderMesh{
+              VertexBufferSlice{meshData.vertexBuffer, meshData.startVertex,
+                                meshData.vertexCount},
+              IndexBufferSlice{meshData.indexBuffer, 0, meshData.indexCount}};
+          }
+
+          return VbRenderMesh{VertexBufferSlice{
+            meshData.vertexBuffer, meshData.startVertex, meshData.vertexCount}};
+        }();
+
+        drawCalls.push_back(
+          DrawCall{gfxCtx.get(model.material), localToWorld, renderMesh});
+
+        auto const& drawCall = drawCalls.back();
+        auto const& materialFeatures = drawCall.materialData.features;
+
+        needsDepth |= materialFeatures.has(MaterialFeature::DepthBuffer);
+        needsLights |= materialFeatures.has(MaterialFeature::Lighting);
       });
 
     return drawCalls;
   }();
 
-  auto const& drawCtx = ecsCtx.get<View::DrawContext const>();
+  auto const& env = ecsCtx.get<Environment const>();
 
+  auto const& drawCtx = ecsCtx.get<View::DrawContext const>();
   auto cmdList = FilteringCommandList{};
 
-  auto const& env = ecsCtx.get<Environment const>();
-  cmdList.clear_attachments(
-    Attachments{Attachment::RenderTarget, Attachment::DepthBuffer},
-    env.background(), 1.0f);
+  auto clearAttachments = Attachments{Attachment::RenderTarget};
+  if (needsDepth) {
+    clearAttachments.set(Attachment::DepthBuffer);
+  }
+
+  auto const& clearColorValue = env.background();
+  auto const clearDepthValue = 1.0f;
+  cmdList.clear_attachments(clearAttachments, clearColorValue, clearDepthValue);
+
+  if (drawCalls.empty()) {
+    drawCtx.commandLists.push_back(cmdList.take_cmd_list());
+
+    return;
+  }
 
   auto const cameraEntityId = ecsCtx.get<EntityId>(GfxSystem::sMainCamera);
   auto const cameraEntity = CameraEntity{scene.get_handle(cameraEntityId)};
@@ -124,87 +147,82 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
   cmdList.set_transform(TransformState::WorldToView,
                         cameraEntity.world_to_view());
 
-  auto const lights = [&] {
-    auto lights = vector<LightData>{};
-    auto const directionalLights = env.directional_lights();
-    if (!directionalLights.empty()) {
-      lights.insert(lights.end(), directionalLights.begin(),
-                    directionalLights.end());
-    }
+  if (needsLights) {
+    auto const lights = [&] {
+      auto lights = vector<LightData>{};
+      auto const directionalLights = env.directional_lights();
+      if (!directionalLights.empty()) {
+        lights.insert(lights.end(), directionalLights.begin(),
+                      directionalLights.end());
+      }
 
-    // TODO: this should use LocalToWorld
-    entities.view<Transform const, Light const>().each(
-      [&](Transform const& transform, Light const& light) {
-        std::visit(Overloaded{
-                     [&](PointLight const& l) {
-                       lights.emplace_back(PointLightData{
-                         l.diffuse, l.specular, l.ambient, transform.position,
-                         l.range, l.attenuation0, l.attenuation1,
-                         l.attenuation2});
+      // TODO: this should use LocalToWorld
+      entities.view<Transform const, Light const>().each(
+        [&](Transform const& transform, Light const& light) {
+          std::visit(Overloaded{
+                       [&](PointLight const& l) {
+                         lights.emplace_back(PointLightData{
+                           l.diffuse, l.specular, l.ambient, transform.position,
+                           l.range, l.attenuation0, l.attenuation1,
+                           l.attenuation2});
+                       },
+                       [&](SpotLight const& l) {
+                         lights.emplace_back(SpotLightData{
+                           l.diffuse, l.specular, l.ambient, transform.position,
+                           l.direction, l.range, l.attenuation0, l.attenuation1,
+                           l.attenuation2, l.falloff, l.phi, l.theta});
+                       },
                      },
-                     [&](SpotLight const& l) {
-                       lights.emplace_back(SpotLightData{
-                         l.diffuse, l.specular, l.ambient, transform.position,
-                         l.direction, l.range, l.attenuation0, l.attenuation1,
-                         l.attenuation2, l.falloff, l.phi, l.theta});
-                     },
-                   },
-                   light);
-      });
+                     light);
+        });
 
-    return lights;
-  }();
+      return lights;
+    }();
 
-  cmdList.set_ambient_light(env.ambient_light());
-  cmdList.set_lights(lights);
-
-  auto const recordMaterial = [&](MaterialData const& data) {
-    cmdList.bind_pipeline(data.pipeline);
-    cmdList.bind_texture(0, data.texture);
-    cmdList.bind_sampler(0, data.sampler);
-
-    cmdList.set_material(data.diffuse, data.ambient, data.emissive,
-                         data.specular, data.specularPower);
-    cmdList.set_fog_parameters(data.fogColor, data.fogStart, data.fogEnd,
-                               data.fogDensity);
-  };
+    cmdList.set_ambient_light(env.ambient_light());
+    cmdList.set_lights(lights);
+  }
 
   for (auto const& drawCall : drawCalls) {
+    auto const& materialData = drawCall.materialData;
+    cmdList.bind_pipeline(materialData.pipeline);
+
+    auto const& materialFeatures = materialData.features;
+    if (materialFeatures.has(MaterialFeature::Texturing)) {
+      cmdList.bind_texture(0, materialData.texture);
+      cmdList.bind_sampler(0, materialData.sampler);
+    }
+
+    if (materialFeatures.has(MaterialFeature::UniformColors)) {
+      cmdList.set_material(materialData.diffuse, materialData.ambient,
+                           materialData.emissive, materialData.specular,
+                           materialData.specularPower);
+    }
+
+    if (materialFeatures.has(MaterialFeature::Fog)) {
+      cmdList.set_fog_parameters(materialData.fogColor, materialData.fogStart,
+                                 materialData.fogEnd, materialData.fogDensity);
+    }
+
+    cmdList.set_transform(TransformState::LocalToWorld,
+                          drawCall.objectToScene.matrix);
+
     std::visit(Overloaded{
-                 [&](RenderMeshDrawCall const& d) {
-                   auto const& materialData = gfxCtx.get(d.material);
-                   recordMaterial(materialData);
-
-                   cmdList.set_transform(TransformState::LocalToWorld,
-                                         d.objectToScene.matrix);
-
-                   cmdList.bind_vertex_buffer(d.vbSlice.buffer);
-                   cmdList.draw(d.vbSlice.start, d.vbSlice.count);
+                 [&](VbRenderMesh const& m) {
+                   cmdList.bind_vertex_buffer(m.vbSlice.buffer);
+                   cmdList.draw(m.vbSlice.start, m.vbSlice.count);
                  },
-                 [&](IndexedRenderMeshDrawCall const& d) {
-                   auto const& materialData = gfxCtx.get(d.material);
-                   recordMaterial(materialData);
-
-                   cmdList.set_transform(TransformState::LocalToWorld,
-                                         d.objectToScene.matrix);
-
-                   cmdList.bind_vertex_buffer(d.vbSlice.buffer);
-                   cmdList.bind_index_buffer(d.ibSlice.buffer);
-                   cmdList.draw_indexed(0, 0, d.vbSlice.count, d.ibSlice.start,
-                                        d.ibSlice.count);
+                 [&](IndexedVbRenderMesh const& m) {
+                   cmdList.bind_vertex_buffer(m.vbSlice.buffer);
+                   cmdList.bind_index_buffer(m.ibSlice.buffer);
+                   cmdList.draw_indexed(0, 0, m.vbSlice.count, m.ibSlice.start,
+                                        m.ibSlice.count);
                  },
-                 [&](XMeshDrawCall const& d) {
-                   cmdList.set_transform(TransformState::LocalToWorld,
-                                         d.objectToScene.matrix);
-
-                   auto const& materialData = gfxCtx.get(d.material);
-                   recordMaterial(materialData);
-
-                   ext::XMeshCommandEncoder::draw_x_mesh(cmdList.cmd_list(),
-                                                         d.mesh);
+                 [&](ext::XMeshHandle const& m) {
+                   ext::XMeshCommandEncoder::draw_x_mesh(cmdList.cmd_list(), m);
                  },
                },
-               drawCall);
+               drawCall.renderMesh);
   }
 
   drawCtx.commandLists.push_back(cmdList.take_cmd_list());

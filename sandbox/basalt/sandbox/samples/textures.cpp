@@ -50,7 +50,6 @@ using basalt::gfx::Model;
 using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::SamplerCreateInfo;
-using basalt::gfx::TestPassCond;
 using basalt::gfx::TextureFilter;
 using basalt::gfx::TextureMipFilter;
 using basalt::gfx::TextureStage;
@@ -173,20 +172,15 @@ auto Samples::new_textures_sample(Engine& engine) -> ViewPtr {
   auto& samplerSettings = quad.emplace<SamplerSettings>();
 
   auto materialDesc = MaterialCreateInfo{};
-  materialDesc.pipeline = [&] {
-    auto fs = FixedFragmentShaderCreateInfo{};
-    constexpr auto textureStages = array{TextureStage{}};
-    fs.textureStages = textureStages;
+  auto fs = FixedFragmentShaderCreateInfo{};
+  constexpr auto textureStages = array{TextureStage{}};
+  fs.textureStages = textureStages;
 
-    auto pipelineDesc = PipelineCreateInfo{};
-    pipelineDesc.fragmentShader = &fs;
-    pipelineDesc.vertexLayout = Vertex::sLayout;
-    pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
-    pipelineDesc.depthTest = TestPassCond::IfLessEqual;
-    pipelineDesc.depthWriteEnable = true;
-
-    return gfxCache->create_pipeline(pipelineDesc);
-  }();
+  auto& pipelineDesc = materialDesc.pipelineInfo;
+  pipelineDesc.fragmentShader = &fs;
+  pipelineDesc.vertexLayout = Vertex::sLayout;
+  pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
+  materialDesc.pipeline = gfxCache->create_pipeline(pipelineDesc);
   materialDesc.sampledTexture.texture =
     gfxCache->load_texture_2d(TEXTURE_FILE_PATH);
 
