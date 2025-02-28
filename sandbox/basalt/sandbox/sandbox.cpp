@@ -42,11 +42,7 @@ auto SandboxView::create(Engine& engine, Settings settings) -> ViewPtr {
 
 SandboxView::SandboxView(Engine& engine, Settings settings)
   : mSettings{std::move(settings)} {
-  mExamples.reserve(23);
-  mExamples.emplace_back(Example{
-    "Tutorial 3: Using Matrices"s,
-    &D3D9Tutorials::new_matrices_tutorial,
-  });
+  mExamples.reserve(22);
   mExamples.emplace_back(Example{
     "Tutorial 4: Creating and Using Lights"s,
     &D3D9Tutorials::new_lights_tutorial,

@@ -20,8 +20,10 @@
 #include <gsl/span>
 
 #include <array>
+#include <string>
 #include <utility>
 
+using namespace std::literals;
 using std::array;
 
 using gsl::span;
@@ -43,36 +45,35 @@ using basalt::gfx::MaterialCreateInfo;
 using basalt::gfx::Model;
 using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PrimitiveType;
-using basalt::gfx::TestPassCond;
 using basalt::gfx::VertexElement;
 
 namespace {
 
-struct Vertex final {
-  Vector3f32 pos{};
-  ColorEncoding::A8R8G8B8 color{};
+struct Vertex {
+  Vector3f32 position;
+  ColorEncoding::A8R8G8B8 color;
 
   static constexpr auto sLayout =
     basalt::gfx::make_vertex_layout<VertexElement::Position3F32,
                                     VertexElement::ColorDiffuse1U32A8R8G8B8>();
 };
 
-struct RotationSpeed final {
-  f32 rotationDegPerSecond;
+struct RotationSpeed {
+  f32 degPerSecond;
 };
 
-class RotationSpeedSystem final : public System {
+class RotationSystem final : public System {
 public:
   using UpdateBefore = basalt::TransformSystem;
 
-  RotationSpeedSystem() noexcept = default;
+  RotationSystem() noexcept = default;
 
   auto on_update(UpdateContext const& ctx) -> void override {
     auto const dt{ctx.deltaTime.count()};
 
     ctx.scene.entity_registry().view<Transform, RotationSpeed const>().each(
       [&](Transform& t, RotationSpeed const& rotationSpeed) {
-        t.rotate_y(Angle::degrees(rotationSpeed.rotationDegPerSecond * dt));
+        t.rotate_y(Angle::degrees(rotationSpeed.degPerSecond * dt));
       });
   }
 };
@@ -106,19 +107,20 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
   }();
 
   auto scene = Scene::create();
-  auto& gfxEnv = scene->entity_registry().ctx().emplace<Environment>();
-  gfxEnv.set_background(Color::from_non_linear(0.103f, 0.103f, 0.103f));
+  scene->create_system<RotationSystem>();
 
-  auto const triangle = scene->create_entity(Vector3f32::forward() * 2.5f);
+  auto& gfxEnv = scene->entity_registry().ctx().emplace<Environment>();
+  gfxEnv.set_background(Color::from_non_linear_rgba8(32, 32, 32));
+
+  auto const triangle = scene->create_entity("Triangle"s);
   triangle.emplace<RotationSpeed>(360.0f);
   triangle.emplace<Model>(mesh, material);
 
-  scene->create_system<RotationSpeedSystem>();
-
   auto const cameraId = [&] {
-    auto const camera = scene->create_entity();
-    camera.emplace<Camera>(Vector3f32::forward(), Vector3f32::up(), 90_deg,
-                           0.1f, 100.0f);
+    auto const camera =
+      scene->create_entity("Camera"s, Vector3f32{0.0f, 3.0f, -5.0f});
+    camera.emplace<Camera>(Vector3f32::zero(), Vector3f32::up(), 45_deg, 0.1f,
+                           100.0f);
 
     return camera.entity();
   }();

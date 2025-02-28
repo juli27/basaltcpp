@@ -85,67 +85,6 @@ auto create_view_to_clip_transform(basalt::Size2Du16 const viewport) noexcept
                                               1.0f, 100.0f);
 }
 
-class Matrices final : public View {
-  struct Vertex {
-    Vector3f32 pos{};
-    ColorEncoding::A8R8G8B8 color{};
-
-    static constexpr auto sLayout = basalt::gfx::make_vertex_layout<
-      VertexElement::Position3F32, VertexElement::ColorDiffuse1U32A8R8G8B8>();
-  };
-
-public:
-  explicit Matrices(Engine const& engine)
-    : mGfxCache{engine.create_gfx_resource_cache()}
-    , mVertexBuffer{[&] {
-      constexpr auto vertices = array{
-        Vertex{{-1.0f, -1.0f, 0.0f}, 0xffff0000_a8r8g8b8},
-        Vertex{{1.0f, -1.0f, 0.0f}, 0xff0000ff_a8r8g8b8},
-        Vertex{{0.0f, 1.0f, 0.0f}, 0xffffffff_a8r8g8b8},
-      };
-
-      auto const vertexData = as_bytes(span{vertices});
-      return mGfxCache->create_vertex_buffer(
-        {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
-    }()}
-    , mPipeline{[&] {
-      auto desc = PipelineCreateInfo{};
-      desc.vertexLayout = Vertex::sLayout;
-      desc.primitiveType = PrimitiveType::TriangleStrip;
-      return mGfxCache->create_pipeline(desc);
-    }()} {
-  }
-
-protected:
-  auto on_update(UpdateContext& ctx) -> void override {
-    auto const dt = ctx.deltaTime.count();
-
-    // per second
-    constexpr auto rotationSpeedRadians = 2.0f * PI;
-    mRotationY += Angle::radians(rotationSpeedRadians * dt);
-
-    auto cmdList = CommandList{};
-    cmdList.clear_attachments(Attachments{Attachment::RenderTarget});
-    cmdList.bind_pipeline(mPipeline);
-    cmdList.set_transform(TransformState::ViewToClip,
-                          create_view_to_clip_transform(ctx.drawCtx.viewport));
-    cmdList.set_transform(TransformState::WorldToView,
-                          create_world_to_view_transform());
-    cmdList.set_transform(TransformState::LocalToWorld,
-                          Matrix4x4f32::rotation_y(mRotationY));
-    cmdList.bind_vertex_buffer(mVertexBuffer);
-    cmdList.draw(0, 3);
-
-    ctx.drawCtx.commandLists.push_back(std::move(cmdList));
-  }
-
-private:
-  ResourceCachePtr mGfxCache;
-  VertexBufferHandle mVertexBuffer;
-  PipelineHandle mPipeline;
-  Angle mRotationY;
-};
-
 class Lights final : public View {
   static constexpr u32 sVertexCount{2 * 50};
 
@@ -410,7 +349,7 @@ public:
 
         materials.push_back(mGfxCache->create_material(materialDesc));
       }
-      
+
       return materials;
     }();
     mMeshes = std::move(modelData.meshes);
@@ -457,10 +396,6 @@ private:
 };
 
 } // namespace
-
-auto D3D9Tutorials::new_matrices_tutorial(Engine& engine) -> ViewPtr {
-  return std::make_shared<Matrices>(engine);
-}
 
 auto D3D9Tutorials::new_lights_tutorial(Engine& engine) -> ViewPtr {
   return std::make_shared<Lights>(engine);
