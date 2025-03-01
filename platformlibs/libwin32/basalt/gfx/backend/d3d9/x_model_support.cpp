@@ -1,6 +1,7 @@
-#include <basalt/gfx/backend/d3d9/x_model_support.h>
+#include "x_model_support.h"
 
-#include <basalt/gfx/backend/d3d9/conversions.h>
+#include "conversions.h"
+#include "d3d9_error.h"
 
 #include <basalt/gfx/backend/commands.h>
 

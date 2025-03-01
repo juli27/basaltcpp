@@ -1,6 +1,7 @@
 #include "swap_chain.h"
 
 #include "conversions.h"
+#include "d3d9_error.h"
 #include "device.h"
 
 #include <basalt/gfx/backend/types.h>

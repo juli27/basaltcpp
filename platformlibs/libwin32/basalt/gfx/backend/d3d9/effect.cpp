@@ -1,5 +1,6 @@
 #include "effect.h"
 
+#include "d3d9_error.h"
 #include "device.h"
 
 #include <basalt/gfx/backend/commands.h>

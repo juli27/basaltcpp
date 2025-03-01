@@ -33,27 +33,6 @@ using ID3DXMeshPtr = Microsoft::WRL::ComPtr<ID3DXMesh>;
 
 } // namespace basalt::gfx
 
-#if BASALT_DEBUG_BUILD
-
-#include <DxErr.h>
-
-#endif
-
-#if BASALT_DEBUG_BUILD
-
-#define D3D9CHECK(x)                                                           \
-  do {                                                                         \
-    if (const HRESULT macroHr = (x); FAILED(macroHr)) {                        \
-      DXTraceW(__FILE__, __LINE__, macroHr, nullptr, TRUE);                    \
-    }                                                                          \
-  } while (false)
-
-#else // BASALT_DEBUG_BUILD
-
-#define D3D9CHECK(x) (x)
-
-#endif // !BASALT_DEBUG_BUILD
-
 #if BASALT_DEV_BUILD
 
 #define PIX_BEGIN_EVENT(color, name) D3DPERF_BeginEvent(color, name)

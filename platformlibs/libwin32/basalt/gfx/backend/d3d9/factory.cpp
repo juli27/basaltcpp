@@ -1,6 +1,7 @@
 #include "factory.h"
 
 #include "conversions.h"
+#include "d3d9_error.h"
 #include "dear_imgui_renderer.h"
 #include "device.h"
 #include "effect.h"

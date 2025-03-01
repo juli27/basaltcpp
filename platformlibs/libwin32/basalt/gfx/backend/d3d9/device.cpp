@@ -1,6 +1,7 @@
 #include "device.h"
 
 #include "conversions.h"
+#include "d3d9_error.h"
 #include "dear_imgui_renderer.h"
 #include "effect.h"
 #include "x_model_support.h"
@@ -21,6 +22,8 @@
 #include <memory>
 #include <new>
 #include <stdexcept>
+#include <string>
+#include <system_error>
 #include <utility>
 #include <variant>
 
@@ -29,6 +32,7 @@ using namespace std::literals;
 using std::array;
 using std::bad_alloc;
 using std::byte;
+using std::system_error;
 using std::filesystem::path;
 
 using gsl::span;
@@ -328,9 +332,9 @@ auto D3D9Device::destroy(SamplerHandle const handle) noexcept -> void {
 }
 
 auto D3D9Device::submit(span<CommandList const> const commandLists) -> void {
-  // TODO: should we make all rendering code dependent
-  // on the success of BeginScene? -> Log error and/or throw exception
-  D3D9CHECK(mDevice->BeginScene());
+  if (auto const hr = mDevice->BeginScene(); FAILED(hr)) {
+    throw system_error{hr, d3d9_category(), "failed to begin scene"s};
+  }
 
   for (auto const& commandList : commandLists) {
     PIX_BEGIN_EVENT(0, L"command list");

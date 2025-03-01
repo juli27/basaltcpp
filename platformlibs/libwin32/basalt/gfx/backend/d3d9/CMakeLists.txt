@@ -1,6 +1,7 @@
 target_sources(LibWin32 PRIVATE
   "conversions.h"
   "d3d9_custom.h"
+  "d3d9_error.h"
   "data.cpp"
   "data.h"
   "dear_imgui_renderer.cpp"
