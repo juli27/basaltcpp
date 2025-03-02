@@ -40,12 +40,13 @@ endif()
 add_library(DiagnosticFlags INTERFACE)
 if(MSVC)
   target_compile_options(DiagnosticFlags INTERFACE
-    "/FC"
+    "/FC" # Full path of source code file in diagnostics
     "/W4"
     "/w44062" # enumerator in a switch is not handled
     "/w14165" # 'HRESULT' is being converted to 'bool'
     "/w34191" # 'operator': unsafe conversion
-    "/w44242") # conversion from 'type1' to 'type2', possible loss of data
+    "/w44242" # conversion from 'type1' to 'type2', possible loss of data
+  )
 endif()
 
 if(BASALT_BUILD_WARNINGS_AS_ERRORS)

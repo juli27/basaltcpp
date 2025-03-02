@@ -61,7 +61,7 @@ jobs:
         }
 
     - name: Configure
-      run: cmake -Wno-dev --preset=${{ matrix.preset }} -D BASALT_BUILD_DEVEL=${{ matrix.buildDevel }} -D BASALT_WARNINGS_AS_ERRORS=ON -D FETCHCONTENT_BASE_DIR=${{ env.FETCH_CONTENT_DIR }}
+      run: cmake -Wno-dev --preset=${{ matrix.preset }} -D BASALT_BUILD_DEVEL=${{ matrix.buildDevel }} -D BASALT_BUILD_WARNINGS_AS_ERRORS=ON -D FETCHCONTENT_BASE_DIR=${{ env.FETCH_CONTENT_DIR }}
 
     - name: Build
       run: cmake --build --preset=${{ matrix.preset }} --config ${{ matrix.configuration }} --parallel
