@@ -1,4 +1,4 @@
-#include <basalt/sandbox/tribase/02-08_blending.h>
+#include "02-08_blending.h"
 
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
@@ -91,8 +91,8 @@ auto generate_stars(span<StarVertex> const stars) -> void {
   auto rng2 = Distribution{0.1f, 1.0f};
 
   auto const normalizedRandomVector = [&] {
-    return Vector3f32::normalize(rng1(randomEngine), rng1(randomEngine),
-                                 rng1(randomEngine));
+    return Vector3f32::normalized(rng1(randomEngine), rng1(randomEngine),
+                                  rng1(randomEngine));
   };
 
   for (auto& starVertex : stars) {

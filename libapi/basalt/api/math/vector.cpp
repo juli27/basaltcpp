@@ -1,21 +1,13 @@
-#include <basalt/api/math/vector.h>
-#include <basalt/api/math/vector2.h>
-#include <basalt/api/math/vector3.h>
-#include <basalt/api/math/vector4.h>
+#include "vector.h"
+#include "vector2.h"
+#include "vector3.h"
+#include "vector4.h"
 
-#include <basalt/api/math/angle.h>
+#include "angle.h"
 
 #include <cmath>
 
 namespace basalt {
-
-template <typename Derived, typename T, uSize Size>
-auto detail::Vector<Derived, T, Size>::normalize(Derived v) noexcept
-  -> Derived {
-  v.normalize();
-
-  return v;
-}
 
 template <typename Derived, typename T, uSize Size>
 auto detail::Vector<Derived, T, Size>::length() const noexcept -> T {
@@ -38,14 +30,12 @@ template auto detail::Vector<Vector2f32, f32, 2>::length() const noexcept
   -> f32;
 template auto detail::Vector<Vector2f32, f32, 2>::normalize() const noexcept
   -> Vector2f32;
-template auto detail::Vector<Vector2f32, f32, 2>::normalize(Vector2f32) noexcept
-  -> Vector2f32;
 template auto
 detail::Vector<Vector2f32, f32, 2>::distance(Vector2f32 const&,
                                              Vector2f32 const&) noexcept -> f32;
 
-auto Vector2f32::normalize(f32 const x, f32 const y) noexcept -> Vector2f32 {
-  return normalize(Vector2f32{x, y});
+auto Vector2f32::normalized(f32 const x, f32 const y) noexcept -> Vector2f32 {
+  return Vector2f32{x, y}.normalize();
 }
 
 // TODO: tbVector3Min, tbVector3Max
@@ -56,15 +46,13 @@ template auto detail::Vector<Vector3f32, f32, 3>::length() const noexcept
   -> f32;
 template auto detail::Vector<Vector3f32, f32, 3>::normalize() const noexcept
   -> Vector3f32;
-template auto detail::Vector<Vector3f32, f32, 3>::normalize(Vector3f32) noexcept
-  -> Vector3f32;
 template auto
 detail::Vector<Vector3f32, f32, 3>::distance(Vector3f32 const&,
                                              Vector3f32 const&) noexcept -> f32;
 
-auto Vector3f32::normalize(f32 const x, f32 const y, f32 const z) noexcept
+auto Vector3f32::normalized(f32 const x, f32 const y, f32 const z) noexcept
   -> Vector3f32 {
-  return normalize(Vector3f32{x, y, z});
+  return Vector3f32{x, y, z}.normalize();
 }
 
 auto Vector3f32::angle(Vector3f32 const& v1, Vector3f32 const& v2) -> Angle {
@@ -76,15 +64,13 @@ template auto detail::Vector<Vector4f32, f32, 4>::length() const noexcept
   -> f32;
 template auto detail::Vector<Vector4f32, f32, 4>::normalize() const noexcept
   -> Vector4f32;
-template auto detail::Vector<Vector4f32, f32, 4>::normalize(Vector4f32) noexcept
-  -> Vector4f32;
 template auto
 detail::Vector<Vector4f32, f32, 4>::distance(Vector4f32 const&,
                                              Vector4f32 const&) noexcept -> f32;
 
-auto Vector4f32::normalize(f32 const x, f32 const y, f32 const z,
+auto Vector4f32::normalized(f32 const x, f32 const y, f32 const z,
                            f32 const w) noexcept -> Vector4f32 {
-  return normalize(Vector4f32{x, y, z, w});
+  return Vector4f32{x, y, z, w}.normalize();
 }
 
 } // namespace basalt

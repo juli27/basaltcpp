@@ -118,7 +118,7 @@ Textures::Textures(Engine& engine)
   auto rng5 = Distribution{-1.0f, 2.0f};
 
   auto const normalizedRandomVector = [&] {
-    return Vector3f32::normalize(rng2(randomEngine), rng2(randomEngine),
+    return Vector3f32::normalized(rng2(randomEngine), rng2(randomEngine),
                                  rng2(randomEngine));
   };
 

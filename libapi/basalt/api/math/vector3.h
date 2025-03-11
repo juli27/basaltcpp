@@ -1,10 +1,10 @@
 #pragma once
 
-#include <basalt/api/math/vector.h>
+#include "vector.h"
 
-#include <basalt/api/math/types.h>
+#include "types.h"
 
-#include <basalt/api/base/types.h>
+#include "basalt/api/base/types.h"
 
 #include <array>
 
@@ -42,9 +42,8 @@ public:
     return Vector3f32{0.0f, 0.0f, -1.0f};
   }
 
-  using Vector::normalize;
   [[nodiscard]]
-  static auto normalize(f32 x, f32 y, f32 z) noexcept -> Vector3f32;
+  static auto normalized(f32 x, f32 y, f32 z) noexcept -> Vector3f32;
 
   // sets every component to 0
   constexpr Vector3f32() noexcept = default;
@@ -110,9 +109,6 @@ extern template auto detail::Vector<Vector3f32, f32, 3>::length() const noexcept
   -> f32;
 extern template auto
 detail::Vector<Vector3f32, f32, 3>::normalize() const noexcept -> Vector3f32;
-extern template auto
-  detail::Vector<Vector3f32, f32, 3>::normalize(Vector3f32) noexcept
-  -> Vector3f32;
 extern template auto
 detail::Vector<Vector3f32, f32, 3>::distance(Vector3f32 const&,
                                              Vector3f32 const&) noexcept -> f32;

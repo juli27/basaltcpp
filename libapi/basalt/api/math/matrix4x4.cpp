@@ -1,6 +1,6 @@
-#include <basalt/api/math/matrix4x4.h>
+#include "matrix4x4.h"
 
-#include <basalt/api/math/angle.h>
+#include "angle.h"
 
 #include <cmath>
 
@@ -65,7 +65,7 @@ auto Matrix4x4f32::rotation(Vector3f32 const& axis, Angle const angle) noexcept
   auto const sin = -angle.sin();
   auto const oneMinusCos = 1.0f - cos;
 
-  auto const a = Vector3f32::normalize(axis);
+  auto const a = axis.normalize();
 
   // clang-format off
   return Matrix4x4f32{

@@ -297,8 +297,9 @@ auto DebugUi::entity_hierarchy_panel(EntityRegistry& entities,
   }
 }
 
-auto DebugUi::entity_components(
-  Entity const entity, gsl::span<ComponentUi> const componentUis) -> void {
+auto DebugUi::entity_components(Entity const entity,
+                                gsl::span<ComponentUi> const componentUis)
+  -> void {
   if (entity.entity() == entt::null) {
     ImGui::TextUnformatted("no entity selected");
 
@@ -417,7 +418,7 @@ auto DebugUi::edit_directional_light(gfx::DirectionalLight& light) -> void {
 
   ImGui::DragFloat3("Direction", light.directionInWorld.components.data(),
                     0.1f);
-  light.directionInWorld = Vector3f32::normalize(light.directionInWorld);
+  light.directionInWorld = light.directionInWorld.normalize();
 }
 
 auto DebugUi::edit_color3(char const* label, Color& color) -> void {
@@ -439,8 +440,8 @@ auto DebugUi::edit_color4(char const* label, Color& color) -> void {
                            std::get<2>(colorArray), std::get<3>(colorArray));
 }
 
-auto DebugUi::display_matrix4x4(char const* label,
-                                Matrix4x4f32 const& mat) -> void {
+auto DebugUi::display_matrix4x4(char const* label, Matrix4x4f32 const& mat)
+  -> void {
   auto const labelString = string{label};
 
   ImGui::BeginDisabled();

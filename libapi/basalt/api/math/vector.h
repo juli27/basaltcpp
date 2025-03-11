@@ -1,8 +1,8 @@
 #pragma once
 
-#include <basalt/api/math/types.h>
+#include "types.h"
 
-#include <basalt/api/base/types.h>
+#include "basalt/api/base/types.h"
 
 #include <array>
 
@@ -131,8 +131,6 @@ struct Vector {
   auto length() const noexcept -> T;
 
   [[nodiscard]]
-  static auto normalize(Derived v) noexcept -> Derived;
-
   auto normalize() const noexcept -> Derived;
 
   [[nodiscard]]

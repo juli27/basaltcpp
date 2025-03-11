@@ -1,4 +1,4 @@
-#include <basalt/sandbox/samples/samples.h>
+#include "samples.h"
 
 #include <basalt/api/engine.h>
 #include <basalt/api/input.h>
@@ -103,8 +103,8 @@ auto generate_mesh(span<Vertex> const vb, span<u16> const ib) -> void {
   auto rng3 = Distribution{0.0f, 1.0f};
 
   auto const normalizedRandomVector{[&] {
-    return Vector3f32::normalize(rng1(randomEngine), rng1(randomEngine),
-                                 rng1(randomEngine));
+    return Vector3f32::normalized(rng1(randomEngine), rng1(randomEngine),
+                                  rng1(randomEngine));
   }};
 
   constexpr auto cubeIndices =
@@ -212,7 +212,7 @@ public:
       auto const lightAngle = 0.1f * ctx.time.count();
 
       std::get<SpotLight>(light).direction =
-        Vector3f32{std::cos(lightAngle), 0, std::sin(lightAngle)}.normalize();
+        Vector3f32::normalized(std::cos(lightAngle), 0, std::sin(lightAngle));
     });
   }
 

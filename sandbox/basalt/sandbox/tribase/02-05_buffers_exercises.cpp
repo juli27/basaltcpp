@@ -1,4 +1,4 @@
-#include <basalt/sandbox/tribase/02-05_buffers_exercises.h>
+#include "02-05_buffers_exercises.h"
 
 #include <basalt/api/engine.h>
 #include <basalt/api/input_events.h>
@@ -127,8 +127,8 @@ BuffersExercises::BuffersExercises(Engine const& engine)
     auto rng3 = Distribution{0.1f, 5.0f};
 
     auto const normalizedRandomVector = [&] {
-      return Vector3f32::normalize(rng1(randomEngine), rng1(randomEngine),
-                                   rng1(randomEngine));
+      return Vector3f32::normalized(rng1(randomEngine), rng1(randomEngine),
+                                    rng1(randomEngine));
     };
 
     auto cubes = vector<CubeData>{};
@@ -186,8 +186,8 @@ auto BuffersExercises::regenerate_velocities() -> void {
   auto rng2 = Distribution{0.1f, 5.0f};
 
   auto const normalizedRandomVector = [&] {
-    return Vector3f32::normalize(rng1(randomEngine), rng1(randomEngine),
-                                 rng1(randomEngine));
+    return Vector3f32::normalized(rng1(randomEngine), rng1(randomEngine),
+                                  rng1(randomEngine));
   };
 
   for (auto& cube : mCubes) {

@@ -1,4 +1,4 @@
-#include <basalt/sandbox/d3d9_tutorials.h>
+#include "d3d9_tutorials.h"
 
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
@@ -161,7 +161,7 @@ private:
     auto directionalLight = DirectionalLightData{};
     directionalLight.diffuse = Color::from_non_linear(1.0f, 1.0f, 1.0f, 0.0f);
     directionalLight.directionInWorld =
-      Vector3f32::normalize(mLightRotation.cos(), 1.0f, mLightRotation.sin());
+      Vector3f32::normalized(mLightRotation.cos(), 1.0f, mLightRotation.sin());
     auto const lights = array{LightData{directionalLight}};
     cmdList.set_lights(lights);
     cmdList.set_ambient_light(Color::from(0x00202020_a8r8g8b8));

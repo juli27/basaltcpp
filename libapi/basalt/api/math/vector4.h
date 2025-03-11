@@ -1,10 +1,10 @@
 #pragma once
 
-#include <basalt/api/math/vector.h>
+#include "vector.h"
 
-#include <basalt/api/math/types.h>
+#include "types.h"
 
-#include <basalt/api/base/types.h>
+#include "basalt/api/base/types.h"
 
 #include <array>
 
@@ -12,10 +12,8 @@ namespace basalt {
 
 class Vector4f32 : public detail::Vector<Vector4f32, f32, 4> {
 public:
-  using Vector::normalize;
-
   [[nodiscard]]
-  static auto normalize(f32 x, f32 y, f32 z, f32 w) noexcept -> Vector4f32;
+  static auto normalized(f32 x, f32 y, f32 z, f32 w) noexcept -> Vector4f32;
 
   // sets every component to 0
   constexpr Vector4f32() noexcept = default;
@@ -74,9 +72,6 @@ extern template auto detail::Vector<Vector4f32, f32, 4>::length() const noexcept
   -> f32;
 extern template auto
 detail::Vector<Vector4f32, f32, 4>::normalize() const noexcept -> Vector4f32;
-extern template auto
-  detail::Vector<Vector4f32, f32, 4>::normalize(Vector4f32) noexcept
-  -> Vector4f32;
 extern template auto
 detail::Vector<Vector4f32, f32, 4>::distance(Vector4f32 const&,
                                              Vector4f32 const&) noexcept -> f32;

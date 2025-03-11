@@ -1,4 +1,4 @@
-#include <basalt/sandbox/tribase/02-05_buffers.h>
+#include "02-05_buffers.h"
 
 #include <basalt/api/engine.h>
 #include <basalt/api/input_events.h>
@@ -87,8 +87,8 @@ auto fill_buffers(span<Vertex> const vb, span<u16> const ib) {
   auto rng3 = Distribution{0.0f, 1.0f};
 
   auto const normalizedRandomVector = [&] {
-    return Vector3f32::normalize(rng1(randomEngine), rng1(randomEngine),
-                                 rng1(randomEngine));
+    return Vector3f32::normalized(rng1(randomEngine), rng1(randomEngine),
+                                  rng1(randomEngine));
   };
 
   constexpr auto cubeIndices =
