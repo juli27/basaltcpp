@@ -32,10 +32,10 @@ public:
   [[nodiscard]]
   static constexpr auto unpack(A8R8G8B8 const argb) noexcept -> RGBA {
     auto const data = enum_cast(argb);
-    auto const a = static_cast<u8>(data);
-    auto const r = static_cast<u8>(data >> 8);
-    auto const g = static_cast<u8>(data >> 16);
-    auto const b = static_cast<u8>(data >> 24);
+    auto const b = static_cast<u8>(data);
+    auto const g = static_cast<u8>(data >> 8);
+    auto const r = static_cast<u8>(data >> 16);
+    auto const a = static_cast<u8>(data >> 24);
 
     return RGBA{r, g, b, a};
   }
