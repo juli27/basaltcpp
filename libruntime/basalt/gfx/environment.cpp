@@ -32,6 +32,10 @@ auto Environment::add_directional_light(Vector3f32 const& direction,
     DirectionalLight{diffuse, specular, ambient, direction});
 }
 
+auto Environment::add_directional_light(DirectionalLight const& light) -> void {
+  mDirectionalLights.push_back(light);
+}
+
 auto Environment::clear_directional_lights() noexcept -> void {
   mDirectionalLights.clear();
 }

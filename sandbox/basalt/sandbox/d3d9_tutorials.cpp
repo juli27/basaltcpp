@@ -48,10 +48,8 @@ using basalt::gfx::Attachment;
 using basalt::gfx::Attachments;
 using basalt::gfx::CommandList;
 using basalt::gfx::CullMode;
-using basalt::gfx::DirectionalLightData;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::FixedVertexShaderCreateInfo;
-using basalt::gfx::LightData;
 using basalt::gfx::MaterialCreateInfo;
 using basalt::gfx::MaterialHandle;
 using basalt::gfx::PipelineCreateInfo;
@@ -84,94 +82,6 @@ auto create_view_to_clip_transform(basalt::Size2Du16 const viewport) noexcept
   return Matrix4x4f32::perspective_projection(45_deg, viewport.aspect_ratio(),
                                               1.0f, 100.0f);
 }
-
-class Lights final : public View {
-  static constexpr u32 sVertexCount{2 * 50};
-
-  struct Vertex {
-    Vector3f32 pos{};
-    Vector3f32 normal{};
-
-    static constexpr auto sLayout =
-      basalt::gfx::make_vertex_layout<VertexElement::Position3F32,
-                                      VertexElement::Normal3F32>();
-  };
-
-public:
-  explicit Lights(Engine const& engine)
-    : mGfxCache{engine.create_gfx_resource_cache()}
-    , mVertexBuffer{[&] {
-      auto vertices = array<Vertex, sVertexCount>{};
-      for (auto i = uSize{0}; i < 50; i++) {
-        auto const theta =
-          Angle::radians(2.0f * PI * static_cast<f32>(i) / (50.0f - 1.0f));
-        auto const sinTheta = theta.sin();
-        auto const cosTheta = theta.cos();
-
-        auto const normal = Vector3f32{sinTheta, 0.0f, cosTheta};
-        vertices[2 * i] = {{sinTheta, -1.0f, cosTheta}, normal};
-        vertices[2 * i + 1] = {{sinTheta, 1.0f, cosTheta}, normal};
-      }
-
-      auto const vertexData = as_bytes(span{vertices});
-      return mGfxCache->create_vertex_buffer(
-        {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
-    }()}
-    , mPipeline{[&] {
-      auto vs = FixedVertexShaderCreateInfo{};
-      vs.lightingEnabled = true;
-
-      auto desc = PipelineCreateInfo{};
-      desc.vertexShader = &vs;
-      desc.vertexLayout = Vertex::sLayout;
-      desc.primitiveType = PrimitiveType::TriangleStrip;
-      desc.depthTest = TestPassCond::IfLessEqual;
-      desc.depthWriteEnable = true;
-      return mGfxCache->create_pipeline(desc);
-    }()} {
-  }
-
-private:
-  ResourceCachePtr mGfxCache;
-  VertexBufferHandle mVertexBuffer;
-  PipelineHandle mPipeline;
-  Angle mRotationX;
-  Angle mLightRotation;
-
-  auto on_update(UpdateContext& ctx) -> void override {
-    auto const dt = ctx.deltaTime.count();
-
-    mRotationX += Angle::radians(2.0f * dt);
-    mLightRotation += Angle::radians(20.0f / 7.0f * dt);
-
-    auto cmdList = CommandList{};
-    cmdList.clear_attachments(
-      Attachments{Attachment::RenderTarget, Attachment::DepthBuffer},
-      Colors::BLUE, 1.0f);
-
-    cmdList.bind_pipeline(mPipeline);
-
-    cmdList.set_transform(TransformState::ViewToClip,
-                          create_view_to_clip_transform(ctx.drawCtx.viewport));
-    cmdList.set_transform(TransformState::WorldToView,
-                          create_world_to_view_transform());
-    cmdList.set_transform(TransformState::LocalToWorld,
-                          Matrix4x4f32::rotation_x(mRotationX));
-
-    auto directionalLight = DirectionalLightData{};
-    directionalLight.diffuse = Color::from_non_linear(1.0f, 1.0f, 1.0f, 0.0f);
-    directionalLight.directionInWorld =
-      Vector3f32::normalized(mLightRotation.cos(), 1.0f, mLightRotation.sin());
-    auto const lights = array{LightData{directionalLight}};
-    cmdList.set_lights(lights);
-    cmdList.set_ambient_light(Color::from(0x00202020_a8r8g8b8));
-    cmdList.set_material(Colors::YELLOW, Colors::YELLOW);
-    cmdList.bind_vertex_buffer(mVertexBuffer);
-    cmdList.draw(0, sVertexCount);
-
-    ctx.drawCtx.commandLists.push_back(std::move(cmdList));
-  }
-};
 
 class Textures final : public View {
   static constexpr auto sVertexCount = u32{2 * 50};
@@ -396,10 +306,6 @@ private:
 };
 
 } // namespace
-
-auto D3D9Tutorials::new_lights_tutorial(Engine& engine) -> ViewPtr {
-  return std::make_shared<Lights>(engine);
-}
 
 auto D3D9Tutorials::new_textures_tutorial(Engine& engine) -> ViewPtr {
   return std::make_shared<Textures>(engine);

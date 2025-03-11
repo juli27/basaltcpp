@@ -20,7 +20,9 @@ struct Transform final {
   // TODO: wrap vectors in Position/Rotation/Scale class?
   auto move(f32 offsetX, f32 offsetY, f32 offsetZ) noexcept -> void;
   auto rotate(Angle offsetX, Angle offsetY, Angle offsetZ) noexcept -> void;
-  auto rotate_y(Angle offsetY) noexcept -> void;
+  auto rotate_x(Angle) noexcept -> void;
+  auto rotate_y(Angle) noexcept -> void;
+  auto rotate_z(Angle) noexcept -> void;
 
   [[nodiscard]] auto to_matrix() const -> Matrix4x4f32;
 };

@@ -20,8 +20,16 @@ auto Transform::rotate(Angle const offsetX, Angle const offsetY,
   rotation.z() = Angle::radians(rotation.z()).radians();
 }
 
-auto Transform::rotate_y(Angle const offsetY) noexcept -> void {
-  rotate(0_rad, offsetY, 0_rad);
+auto Transform::rotate_x(Angle offset) noexcept -> void {
+  rotate(offset, 0_rad, 0_rad);
+}
+
+auto Transform::rotate_y(Angle const offset) noexcept -> void {
+  rotate(0_rad, offset, 0_rad);
+}
+
+auto Transform::rotate_z(Angle offset) noexcept -> void {
+  rotate(0_rad, 0_rad, offset);
 }
 
 auto Transform::to_matrix() const -> Matrix4x4f32 {
