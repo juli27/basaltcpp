@@ -38,20 +38,34 @@
   </Type>
 
   <Type Name="basalt::Vector3f32">
-    <Intrinsic Name="x" Expression="elements[0]"/> 
-    <Intrinsic Name="y" Expression="elements[1]"/> 
-    <Intrinsic Name="z" Expression="elements[2]"/> 
+    <Intrinsic Name="x" Expression="components[0]"/>
+    <Intrinsic Name="y" Expression="components[1]"/>
+    <Intrinsic Name="z" Expression="components[2]"/>
     <DisplayString>{{ x={x(),g} y={y(),g} z={z(),g} }}</DisplayString>
     <Expand>
-      <Item Name="x">x(),g</Item>
-      <Item Name="y">y(),g</Item>
-      <Item Name="z">z(),g</Item>
+      <Item Name="x">x()</Item>
+      <Item Name="y">y()</Item>
+      <Item Name="z">z()</Item>
     </Expand>
   </Type>
 
   <Type Name="basalt::Mat4">
     <DisplayString>4x4</DisplayString>
     <!--TODO: Expand-->
+  </Type>
+
+  <Type Name="basalt::Color">
+    <Intrinsic Name="r" Expression="components[0]"/>
+    <Intrinsic Name="g" Expression="components[1]"/>
+    <Intrinsic Name="b" Expression="components[2]"/>
+    <Intrinsic Name="a" Expression="components[3]"/>
+    <DisplayString>{{ r={r(),g} g={g(),g} b={b(),g} a={a(),g} }}</DisplayString>
+    <Expand>
+      <Item Name="r">r()</Item>
+      <Item Name="g">g()</Item>
+      <Item Name="b">b()</Item>
+      <Item Name="a">a()</Item>
+    </Expand>
   </Type>
 
   <Type Name="basalt::Size2D&lt;*&gt;">
