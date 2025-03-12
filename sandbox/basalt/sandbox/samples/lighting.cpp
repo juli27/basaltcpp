@@ -1,8 +1,9 @@
-#include <basalt/sandbox/samples/samples.h>
+#include "samples.h"
+
+#include "basalt/sandbox/shared/debug_scene_view.h"
 
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
-#include <basalt/api/scene_view.h>
 #include <basalt/api/view.h>
 
 #include <basalt/api/gfx/camera.h>
@@ -33,7 +34,6 @@ using basalt::Engine;
 using basalt::Entity;
 using basalt::Parent;
 using basalt::Scene;
-using basalt::SceneView;
 using basalt::SecondsF32;
 using basalt::Transform;
 using basalt::Vector3f32;
@@ -210,7 +210,8 @@ public:
     cameraEntity.emplace<Camera>(
       Camera{{}, Vector3f32::up(), 90_deg, 0.1f, 500});
 
-    add_child_top(SceneView::create(std::move(scene), mGfxCache, cameraEntity));
+    add_child_top(
+      DebugSceneView::create(std::move(scene), mGfxCache, cameraEntity));
   }
 
 private:

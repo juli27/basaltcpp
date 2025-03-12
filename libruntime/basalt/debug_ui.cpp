@@ -2,18 +2,10 @@
 
 #include "gfx/utils.h"
 
-#include <basalt/api/scene/ecs.h>
-#include <basalt/api/scene/scene.h>
-#include <basalt/api/scene/transform.h>
-
-#include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/info.h>
 
 #include <basalt/api/shared/color.h>
-#include <basalt/api/shared/config.h>
 
-#include <basalt/api/math/angle.h>
-#include <basalt/api/math/constants.h>
 #include <basalt/api/math/matrix4x4.h>
 #include <basalt/api/math/vector3.h>
 
@@ -26,7 +18,6 @@
 #include <numeric>
 #include <string>
 #include <string_view>
-#include <variant>
 
 namespace basalt {
 
@@ -203,212 +194,6 @@ auto DebugUi::show_performance_overlay(bool& isOpen) -> void {
   }
 
   ImGui::End();
-}
-
-// TODO: turn scene inspector into a system
-// TODO: show systems and allow to enable/disable them
-// TODO: how to display system state like main camera and gfx resource cache
-auto DebugUi::scene_inspector(Scene& scene, bool& isOpen) -> void {
-  ImGui::SetNextWindowSize(ImVec2{400.0f, 600.0f}, ImGuiCond_FirstUseEver);
-  if (!ImGui::Begin("Scene Inspector", &isOpen)) {
-    ImGui::End();
-    return;
-  }
-
-  entities(scene.entity_registry());
-
-  ImGui::End();
-}
-
-auto DebugUi::entities(EntityRegistry& entities) -> void {
-  auto& state = entities.ctx().get<SceneInspectorState>();
-
-  constexpr auto childFlags = ImGuiWindowFlags_HorizontalScrollbar;
-
-  if (ImGui::BeginChild("hierarchy",
-                        {ImGui::GetContentRegionAvail().x * 0.25f, 0}, false,
-                        childFlags)) {
-    entity_hierarchy_panel(entities, state.selected);
-  }
-  ImGui::EndChild();
-
-  ImGui::SameLine();
-
-  if (ImGui::BeginChild("components", {}, 0, childFlags)) {
-    entity_components(Entity{entities, state.selected}, state.componentUis);
-  }
-  ImGui::EndChild();
-}
-
-namespace {
-
-auto entity_node(Entity const entity, EntityId& selected) -> void {
-  constexpr auto baseNodeFlags = ImGuiTreeNodeFlags_OpenOnDoubleClick |
-                                 ImGuiTreeNodeFlags_OpenOnArrow |
-                                 ImGuiTreeNodeFlags_SpanAvailWidth;
-  constexpr auto leafNodeFlags = baseNodeFlags | ImGuiTreeNodeFlags_Leaf;
-  ImGui::PushID(to_integral(entity.entity()));
-
-  auto const* children = entity.try_get<Children>();
-  auto const isParent = children != nullptr;
-  auto nodeFlags = isParent ? baseNodeFlags : leafNodeFlags;
-
-  if (selected == entity) {
-    nodeFlags |= ImGuiTreeNodeFlags_Selected;
-  }
-
-  auto const entityNode = [](Entity const e,
-                             ImGuiTreeNodeFlags const flags) -> bool {
-    if (auto const* name{e.try_get<EntityName const>()}) {
-      return ImGui::TreeNodeEx(name->value.c_str(), flags);
-    }
-
-    return ImGui::TreeNodeEx("Entity", flags, "Entity %d",
-                             to_integral(e.entity()));
-  };
-
-  auto const open = entityNode(entity, nodeFlags);
-
-  if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
-    selected = entity;
-  }
-
-  if (open) {
-    if (children) {
-      for (auto const childId : children->ids) {
-        entity_node(Entity{*entity.registry(), childId}, selected);
-      }
-    }
-
-    ImGui::TreePop();
-  }
-
-  ImGui::PopID();
-}
-
-} // namespace
-
-auto DebugUi::entity_hierarchy_panel(EntityRegistry& entities,
-                                     EntityId& selected) -> void {
-  auto const rootEntities = entities.view<EntityId>(entt::exclude<Parent>);
-
-  for (auto const id : rootEntities) {
-    entity_node(Entity{entities, id}, selected);
-  }
-}
-
-auto DebugUi::entity_components(Entity const entity,
-                                gsl::span<ComponentUi> const componentUis)
-  -> void {
-  if (entity.entity() == entt::null) {
-    ImGui::TextUnformatted("no entity selected");
-
-    return;
-  }
-
-  constexpr auto nodeFlags =
-    ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
-
-  // TODO: add a way to show components which don't have a UI
-  for (auto const& componentUi : componentUis) {
-    auto const* storage = entity.registry()->storage(componentUi.typeId);
-    if (!storage) {
-      continue;
-    }
-
-    if (!storage->contains(entity.entity())) {
-      continue;
-    }
-
-    if (ImGui::TreeNodeEx(componentUi.name.c_str(), nodeFlags)) {
-      componentUi.render(entity);
-
-      ImGui::TreePop();
-    }
-  }
-}
-
-auto DebugUi::transform(Transform& transform) -> void {
-  ImGui::DragFloat3("Position", transform.position.components.data(), 0.1f);
-
-  ImGui::DragFloat3("Rotation", transform.rotation.components.data(), 0.01f,
-                    -PI, PI);
-
-  ImGui::DragFloat3("Scale", transform.scale.components.data(), 0.1f, 0.0f);
-}
-
-auto DebugUi::local_to_world(LocalToWorld const& localToWorld) -> void {
-  display_matrix4x4("##value", localToWorld.matrix);
-}
-
-auto DebugUi::camera(gfx::Camera& camera) -> void {
-  ImGui::DragFloat3("Look At", camera.lookAt.components.data(), 0.1f);
-  ImGui::DragFloat3("Up", camera.up.components.data(), 0.1f);
-  auto fovRad = camera.fov.radians();
-  ImGui::SliderAngle("fov", &fovRad, 1, 179);
-  camera.fov = Angle::radians(fovRad);
-  ImGui::BeginDisabled();
-  ImGui::DragFloat("Aspect Ratio", &camera.aspectRatio);
-  ImGui::EndDisabled();
-  ImGui::DragFloatRange2("Near and far plane", &camera.nearPlane,
-                         &camera.farPlane);
-}
-
-auto DebugUi::model(gfx::Model const& model) -> void {
-  ImGui::Text("Material: %#x", model.material.value());
-  ImGui::Text("Mesh: %#x", model.mesh.value());
-}
-
-auto DebugUi::x_model(gfx::ext::XModel const& model) -> void {
-  ImGui::Text("Material: %#x", model.material.value());
-  ImGui::Text("X Mesh: %#x", model.mesh.value());
-}
-
-auto DebugUi::light(gfx::Light& light) -> void {
-  std::visit(
-    [&](auto&& l) {
-      using T = std::decay_t<decltype(l)>;
-      if constexpr (std::is_same_v<T, gfx::PointLight>) {
-        point_light(l);
-      } else if constexpr (std::is_same_v<T, gfx::SpotLight>) {
-        spot_light(l);
-      } else {
-        static_assert(std::is_same_v<T, void>, "non-exhaustive visitor");
-      }
-    },
-    light);
-}
-
-auto DebugUi::point_light(gfx::PointLight& light) -> void {
-  ImGui::TextUnformatted("Point Light");
-  edit_color3("Diffuse", light.diffuse);
-  edit_color3("Specular", light.specular);
-  edit_color3("Ambient", light.ambient);
-  ImGui::DragFloat("Range", &light.range);
-  ImGui::DragFloat("Attenuation 0", &light.attenuation0);
-  ImGui::DragFloat("Attenuation 1", &light.attenuation1);
-  ImGui::DragFloat("Attenuation 2", &light.attenuation2);
-}
-
-auto DebugUi::spot_light(gfx::SpotLight& light) -> void {
-  ImGui::TextUnformatted("Spot Light");
-  edit_color3("Diffuse", light.diffuse);
-  edit_color3("Specular", light.specular);
-  edit_color3("Ambient", light.ambient);
-  ImGui::DragFloat3("Direction", light.direction.components.data());
-  ImGui::DragFloat("Range", &light.range);
-  ImGui::DragFloat("Attenuation 0", &light.attenuation0);
-  ImGui::DragFloat("Attenuation 1", &light.attenuation1);
-  ImGui::DragFloat("Attenuation 2", &light.attenuation2);
-  ImGui::DragFloat("Falloff", &light.falloff);
-
-  auto phiRad = light.phi.radians();
-  ImGui::SliderAngle("Phi", &phiRad, 0, 90);
-  light.phi = Angle::radians(phiRad);
-
-  auto thetaRad = light.theta.radians();
-  ImGui::SliderAngle("Theta", &thetaRad, 0, light.phi.degrees());
-  light.theta = Angle::radians(thetaRad);
 }
 
 auto DebugUi::edit_directional_light(gfx::DirectionalLight& light) -> void {

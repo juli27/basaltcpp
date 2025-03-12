@@ -1,8 +1,9 @@
-#include <basalt/sandbox/samples/samples.h>
+#include "samples.h"
+
+#include "basalt/sandbox/shared/debug_scene_view.h"
 
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
-#include <basalt/api/scene_view.h>
 
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/environment.h>
@@ -37,7 +38,6 @@ using basalt::Engine;
 using basalt::Entity;
 using basalt::PI;
 using basalt::Scene;
-using basalt::SceneView;
 using basalt::System;
 using basalt::Transform;
 using basalt::Vector2f32;
@@ -186,5 +186,6 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
     return camera.entity();
   }();
 
-  return SceneView::create(std::move(scene), std::move(gfxCache), cameraId);
+  return DebugSceneView::create(std::move(scene), std::move(gfxCache),
+                                cameraId);
 }

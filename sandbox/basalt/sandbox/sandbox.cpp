@@ -198,13 +198,6 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
         shouldOpenPopup = OpenPopup::GfxInfo;
       }
 
-      auto sceneInspectorEnabled =
-        config.get_bool("debug.scene_inspector.visible"s);
-
-      ImGui::MenuItem("Scene Inspector", nullptr, &sceneInspectorEnabled);
-
-      config.set_bool("debug.scene_inspector.visible"s, sceneInspectorEnabled);
-
       ImGui::MenuItem("Performance Overlay", nullptr, &mShowOverlay);
       ImGui::MenuItem("Settings", nullptr, &mShowSettingsEditor);
 

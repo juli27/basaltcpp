@@ -1,3 +1,4 @@
+add_subdirectory("shared")
 add_subdirectory("samples")
 add_subdirectory("tribase")
 

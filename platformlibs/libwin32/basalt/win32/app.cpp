@@ -119,7 +119,6 @@ auto run_lost_device_loop(Win32MessageQueue const& messageQueue,
 auto Win32App::init(HMODULE const moduleHandle, int const showCommand)
   -> Win32App {
   auto config = Config{
-    {"debug.scene_inspector.visible"s, false},
     {"runtime.debugUI.enabled"s, false},
   };
   auto clientApp = bootstrap_app(config);

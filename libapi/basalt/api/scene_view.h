@@ -1,20 +1,15 @@
 #pragma once
 
-#include <basalt/api/debug_ui.h>
-#include <basalt/api/types.h>
-#include <basalt/api/view.h>
+#include "view.h"
 
-#include <basalt/api/gfx/types.h>
+#include "types.h"
+#include "gfx/types.h"
 
-#include <basalt/api/scene/types.h>
-
-#include <basalt/api/shared/types.h>
-
-#include <vector>
+#include "scene/types.h"
 
 namespace basalt {
 
-class SceneView final : public View {
+class SceneView : public View {
 public:
   static auto create(ScenePtr, gfx::ResourceCachePtr, EntityId cameraEntity)
     -> SceneViewPtr;
@@ -27,19 +22,18 @@ public:
   auto operator=(SceneView const&) -> SceneView& = delete;
   auto operator=(SceneView&&) noexcept -> SceneView& = default;
 
-  explicit SceneView(ScenePtr, gfx::ResourceCachePtr);
+  SceneView(ScenePtr, gfx::ResourceCachePtr, EntityId cameraEntity);
+
+  [[nodiscard]]
+  auto scene() const -> ScenePtr const&;
+
+protected:
+  auto on_input(InputEvent const&) -> InputEventHandled override;
+  auto on_update(UpdateContext&) -> void override;
 
 private:
   ScenePtr mScene;
   gfx::ResourceCachePtr mGfxCache;
-
-  EntityId mSelectedEntity;
-  std::vector<DebugUi::ComponentUi> mComponentUis;
-
-  auto update_debug_ui(Config& config) -> void;
-
-  auto on_input(InputEvent const&) -> InputEventHandled override;
-  auto on_update(UpdateContext&) -> void override;
 };
 
 } // namespace basalt
