@@ -23,7 +23,7 @@ auto ComponentUi::transform(Transform& transform) -> void {
   ImGui::DragFloat3("Rotation", transform.rotation.components.data(), 0.01f,
                     -PI, PI);
 
-  ImGui::DragFloat3("Scale", transform.scale.components.data(), 0.1f, 0.0f);
+  ImGui::DragFloat3("Scale", transform.scale.components.data(), 0.1f);
 }
 
 auto ComponentUi::local_to_world(LocalToWorld const& localToWorld) -> void {

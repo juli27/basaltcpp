@@ -30,5 +30,7 @@ private:
 
   auto entity_hierarchy(basalt::EntityRegistry&) -> void;
 
+  auto entity_node(basalt::Entity) -> void;
+
   auto entity_components(basalt::EntityRegistry&) -> void;
 };
