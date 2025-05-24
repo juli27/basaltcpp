@@ -7,21 +7,14 @@
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/command_list.h>
-#include <basalt/api/gfx/backend/vertex_layout.h>
 #include <basalt/api/gfx/backend/ext/types.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/shared/size2d.h>
 
 #include <basalt/api/math/angle.h>
-#include <basalt/api/math/constants.h>
 #include <basalt/api/math/matrix4x4.h>
-#include <basalt/api/math/vector2.h>
 #include <basalt/api/math/vector3.h>
-
-#include <gsl/span>
-
-#include <imgui.h>
 
 #include <array>
 #include <memory>
@@ -33,14 +26,10 @@ using namespace std::literals;
 using std::array;
 using std::vector;
 
-using gsl::span;
-
 using namespace basalt::literals;
 using basalt::Angle;
 using basalt::Engine;
 using basalt::Matrix4x4f32;
-using basalt::PI;
-using basalt::Vector2f32;
 using basalt::Vector3f32;
 using basalt::View;
 using basalt::ViewPtr;
@@ -53,19 +42,10 @@ using basalt::gfx::FixedVertexShaderCreateInfo;
 using basalt::gfx::MaterialCreateInfo;
 using basalt::gfx::MaterialHandle;
 using basalt::gfx::PipelineCreateInfo;
-using basalt::gfx::PipelineHandle;
-using basalt::gfx::PrimitiveType;
 using basalt::gfx::ResourceCachePtr;
-using basalt::gfx::SamplerHandle;
 using basalt::gfx::TestPassCond;
-using basalt::gfx::TextureCoordinateSet;
-using basalt::gfx::TextureCoordinateSrc;
-using basalt::gfx::TextureCoordinateTransformMode;
-using basalt::gfx::TextureHandle;
 using basalt::gfx::TextureStage;
 using basalt::gfx::TransformState;
-using basalt::gfx::VertexBufferHandle;
-using basalt::gfx::VertexElement;
 using basalt::gfx::ext::XMeshCommandEncoder;
 using basalt::gfx::ext::XMeshHandle;
 
@@ -82,139 +62,6 @@ auto create_view_to_clip_transform(basalt::Size2Du16 const viewport) noexcept
   return Matrix4x4f32::perspective_projection(45_deg, viewport.aspect_ratio(),
                                               1.0f, 100.0f);
 }
-
-class Textures final : public View {
-  static constexpr auto sVertexCount = u32{2 * 50};
-  static constexpr auto sTextureFilePath = "data/banana.bmp"sv;
-
-  struct Vertex {
-    Vector3f32 pos{};
-    ColorEncoding::A8R8G8B8 color{};
-    Vector2f32 uv{};
-
-    static constexpr auto sLayout =
-      basalt::gfx::make_vertex_layout<VertexElement::Position3F32,
-                                      VertexElement::ColorDiffuse1U32A8R8G8B8,
-                                      VertexElement::TextureCoords2F32>();
-  };
-
-public:
-  explicit Textures(Engine const& engine)
-    : mGfxCache{engine.create_gfx_resource_cache()}
-    , mSampler{mGfxCache->create_sampler({})}
-    , mTexture{mGfxCache->load_texture_2d(sTextureFilePath)}
-    , mVertexBuffer{[&] {
-      auto vertices = array<Vertex, sVertexCount>{};
-      for (auto i = uSize{0}; i < 50; i++) {
-        auto const theta =
-          Angle::radians(2.0f * PI * static_cast<f32>(i) / (50.0f - 1.0f));
-        auto const sinTheta = theta.sin();
-        auto const cosTheta = theta.cos();
-        auto const u = static_cast<f32>(i) / (50.0f - 1.0f);
-
-        vertices[2 * i] = {
-          {sinTheta, -1, cosTheta},
-          Colors::WHITE.to_argb(),
-          {u, 1},
-        };
-        vertices[2 * i + 1] = {
-          {sinTheta, 1, cosTheta},
-          0xff808080_a8r8g8b8,
-          {u, 0},
-        };
-      }
-
-      auto const vertexData = as_bytes(span{vertices});
-      return mGfxCache->create_vertex_buffer(
-        {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
-    }()}
-    , mPipeline{[&] {
-      auto fs = FixedFragmentShaderCreateInfo{};
-      constexpr auto textureStages = array{TextureStage{}};
-      fs.textureStages = textureStages;
-
-      auto desc = PipelineCreateInfo{};
-      desc.fragmentShader = &fs;
-      desc.vertexLayout = Vertex::sLayout;
-      desc.primitiveType = PrimitiveType::TriangleStrip;
-      desc.depthTest = TestPassCond::IfLessEqual;
-      desc.depthWriteEnable = true;
-      return mGfxCache->create_pipeline(desc);
-    }()}
-    , mPipelineTci{[&] {
-      auto vs = FixedVertexShaderCreateInfo{};
-      auto texCoordinateSets = array{TextureCoordinateSet{}};
-      auto& coordinateSet = std::get<0>(texCoordinateSets);
-      coordinateSet.src = TextureCoordinateSrc::PositionInViewSpace;
-      coordinateSet.transformMode = TextureCoordinateTransformMode::Count4;
-      coordinateSet.projected = true;
-      vs.textureCoordinateSets = texCoordinateSets;
-
-      auto fs = FixedFragmentShaderCreateInfo{};
-      constexpr auto textureStages = array{TextureStage{}};
-      fs.textureStages = textureStages;
-
-      auto desc = PipelineCreateInfo{};
-      desc.vertexShader = &vs;
-      desc.fragmentShader = &fs;
-      desc.vertexLayout = Vertex::sLayout;
-      desc.primitiveType = PrimitiveType::TriangleStrip;
-      desc.depthTest = TestPassCond::IfLessEqual;
-      desc.depthWriteEnable = true;
-      return mGfxCache->create_pipeline(desc);
-    }()} {
-  }
-
-private:
-  ResourceCachePtr mGfxCache;
-  SamplerHandle mSampler;
-  TextureHandle mTexture;
-  VertexBufferHandle mVertexBuffer;
-  PipelineHandle mPipeline;
-  PipelineHandle mPipelineTci;
-  Angle mRotationX;
-  bool mShowTci{};
-
-  auto on_update(UpdateContext& ctx) -> void override {
-    auto const dt = ctx.deltaTime.count();
-
-    mRotationX += Angle::radians(dt);
-
-    if (ImGui::Begin("Settings##D3D9Textures")) {
-      ImGui::Checkbox("Show TCI", &mShowTci);
-    }
-
-    ImGui::End();
-
-    auto cmdList = CommandList{};
-    cmdList.clear_attachments(
-      Attachments{Attachment::RenderTarget, Attachment::DepthBuffer},
-      Colors::BLUE, 1.0f);
-
-    cmdList.bind_pipeline(mShowTci ? mPipelineTci : mPipeline);
-    cmdList.bind_sampler(0, mSampler);
-    cmdList.bind_texture(0, mTexture);
-
-    auto const viewToClip = create_view_to_clip_transform(ctx.drawCtx.viewport);
-    cmdList.set_transform(TransformState::ViewToClip, viewToClip);
-    cmdList.set_transform(TransformState::WorldToView,
-                          create_world_to_view_transform());
-    cmdList.set_transform(TransformState::LocalToWorld,
-                          Matrix4x4f32::rotation_x(mRotationX));
-
-    if (mShowTci) {
-      cmdList.set_transform(TransformState::Texture0,
-                            viewToClip *
-                              Matrix4x4f32::scaling(0.5f, -0.5f, 1.0f) *
-                              Matrix4x4f32::translation(0.5f, 0.5f, 0.0f));
-    }
-
-    cmdList.bind_vertex_buffer(mVertexBuffer);
-    cmdList.draw(0, sVertexCount);
-
-    ctx.drawCtx.commandLists.push_back(std::move(cmdList));
-  }
-};
 
 class Meshes final : public View {
   static constexpr auto sModelFilePath = "data/Tiger.x"sv;
@@ -306,10 +153,6 @@ private:
 };
 
 } // namespace
-
-auto D3D9Tutorials::new_textures_tutorial(Engine& engine) -> ViewPtr {
-  return std::make_shared<Textures>(engine);
-}
 
 auto D3D9Tutorials::new_meshes_tutorial(Engine& engine) -> ViewPtr {
   return std::make_shared<Meshes>(engine);

@@ -114,6 +114,17 @@ auto Context::create_material(MaterialCreateInfo const& createInfo)
   if (pipelineInfo.vertexShader) {
     auto const& vertexShader = *pipelineInfo.vertexShader;
 
+    auto needsTexTransform = false;
+    for (auto const& texCoordSet : vertexShader.textureCoordinateSets) {
+      needsTexTransform =
+        needsTexTransform ||
+        texCoordSet.transformMode != TextureCoordinateTransformMode::Disabled;
+    }
+
+    if (needsTexTransform) {
+      features.set(MaterialFeature::TexCoordTransform);
+    }
+
     if (vertexShader.lightingEnabled) {
       features.set(MaterialFeature::Lighting);
 
@@ -142,7 +153,6 @@ auto Context::create_material(MaterialCreateInfo const& createInfo)
       needsTexture = needsTexture ||
                      stage.colorArg1.src == TextureStageSrc::SampledTexture ||
                      stage.colorArg2.src == TextureStageSrc::SampledTexture ||
-                     stage.colorArg2.src == TextureStageSrc::SampledTexture ||
                      stage.colorArg3.src == TextureStageSrc::SampledTexture ||
                      stage.alphaArg1.src == TextureStageSrc::SampledTexture ||
                      stage.alphaArg2.src == TextureStageSrc::SampledTexture ||
@@ -156,6 +166,7 @@ auto Context::create_material(MaterialCreateInfo const& createInfo)
 
   return Material{mMaterials.allocate(MaterialData{
                     features,
+                    createInfo.texTransform,
                     createInfo.diffuse,
                     createInfo.ambient,
                     createInfo.emissive,

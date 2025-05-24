@@ -76,7 +76,7 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
   auto needsLights = false;
 
   auto const drawCalls = [&] {
-    auto drawCalls = vector<DrawCall>();
+    auto drawCalls = vector<DrawCall>{};
 
     entities.view<LocalToWorld const, ext::XModel const>().each(
       [&](LocalToWorld const& localToWorld, ext::XModel const& model) {
@@ -142,8 +142,8 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
   auto const cameraEntityId = ecsCtx.get<EntityId>(GfxSystem::sMainCamera);
   auto const cameraEntity = CameraEntity{scene.get_handle(cameraEntityId)};
   cameraEntity.get_camera().aspectRatio = drawCtx.viewport.aspect_ratio();
-  cmdList.set_transform(TransformState::ViewToClip,
-                        cameraEntity.view_to_clip());
+  auto const viewToClip = cameraEntity.view_to_clip();
+  cmdList.set_transform(TransformState::ViewToClip, viewToClip);
   cmdList.set_transform(TransformState::WorldToView,
                         cameraEntity.world_to_view());
 
@@ -202,6 +202,13 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
     if (materialFeatures.has(MaterialFeature::Fog)) {
       cmdList.set_fog_parameters(materialData.fogColor, materialData.fogStart,
                                  materialData.fogEnd, materialData.fogDensity);
+    }
+
+    if (materialFeatures.has(MaterialFeature::TexCoordTransform)) {
+      // TODO: remove hack
+      // HACK: this is temporary
+      cmdList.set_transform(TransformState::Texture0,
+                            viewToClip * materialData.texTransform);
     }
 
     cmdList.set_transform(TransformState::LocalToWorld,
