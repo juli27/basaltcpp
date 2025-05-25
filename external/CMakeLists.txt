@@ -10,11 +10,11 @@ FetchContent_Declare(EnTT
 )
 FetchContent_Declare(fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG        0c9fce2ffefecfdce794e1859584e25877b7b592 # 11.0.2
+  GIT_TAG        8303d140a1a11f19b982a9f664bbe59a1ccda3f4 # v11.1.2
 )
 FetchContent_Declare(GSL
   GIT_REPOSITORY https://github.com/microsoft/GSL.git
-  GIT_TAG        fcd55ee92423c54fa0fefcfc0f9fbe9b5a274f56
+  GIT_TAG        355982daf6c54ccb11bef8a1c511be2622dec402
 )
 FetchContent_Declare(spdlog
   GIT_REPOSITORY https://github.com/gabime/spdlog.git
