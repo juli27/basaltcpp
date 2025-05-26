@@ -2,7 +2,6 @@
 
 #include "settings_ui.h"
 
-#include "d3d9_tutorials.h"
 #include "samples/samples.h"
 #include "tribase/tribase_examples.h"
 
@@ -43,10 +42,6 @@ auto SandboxView::create(Engine& engine, Settings settings) -> ViewPtr {
 SandboxView::SandboxView(Engine& engine, Settings settings)
   : mSettings{std::move(settings)} {
   mExamples.reserve(20);
-  mExamples.emplace_back(Example{
-    "Tutorial 6: Using Meshes"s,
-    &D3D9Tutorials::new_meshes_tutorial,
-  });
   mExamples.emplace_back(Example{
     "Bsp. 02-03: Das erste Dreieck"s,
     &TribaseExamples::new_first_triangle_example,
@@ -122,6 +117,10 @@ SandboxView::SandboxView(Engine& engine, Settings settings)
   mExamples.emplace_back(Example{
     "Lighting"s,
     &Samples::new_lighting_sample,
+  });
+  mExamples.emplace_back(Example{
+    "D3DX XMesh"s,
+    &Samples::new_d3dx_x_mesh_sample,
   });
 
   set_scene(mCurrentExampleIndex, engine);
