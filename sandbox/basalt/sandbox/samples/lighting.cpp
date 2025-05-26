@@ -171,22 +171,20 @@ public:
     mLight = [&] {
       auto entity = scene->create_entity("Light"s);
       auto const lightMaterial = [&] {
-        materialDesc.pipeline = [&] {
-          auto vs = FixedVertexShaderCreateInfo{};
-          vs.lightingEnabled = true;
-          vs.specularEnabled = true;
-          vs.fog = FogMode::Exponential;
+        auto vs = FixedVertexShaderCreateInfo{};
+        vs.lightingEnabled = true;
+        vs.specularEnabled = true;
+        vs.fog = FogMode::Exponential;
 
-          auto& pipelineDesc = materialDesc.pipelineInfo;
-          pipelineDesc = PipelineCreateInfo{};
-          pipelineDesc.vertexShader = &vs;
-          pipelineDesc.cullMode = CullMode::CounterClockwise;
-          pipelineDesc.depthTest = TestPassCond::IfLessEqual;
-          pipelineDesc.depthWriteEnable = true;
-          pipelineDesc.dithering = true;
+        auto& pipelineDesc = materialDesc.pipelineInfo;
+        pipelineDesc = PipelineCreateInfo{};
+        pipelineDesc.vertexShader = &vs;
+        pipelineDesc.cullMode = CullMode::CounterClockwise;
+        pipelineDesc.depthTest = TestPassCond::IfLessEqual;
+        pipelineDesc.depthWriteEnable = true;
+        pipelineDesc.dithering = true;
+        materialDesc.pipeline = mGfxCache->create_pipeline(pipelineDesc);
 
-          return mGfxCache->create_pipeline(pipelineDesc);
-        }();
         materialDesc.sampledTexture = {};
         materialDesc.diffuse = Color::from_non_linear(0.75f, 0.75f, 0.75f);
         materialDesc.ambient = Color::from_non_linear(0.25f, 0.25f, 0.25f);
