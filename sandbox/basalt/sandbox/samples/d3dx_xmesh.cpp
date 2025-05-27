@@ -6,6 +6,7 @@
 
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/environment.h>
+#include <basalt/api/gfx/material.h>
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/api/scene/scene.h>

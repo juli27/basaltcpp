@@ -8,6 +8,7 @@
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/environment.h>
 #include <basalt/api/gfx/info.h>
+#include <basalt/api/gfx/material.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
 

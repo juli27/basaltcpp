@@ -10,6 +10,7 @@
 #include "backend/validating_swap_chain.h"
 #endif
 
+#include <basalt/api/gfx/material.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/resources.h>
 

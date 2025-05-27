@@ -7,6 +7,7 @@
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/environment.h>
+#include <basalt/api/gfx/material.h>
 #include <basalt/api/gfx/types.h>
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>

@@ -7,6 +7,7 @@ target_sources(LibAPI PRIVATE
   "environment.h"
   "gfx_system.h"
   "info.h"
+  "material.h"
   "resource_cache.h"
   "resources.h"
   "types.h"
