@@ -56,6 +56,10 @@ ResourceCache::~ResourceCache() noexcept {
     mContext->destroy(handle);
   }
 
+  for (auto const handle : mMaterialClasses) {
+    mContext->destroy(handle);
+  }
+
   for (auto const handle : mTextures) {
     mContext->destroy(handle);
   }
@@ -71,6 +75,22 @@ ResourceCache::~ResourceCache() noexcept {
 
 auto ResourceCache::context() const noexcept -> ContextPtr const& {
   return mContext;
+}
+
+auto ResourceCache::create_material(MaterialCreateInfo const& createInfo)
+  -> MaterialHandle {
+  auto const handle = mContext->create_material(createInfo).release();
+  mMaterials.push_back(handle);
+
+  return handle;
+}
+
+auto ResourceCache::create_material_class(MaterialClassCreateInfo const& info)
+  -> MaterialClassHandle {
+  auto const handle = mContext->create_material_class(info).release();
+  mMaterialClasses.push_back(handle);
+
+  return handle;
 }
 
 auto ResourceCache::create_pipeline(PipelineCreateInfo const& desc)
@@ -106,14 +126,6 @@ auto ResourceCache::load_texture_cube(path const& filePath) -> TextureHandle {
 auto ResourceCache::load_texture_3d(path const& filePath) -> TextureHandle {
   auto const handle = mContext->load_texture_3d(filePath).release();
   mTextures.push_back(handle);
-
-  return handle;
-}
-
-auto ResourceCache::create_material(MaterialCreateInfo const& createInfo)
-  -> MaterialHandle {
-  auto const handle = mContext->create_material(createInfo).release();
-  mMaterials.push_back(handle);
 
   return handle;
 }

@@ -9,6 +9,7 @@
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/environment.h>
 #include <basalt/api/gfx/material.h>
+#include <basalt/api/gfx/material_class.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
 
@@ -41,17 +42,7 @@ using std::vector;
 using namespace entt::literals;
 using gsl::span;
 
-using namespace basalt::literals;
-using basalt::Angle;
-using basalt::Engine;
-using basalt::EntityId;
-using basalt::InputState;
-using basalt::Key;
-using basalt::Scene;
-using basalt::System;
-using basalt::Vector2f32;
-using basalt::Vector3f32;
-using basalt::ViewPtr;
+using namespace basalt;
 using basalt::gfx::Camera;
 using basalt::gfx::CameraEntity;
 using basalt::gfx::Environment;
@@ -294,31 +285,33 @@ auto Samples::new_cubes_sample(Engine& engine) -> ViewPtr {
     {vertexData, vertexCount, Vertex::sLayout, indexData, indexCount});
 
   auto const material = [&] {
-    auto matDesc = MaterialCreateInfo{};
+    auto classInfo = gfx::MaterialClassCreateInfo{};
+    auto& pipelineDesc = classInfo.pipelineInfo;
 
     auto vs = FixedVertexShaderCreateInfo{};
     vs.lightingEnabled = true;
     vs.ambientSource = MaterialColorSource::DiffuseVertexColor;
+    pipelineDesc.vertexShader = &vs;
 
     auto fs = FixedFragmentShaderCreateInfo{};
     constexpr auto textureStages = array{TextureStage{}};
     fs.textureStages = textureStages;
-
-    auto& pipelineDesc = matDesc.pipelineInfo;
-    pipelineDesc.vertexShader = &vs;
     pipelineDesc.fragmentShader = &fs;
+
     pipelineDesc.vertexLayout = Vertex::sLayout;
     pipelineDesc.primitiveType = PrimitiveType::TriangleList;
     pipelineDesc.depthTest = TestPassCond::IfLessEqual;
     pipelineDesc.depthWriteEnable = true;
-    matDesc.pipeline = gfxCache->create_pipeline(pipelineDesc);
+    
+    auto info = MaterialCreateInfo{};
+    info.clazz = gfxCache->create_material_class(classInfo);
 
-    matDesc.sampledTexture.texture =
+    info.sampledTexture.texture =
       gfxCache->load_texture_2d(CUBE_TEXTURE_FILE_PATH);
-    matDesc.sampledTexture.sampler = gfxCache->create_sampler(
+    info.sampledTexture.sampler = gfxCache->create_sampler(
       {TextureFilter::Bilinear, TextureFilter::Bilinear,
        TextureMipFilter::Linear});
-    return gfxCache->create_material(matDesc);
+    return gfxCache->create_material(info);
   }();
 
   auto scene = Scene::create();

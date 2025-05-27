@@ -10,6 +10,7 @@
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/environment.h>
 #include <basalt/api/gfx/material.h>
+#include <basalt/api/gfx/material_class.h>
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/api/scene/scene.h>
@@ -29,17 +30,7 @@
 using namespace std::literals;
 using std::array;
 
-using namespace basalt::literals;
-using basalt::Angle;
-using basalt::Engine;
-using basalt::Entity;
-using basalt::Parent;
-using basalt::Scene;
-using basalt::SecondsF32;
-using basalt::Transform;
-using basalt::Vector3f32;
-using basalt::View;
-using basalt::ViewPtr;
+using namespace basalt;
 using basalt::gfx::Camera;
 using basalt::gfx::CullMode;
 using basalt::gfx::Environment;
@@ -76,24 +67,27 @@ public:
     gfxEnv.set_background(BACKGROUND);
     gfxEnv.set_ambient_light(Color::from_non_linear(0.25f, 0, 0));
 
-    auto materialDesc = MaterialCreateInfo{};
+    auto materialClassInfo = gfx::MaterialClassCreateInfo{};
+    auto& pipelineDesc = materialClassInfo.pipelineInfo;
+
     auto vs = FixedVertexShaderCreateInfo{};
     vs.lightingEnabled = true;
     vs.specularEnabled = true;
     vs.fog = FogMode::Exponential;
+    pipelineDesc.vertexShader = &vs;
 
     auto fs = FixedFragmentShaderCreateInfo{};
     constexpr auto textureStages = array{TextureStage{}};
     fs.textureStages = textureStages;
-
-    auto& pipelineDesc = materialDesc.pipelineInfo;
-    pipelineDesc.vertexShader = &vs;
     pipelineDesc.fragmentShader = &fs;
+
     pipelineDesc.cullMode = CullMode::CounterClockwise;
     pipelineDesc.depthTest = TestPassCond::IfLessEqual;
     pipelineDesc.depthWriteEnable = true;
     pipelineDesc.dithering = true;
-    materialDesc.pipeline = mGfxCache->create_pipeline(pipelineDesc);
+
+    auto materialDesc = MaterialCreateInfo{};
+    materialDesc.clazz = mGfxCache->create_material_class(materialClassInfo);
 
     materialDesc.sampledTexture.sampler = mGfxCache->create_sampler(
       {TextureFilter::Bilinear, TextureFilter::Bilinear,
@@ -172,19 +166,22 @@ public:
     mLight = [&] {
       auto entity = scene->create_entity("Light"s);
       auto const lightMaterial = [&] {
+        pipelineDesc = PipelineCreateInfo{};
+        
         auto vs = FixedVertexShaderCreateInfo{};
         vs.lightingEnabled = true;
         vs.specularEnabled = true;
         vs.fog = FogMode::Exponential;
-
-        auto& pipelineDesc = materialDesc.pipelineInfo;
-        pipelineDesc = PipelineCreateInfo{};
+        
         pipelineDesc.vertexShader = &vs;
+
         pipelineDesc.cullMode = CullMode::CounterClockwise;
         pipelineDesc.depthTest = TestPassCond::IfLessEqual;
         pipelineDesc.depthWriteEnable = true;
         pipelineDesc.dithering = true;
-        materialDesc.pipeline = mGfxCache->create_pipeline(pipelineDesc);
+
+        materialDesc.clazz =
+          mGfxCache->create_material_class(materialClassInfo);
 
         materialDesc.sampledTexture = {};
         materialDesc.diffuse = Color::from_non_linear(0.75f, 0.75f, 0.75f);

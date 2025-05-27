@@ -8,6 +8,7 @@
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/environment.h>
 #include <basalt/api/gfx/material.h>
+#include <basalt/api/gfx/material_class.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
 
@@ -35,20 +36,8 @@ using std::array;
 
 using gsl::span;
 
-using namespace basalt::literals;
+using namespace basalt;
 
-using basalt::Angle;
-using basalt::Engine;
-using basalt::Entity;
-using basalt::EntityId;
-using basalt::Matrix4x4f32;
-using basalt::PI;
-using basalt::Scene;
-using basalt::System;
-using basalt::Transform;
-using basalt::Vector2f32;
-using basalt::Vector3f32;
-using basalt::ViewPtr;
 using basalt::gfx::Camera;
 using basalt::gfx::Environment;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
@@ -190,36 +179,39 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
   }();
 
   auto const material = [&] {
-    auto materialInfo = MaterialCreateInfo{};
+    auto classInfo = gfx::MaterialClassCreateInfo{};
+    auto& pipelineInfo = classInfo.pipelineInfo;
 
     auto vs = FixedVertexShaderCreateInfo{};
     vs.lightingEnabled = true;
     vs.diffuseSource = MaterialColorSource::Material;
+    pipelineInfo.vertexShader = &vs;
 
     auto fs = FixedFragmentShaderCreateInfo{};
     constexpr auto textureStages = array{TextureStage{}};
     fs.textureStages = textureStages;
-
-    auto& pipelineInfo = materialInfo.pipelineInfo;
-    pipelineInfo.vertexShader = &vs;
     pipelineInfo.fragmentShader = &fs;
+
     pipelineInfo.vertexLayout = Vertex::sLayout;
     pipelineInfo.primitiveType = PrimitiveType::TriangleStrip;
     pipelineInfo.depthTest = TestPassCond::IfLessEqual;
     pipelineInfo.depthWriteEnable = true;
 
-    materialInfo.pipeline = gfxCache->create_pipeline(pipelineInfo);
-    materialInfo.diffuse = Colors::WHITE;
-    materialInfo.ambient = Colors::WHITE;
-    materialInfo.sampledTexture.sampler = gfxCache->create_sampler({});
-    materialInfo.sampledTexture.texture =
+    auto info = MaterialCreateInfo{};
+    info.clazz = gfxCache->create_material_class(classInfo);
+
+    info.diffuse = Colors::WHITE;
+    info.ambient = Colors::WHITE;
+    info.sampledTexture.sampler = gfxCache->create_sampler({});
+    info.sampledTexture.texture =
       gfxCache->load_texture_2d(sTextureFilePath);
 
-    return gfxCache->create_material(materialInfo);
+    return gfxCache->create_material(info);
   }();
 
   auto const tciMaterial = [&] {
-    auto materialInfo = MaterialCreateInfo{};
+    auto classInfo = gfx::MaterialClassCreateInfo{};
+    auto& pipelineInfo = classInfo.pipelineInfo;
 
     auto vs = FixedVertexShaderCreateInfo{};
     auto texCoordinateSets = array{TextureCoordinateSet{}};
@@ -230,29 +222,30 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
     vs.textureCoordinateSets = texCoordinateSets;
     vs.lightingEnabled = true;
     vs.diffuseSource = MaterialColorSource::Material;
+    pipelineInfo.vertexShader = &vs;
 
     auto fs = FixedFragmentShaderCreateInfo{};
     constexpr auto textureStages = array{TextureStage{}};
     fs.textureStages = textureStages;
-
-    auto& pipelineInfo = materialInfo.pipelineInfo;
-    pipelineInfo.vertexShader = &vs;
     pipelineInfo.fragmentShader = &fs;
+
     pipelineInfo.vertexLayout = Vertex::sLayout;
     pipelineInfo.primitiveType = PrimitiveType::TriangleStrip;
     pipelineInfo.depthTest = TestPassCond::IfLessEqual;
     pipelineInfo.depthWriteEnable = true;
+    
+    auto info = MaterialCreateInfo{};
+    info.clazz = gfxCache->create_material_class(classInfo);
 
-    materialInfo.pipeline = gfxCache->create_pipeline(pipelineInfo);
-    materialInfo.texTransform = Matrix4x4f32::scaling(0.5f, -0.5f, 1.0f) *
+    info.texTransform = Matrix4x4f32::scaling(0.5f, -0.5f, 1.0f) *
                                 Matrix4x4f32::translation(0.5f, 0.5f, 0.0f);
-    materialInfo.diffuse = Colors::WHITE;
-    materialInfo.ambient = Colors::WHITE;
-    materialInfo.sampledTexture.sampler = gfxCache->create_sampler({});
-    materialInfo.sampledTexture.texture =
+    info.diffuse = Colors::WHITE;
+    info.ambient = Colors::WHITE;
+    info.sampledTexture.sampler = gfxCache->create_sampler({});
+    info.sampledTexture.texture =
       gfxCache->load_texture_2d(sTextureFilePath);
 
-    return gfxCache->create_material(materialInfo);
+    return gfxCache->create_material(info);
   }();
 
   auto scene = Scene::create();

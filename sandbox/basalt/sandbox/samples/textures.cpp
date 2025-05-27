@@ -9,6 +9,7 @@
 #include <basalt/api/gfx/environment.h>
 #include <basalt/api/gfx/info.h>
 #include <basalt/api/gfx/material.h>
+#include <basalt/api/gfx/material_class.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
 
@@ -32,16 +33,8 @@ using std::array;
 
 using gsl::span;
 
-using namespace basalt::literals;
+using namespace basalt;
 
-using basalt::Engine;
-using basalt::Entity;
-using basalt::EntityId;
-using basalt::Scene;
-using basalt::System;
-using basalt::Vector2f32;
-using basalt::Vector3f32;
-using basalt::ViewPtr;
 using basalt::gfx::Camera;
 using basalt::gfx::Environment;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
@@ -172,16 +165,20 @@ auto Samples::new_textures_sample(Engine& engine) -> ViewPtr {
 
   auto& samplerSettings = quad.emplace<SamplerSettings>();
 
-  auto materialDesc = MaterialCreateInfo{};
+  auto materialClassInfo = gfx::MaterialClassCreateInfo{};
+  auto& pipelineDesc = materialClassInfo.pipelineInfo;
+  
   auto fs = FixedFragmentShaderCreateInfo{};
   constexpr auto textureStages = array{TextureStage{}};
   fs.textureStages = textureStages;
-
-  auto& pipelineDesc = materialDesc.pipelineInfo;
   pipelineDesc.fragmentShader = &fs;
+
   pipelineDesc.vertexLayout = Vertex::sLayout;
   pipelineDesc.primitiveType = PrimitiveType::TriangleStrip;
-  materialDesc.pipeline = gfxCache->create_pipeline(pipelineDesc);
+  
+  auto materialDesc = MaterialCreateInfo{};
+  materialDesc.clazz = gfxCache->create_material_class(materialClassInfo);
+
   materialDesc.sampledTexture.texture =
     gfxCache->load_texture_2d(TEXTURE_FILE_PATH);
 

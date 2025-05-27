@@ -3,14 +3,14 @@
 #include "backend/types.h"
 #include "backend/ext/types.h"
 
-#include "basalt/api/math/angle.h"
+#include <basalt/api/shared/color.h>
+#include <basalt/api/shared/handle.h>
+#include <basalt/api/shared/unique_handle.h>
+#include <basalt/api/shared/types.h>
 
-#include "basalt/api/shared/color.h"
-#include "basalt/api/shared/handle.h"
-#include "basalt/api/shared/types.h"
+#include <basalt/api/math/angle.h>
 
-#include "basalt/api/base/enum_set.h"
-#include "basalt/api/base/types.h"
+#include <basalt/api/base/types.h>
 
 #include <gsl/span>
 
@@ -44,9 +44,6 @@ using IndexBuffer = UniqueHandle<IndexBufferHandle, ContextResourceDeleter>;
 BASALT_DEFINE_HANDLE(MeshHandle);
 using Mesh = UniqueHandle<MeshHandle, ContextResourceDeleter>;
 
-BASALT_DEFINE_HANDLE(MaterialHandle);
-using Material = UniqueHandle<MaterialHandle, ContextResourceDeleter>;
-
 enum class BackendApi : u8 {
   Default,
   Direct3D9,
@@ -60,11 +57,6 @@ struct MeshCreateInfo final {
   gsl::span<std::byte const> indexData;
   u32 indexCount{};
   IndexType indexType{IndexType::U16};
-};
-
-struct Model {
-  MeshHandle mesh;
-  MaterialHandle material;
 };
 
 using DirectionalLight = DirectionalLightData;
@@ -105,6 +97,19 @@ struct MeshData final {
 
 struct MaterialData;
 struct MaterialCreateInfo;
+BASALT_DEFINE_HANDLE(MaterialHandle);
+using Material = UniqueHandle<MaterialHandle, ContextResourceDeleter>;
+
+class MaterialClass;
+struct MaterialClassCreateInfo;
+BASALT_DEFINE_HANDLE(MaterialClassHandle);
+using UniqueMaterialClass =
+  UniqueHandle<MaterialClassHandle, ContextResourceDeleter>;
+
+struct Model {
+  MeshHandle mesh;
+  MaterialHandle material;
+};
 
 namespace ext {
 

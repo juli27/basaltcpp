@@ -8,6 +8,7 @@
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/environment.h>
 #include <basalt/api/gfx/material.h>
+#include <basalt/api/gfx/material_class.h>
 #include <basalt/api/gfx/types.h>
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
@@ -85,7 +86,8 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
           DrawCall{gfxCtx.get(model.material), localToWorld, model.mesh});
 
         auto const& drawCall = drawCalls.back();
-        auto const& materialFeatures = drawCall.materialData.features;
+        auto const& materialClass = gfxCtx.get(drawCall.materialData.clazz);
+        auto const& materialFeatures = materialClass.features();
 
         needsDepth |= materialFeatures.has(MaterialFeature::DepthBuffer);
         needsLights |= materialFeatures.has(MaterialFeature::Lighting);
@@ -110,8 +112,10 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
         drawCalls.push_back(
           DrawCall{gfxCtx.get(model.material), localToWorld, renderMesh});
 
+
         auto const& drawCall = drawCalls.back();
-        auto const& materialFeatures = drawCall.materialData.features;
+        auto const& materialClass = gfxCtx.get(drawCall.materialData.clazz);
+        auto const& materialFeatures = materialClass.features();
 
         needsDepth |= materialFeatures.has(MaterialFeature::DepthBuffer);
         needsLights |= materialFeatures.has(MaterialFeature::Lighting);
@@ -186,9 +190,10 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
 
   for (auto const& drawCall : drawCalls) {
     auto const& materialData = drawCall.materialData;
-    cmdList.bind_pipeline(materialData.pipeline);
+    auto const& materialClass = gfxCtx.get(materialData.clazz);
+    cmdList.bind_pipeline(materialClass.pipeline());
 
-    auto const& materialFeatures = materialData.features;
+    auto const& materialFeatures = materialClass.features();
     if (materialFeatures.has(MaterialFeature::Texturing)) {
       cmdList.bind_texture(0, materialData.texture);
       cmdList.bind_sampler(0, materialData.sampler);

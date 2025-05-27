@@ -16,8 +16,8 @@ struct SampledTexture {
 };
 
 struct MaterialCreateInfo {
-  PipelineHandle pipeline;
-  PipelineCreateInfo pipelineInfo;
+  MaterialClassHandle clazz;
+
   Matrix4x4f32 texTransform; // TODO: this is temporary
   Color diffuse;
   Color ambient;
@@ -31,18 +31,8 @@ struct MaterialCreateInfo {
   f32 fogDensity{};
 };
 
-enum class MaterialFeature : u8 {
-  TexCoordTransform,
-  Lighting,
-  UniformColors,
-  Fog,
-  Texturing,
-  DepthBuffer,
-};
-using MaterialFeatures = EnumSet<MaterialFeature, MaterialFeature::DepthBuffer>;
-
 struct MaterialData {
-  MaterialFeatures features;
+  MaterialClassHandle clazz;
 
   Matrix4x4f32 texTransform; // TODO: temp
   Color diffuse;
@@ -55,7 +45,6 @@ struct MaterialData {
   f32 fogEnd{};
   f32 fogDensity{};
 
-  PipelineHandle pipeline;
   TextureHandle texture{};
   SamplerHandle sampler{};
 };
