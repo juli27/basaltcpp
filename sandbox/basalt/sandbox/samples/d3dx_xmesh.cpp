@@ -1,5 +1,7 @@
 #include "samples.h"
 
+#include "basalt/sandbox/shared/debug_scene_view.h"
+
 #include <basalt/api/engine.h>
 #include <basalt/api/scene_view.h>
 #include <basalt/api/prelude.h>
@@ -106,6 +108,6 @@ auto Samples::new_d3dx_x_mesh_sample(Engine& engine) -> ViewPtr {
     tiger.emplace<gfx::ext::XModel>(material, modelData.meshes.front());
   }
 
-  return SceneView::create(std::move(scene), std::move(gfxCache),
-                           camera.entity());
+  return DebugSceneView::create(std::move(scene), std::move(gfxCache),
+                                camera.entity());
 }
