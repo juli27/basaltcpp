@@ -51,7 +51,7 @@ auto CommandList::bind_pipeline(PipelineHandle const pipelineId) -> void {
 }
 
 auto CommandList::bind_vertex_buffer(VertexBufferHandle const vertexBufferId,
-                                     u64 const offsetInBytes) -> void {
+                                     uDeviceSize const offsetInBytes) -> void {
   add<CommandBindVertexBuffer>(vertexBufferId, offsetInBytes);
 }
 

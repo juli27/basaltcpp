@@ -37,6 +37,10 @@ public:
     return *this;
   }
 
+  operator Handle() const {
+    return mHandle;
+  }
+
   auto handle() const noexcept -> Handle {
     return mHandle;
   }

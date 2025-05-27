@@ -1,12 +1,16 @@
 #include "samples.h"
 
-#include "basalt/sandbox/shared/debug_scene_view.h"
+#include <basalt/sandbox/shared/debug_scene_view.h>
 
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 
 #include <basalt/api/gfx/camera.h>
+#include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/environment.h>
+#include <basalt/api/gfx/gfx_system.h>
+#include <basalt/api/gfx/material.h>
+#include <basalt/api/gfx/material_class.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
 
@@ -34,20 +38,8 @@ using std::array;
 
 using gsl::span;
 
-using namespace basalt::literals;
+using namespace basalt;
 
-using basalt::Angle;
-using basalt::Engine;
-using basalt::Entity;
-using basalt::EntityId;
-using basalt::Matrix4x4f32;
-using basalt::PI;
-using basalt::Scene;
-using basalt::System;
-using basalt::Transform;
-using basalt::Vector2f32;
-using basalt::Vector3f32;
-using basalt::ViewPtr;
 using basalt::gfx::Camera;
 using basalt::gfx::Environment;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
@@ -160,6 +152,31 @@ public:
   }
 };
 
+class TextureTransformSystem final : public basalt::System {
+public:
+  using UpdateBefore = gfx::GfxSystem;
+
+  static constexpr auto sCylinder = entt::hashed_string::value("cylinder");
+
+  auto on_update(UpdateContext const& ctx) -> void override {
+    auto& scene = ctx.scene;
+    auto& sceneCtx = scene.entity_registry().ctx();
+    auto const& settings = sceneCtx.get<Settings>();
+
+    auto const cameraEntityId =
+      sceneCtx.get<EntityId>(gfx::GfxSystem::sMainCamera);
+    auto const cameraEntity =
+      gfx::CameraEntity{scene.get_handle(cameraEntityId)};
+
+    auto& gfxCtx = sceneCtx.get<gfx::Context&>();
+    auto& material = gfxCtx.get(settings.tciMaterial);
+    material.set_value(gfx::MaterialPropertyId::TexTransform,
+                       cameraEntity.view_to_clip() *
+                         Matrix4x4f32::scaling(0.5f, -0.5f, 1.0f) *
+                         Matrix4x4f32::translation(0.5f, 0.5f, 0.0f));
+  }
+};
+
 } // namespace
 
 auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
@@ -189,36 +206,44 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
   }();
 
   auto const material = [&] {
-    auto materialInfo = MaterialCreateInfo{};
+    auto classInfo = gfx::MaterialClassCreateInfo{};
+    auto& pipelineInfo = classInfo.pipelineInfo;
 
     auto vs = FixedVertexShaderCreateInfo{};
     vs.lightingEnabled = true;
     vs.diffuseSource = MaterialColorSource::Material;
+    pipelineInfo.vertexShader = &vs;
 
     auto fs = FixedFragmentShaderCreateInfo{};
     constexpr auto textureStages = array{TextureStage{}};
     fs.textureStages = textureStages;
-
-    auto& pipelineInfo = materialInfo.pipelineInfo;
-    pipelineInfo.vertexShader = &vs;
     pipelineInfo.fragmentShader = &fs;
+
     pipelineInfo.vertexLayout = Vertex::sLayout;
     pipelineInfo.primitiveType = PrimitiveType::TriangleStrip;
     pipelineInfo.depthTest = TestPassCond::IfLessEqual;
     pipelineInfo.depthWriteEnable = true;
 
-    materialInfo.pipeline = gfxCache->create_pipeline(pipelineInfo);
-    materialInfo.diffuse = Colors::WHITE;
-    materialInfo.ambient = Colors::WHITE;
-    materialInfo.sampledTexture.sampler = gfxCache->create_sampler({});
-    materialInfo.sampledTexture.texture =
-      gfxCache->load_texture_2d(sTextureFilePath);
+    auto info = MaterialCreateInfo{};
+    info.clazz = gfxCache->create_material_class(classInfo);
+    auto const properties = std::array{
+      gfx::MaterialProperty{
+        gfx::MaterialPropertyId::UniformColors,
+        gfx::UniformColors{Colors::WHITE, Colors::WHITE},
+      },
+      gfx::MaterialProperty{
+        gfx::MaterialPropertyId::SampledTexture,
+        gfx::SampledTexture{gfxCache->create_sampler({}),
+                            gfxCache->load_texture_2d(sTextureFilePath)}},
+    };
+    info.initialValues = properties;
 
-    return gfxCache->create_material(materialInfo);
+    return gfxCache->create_material(info);
   }();
 
   auto const tciMaterial = [&] {
-    auto materialInfo = MaterialCreateInfo{};
+    auto classInfo = gfx::MaterialClassCreateInfo{};
+    auto& pipelineInfo = classInfo.pipelineInfo;
 
     auto vs = FixedVertexShaderCreateInfo{};
     auto texCoordinateSets = array{TextureCoordinateSet{}};
@@ -229,35 +254,44 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
     vs.textureCoordinateSets = texCoordinateSets;
     vs.lightingEnabled = true;
     vs.diffuseSource = MaterialColorSource::Material;
+    pipelineInfo.vertexShader = &vs;
 
     auto fs = FixedFragmentShaderCreateInfo{};
     constexpr auto textureStages = array{TextureStage{}};
     fs.textureStages = textureStages;
-
-    auto& pipelineInfo = materialInfo.pipelineInfo;
-    pipelineInfo.vertexShader = &vs;
     pipelineInfo.fragmentShader = &fs;
+
     pipelineInfo.vertexLayout = Vertex::sLayout;
     pipelineInfo.primitiveType = PrimitiveType::TriangleStrip;
     pipelineInfo.depthTest = TestPassCond::IfLessEqual;
     pipelineInfo.depthWriteEnable = true;
 
-    materialInfo.pipeline = gfxCache->create_pipeline(pipelineInfo);
-    materialInfo.texTransform = Matrix4x4f32::scaling(0.5f, -0.5f, 1.0f) *
-                                Matrix4x4f32::translation(0.5f, 0.5f, 0.0f);
-    materialInfo.diffuse = Colors::WHITE;
-    materialInfo.ambient = Colors::WHITE;
-    materialInfo.sampledTexture.sampler = gfxCache->create_sampler({});
-    materialInfo.sampledTexture.texture =
-      gfxCache->load_texture_2d(sTextureFilePath);
+    auto info = MaterialCreateInfo{};
+    info.clazz = gfxCache->create_material_class(classInfo);
+    auto const properties = std::array{
+      gfx::MaterialProperty{
+        gfx::MaterialPropertyId::UniformColors,
+        gfx::UniformColors{Colors::WHITE, Colors::WHITE},
+      },
+      gfx::MaterialProperty{
+        gfx::MaterialPropertyId::SampledTexture,
+        gfx::SampledTexture{gfxCache->create_sampler({}),
+                            gfxCache->load_texture_2d(sTextureFilePath)}},
+      gfx::MaterialProperty{
+        gfx::MaterialPropertyId::TexTransform,
+        Matrix4x4f32::identity(),
+      },
+    };
+    info.initialValues = properties;
 
-    return gfxCache->create_material(materialInfo);
+    return gfxCache->create_material(info);
   }();
 
   auto scene = Scene::create();
   scene->create_system<RotationSystem>();
   scene->create_system<DirectionalLightSystem>();
   scene->create_system<SettingsSystem>();
+  scene->create_system<TextureTransformSystem>();
 
   auto& sceneCtx = scene->entity_registry().ctx();
   auto& gfxEnv = sceneCtx.emplace<Environment>();

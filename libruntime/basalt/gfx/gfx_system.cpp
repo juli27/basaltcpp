@@ -7,6 +7,7 @@
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/environment.h>
+#include <basalt/api/gfx/material.h>
 #include <basalt/api/gfx/types.h>
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
@@ -59,7 +60,8 @@ using RenderMesh =
   std::variant<VbRenderMesh, IndexedVbRenderMesh, ext::XMeshHandle>;
 
 struct DrawCall {
-  MaterialData materialData;
+  PipelineHandle pipeline;
+  gsl::span<MaterialProperty const> materialProperties;
   LocalToWorld objectToScene;
   RenderMesh renderMesh;
 };
@@ -80,12 +82,11 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
 
     entities.view<LocalToWorld const, ext::XModel const>().each(
       [&](LocalToWorld const& localToWorld, ext::XModel const& model) {
-        drawCalls.push_back(
-          DrawCall{gfxCtx.get(model.material), localToWorld, model.mesh});
+        auto const& material = gfxCtx.get(model.material);
+        drawCalls.push_back(DrawCall{material.pipeline(), material.properties(),
+                                     localToWorld, model.mesh});
 
-        auto const& drawCall = drawCalls.back();
-        auto const& materialFeatures = drawCall.materialData.features;
-
+        auto const& materialFeatures = material.features();
         needsDepth |= materialFeatures.has(MaterialFeature::DepthBuffer);
         needsLights |= materialFeatures.has(MaterialFeature::Lighting);
       });
@@ -106,12 +107,11 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
             meshData.vertexBuffer, meshData.startVertex, meshData.vertexCount}};
         }();
 
-        drawCalls.push_back(
-          DrawCall{gfxCtx.get(model.material), localToWorld, renderMesh});
+        auto const& material = gfxCtx.get(model.material);
+        drawCalls.push_back(DrawCall{material.pipeline(), material.properties(),
+                                     localToWorld, renderMesh});
 
-        auto const& drawCall = drawCalls.back();
-        auto const& materialFeatures = drawCall.materialData.features;
-
+        auto const& materialFeatures = material.features();
         needsDepth |= materialFeatures.has(MaterialFeature::DepthBuffer);
         needsLights |= materialFeatures.has(MaterialFeature::Lighting);
       });
@@ -142,8 +142,8 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
   auto const cameraEntityId = ecsCtx.get<EntityId>(GfxSystem::sMainCamera);
   auto const cameraEntity = CameraEntity{scene.get_handle(cameraEntityId)};
   cameraEntity.get_camera().aspectRatio = drawCtx.viewport.aspect_ratio();
-  auto const viewToClip = cameraEntity.view_to_clip();
-  cmdList.set_transform(TransformState::ViewToClip, viewToClip);
+  cmdList.set_transform(TransformState::ViewToClip,
+                        cameraEntity.view_to_clip());
   cmdList.set_transform(TransformState::WorldToView,
                         cameraEntity.world_to_view());
 
@@ -184,31 +184,35 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
   }
 
   for (auto const& drawCall : drawCalls) {
-    auto const& materialData = drawCall.materialData;
-    cmdList.bind_pipeline(materialData.pipeline);
+    cmdList.bind_pipeline(drawCall.pipeline);
 
-    auto const& materialFeatures = materialData.features;
-    if (materialFeatures.has(MaterialFeature::Texturing)) {
-      cmdList.bind_texture(0, materialData.texture);
-      cmdList.bind_sampler(0, materialData.sampler);
-    }
+    for (auto const& property : drawCall.materialProperties) {
+      switch (property.id) {
+      case MaterialPropertyId::UniformColors: {
+        auto const& colors = std::get<UniformColors>(property.value);
+        cmdList.set_material(colors.diffuse, colors.ambient, colors.emissive,
+                             colors.specular, colors.specularPower);
+        continue;
+      }
+      case MaterialPropertyId::FogParameters: {
+        auto const& params = std::get<FogParameters>(property.value);
+        cmdList.set_fog_parameters(params.color, params.start, params.end,
+                                   params.density);
+        continue;
+      }
+      case MaterialPropertyId::SampledTexture: {
+        auto const& tex = std::get<SampledTexture>(property.value);
+        cmdList.bind_sampler(0, tex.sampler);
+        cmdList.bind_texture(0, tex.texture);
+        continue;
+      }
+      case MaterialPropertyId::TexTransform:
+        cmdList.set_transform(TransformState::Texture0,
+                              std::get<Matrix4x4f32>(property.value));
+        continue;
+      }
 
-    if (materialFeatures.has(MaterialFeature::UniformColors)) {
-      cmdList.set_material(materialData.diffuse, materialData.ambient,
-                           materialData.emissive, materialData.specular,
-                           materialData.specularPower);
-    }
-
-    if (materialFeatures.has(MaterialFeature::Fog)) {
-      cmdList.set_fog_parameters(materialData.fogColor, materialData.fogStart,
-                                 materialData.fogEnd, materialData.fogDensity);
-    }
-
-    if (materialFeatures.has(MaterialFeature::TexCoordTransform)) {
-      // TODO: remove hack
-      // HACK: this is temporary
-      cmdList.set_transform(TransformState::Texture0,
-                            viewToClip * materialData.texTransform);
+      BASALT_CRASH("invalid MaterialPropertyId");
     }
 
     cmdList.set_transform(TransformState::LocalToWorld,

@@ -8,6 +8,8 @@
 
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/environment.h>
+#include <basalt/api/gfx/material.h>
+#include <basalt/api/gfx/material_class.h>
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/api/scene/scene.h>
@@ -79,8 +81,9 @@ auto Samples::new_d3dx_x_mesh_sample(Engine& engine) -> ViewPtr {
     auto material = [&] {
       auto const& material = modelData.materials.front();
 
-      auto info = gfx::MaterialCreateInfo{};
-      auto& pipelineInfo = info.pipelineInfo;
+      auto classInfo = gfx::MaterialClassCreateInfo{};
+      auto& pipelineInfo = classInfo.pipelineInfo;
+
       auto vs = gfx::FixedVertexShaderCreateInfo{};
       vs.lightingEnabled = true;
 
@@ -93,14 +96,18 @@ auto Samples::new_d3dx_x_mesh_sample(Engine& engine) -> ViewPtr {
       pipelineInfo.cullMode = gfx::CullMode::CounterClockwise;
       pipelineInfo.depthTest = gfx::TestPassCond::IfLessEqual;
       pipelineInfo.depthWriteEnable = true;
-      info.pipeline = gfxCache->create_pipeline(pipelineInfo);
 
-      info.diffuse = material.diffuse;
-      info.ambient = material.ambient;
-
-      info.sampledTexture.texture =
-        gfxCache->load_texture_2d(material.textureFile);
-      info.sampledTexture.sampler = gfxCache->create_sampler({});
+      auto info = gfx::MaterialCreateInfo{};
+      info.clazz = gfxCache->create_material_class(classInfo);
+      auto const properties = std::array{
+        gfx::MaterialProperty{gfx::MaterialPropertyId::UniformColors,
+                              gfx::UniformColors{material.diffuse, material.ambient}},
+        gfx::MaterialProperty{
+          gfx::MaterialPropertyId::SampledTexture,
+          gfx::SampledTexture{gfxCache->create_sampler({}),
+                              gfxCache->load_texture_2d(material.textureFile)}},
+      };
+      info.initialValues = properties;
 
       return gfxCache->create_material(info);
     }();

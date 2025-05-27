@@ -10,6 +10,8 @@ target_sources(LibRuntime PRIVATE
   "filtering_command_list.cpp"
   "filtering_command_list.h"
   "gfx_system.cpp"
+  "material.cpp"
+  "material_class.cpp"
   "resource_cache.cpp"
   "utils.cpp"
   "utils.h"

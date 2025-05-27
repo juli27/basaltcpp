@@ -5,7 +5,7 @@
 #include "backend/types.h"
 #include "backend/ext/types.h"
 
-#include "basalt/api/shared/handle_pool.h"
+#include <basalt/api/shared/handle_pool.h>
 
 #include <gsl/span>
 
@@ -17,10 +17,10 @@
 
 namespace basalt::gfx {
 
-class Context final : public std::enable_shared_from_this<Context> {
+class Context : public std::enable_shared_from_this<Context> {
 public:
-  static auto create(DevicePtr, ext::DeviceExtensions, SwapChainPtr,
-                     Info) -> ContextPtr;
+  static auto create(DevicePtr, ext::DeviceExtensions, SwapChainPtr, Info)
+    -> ContextPtr;
 
   // don't use. Use create() function instead
   Context(DevicePtr, ext::DeviceExtensions, SwapChainPtr, Info);
@@ -40,6 +40,21 @@ public:
 
   [[nodiscard]]
   auto create_resource_cache() -> ResourceCachePtr;
+
+  [[nodiscard]]
+  auto create_material(MaterialCreateInfo const&) -> UniqueMaterial;
+  auto destroy(MaterialHandle) noexcept -> void;
+  [[nodiscard]]
+  auto get(MaterialHandle) const -> Material const&;
+  [[nodiscard]]
+  auto get(MaterialHandle) -> Material&;
+
+  [[nodiscard]]
+  auto create_material_class(MaterialClassCreateInfo const&)
+    -> UniqueMaterialClass;
+  auto destroy(MaterialClassHandle) noexcept -> void;
+  [[nodiscard]]
+  auto get(MaterialClassHandle) const -> MaterialClass const&;
 
   [[nodiscard]]
   auto create_pipeline(PipelineCreateInfo const&) -> Pipeline;
@@ -63,13 +78,6 @@ public:
   auto destroy(TextureHandle) const noexcept -> void;
 
   [[nodiscard]]
-  auto create_material(MaterialCreateInfo const&) -> Material;
-
-  auto destroy(MaterialHandle) noexcept -> void;
-
-  [[nodiscard]] auto get(MaterialHandle) const -> MaterialData const&;
-
-  [[nodiscard]]
   auto compile_effect(std::filesystem::path const&) const -> ext::CompileResult;
 
   auto destroy(ext::EffectId) const noexcept -> void;
@@ -77,9 +85,9 @@ public:
   [[nodiscard]] auto get(ext::EffectId) const -> ext::Effect&;
 
   [[nodiscard]]
-  auto
-  create_vertex_buffer(VertexBufferCreateInfo const&,
-                       gsl::span<std::byte const> data = {}) -> VertexBuffer;
+  auto create_vertex_buffer(VertexBufferCreateInfo const&,
+                            gsl::span<std::byte const> data = {})
+    -> VertexBuffer;
 
   auto destroy(VertexBufferHandle) const noexcept -> void;
 
@@ -169,7 +177,8 @@ private:
   ext::DeviceExtensions mDeviceExtensions;
   SwapChainPtr mSwapChain;
   Info mInfo;
-  HandlePool<MaterialData, MaterialHandle> mMaterials;
+  HandlePool<MaterialClass, MaterialClassHandle> mMaterialClasses;
+  HandlePool<Material, MaterialHandle> mMaterials;
   HandlePool<MeshData, MeshHandle> mMeshes;
 
   auto make_deleter() -> ContextResourceDeleter;

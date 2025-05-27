@@ -35,6 +35,13 @@ public:
   auto context() const noexcept -> ContextPtr const&;
 
   [[nodiscard]]
+  auto create_material(MaterialCreateInfo const&) -> MaterialHandle;
+
+  [[nodiscard]]
+  auto create_material_class(MaterialClassCreateInfo const&)
+    -> MaterialClassHandle;
+
+  [[nodiscard]]
   auto create_pipeline(PipelineCreateInfo const&) -> PipelineHandle;
 
   [[nodiscard]]
@@ -48,9 +55,6 @@ public:
 
   [[nodiscard]]
   auto load_texture_3d(std::filesystem::path const&) -> TextureHandle;
-
-  [[nodiscard]]
-  auto create_material(MaterialCreateInfo const&) -> MaterialHandle;
 
   [[nodiscard]]
   auto compile_effect(std::filesystem::path const&) -> ext::CompileResult;
@@ -79,6 +83,7 @@ private:
   std::vector<SamplerHandle> mSamplers;
   std::vector<TextureHandle> mTextures;
   std::vector<MaterialHandle> mMaterials;
+  std::vector<MaterialClassHandle> mMaterialClasses;
   std::vector<ext::EffectId> mEffects;
   std::vector<VertexBufferHandle> mVertexBuffers;
   std::vector<IndexBufferHandle> mIndexBuffers;

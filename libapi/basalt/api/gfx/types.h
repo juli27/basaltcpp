@@ -3,15 +3,14 @@
 #include "backend/types.h"
 #include "backend/ext/types.h"
 
-#include "basalt/api/math/angle.h"
-#include "basalt/api/math/matrix4x4.h"
+#include <basalt/api/shared/color.h>
+#include <basalt/api/shared/handle.h>
+#include <basalt/api/shared/unique_handle.h>
+#include <basalt/api/shared/types.h>
 
-#include "basalt/api/shared/color.h"
-#include "basalt/api/shared/handle.h"
-#include "basalt/api/shared/types.h"
+#include <basalt/api/math/angle.h>
 
-#include "basalt/api/base/enum_set.h"
-#include "basalt/api/base/types.h"
+#include <basalt/api/base/types.h>
 
 #include <gsl/span>
 
@@ -45,9 +44,6 @@ using IndexBuffer = UniqueHandle<IndexBufferHandle, ContextResourceDeleter>;
 BASALT_DEFINE_HANDLE(MeshHandle);
 using Mesh = UniqueHandle<MeshHandle, ContextResourceDeleter>;
 
-BASALT_DEFINE_HANDLE(MaterialHandle);
-using Material = UniqueHandle<MaterialHandle, ContextResourceDeleter>;
-
 enum class BackendApi : u8 {
   Default,
   Direct3D9,
@@ -61,32 +57,6 @@ struct MeshCreateInfo final {
   gsl::span<std::byte const> indexData;
   u32 indexCount{};
   IndexType indexType{IndexType::U16};
-};
-
-struct SampledTexture final {
-  TextureHandle texture;
-  SamplerHandle sampler;
-};
-
-struct MaterialCreateInfo {
-  PipelineHandle pipeline;
-  PipelineCreateInfo pipelineInfo;
-  Matrix4x4f32 texTransform; // TODO: this is temporary
-  Color diffuse;
-  Color ambient;
-  Color emissive;
-  Color specular;
-  f32 specularPower{};
-  SampledTexture sampledTexture;
-  Color fogColor;
-  f32 fogStart{};
-  f32 fogEnd{};
-  f32 fogDensity{};
-};
-
-struct Model {
-  MeshHandle mesh;
-  MaterialHandle material;
 };
 
 using DirectionalLight = DirectionalLightData;
@@ -125,33 +95,20 @@ struct MeshData final {
   u32 indexCount{};
 };
 
-enum class MaterialFeature : u8 {
-  TexCoordTransform,
-  Lighting,
-  UniformColors,
-  Fog,
-  Texturing,
-  DepthBuffer,
-};
-using MaterialFeatures = EnumSet<MaterialFeature, MaterialFeature::DepthBuffer>;
+class Material;
+struct MaterialCreateInfo;
+BASALT_DEFINE_HANDLE(MaterialHandle);
+using UniqueMaterial = UniqueHandle<MaterialHandle, ContextResourceDeleter>;
 
-struct MaterialData {
-  MaterialFeatures features;
+class MaterialClass;
+struct MaterialClassCreateInfo;
+BASALT_DEFINE_HANDLE(MaterialClassHandle);
+using UniqueMaterialClass =
+  UniqueHandle<MaterialClassHandle, ContextResourceDeleter>;
 
-  Matrix4x4f32 texTransform; // TODO: temp
-  Color diffuse;
-  Color ambient;
-  Color emissive;
-  Color specular;
-  f32 specularPower{};
-  Color fogColor;
-  f32 fogStart{};
-  f32 fogEnd{};
-  f32 fogDensity{};
-
-  PipelineHandle pipeline;
-  TextureHandle texture{};
-  SamplerHandle sampler{};
+struct Model {
+  MeshHandle mesh;
+  MaterialHandle material;
 };
 
 namespace ext {

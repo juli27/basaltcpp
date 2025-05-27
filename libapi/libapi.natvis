@@ -12,7 +12,7 @@
     <Expand>
       <CustomListItems>
         <Variable Name="i" InitialValue="0"/>
-        <Size>NUM_BITS</Size>
+        <Size>sNumBits</Size>
 
         <Loop>
           <Item Name="[{($T1)i,en}]">(bool)mBits[i]</Item>

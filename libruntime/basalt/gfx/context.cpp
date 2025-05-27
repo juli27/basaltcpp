@@ -10,13 +10,16 @@
 #include "backend/validating_swap_chain.h"
 #endif
 
+#include <basalt/api/gfx/material.h>
+#include <basalt/api/gfx/material_class.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/resources.h>
+
+#include <basalt/api/math/matrix4x4.h>
 
 #include <basalt/api/base/asserts.h>
 
 #include <algorithm>
-#include <array>
 #include <cstddef>
 #include <filesystem>
 #include <memory>
@@ -27,7 +30,6 @@ namespace basalt::gfx {
 
 using gsl::span;
 
-using std::array;
 using std::byte;
 using std::nullopt;
 using std::optional;
@@ -66,6 +68,80 @@ auto Context::create_resource_cache() -> ResourceCachePtr {
   return ResourceCache::create(shared_from_this());
 }
 
+auto Context::create_material(MaterialCreateInfo const& info)
+  -> UniqueMaterial {
+  auto const& clazz = get(info.clazz);
+  auto properties = std::vector<MaterialProperty>{};
+  properties.reserve(clazz.properties().size());
+
+  // preserve indices of properties
+  for (auto const& propertyInfo : clazz.properties()) {
+    auto const it =
+      std::find_if(info.initialValues.begin(), info.initialValues.end(),
+                   [&](MaterialProperty const& initialValue) {
+                     return initialValue.id == propertyInfo.id;
+                   });
+    if (it != info.initialValues.end()) {
+      properties.push_back(*it);
+      continue;
+    }
+
+    auto const defaultValue = [&]() -> MaterialPropertyValue {
+      switch (propertyInfo.type) {
+      case MaterialPropertyType::UniformColors:
+        return UniformColors{};
+      case MaterialPropertyType::FogParameters:
+        return FogParameters{};
+      case MaterialPropertyType::SampledTexture:
+        return SampledTexture{};
+      case MaterialPropertyType::Matrix4x4F32:
+        return Matrix4x4f32::identity();
+      default:
+        BASALT_CRASH("invalid MaterialPropertyType");
+      }
+    }();
+
+    properties.push_back(MaterialProperty{propertyInfo.id, defaultValue});
+  }
+
+  auto const handle = mMaterials.allocate(
+    info.clazz, clazz.pipeline(), clazz.features(), std::move(properties));
+
+  return UniqueMaterial{handle, make_deleter()};
+}
+
+auto Context::destroy(MaterialHandle const handle) noexcept -> void {
+  mMaterials.deallocate(handle);
+}
+
+auto Context::get(MaterialHandle const handle) const -> Material const& {
+  return mMaterials[handle];
+}
+
+auto Context::get(MaterialHandle const handle) -> Material& {
+  return mMaterials[handle];
+}
+
+auto Context::create_material_class(MaterialClassCreateInfo const& info)
+  -> UniqueMaterialClass {
+  auto const features = collect_material_features(info);
+  auto properties = collect_material_properties(info);
+  auto pipeline = create_pipeline(info.pipelineInfo);
+  auto const handle = mMaterialClasses.allocate(std::move(pipeline), features,
+                                                std::move(properties));
+
+  return UniqueMaterialClass{handle, make_deleter()};
+}
+
+auto Context::destroy(MaterialClassHandle const handle) noexcept -> void {
+  mMaterialClasses.deallocate(handle);
+}
+
+auto Context::get(MaterialClassHandle const handle) const
+  -> MaterialClass const& {
+  return mMaterialClasses[handle];
+}
+
 auto Context::create_pipeline(PipelineCreateInfo const& createInfo)
   -> Pipeline {
   return Pipeline{mDevice->create_pipeline(createInfo), make_deleter()};
@@ -100,95 +176,6 @@ auto Context::load_texture_3d(path const& filePath) -> Texture {
 
 auto Context::destroy(TextureHandle const handle) const noexcept -> void {
   mDevice->destroy(handle);
-}
-
-auto Context::create_material(MaterialCreateInfo const& createInfo)
-  -> Material {
-  auto const& pipelineInfo = createInfo.pipelineInfo;
-  auto features = MaterialFeatures{};
-  if (pipelineInfo.depthTest != TestPassCond::Always ||
-      pipelineInfo.depthWriteEnable) {
-    features.set(MaterialFeature::DepthBuffer);
-  }
-
-  if (pipelineInfo.vertexShader) {
-    auto const& vertexShader = *pipelineInfo.vertexShader;
-
-    auto needsTexTransform = false;
-    for (auto const& texCoordSet : vertexShader.textureCoordinateSets) {
-      needsTexTransform =
-        needsTexTransform ||
-        texCoordSet.transformMode != TextureCoordinateTransformMode::Disabled;
-    }
-
-    if (needsTexTransform) {
-      features.set(MaterialFeature::TexCoordTransform);
-    }
-
-    if (vertexShader.lightingEnabled) {
-      features.set(MaterialFeature::Lighting);
-
-      if (vertexShader.diffuseSource == MaterialColorSource::Material ||
-          vertexShader.emissiveSource == MaterialColorSource::Material ||
-          vertexShader.ambientSource == MaterialColorSource::Material ||
-          (vertexShader.specularEnabled &&
-           vertexShader.specularSource == MaterialColorSource::Material)) {
-        features.set(MaterialFeature::UniformColors);
-      }
-    }
-
-    if (vertexShader.fog != FogMode::None) {
-      features.set(MaterialFeature::Fog);
-    }
-  }
-
-  if (pipelineInfo.fragmentShader) {
-    if (pipelineInfo.fragmentShader->fog != FogMode::None) {
-      features.set(MaterialFeature::Fog);
-    }
-
-    auto const stages = pipelineInfo.fragmentShader->textureStages;
-    auto needsTexture = false;
-    for (auto const& stage : stages) {
-      needsTexture = needsTexture ||
-                     stage.colorArg1.src == TextureStageSrc::SampledTexture ||
-                     stage.colorArg2.src == TextureStageSrc::SampledTexture ||
-                     stage.colorArg3.src == TextureStageSrc::SampledTexture ||
-                     stage.alphaArg1.src == TextureStageSrc::SampledTexture ||
-                     stage.alphaArg2.src == TextureStageSrc::SampledTexture ||
-                     stage.alphaArg3.src == TextureStageSrc::SampledTexture;
-    }
-
-    if (needsTexture) {
-      features.set(MaterialFeature::Texturing);
-    }
-  }
-
-  return Material{mMaterials.allocate(MaterialData{
-                    features,
-                    createInfo.texTransform,
-                    createInfo.diffuse,
-                    createInfo.ambient,
-                    createInfo.emissive,
-                    createInfo.specular,
-                    createInfo.specularPower,
-                    createInfo.fogColor,
-                    createInfo.fogStart,
-                    createInfo.fogEnd,
-                    createInfo.fogDensity,
-                    createInfo.pipeline,
-                    createInfo.sampledTexture.texture,
-                    createInfo.sampledTexture.sampler,
-                  }),
-                  make_deleter()};
-}
-
-auto Context::destroy(MaterialHandle const handle) noexcept -> void {
-  mMaterials.deallocate(handle);
-}
-
-auto Context::get(MaterialHandle const handle) const -> MaterialData const& {
-  return mMaterials[handle];
 }
 
 auto Context::compile_effect(path const& filePath) const -> ext::CompileResult {

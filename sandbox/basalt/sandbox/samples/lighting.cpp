@@ -1,6 +1,6 @@
 #include "samples.h"
 
-#include "basalt/sandbox/shared/debug_scene_view.h"
+#include <basalt/sandbox/shared/debug_scene_view.h>
 
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
@@ -9,6 +9,8 @@
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/environment.h>
+#include <basalt/api/gfx/material.h>
+#include <basalt/api/gfx/material_class.h>
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/api/scene/scene.h>
@@ -28,17 +30,7 @@
 using namespace std::literals;
 using std::array;
 
-using namespace basalt::literals;
-using basalt::Angle;
-using basalt::Engine;
-using basalt::Entity;
-using basalt::Parent;
-using basalt::Scene;
-using basalt::SecondsF32;
-using basalt::Transform;
-using basalt::Vector3f32;
-using basalt::View;
-using basalt::ViewPtr;
+using namespace basalt;
 using basalt::gfx::Camera;
 using basalt::gfx::CullMode;
 using basalt::gfx::Environment;
@@ -75,30 +67,34 @@ public:
     gfxEnv.set_background(BACKGROUND);
     gfxEnv.set_ambient_light(Color::from_non_linear(0.25f, 0, 0));
 
-    auto materialDesc = MaterialCreateInfo{};
+    auto materialClassInfo = gfx::MaterialClassCreateInfo{};
+    auto& pipelineDesc = materialClassInfo.pipelineInfo;
+
     auto vs = FixedVertexShaderCreateInfo{};
     vs.lightingEnabled = true;
     vs.specularEnabled = true;
     vs.fog = FogMode::Exponential;
+    pipelineDesc.vertexShader = &vs;
 
     auto fs = FixedFragmentShaderCreateInfo{};
     constexpr auto textureStages = array{TextureStage{}};
     fs.textureStages = textureStages;
-
-    auto& pipelineDesc = materialDesc.pipelineInfo;
-    pipelineDesc.vertexShader = &vs;
     pipelineDesc.fragmentShader = &fs;
+
     pipelineDesc.cullMode = CullMode::CounterClockwise;
     pipelineDesc.depthTest = TestPassCond::IfLessEqual;
     pipelineDesc.depthWriteEnable = true;
     pipelineDesc.dithering = true;
-    materialDesc.pipeline = mGfxCache->create_pipeline(pipelineDesc);
 
-    materialDesc.sampledTexture.sampler = mGfxCache->create_sampler(
+    auto materialDesc = MaterialCreateInfo{};
+    materialDesc.clazz = mGfxCache->create_material_class(materialClassInfo);
+    auto fogParams = gfx::FogParameters{BACKGROUND, 0, 0, 0.01f};
+
+    auto sampledTexture = gfx::SampledTexture{};
+
+    sampledTexture.sampler = mGfxCache->create_sampler(
       {TextureFilter::Bilinear, TextureFilter::Bilinear,
        TextureMipFilter::Linear});
-    materialDesc.fogColor = BACKGROUND;
-    materialDesc.fogDensity = 0.01f;
 
     auto const sphereMesh = [&] {
       auto const data =
@@ -111,12 +107,14 @@ public:
     mSpheres = [&] {
       auto entities = array<Entity, 10>{};
 
-      materialDesc.sampledTexture.texture =
+      sampledTexture.texture =
         mGfxCache->load_texture_2d(SPHERE_TEXTURE_FILE_PATH);
-      materialDesc.diffuse = Color::from_non_linear(0.75f, 0.75f, 0.75f);
-      materialDesc.ambient = Color::from_non_linear(0.25f, 0.25f, 0.25f);
-      materialDesc.emissive = Colors::BLACK;
-      materialDesc.specular = Color::from_non_linear(0.25f, 0.25f, 0.25f);
+
+      auto uniformColors = gfx::UniformColors{};
+      uniformColors.diffuse = Color::from_non_linear(0.75f, 0.75f, 0.75f);
+      uniformColors.ambient = Color::from_non_linear(0.25f, 0.25f, 0.25f);
+      uniformColors.emissive = Colors::BLACK;
+      uniformColors.specular = Color::from_non_linear(0.25f, 0.25f, 0.25f);
 
       for (auto i = uSize{0}; i < 10; i++) {
         entities[i] = [&] {
@@ -133,7 +131,17 @@ public:
           entity.emplace<Parent>(mCenter.entity());
 
           auto const sphereMaterial = [&] {
-            materialDesc.specularPower = 5 * perSphereFactor;
+            uniformColors.specularPower = 5 * perSphereFactor;
+
+            auto const properties = std::array{
+              gfx::MaterialProperty{gfx::MaterialPropertyId::FogParameters,
+                                    fogParams},
+              gfx::MaterialProperty{gfx::MaterialPropertyId::SampledTexture,
+                                    sampledTexture},
+              gfx::MaterialProperty{gfx::MaterialPropertyId::UniformColors,
+                                    uniformColors},
+            };
+            materialDesc.initialValues = properties;
 
             return mGfxCache->create_material(materialDesc);
           }();
@@ -148,13 +156,24 @@ public:
     mGround = [&] {
       auto entity = scene->create_entity("Ground"s, Vector3f32{0, -50, 0});
       auto const groundMaterial = [&] {
-        materialDesc.diffuse = Color::from_non_linear(0.75f, 0.75f, 0.75f);
-        materialDesc.ambient = Color::from_non_linear(0.25f, 0.25f, 0.25f);
-        materialDesc.emissive = Colors::BLACK;
-        materialDesc.specular = Colors::WHITE;
-        materialDesc.specularPower = 1.0f;
-        materialDesc.sampledTexture.texture =
+        auto uniformColors = gfx::UniformColors{};
+        uniformColors.diffuse = Color::from_non_linear(0.75f, 0.75f, 0.75f);
+        uniformColors.ambient = Color::from_non_linear(0.25f, 0.25f, 0.25f);
+        uniformColors.emissive = Colors::BLACK;
+        uniformColors.specular = Colors::WHITE;
+        uniformColors.specularPower = 1.0f;
+        sampledTexture.texture =
           mGfxCache->load_texture_2d(GROUND_TEXTURE_FILE_PATH);
+
+        auto const properties = std::array{
+          gfx::MaterialProperty{gfx::MaterialPropertyId::FogParameters,
+                                fogParams},
+          gfx::MaterialProperty{gfx::MaterialPropertyId::SampledTexture,
+                                sampledTexture},
+          gfx::MaterialProperty{gfx::MaterialPropertyId::UniformColors,
+                                uniformColors},
+        };
+        materialDesc.initialValues = properties;
 
         return mGfxCache->create_material(materialDesc);
       }();
@@ -171,26 +190,32 @@ public:
     mLight = [&] {
       auto entity = scene->create_entity("Light"s);
       auto const lightMaterial = [&] {
+        pipelineDesc = PipelineCreateInfo{};
+
         auto vs = FixedVertexShaderCreateInfo{};
         vs.lightingEnabled = true;
         vs.specularEnabled = true;
         vs.fog = FogMode::Exponential;
 
-        auto& pipelineDesc = materialDesc.pipelineInfo;
-        pipelineDesc = PipelineCreateInfo{};
         pipelineDesc.vertexShader = &vs;
+
         pipelineDesc.cullMode = CullMode::CounterClockwise;
         pipelineDesc.depthTest = TestPassCond::IfLessEqual;
         pipelineDesc.depthWriteEnable = true;
         pipelineDesc.dithering = true;
-        materialDesc.pipeline = mGfxCache->create_pipeline(pipelineDesc);
 
-        materialDesc.sampledTexture = {};
-        materialDesc.diffuse = Color::from_non_linear(0.75f, 0.75f, 0.75f);
-        materialDesc.ambient = Color::from_non_linear(0.25f, 0.25f, 0.25f);
-        materialDesc.emissive = Colors::WHITE;
-        materialDesc.specular = Colors::WHITE;
-        materialDesc.specularPower = 1.0f;
+        materialDesc.clazz =
+          mGfxCache->create_material_class(materialClassInfo);
+        auto const properties = std::array{
+          gfx::MaterialProperty{gfx::MaterialPropertyId::FogParameters,
+                                fogParams},
+          gfx::MaterialProperty{
+            gfx::MaterialPropertyId::UniformColors,
+            gfx::UniformColors{Color::from_non_linear(0.75f, 0.75f, 0.75f),
+                               Color::from_non_linear(0.25f, 0.25f, 0.25f),
+                               Colors::WHITE, Colors::WHITE, 1.0f}},
+        };
+        materialDesc.initialValues = properties;
 
         return mGfxCache->create_material(materialDesc);
       }();
