@@ -2,8 +2,8 @@
 
 #include "types.h"
 
-#include "basalt/api/base/asserts.h"
-#include "basalt/api/base/types.h"
+#include <basalt/api/base/asserts.h>
+#include <basalt/api/base/types.h>
 
 #include <gsl/span>
 
@@ -12,6 +12,16 @@
 #include <utility>
 
 namespace basalt::gfx {
+
+template <VertexElement... Attr, uSize Num = sizeof...(Attr)>
+constexpr auto make_vertex_layout() -> VertexLayoutArray<Num>;
+
+// TODO: add runtime parsing
+// template <typename InputIt>
+// auto parse_vertex_layout(InputIt begin, InputIt end) -> VertexLayoutVector;
+
+//template <typename Container>
+//auto parse_vertex_layout(Container&&) -> VertexLayout<Container>;
 
 enum class VertexElement : u8 {
   Position3F32,
@@ -51,16 +61,6 @@ constexpr auto get_vertex_attribute_size_in_bytes(VertexElement const attribute)
   BASALT_CRASH("illegal vertex element");
 }
 
-template <VertexElement... Attr, uSize Num = sizeof...(Attr)>
-constexpr auto make_vertex_layout() -> VertexLayoutArray<Num>;
-
-template <typename Container>
-constexpr auto parse_vertex_layout(Container attributes)
-  -> std::optional<VertexLayout<Container>>;
-
-template <typename InputIt>
-constexpr auto is_valid_layout(InputIt first, InputIt last) -> bool;
-
 auto get_vertex_size_in_bytes(VertexLayoutSpan const&) -> uDeviceSize;
 
 template <typename Container>
@@ -75,7 +75,14 @@ public:
     -> std::optional<VertexLayout> {
     auto container = Container{attributes...};
 
-    return parse_vertex_layout(std::move(container));
+    using std::begin;
+    using std::end;
+
+    if (!is_valid(begin(container), end(container))) {
+      return std::nullopt;
+    }
+
+    return VertexLayout{std::move(container)};
   }
 
   explicit constexpr VertexLayout(VertexLayoutSpan const& layout)
@@ -93,12 +100,101 @@ private:
     : mAttributes(std::move(attributes)) {
   }
 
-  template <typename C>
-  friend constexpr auto parse_vertex_layout(C attributes)
-    -> std::optional<VertexLayout<C>>;
+  template <typename InputIt>
+  static constexpr auto is_valid(InputIt first, InputIt last) -> bool {
+    auto it = first;
 
-  template <VertexElement... Attr, uSize Num>
-  friend constexpr auto make_vertex_layout() -> VertexLayoutArray<Num>;
+    auto const specular = [&] {
+      auto numTexCoords = 0;
+      while (it != last) {
+        if (numTexCoords >= 8) {
+          return false;
+        }
+
+        switch (*it) {
+        case VertexElement::TextureCoords1F32:
+        case VertexElement::TextureCoords2F32:
+        case VertexElement::TextureCoords3F32:
+        case VertexElement::TextureCoords4F32:
+          numTexCoords++;
+          it++;
+          continue;
+
+        default:
+          return false;
+        }
+      }
+
+      return true;
+    };
+    auto const diffuse = [&] {
+      if (it == last) {
+        return true;
+      }
+
+      if (auto const element = *it;
+          element == VertexElement::ColorSpecular1U32A8R8G8B8) {
+        it++;
+      }
+
+      return specular();
+    };
+    auto const pointSize = [&] {
+      if (it == last) {
+        return true;
+      }
+
+      if (auto const element = *it;
+          element == VertexElement::ColorDiffuse1U32A8R8G8B8) {
+        it++;
+      }
+
+      return diffuse();
+    };
+    auto const normal = [&] {
+      if (it == last) {
+        return true;
+      }
+
+      if (auto const element = *it; element == VertexElement::PointSize1F32) {
+        it++;
+      }
+
+      return pointSize();
+    };
+    auto const position = [&] {
+      if (it == last) {
+        return true;
+      }
+
+      if (auto const element = *it; element == VertexElement::Normal3F32) {
+        it++;
+      }
+
+      return normal();
+    };
+    auto const layout = [&] {
+      if (it == last) {
+        return false;
+      }
+
+      switch (*it) {
+      case VertexElement::Position3F32:
+        it++;
+        return position();
+      case VertexElement::PositionTransformed4F32:
+        it++;
+        return normal();
+
+      default:
+        break;
+      }
+
+      return false;
+    };
+
+    return layout();
+  }
 };
 
 } // namespace basalt::gfx
@@ -106,114 +202,4 @@ private:
 template <basalt::gfx::VertexElement... Attr, basalt::uSize Num>
 constexpr auto basalt::gfx::make_vertex_layout() -> VertexLayoutArray<Num> {
   return VertexLayoutArray<Num>::parse(Attr...).value();
-}
-
-template <typename Container>
-constexpr auto basalt::gfx::parse_vertex_layout(Container attributes)
-  -> std::optional<VertexLayout<Container>> {
-  using std::begin;
-  using std::end;
-
-  if (!is_valid_layout(begin(attributes), end(attributes))) {
-    return std::nullopt;
-  }
-
-  return VertexLayout<Container>{std::move(attributes)};
-}
-
-template <typename InputIt>
-constexpr auto basalt::gfx::is_valid_layout(InputIt const first,
-                                            InputIt const last) -> bool {
-  auto it = first;
-
-  auto const specular = [&] {
-    auto numTexCoords = 0;
-    while (it != last) {
-      if (numTexCoords >= 8) {
-        return false;
-      }
-
-      switch (*it) {
-      case VertexElement::TextureCoords1F32:
-      case VertexElement::TextureCoords2F32:
-      case VertexElement::TextureCoords3F32:
-      case VertexElement::TextureCoords4F32:
-        numTexCoords++;
-        it++;
-        continue;
-
-      default:
-        return false;
-      }
-    }
-
-    return true;
-  };
-  auto const diffuse = [&] {
-    if (it == last) {
-      return true;
-    }
-
-    if (auto const element = *it;
-        element == VertexElement::ColorSpecular1U32A8R8G8B8) {
-      it++;
-    }
-
-    return specular();
-  };
-  auto const pointSize = [&] {
-    if (it == last) {
-      return true;
-    }
-
-    if (auto const element = *it;
-        element == VertexElement::ColorDiffuse1U32A8R8G8B8) {
-      it++;
-    }
-
-    return diffuse();
-  };
-  auto const normal = [&] {
-    if (it == last) {
-      return true;
-    }
-
-    if (auto const element = *it; element == VertexElement::PointSize1F32) {
-      it++;
-    }
-
-    return pointSize();
-  };
-  auto const position = [&] {
-    if (it == last) {
-      return true;
-    }
-
-    if (auto const element = *it; element == VertexElement::Normal3F32) {
-      it++;
-    }
-
-    return normal();
-  };
-  auto const layout = [&] {
-    if (it == last) {
-      return false;
-    }
-
-    switch (*it) {
-    case VertexElement::Position3F32:
-      it++;
-      return position();
-    case VertexElement::PositionTransformed4F32:
-      it++;
-      return normal();
-
-    default:
-      break;
-    }
-
-    return false;
-  };
-
-  return layout();
 }
