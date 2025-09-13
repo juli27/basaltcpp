@@ -140,7 +140,7 @@ public:
     auto* data = mSlots[index];
 
     AllocatorTraits::destroy(mAllocator, data);
-    AllocatorTraits::deallocate(mAllocator, slot, 1);
+    AllocatorTraits::deallocate(mAllocator, data, 1);
 
     // don't add to freelist if last element is de-allocated
     if (index == mSlots.size() - 1) {
