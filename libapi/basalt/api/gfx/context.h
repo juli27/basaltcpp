@@ -29,7 +29,7 @@ public:
 
   Context(Context&&) = delete;
 
-  ~Context() noexcept = default;
+  ~Context() noexcept;
 
   auto operator=(Context const&) -> Context& = delete;
 

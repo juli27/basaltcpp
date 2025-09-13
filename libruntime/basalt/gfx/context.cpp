@@ -60,6 +60,8 @@ Context::Context(DevicePtr device, ext::DeviceExtensions deviceExtensions,
 #endif
 }
 
+Context::~Context() noexcept = default;
+
 auto Context::gfx_info() const noexcept -> Info const& {
   return mInfo;
 }
