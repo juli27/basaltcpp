@@ -104,14 +104,14 @@ auto Context::create_material(MaterialCreateInfo const& info)
     properties.push_back(MaterialProperty{propertyInfo.id, defaultValue});
   }
 
-  auto const handle = mMaterials.allocate(
+  auto const handle = mMaterials.emplace(
     info.clazz, clazz.pipeline(), clazz.features(), std::move(properties));
 
   return UniqueMaterial{handle, make_deleter()};
 }
 
 auto Context::destroy(MaterialHandle const handle) noexcept -> void {
-  mMaterials.deallocate(handle);
+  mMaterials.destroy(handle);
 }
 
 auto Context::get(MaterialHandle const handle) const -> Material const& {
@@ -127,14 +127,14 @@ auto Context::create_material_class(MaterialClassCreateInfo const& info)
   auto const features = collect_material_features(info);
   auto properties = collect_material_properties(info);
   auto pipeline = create_pipeline(info.pipelineInfo);
-  auto const handle = mMaterialClasses.allocate(std::move(pipeline), features,
-                                                std::move(properties));
+  auto const handle = mMaterialClasses.emplace(std::move(pipeline), features,
+                                               std::move(properties));
 
   return UniqueMaterialClass{handle, make_deleter()};
 }
 
 auto Context::destroy(MaterialClassHandle const handle) noexcept -> void {
-  mMaterialClasses.deallocate(handle);
+  mMaterialClasses.destroy(handle);
 }
 
 auto Context::get(MaterialClassHandle const handle) const
@@ -258,8 +258,8 @@ auto Context::create_mesh(MeshCreateInfo const& createInfo) -> Mesh {
                         .release()
                     : nullhdl;
 
-  return Mesh{mMeshes.allocate(MeshData{vb, 0u, createInfo.vertexCount, ib,
-                                        createInfo.indexCount}),
+  return Mesh{mMeshes.emplace(MeshData{vb, 0u, createInfo.vertexCount, ib,
+                                       createInfo.indexCount}),
               make_deleter()};
 }
 
@@ -274,7 +274,7 @@ auto Context::destroy(MeshHandle const meshHandle) noexcept -> void {
     destroy(data.indexBuffer);
   }
 
-  mMeshes.deallocate(meshHandle);
+  mMeshes.destroy(meshHandle);
 }
 
 auto Context::get(MeshHandle const meshHandle) const -> MeshData const& {

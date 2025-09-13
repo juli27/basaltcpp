@@ -55,7 +55,7 @@ auto D3D9XModelSupport::load(path const& filepath) -> XModelData {
   materials.reserve(d3dxMaterials.size());
   auto attributeId = DWORD{0};
   for (auto const& [d3dMaterial, texFileName] : d3dxMaterials) {
-    auto const meshHandle = mMeshes.allocate(XMeshData{mesh, attributeId++});
+    auto const meshHandle = mMeshes.emplace(XMeshData{mesh, attributeId++});
     meshes.push_back(meshHandle);
 
     auto const textureFileName = texFileName ? string_view{texFileName} : ""sv;
@@ -80,7 +80,7 @@ auto D3D9XModelSupport::load(path const& filepath) -> XModelData {
 }
 
 auto D3D9XModelSupport::destroy(XMeshHandle const handle) noexcept -> void {
-  mMeshes.deallocate(handle);
+  mMeshes.destroy(handle);
 }
 
 D3D9XModelSupport::D3D9XModelSupport(IDirect3DDevice9Ptr device)

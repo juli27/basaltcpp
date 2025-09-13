@@ -35,7 +35,11 @@ public:
   HandlePool(HandlePool const&) = delete;
   HandlePool(HandlePool&&) noexcept = default;
 
-  ~HandlePool() noexcept = default;
+  ~HandlePool() noexcept {
+    for (auto const& handle : mActiveSlots) {
+      AllocatorTraits::destroy(mAllocator, mSlots[handle.value()]);
+    }
+  }
 
   auto operator=(HandlePool const&) -> HandlePool& = delete;
   auto operator=(HandlePool&&) noexcept -> HandlePool& = default;
@@ -47,8 +51,7 @@ public:
 
   // handle must be valid
   [[nodiscard]]
-  auto
-  operator[](Handle const handle) const noexcept -> T const& {
+  auto operator[](Handle const handle) const noexcept -> T const& {
     BASALT_ASSERT(is_valid(handle));
 
     return *mSlots[handle.value()];
@@ -56,8 +59,7 @@ public:
 
   // handle must be valid
   [[nodiscard]]
-  auto
-  operator[](Handle const handle) noexcept -> T& {
+  auto operator[](Handle const handle) noexcept -> T& {
     BASALT_ASSERT(is_valid(handle));
 
     return *mSlots[handle.value()];
@@ -66,12 +68,6 @@ public:
   template <typename... Args>
   [[nodiscard]]
   auto emplace(Args&&... args) -> Handle {
-    return allocate(std::forward<Args>(args)...);
-  }
-
-  template <typename... Args>
-  [[nodiscard]]
-  auto allocate(Args&&... args) -> Handle {
     auto* data = AllocatorTraits::allocate(mAllocator, 1);
     AllocatorTraits::construct(mAllocator, data, std::forward<Args>(args)...);
 
@@ -101,9 +97,9 @@ public:
 
   template <typename... Args>
   [[nodiscard]]
-  auto allocate(Handle const hint, Args&&... args) -> Handle {
+  auto emplace_at(Handle const hint, Args&&... args) -> Handle {
     if (is_valid(hint)) {
-      return allocate(std::forward<Args>(args)...);
+      return emplace(std::forward<Args>(args)...);
     }
 
     auto const index = hint.value();
@@ -131,8 +127,7 @@ public:
     return hint;
   }
 
-  // ignores invalid handles
-  auto deallocate(Handle const handle) noexcept -> void {
+  auto destroy(Handle const handle) noexcept -> void {
     if (!is_valid(handle)) {
       return;
     }
@@ -145,7 +140,7 @@ public:
     auto* data = mSlots[index];
 
     AllocatorTraits::destroy(mAllocator, data);
-    AllocatorTraits::deallocate(mAllocator, data, 1);
+    AllocatorTraits::deallocate(mAllocator, slot, 1);
 
     // don't add to freelist if last element is de-allocated
     if (index == mSlots.size() - 1) {

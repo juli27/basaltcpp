@@ -113,7 +113,7 @@ auto D3D9Device::execute(CommandList const& cmdList) -> void {
 
 auto D3D9Device::add_texture(IDirect3DBaseTexture9Ptr texture)
   -> TextureHandle {
-  return mTextures.allocate(std::move(texture));
+  return mTextures.emplace(std::move(texture));
 }
 
 auto D3D9Device::get_d3d9(TextureHandle const id) const
@@ -143,11 +143,11 @@ auto D3D9Device::reset() -> void {
 
 auto D3D9Device::create_pipeline(PipelineCreateInfo const& desc)
   -> PipelineHandle {
-  return mPipelines.allocate(D3D9Pipeline::from(desc));
+  return mPipelines.emplace(D3D9Pipeline::from(desc));
 }
 
 auto D3D9Device::destroy(PipelineHandle const handle) noexcept -> void {
-  mPipelines.deallocate(handle);
+  mPipelines.destroy(handle);
 }
 
 // throws std::bad_alloc when requested size is too large and when d3d9
@@ -169,11 +169,11 @@ auto D3D9Device::create_vertex_buffer(VertexBufferCreateInfo const& desc)
     throw bad_alloc{};
   }
 
-  return mVertexBuffers.allocate(std::move(vertexBuffer));
+  return mVertexBuffers.emplace(std::move(vertexBuffer));
 }
 
 auto D3D9Device::destroy(VertexBufferHandle const handle) noexcept -> void {
-  mVertexBuffers.deallocate(handle);
+  mVertexBuffers.destroy(handle);
 }
 
 auto D3D9Device::map(VertexBufferHandle const handle,
@@ -234,11 +234,11 @@ auto D3D9Device::create_index_buffer(IndexBufferCreateInfo const& desc)
     throw bad_alloc{};
   }
 
-  return mIndexBuffers.allocate(std::move(indexBuffer));
+  return mIndexBuffers.emplace(std::move(indexBuffer));
 }
 
 auto D3D9Device::destroy(IndexBufferHandle const handle) noexcept -> void {
-  mIndexBuffers.deallocate(handle);
+  mIndexBuffers.destroy(handle);
 }
 
 auto D3D9Device::map(IndexBufferHandle const handle,
@@ -292,7 +292,7 @@ auto D3D9Device::load_texture(path const& filePath) -> TextureHandle {
     throw std::runtime_error{"loading texture file failed"};
   }
 
-  return mTextures.allocate(std::move(texture));
+  return mTextures.emplace(std::move(texture));
 }
 
 auto D3D9Device::load_cube_texture(path const& path) -> TextureHandle {
@@ -306,16 +306,16 @@ auto D3D9Device::load_cube_texture(path const& path) -> TextureHandle {
     throw std::runtime_error{"loading texture file failed"};
   }
 
-  return mTextures.allocate(std::move(texture));
+  return mTextures.emplace(std::move(texture));
 }
 
 auto D3D9Device::destroy(TextureHandle const handle) noexcept -> void {
-  mTextures.deallocate(handle);
+  mTextures.destroy(handle);
 }
 
 auto D3D9Device::create_sampler(SamplerCreateInfo const& desc)
   -> SamplerHandle {
-  return mSamplers.allocate(SamplerData{
+  return mSamplers.emplace(SamplerData{
     to_d3d(desc.magFilter),
     to_d3d(desc.minFilter),
     to_d3d(desc.mipFilter),
@@ -328,7 +328,7 @@ auto D3D9Device::create_sampler(SamplerCreateInfo const& desc)
 }
 
 auto D3D9Device::destroy(SamplerHandle const handle) noexcept -> void {
-  mSamplers.deallocate(handle);
+  mSamplers.destroy(handle);
 }
 
 auto D3D9Device::submit(span<CommandList const> const commandLists) -> void {

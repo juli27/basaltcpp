@@ -75,11 +75,11 @@ auto D3D9XEffects::compile(path const& filePath) -> CompileResult {
     throw std::runtime_error{"failed to load effect file"};
   }
 
-  return mEffects.allocate(std::move(effect), mDevice);
+  return mEffects.emplace(std::move(effect), mDevice);
 }
 
 auto D3D9XEffects::destroy(EffectId const id) noexcept -> void {
-  mEffects.deallocate(id);
+  mEffects.destroy(id);
 }
 
 auto D3D9XEffects::get(EffectId const id) -> Effect& {
@@ -140,7 +140,7 @@ auto D3D9XEffect::get_technique(u32 const index) -> EffectTechniqueHandle {
     return *it;
   }
 
-  return mTechniques.allocate(technique);
+  return mTechniques.emplace(technique);
 }
 
 auto D3D9XEffect::get_technique_name(EffectTechniqueHandle const handle) const

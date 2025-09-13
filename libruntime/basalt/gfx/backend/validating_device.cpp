@@ -103,7 +103,7 @@ auto ValidatingDevice::wrap_extensions(ext::DeviceExtensions& deviceExtensions)
 
 auto ValidatingDevice::construct_texture(TextureHandle const original)
   -> TextureHandle {
-  return mTextures.allocate(original, TextureData{});
+  return mTextures.emplace_at(original, TextureData{});
 }
 
 auto ValidatingDevice::capabilities() const -> DeviceCaps const& {
@@ -128,14 +128,14 @@ auto ValidatingDevice::create_pipeline(PipelineCreateInfo const& desc)
 
   auto const handle = mDevice->create_pipeline(desc);
 
-  return mPipelines.allocate(handle, PipelineData{
-                                       VertexLayoutVector{desc.vertexLayout},
-                                       desc.primitiveType,
-                                     });
+  return mPipelines.emplace_at(handle, PipelineData{
+                                         VertexLayoutVector{desc.vertexLayout},
+                                         desc.primitiveType,
+                                       });
 }
 
 auto ValidatingDevice::destroy(PipelineHandle const id) noexcept -> void {
-  mPipelines.deallocate(id);
+  mPipelines.destroy(id);
   mDevice->destroy(id);
 }
 
@@ -154,14 +154,14 @@ auto ValidatingDevice::create_vertex_buffer(VertexBufferCreateInfo const& desc)
 
   auto const id = mDevice->create_vertex_buffer(desc);
 
-  return mVertexBuffers.allocate(id, VertexBufferData{
-                                       VertexLayoutVector{desc.layout},
-                                       desc.sizeInBytes,
-                                     });
+  return mVertexBuffers.emplace_at(id, VertexBufferData{
+                                         VertexLayoutVector{desc.layout},
+                                         desc.sizeInBytes,
+                                       });
 }
 
 auto ValidatingDevice::destroy(VertexBufferHandle const id) noexcept -> void {
-  mVertexBuffers.deallocate(id);
+  mVertexBuffers.destroy(id);
   mDevice->destroy(id);
 }
 
@@ -197,11 +197,11 @@ auto ValidatingDevice::create_index_buffer(IndexBufferCreateInfo const& desc)
 
   auto const id = mDevice->create_index_buffer(desc);
 
-  return mIndexBuffers.allocate(id, IndexBufferData{desc.sizeInBytes});
+  return mIndexBuffers.emplace_at(id, IndexBufferData{desc.sizeInBytes});
 }
 
 auto ValidatingDevice::destroy(IndexBufferHandle const id) noexcept -> void {
-  mIndexBuffers.deallocate(id);
+  mIndexBuffers.destroy(id);
   mDevice->destroy(id);
 }
 
@@ -231,17 +231,17 @@ auto ValidatingDevice::unmap(IndexBufferHandle const id) noexcept -> void {
 auto ValidatingDevice::load_texture(path const& path) -> TextureHandle {
   auto const id = mDevice->load_texture(path);
 
-  return mTextures.allocate(id, TextureData{});
+  return mTextures.emplace_at(id);
 }
 
 auto ValidatingDevice::load_cube_texture(path const& path) -> TextureHandle {
   auto const id = mDevice->load_cube_texture(path);
 
-  return mTextures.allocate(id, TextureData{});
+  return mTextures.emplace_at(id);
 }
 
 auto ValidatingDevice::destroy(TextureHandle const id) noexcept -> void {
-  mTextures.deallocate(id);
+  mTextures.destroy(id);
   mDevice->destroy(id);
 }
 
@@ -249,11 +249,11 @@ auto ValidatingDevice::create_sampler(SamplerCreateInfo const& desc)
   -> SamplerHandle {
   auto const id = mDevice->create_sampler(desc);
 
-  return mSamplers.allocate(id, SamplerData{});
+  return mSamplers.emplace_at(id);
 }
 
 auto ValidatingDevice::destroy(SamplerHandle const id) noexcept -> void {
-  mSamplers.deallocate(id);
+  mSamplers.destroy(id);
   mDevice->destroy(id);
 }
 

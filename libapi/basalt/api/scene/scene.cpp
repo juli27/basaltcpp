@@ -100,7 +100,7 @@ auto Scene::destroy_system(SystemId const id) -> void {
   auto const typeId = mSystemIdToSystemType[id];
   mSystemTypes.at(typeId).id = nullhdl;
   mSystemIdToSystemType.erase(id);
-  mSystems.deallocate(id);
+  mSystems.destroy(id);
 
   mUpdateOrder.erase(std::remove(mUpdateOrder.begin(), mUpdateOrder.end(), id),
                      mUpdateOrder.end());
@@ -125,7 +125,7 @@ auto Scene::add_system(SystemPtr system, SystemInfo const& info) -> SystemId {
     mSystemTypes[info.typeId].updatedAfter.push_back(info.updateBeforeTypeId);
   }
 
-  auto const id = mSystems.allocate(std::move(system));
+  auto const id = mSystems.emplace(std::move(system));
   mSystemIdToSystemType[id] = info.typeId;
   mSystemTypes[info.typeId].id = id;
 
