@@ -18,8 +18,8 @@ auto to_string(gfx::MultiSampleCount count) -> std::string {
 } // namespace
 
 auto SettingsUi::show_settings_editor(Settings& settings,
-                                      gfx::Info const& gfxInfo,
-                                      bool* open) -> void {
+                                      gfx::Info const& gfxInfo, bool* open)
+  -> void {
   if (!ImGui::Begin("Settings##Sandbox", open)) {
     ImGui::End();
 
@@ -41,8 +41,8 @@ auto SettingsUi::show_settings_editor(Settings& settings,
   ImGui::End();
 }
 
-auto SettingsUi::settings_editor(Settings& settings,
-                                 basalt::gfx::Info const& gfxInfo) -> void {
+auto SettingsUi::settings_editor(Settings& settings, gfx::Info const& gfxInfo)
+  -> void {
   if (ImGui::BeginTable("SettingsTable", 2, ImGuiTableFlags_BordersInnerV)) {
     ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed);
     ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
@@ -102,8 +102,8 @@ auto SettingsUi::settings_editor(Settings& settings,
   }
 }
 
-auto SettingsUi::window_mode_combo(char const* label,
-                                   WindowMode& windowMode) -> void {
+auto SettingsUi::window_mode_combo(char const* label, WindowMode& windowMode)
+  -> void {
   auto current = i32{enum_cast(windowMode)};
   ImGui::Combo(label, &current,
                "Windowed\0Fullscreen\0Fullscreen (exclusive)\0");
@@ -167,9 +167,9 @@ auto operator==(gfx::DisplayMode const& l, gfx::DisplayMode const& r) -> bool {
 
 } // namespace
 
-auto SettingsUi::display_mode_combo(
-  char const* label, basalt::gfx::DisplayMode& current,
-  basalt::gfx::DisplayModes const& modes) -> void {
+auto SettingsUi::display_mode_combo(char const* label,
+                                    gfx::DisplayMode& current,
+                                    gfx::DisplayModes const& modes) -> void {
   auto const previewString =
     fmt::format(FMT_STRING("{} x {}, {} Hz"), current.width, current.height,
                 current.refreshRate);

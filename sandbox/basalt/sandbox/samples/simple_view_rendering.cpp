@@ -17,24 +17,8 @@
 #include <array>
 #include <memory>
 
-using std::array;
-
-using gsl::span;
-
+using namespace basalt;
 using namespace basalt::literals;
-using basalt::Engine;
-using basalt::Vector4f32;
-using basalt::View;
-using basalt::ViewPtr;
-using basalt::gfx::Attachment;
-using basalt::gfx::Attachments;
-using basalt::gfx::CommandList;
-using basalt::gfx::PipelineCreateInfo;
-using basalt::gfx::PipelineHandle;
-using basalt::gfx::PrimitiveType;
-using basalt::gfx::ResourceCachePtr;
-using basalt::gfx::VertexBufferHandle;
-using basalt::gfx::VertexElement;
 
 namespace {
 
@@ -44,29 +28,29 @@ class SimpleViewRendering final : public View {
     ColorEncoding::A8R8G8B8 color;
 
     static constexpr auto sLayout = basalt::gfx::make_vertex_layout<
-      VertexElement::PositionTransformed4F32,
-      VertexElement::ColorDiffuse1U32A8R8G8B8>();
+      gfx::VertexElement::PositionTransformed4F32,
+      gfx::VertexElement::ColorDiffuse1U32A8R8G8B8>();
   };
 
 public:
   explicit SimpleViewRendering(Engine const& engine)
     : mGfxCache{engine.create_gfx_resource_cache()}
     , mVertexBuffer{[&] {
-      constexpr auto vertices = array{
+      constexpr auto vertices = std::array{
         Vertex{{150.0f, 50.0f, 0.5f, 1.0f}, 0xffff0000_a8r8g8b8},
         Vertex{{250.0f, 250.0f, 0.5f, 1.0f}, 0xff00ff00_a8r8g8b8},
         Vertex{{50.0f, 250.0f, 0.5f, 1.0f}, 0xff00ffff_a8r8g8b8},
       };
 
-      auto const vertexData = as_bytes(span{vertices});
+      auto const vertexData = as_bytes(gsl::span{vertices});
 
       return mGfxCache->create_vertex_buffer(
         {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
     }()}
     , mPipeline{[&] {
-      auto desc = PipelineCreateInfo{};
+      auto desc = gfx::PipelineCreateInfo{};
       desc.vertexLayout = Vertex::sLayout;
-      desc.primitiveType = PrimitiveType::TriangleList;
+      desc.primitiveType = gfx::PrimitiveType::TriangleList;
 
       return mGfxCache->create_pipeline(desc);
     }()} {
@@ -76,8 +60,8 @@ protected:
   auto on_update(UpdateContext& ctx) -> void override {
     auto constexpr background = Color::from_non_linear_rgba8(32, 32, 32);
 
-    auto cmdList = CommandList{};
-    cmdList.clear_attachments(Attachments{Attachment::RenderTarget},
+    auto cmdList = gfx::CommandList{};
+    cmdList.clear_attachments(gfx::Attachments{gfx::Attachment::RenderTarget},
                               background);
     cmdList.bind_pipeline(mPipeline);
     cmdList.bind_vertex_buffer(mVertexBuffer);
@@ -87,9 +71,9 @@ protected:
   }
 
 private:
-  ResourceCachePtr mGfxCache;
-  VertexBufferHandle mVertexBuffer;
-  PipelineHandle mPipeline;
+  gfx::ResourceCachePtr mGfxCache;
+  gfx::VertexBufferHandle mVertexBuffer;
+  gfx::PipelineHandle mPipeline;
 };
 
 } // namespace

@@ -12,15 +12,12 @@
 using namespace basalt;
 using namespace std::literals;
 
-using std::nullopt;
-using std::ofstream;
-using std::optional;
-using std::filesystem::path;
+namespace stdfs = std::filesystem;
 
 namespace {
 
-constexpr auto
-to_sample_count(i32 const num) noexcept -> gfx::MultiSampleCount {
+constexpr auto to_sample_count(i32 const num) noexcept
+  -> gfx::MultiSampleCount {
   if (num >= gfx::MULTI_SAMPLE_COUNT_COUNT || num < 0) {
     return gfx::MultiSampleCount::One;
   }
@@ -30,14 +27,15 @@ to_sample_count(i32 const num) noexcept -> gfx::MultiSampleCount {
 
 } // namespace
 
-auto Settings::from_file(path const& filePath) -> optional<Settings> {
+auto Settings::from_file(stdfs::path const& filePath)
+  -> std::optional<Settings> {
   toml::table table;
   try {
     table = toml::parse_file(filePath.native());
   } catch (toml::parse_error const& e) {
     BASALT_LOG_WARN("Failed to parse settings file: {}", e.what());
 
-    return nullopt;
+    return std::nullopt;
   }
 
   auto settings = Settings{};
@@ -73,6 +71,6 @@ auto Settings::to_file() const -> void {
   table.insert_or_assign("DisplayMode"s, displayModeTable);
 
   auto const flags = std::ios::out | std::ios::binary | std::ios::trunc;
-  auto file = ofstream{filePath, flags};
+  auto file = std::ofstream{filePath, flags};
   file << table << std::endl;
 }

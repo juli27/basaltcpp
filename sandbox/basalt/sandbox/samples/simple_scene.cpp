@@ -34,28 +34,7 @@
 #include <utility>
 
 using namespace std::literals;
-using std::array;
-
-using gsl::span;
-
 using namespace basalt;
-
-using basalt::gfx::Camera;
-using basalt::gfx::Environment;
-using basalt::gfx::FixedFragmentShaderCreateInfo;
-using basalt::gfx::FixedVertexShaderCreateInfo;
-using basalt::gfx::MaterialColorSource;
-using basalt::gfx::MaterialCreateInfo;
-using basalt::gfx::MaterialHandle;
-using basalt::gfx::Model;
-using basalt::gfx::PipelineCreateInfo;
-using basalt::gfx::PrimitiveType;
-using basalt::gfx::TestPassCond;
-using basalt::gfx::TextureCoordinateSet;
-using basalt::gfx::TextureCoordinateSrc;
-using basalt::gfx::TextureCoordinateTransformMode;
-using basalt::gfx::TextureStage;
-using basalt::gfx::VertexElement;
 
 namespace {
 
@@ -67,9 +46,9 @@ struct Vertex {
   Vector2f32 texture;
 
   static constexpr auto sLayout =
-    basalt::gfx::make_vertex_layout<VertexElement::Position3F32,
-                                    VertexElement::Normal3F32,
-                                    VertexElement::TextureCoords2F32>();
+    basalt::gfx::make_vertex_layout<gfx::VertexElement::Position3F32,
+                                    gfx::VertexElement::Normal3F32,
+                                    gfx::VertexElement::TextureCoords2F32>();
 };
 
 struct RotationSpeed {
@@ -78,9 +57,7 @@ struct RotationSpeed {
 
 class RotationSystem final : public System {
 public:
-  using UpdateBefore = basalt::TransformSystem;
-
-  RotationSystem() noexcept = default;
+  using UpdateBefore = TransformSystem;
 
   auto on_update(UpdateContext const& ctx) -> void override {
     auto const dt = ctx.deltaTime.count();
@@ -94,9 +71,7 @@ public:
 
 class DirectionalLightSystem final : public System {
 public:
-  using UpdateBefore = basalt::gfx::GfxSystem;
-
-  DirectionalLightSystem() noexcept = default;
+  using UpdateBefore = gfx::GfxSystem;
 
   auto on_update(UpdateContext const& ctx) -> void override {
     auto const dt = ctx.deltaTime.count();
@@ -104,7 +79,7 @@ public:
     // 1/350 rad/ms = 20/7 rad/s
     auto constexpr radPerSecond = 20.0f / 7.0f;
 
-    auto& env = ctx.scene.entity_registry().ctx().get<Environment>();
+    auto& env = ctx.scene.entity_registry().ctx().get<gfx::Environment>();
     auto light = env.directional_lights().front();
 
     auto const dirXZPlane =
@@ -121,13 +96,13 @@ public:
 };
 
 struct Settings {
-  MaterialHandle material;
-  MaterialHandle tciMaterial;
+  gfx::MaterialHandle material;
+  gfx::MaterialHandle tciMaterial;
 };
 
 class SettingsSystem final : public System {
 public:
-  using UpdateBefore = basalt::gfx::GfxSystem;
+  using UpdateBefore = gfx::GfxSystem;
 
   static constexpr auto sCylinder = entt::hashed_string::value("cylinder");
 
@@ -138,7 +113,7 @@ public:
     auto const cylinder =
       ctx.scene.get_handle(sceneCtx.get<EntityId>(sCylinder));
 
-    auto& material = cylinder.get<Model>().material;
+    auto& material = cylinder.get<gfx::Model>().material;
 
     if (ImGui::Begin("Settings##SimpleScene")) {
       auto showTci = material == settings.tciMaterial;
@@ -152,7 +127,7 @@ public:
   }
 };
 
-class TextureTransformSystem final : public basalt::System {
+class TextureTransformSystem final : public System {
 public:
   using UpdateBefore = gfx::GfxSystem;
 
@@ -185,7 +160,7 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
   auto const mesh = [&] {
     constexpr auto vertexCount = u32{2 * 50};
 
-    auto vertices = array<Vertex, vertexCount>{};
+    auto vertices = std::array<Vertex, vertexCount>{};
     // sample the unit circle in 49 different spots (0°/360° twice)
     for (auto i = u32{0}; i < 50; i++) {
       auto const ratio = static_cast<f32>(i) / (50.0f - 1.0f);
@@ -200,7 +175,7 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
       vertices[2 * i + 1] = Vertex{{y, 1.0f, x}, normal, {ratio, 0.0f}};
     }
 
-    return gfxCache->create_mesh({as_bytes(span{vertices}),
+    return gfxCache->create_mesh({as_bytes(gsl::span{vertices}),
                                   static_cast<u32>(vertices.size()),
                                   Vertex::sLayout});
   }();
@@ -209,22 +184,22 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
     auto classInfo = gfx::MaterialClassCreateInfo{};
     auto& pipelineInfo = classInfo.pipelineInfo;
 
-    auto vs = FixedVertexShaderCreateInfo{};
+    auto vs = gfx::FixedVertexShaderCreateInfo{};
     vs.lightingEnabled = true;
-    vs.diffuseSource = MaterialColorSource::Material;
+    vs.diffuseSource = gfx::MaterialColorSource::Material;
     pipelineInfo.vertexShader = &vs;
 
-    auto fs = FixedFragmentShaderCreateInfo{};
-    constexpr auto textureStages = array{TextureStage{}};
+    auto fs = gfx::FixedFragmentShaderCreateInfo{};
+    constexpr auto textureStages = std::array{gfx::TextureStage{}};
     fs.textureStages = textureStages;
     pipelineInfo.fragmentShader = &fs;
 
     pipelineInfo.vertexLayout = Vertex::sLayout;
-    pipelineInfo.primitiveType = PrimitiveType::TriangleStrip;
-    pipelineInfo.depthTest = TestPassCond::IfLessEqual;
+    pipelineInfo.primitiveType = gfx::PrimitiveType::TriangleStrip;
+    pipelineInfo.depthTest = gfx::TestPassCond::IfLessEqual;
     pipelineInfo.depthWriteEnable = true;
 
-    auto info = MaterialCreateInfo{};
+    auto info = gfx::MaterialCreateInfo{};
     info.clazz = gfxCache->create_material_class(classInfo);
     auto const properties = std::array{
       gfx::MaterialProperty{
@@ -245,28 +220,28 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
     auto classInfo = gfx::MaterialClassCreateInfo{};
     auto& pipelineInfo = classInfo.pipelineInfo;
 
-    auto vs = FixedVertexShaderCreateInfo{};
-    auto texCoordinateSets = array{TextureCoordinateSet{}};
+    auto vs = gfx::FixedVertexShaderCreateInfo{};
+    auto texCoordinateSets = std::array{gfx::TextureCoordinateSet{}};
     auto& coordinateSet = std::get<0>(texCoordinateSets);
-    coordinateSet.src = TextureCoordinateSrc::PositionInViewSpace;
-    coordinateSet.transformMode = TextureCoordinateTransformMode::Count4;
+    coordinateSet.src = gfx::TextureCoordinateSrc::PositionInViewSpace;
+    coordinateSet.transformMode = gfx::TextureCoordinateTransformMode::Count4;
     coordinateSet.projected = true;
     vs.textureCoordinateSets = texCoordinateSets;
     vs.lightingEnabled = true;
-    vs.diffuseSource = MaterialColorSource::Material;
+    vs.diffuseSource = gfx::MaterialColorSource::Material;
     pipelineInfo.vertexShader = &vs;
 
-    auto fs = FixedFragmentShaderCreateInfo{};
-    constexpr auto textureStages = array{TextureStage{}};
+    auto fs = gfx::FixedFragmentShaderCreateInfo{};
+    constexpr auto textureStages = std::array{gfx::TextureStage{}};
     fs.textureStages = textureStages;
     pipelineInfo.fragmentShader = &fs;
 
     pipelineInfo.vertexLayout = Vertex::sLayout;
-    pipelineInfo.primitiveType = PrimitiveType::TriangleStrip;
-    pipelineInfo.depthTest = TestPassCond::IfLessEqual;
+    pipelineInfo.primitiveType = gfx::PrimitiveType::TriangleStrip;
+    pipelineInfo.depthTest = gfx::TestPassCond::IfLessEqual;
     pipelineInfo.depthWriteEnable = true;
 
-    auto info = MaterialCreateInfo{};
+    auto info = gfx::MaterialCreateInfo{};
     info.clazz = gfxCache->create_material_class(classInfo);
     auto const properties = std::array{
       gfx::MaterialProperty{
@@ -294,7 +269,7 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
   scene->create_system<TextureTransformSystem>();
 
   auto& sceneCtx = scene->entity_registry().ctx();
-  auto& gfxEnv = sceneCtx.emplace<Environment>();
+  auto& gfxEnv = sceneCtx.emplace<gfx::Environment>();
   gfxEnv.set_background(Color::from_non_linear_rgba8(32, 32, 32));
   gfxEnv.set_ambient_light(Color::from(0x00202020_a8r8g8b8));
   gfxEnv.add_directional_light(Vector3f32::normalized(1, 1, 0), Colors::WHITE,
@@ -305,13 +280,13 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
   auto const cylinder = scene->create_entity("Cylinder"s);
   // 1/500 rad/ms = 2 rad/s
   cylinder.emplace<RotationSpeed>(2.0f);
-  cylinder.emplace<Model>(mesh, material);
+  cylinder.emplace<gfx::Model>(mesh, material);
 
   auto const cameraId = [&] {
     auto const camera =
       scene->create_entity("Camera"s, Vector3f32{0.0f, 3.0f, -5.0f});
-    camera.emplace<Camera>(Vector3f32::zero(), Vector3f32::up(), 45_deg, 1.0f,
-                           100.0f);
+    camera.emplace<gfx::Camera>(Vector3f32::zero(), Vector3f32::up(), 45_deg,
+                                1.0f, 100.0f);
 
     return camera.entity();
   }();

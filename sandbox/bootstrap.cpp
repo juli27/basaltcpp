@@ -13,31 +13,31 @@
 #include <utility>
 
 using namespace std::literals;
+using namespace basalt;
 
 namespace {
 
 // TODO: move to runtime
-auto operator==(basalt::gfx::DisplayMode const& l,
-                basalt::gfx::DisplayMode const& r) -> bool {
+auto operator==(gfx::DisplayMode const& l, gfx::DisplayMode const& r) -> bool {
   return l.width == r.width && l.height == r.height &&
          l.refreshRate == r.refreshRate;
 }
 
-auto is_valid(basalt::gfx::DisplayMode const& mode,
-              basalt::gfx::AdapterInfo const& adapterInfo) -> bool {
+auto is_valid(gfx::DisplayMode const& mode, gfx::AdapterInfo const& adapterInfo)
+  -> bool {
   auto const& displayModes = [&] {
     for (auto const& adapterMode : adapterInfo.exclusiveModes) {
-      if (adapterMode.displayFormat == basalt::gfx::ImageFormat::B8G8R8X8) {
+      if (adapterMode.displayFormat == gfx::ImageFormat::B8G8R8X8) {
         return adapterMode.displayModes;
       }
     }
 
-    return basalt::gfx::DisplayModes{};
+    return gfx::DisplayModes{};
   }();
 
   auto const it =
     std::find_if(displayModes.cbegin(), displayModes.cend(),
-                 [&](basalt::gfx::DisplayMode const& m) { return m == mode; });
+                 [&](gfx::DisplayMode const& m) { return m == mode; });
 
   return it != displayModes.cend();
 }

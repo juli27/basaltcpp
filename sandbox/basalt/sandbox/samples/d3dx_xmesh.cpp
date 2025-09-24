@@ -1,6 +1,6 @@
 #include "samples.h"
 
-#include "basalt/sandbox/shared/debug_scene_view.h"
+#include <basalt/sandbox/shared/debug_scene_view.h>
 
 #include <basalt/api/engine.h>
 #include <basalt/api/scene_view.h>
@@ -24,8 +24,6 @@
 #include <utility>
 
 using namespace std::literals;
-using std::array;
-
 using namespace basalt;
 
 namespace {
@@ -38,9 +36,7 @@ struct RotationSpeed {
 
 class RotationSystem final : public System {
 public:
-  using UpdateBefore = basalt::TransformSystem;
-
-  RotationSystem() noexcept = default;
+  using UpdateBefore = TransformSystem;
 
   auto on_update(UpdateContext const& ctx) -> void override {
     auto const dt = ctx.deltaTime.count();
@@ -63,22 +59,18 @@ auto Samples::new_d3dx_x_mesh_sample(Engine& engine) -> ViewPtr {
   gfxEnv.set_background(Color::from_non_linear_rgba8(32, 32, 32));
   gfxEnv.set_ambient_light(Colors::WHITE);
 
-  auto camera = [&] {
-    auto e = scene->create_entity("Camera"s, Vector3f32{0.0f, 3.0f, -5.0f});
-    e.emplace<gfx::Camera>(Vector3f32::zero(), Vector3f32::up(), 45_deg, 1.0f,
-                           100.0f);
-
-    return e;
-  }();
+  auto const camera = scene->create_entity("Camera"s, Vector3f32{0.0f, 3.0f, -5.0f});
+  camera.emplace<gfx::Camera>(Vector3f32::zero(), Vector3f32::up(), 45_deg,
+                              1.0f, 100.0f);
 
   auto gfxCache = engine.create_gfx_resource_cache();
 
   {
-    auto tiger = scene->create_entity("Tiger"s);
+    auto const tiger = scene->create_entity("Tiger"s);
     tiger.emplace<RotationSpeed>(1.0f);
 
     auto const modelData = gfxCache->load_x_meshes(MODEL_FILE_PATH);
-    auto material = [&] {
+    auto const material = [&] {
       auto const& material = modelData.materials.front();
 
       auto classInfo = gfx::MaterialClassCreateInfo{};
@@ -88,7 +80,7 @@ auto Samples::new_d3dx_x_mesh_sample(Engine& engine) -> ViewPtr {
       vs.lightingEnabled = true;
 
       auto fs = gfx::FixedFragmentShaderCreateInfo{};
-      auto textureStages = array{gfx::TextureStage{}};
+      auto textureStages = std::array{gfx::TextureStage{}};
       fs.textureStages = textureStages;
 
       pipelineInfo.vertexShader = &vs;
@@ -100,8 +92,9 @@ auto Samples::new_d3dx_x_mesh_sample(Engine& engine) -> ViewPtr {
       auto info = gfx::MaterialCreateInfo{};
       info.clazz = gfxCache->create_material_class(classInfo);
       auto const properties = std::array{
-        gfx::MaterialProperty{gfx::MaterialPropertyId::UniformColors,
-                              gfx::UniformColors{material.diffuse, material.ambient}},
+        gfx::MaterialProperty{
+          gfx::MaterialPropertyId::UniformColors,
+          gfx::UniformColors{material.diffuse, material.ambient}},
         gfx::MaterialProperty{
           gfx::MaterialPropertyId::SampledTexture,
           gfx::SampledTexture{gfxCache->create_sampler({}),

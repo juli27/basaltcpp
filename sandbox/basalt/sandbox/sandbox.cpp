@@ -20,19 +20,12 @@
 #include <string>
 #include <utility>
 
-using std::function;
-using std::string;
 using namespace std::literals;
-
-using basalt::Config;
-using basalt::Engine;
-using basalt::Platform;
-using basalt::ViewPtr;
-using basalt::WindowMode;
+using namespace basalt;
 
 struct SandboxView::Example final {
-  string name;
-  function<ViewPtr(Engine&)> factory;
+  std::string name;
+  std::function<ViewPtr(Engine&)> factory;
 };
 
 auto SandboxView::create(Engine& engine, Settings settings) -> ViewPtr {
