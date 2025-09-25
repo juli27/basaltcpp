@@ -1,6 +1,5 @@
 target_sources(Sandbox PRIVATE
   "02-03_first_triangle.cpp"
-  "02-03_first_triangle.h"
   "02-04_textures.cpp"
   "02-04_textures.h"
   "02-04_textures_exercises.cpp"

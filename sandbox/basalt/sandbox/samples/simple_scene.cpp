@@ -181,26 +181,28 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
   }();
 
   auto const material = [&] {
-    auto classInfo = gfx::MaterialClassCreateInfo{};
-    auto& pipelineInfo = classInfo.pipelineInfo;
-
-    auto vs = gfx::FixedVertexShaderCreateInfo{};
-    vs.lightingEnabled = true;
-    vs.diffuseSource = gfx::MaterialColorSource::Material;
-    pipelineInfo.vertexShader = &vs;
-
-    auto fs = gfx::FixedFragmentShaderCreateInfo{};
-    constexpr auto textureStages = std::array{gfx::TextureStage{}};
-    fs.textureStages = textureStages;
-    pipelineInfo.fragmentShader = &fs;
-
-    pipelineInfo.vertexLayout = Vertex::sLayout;
-    pipelineInfo.primitiveType = gfx::PrimitiveType::TriangleStrip;
-    pipelineInfo.depthTest = gfx::TestPassCond::IfLessEqual;
-    pipelineInfo.depthWriteEnable = true;
-
     auto info = gfx::MaterialCreateInfo{};
-    info.clazz = gfxCache->create_material_class(classInfo);
+    info.clazz = [&] {
+      auto info = gfx::MaterialClassCreateInfo{};
+      auto& pipelineInfo = info.pipelineInfo;
+
+      auto vs = gfx::FixedVertexShaderCreateInfo{};
+      vs.lightingEnabled = true;
+      vs.diffuseSource = gfx::MaterialColorSource::Material;
+      pipelineInfo.vertexShader = &vs;
+
+      auto fs = gfx::FixedFragmentShaderCreateInfo{};
+      constexpr auto textureStages = std::array{gfx::TextureStage{}};
+      fs.textureStages = textureStages;
+      pipelineInfo.fragmentShader = &fs;
+
+      pipelineInfo.vertexLayout = Vertex::sLayout;
+      pipelineInfo.primitiveType = gfx::PrimitiveType::TriangleStrip;
+      pipelineInfo.depthTest = gfx::TestPassCond::IfLessEqual;
+      pipelineInfo.depthWriteEnable = true;
+
+      return gfxCache->create_material_class(info);
+    }();
     auto const properties = std::array{
       gfx::MaterialProperty{
         gfx::MaterialPropertyId::UniformColors,
@@ -217,32 +219,34 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
   }();
 
   auto const tciMaterial = [&] {
-    auto classInfo = gfx::MaterialClassCreateInfo{};
-    auto& pipelineInfo = classInfo.pipelineInfo;
-
-    auto vs = gfx::FixedVertexShaderCreateInfo{};
-    auto texCoordinateSets = std::array{gfx::TextureCoordinateSet{}};
-    auto& coordinateSet = std::get<0>(texCoordinateSets);
-    coordinateSet.src = gfx::TextureCoordinateSrc::PositionInViewSpace;
-    coordinateSet.transformMode = gfx::TextureCoordinateTransformMode::Count4;
-    coordinateSet.projected = true;
-    vs.textureCoordinateSets = texCoordinateSets;
-    vs.lightingEnabled = true;
-    vs.diffuseSource = gfx::MaterialColorSource::Material;
-    pipelineInfo.vertexShader = &vs;
-
-    auto fs = gfx::FixedFragmentShaderCreateInfo{};
-    constexpr auto textureStages = std::array{gfx::TextureStage{}};
-    fs.textureStages = textureStages;
-    pipelineInfo.fragmentShader = &fs;
-
-    pipelineInfo.vertexLayout = Vertex::sLayout;
-    pipelineInfo.primitiveType = gfx::PrimitiveType::TriangleStrip;
-    pipelineInfo.depthTest = gfx::TestPassCond::IfLessEqual;
-    pipelineInfo.depthWriteEnable = true;
-
     auto info = gfx::MaterialCreateInfo{};
-    info.clazz = gfxCache->create_material_class(classInfo);
+    info.clazz = [&] {
+      auto info = gfx::MaterialClassCreateInfo{};
+      auto& pipelineInfo = info.pipelineInfo;
+
+      auto vs = gfx::FixedVertexShaderCreateInfo{};
+      auto texCoordinateSets = std::array{gfx::TextureCoordinateSet{}};
+      auto& coordinateSet = std::get<0>(texCoordinateSets);
+      coordinateSet.src = gfx::TextureCoordinateSrc::PositionInViewSpace;
+      coordinateSet.transformMode = gfx::TextureCoordinateTransformMode::Count4;
+      coordinateSet.projected = true;
+      vs.textureCoordinateSets = texCoordinateSets;
+      vs.lightingEnabled = true;
+      vs.diffuseSource = gfx::MaterialColorSource::Material;
+      pipelineInfo.vertexShader = &vs;
+
+      auto fs = gfx::FixedFragmentShaderCreateInfo{};
+      constexpr auto textureStages = std::array{gfx::TextureStage{}};
+      fs.textureStages = textureStages;
+      pipelineInfo.fragmentShader = &fs;
+
+      pipelineInfo.vertexLayout = Vertex::sLayout;
+      pipelineInfo.primitiveType = gfx::PrimitiveType::TriangleStrip;
+      pipelineInfo.depthTest = gfx::TestPassCond::IfLessEqual;
+      pipelineInfo.depthWriteEnable = true;
+
+      return gfxCache->create_material_class(info);
+    }();
     auto const properties = std::array{
       gfx::MaterialProperty{
         gfx::MaterialPropertyId::UniformColors,
@@ -282,17 +286,13 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
   cylinder.emplace<RotationSpeed>(2.0f);
   cylinder.emplace<gfx::Model>(mesh, material);
 
-  auto const cameraId = [&] {
-    auto const camera =
-      scene->create_entity("Camera"s, Vector3f32{0.0f, 3.0f, -5.0f});
-    camera.emplace<gfx::Camera>(Vector3f32::zero(), Vector3f32::up(), 45_deg,
-                                1.0f, 100.0f);
-
-    return camera.entity();
-  }();
+  auto const camera =
+    scene->create_entity("Camera"s, Vector3f32{0.0f, 3.0f, -5.0f});
+  camera.emplace<gfx::Camera>(Vector3f32::zero(), Vector3f32::up(), 45_deg,
+                              1.0f, 100.0f);
 
   sceneCtx.emplace_as<EntityId>(SettingsSystem::sCylinder, cylinder.entity());
 
   return DebugSceneView::create(std::move(scene), std::move(gfxCache),
-                                cameraId);
+                                camera.entity());
 }

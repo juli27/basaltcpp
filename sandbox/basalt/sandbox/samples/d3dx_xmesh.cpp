@@ -59,7 +59,8 @@ auto Samples::new_d3dx_x_mesh_sample(Engine& engine) -> ViewPtr {
   gfxEnv.set_background(Color::from_non_linear_rgba8(32, 32, 32));
   gfxEnv.set_ambient_light(Colors::WHITE);
 
-  auto const camera = scene->create_entity("Camera"s, Vector3f32{0.0f, 3.0f, -5.0f});
+  auto const camera =
+    scene->create_entity("Camera"s, Vector3f32{0.0f, 3.0f, -5.0f});
   camera.emplace<gfx::Camera>(Vector3f32::zero(), Vector3f32::up(), 45_deg,
                               1.0f, 100.0f);
 
@@ -73,24 +74,26 @@ auto Samples::new_d3dx_x_mesh_sample(Engine& engine) -> ViewPtr {
     auto const material = [&] {
       auto const& material = modelData.materials.front();
 
-      auto classInfo = gfx::MaterialClassCreateInfo{};
-      auto& pipelineInfo = classInfo.pipelineInfo;
-
-      auto vs = gfx::FixedVertexShaderCreateInfo{};
-      vs.lightingEnabled = true;
-
-      auto fs = gfx::FixedFragmentShaderCreateInfo{};
-      auto textureStages = std::array{gfx::TextureStage{}};
-      fs.textureStages = textureStages;
-
-      pipelineInfo.vertexShader = &vs;
-      pipelineInfo.fragmentShader = &fs;
-      pipelineInfo.cullMode = gfx::CullMode::CounterClockwise;
-      pipelineInfo.depthTest = gfx::TestPassCond::IfLessEqual;
-      pipelineInfo.depthWriteEnable = true;
-
       auto info = gfx::MaterialCreateInfo{};
-      info.clazz = gfxCache->create_material_class(classInfo);
+      info.clazz = [&] {
+        auto info = gfx::MaterialClassCreateInfo{};
+        auto& pipelineInfo = info.pipelineInfo;
+
+        auto vs = gfx::FixedVertexShaderCreateInfo{};
+        vs.lightingEnabled = true;
+
+        auto fs = gfx::FixedFragmentShaderCreateInfo{};
+        auto textureStages = std::array{gfx::TextureStage{}};
+        fs.textureStages = textureStages;
+
+        pipelineInfo.vertexShader = &vs;
+        pipelineInfo.fragmentShader = &fs;
+        pipelineInfo.cullMode = gfx::CullMode::CounterClockwise;
+        pipelineInfo.depthTest = gfx::TestPassCond::IfLessEqual;
+        pipelineInfo.depthWriteEnable = true;
+
+        return gfxCache->create_material_class(info);
+      }();
       auto const properties = std::array{
         gfx::MaterialProperty{
           gfx::MaterialPropertyId::UniformColors,

@@ -1,4 +1,6 @@
-#include <basalt/sandbox/tribase/02-03_first_triangle.h>
+#include <basalt/api/view.h>
+
+#include <basalt/sandbox/tribase/tribase_examples.h>
 
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
@@ -8,6 +10,7 @@
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
 
+#include <basalt/api/math/angle.h>
 #include <basalt/api/math/constants.h>
 #include <basalt/api/math/matrix4x4.h>
 #include <basalt/api/math/vector3.h>
@@ -21,212 +24,169 @@
 #include <cstddef>
 #include <utility>
 
+using namespace basalt;
 using namespace basalt::literals;
-
-using basalt::Angle;
-using basalt::Engine;
-using basalt::Matrix4x4f32;
-using basalt::PI;
-using basalt::Vector3f32;
-using basalt::gfx::Attachment;
-using basalt::gfx::Attachments;
-using basalt::gfx::CommandList;
-using basalt::gfx::FillMode;
-using basalt::gfx::PipelineCreateInfo;
-using basalt::gfx::PipelineHandle;
-using basalt::gfx::PrimitiveType;
-using basalt::gfx::TransformState;
-using basalt::gfx::VertexElement;
-
-using gsl::span;
-
-using std::array;
-using std::byte;
-
-namespace tribase {
 
 namespace {
 
-struct Vertex final {
-  Vector3f32 pos{};
-  ColorEncoding::A8R8G8B8 diffuse{};
+struct Vertex {
+  Vector3f32 position;
+  ColorEncoding::A8R8G8B8 color;
 
   static constexpr auto sLayout =
-    basalt::gfx::make_vertex_layout<VertexElement::Position3F32,
-                                    VertexElement::ColorDiffuse1U32A8R8G8B8>();
+    gfx::make_vertex_layout<gfx::VertexElement::Position3F32,
+                            gfx::VertexElement::ColorDiffuse1U32A8R8G8B8>();
 };
 
-constexpr auto TRIANGLE_VERTICES = array{
+constexpr auto TRIANGLE_VERTICES = std::array{
   Vertex{{0.0f, 1.0f, 0.0f}, Colors::RED.to_argb()},
   Vertex{{1.0f, -1.0f, 0.0f}, Colors::GREEN.to_argb()},
   Vertex{{-1.0f, -1.0f, 0.0f}, Colors::BLUE.to_argb()},
 };
 
-constexpr auto QUAD_VERTICES = array{
-  Vertex{{1.0f, -1.0f, 0.0f}, 0xff00ff00_a8r8g8b8},
-  Vertex{{-1.0f, -1.0f, 0.0f}, 0xff0000ff_a8r8g8b8},
-  Vertex{{1.0f, 1.0f, 0.0f}, 0xffff0000_a8r8g8b8},
-  Vertex{{-1.0f, 1.0f, 0.0f}, 0xffff00ff_a8r8g8b8},
+constexpr auto QUAD_VERTICES = std::array{
+  Vertex{{1.0f, -1.0f, 0.0f}, Colors::RED.to_argb()},
+  Vertex{{-1.0f, -1.0f, 0.0f}, Colors::GREEN.to_argb()},
+  Vertex{{1.0f, 1.0f, 0.0f}, Colors::BLUE.to_argb()},
+  Vertex{{-1.0f, 1.0f, 0.0f}, 0xff00ffff_a8r8g8b8},
 };
 
-} // namespace
+class FirstTriangle final : public View {
+public:
+  explicit FirstTriangle(Engine const& engine)
+    : mGfxCache{engine.create_gfx_resource_cache()}
+    , mVertexBuffer{[&] {
+      auto const vertexData = as_bytes(gsl::span{QUAD_VERTICES});
 
-FirstTriangle::FirstTriangle(Engine const& engine)
-  : mGfxCache{engine.create_gfx_resource_cache()}
-  , mVertexBuffer{[&] {
-    auto const vertexData = as_bytes(span{TRIANGLE_VERTICES});
+      // need space for a quad
+      constexpr auto vbSize = 4 * sizeof(Vertex);
 
-    // need space for a quad
-    constexpr auto vbSize = 4 * sizeof(Vertex);
+      return mGfxCache->create_vertex_buffer({vbSize, Vertex::sLayout},
+                                             vertexData);
+    }()}
+    , mSolidPipeline{[&] {
+      auto desc = gfx::PipelineCreateInfo{};
+      desc.vertexLayout = Vertex::sLayout;
+      desc.primitiveType = gfx::PrimitiveType::TriangleStrip;
 
-    return mGfxCache->create_vertex_buffer({vbSize, Vertex::sLayout},
-                                           vertexData);
-  }()}
-  , mPipeline{[&] {
-    auto desc = PipelineCreateInfo{};
-    desc.vertexLayout = Vertex::sLayout;
-    desc.primitiveType = PrimitiveType::TriangleList;
-    desc.dithering = true;
-    return mGfxCache->create_pipeline(desc);
-  }()}
-  , mQuadPipeline{[&] {
-    auto desc = PipelineCreateInfo{};
-    desc.vertexLayout = Vertex::sLayout;
-    desc.primitiveType = PrimitiveType::TriangleStrip;
-    desc.dithering = true;
-    return mGfxCache->create_pipeline(desc);
-  }()}
-  , mWireframePipeline{[&] {
-    auto desc = PipelineCreateInfo{};
-    desc.vertexLayout = Vertex::sLayout;
-    desc.primitiveType = PrimitiveType::TriangleList;
-    desc.fillMode = FillMode::Wireframe;
-    desc.dithering = true;
-    return mGfxCache->create_pipeline(desc);
-  }()} {
-}
+      return mGfxCache->create_pipeline(desc);
+    }()}
+    , mWireframePipeline{[&] {
+      auto desc = gfx::PipelineCreateInfo{};
+      desc.vertexLayout = Vertex::sLayout;
+      desc.primitiveType = gfx::PrimitiveType::TriangleStrip;
+      desc.fillMode = gfx::FillMode::Wireframe;
 
-auto FirstTriangle::on_update(UpdateContext& ctx) -> void {
-  mTime += ctx.deltaTime;
-
-  auto const& gfxCtx = ctx.engine.gfx_context();
-
-  if (ImGui::Begin("Settings##TribaseDreieck")) {
-    auto const uploadDefaultTriangle = [&] {
-      gfxCtx.with_mapping_of(mVertexBuffer, [](span<byte> const data) {
-        auto const vertexData = as_bytes(span{TRIANGLE_VERTICES});
-        std::copy_n(vertexData.begin(),
-                    std::min(vertexData.size_bytes(), data.size_bytes()),
-                    data.begin());
-      });
-    };
-
-    if (ImGui::RadioButton("No Exercise", &mCurrentExercise, 0)) {
-      mScale = 1.0f;
-
-      uploadDefaultTriangle();
-    }
-
-    if (ImGui::RadioButton("Exercise 1", &mCurrentExercise, 1)) {
-      mScale = 1.0f;
-      mTime = {};
-
-      uploadDefaultTriangle();
-    }
-
-    if (ImGui::RadioButton("Exercise 2", &mCurrentExercise, 2)) {
-      mScale = 1.0f;
-
-      gfxCtx.with_mapping_of(mVertexBuffer, [](span<byte> const data) {
-        auto const vertexData = as_bytes(span{QUAD_VERTICES});
-        std::copy_n(vertexData.begin(),
-                    std::min(vertexData.size_bytes(), data.size_bytes()),
-                    data.begin());
-      });
-    }
-
-    if (ImGui::RadioButton("Exercise 3", &mCurrentExercise, 3)) {
-      mScale = 1.0f;
-
-      uploadDefaultTriangle();
-    }
-
-    if (ImGui::RadioButton("Exercise 4", &mCurrentExercise, 4)) {
-      mTime = {};
-
-      uploadDefaultTriangle();
-    }
+      return mGfxCache->create_pipeline(desc);
+    }()} {
   }
 
-  ImGui::End();
+private:
+  gfx::ResourceCachePtr mGfxCache;
+  gfx::VertexBufferHandle mVertexBuffer;
+  gfx::PipelineHandle mSolidPipeline;
+  gfx::PipelineHandle mWireframePipeline;
+  Angle mRotationY;
+  SecondsF32 mColorTime{0};
+  SecondsF32 mScaleTime{0};
+  f32 mScale{1.0f};
+  bool mAnimateColors{false};
+  bool mAnimateScale{false};
+  bool mRenderWireFrame{false};
 
-  auto const t = mTime.count();
-  auto const dt = ctx.deltaTime.count();
+  auto on_update(UpdateContext& ctx) -> void override {
+    auto const& gfxCtx = ctx.engine.gfx_context();
 
-  // 90 deg per second
-  mRotationY += Angle::degrees(90.0f * dt);
+    if (ImGui::Begin("Settings##TribaseTriangle")) {
+      if (ImGui::RadioButton("Render solid", !mRenderWireFrame)) {
+        mRenderWireFrame = false;
+      }
+      ImGui::SameLine();
+      if (ImGui::RadioButton("Render wireframe", mRenderWireFrame)) {
+        mRenderWireFrame = true;
+      }
 
-  if (mCurrentExercise == 1) {
-    auto const alpha = 2.0f * t;
-    auto const value1 = std::sin(alpha) / 2.0f + 0.5f;
-    auto const value2 = std::cos(alpha) / 2.0f + 0.5f;
+      ImGui::Checkbox("Animate colors", &mAnimateColors);
+      ImGui::SameLine();
+      if (ImGui::Button("Reset colors")) {
+        mColorTime = {};
+      }
 
-    auto const triangleVertices = array{
-      Vertex{{0.0f, 1.0f, 0.0f},
-             Color::from_non_linear(value1, value2, 0.0f).to_argb()},
-      Vertex{{1.0f, -1.0f, 0.0f},
-             Color::from_non_linear(0.0f, value1, value2).to_argb()},
-      Vertex{{-1.0f, -1.0f, 0.0f},
-             Color::from_non_linear(value2, 0.0f, value1).to_argb()},
-    };
+      ImGui::Checkbox("Animate scale", &mAnimateScale);
+      ImGui::SameLine();
+      if (ImGui::Button("Reset scale")) {
+        mScaleTime = {};
+      }
+    }
 
-    gfxCtx.with_mapping_of(mVertexBuffer, [&](span<byte> const data) {
-      auto const vertexData = as_bytes(span{triangleVertices});
+    ImGui::End();
+
+    auto const dt = ctx.deltaTime.count();
+
+    // 90 deg per second
+    mRotationY += Angle::degrees(90.0f * dt);
+
+    if (mAnimateColors) {
+      mColorTime += ctx.deltaTime;
+    }
+    auto const colorT = mColorTime.count();
+    auto const value = std::cos(colorT) / 2.0f + 0.5f;
+
+    auto vertices = QUAD_VERTICES;
+    std::get<0>(vertices).color =
+      Color::from_non_linear(value, 1.0f - value, 0.0f).to_argb();
+    std::get<1>(vertices).color =
+      Color::from_non_linear(0.0f, value, 1.0f - value).to_argb();
+    std::get<2>(vertices).color =
+      Color::from_non_linear(1.0f - value, 0.0f, value).to_argb();
+    std::get<3>(vertices).color =
+      Color::from_non_linear(1.0f - value, value, 1.0f).to_argb();
+
+    gfxCtx.with_mapping_of(mVertexBuffer, [&](gsl::span<std::byte> const data) {
+      auto const vertexData = as_bytes(gsl::span{vertices});
       std::copy_n(vertexData.begin(),
                   std::min(vertexData.size_bytes(), data.size_bytes()),
                   data.begin());
     });
-  }
 
-  if (mCurrentExercise == 4) {
-    mScale = 1.0f + std::sin(PI / 2.0f * t) / 2.0f;
-  }
-
-  auto cmdList = CommandList{};
-  cmdList.clear_attachments(
-    Attachments{Attachment::RenderTarget, Attachment::DepthBuffer},
-    Color::from_non_linear_rgba8(0, 0, 63), 1.0f);
-
-  cmdList.bind_pipeline([&] {
-    if (mCurrentExercise == 2) {
-      return mQuadPipeline;
-    }
-    if (mCurrentExercise == 3) {
-      return mWireframePipeline;
+    if (mAnimateScale) {
+      mScaleTime += ctx.deltaTime;
     }
 
-    return mPipeline;
-  }());
+    auto const scaleT = mScaleTime.count();
+    mScale = 1.0f + std::sin(PI / 2.0f * scaleT) / 2.0f;
 
-  auto const& drawCtx = ctx.drawCtx;
+    auto cmdList = gfx::CommandList{};
+    cmdList.clear_attachments(gfx::Attachments{gfx::Attachment::RenderTarget,
+                                               gfx::Attachment::DepthBuffer},
+                              Color::from_non_linear_rgba8(0, 0, 63), 1.0f);
 
-  auto const aspectRatio = drawCtx.viewport.aspect_ratio();
-  cmdList.set_transform(
-    TransformState::ViewToClip,
-    Matrix4x4f32::perspective_projection(90_deg, aspectRatio, 0.1f, 100.0f));
+    cmdList.bind_pipeline(mRenderWireFrame ? mWireframePipeline
+                                           : mSolidPipeline);
 
-  cmdList.set_transform(TransformState::WorldToView, Matrix4x4f32::identity());
-  cmdList.set_transform(TransformState::LocalToWorld,
-                        Matrix4x4f32::scaling(mScale) *
-                          Matrix4x4f32::rotation_y(mRotationY) *
-                          Matrix4x4f32::translation(0.0f, 0.0f, 2.0f));
+    auto const& drawCtx = ctx.drawCtx;
 
-  cmdList.bind_vertex_buffer(mVertexBuffer);
+    auto const aspectRatio = drawCtx.viewport.aspect_ratio();
+    cmdList.set_transform(
+      gfx::TransformState::ViewToClip,
+      Matrix4x4f32::perspective_projection(90_deg, aspectRatio, 0.1f, 100.0f));
 
-  auto const vertexCount = u32{mCurrentExercise == 2 ? 4u : 3u};
-  cmdList.draw(0, vertexCount);
+    cmdList.set_transform(gfx::TransformState::WorldToView,
+                          Matrix4x4f32::identity());
+    cmdList.set_transform(gfx::TransformState::LocalToWorld,
+                          Matrix4x4f32::scaling(mScale) *
+                            Matrix4x4f32::rotation_y(mRotationY) *
+                            Matrix4x4f32::translation(0.0f, 0.0f, 2.0f));
 
-  drawCtx.commandLists.emplace_back(std::move(cmdList));
+    cmdList.bind_vertex_buffer(mVertexBuffer);
+    cmdList.draw(0, 4);
+
+    drawCtx.commandLists.emplace_back(std::move(cmdList));
+  }
+};
+
+} // namespace
+
+auto TribaseExamples::new_first_triangle_example(Engine& engine) -> ViewPtr {
+  return std::make_shared<FirstTriangle>(engine);
 }
-
-} // namespace tribase
