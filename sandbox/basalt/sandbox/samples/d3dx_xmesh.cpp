@@ -1,6 +1,7 @@
 #include "samples.h"
 
 #include <basalt/sandbox/shared/debug_scene_view.h>
+#include <basalt/sandbox/shared/rotation_system.h>
 
 #include <basalt/api/engine.h>
 #include <basalt/api/scene_view.h>
@@ -30,24 +31,6 @@ namespace {
 
 constexpr auto MODEL_FILE_PATH = "data/Tiger.x"sv;
 
-struct RotationSpeed {
-  f32 radPerSecond;
-};
-
-class RotationSystem final : public System {
-public:
-  using UpdateBefore = TransformSystem;
-
-  auto on_update(UpdateContext const& ctx) -> void override {
-    auto const dt = ctx.deltaTime.count();
-
-    ctx.scene.entity_registry().view<Transform, RotationSpeed const>().each(
-      [&](Transform& t, RotationSpeed const& rotationSpeed) {
-        t.rotate_y(Angle::radians(rotationSpeed.radPerSecond * dt));
-      });
-  }
-};
-
 } // namespace
 
 auto Samples::new_d3dx_x_mesh_sample(Engine& engine) -> ViewPtr {
@@ -68,7 +51,7 @@ auto Samples::new_d3dx_x_mesh_sample(Engine& engine) -> ViewPtr {
 
   {
     auto const tiger = scene->create_entity("Tiger"s);
-    tiger.emplace<RotationSpeed>(1.0f);
+    tiger.emplace<RotationSpeed>(0.0f, 1.0f, 0.0f);
 
     auto const modelData = gfxCache->load_x_meshes(MODEL_FILE_PATH);
     auto const material = [&] {

@@ -1,6 +1,7 @@
 #include "samples.h"
 
 #include <basalt/sandbox/shared/debug_scene_view.h>
+#include <basalt/sandbox/shared/rotation_system.h>
 
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
@@ -49,24 +50,6 @@ struct Vertex {
     basalt::gfx::make_vertex_layout<gfx::VertexElement::Position3F32,
                                     gfx::VertexElement::Normal3F32,
                                     gfx::VertexElement::TextureCoords2F32>();
-};
-
-struct RotationSpeed {
-  f32 radPerSecond;
-};
-
-class RotationSystem final : public System {
-public:
-  using UpdateBefore = TransformSystem;
-
-  auto on_update(UpdateContext const& ctx) -> void override {
-    auto const dt = ctx.deltaTime.count();
-
-    ctx.scene.entity_registry().view<Transform, RotationSpeed const>().each(
-      [&](Transform& t, RotationSpeed const& rotationSpeed) {
-        t.rotate_x(Angle::radians(rotationSpeed.radPerSecond * dt));
-      });
-  }
 };
 
 class DirectionalLightSystem final : public System {
@@ -283,7 +266,7 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
 
   auto const cylinder = scene->create_entity("Cylinder"s);
   // 1/500 rad/ms = 2 rad/s
-  cylinder.emplace<RotationSpeed>(2.0f);
+  cylinder.emplace<RotationSpeed>(2.0f, 0.0f, 0.0f);
   cylinder.emplace<gfx::Model>(mesh, material);
 
   auto const camera =

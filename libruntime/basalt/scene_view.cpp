@@ -3,6 +3,7 @@
 #include <basalt/api/input.h>
 
 #include <basalt/api/gfx/context.h>
+#include <basalt/api/gfx/environment.h>
 #include <basalt/api/gfx/gfx_system.h>
 #include <basalt/api/gfx/resource_cache.h>
 
@@ -30,6 +31,7 @@ SceneView::SceneView(ScenePtr scene, gfx::ResourceCachePtr gfxCache,
 
   auto& ctx = mScene->entity_registry().ctx();
   ctx.emplace<InputState const&>(input_state());
+  ctx.emplace<gfx::Environment>();
   ctx.emplace<gfx::ResourceCache&>(*mGfxCache);
   ctx.emplace<gfx::Context&>(*mGfxCache->context());
   ctx.emplace_as<EntityId>(gfx::GfxSystem::sMainCamera, cameraEntity);
@@ -49,6 +51,7 @@ auto SceneView::on_update(UpdateContext& ctx) -> void {
 
   auto const sceneCtx = Scene::UpdateContext{ctx.deltaTime};
   mScene->on_update(sceneCtx);
+  ecsCtx.erase<DrawContext const&>();
 }
 
 } // namespace basalt
