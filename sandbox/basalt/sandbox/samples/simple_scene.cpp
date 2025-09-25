@@ -5,6 +5,7 @@
 
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
+#include <basalt/api/view.h>
 
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/context.h>
@@ -78,48 +79,15 @@ public:
   }
 };
 
-struct Settings {
-  gfx::MaterialHandle material;
-  gfx::MaterialHandle tciMaterial;
-};
-
-class SettingsSystem final : public System {
-public:
-  using UpdateBefore = gfx::GfxSystem;
-
-  static constexpr auto sCylinder = entt::hashed_string::value("cylinder");
-
-  auto on_update(UpdateContext const& ctx) -> void override {
-    auto& ecs = ctx.scene.entity_registry();
-    auto& sceneCtx = ecs.ctx();
-    auto const& settings = sceneCtx.get<Settings>();
-    auto const cylinder =
-      ctx.scene.get_handle(sceneCtx.get<EntityId>(sCylinder));
-
-    auto& material = cylinder.get<gfx::Model>().material;
-
-    if (ImGui::Begin("Settings##SimpleScene")) {
-      auto showTci = material == settings.tciMaterial;
-
-      if (ImGui::Checkbox("Show TCI", &showTci)) {
-        material = showTci ? settings.tciMaterial : settings.material;
-      }
-    }
-
-    ImGui::End();
-  }
-};
+struct HasTextureTransform {};
 
 class TextureTransformSystem final : public System {
 public:
   using UpdateBefore = gfx::GfxSystem;
 
-  static constexpr auto sCylinder = entt::hashed_string::value("cylinder");
-
   auto on_update(UpdateContext const& ctx) -> void override {
     auto& scene = ctx.scene;
     auto& sceneCtx = scene.entity_registry().ctx();
-    auto const& settings = sceneCtx.get<Settings>();
 
     auto const cameraEntityId =
       sceneCtx.get<EntityId>(gfx::GfxSystem::sMainCamera);
@@ -127,12 +95,57 @@ public:
       gfx::CameraEntity{scene.get_handle(cameraEntityId)};
 
     auto& gfxCtx = sceneCtx.get<gfx::Context&>();
-    auto& material = gfxCtx.get(settings.tciMaterial);
-    material.set_value(gfx::MaterialPropertyId::TexTransform,
-                       cameraEntity.view_to_clip() *
-                         Matrix4x4f32::scaling(0.5f, -0.5f, 1.0f) *
-                         Matrix4x4f32::translation(0.5f, 0.5f, 0.0f));
+    scene.entity_registry()
+      .view<HasTextureTransform const, gfx::Model const>()
+      .each([&](gfx::Model const& model) {
+        auto& material = gfxCtx.get(model.material);
+        material.set_value(gfx::MaterialPropertyId::TexTransform,
+                           cameraEntity.view_to_clip() *
+                             Matrix4x4f32::scaling(0.5f, -0.5f, 1.0f) *
+                             Matrix4x4f32::translation(0.5f, 0.5f, 0.0f));
+      });
   }
+};
+
+class SimpleSceneView : public View {
+public:
+  SimpleSceneView(SceneViewPtr sceneView, EntityId const cylinder,
+                  gfx::MaterialHandle const material,
+                  gfx::MaterialHandle const tciMaterial)
+    : mScene{sceneView->scene()}
+    , mCylinder{cylinder}
+    , mMaterial{material}
+    , mTciMaterial{tciMaterial} {
+    add_child_bottom(std::move(sceneView));
+  }
+
+  auto on_update(UpdateContext&) -> void override {
+    auto const cylinder = mScene->get_handle(mCylinder);
+
+    if (ImGui::Begin("Settings##SimpleScene")) {
+      auto showTci = cylinder.get<gfx::Model const>().material == mTciMaterial;
+
+      if (ImGui::Checkbox("Show TCI", &showTci)) {
+        if (showTci) {
+          cylinder.patch<gfx::Model>(
+            [&](gfx::Model& model) { model.material = mTciMaterial; });
+          cylinder.emplace<HasTextureTransform>();
+        } else {
+          cylinder.patch<gfx::Model>(
+            [&](gfx::Model& model) { model.material = mMaterial; });
+          cylinder.erase<HasTextureTransform>();
+        }
+      }
+    }
+
+    ImGui::End();
+  }
+
+private:
+  ScenePtr mScene;
+  EntityId mCylinder;
+  gfx::MaterialHandle mMaterial;
+  gfx::MaterialHandle mTciMaterial;
 };
 
 } // namespace
@@ -252,7 +265,6 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
   auto scene = Scene::create();
   scene->create_system<RotationSystem>();
   scene->create_system<DirectionalLightSystem>();
-  scene->create_system<SettingsSystem>();
   scene->create_system<TextureTransformSystem>();
 
   auto& sceneCtx = scene->entity_registry().ctx();
@@ -261,8 +273,6 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
   gfxEnv.set_ambient_light(Color::from(0x00202020_a8r8g8b8));
   gfxEnv.add_directional_light(Vector3f32::normalized(1, 1, 0), Colors::WHITE,
                                {}, {});
-
-  sceneCtx.insert_or_assign(Settings{material, tciMaterial});
 
   auto const cylinder = scene->create_entity("Cylinder"s);
   // 1/500 rad/ms = 2 rad/s
@@ -274,8 +284,8 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
   camera.emplace<gfx::Camera>(Vector3f32::zero(), Vector3f32::up(), 45_deg,
                               1.0f, 100.0f);
 
-  sceneCtx.emplace_as<EntityId>(SettingsSystem::sCylinder, cylinder.entity());
-
-  return DebugSceneView::create(std::move(scene), std::move(gfxCache),
-                                camera.entity());
+  auto sceneView = DebugSceneView::create(std::move(scene), std::move(gfxCache),
+                                          camera.entity());
+  return std::make_shared<SimpleSceneView>(
+    std::move(sceneView), cylinder.entity(), material, tciMaterial);
 }
