@@ -36,10 +36,6 @@ SandboxView::SandboxView(Engine& engine, Settings settings)
   : mSettings{std::move(settings)} {
   mExamples.reserve(20);
   mExamples.emplace_back(Example{
-    "Bsp. 02-03: Das erste Dreieck"s,
-    &TribaseExamples::new_first_triangle_example,
-  });
-  mExamples.emplace_back(Example{
     "Bsp. 02-04: Texturen"s,
     &TribaseExamples::new_02_04_textures_example,
   });
@@ -98,6 +94,10 @@ SandboxView::SandboxView(Engine& engine, Settings settings)
   mExamples.emplace_back(Example{
     "Simple Scene"s,
     &Samples::new_simple_scene_sample,
+  });
+  mExamples.emplace_back(Example{
+    "Dynamic Mesh"s,
+    &Samples::new_dymanic_mesh_sample,
   });
   mExamples.emplace_back(Example{
     "Textures"s,

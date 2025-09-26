@@ -1,6 +1,6 @@
 #include <basalt/api/view.h>
 
-#include <basalt/sandbox/tribase/tribase_examples.h>
+#include <basalt/sandbox/samples/samples.h>
 
 #include <basalt/sandbox/shared/debug_scene_view.h>
 #include <basalt/sandbox/shared/rotation_system.h>
@@ -56,12 +56,12 @@ constexpr auto QUAD_VERTICES = std::array{
   Vertex{{-1.0f, 1.0f, 0.0f}, 0xff00ffff_a8r8g8b8},
 };
 
-class FirstTriangleView final : public View {
+class DynamicMeshView final : public View {
 public:
-  FirstTriangleView(SceneViewPtr sceneView, EntityId const quadId,
-                    gfx::MaterialHandle const solidMaterial,
-                    gfx::MaterialHandle const wireframeMaterial,
-                    gfx::MeshHandle const mesh)
+  DynamicMeshView(SceneViewPtr sceneView, EntityId const quadId,
+                  gfx::MaterialHandle const solidMaterial,
+                  gfx::MaterialHandle const wireframeMaterial,
+                  gfx::MeshHandle const mesh)
     : mScene{sceneView->scene()}
     , mQuadId{quadId}
     , mSolidMaterial{solidMaterial}
@@ -82,9 +82,9 @@ private:
   bool mAnimateScale{false};
 
   auto on_update(UpdateContext& ctx) -> void override {
-    if (ImGui::Begin("Settings##TribaseTriangle")) {
-      auto const quad = mScene->get_handle(mQuadId);
+    auto const quad = mScene->get_handle(mQuadId);
 
+    if (ImGui::Begin("Settings##DynamicMesh")) {
       auto const isRenderWireframe =
         quad.get<gfx::Model const>().material == mWireframeMaterial;
       if (ImGui::RadioButton("Render solid", !isRenderWireframe)) {
@@ -108,52 +108,51 @@ private:
       if (ImGui::Button("Reset scale")) {
         mScaleTime = {};
       }
-
-      ImGui::End();
-
-      if (mAnimateColors) {
-        mColorTime += ctx.deltaTime;
-      }
-      auto const colorT = mColorTime.count();
-      auto const value = std::cos(colorT) / 2.0f + 0.5f;
-
-      auto vertices = QUAD_VERTICES;
-      std::get<0>(vertices).color =
-        Color::from_non_linear(value, 1.0f - value, 0.0f).to_argb();
-      std::get<1>(vertices).color =
-        Color::from_non_linear(0.0f, value, 1.0f - value).to_argb();
-      std::get<2>(vertices).color =
-        Color::from_non_linear(1.0f - value, 0.0f, value).to_argb();
-      std::get<3>(vertices).color =
-        Color::from_non_linear(1.0f - value, value, 1.0f).to_argb();
-
-      auto& gfxCtx = ctx.engine.gfx_context();
-      auto const& meshData = gfxCtx.get(mMesh);
-
-      gfxCtx.with_mapping_of(
-        meshData.vertexBuffer, [&](gsl::span<std::byte> const data) {
-          auto const vertexData = as_bytes(gsl::span{vertices});
-          std::copy_n(vertexData.begin(),
-                      std::min(vertexData.size_bytes(), data.size_bytes()),
-                      data.begin());
-        });
-
-      if (mAnimateScale) {
-        mScaleTime += ctx.deltaTime;
-      }
-
-      quad.patch<Transform>([&](Transform& transform) {
-        auto const scaleT = mScaleTime.count();
-        transform.scale =
-          Vector3f32{1.0f + std::sin(PI / 2.0f * scaleT) / 2.0f};
-      });
     }
+
+    ImGui::End();
+
+    if (mAnimateColors) {
+      mColorTime += ctx.deltaTime;
+    }
+    auto const colorT = mColorTime.count();
+    auto const value = std::cos(colorT) / 2.0f + 0.5f;
+
+    auto vertices = QUAD_VERTICES;
+    std::get<0>(vertices).color =
+      Color::from_non_linear(value, 1.0f - value, 0.0f).to_argb();
+    std::get<1>(vertices).color =
+      Color::from_non_linear(0.0f, value, 1.0f - value).to_argb();
+    std::get<2>(vertices).color =
+      Color::from_non_linear(1.0f - value, 0.0f, value).to_argb();
+    std::get<3>(vertices).color =
+      Color::from_non_linear(1.0f - value, value, 1.0f).to_argb();
+
+    auto& gfxCtx = ctx.engine.gfx_context();
+    auto const& meshData = gfxCtx.get(mMesh);
+
+    gfxCtx.with_mapping_of(
+      meshData.vertexBuffer, [&](gsl::span<std::byte> const data) {
+        auto const vertexData = as_bytes(gsl::span{vertices});
+        std::copy_n(vertexData.begin(),
+                    std::min(vertexData.size_bytes(), data.size_bytes()),
+                    data.begin());
+      });
+
+    if (mAnimateScale) {
+      mScaleTime += ctx.deltaTime;
+    }
+
+    quad.patch<Transform>([&](Transform& transform) {
+      auto const scaleT = mScaleTime.count();
+      transform.scale = Vector3f32{1.0f + std::sin(PI / 2.0f * scaleT) / 2.0f};
+    });
   }
 };
 
 } // namespace
 
-auto TribaseExamples::new_first_triangle_example(Engine& engine) -> ViewPtr {
+auto Samples::new_dymanic_mesh_sample(Engine& engine) -> ViewPtr {
   auto scene = Scene::create();
   scene->create_system<RotationSystem>();
   auto& ecsCtx = scene->entity_registry().ctx();
@@ -210,7 +209,7 @@ auto TribaseExamples::new_first_triangle_example(Engine& engine) -> ViewPtr {
   auto sceneView = DebugSceneView::create(std::move(scene), std::move(gfxCache),
                                           camera.entity());
 
-  return std::make_shared<FirstTriangleView>(std::move(sceneView),
-                                             quad.entity(), solidMaterial,
-                                             wireframeMaterial, quadMesh);
+  return std::make_shared<DynamicMeshView>(std::move(sceneView), quad.entity(),
+                                           solidMaterial, wireframeMaterial,
+                                           quadMesh);
 }
