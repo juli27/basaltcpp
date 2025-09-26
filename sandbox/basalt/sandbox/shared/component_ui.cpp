@@ -1,5 +1,7 @@
 #include "component_ui.h"
 
+#include "rotation_system.h"
+
 #include <basalt/api/debug_ui.h>
 
 #include <basalt/api/gfx/camera.h>
@@ -89,4 +91,19 @@ auto ComponentUi::spot_light(gfx::SpotLight& light) -> void {
   auto thetaRad = light.theta.radians();
   ImGui::SliderAngle("Theta", &thetaRad, 0, light.phi.degrees());
   light.theta = Angle::radians(thetaRad);
+}
+
+auto ComponentUi::rotation_speed(RotationSpeed& rotationSpeed) -> void {
+  auto values = std::array{
+    Angle::radToDeg(rotationSpeed.xRadPerSecond),
+    Angle::radToDeg(rotationSpeed.yRadPerSecond),
+    Angle::radToDeg(rotationSpeed.zRadPerSecond),
+  };
+
+  ImGui::DragFloat3("##rotation speed", values.data(), 1.0f, 0.0f, 0.0f,
+                    "%.3f°/s");
+
+  rotationSpeed.xRadPerSecond = Angle::degToRad(std::get<0>(values));
+  rotationSpeed.yRadPerSecond = Angle::degToRad(std::get<1>(values));
+  rotationSpeed.zRadPerSecond = Angle::degToRad(std::get<2>(values));
 }

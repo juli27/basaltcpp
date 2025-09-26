@@ -1,6 +1,7 @@
 #include "debug_scene_view.h"
 
 #include "component_ui.h"
+#include "rotation_system.h"
 
 #include <basalt/api/gfx/camera.h>
 #include <basalt/api/gfx/types.h>
@@ -34,6 +35,13 @@ DebugSceneView::DebugSceneView(ScenePtr scene, gfx::ResourceCachePtr gfxCache,
     "Transform"s,
     [](Entity const& entity) {
       ComponentUi::transform(entity.get<Transform>());
+    },
+  });
+  mInspector.add_component_ui({
+    entt::type_hash<RotationSpeed>::value(),
+    "RotationSpeed"s,
+    [](Entity const& entity) {
+      ComponentUi::rotation_speed(entity.get<RotationSpeed>());
     },
   });
   mInspector.add_component_ui({

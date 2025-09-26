@@ -1,12 +1,12 @@
 #pragma once
 
-#include <basalt/api/math/constants.h>
+#include "constants.h"
 
 #include <basalt/api/base/types.h>
 
 namespace basalt {
 
-class Angle final {
+class Angle {
 public:
   [[nodiscard]]
   static auto radians(f32 rad) noexcept -> Angle;
@@ -34,7 +34,7 @@ public:
 
   [[nodiscard]]
   constexpr auto degrees() const noexcept -> f32 {
-    return mRadians * sDegPerRad;
+    return radToDeg(mRadians);
   }
 
   [[nodiscard]]
@@ -52,8 +52,16 @@ public:
   auto operator-=(Angle rhs) noexcept -> Angle&;
   [[nodiscard]] friend auto operator-(Angle lhs, Angle rhs) noexcept -> Angle;
 
+  static constexpr auto radToDeg(f32 const rad) -> f32 {
+    return rad * sDegPerRad;
+  }
+
+  static constexpr auto degToRad(f32 const deg) -> f32 {
+    return deg * sRadPerDeg;
+  }
+
 private:
-  f32 mRadians {};
+  f32 mRadians{};
 
   explicit Angle(f32 rad) noexcept;
 

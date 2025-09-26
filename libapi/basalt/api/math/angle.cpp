@@ -1,4 +1,4 @@
-#include <basalt/api/math/angle.h>
+#include "angle.h"
 
 #include <cmath>
 
@@ -9,11 +9,11 @@ namespace basalt {
 // as parameter
 
 auto Angle::radians(f32 const rad) noexcept -> Angle {
-  return Angle {rad};
+  return Angle{rad};
 }
 
 auto Angle::degrees(f32 const deg) noexcept -> Angle {
-  return radians(deg * sRadPerDeg);
+  return radians(degToRad(deg));
 }
 
 auto Angle::arcsin(f32 const sin) noexcept -> Angle {
@@ -54,12 +54,12 @@ auto Angle::operator-=(Angle const rhs) noexcept -> Angle& {
   return *this;
 }
 
-Angle::Angle(f32 const rad) noexcept : mRadians {rad} {
+Angle::Angle(f32 const rad) noexcept : mRadians{rad} {
   normalize();
 }
 
 auto Angle::normalize() noexcept -> void {
-  constexpr auto twoPi = f32 {2.0f * PI};
+  constexpr auto twoPi = f32{2.0f * PI};
 
   mRadians = std::fmod(mRadians + PI, twoPi);
   if (mRadians < 0) {

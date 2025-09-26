@@ -1,5 +1,7 @@
 #pragma once
 
+#include "types.h"
+
 #include <basalt/api/gfx/types.h>
 
 #include <basalt/api/scene/types.h>
@@ -14,4 +16,6 @@ public:
   static auto light(basalt::gfx::Light&) -> void;
   static auto point_light(basalt::gfx::PointLight&) -> void;
   static auto spot_light(basalt::gfx::SpotLight&) -> void;
+
+  static auto rotation_speed(RotationSpeed&) -> void;
 };
