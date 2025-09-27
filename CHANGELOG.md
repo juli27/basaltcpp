@@ -4,23 +4,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.0] - *Unreleased*
 ### Added
-- Too many to list
+- Too many items to list
 - external: GSL (87f9d76)
+- external: tomlplusplus v3.4.0
 
 ### Changed
-- Too many to list
+- Too many items to list
 
 #### external
-- Updated Dear ImGui (v1.72b -> v1.91.6)
-- Updated EnTT (19ef290 -> v3.14.0)
-- Updated fmt (v5.3.0 -> v11.0.2)
-- Updated spdlog (v1.3.1 -> v1.15.0)
+- Updated Dear ImGui from v1.72b to v1.91.8
+- Updated EnTT from 19ef290 to v3.14.0
+- Updated fmt from v5.3.0 to v11.2.0
+- Updated spdlog from v1.3.1 to v1.15.3
   - now compiled as a static library
 
 ### Deprecated
 
 ### Removed
-- Too many to list
+- Too many items to list
 
 ### Fixed
 
