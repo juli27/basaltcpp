@@ -1,5 +1,5 @@
 ### Taken from https://github.com/github/gitignore
-### CMake - commit: a0e05f9d08080a286311721593eb6a23266d9637
+### CMake - commit: adf27650972ea7b4f798f815cfac70d0d2f8a909
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
@@ -12,6 +12,13 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 CMakeUserPresets.json
+
+# CLion
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#cmake-build-*
 
 ### CUSTOM
 # ignore directories relative to this directory which start with an underscore

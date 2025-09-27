@@ -1,5 +1,6 @@
-cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
-project(Basalt VERSION 0.4 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
+
+list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 set(CMAKE_CXX_STANDARD "17" CACHE STRING
     "Default value for CXX_STANDARD property of targets")
@@ -19,7 +20,7 @@ set(BASALT_BUILD_WARNINGS_AS_ERRORS OFF CACHE BOOL
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+project("Basalt" VERSION "0.4" LANGUAGES "CXX")
 
 include(Compiler)
 include(FeatureSummary)

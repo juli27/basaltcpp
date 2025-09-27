@@ -1,21 +1,51 @@
 {
-  "version": 5,
+  "version": 6,
   "configurePresets": [
     {
       "name": "vs2022",
       "displayName": "Visual Studio 2022",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
       "generator": "Visual Studio 17 2022",
       "architecture": "x64",
       "binaryDir": "./_vs",
       "cacheVariables": {
         "CMAKE_SYSTEM_VERSION": "8.1"
+      },
+      "warnings": {
+        "dev": true
+      }
+    },
+    {
+      "name": "ci-vs2022",
+      "displayName": "CI: Visual Studio 2022",
+      "inherits": "vs2022",
+      "cacheVariables": {
+        "BASALT_BUILD_WARNINGS_AS_ERRORS": "ON"
+      },
+      "errors": {
+        "dev": true
       }
     }
   ],
   "buildPresets": [
     {
       "name": "vs2022",
+      "displayName": "Visual Studio 2022",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
       "configurePreset": "vs2022"
+    },
+    {
+      "name": "ci-vs2022",
+      "displayName": "CI: Visual Studio 2022",
+      "inherits": "vs2022"
     }
   ]
 }
