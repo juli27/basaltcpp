@@ -1,13 +1,13 @@
 #pragma once
 
-#include <basalt/types.h>
+#include "types.h"
 
 #include <basalt/api/types.h>
 #include <basalt/api/view.h>
 
-#include <basalt/gfx/backend/ext/types.h>
-
 #include <basalt/api/gfx/types.h>
+
+#include "gfx/backend/ext/types.h"
 
 #include <basalt/api/shared/types.h>
 

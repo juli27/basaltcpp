@@ -46,9 +46,11 @@ enum class MouseCursor : u8 {
   ResizeNESW,
   ResizeNWSE,
   Hand,
-  NotAllowed
+  NotAllowed,
+  Wait,
+  Progress,
 };
-constexpr auto MOUSE_CURSOR_COUNT = u8{9};
+constexpr auto MOUSE_CURSOR_COUNT = u8{11};
 
 struct PointerPosition : vec<PointerPosition, i32, 2> {
   [[nodiscard]]

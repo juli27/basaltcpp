@@ -59,6 +59,8 @@ auto load_system_mouse_cursors() -> MouseCursors {
     {MouseCursor::ResizeNWSE, load_system_cursor(IDC_SIZENWSE)},
     {MouseCursor::Hand, load_system_cursor(IDC_HAND)},
     {MouseCursor::NotAllowed, load_system_cursor(IDC_NO)},
+    {MouseCursor::Wait, load_system_cursor(IDC_WAIT)},
+    {MouseCursor::Progress, load_system_cursor(IDC_APPSTARTING)},
   };
 }
 

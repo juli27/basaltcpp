@@ -1,9 +1,9 @@
-#include <basalt/dear_imgui.h>
+#include "dear_imgui.h"
 
 #include <basalt/api/engine.h>
 #include <basalt/api/input_events.h>
 
-#include <basalt/gfx/backend/ext/dear_imgui_renderer.h>
+#include "gfx/backend/ext/dear_imgui_renderer.h"
 
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/backend/command_list.h>
@@ -19,16 +19,10 @@
 #include <algorithm>
 #include <array>
 #include <memory>
+#include <optional>
 #include <utility>
 
 namespace basalt {
-
-using std::array;
-using std::shared_ptr;
-
-using gfx::CommandList;
-using gfx::ext::DearImGuiCommandEncoder;
-using gfx::ext::DearImGuiRenderer;
 
 namespace {
 
@@ -143,6 +137,40 @@ constexpr auto to_imgui_key(Key const key) -> ImGuiKey {
   return KEY_TO_IMGUI_KEY[key];
 }
 
+constexpr auto to_mouse_cursor(ImGuiMouseCursor const imGuiCursor)
+  -> std::optional<MouseCursor> {
+  static_assert(ImGuiMouseCursor_COUNT == 11);
+
+  switch (imGuiCursor) {
+  case ImGuiMouseCursor_None:
+    return std::nullopt;
+  case ImGuiMouseCursor_Arrow:
+    return MouseCursor::Arrow;
+  case ImGuiMouseCursor_TextInput:
+    return MouseCursor::TextInput;
+  case ImGuiMouseCursor_ResizeAll:
+    return MouseCursor::ResizeAll;
+  case ImGuiMouseCursor_ResizeNS:
+    return MouseCursor::ResizeNS;
+  case ImGuiMouseCursor_ResizeEW:
+    return MouseCursor::ResizeEW;
+  case ImGuiMouseCursor_ResizeNESW:
+    return MouseCursor::ResizeNESW;
+  case ImGuiMouseCursor_ResizeNWSE:
+    return MouseCursor::ResizeNWSE;
+  case ImGuiMouseCursor_Hand:
+    return MouseCursor::Hand;
+  case ImGuiMouseCursor_Wait:
+    return MouseCursor::Wait;
+  case ImGuiMouseCursor_Progress:
+    return MouseCursor::Progress;
+  case ImGuiMouseCursor_NotAllowed:
+    return MouseCursor::NotAllowed;
+  }
+
+  return MouseCursor::Arrow;
+}
+
 } // namespace
 
 auto DearImGui::create(gfx::Context& gfxContext) -> DearImGuiPtr {
@@ -152,12 +180,13 @@ auto DearImGui::create(gfx::Context& gfxContext) -> DearImGuiPtr {
   ImGui::SetCurrentContext(ctx);
 
   auto renderer =
-    gfxContext.query_device_extension<DearImGuiRenderer>().value_or(nullptr);
+    gfxContext.query_device_extension<gfx::ext::DearImGuiRenderer>().value_or(
+      nullptr);
 
   return std::make_shared<DearImGui>(std::move(renderer));
 }
 
-DearImGui::DearImGui(shared_ptr<DearImGuiRenderer> renderer)
+DearImGui::DearImGui(std::shared_ptr<gfx::ext::DearImGuiRenderer> renderer)
   : mRenderer{std::move(renderer)} {
   auto& io = ImGui::GetIO();
 
@@ -201,14 +230,11 @@ auto DearImGui::new_frame(UpdateContext const& ctx) const -> void {
 
   auto& engine = ctx.engine;
 
-  static_assert(ImGuiMouseCursor_COUNT == 9);
   if (!(io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)) {
-    auto const cursor = ImGui::GetMouseCursor();
     // TODO: no mouse cursor / imgui cursor drawing
-    if (cursor != ImGuiMouseCursor_None) {
-      auto const mouseCursor = MouseCursor{static_cast<u8>(cursor)};
-      if (mouseCursor != engine.mouse_cursor()) {
-        engine.set_mouse_cursor(mouseCursor);
+    if (auto const cursor = to_mouse_cursor(ImGui::GetMouseCursor())) {
+      if (*cursor != engine.mouse_cursor()) {
+        engine.set_mouse_cursor(*cursor);
       }
     }
   }
@@ -223,8 +249,8 @@ auto DearImGui::on_update(UpdateContext& ctx) -> void {
     return;
   }
 
-  auto commandList = CommandList{};
-  DearImGuiCommandEncoder::render_dear_imgui(commandList);
+  auto commandList = gfx::CommandList{};
+  gfx::ext::DearImGuiCommandEncoder::render_dear_imgui(commandList);
 
   ctx.drawCtx.commandLists.push_back(std::move(commandList));
 }
@@ -277,7 +303,7 @@ auto DearImGui::on_input(InputEvent const& e) -> InputEventHandled {
       [&](KeyUp const& keyUp) { return handleKeyEvent(keyUp.key, false); },
       [&](CharacterTyped const& characterTyped) {
         auto const& charTyped = characterTyped.character;
-        auto nullTerminatedChar = array<char, 5>{};
+        auto nullTerminatedChar = std::array<char, 5>{};
         std::copy(charTyped.begin(), charTyped.end(),
                   nullTerminatedChar.begin());
         io.AddInputCharactersUTF8(nullTerminatedChar.data());
