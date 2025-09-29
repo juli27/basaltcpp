@@ -13,6 +13,7 @@
 #include <basalt/api/gfx/gfx_system.h>
 #include <basalt/api/gfx/material.h>
 #include <basalt/api/gfx/material_class.h>
+#include <basalt/api/gfx/mesh.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
 
@@ -171,9 +172,9 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
       vertices[2 * i + 1] = Vertex{{y, 1.0f, x}, normal, {ratio, 0.0f}};
     }
 
-    return gfxCache->create_mesh({as_bytes(gsl::span{vertices}),
-                                  static_cast<u32>(vertices.size()),
-                                  Vertex::sLayout});
+    return gfxCache->create_mesh(
+      gfx::MeshCreateInfo{as_bytes(gsl::span{vertices}),
+                          static_cast<u32>(vertices.size()), Vertex::sLayout});
   }();
 
   auto const material = [&] {

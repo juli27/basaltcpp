@@ -9,6 +9,7 @@ target_sources(LibAPI PRIVATE
   "info.h"
   "material.h"
   "material_class.h"
+  "mesh.h"
   "resource_cache.h"
   "resources.h"
   "types.h"

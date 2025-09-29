@@ -10,6 +10,7 @@
 #include <basalt/api/gfx/environment.h>
 #include <basalt/api/gfx/material.h>
 #include <basalt/api/gfx/material_class.h>
+#include <basalt/api/gfx/mesh.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
 
@@ -281,8 +282,8 @@ auto Samples::new_cubes_sample(Engine& engine) -> ViewPtr {
 
   auto const vertexData = as_bytes(span{vertices});
   auto const indexData = as_bytes(span{indices});
-  auto const mesh = gfxCache->create_mesh(
-    {vertexData, vertexCount, Vertex::sLayout, indexData, indexCount});
+  auto const mesh = gfxCache->create_mesh(gfx::MeshCreateInfo{
+    vertexData, vertexCount, Vertex::sLayout, indexData, indexCount});
 
   auto const material = [&] {
     auto classInfo = gfx::MaterialClassCreateInfo{};

@@ -12,6 +12,7 @@
 
 #include <basalt/api/gfx/material.h>
 #include <basalt/api/gfx/material_class.h>
+#include <basalt/api/gfx/mesh.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/resources.h>
 
@@ -144,6 +145,41 @@ auto Context::get(MaterialClassHandle const handle) const
   return mMaterialClasses[handle];
 }
 
+auto Context::create_mesh(MeshCreateInfo const& createInfo) -> UniqueMesh {
+  auto const vb = create_vertex_buffer(
+                    {createInfo.vertexData.size_bytes(), createInfo.layout},
+                    createInfo.vertexData)
+                    .release();
+  auto const ib = !createInfo.indexData.empty()
+                    ? create_index_buffer({createInfo.indexData.size_bytes(),
+                                           createInfo.indexType},
+                                          createInfo.indexData)
+                        .release()
+                    : nullhdl;
+
+  return UniqueMesh{mMeshes.emplace(Mesh{vb, 0u, createInfo.vertexCount, ib,
+                                         createInfo.indexCount}),
+                    make_deleter()};
+}
+
+auto Context::destroy(MeshHandle const meshHandle) noexcept -> void {
+  if (!mMeshes.is_valid(meshHandle)) {
+    return;
+  }
+
+  {
+    auto& data = get(meshHandle);
+    destroy(data.vertexBuffer());
+    destroy(data.indexBuffer());
+  }
+
+  mMeshes.destroy(meshHandle);
+}
+
+auto Context::get(MeshHandle const meshHandle) const -> Mesh const& {
+  return mMeshes[meshHandle];
+}
+
 auto Context::create_pipeline(PipelineCreateInfo const& createInfo)
   -> Pipeline {
   return Pipeline{mDevice->create_pipeline(createInfo), make_deleter()};
@@ -246,41 +282,6 @@ auto Context::create_index_buffer(IndexBufferCreateInfo const& createInfo,
 
 auto Context::destroy(IndexBufferHandle const handle) const noexcept -> void {
   mDevice->destroy(handle);
-}
-
-auto Context::create_mesh(MeshCreateInfo const& createInfo) -> Mesh {
-  auto const vb = create_vertex_buffer(
-                    {createInfo.vertexData.size_bytes(), createInfo.layout},
-                    createInfo.vertexData)
-                    .release();
-  auto const ib = !createInfo.indexData.empty()
-                    ? create_index_buffer({createInfo.indexData.size_bytes(),
-                                           createInfo.indexType},
-                                          createInfo.indexData)
-                        .release()
-                    : nullhdl;
-
-  return Mesh{mMeshes.emplace(MeshData{vb, 0u, createInfo.vertexCount, ib,
-                                       createInfo.indexCount}),
-              make_deleter()};
-}
-
-auto Context::destroy(MeshHandle const meshHandle) noexcept -> void {
-  if (!mMeshes.is_valid(meshHandle)) {
-    return;
-  }
-
-  {
-    auto& data = get(meshHandle);
-    destroy(data.vertexBuffer);
-    destroy(data.indexBuffer);
-  }
-
-  mMeshes.destroy(meshHandle);
-}
-
-auto Context::get(MeshHandle const meshHandle) const -> MeshData const& {
-  return mMeshes[meshHandle];
 }
 
 auto Context::load_x_meshes(path const& filePath) -> ext::XModelData {

@@ -12,6 +12,7 @@ target_sources(LibRuntime PRIVATE
   "gfx_system.cpp"
   "material.cpp"
   "material_class.cpp"
+  "mesh.cpp"
   "resource_cache.cpp"
   "utils.cpp"
   "utils.h"

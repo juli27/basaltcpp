@@ -8,6 +8,7 @@
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/environment.h>
 #include <basalt/api/gfx/material.h>
+#include <basalt/api/gfx/mesh.h>
 #include <basalt/api/gfx/types.h>
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
@@ -93,18 +94,18 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
 
     entities.view<LocalToWorld const, Model const>().each(
       [&](LocalToWorld const& localToWorld, Model const& model) {
-        auto const& meshData = gfxCtx.get(model.mesh);
+        auto const& mesh = gfxCtx.get(model.mesh);
 
         auto const renderMesh = [&]() -> RenderMesh {
-          if (meshData.indexBuffer) {
+          if (auto const indexBuffer = mesh.indexBuffer()) {
             return IndexedVbRenderMesh{
-              VertexBufferSlice{meshData.vertexBuffer, meshData.startVertex,
-                                meshData.vertexCount},
-              IndexBufferSlice{meshData.indexBuffer, 0, meshData.indexCount}};
+              VertexBufferSlice{mesh.vertexBuffer(), mesh.startVertex(),
+                                mesh.vertexCount()},
+              IndexBufferSlice{indexBuffer, 0, mesh.indexCount()}};
           }
 
           return VbRenderMesh{VertexBufferSlice{
-            meshData.vertexBuffer, meshData.startVertex, meshData.vertexCount}};
+            mesh.vertexBuffer(), mesh.startVertex(), mesh.vertexCount()}};
         }();
 
         auto const& material = gfxCtx.get(model.material);

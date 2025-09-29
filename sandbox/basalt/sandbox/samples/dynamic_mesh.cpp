@@ -13,6 +13,7 @@
 #include <basalt/api/gfx/environment.h>
 #include <basalt/api/gfx/material.h>
 #include <basalt/api/gfx/material_class.h>
+#include <basalt/api/gfx/mesh.h>
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/api/gfx/backend/vertex_layout.h>
@@ -129,10 +130,10 @@ private:
       Color::from_non_linear(1.0f - value, value, 1.0f).to_argb();
 
     auto& gfxCtx = ctx.engine.gfx_context();
-    auto const& meshData = gfxCtx.get(mMesh);
+    auto const& mesh = gfxCtx.get(mMesh);
 
     gfxCtx.with_mapping_of(
-      meshData.vertexBuffer, [&](gsl::span<std::byte> const data) {
+      mesh.vertexBuffer(), [&](gsl::span<std::byte> const data) {
         auto const vertexData = as_bytes(gsl::span{vertices});
         std::copy_n(vertexData.begin(),
                     std::min(vertexData.size_bytes(), data.size_bytes()),

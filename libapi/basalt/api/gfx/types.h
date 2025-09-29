@@ -12,9 +12,6 @@
 
 #include <basalt/api/base/types.h>
 
-#include <gsl/span>
-
-#include <cstddef>
 #include <memory>
 #include <variant>
 
@@ -41,23 +38,11 @@ using Texture = UniqueHandle<TextureHandle, ContextResourceDeleter>;
 using VertexBuffer = UniqueHandle<VertexBufferHandle, ContextResourceDeleter>;
 using IndexBuffer = UniqueHandle<IndexBufferHandle, ContextResourceDeleter>;
 
-BASALT_DEFINE_HANDLE(MeshHandle);
-using Mesh = UniqueHandle<MeshHandle, ContextResourceDeleter>;
-
 enum class BackendApi : u8 {
   Default,
   Direct3D9,
 };
 constexpr auto BACKEND_API_COUNT = u8{2};
-
-struct MeshCreateInfo final {
-  gsl::span<std::byte const> vertexData;
-  u32 vertexCount{};
-  VertexLayoutSpan layout;
-  gsl::span<std::byte const> indexData;
-  u32 indexCount{};
-  IndexType indexType{IndexType::U16};
-};
 
 using DirectionalLight = DirectionalLightData;
 
@@ -87,14 +72,6 @@ struct SpotLight {
 
 using Light = std::variant<PointLight, SpotLight>;
 
-struct MeshData final {
-  VertexBufferHandle vertexBuffer;
-  u32 startVertex;
-  u32 vertexCount;
-  IndexBufferHandle indexBuffer{};
-  u32 indexCount{};
-};
-
 class Material;
 struct MaterialCreateInfo;
 BASALT_DEFINE_HANDLE(MaterialHandle);
@@ -105,6 +82,11 @@ struct MaterialClassCreateInfo;
 BASALT_DEFINE_HANDLE(MaterialClassHandle);
 using UniqueMaterialClass =
   UniqueHandle<MaterialClassHandle, ContextResourceDeleter>;
+
+class Mesh;
+struct MeshCreateInfo;
+BASALT_DEFINE_HANDLE(MeshHandle);
+using UniqueMesh = UniqueHandle<MeshHandle, ContextResourceDeleter>;
 
 struct Model {
   MeshHandle mesh;

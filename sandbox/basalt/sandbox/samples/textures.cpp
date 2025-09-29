@@ -10,6 +10,7 @@
 #include <basalt/api/gfx/info.h>
 #include <basalt/api/gfx/material.h>
 #include <basalt/api/gfx/material_class.h>
+#include <basalt/api/gfx/mesh.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
 
@@ -149,7 +150,7 @@ auto Samples::new_textures_sample(Engine& engine) -> ViewPtr {
                                   Vertex{{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
                                   Vertex{{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},
                                   Vertex{{1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}}};
-  auto const mesh = gfxCache->create_mesh({
+  auto const mesh = gfxCache->create_mesh(gfx::MeshCreateInfo{
     as_bytes(span{vertices}),
     static_cast<u32>(vertices.size()),
     Vertex::sLayout,

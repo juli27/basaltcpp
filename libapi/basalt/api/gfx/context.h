@@ -57,6 +57,12 @@ public:
   auto get(MaterialClassHandle) const -> MaterialClass const&;
 
   [[nodiscard]]
+  auto create_mesh(MeshCreateInfo const&) -> UniqueMesh;
+  auto destroy(MeshHandle) noexcept -> void;
+  [[nodiscard]]
+  auto get(MeshHandle) const -> Mesh const&;
+
+  [[nodiscard]]
   auto create_pipeline(PipelineCreateInfo const&) -> Pipeline;
 
   auto destroy(PipelineHandle) const noexcept -> void;
@@ -141,13 +147,6 @@ public:
   }
 
   [[nodiscard]]
-  auto create_mesh(MeshCreateInfo const&) -> Mesh;
-
-  auto destroy(MeshHandle) noexcept -> void;
-
-  [[nodiscard]] auto get(MeshHandle) const -> MeshData const&;
-
-  [[nodiscard]]
   auto load_x_meshes(std::filesystem::path const&) -> ext::XModelData;
 
   auto destroy(ext::XMeshHandle) noexcept -> void;
@@ -179,7 +178,7 @@ private:
   Info mInfo;
   HandlePool<MaterialClass, MaterialClassHandle> mMaterialClasses;
   HandlePool<Material, MaterialHandle> mMaterials;
-  HandlePool<MeshData, MeshHandle> mMeshes;
+  HandlePool<Mesh, MeshHandle> mMeshes;
 
   auto make_deleter() -> ContextResourceDeleter;
 
