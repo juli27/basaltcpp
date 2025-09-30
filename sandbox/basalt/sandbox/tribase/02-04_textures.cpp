@@ -6,7 +6,6 @@
 
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
-#include <basalt/api/gfx/resources.h>
 
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>

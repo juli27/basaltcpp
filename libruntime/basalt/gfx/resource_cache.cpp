@@ -1,7 +1,6 @@
 #include <basalt/api/gfx/resource_cache.h>
 
 #include <basalt/api/gfx/context.h>
-#include <basalt/api/gfx/resources.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <gsl/span>

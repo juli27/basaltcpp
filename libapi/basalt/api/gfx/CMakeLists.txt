@@ -11,6 +11,5 @@ target_sources(LibAPI PRIVATE
   "material_class.h"
   "mesh.h"
   "resource_cache.h"
-  "resources.h"
   "types.h"
 )

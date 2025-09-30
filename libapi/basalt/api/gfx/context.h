@@ -198,4 +198,18 @@ private:
   auto unmap(IndexBufferHandle) const -> void;
 };
 
+class ContextResourceDeleter {
+public:
+  explicit ContextResourceDeleter(ContextPtr ctx) : mCtx{std::move(ctx)} {
+  }
+
+  template <typename Handle>
+  auto operator()(Handle const handle) const noexcept -> void {
+    mCtx->destroy(handle);
+  }
+
+private:
+  ContextPtr mCtx;
+};
+
 } // namespace basalt::gfx
