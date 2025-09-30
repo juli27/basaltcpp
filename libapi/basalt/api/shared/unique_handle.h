@@ -1,14 +1,17 @@
 #pragma once
 
-#include "handle.h"
-
+#include <optional>
 #include <utility>
 
 namespace basalt {
 
 template <typename Handle, typename Deleter>
 class UniqueHandle {
+  static_assert(std::is_trivially_copyable_v<Handle>);
+
 public:
+  UniqueHandle() = default;
+
   UniqueHandle(Handle const handle, Deleter deleter)
     : mDeleter{std::move(deleter)}
     , mHandle{handle} {
@@ -16,28 +19,23 @@ public:
 
   UniqueHandle(UniqueHandle const&) = delete;
 
-  UniqueHandle(UniqueHandle&& other) noexcept
-    : mDeleter{other.mDeleter}
-    , mHandle{std::exchange(other.mHandle, nullhdl)} {
+  UniqueHandle(UniqueHandle&& other) noexcept : UniqueHandle{} {
+    swap(*this, other);
   }
 
   ~UniqueHandle() noexcept {
-    mDeleter(mHandle);
+    if (mHandle) {
+      (*mDeleter)(mHandle);
+    }
   }
 
-  auto operator=(UniqueHandle const&) -> UniqueHandle& = delete;
-
-  auto operator=(UniqueHandle&& other) -> UniqueHandle& {
-    auto tmp = UniqueHandle{std::move(other)};
-
-    using std::swap;
-    swap(mDeleter, tmp.mDeleter);
-    swap(mHandle, tmp.mHandle);
+  auto operator=(UniqueHandle other) noexcept -> UniqueHandle& {
+    swap(*this, other);
 
     return *this;
   }
 
-  operator Handle() const {
+  operator Handle() const noexcept {
     return mHandle;
   }
 
@@ -45,12 +43,22 @@ public:
     return mHandle;
   }
 
-  auto release() -> Handle {
-    return std::exchange(mHandle, nullhdl);
+  auto release() noexcept -> Handle {
+    auto const handle = mHandle;
+    mHandle = nullhdl;
+    mDeleter.reset();
+
+    return handle;
+  }
+
+  friend auto swap(UniqueHandle& lhs, UniqueHandle& rhs) noexcept -> void {
+    using std::swap;
+    swap(lhs.mDeleter, rhs.mDeleter);
+    swap(lhs.mHandle, rhs.mHandle);
   }
 
 private:
-  Deleter mDeleter;
+  std::optional<Deleter> mDeleter;
   Handle mHandle;
 };
 
