@@ -281,9 +281,14 @@ auto Samples::new_cubes_sample(Engine& engine) -> ViewPtr {
   generate_mesh(vertices, indices);
 
   auto const vertexData = as_bytes(span{vertices});
+  auto const vertexBuffer = gfxCache->create_vertex_buffer(
+    gfx::VertexBufferCreateInfo{vertexData.size_bytes(), Vertex::sLayout},
+    vertexData);
   auto const indexData = as_bytes(span{indices});
-  auto const mesh = gfxCache->create_mesh(gfx::MeshCreateInfo{
-    vertexData, vertexCount, Vertex::sLayout, indexData, indexCount});
+  auto const indexBuffer = gfxCache->create_index_buffer(
+    gfx::IndexBufferCreateInfo{indexData.size_bytes()}, indexData);
+  auto const mesh = gfxCache->create_mesh(
+    gfx::MeshCreateInfo{vertexBuffer, vertexCount, indexBuffer, indexCount});
 
   auto const material = [&] {
     auto classInfo = gfx::MaterialClassCreateInfo{};

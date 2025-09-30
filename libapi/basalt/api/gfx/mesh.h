@@ -11,12 +11,10 @@
 namespace basalt::gfx {
 
 struct MeshCreateInfo {
-  gsl::span<std::byte const> vertexData;
+  gfx::VertexBufferHandle vertexBuffer;
   u32 vertexCount{};
-  VertexLayoutSpan layout;
-  gsl::span<std::byte const> indexData;
+  gfx::IndexBufferHandle indexBuffer;
   u32 indexCount{};
-  IndexType indexType{IndexType::U16};
 };
 
 class Mesh {

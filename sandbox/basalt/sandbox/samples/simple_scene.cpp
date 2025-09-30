@@ -172,9 +172,14 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
       vertices[2 * i + 1] = Vertex{{y, 1.0f, x}, normal, {ratio, 0.0f}};
     }
 
+    auto const vertexData = as_bytes(gsl::span{vertices});
+
+    auto const vertexBuffer = gfxCache->create_vertex_buffer(
+      gfx::VertexBufferCreateInfo{vertexData.size_bytes(), Vertex::sLayout},
+      vertexData);
+
     return gfxCache->create_mesh(
-      gfx::MeshCreateInfo{as_bytes(gsl::span{vertices}),
-                          static_cast<u32>(vertices.size()), Vertex::sLayout});
+      gfx::MeshCreateInfo{vertexBuffer, vertexCount});
   }();
 
   auto const material = [&] {

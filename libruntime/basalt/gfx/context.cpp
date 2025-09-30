@@ -145,33 +145,14 @@ auto Context::get(MaterialClassHandle const handle) const
 }
 
 auto Context::create_mesh(MeshCreateInfo const& createInfo) -> UniqueMesh {
-  auto const vb = create_vertex_buffer(
-                    {createInfo.vertexData.size_bytes(), createInfo.layout},
-                    createInfo.vertexData)
-                    .release();
-  auto const ib = !createInfo.indexData.empty()
-                    ? create_index_buffer({createInfo.indexData.size_bytes(),
-                                           createInfo.indexType},
-                                          createInfo.indexData)
-                        .release()
-                    : nullhdl;
+  auto const meshHandle =
+    mMeshes.emplace(Mesh{createInfo.vertexBuffer, 0u, createInfo.vertexCount,
+                         createInfo.indexBuffer, createInfo.indexCount});
 
-  return UniqueMesh{mMeshes.emplace(Mesh{vb, 0u, createInfo.vertexCount, ib,
-                                         createInfo.indexCount}),
-                    make_deleter()};
+  return UniqueMesh{meshHandle, make_deleter()};
 }
 
 auto Context::destroy(MeshHandle const meshHandle) noexcept -> void {
-  if (!mMeshes.is_valid(meshHandle)) {
-    return;
-  }
-
-  {
-    auto& data = get(meshHandle);
-    destroy(data.vertexBuffer());
-    destroy(data.indexBuffer());
-  }
-
   mMeshes.destroy(meshHandle);
 }
 

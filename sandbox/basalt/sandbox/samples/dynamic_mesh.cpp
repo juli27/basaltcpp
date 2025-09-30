@@ -192,10 +192,13 @@ auto Samples::new_dymanic_mesh_sample(Engine& engine) -> ViewPtr {
   }();
 
   auto const quadMesh = [&] {
+    auto const vertexData = as_bytes(gsl::span{QUAD_VERTICES});
+
     auto info = gfx::MeshCreateInfo{};
-    info.vertexData = as_bytes(gsl::span{QUAD_VERTICES});
+    info.vertexBuffer = gfxCache->create_vertex_buffer(
+      gfx::VertexBufferCreateInfo{vertexData.size_bytes(), Vertex::sLayout},
+      vertexData);
     info.vertexCount = static_cast<u32>(QUAD_VERTICES.size());
-    info.layout = Vertex::sLayout;
 
     return gfxCache->create_mesh(info);
   }();

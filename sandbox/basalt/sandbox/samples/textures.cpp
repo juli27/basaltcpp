@@ -150,10 +150,14 @@ auto Samples::new_textures_sample(Engine& engine) -> ViewPtr {
                                   Vertex{{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
                                   Vertex{{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},
                                   Vertex{{1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}}};
+  auto const vertexData = as_bytes(span{vertices});
+  auto const vertexBuffer = gfxCache->create_vertex_buffer(
+    gfx::VertexBufferCreateInfo{vertexData.size_bytes(), Vertex::sLayout},
+    vertexData);
+
   auto const mesh = gfxCache->create_mesh(gfx::MeshCreateInfo{
-    as_bytes(span{vertices}),
+    vertexBuffer,
     static_cast<u32>(vertices.size()),
-    Vertex::sLayout,
   });
 
   auto scene = Scene::create();
