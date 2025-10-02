@@ -179,10 +179,6 @@ auto D3D9Device::destroy(VertexBufferHandle const handle) noexcept -> void {
 auto D3D9Device::map(VertexBufferHandle const handle,
                      uDeviceSize const offsetInBytes, uDeviceSize sizeInBytes)
   -> span<byte> {
-  if (!mVertexBuffers.is_valid(handle)) {
-    return {};
-  }
-
   auto const& vertexBuffer = mVertexBuffers[handle];
   auto desc = D3DVERTEXBUFFER_DESC{};
   D3D9CHECK(vertexBuffer->GetDesc(&desc));
@@ -208,10 +204,6 @@ auto D3D9Device::map(VertexBufferHandle const handle,
 }
 
 auto D3D9Device::unmap(VertexBufferHandle const handle) noexcept -> void {
-  if (!mVertexBuffers.is_valid(handle)) {
-    return;
-  }
-
   auto const& vertexBuffer = mVertexBuffers[handle];
 
   D3D9CHECK(vertexBuffer->Unlock());
@@ -244,10 +236,6 @@ auto D3D9Device::destroy(IndexBufferHandle const handle) noexcept -> void {
 auto D3D9Device::map(IndexBufferHandle const handle,
                      uDeviceSize const offsetInBytes, uDeviceSize sizeInBytes)
   -> span<byte> {
-  if (!mIndexBuffers.is_valid(handle)) {
-    return {};
-  }
-
   auto const& indexBuffer = mIndexBuffers[handle];
   auto desc = D3DINDEXBUFFER_DESC{};
   D3D9CHECK(indexBuffer->GetDesc(&desc));
@@ -273,10 +261,6 @@ auto D3D9Device::map(IndexBufferHandle const handle,
 }
 
 auto D3D9Device::unmap(IndexBufferHandle const handle) noexcept -> void {
-  if (!mIndexBuffers.is_valid(handle)) {
-    return;
-  }
-
   auto const& indexBuffer = mIndexBuffers[handle];
 
   D3D9CHECK(indexBuffer->Unlock());
@@ -436,10 +420,6 @@ auto D3D9Device::execute(CommandDrawIndexed const& cmd) -> void {
 }
 
 auto D3D9Device::execute(CommandBindPipeline const& cmd) -> void {
-  if (!mPipelines.is_valid(cmd.pipelineId)) {
-    return;
-  }
-
   PIX_BEGIN_EVENT(0, L"CommandBindPipeline");
 
   auto const& data = mPipelines[cmd.pipelineId];
@@ -565,10 +545,6 @@ auto D3D9Device::execute(CommandBindPipeline const& cmd) -> void {
 }
 
 auto D3D9Device::execute(CommandBindVertexBuffer const& cmd) -> void {
-  if (!mVertexBuffers.is_valid(cmd.vertexBufferId)) {
-    return;
-  }
-
   auto const& buffer = mVertexBuffers[cmd.vertexBufferId];
 
   auto desc = D3DVERTEXBUFFER_DESC{};
@@ -581,20 +557,12 @@ auto D3D9Device::execute(CommandBindVertexBuffer const& cmd) -> void {
 }
 
 auto D3D9Device::execute(CommandBindIndexBuffer const& cmd) -> void {
-  if (!mIndexBuffers.is_valid(cmd.indexBufferId)) {
-    return;
-  }
-
   auto const& buffer = mIndexBuffers[cmd.indexBufferId];
 
   D3D9CHECK(mDevice->SetIndices(buffer.Get()));
 }
 
 auto D3D9Device::execute(CommandBindSampler const& cmd) -> void {
-  if (!mSamplers.is_valid(cmd.samplerId)) {
-    return;
-  }
-
   PIX_BEGIN_EVENT(0, L"CommandBindSampler");
 
   auto const& data = mSamplers[cmd.samplerId];

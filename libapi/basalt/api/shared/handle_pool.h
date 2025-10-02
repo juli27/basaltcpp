@@ -46,7 +46,9 @@ public:
 
   [[nodiscard]]
   auto is_valid(Handle const handle) const noexcept -> bool {
-    return is_allocated(handle) && is_active(handle);
+    auto const idx = to_index(handle);
+
+    return is_allocated(idx) && is_active(idx);
   }
 
   // handle must be valid
@@ -54,7 +56,7 @@ public:
   auto operator[](Handle const handle) const noexcept -> T const& {
     BASALT_ASSERT(is_valid(handle));
 
-    return *mSlots[handle.value()];
+    return *mSlots[to_index(handle)];
   }
 
   // handle must be valid
@@ -62,7 +64,7 @@ public:
   auto operator[](Handle const handle) noexcept -> T& {
     BASALT_ASSERT(is_valid(handle));
 
-    return *mSlots[handle.value()];
+    return *mSlots[to_index(handle)];
   }
 
   template <typename... Args>
@@ -74,10 +76,8 @@ public:
     if (!mFreeList.empty()) {
       auto const handle = mFreeList.back();
       mFreeList.pop_back();
-      auto const index = handle.value();
-
-      mSlots[index] = data;
-      mActiveSlots.emplace_back(handle);
+      mSlots[to_index(handle)] = data;
+      mActiveSlots.push_back(handle);
 
       return handle;
     }
@@ -89,8 +89,8 @@ public:
       return Handle{static_cast<IndexType>(index)};
     }();
 
-    mSlots.emplace_back(data);
-    mActiveSlots.emplace_back(handle);
+    mSlots.push_back(data);
+    mActiveSlots.push_back(handle);
 
     return handle;
   }
@@ -102,9 +102,8 @@ public:
       return emplace(std::forward<Args>(args)...);
     }
 
-    auto const index = hint.value();
-
-    if (!is_allocated(hint)) {
+    auto const index = to_index(hint);
+    if (!is_allocated(index)) {
       auto const oldSize = mSlots.size();
       mSlots.resize(index + 1);
 
@@ -122,7 +121,7 @@ public:
     AllocatorTraits::construct(mAllocator, data, std::forward<Args>(args)...);
 
     mSlots[index] = data;
-    mActiveSlots.emplace_back(hint);
+    mActiveSlots.push_back(hint);
 
     return hint;
   }
@@ -136,7 +135,7 @@ public:
       std::remove(mActiveSlots.begin(), mActiveSlots.end(), handle),
       mActiveSlots.end());
 
-    auto const index = handle.value();
+    auto const index = to_index(handle);
     auto* data = mSlots[index];
 
     AllocatorTraits::destroy(mAllocator, data);
@@ -146,6 +145,7 @@ public:
     if (index == mSlots.size() - 1) {
       mSlots.pop_back();
     } else {
+      mSlots[index] = nullptr;
       mFreeList.push_back(handle);
     }
   }
@@ -181,14 +181,17 @@ private:
   std::vector<Handle> mFreeList;
 
   [[nodiscard]]
-  auto is_allocated(Handle const handle) const noexcept -> bool {
-    return handle.value() < mSlots.size();
+  auto is_allocated(uSize const idx) const noexcept -> bool {
+    return idx < mSlots.size();
   }
 
   [[nodiscard]]
-  auto is_active(Handle const handle) const noexcept -> bool {
-    return std::find(mActiveSlots.begin(), mActiveSlots.end(), handle) !=
-           mActiveSlots.end();
+  auto is_active(uSize const idx) const noexcept -> bool {
+    return mSlots[idx] != nullptr;
+  }
+
+  static constexpr auto to_index(Handle const handle) noexcept -> uSize {
+    return handle.value();
   }
 };
 
