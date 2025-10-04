@@ -43,7 +43,7 @@ namespace {
 
 auto constexpr TEXTURE_FILE_PATH = "data/tribase/Texture.bmp"sv;
 
-auto constexpr NUM_TRIANGLES = uSize{1024};
+auto constexpr INITIAL_NUM_TRIANGLES = uSize{1024};
 
 struct Vertex {
   Vector3f32 pos;
@@ -88,19 +88,22 @@ public:
                                  SystemId const movementSystemId,
                                  gfx::MaterialHandle const material)
     : mScene{sceneView->scene()}
-    , mGfxCache{engine.create_gfx_resource_cache()}
+    , mTrianglesResources{engine.create_gfx_resource_cache()}
     , mMovementSystemId{movementSystemId}
     , mMaterial{material} {
     add_child_bottom(std::move(sceneView));
 
     // set initial sampler to material
     update_sampler(engine.gfx_context());
+    update_triangles();
   }
 
 private:
   ScenePtr mScene;
-  gfx::ResourceCachePtr mGfxCache;
+  gfx::ResourceCachePtr mTrianglesResources;
+  std::vector<EntityId> mTriangles;
   gfx::Sampler mSampler;
+  uSize mNumTriangles{INITIAL_NUM_TRIANGLES};
   SystemId mMovementSystemId;
   gfx::MaterialHandle mMaterial;
   gfx::TextureFilter mMagFilter{gfx::TextureFilter::Bilinear};
@@ -125,6 +128,89 @@ private:
     material.set_value(propertyId, sampledTexture);
   }
 
+  auto update_triangles() -> void {
+    auto& entities = mScene->entity_registry();
+
+    entities.destroy(mTriangles.cbegin(), mTriangles.cend());
+    mTriangles.clear();
+    mTrianglesResources->destroy_all();
+
+    auto randomEngine = std::default_random_engine{std::random_device{}()};
+    auto rng2 = Distribution{-1.0f, 1.0f};
+    auto const getRandomNormalizedVector = [&] {
+      return Vector3f32::normalized(rng2(randomEngine), rng2(randomEngine),
+                                    rng2(randomEngine));
+    };
+
+    auto const vertices = [&] {
+      auto rng4 = Distribution{0.0f, 1.0f};
+      auto const getRandomColor = [&] {
+        return Color::from_non_linear(rng4(randomEngine), rng4(randomEngine),
+                                      rng4(randomEngine));
+      };
+      auto rng5 = Distribution{-1.0f, 2.0f};
+      auto const getRandomUv = [&] {
+        return Vector2f32{rng5(randomEngine), rng5(randomEngine)};
+      };
+
+      auto const numVertices = 3 * mNumTriangles;
+      auto vertices = std::vector<Vertex>{};
+      vertices.reserve(numVertices);
+      for (auto i = uSize{0}; i < mNumTriangles; ++i) {
+        for (auto vertIdx = uSize{0}; vertIdx < 3; ++vertIdx) {
+          vertices.push_back(Vertex{
+            getRandomNormalizedVector(),
+            getRandomColor().to_argb(),
+            getRandomUv(),
+          });
+        }
+      }
+
+      return vertices;
+    }();
+    auto const verticesSpan = gsl::span{vertices};
+
+    auto scaleRng = Distribution{1.0f, 5.0f};
+    auto rng3 = Distribution{0.1f, 5.0f};
+    auto constexpr position = Vector3f32{0.0f, 0.0f, 50.0f};
+    auto constexpr rotation = Vector3f32{};
+    mTriangles.reserve(mNumTriangles);
+    for (auto i = uSize{0}; i < mNumTriangles; ++i) {
+      auto const scale = scaleRng(randomEngine);
+      auto const triangle =
+        mScene->create_entity(fmt::format(FMT_STRING("Triangle {}"), i + 1),
+                              position, rotation, Vector3f32{scale});
+
+      auto const velocity = rng3(randomEngine) * getRandomNormalizedVector();
+      auto const rotationVelocity = Vector3f32{
+        rng2(randomEngine),
+        rng2(randomEngine),
+        rng2(randomEngine),
+      };
+      triangle.emplace<TriangleMovement>(velocity, rotationVelocity);
+
+      auto const mesh = [&] {
+        auto const triangleVertices = verticesSpan.subspan(3 * i, 3);
+
+        auto info = gfx::MeshCreateInfo{};
+        info.vertexBuffer = [&] {
+          auto info = gfx::VertexBufferCreateInfo{};
+          info.sizeInBytes = triangleVertices.size_bytes();
+          info.layout = Vertex::sLayout;
+          return mTrianglesResources->create_vertex_buffer(
+            info, as_bytes(triangleVertices));
+        }();
+        info.vertexCount = static_cast<u32>(triangleVertices.size());
+
+        return mTrianglesResources->create_mesh(info);
+      }();
+
+      triangle.emplace<gfx::Model>(mesh, mMaterial);
+
+      mTriangles.push_back(triangle.entity());
+    }
+  }
+
   auto on_update(UpdateContext& ctx) -> void override {
     if (ImGui::IsKeyPressed(ImGuiKey_Space, false)) {
       if (mMovementSystemId) {
@@ -138,6 +224,19 @@ private:
     if (ImGui::Begin("Settings##TribaseTextures")) {
       ImGui::TextUnformatted(mMovementSystemId ? "Press SPACE to pause"
                                                : "Press SPACE to unpause");
+
+      {
+        ImGui::SeparatorText("Number of Triangles");
+
+        auto numTriangles = static_cast<int>(mNumTriangles);
+        ImGui::DragInt("##numTriangles", &numTriangles, 4.0f, 0, 1 << 24, "%d",
+                       ImGuiSliderFlags_AlwaysClamp);
+        mNumTriangles = static_cast<uSize>(numTriangles);
+
+        if (ImGui::Button("Apply")) {
+          update_triangles();
+        }
+      }
 
       auto const editTextureFilter = [&](gfx::TextureFilter& filter) -> bool {
         auto value = static_cast<int>(filter);
@@ -169,21 +268,21 @@ private:
       };
 
       auto& gfxCtx = ctx.engine.gfx_context();
-      ImGui::SeparatorText("MAG");
+      ImGui::SeparatorText("Magnification Filter");
       ImGui::PushID("magFilter");
       if (editTextureFilter(mMagFilter)) {
         update_sampler(gfxCtx);
       }
       ImGui::PopID();
 
-      ImGui::SeparatorText("MIN");
+      ImGui::SeparatorText("Minification Filter");
       ImGui::PushID("minFilter");
       if (editTextureFilter(mMinFilter)) {
         update_sampler(gfxCtx);
       }
       ImGui::PopID();
 
-      ImGui::SeparatorText("MIP");
+      ImGui::SeparatorText("Mip-Map Filter");
       ImGui::PushID("mipFilter");
       if (editTextureMipFilter(mMipFilter)) {
         update_sampler(gfxCtx);
@@ -204,7 +303,7 @@ auto Benchmarks::make_textured_triangles_view(Engine& engine) -> ViewPtr {
                                   rng2(randomEngine));
   };
 
-  auto gfxCache = engine.create_gfx_resource_cache();
+  auto sceneResources = engine.create_gfx_resource_cache();
 
   auto const material = [&] {
     auto info = gfx::MaterialCreateInfo{};
@@ -221,12 +320,12 @@ auto Benchmarks::make_textured_triangles_view(Engine& engine) -> ViewPtr {
       pipelineInfo.depthTest = gfx::TestPassCond::IfLessEqual;
       pipelineInfo.depthWriteEnable = true;
 
-      return gfxCache->create_material_class(info);
+      return sceneResources->create_material_class(info);
     }();
 
     auto sampledTexture = gfx::SampledTexture{};
     // sampler is set in ::TexturedTrianglesView::update_sampler
-    sampledTexture.texture = gfxCache->load_texture_2d(TEXTURE_FILE_PATH);
+    sampledTexture.texture = sceneResources->load_texture_2d(TEXTURE_FILE_PATH);
 
     auto const values = std::array{
       gfx::MaterialProperty{gfx::MaterialPropertyId::SampledTexture,
@@ -234,36 +333,8 @@ auto Benchmarks::make_textured_triangles_view(Engine& engine) -> ViewPtr {
     };
     info.initialValues = values;
 
-    return gfxCache->create_material(info);
+    return sceneResources->create_material(info);
   }();
-
-  auto const vertices = [&] {
-    auto rng4 = Distribution{0.0f, 1.0f};
-    auto const getRandomColor = [&] {
-      return Color::from_non_linear(rng4(randomEngine), rng4(randomEngine),
-                                    rng4(randomEngine));
-    };
-    auto rng5 = Distribution{-1.0f, 2.0f};
-    auto const getRandomUv = [&] {
-      return Vector2f32{rng5(randomEngine), rng5(randomEngine)};
-    };
-
-    auto constexpr numVertices = 3 * NUM_TRIANGLES;
-    auto vertices = std::vector<Vertex>{};
-    vertices.reserve(numVertices);
-    for (auto i = uSize{0}; i < NUM_TRIANGLES; ++i) {
-      for (auto vertIdx = uSize{0}; vertIdx < 3; ++vertIdx) {
-        vertices.push_back(Vertex{
-          getRandomNormalizedVector(),
-          getRandomColor().to_argb(),
-          getRandomUv(),
-        });
-      }
-    }
-
-    return vertices;
-  }();
-  auto const verticesSpan = gsl::span{vertices};
 
   auto scene = Scene::create();
   auto const movementSystemId = scene->create_system<TriangleMovementSystem>();
@@ -271,51 +342,12 @@ auto Benchmarks::make_textured_triangles_view(Engine& engine) -> ViewPtr {
   auto& gfxEnv = scene->entity_registry().ctx().emplace<gfx::Environment>();
   gfxEnv.set_background(Color::from_non_linear_rgba8(0, 0, 63));
 
-  {
-    auto scaleRng = Distribution{1.0f, 5.0f};
-    auto rng3 = Distribution{0.1f, 5.0f};
-    auto constexpr position = Vector3f32{0.0f, 0.0f, 50.0f};
-    auto constexpr rotation = Vector3f32{};
-    for (auto i = uSize{0}; i < NUM_TRIANGLES; ++i) {
-      auto const scale = scaleRng(randomEngine);
-      auto const triangle =
-        scene->create_entity(fmt::format(FMT_STRING("Triangle {}"), i + 1),
-                             position, rotation, Vector3f32{scale});
-
-      auto const velocity = rng3(randomEngine) * getRandomNormalizedVector();
-      auto const rotationVelocity = Vector3f32{
-        rng2(randomEngine),
-        rng2(randomEngine),
-        rng2(randomEngine),
-      };
-      triangle.emplace<TriangleMovement>(velocity, rotationVelocity);
-
-      auto const mesh = [&] {
-        auto const triangleVertices = verticesSpan.subspan(3 * i, 3);
-
-        auto info = gfx::MeshCreateInfo{};
-        info.vertexBuffer = [&] {
-          auto info = gfx::VertexBufferCreateInfo{};
-          info.sizeInBytes = triangleVertices.size_bytes();
-          info.layout = Vertex::sLayout;
-          return gfxCache->create_vertex_buffer(info,
-                                                as_bytes(triangleVertices));
-        }();
-        info.vertexCount = static_cast<u32>(triangleVertices.size());
-
-        return gfxCache->create_mesh(info);
-      }();
-
-      triangle.emplace<gfx::Model>(mesh, material);
-    }
-  }
-
   auto const camera = scene->create_entity("Camera"s);
   camera.emplace<gfx::Camera>(Vector3f32::forward(), Vector3f32::up(), 90_deg,
                               0.1f, 100.0f);
 
-  auto sceneView = DebugSceneView::create(std::move(scene), std::move(gfxCache),
-                                          camera.entity());
+  auto sceneView = DebugSceneView::create(
+    std::move(scene), std::move(sceneResources), camera.entity());
 
   return std::make_shared<TexturedTrianglesView>(engine, std::move(sceneView),
                                                  movementSystemId, material);

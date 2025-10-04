@@ -31,45 +31,7 @@ ResourceCache::ResourceCache(ContextPtr context)
 }
 
 ResourceCache::~ResourceCache() noexcept {
-  for (auto const handle : mXMeshes) {
-    mContext->destroy(handle);
-  }
-
-  for (auto const handle : mMeshes) {
-    mContext->destroy(handle);
-  }
-
-  for (auto const handle : mIndexBuffers) {
-    mContext->destroy(handle);
-  }
-
-  for (auto const handle : mVertexBuffers) {
-    mContext->destroy(handle);
-  }
-
-  for (auto const handle : mEffects) {
-    mContext->destroy(handle);
-  }
-
-  for (auto const handle : mMaterials) {
-    mContext->destroy(handle);
-  }
-
-  for (auto const handle : mMaterialClasses) {
-    mContext->destroy(handle);
-  }
-
-  for (auto const handle : mTextures) {
-    mContext->destroy(handle);
-  }
-
-  for (auto const handle : mSamplers) {
-    mContext->destroy(handle);
-  }
-
-  for (auto const handle : mPipelines) {
-    mContext->destroy(handle);
-  }
+  destroy_all();
 }
 
 auto ResourceCache::context() const noexcept -> ContextPtr const& {
@@ -173,6 +135,48 @@ auto ResourceCache::load_x_meshes(path const& filePath) -> ext::XModelData {
             std::back_inserter(mXMeshes));
 
   return data;
+}
+
+auto ResourceCache::destroy_all() noexcept -> void {
+  for (auto const handle : mXMeshes) {
+    mContext->destroy(handle);
+  }
+
+  for (auto const handle : mMeshes) {
+    mContext->destroy(handle);
+  }
+
+  for (auto const handle : mIndexBuffers) {
+    mContext->destroy(handle);
+  }
+
+  for (auto const handle : mVertexBuffers) {
+    mContext->destroy(handle);
+  }
+
+  for (auto const handle : mEffects) {
+    mContext->destroy(handle);
+  }
+
+  for (auto const handle : mMaterials) {
+    mContext->destroy(handle);
+  }
+
+  for (auto const handle : mMaterialClasses) {
+    mContext->destroy(handle);
+  }
+
+  for (auto const handle : mTextures) {
+    mContext->destroy(handle);
+  }
+
+  for (auto const handle : mSamplers) {
+    mContext->destroy(handle);
+  }
+
+  for (auto const handle : mPipelines) {
+    mContext->destroy(handle);
+  }
 }
 
 } // namespace basalt::gfx

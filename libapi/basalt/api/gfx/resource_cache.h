@@ -75,6 +75,8 @@ public:
   [[nodiscard]]
   auto load_x_meshes(std::filesystem::path const&) -> ext::XModelData;
 
+  auto destroy_all() noexcept -> void;
+
 private:
   ContextPtr mContext;
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "handle.h"
+
 #include <optional>
 #include <type_traits>
 #include <utility>
@@ -32,7 +34,11 @@ public:
 
   auto operator=(UniqueHandle other) noexcept -> UniqueHandle& {
     swap(*this, other);
+    return *this;
+  }
 
+  auto operator=(NullHdl const) noexcept -> UniqueHandle& {
+    reset();
     return *this;
   }
 
@@ -50,6 +56,14 @@ public:
     mDeleter.reset();
 
     return handle;
+  }
+
+  auto reset() noexcept -> void {
+    if (mHandle) {
+      (*mDeleter)(mHandle);
+      mHandle = nullhdl;
+      mDeleter.reset();
+    }
   }
 
   friend auto swap(UniqueHandle& lhs, UniqueHandle& rhs) noexcept -> void {
