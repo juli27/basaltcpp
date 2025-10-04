@@ -2,6 +2,7 @@
 
 #include "settings_ui.h"
 
+#include "benchmarks/benchmarks.h"
 #include "samples/samples.h"
 #include "tribase/tribase_examples.h"
 
@@ -35,10 +36,6 @@ auto SandboxView::create(Engine& engine, Settings settings) -> ViewPtr {
 SandboxView::SandboxView(Engine& engine, Settings settings)
   : mSettings{std::move(settings)} {
   mExamples.reserve(20);
-  mExamples.emplace_back(Example{
-    "Bsp. 02-04: Texturen"s,
-    &TribaseExamples::new_02_04_textures_example,
-  });
   mExamples.emplace_back(Example{
     "Bsp. 02-04: Texturen - Aufgabe 1-3"s,
     &TribaseExamples::new_02_04_textures_exercises,
@@ -114,6 +111,10 @@ SandboxView::SandboxView(Engine& engine, Settings settings)
   mExamples.emplace_back(Example{
     "D3DX XMesh"s,
     &Samples::new_d3dx_x_mesh_sample,
+  });
+  mExamples.emplace_back(Example{
+    "Benchmark: Textured Triangles"s,
+    &Benchmarks::make_textured_triangles_view,
   });
 
   set_scene(mCurrentExampleIndex, engine);

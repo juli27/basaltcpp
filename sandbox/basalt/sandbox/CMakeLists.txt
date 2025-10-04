@@ -1,5 +1,6 @@
 add_subdirectory("shared")
 add_subdirectory("samples")
+add_subdirectory("benchmarks")
 add_subdirectory("tribase")
 
 target_sources(Sandbox PRIVATE

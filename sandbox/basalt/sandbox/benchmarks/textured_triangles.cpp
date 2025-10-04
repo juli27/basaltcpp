@@ -1,4 +1,4 @@
-#include "tribase_examples.h"
+#include "benchmarks.h"
 
 #include <basalt/sandbox/shared/debug_scene_view.h>
 
@@ -82,11 +82,11 @@ public:
   }
 };
 
-class TexturesView final : public View {
+class TexturedTrianglesView final : public View {
 public:
-  explicit TexturesView(Engine& engine, SceneViewPtr sceneView,
-                        SystemId const movementSystemId,
-                        gfx::MaterialHandle const material)
+  explicit TexturedTrianglesView(Engine& engine, SceneViewPtr sceneView,
+                                 SystemId const movementSystemId,
+                                 gfx::MaterialHandle const material)
     : mScene{sceneView->scene()}
     , mGfxCache{engine.create_gfx_resource_cache()}
     , mMovementSystemId{movementSystemId}
@@ -196,7 +196,7 @@ private:
 
 } // namespace
 
-auto TribaseExamples::new_02_04_textures_example(Engine& engine) -> ViewPtr {
+auto Benchmarks::make_textured_triangles_view(Engine& engine) -> ViewPtr {
   auto randomEngine = std::default_random_engine{std::random_device{}()};
   auto rng2 = Distribution{-1.0f, 1.0f};
   auto const getRandomNormalizedVector = [&] {
@@ -225,7 +225,7 @@ auto TribaseExamples::new_02_04_textures_example(Engine& engine) -> ViewPtr {
     }();
 
     auto sampledTexture = gfx::SampledTexture{};
-    // sampler is set in ::TexturesView::update_sampler
+    // sampler is set in ::TexturedTrianglesView::update_sampler
     sampledTexture.texture = gfxCache->load_texture_2d(TEXTURE_FILE_PATH);
 
     auto const values = std::array{
@@ -317,6 +317,6 @@ auto TribaseExamples::new_02_04_textures_example(Engine& engine) -> ViewPtr {
   auto sceneView = DebugSceneView::create(std::move(scene), std::move(gfxCache),
                                           camera.entity());
 
-  return std::make_shared<TexturesView>(engine, std::move(sceneView),
-                                        movementSystemId, material);
+  return std::make_shared<TexturedTrianglesView>(engine, std::move(sceneView),
+                                                 movementSystemId, material);
 }
