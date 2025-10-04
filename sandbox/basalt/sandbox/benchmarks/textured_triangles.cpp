@@ -43,7 +43,7 @@ namespace {
 
 auto constexpr TEXTURE_FILE_PATH = "data/tribase/Texture.bmp"sv;
 
-auto constexpr INITIAL_NUM_TRIANGLES = uSize{1024};
+auto constexpr INITIAL_NUM_TRIANGLES = u32{1024};
 
 struct Vertex {
   Vector3f32 pos;
@@ -103,7 +103,7 @@ private:
   gfx::ResourceCachePtr mTrianglesResources;
   std::vector<EntityId> mTriangles;
   gfx::Sampler mSampler;
-  uSize mNumTriangles{INITIAL_NUM_TRIANGLES};
+  u32 mNumTriangles{INITIAL_NUM_TRIANGLES};
   SystemId mMovementSystemId;
   gfx::MaterialHandle mMaterial;
   gfx::TextureFilter mMagFilter{gfx::TextureFilter::Bilinear};
@@ -142,40 +142,48 @@ private:
                                     rng2(randomEngine));
     };
 
-    auto const vertices = [&] {
-      auto rng4 = Distribution{0.0f, 1.0f};
-      auto const getRandomColor = [&] {
-        return Color::from_non_linear(rng4(randomEngine), rng4(randomEngine),
-                                      rng4(randomEngine));
-      };
-      auto rng5 = Distribution{-1.0f, 2.0f};
-      auto const getRandomUv = [&] {
-        return Vector2f32{rng5(randomEngine), rng5(randomEngine)};
-      };
+    auto const vertexBuffer = [&] {
+      auto const vertices = [&] {
+        auto rng4 = Distribution{0.0f, 1.0f};
+        auto const getRandomColor = [&] {
+          return Color::from_non_linear(rng4(randomEngine), rng4(randomEngine),
+                                        rng4(randomEngine));
+        };
+        auto rng5 = Distribution{-1.0f, 2.0f};
+        auto const getRandomUv = [&] {
+          return Vector2f32{rng5(randomEngine), rng5(randomEngine)};
+        };
 
-      auto const numVertices = 3 * mNumTriangles;
-      auto vertices = std::vector<Vertex>{};
-      vertices.reserve(numVertices);
-      for (auto i = uSize{0}; i < mNumTriangles; ++i) {
-        for (auto vertIdx = uSize{0}; vertIdx < 3; ++vertIdx) {
-          vertices.push_back(Vertex{
-            getRandomNormalizedVector(),
-            getRandomColor().to_argb(),
-            getRandomUv(),
-          });
+        auto const numVertices = 3 * mNumTriangles;
+        auto vertices = std::vector<Vertex>{};
+        vertices.reserve(numVertices);
+        for (auto i = u32{0}; i < mNumTriangles; ++i) {
+          for (auto vertIdx = u32{0}; vertIdx < 3; ++vertIdx) {
+            vertices.push_back(Vertex{
+              getRandomNormalizedVector(),
+              getRandomColor().to_argb(),
+              getRandomUv(),
+            });
+          }
         }
-      }
 
-      return vertices;
+        return vertices;
+      }();
+
+      auto const vertexData = as_bytes(gsl::span{vertices});
+      auto info = gfx::VertexBufferCreateInfo{};
+      info.sizeInBytes = vertexData.size_bytes();
+      info.layout = Vertex::sLayout;
+
+      return mTrianglesResources->create_vertex_buffer(info, vertexData);
     }();
-    auto const verticesSpan = gsl::span{vertices};
 
     auto scaleRng = Distribution{1.0f, 5.0f};
     auto rng3 = Distribution{0.1f, 5.0f};
     auto constexpr position = Vector3f32{0.0f, 0.0f, 50.0f};
     auto constexpr rotation = Vector3f32{};
     mTriangles.reserve(mNumTriangles);
-    for (auto i = uSize{0}; i < mNumTriangles; ++i) {
+    for (auto i = u32{0}; i < mNumTriangles; ++i) {
       auto const scale = scaleRng(randomEngine);
       auto const triangle =
         mScene->create_entity(fmt::format(FMT_STRING("Triangle {}"), i + 1),
@@ -190,17 +198,10 @@ private:
       triangle.emplace<TriangleMovement>(velocity, rotationVelocity);
 
       auto const mesh = [&] {
-        auto const triangleVertices = verticesSpan.subspan(3 * i, 3);
-
         auto info = gfx::MeshCreateInfo{};
-        info.vertexBuffer = [&] {
-          auto info = gfx::VertexBufferCreateInfo{};
-          info.sizeInBytes = triangleVertices.size_bytes();
-          info.layout = Vertex::sLayout;
-          return mTrianglesResources->create_vertex_buffer(
-            info, as_bytes(triangleVertices));
-        }();
-        info.vertexCount = static_cast<u32>(triangleVertices.size());
+        info.vertexBuffer = vertexBuffer;
+        info.vertexStart = 3 * i;
+        info.vertexCount = 3;
 
         return mTrianglesResources->create_mesh(info);
       }();

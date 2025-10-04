@@ -2,11 +2,11 @@
 
 namespace basalt::gfx {
 
-Mesh::Mesh(VertexBufferHandle const vertexBuffer, u32 const startVertex,
+Mesh::Mesh(VertexBufferHandle const vertexBuffer, u32 const vertexStart,
            u32 const vertexCount, IndexBufferHandle const ibHandle,
            u32 const indexCount)
   : mVertexBuffer{vertexBuffer}
-  , mStartVertex{startVertex}
+  , mVertexStart{vertexStart}
   , mVertexCount{vertexCount}
   , mIndexBuffer{ibHandle}
   , mIndexCount{indexCount} {
@@ -16,8 +16,8 @@ auto Mesh::vertexBuffer() const -> VertexBufferHandle {
   return mVertexBuffer;
 }
 
-auto Mesh::startVertex() const -> u32 {
-  return mStartVertex;
+auto Mesh::vertexStart() const -> u32 {
+  return mVertexStart;
 }
 
 auto Mesh::vertexCount() const -> u32 {

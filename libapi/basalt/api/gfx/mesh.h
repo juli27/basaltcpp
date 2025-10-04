@@ -12,6 +12,7 @@ namespace basalt::gfx {
 
 struct MeshCreateInfo {
   gfx::VertexBufferHandle vertexBuffer;
+  u32 vertexStart{0};
   u32 vertexCount{};
   gfx::IndexBufferHandle indexBuffer;
   u32 indexCount{};
@@ -19,13 +20,13 @@ struct MeshCreateInfo {
 
 class Mesh {
 public:
-  Mesh(VertexBufferHandle, u32 startVertex, u32 vertexCount, IndexBufferHandle,
+  Mesh(VertexBufferHandle, u32 vertexStart, u32 vertexCount, IndexBufferHandle,
        u32 indexCount);
 
   [[nodiscard]]
   auto vertexBuffer() const -> VertexBufferHandle;
   [[nodiscard]]
-  auto startVertex() const -> u32;
+  auto vertexStart() const -> u32;
   [[nodiscard]]
   auto vertexCount() const -> u32;
   [[nodiscard]]
@@ -35,7 +36,7 @@ public:
 
 private:
   VertexBufferHandle mVertexBuffer;
-  u32 mStartVertex{};
+  u32 mVertexStart{0};
   u32 mVertexCount{};
   IndexBufferHandle mIndexBuffer;
   u32 mIndexCount{};

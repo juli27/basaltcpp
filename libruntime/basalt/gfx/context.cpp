@@ -145,9 +145,9 @@ auto Context::get(MaterialClassHandle const handle) const
 }
 
 auto Context::create_mesh(MeshCreateInfo const& createInfo) -> UniqueMesh {
-  auto const meshHandle =
-    mMeshes.emplace(Mesh{createInfo.vertexBuffer, 0u, createInfo.vertexCount,
-                         createInfo.indexBuffer, createInfo.indexCount});
+  auto const meshHandle = mMeshes.emplace(Mesh{
+    createInfo.vertexBuffer, createInfo.vertexStart, createInfo.vertexCount,
+    createInfo.indexBuffer, createInfo.indexCount});
 
   return UniqueMesh{meshHandle, make_deleter()};
 }

@@ -288,7 +288,7 @@ auto Samples::new_cubes_sample(Engine& engine) -> ViewPtr {
   auto const indexBuffer = gfxCache->create_index_buffer(
     gfx::IndexBufferCreateInfo{indexData.size_bytes()}, indexData);
   auto const mesh = gfxCache->create_mesh(
-    gfx::MeshCreateInfo{vertexBuffer, vertexCount, indexBuffer, indexCount});
+    gfx::MeshCreateInfo{vertexBuffer, 0, vertexCount, indexBuffer, indexCount});
 
   auto const material = [&] {
     auto classInfo = gfx::MaterialClassCreateInfo{};

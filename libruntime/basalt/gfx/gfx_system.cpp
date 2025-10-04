@@ -99,13 +99,13 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
         auto const renderMesh = [&]() -> RenderMesh {
           if (auto const indexBuffer = mesh.indexBuffer()) {
             return IndexedVbRenderMesh{
-              VertexBufferSlice{mesh.vertexBuffer(), mesh.startVertex(),
+              VertexBufferSlice{mesh.vertexBuffer(), mesh.vertexStart(),
                                 mesh.vertexCount()},
               IndexBufferSlice{indexBuffer, 0, mesh.indexCount()}};
           }
 
           return VbRenderMesh{VertexBufferSlice{
-            mesh.vertexBuffer(), mesh.startVertex(), mesh.vertexCount()}};
+            mesh.vertexBuffer(), mesh.vertexStart(), mesh.vertexCount()}};
         }();
 
         auto const& material = gfxCtx.get(model.material);
