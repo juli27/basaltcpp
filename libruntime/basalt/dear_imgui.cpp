@@ -197,7 +197,6 @@ DearImGui::DearImGui(std::shared_ptr<gfx::ext::DearImGuiRenderer> renderer)
   io.ConfigDebugIsDebuggerPresent = Platform::is_debugger_attached();
 
   io.Fonts->AddFontDefault();
-  io.Fonts->Build();
 
   if (mRenderer) {
     // this also uploads the font texture

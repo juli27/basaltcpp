@@ -60,7 +60,7 @@ auto SceneInspector::entity_hierarchy(EntityRegistry& entities) -> void {
 auto SceneInspector::entity_node(Entity entity) -> void {
   constexpr auto baseFlags =
     ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow |
-    ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_NavLeftJumpsBackHere;
+    ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_NavLeftJumpsToParent;
   constexpr auto leafFlags =
     baseFlags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
