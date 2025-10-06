@@ -179,7 +179,7 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
       vertexData);
 
     return gfxCache->create_mesh(
-      gfx::MeshCreateInfo{vertexBuffer, vertexCount});
+      gfx::MeshCreateInfo{vertexBuffer, 0, vertexCount});
   }();
 
   auto const material = [&] {

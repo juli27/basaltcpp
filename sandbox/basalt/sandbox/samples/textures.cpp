@@ -155,10 +155,8 @@ auto Samples::new_textures_sample(Engine& engine) -> ViewPtr {
     gfx::VertexBufferCreateInfo{vertexData.size_bytes(), Vertex::sLayout},
     vertexData);
 
-  auto const mesh = gfxCache->create_mesh(gfx::MeshCreateInfo{
-    vertexBuffer,
-    static_cast<u32>(vertices.size()),
-  });
+  auto const mesh = gfxCache->create_mesh(
+    gfx::MeshCreateInfo{vertexBuffer, 0, static_cast<u32>(vertices.size())});
 
   auto scene = Scene::create();
   auto& gfxEnv = scene->entity_registry().ctx().emplace<Environment>();
