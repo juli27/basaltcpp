@@ -1,6 +1,5 @@
 target_sources(Sandbox PRIVATE
   "02-04_textures_exercises.cpp"
-  "02-04_textures_exercises.h"
   "02-05_buffers.cpp"
   "02-05_buffers.h"
   "02-05_buffers_exercises.cpp"
