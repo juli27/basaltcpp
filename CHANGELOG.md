@@ -12,10 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Too many items to list
 
 #### external
-- Updated Dear ImGui from v1.72b to v1.92.2b
+- Updated Dear ImGui from v1.72b to v1.92.3
 - Updated EnTT from 19ef290 to v3.15.0
-- Updated fmt from v5.3.0 to v11.2.0
-- Updated spdlog from v1.3.1 to v1.15.3
+- Updated fmt from v5.3.0 to v12.0.0
+- Updated spdlog from v1.3.1 to v1.16.0
   - now compiled as a static library
 
 ### Deprecated
