@@ -1,6 +1,4 @@
 target_sources(Sandbox PRIVATE
-  "02-05_buffers.cpp"
-  "02-05_buffers.h"
   "02-05_buffers_exercises.cpp"
   "02-05_buffers_exercises.h"
   "02-06_fog.cpp"

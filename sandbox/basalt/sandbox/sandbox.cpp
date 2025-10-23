@@ -35,11 +35,7 @@ auto SandboxView::create(Engine& engine, Settings settings) -> ViewPtr {
 
 SandboxView::SandboxView(Engine& engine, Settings settings)
   : mSettings{std::move(settings)} {
-  mExamples.reserve(19);
-  mExamples.emplace_back(Example{
-    "Bsp. 02-05: Vertex- und Index-Buffer"s,
-    &TribaseExamples::new_02_05_buffers_example,
-  });
+  mExamples.reserve(18);
   mExamples.emplace_back(Example{
     "Bsp. 02-05: Vertex- und Index-Buffer - Aufgabe 1-2"s,
     &TribaseExamples::new_02_05_buffers_exercises,
