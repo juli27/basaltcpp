@@ -1,4 +1,4 @@
-#include "tribase_examples.h"
+#include "benchmarks.h"
 
 #include <basalt/sandbox/shared/debug_scene_view.h>
 
@@ -113,11 +113,11 @@ public:
   }
 };
 
-class BuffersExercises final : public View {
+class CubesView final : public View {
 public:
-  BuffersExercises(SceneViewPtr sceneView, SystemId const velocitySystemId,
-                   gfx::MaterialHandle const materialHdl,
-                   gfx::MeshHandle const meshHdl)
+  CubesView(SceneViewPtr sceneView, SystemId const velocitySystemId,
+            gfx::MaterialHandle const materialHdl,
+            gfx::MeshHandle const meshHdl)
     : mScene{sceneView->scene()}
     , mVelocitySystemId{velocitySystemId}
     , mMaterialHdl{materialHdl}
@@ -294,7 +294,7 @@ struct CubeMeshData {
 
 } // namespace
 
-auto TribaseExamples::new_02_05_buffers_exercises(Engine& engine) -> ViewPtr {
+auto Benchmarks::make_cubes_view(Engine& engine) -> ViewPtr {
   auto sceneResources = engine.create_gfx_resource_cache();
   auto const materialHdl = [&] {
     auto info = gfx::MaterialCreateInfo{};
@@ -372,6 +372,6 @@ auto TribaseExamples::new_02_05_buffers_exercises(Engine& engine) -> ViewPtr {
   auto sceneView = DebugSceneView::create(
     std::move(scene), std::move(sceneResources), camera.entity());
 
-  return std::make_shared<BuffersExercises>(
-    std::move(sceneView), velocitySystemId, materialHdl, meshHdl);
+  return std::make_shared<CubesView>(std::move(sceneView), velocitySystemId,
+                                     materialHdl, meshHdl);
 }

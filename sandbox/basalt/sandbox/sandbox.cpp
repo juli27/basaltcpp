@@ -37,10 +37,6 @@ SandboxView::SandboxView(Engine& engine, Settings settings)
   : mSettings{std::move(settings)} {
   mExamples.reserve(18);
   mExamples.emplace_back(Example{
-    "Bsp. 02-05: Vertex- und Index-Buffer - Aufgabe 1-2"s,
-    &TribaseExamples::new_02_05_buffers_exercises,
-  });
-  mExamples.emplace_back(Example{
     "Bsp. 02-06: Nebel"s,
     &TribaseExamples::new_02_06_fog_example,
   });
@@ -107,6 +103,10 @@ SandboxView::SandboxView(Engine& engine, Settings settings)
   mExamples.emplace_back(Example{
     "Benchmark: Textured Triangles"s,
     &Benchmarks::make_textured_triangles_view,
+  });
+  mExamples.emplace_back(Example{
+    "Benchmark: Cubes"s,
+    &Benchmarks::make_cubes_view,
   });
 
   set_scene(mCurrentExampleIndex, engine);
