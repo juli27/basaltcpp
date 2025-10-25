@@ -36,7 +36,6 @@
 #include <utility>
 
 using namespace basalt;
-using namespace basalt::literals;
 using namespace std::literals;
 
 namespace {

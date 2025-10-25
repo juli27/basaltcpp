@@ -36,8 +36,8 @@
 #include <string_view>
 #include <utility>
 
-using namespace std::literals;
 using namespace basalt;
+using namespace std::literals;
 
 namespace {
 

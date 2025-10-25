@@ -3,6 +3,7 @@
 #include "view.h"
 
 #include "types.h"
+
 #include "gfx/types.h"
 
 #include "scene/types.h"
@@ -14,6 +15,8 @@ public:
   static auto create(ScenePtr, gfx::ResourceCachePtr, EntityId cameraEntity)
     -> SceneViewPtr;
 
+  SceneView(ScenePtr, gfx::ResourceCachePtr, EntityId cameraEntity);
+
   SceneView(SceneView const&) = delete;
   SceneView(SceneView&&) noexcept = default;
 
@@ -22,10 +25,10 @@ public:
   auto operator=(SceneView const&) -> SceneView& = delete;
   auto operator=(SceneView&&) noexcept -> SceneView& = default;
 
-  SceneView(ScenePtr, gfx::ResourceCachePtr, EntityId cameraEntity);
-
   [[nodiscard]]
   auto scene() const -> ScenePtr const&;
+
+  auto camera_entity_id() const -> EntityId;
 
 protected:
   auto on_input(InputEvent const&) -> InputEventHandled override;

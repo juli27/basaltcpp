@@ -41,6 +41,11 @@ auto SceneView::scene() const -> ScenePtr const& {
   return mScene;
 }
 
+auto SceneView::camera_entity_id() const -> EntityId {
+  return mScene->entity_registry().ctx().get<EntityId>(
+    gfx::GfxSystem::sMainCamera);
+}
+
 auto SceneView::on_input(InputEvent const&) -> InputEventHandled {
   return InputEventHandled::Yes;
 }

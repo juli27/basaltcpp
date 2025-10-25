@@ -18,7 +18,6 @@
 #include <memory>
 
 using namespace basalt;
-using namespace basalt::literals;
 
 namespace {
 

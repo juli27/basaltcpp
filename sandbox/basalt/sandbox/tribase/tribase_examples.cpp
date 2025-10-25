@@ -1,6 +1,5 @@
 #include <basalt/sandbox/tribase/tribase_examples.h>
 
-#include <basalt/sandbox/tribase/02-05_buffers_exercises.h>
 #include <basalt/sandbox/tribase/02-06_fog.h>
 #include <basalt/sandbox/tribase/02-07_lighting.h>
 #include <basalt/sandbox/tribase/02-08_blending.h>
@@ -12,11 +11,6 @@
 #include <basalt/sandbox/tribase/02-14_effects.h>
 
 #include <memory>
-
-auto TribaseExamples::new_02_05_buffers_exercises(basalt::Engine& engine)
-  -> basalt::ViewPtr {
-  return std::make_shared<tribase::BuffersExercises>(engine);
-}
 
 auto TribaseExamples::new_02_06_fog_example(basalt::Engine& engine)
   -> basalt::ViewPtr {
