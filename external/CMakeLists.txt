@@ -2,7 +2,7 @@ include(FetchContent)
 
 FetchContent_Declare(DearImGui
   GIT_REPOSITORY https://github.com/ocornut/imgui.git
-  GIT_TAG        bf75bfec48fc00f532af8926130b70c0e26eb099 # v1.92.3
+  GIT_TAG        9a5d5c45f54b1301ea471622eddede70384243af # v1.92.4
 )
 FetchContent_Declare(EnTT
   GIT_REPOSITORY https://github.com/skypjack/entt.git
@@ -14,7 +14,7 @@ FetchContent_Declare(fmt
 )
 FetchContent_Declare(GSL
   GIT_REPOSITORY https://github.com/microsoft/GSL.git
-  GIT_TAG        7e0943d20d3082b4f350a7e0c3088d2388e934de
+  GIT_TAG        543d0dd3fe966ddf20e884b44e5fdbf12cb43784
 )
 FetchContent_Declare(spdlog
   GIT_REPOSITORY https://github.com/gabime/spdlog.git
