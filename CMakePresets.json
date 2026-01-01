@@ -2,7 +2,22 @@
   "version": 6,
   "configurePresets": [
     {
+      "name": "base",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_STANDARD": "17",
+        "CMAKE_CXX_EXTENSIONS": false,
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true,
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG": false,
+        "CMAKE_OPTIMIZE_DEPENDENCIES": true
+      },
+      "warnings": {
+        "dev": true
+      }
+    },
+    {
       "name": "vs2022",
+      "inherits": "base",
       "displayName": "Visual Studio 2022",
       "condition": {
         "type": "equals",
@@ -14,21 +29,23 @@
       "binaryDir": "./_vs",
       "cacheVariables": {
         "CMAKE_SYSTEM_VERSION": "8.1"
-      },
-      "warnings": {
-        "dev": true
       }
     },
     {
-      "name": "ci-vs2022",
-      "displayName": "CI: Visual Studio 2022",
-      "inherits": "vs2022",
+      "name": "ci",
+      "hidden": true,
+      "inherits": "base",
       "cacheVariables": {
         "BASALT_BUILD_WARNINGS_AS_ERRORS": "ON"
       },
       "errors": {
         "dev": true
       }
+    },
+    {
+      "name": "ci-vs2022",
+      "displayName": "CI: Visual Studio 2022",
+      "inherits": ["ci", "vs2022"]
     }
   ],
   "buildPresets": [
