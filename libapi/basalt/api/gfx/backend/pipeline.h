@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.h"
+#include "vertex_layout.h"
 
 #include <basalt/api/base/types.h>
 

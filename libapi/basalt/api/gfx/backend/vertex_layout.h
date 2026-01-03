@@ -9,6 +9,7 @@
 
 #include <iterator>
 #include <optional>
+#include <type_traits>
 #include <utility>
 
 namespace basalt::gfx {
@@ -62,6 +63,40 @@ constexpr auto get_vertex_attribute_size_in_bytes(VertexElement const attribute)
 }
 
 auto get_vertex_size_in_bytes(VertexLayoutSpan const&) -> uDeviceSize;
+
+class VertexLayoutSpan {
+  using SpanType = gsl::span<VertexElement const>;
+
+public:
+  using iterator = typename SpanType::iterator;
+
+  constexpr VertexLayoutSpan() = default;
+
+  template <typename Container>
+  /* implicit */ constexpr VertexLayoutSpan(
+    VertexLayout<Container> const& layout)
+    : mAttributes{layout.attributes()} {
+  }
+
+  /* implicit */ constexpr operator gsl::span<VertexElement const>() {
+    return mAttributes;
+  }
+
+  constexpr auto empty() const -> bool {
+    return mAttributes.empty();
+  }
+
+  constexpr auto begin() const -> iterator {
+    return mAttributes.begin();
+  }
+
+  constexpr auto end() const -> iterator {
+    return mAttributes.end();
+  }
+
+private:
+  gsl::span<VertexElement const> mAttributes;
+};
 
 template <typename Container>
 class VertexLayout {

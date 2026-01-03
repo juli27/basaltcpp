@@ -9,8 +9,6 @@
 #include <basalt/api/base/enum_set.h>
 #include <basalt/api/base/types.h>
 
-#include <gsl/span>
-
 #include <array>
 #include <memory>
 #include <variant>
@@ -308,43 +306,8 @@ class VertexLayout;
 
 template <uSize Num>
 using VertexLayoutArray = VertexLayout<std::array<VertexElement, Num>>;
-
+class VertexLayoutSpan;
 using VertexLayoutVector = VertexLayout<std::vector<VertexElement>>;
-
-// TODO: move this to vertex_layout.h
-class VertexLayoutSpan {
-  using SpanType = gsl::span<VertexElement const>;
-
-public:
-  using iterator = typename SpanType::iterator;
-
-  constexpr VertexLayoutSpan() = default;
-
-  template <typename Container>
-  /* implicit */ constexpr VertexLayoutSpan(
-    VertexLayout<Container> const& layout)
-    : mAttributes{layout.attributes()} {
-  }
-
-  /* implicit */ constexpr operator gsl::span<VertexElement const>() {
-    return mAttributes;
-  }
-
-  constexpr auto empty() const -> bool {
-    return mAttributes.empty();
-  }
-
-  constexpr auto begin() const -> iterator {
-    return mAttributes.begin();
-  }
-
-  constexpr auto end() const -> iterator {
-    return mAttributes.end();
-  }
-
-private:
-  gsl::span<VertexElement const> mAttributes;
-};
 
 BASALT_DEFINE_HANDLE(SamplerHandle);
 BASALT_DEFINE_HANDLE(TextureHandle);
