@@ -8,6 +8,7 @@
 
 #include <basalt/gfx/backend/commands.h>
 
+#include <basalt/api/gfx/backend/buffer.h>
 #include <basalt/api/gfx/backend/command_list.h>
 
 #include <basalt/api/base/asserts.h>

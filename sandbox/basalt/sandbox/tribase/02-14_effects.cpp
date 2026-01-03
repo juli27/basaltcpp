@@ -5,6 +5,7 @@
 
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
+#include <basalt/api/gfx/backend/buffer.h>
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/pipeline.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
@@ -63,6 +64,7 @@ using basalt::gfx::TextureHandle;
 using basalt::gfx::TextureMipFilter;
 using basalt::gfx::TextureStage;
 using basalt::gfx::TransformState;
+using basalt::gfx::VertexBufferCreateInfo;
 using basalt::gfx::VertexElement;
 using basalt::gfx::ext::Effect;
 using basalt::gfx::ext::EffectCommandEncoder;
@@ -95,8 +97,8 @@ constexpr auto SPHERE_FILENAME = "Sphere.x"sv;
 
 Effects::Effects(Engine const& engine)
   : mGfxCache{engine.gfx_context().create_resource_cache()}
-  , mRectVb{mGfxCache->create_vertex_buffer(
-      {RECT_VERTICES.size() * sizeof(Vertex), Vertex::sLayout})}
+  , mRectVb{mGfxCache->create_vertex_buffer(VertexBufferCreateInfo{
+      RECT_VERTICES.size() * sizeof(Vertex), Vertex::sLayout})}
   , mLinearSampler{mGfxCache->create_sampler({TextureFilter::Bilinear,
                                               TextureFilter::Bilinear,
                                               TextureMipFilter::Linear})}

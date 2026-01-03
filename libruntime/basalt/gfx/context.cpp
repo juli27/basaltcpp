@@ -14,6 +14,7 @@
 #include <basalt/api/gfx/material_class.h>
 #include <basalt/api/gfx/mesh.h>
 #include <basalt/api/gfx/resource_cache.h>
+#include <basalt/api/gfx/backend/buffer.h>
 
 #include <basalt/api/math/matrix4x4.h>
 

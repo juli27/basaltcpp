@@ -5,6 +5,7 @@
 #include <basalt/api/view.h>
 
 #include <basalt/api/gfx/resource_cache.h>
+#include <basalt/api/gfx/backend/buffer.h>
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/pipeline.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
@@ -45,7 +46,8 @@ public:
       auto const vertexData = as_bytes(gsl::span{vertices});
 
       return mGfxCache->create_vertex_buffer(
-        {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
+        gfx::VertexBufferCreateInfo{vertexData.size_bytes(), Vertex::sLayout},
+        vertexData);
     }()}
     , mPipeline{[&] {
       auto desc = gfx::PipelineCreateInfo{};

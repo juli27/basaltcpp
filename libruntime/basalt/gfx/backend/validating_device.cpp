@@ -4,6 +4,7 @@
 #include "ext/dear_imgui_renderer.h"
 #include "ext/texture_3d_support.h"
 
+#include <basalt/api/gfx/backend/buffer.h>
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/pipeline.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>

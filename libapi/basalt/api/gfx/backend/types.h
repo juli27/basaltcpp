@@ -26,7 +26,14 @@ struct BackBufferFormat;
 struct DisplayMode;
 struct PciId;
 
+struct IndexBufferCreateInfo;
+BASALT_DEFINE_HANDLE(IndexBufferHandle);
+
 struct PipelineCreateInfo;
+BASALT_DEFINE_HANDLE(PipelineHandle);
+
+struct VertexBufferCreateInfo;
+BASALT_DEFINE_HANDLE(VertexBufferHandle);
 
 enum class BlendFactor : u8 {
   Zero,
@@ -63,6 +70,13 @@ auto inline constexpr FILL_MODE_COUNT = u8{3};
 
 struct FixedFragmentShaderCreateInfo;
 struct FixedVertexShaderCreateInfo;
+
+enum class IndexType : u8 {
+  U16,
+  U32,
+};
+auto inline constexpr INDEX_TYPE_COUNT = u8{2};
+using IndexTypes = EnumSet<IndexType, IndexType::U32>;
 
 enum class PrimitiveType : u8 {
   PointList,
@@ -332,19 +346,8 @@ private:
   gsl::span<VertexElement const> mAttributes;
 };
 
-enum class IndexType : u8 {
-  U16,
-  U32,
-};
-constexpr auto INDEX_TYPE_COUNT = u8{2};
-
-using IndexTypes = EnumSet<IndexType, IndexType::U32>;
-
-BASALT_DEFINE_HANDLE(PipelineHandle);
 BASALT_DEFINE_HANDLE(SamplerHandle);
 BASALT_DEFINE_HANDLE(TextureHandle);
-BASALT_DEFINE_HANDLE(VertexBufferHandle);
-BASALT_DEFINE_HANDLE(IndexBufferHandle);
 
 struct Command;
 class CommandList;
@@ -444,16 +447,6 @@ struct SamplerCreateInfo final {
   Color customBorderColor{};
   // DeviceCaps.samplerMaxAnisotropy
   u8 maxAnisotropy{1};
-};
-
-struct VertexBufferCreateInfo final {
-  uDeviceSize sizeInBytes{};
-  VertexLayoutSpan layout;
-};
-
-struct IndexBufferCreateInfo final {
-  uDeviceSize sizeInBytes{};
-  IndexType type{IndexType::U16};
 };
 
 struct DirectionalLightData final {

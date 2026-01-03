@@ -6,6 +6,7 @@
 
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
+#include <basalt/api/gfx/backend/buffer.h>
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/pipeline.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
@@ -46,6 +47,7 @@ using basalt::gfx::TextureHandle;
 using basalt::gfx::TextureMipFilter;
 using basalt::gfx::TextureStage;
 using basalt::gfx::TransformState;
+using basalt::gfx::VertexBufferCreateInfo;
 using basalt::gfx::VertexElement;
 
 using gsl::span;
@@ -90,7 +92,8 @@ Fog::Fog(Engine const& engine)
     auto const vertexData = as_bytes(span{vertices});
 
     return mGfxCache->create_vertex_buffer(
-      {vertexData.size_bytes(), Vertex::sLayout}, vertexData);
+      VertexBufferCreateInfo{vertexData.size_bytes(), Vertex::sLayout},
+      vertexData);
   }()}
   , mSampler{[&] {
     auto desc = SamplerCreateInfo{};

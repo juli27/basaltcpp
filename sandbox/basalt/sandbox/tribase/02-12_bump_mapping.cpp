@@ -5,6 +5,7 @@
 
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
+#include <basalt/api/gfx/backend/buffer.h>
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/pipeline.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
@@ -43,6 +44,7 @@ using basalt::gfx::CullMode;
 using basalt::gfx::DirectionalLightData;
 using basalt::gfx::FixedFragmentShaderCreateInfo;
 using basalt::gfx::FixedVertexShaderCreateInfo;
+using basalt::gfx::IndexBufferCreateInfo;
 using basalt::gfx::LightData;
 using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PrimitiveType;
@@ -55,6 +57,7 @@ using basalt::gfx::TextureMipFilter;
 using basalt::gfx::TextureOp;
 using basalt::gfx::TextureStage;
 using basalt::gfx::TransformState;
+using basalt::gfx::VertexBufferCreateInfo;
 using basalt::gfx::VertexElement;
 using basalt::gfx::ext::XMeshCommandEncoder;
 
@@ -97,7 +100,8 @@ BumpMapping::BumpMapping(Engine const& engine)
     auto const skyBoxVertexData = as_bytes(span{skyBoxVertices});
 
     return mGfxCache->create_vertex_buffer(
-      {skyBoxVertexData.size_bytes(), Vertex::sLayout}, skyBoxVertexData);
+      VertexBufferCreateInfo{skyBoxVertexData.size_bytes(), Vertex::sLayout},
+      skyBoxVertexData);
   }()}
   , mSkyBoxIb{[&] {
     constexpr auto skyBoxIndices = array<u16, 36>{
@@ -110,8 +114,8 @@ BumpMapping::BumpMapping(Engine const& engine)
     };
     auto const skyBoxIndexData = as_bytes(span{skyBoxIndices});
 
-    return mGfxCache->create_index_buffer({skyBoxIndexData.size_bytes()},
-                                          skyBoxIndexData);
+    return mGfxCache->create_index_buffer(
+      IndexBufferCreateInfo{skyBoxIndexData.size_bytes()}, skyBoxIndexData);
   }()} {
   mCubeMesh = [&] {
     auto const xModelData = mGfxCache->load_x_meshes(CUBE_PATH);

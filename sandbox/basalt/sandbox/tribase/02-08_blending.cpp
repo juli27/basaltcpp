@@ -5,6 +5,7 @@
 
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
+#include <basalt/api/gfx/backend/buffer.h>
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/pipeline.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
@@ -57,6 +58,7 @@ using basalt::gfx::TextureMipFilter;
 using basalt::gfx::TextureOp;
 using basalt::gfx::TextureStage;
 using basalt::gfx::TransformState;
+using basalt::gfx::VertexBufferCreateInfo;
 using basalt::gfx::VertexElement;
 using basalt::gfx::ext::XMeshCommandEncoder;
 
@@ -213,7 +215,8 @@ Blending::Blending(Engine const& engine)
     auto const starVertexData = as_bytes(span{starVertices});
 
     return mGfxCache->create_vertex_buffer(
-      {starVertexData.size_bytes(), StarVertex::sLayout}, starVertexData);
+      VertexBufferCreateInfo{starVertexData.size_bytes(), StarVertex::sLayout},
+      starVertexData);
   }()} {
   mPlanetMesh = [&] {
     auto const xModelData = mGfxCache->load_x_meshes(PLANET_MODEL_FILE_PATH);

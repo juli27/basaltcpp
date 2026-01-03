@@ -16,6 +16,7 @@
 #include <basalt/api/gfx/mesh.h>
 #include <basalt/api/gfx/resource_cache.h>
 
+#include <basalt/api/gfx/backend/buffer.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
 
 #include <basalt/api/scene/scene.h>

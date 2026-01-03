@@ -5,6 +5,7 @@
 
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/resource_cache.h>
+#include <basalt/api/gfx/backend/buffer.h>
 #include <basalt/api/gfx/backend/command_list.h>
 #include <basalt/api/gfx/backend/pipeline.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
@@ -42,6 +43,7 @@ using basalt::gfx::PrimitiveType;
 using basalt::gfx::StencilOp;
 using basalt::gfx::TestPassCond;
 using basalt::gfx::TransformState;
+using basalt::gfx::VertexBufferCreateInfo;
 using basalt::gfx::VertexElement;
 using basalt::gfx::ext::XMeshCommandEncoder;
 
@@ -115,7 +117,8 @@ StencilBuffer::StencilBuffer(Engine const& engine)
 
   auto const rectsVertexData = as_bytes(span{rectsVertices});
   mRectanglesVb = mGfxCache->create_vertex_buffer(
-    {rectsVertexData.size_bytes(), Vertex::sLayout}, rectsVertexData);
+    VertexBufferCreateInfo{rectsVertexData.size_bytes(), Vertex::sLayout},
+    rectsVertexData);
 }
 
 auto StencilBuffer::on_update(UpdateContext& ctx) -> void {
