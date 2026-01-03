@@ -2,6 +2,8 @@
 
 #include <basalt/gfx/backend/d3d9/conversions.h>
 
+#include <basalt/api/gfx/backend/pipeline.h>
+
 #include <array>
 
 using std::array;

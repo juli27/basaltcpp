@@ -1,13 +1,13 @@
 #pragma once
 
-#include "basalt/api/shared/color.h"
-#include "basalt/api/shared/handle.h"
+#include <basalt/api/shared/color.h>
+#include <basalt/api/shared/handle.h>
 
-#include "basalt/api/math/angle.h"
-#include "basalt/api/math/vector3.h"
+#include <basalt/api/math/angle.h>
+#include <basalt/api/math/vector3.h>
 
-#include "basalt/api/base/enum_set.h"
-#include "basalt/api/base/types.h"
+#include <basalt/api/base/enum_set.h>
+#include <basalt/api/base/types.h>
 
 #include <gsl/span>
 
@@ -26,12 +26,7 @@ struct BackBufferFormat;
 struct DisplayMode;
 struct PciId;
 
-enum class Attachment : u8 {
-  RenderTarget,
-  DepthBuffer,
-  StencilBuffer,
-};
-using Attachments = EnumSet<Attachment, Attachment::StencilBuffer>;
+struct PipelineCreateInfo;
 
 enum class BlendFactor : u8 {
   Zero,
@@ -43,31 +38,55 @@ enum class BlendFactor : u8 {
   Constant,
   OneMinusConstant,
 };
-constexpr auto BLEND_FACTOR_COUNT = u8{8};
+auto inline constexpr BLEND_FACTOR_COUNT = u8{8};
 
 enum class BlendOp : u8 {
   Add,
   Subtract,
   ReverseSubtract,
 };
-constexpr auto BLEND_OP_COUNT = u8{3};
-
-enum class BorderColor : u8 {
-  BlackTransparent,
-  BlackOpaque,
-  WhiteOpaque,
-
-  // DeviceCaps.samplerCustomBorderColor
-  Custom,
-};
-constexpr auto BORDER_COLOR_COUNT = u8{4};
+auto inline constexpr BLEND_OP_COUNT = u8{3};
 
 enum class CullMode : u8 {
   None,
   Clockwise,
   CounterClockwise,
 };
-constexpr auto CULL_MODE_COUNT = u8{3};
+auto inline constexpr CULL_MODE_COUNT = u8{3};
+
+enum class FillMode : u8 {
+  Point,
+  Wireframe,
+  Solid,
+};
+auto inline constexpr FILL_MODE_COUNT = u8{3};
+
+struct FixedFragmentShaderCreateInfo;
+struct FixedVertexShaderCreateInfo;
+
+enum class PrimitiveType : u8 {
+  PointList,
+  LineList,
+  LineStrip,
+  TriangleList,
+  TriangleStrip,
+  TriangleFan,
+};
+auto inline constexpr PRIMITIVE_TYPE_COUNT = u8{6};
+
+enum class StencilOp : u8 {
+  Keep,
+  Zero,
+  Replace,
+  Invert,
+  IncrementClamp,
+  DecrementClamp,
+  IncrementWrap,
+  DecrementWrap,
+};
+auto inline constexpr STENCIL_OP_COUNT = u8{8};
+
+struct StencilOpState;
 
 enum class TestPassCond : u8 {
   Never,
@@ -79,30 +98,7 @@ enum class TestPassCond : u8 {
   IfGreaterEqual,
   Always,
 };
-constexpr auto TEST_PASS_COND_COUNT = u8{8};
-
-enum class FillMode : u8 {
-  Point,
-  Wireframe,
-  Solid,
-};
-constexpr auto FILL_MODE_COUNT = u8{3};
-
-enum class PrimitiveType : u8 {
-  PointList,
-  LineList,
-  LineStrip,
-  TriangleList,
-  TriangleStrip,
-  TriangleFan,
-};
-constexpr auto PRIMITIVE_TYPE_COUNT = u8{6};
-
-enum class ShadeMode : u8 {
-  Flat,
-  Gouraud,
-};
-constexpr auto SHADE_MODE_COUNT = u8{2};
+auto inline constexpr TEST_PASS_COND_COUNT = u8{8};
 
 enum class FogMode : u8 {
   None,
@@ -110,19 +106,22 @@ enum class FogMode : u8 {
   Exponential,
   ExponentialSquared,
 };
-constexpr auto FOG_MODE_COUNT = u8{4};
+auto inline constexpr FOG_MODE_COUNT = u8{4};
 
-enum class TextureAddressMode : u8 {
-  Repeat,
-  Mirror,
-  ClampToEdge,
-
-  // DeviceCaps.samplerClampToBorder
-  ClampToBorder,
-  // DeviceCaps.samplerMirrorOnceClampToEdge
-  MirrorOnceClampToEdge,
+enum class MaterialColorSource : u8 {
+  DiffuseVertexColor,
+  SpecularVertexColor,
+  Material,
 };
-constexpr auto TEXTURE_ADDRESS_MODE_COUNT = u8{5};
+auto inline constexpr MATERIAL_COLOR_SOURCE_COUNT = u8{3};
+
+enum class ShadeMode : u8 {
+  Flat,
+  Gouraud,
+};
+auto inline constexpr SHADE_MODE_COUNT = u8{2};
+
+struct TextureCoordinateSet;
 
 enum class TextureCoordinateSrc : u8 {
   Vertex,
@@ -130,24 +129,16 @@ enum class TextureCoordinateSrc : u8 {
   NormalInViewSpace,
   ReflectionVectorInViewSpace,
 };
-constexpr auto TEXTURE_COORDINATE_SOURCE_COUNT = u8{4};
+auto inline constexpr TEXTURE_COORDINATE_SOURCE_COUNT = u8{4};
 
-enum class TextureFilter : u8 {
-  Point,
-  Bilinear,
-
-  // DeviceCaps.samplerMinFilterAnisotropic
-  // DeviceCaps.samplerMagFilterAnisotropic
-  Anisotropic,
+enum class TextureCoordinateTransformMode : u8 {
+  Disabled,
+  Count1,
+  Count2,
+  Count3,
+  Count4,
 };
-constexpr auto TEXTURE_FILTER_COUNT = u8{3};
-
-enum class TextureMipFilter : u8 {
-  None,
-  Point,
-  Linear,
-};
-constexpr auto TEXTURE_MIP_FILTER_COUNT = u8{3};
+auto inline constexpr TEXTURE_COORDINATE_TRANSFORM_MODE_COUNT = u8{5};
 
 enum class TextureOp : u8 {
   // r = arg1
@@ -203,8 +194,17 @@ enum class TextureOp : u8 {
   // r.rgba = arg1 * arg2 + (1 - arg1) * arg3
   Interpolate,
 };
-constexpr auto TEXTURE_OP_COUNT = u8{24};
+auto inline constexpr TEXTURE_OP_COUNT = u8{24};
 using TextureOps = EnumSet<TextureOp, TextureOp::Interpolate>;
+
+struct TextureStage;
+struct TextureStageArgument;
+
+enum class TextureStageDestination : u8 {
+  Current,
+  Temporary,
+};
+auto inline constexpr TEXTURE_STAGE_DESTINATION_COUNT = u8{2};
 
 enum class TextureStageSrc : u8 {
   Current,
@@ -217,29 +217,60 @@ enum class TextureStageSrc : u8 {
   // DeviceCaps.perTextureStageConstant
   StageConstant,
 };
-constexpr auto TEXTURE_STAGE_SRC_COUNT = u8{7};
+auto inline constexpr TEXTURE_STAGE_SRC_COUNT = u8{7};
 
 enum class TextureStageSrcMod : u8 {
   None,
   Complement,
   AlphaReplicate,
 };
-constexpr auto TEXTURE_STAGE_SRC_MOD_COUNT = u8{3};
+auto inline constexpr TEXTURE_STAGE_SRC_MOD_COUNT = u8{3};
 
-enum class TextureStageDestination : u8 {
-  Current,
-  Temporary,
+enum class Attachment : u8 {
+  RenderTarget,
+  DepthBuffer,
+  StencilBuffer,
 };
-constexpr auto TEXTURE_STAGE_DESTINATION_COUNT = u8{2};
+using Attachments = EnumSet<Attachment, Attachment::StencilBuffer>;
 
-enum class TextureCoordinateTransformMode : u8 {
-  Disabled,
-  Count1,
-  Count2,
-  Count3,
-  Count4,
+enum class BorderColor : u8 {
+  BlackTransparent,
+  BlackOpaque,
+  WhiteOpaque,
+
+  // DeviceCaps.samplerCustomBorderColor
+  Custom,
 };
-constexpr auto TEXTURE_COORDINATE_TRANSFORM_MODE_COUNT = u8{5};
+constexpr auto BORDER_COLOR_COUNT = u8{4};
+
+enum class TextureAddressMode : u8 {
+  Repeat,
+  Mirror,
+  ClampToEdge,
+
+  // DeviceCaps.samplerClampToBorder
+  ClampToBorder,
+  // DeviceCaps.samplerMirrorOnceClampToEdge
+  MirrorOnceClampToEdge,
+};
+constexpr auto TEXTURE_ADDRESS_MODE_COUNT = u8{5};
+
+enum class TextureFilter : u8 {
+  Point,
+  Bilinear,
+
+  // DeviceCaps.samplerMinFilterAnisotropic
+  // DeviceCaps.samplerMagFilterAnisotropic
+  Anisotropic,
+};
+constexpr auto TEXTURE_FILTER_COUNT = u8{3};
+
+enum class TextureMipFilter : u8 {
+  None,
+  Point,
+  Linear,
+};
+constexpr auto TEXTURE_MIP_FILTER_COUNT = u8{3};
 
 enum class TransformState : u8 {
   ViewToClip,
@@ -398,107 +429,6 @@ enum class MultiSampleCount : u8 {
   Sixteen,
 };
 constexpr auto MULTI_SAMPLE_COUNT_COUNT = u8{16};
-
-struct TextureStageArgument {
-  TextureStageSrc src{TextureStageSrc::Current};
-  TextureStageSrcMod modifier{TextureStageSrcMod::None};
-};
-
-struct TextureCoordinateSet {
-  u8 stageIndex{};
-  TextureCoordinateSrc src{TextureCoordinateSrc::Vertex};
-  u8 srcIndex{};
-  TextureCoordinateTransformMode transformMode{
-    TextureCoordinateTransformMode::Disabled};
-  bool projected{false};
-};
-
-enum class MaterialColorSource : u8 {
-  DiffuseVertexColor,
-  SpecularVertexColor,
-  Material,
-};
-constexpr auto MATERIAL_COLOR_SOURCE_COUNT = u8{3};
-
-// or enum set with wanted features
-struct FixedVertexShaderCreateInfo {
-  gsl::span<TextureCoordinateSet const> textureCoordinateSets{};
-  ShadeMode shadeMode{ShadeMode::Gouraud};
-  bool lightingEnabled{false};
-  bool specularEnabled{false};
-  bool vertexColorEnabled{true};
-  bool normalizeViewSpaceNormals{false};
-  MaterialColorSource diffuseSource{MaterialColorSource::DiffuseVertexColor};
-  MaterialColorSource specularSource{MaterialColorSource::SpecularVertexColor};
-  MaterialColorSource ambientSource{MaterialColorSource::Material};
-  MaterialColorSource emissiveSource{MaterialColorSource::Material};
-  FogMode fog{FogMode::None};
-  bool fogRangeBased{false};
-};
-
-struct TextureStage {
-  TextureOp colorOp{TextureOp::Modulate};
-  TextureStageArgument colorArg1{TextureStageSrc::SampledTexture};
-  TextureStageArgument colorArg2{};
-  TextureStageArgument colorArg3{};
-  TextureOp alphaOp{TextureOp::Replace};
-  TextureStageArgument alphaArg1{TextureStageSrc::SampledTexture};
-  TextureStageArgument alphaArg2{};
-  TextureStageArgument alphaArg3{};
-  TextureStageDestination dest{TextureStageDestination::Current};
-  // TODO: replace with Matrix2x2
-  f32 bumpEnvMat00{1};
-  f32 bumpEnvMat01{0};
-  f32 bumpEnvMat10{0};
-  f32 bumpEnvMat11{1};
-  f32 bumpEnvLuminanceScale{1};
-  f32 bumpEnvLuminanceOffset{0};
-};
-
-struct FixedFragmentShaderCreateInfo {
-  gsl::span<TextureStage const> textureStages{};
-  // this overrides vertex fog
-  FogMode fog{FogMode::None};
-};
-
-enum class StencilOp : u8 {
-  Keep,
-  Zero,
-  Replace,
-  Invert,
-  IncrementClamp,
-  DecrementClamp,
-  IncrementWrap,
-  DecrementWrap,
-};
-constexpr auto STENCIL_OP_COUNT = u8{8};
-
-struct StencilOpState {
-  TestPassCond test{TestPassCond::Always};
-  StencilOp failOp{StencilOp::Keep};
-  StencilOp passDepthFailOp{StencilOp::Keep};
-  StencilOp passDepthPassOp{StencilOp::Keep};
-};
-
-struct PipelineCreateInfo final {
-  // null -> default fixed vertex shader
-  FixedVertexShaderCreateInfo const* vertexShader{};
-  // null -> default fixed fragment shader
-  FixedFragmentShaderCreateInfo const* fragmentShader{};
-  VertexLayoutSpan vertexLayout;
-  PrimitiveType primitiveType{PrimitiveType::PointList};
-  CullMode cullMode{CullMode::None};
-  FillMode fillMode{FillMode::Solid};
-  TestPassCond depthTest{TestPassCond::Always};
-  bool depthWriteEnable{false};
-  StencilOpState frontFaceStencilOp{};
-  StencilOpState backFaceStencilOp{};
-  bool dithering{false};
-  TestPassCond alphaTest{TestPassCond::Always};
-  BlendFactor srcBlendFactor{BlendFactor::One};
-  BlendFactor destBlendFactor{BlendFactor::Zero};
-  BlendOp blendOp{BlendOp::Add};
-};
 
 struct SamplerCreateInfo final {
   TextureFilter magFilter{TextureFilter::Point};

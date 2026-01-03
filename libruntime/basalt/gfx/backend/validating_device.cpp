@@ -5,6 +5,7 @@
 #include "ext/texture_3d_support.h"
 
 #include <basalt/api/gfx/backend/command_list.h>
+#include <basalt/api/gfx/backend/pipeline.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
 #include <basalt/api/gfx/backend/ext/effect.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>

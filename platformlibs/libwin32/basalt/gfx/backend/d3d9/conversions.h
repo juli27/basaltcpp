@@ -5,6 +5,7 @@
 #include <basalt/gfx/backend/types.h>
 
 #include <basalt/api/gfx/types.h>
+#include <basalt/api/gfx/backend/pipeline.h>
 #include <basalt/api/gfx/backend/types.h>
 #include <basalt/api/gfx/backend/vertex_layout.h>
 

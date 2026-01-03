@@ -1,5 +1,7 @@
 #pragma once
 
+#include "backend/pipeline.h" // IWYU pragma: export
+
 #include "context.h"
 #include "types.h"
 #include "backend/types.h"

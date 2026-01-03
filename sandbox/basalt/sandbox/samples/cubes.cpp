@@ -53,7 +53,6 @@ using basalt::gfx::Light;
 using basalt::gfx::MaterialColorSource;
 using basalt::gfx::MaterialCreateInfo;
 using basalt::gfx::Model;
-using basalt::gfx::PipelineCreateInfo;
 using basalt::gfx::PrimitiveType;
 using basalt::gfx::SpotLight;
 using basalt::gfx::TestPassCond;
