@@ -153,7 +153,7 @@ private:
 
 } // namespace
 
-auto Samples::new_dymanic_mesh_sample(Engine& engine) -> ViewPtr {
+auto Samples::new_dynamic_mesh_sample(Engine& engine) -> ViewPtr {
   auto scene = Scene::create();
   scene->create_system<RotationSystem>();
   auto& ecsCtx = scene->entity_registry().ctx();

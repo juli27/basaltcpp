@@ -37,10 +37,6 @@ SandboxView::SandboxView(Engine& engine, Settings settings)
   : mSettings{std::move(settings)} {
   mExamples.reserve(18);
   mExamples.emplace_back(Example{
-    "Bsp. 02-06: Nebel"s,
-    &TribaseExamples::new_02_06_fog_example,
-  });
-  mExamples.emplace_back(Example{
     "Bsp. 02-07: Beleuchtung"s,
     &TribaseExamples::new_02_07_lighting_example,
   });
@@ -72,21 +68,25 @@ SandboxView::SandboxView(Engine& engine, Settings settings)
     "Bsp. 02-14: Effekte"s,
     &TribaseExamples::new_02_14_effects,
   });
-  mExamples.emplace_back(Example{
+  mExamples.push_back(Example{
     "Simple View Rendering"s,
     &Samples::new_simple_view_rendering_sample,
   });
-  mExamples.emplace_back(Example{
+  mExamples.push_back(Example{
     "Simple Scene"s,
     &Samples::new_simple_scene_sample,
   });
-  mExamples.emplace_back(Example{
+  mExamples.push_back(Example{
     "Dynamic Mesh"s,
-    &Samples::new_dymanic_mesh_sample,
+    &Samples::new_dynamic_mesh_sample,
   });
-  mExamples.emplace_back(Example{
+  mExamples.push_back(Example{
     "Textures"s,
     &Samples::new_textures_sample,
+  });
+  mExamples.push_back(Example{
+    "Fog"s,
+    &Samples::new_fog_sample,
   });
   mExamples.emplace_back(Example{
     "Cubes"s,
@@ -96,15 +96,15 @@ SandboxView::SandboxView(Engine& engine, Settings settings)
     "Lighting"s,
     &Samples::new_lighting_sample,
   });
-  mExamples.emplace_back(Example{
+  mExamples.push_back(Example{
     "D3DX XMesh"s,
     &Samples::new_d3dx_x_mesh_sample,
   });
-  mExamples.emplace_back(Example{
+  mExamples.push_back(Example{
     "Benchmark: Textured Triangles"s,
     &Benchmarks::make_textured_triangles_view,
   });
-  mExamples.emplace_back(Example{
+  mExamples.push_back(Example{
     "Benchmark: Cubes"s,
     &Benchmarks::make_cubes_view,
   });

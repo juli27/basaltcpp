@@ -1,4 +1,4 @@
-#include "tribase_examples.h"
+#include "samples.h"
 
 #include <basalt/sandbox/shared/debug_scene_view.h>
 
@@ -147,7 +147,7 @@ private:
 
   auto on_update(UpdateContext& ctx) -> void override {
     ImGui::SetNextWindowSize(ImVec2{300.0f, 0}, ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("Fog Settings")) {
+    if (!ImGui::Begin("Settings##Fog")) {
       ImGui::End();
       return;
     }
@@ -214,7 +214,7 @@ private:
 
 } // namespace
 
-auto TribaseExamples::new_02_06_fog_example(Engine& engine) -> ViewPtr {
+auto Samples::new_fog_sample(Engine& engine) -> ViewPtr {
   auto scene = Scene::create();
 
   auto gfxCache = engine.create_gfx_resource_cache();
