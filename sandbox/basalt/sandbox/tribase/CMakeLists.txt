@@ -1,6 +1,5 @@
 target_sources(Sandbox PRIVATE
   "02-06_fog.cpp"
-  "02-06_fog.h"
   "02-07_lighting.cpp"
   "02-07_lighting.h"
   "02-08_blending.cpp"

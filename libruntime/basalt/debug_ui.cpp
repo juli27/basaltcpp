@@ -206,23 +206,29 @@ auto DebugUi::edit_directional_light(gfx::DirectionalLight& light) -> void {
   light.directionInWorld = light.directionInWorld.normalize();
 }
 
-auto DebugUi::edit_color3(char const* label, Color& color) -> void {
+auto DebugUi::edit_color3(char const* label, Color& color) -> bool {
   auto colorArray = array{color.r(), color.g(), color.b()};
-
-  ImGui::ColorEdit3(label, colorArray.data(), ImGuiColorEditFlags_Float);
+  if (!ImGui::ColorEdit3(label, colorArray.data(), ImGuiColorEditFlags_Float)) {
+    return false;
+  }
 
   color = Color::from_non_linear(
     std::get<0>(colorArray), std::get<1>(colorArray), std::get<2>(colorArray));
+
+  return true;
 }
 
-auto DebugUi::edit_color4(char const* label, Color& color) -> void {
+auto DebugUi::edit_color4(char const* label, Color& color) -> bool {
   auto colorArray = array{color.r(), color.g(), color.b(), color.a()};
-
-  ImGui::ColorEdit4(label, colorArray.data(), ImGuiColorEditFlags_Float);
+  if (!ImGui::ColorEdit4(label, colorArray.data(), ImGuiColorEditFlags_Float)) {
+    return false;
+  }
 
   color =
     Color::from_non_linear(std::get<0>(colorArray), std::get<1>(colorArray),
                            std::get<2>(colorArray), std::get<3>(colorArray));
+
+  return true;
 }
 
 auto DebugUi::display_matrix4x4(char const* label, Matrix4x4f32 const& mat)
