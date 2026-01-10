@@ -1,6 +1,5 @@
 #include <basalt/sandbox/tribase/tribase_examples.h>
 
-#include <basalt/sandbox/tribase/02-07_lighting.h>
 #include <basalt/sandbox/tribase/02-08_blending.h>
 #include <basalt/sandbox/tribase/02-09_multi_texturing.h>
 #include <basalt/sandbox/tribase/02-10_volume_textures.h>
@@ -10,11 +9,6 @@
 #include <basalt/sandbox/tribase/02-14_effects.h>
 
 #include <memory>
-
-auto TribaseExamples::new_02_07_lighting_example(basalt::Engine& engine)
-  -> basalt::ViewPtr {
-  return std::make_shared<tribase::Lighting>(engine);
-}
 
 auto TribaseExamples::new_02_08_blending_example(basalt::Engine& engine)
   -> basalt::ViewPtr {

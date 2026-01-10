@@ -35,11 +35,7 @@ auto SandboxView::create(Engine& engine, Settings settings) -> ViewPtr {
 
 SandboxView::SandboxView(Engine& engine, Settings settings)
   : mSettings{std::move(settings)} {
-  mExamples.reserve(18);
-  mExamples.emplace_back(Example{
-    "Bsp. 02-07: Beleuchtung"s,
-    &TribaseExamples::new_02_07_lighting_example,
-  });
+  mExamples.reserve(17);
   mExamples.emplace_back(Example{
     "Bsp. 02-08: Alpha Blending"s,
     &TribaseExamples::new_02_08_blending_example,

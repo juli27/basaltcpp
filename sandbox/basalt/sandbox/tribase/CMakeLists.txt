@@ -1,6 +1,4 @@
 target_sources(Sandbox PRIVATE
-  "02-07_lighting.cpp"
-  "02-07_lighting.h"
   "02-08_blending.cpp"
   "02-08_blending.h"
   "02-09_multi_texturing.cpp"
