@@ -84,13 +84,13 @@ SandboxView::SandboxView(Engine& engine, Settings settings)
     "Fog"s,
     &Samples::new_fog_sample,
   });
+  mExamples.push_back(Example{
+    "Lighting"s,
+    &Samples::new_lighting_sample,
+  });
   mExamples.emplace_back(Example{
     "Cubes"s,
     &Samples::new_cubes_sample,
-  });
-  mExamples.emplace_back(Example{
-    "Lighting"s,
-    &Samples::new_lighting_sample,
   });
   mExamples.push_back(Example{
     "D3DX XMesh"s,
