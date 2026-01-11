@@ -123,7 +123,7 @@ auto SceneInspector::entity_components(EntityRegistry& entities) -> void {
     }
   }
 
-  for (auto const& [id, storage] : entities.storage()) {
+  for (auto const [id, storage] : entities.storage()) {
     if (!storage.contains(mSelectedEntity)) {
       continue;
     }
@@ -136,7 +136,7 @@ auto SceneInspector::entity_components(EntityRegistry& entities) -> void {
       continue;
     }
 
-    auto nameView = storage.type().name();
+    auto nameView = storage.info().name();
     // remove "class " / "struct " prefix
     auto pos = nameView.find_first_of(' ');
     if (pos != decltype(nameView)::npos) {

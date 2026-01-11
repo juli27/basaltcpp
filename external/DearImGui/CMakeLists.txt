@@ -13,10 +13,13 @@ target_compile_definitions(DearImGui PUBLIC
   "IMGUI_USER_CONFIG=\"basalt_imconfig.h\"")
 
 target_compile_features(DearImGui PRIVATE cxx_std_17)
-target_compile_options(DearImGui PRIVATE
-  "/permissive-"
-  "/Zc:twoPhase-"
-  "/wd4505")
+
+if(MSVC)
+  target_compile_options(DearImGui PRIVATE
+    "/permissive-"
+    "/Zc:twoPhase-"
+  )
+endif()
 
 set_property(TARGET DearImGui PROPERTY FOLDER "external")
 
