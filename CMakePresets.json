@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 7,
   "configurePresets": [
     {
       "name": "base",
@@ -25,11 +25,7 @@
         "rhs": "Windows"
       },
       "generator": "Visual Studio 17 2022",
-      "architecture": "x64",
-      "binaryDir": "./_vs",
-      "cacheVariables": {
-        "CMAKE_SYSTEM_VERSION": "8.1"
-      }
+      "binaryDir": "./_vs"
     },
     {
       "name": "ci",
