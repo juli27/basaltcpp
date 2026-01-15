@@ -10,7 +10,6 @@ public:
   static auto new_dynamic_mesh_sample(basalt::Engine&) -> basalt::ViewPtr;
   static auto new_textures_sample(basalt::Engine&) -> basalt::ViewPtr;
   static auto new_fog_sample(basalt::Engine&) -> basalt::ViewPtr;
-  static auto new_cubes_sample(basalt::Engine&) -> basalt::ViewPtr;
   static auto new_lighting_sample(basalt::Engine&) -> basalt::ViewPtr;
 
   static auto new_d3dx_x_mesh_sample(basalt::Engine&) -> basalt::ViewPtr;

@@ -35,7 +35,7 @@ auto SandboxView::create(Engine& engine, Settings settings) -> ViewPtr {
 
 SandboxView::SandboxView(Engine& engine, Settings settings)
   : mSettings{std::move(settings)} {
-  mExamples.reserve(17);
+  mExamples.reserve(16);
   mExamples.emplace_back(Example{
     "Bsp. 02-08: Alpha Blending"s,
     &TribaseExamples::new_02_08_blending_example,
@@ -87,10 +87,6 @@ SandboxView::SandboxView(Engine& engine, Settings settings)
   mExamples.push_back(Example{
     "Lighting"s,
     &Samples::new_lighting_sample,
-  });
-  mExamples.emplace_back(Example{
-    "Cubes"s,
-    &Samples::new_cubes_sample,
   });
   mExamples.push_back(Example{
     "D3DX XMesh"s,
