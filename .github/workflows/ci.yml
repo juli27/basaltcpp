@@ -18,11 +18,11 @@ jobs:
         buildDevel: [ON]
         include:
           - os: windows-2025
-            preset: ci-vs2022
+            preset: vs2022-ci
           - os: windows-2025
             configuration: RelWithDebInfo
             buildDevel: OFF
-            preset: ci-vs2022
+            preset: vs2022-ci
 
     runs-on: ${{ matrix.os }}
 

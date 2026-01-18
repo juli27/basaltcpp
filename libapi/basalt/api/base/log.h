@@ -24,17 +24,13 @@ struct Log final {
 
 #endif // BASALT_BUILD
 
-#if BASALT_DEBUG_BUILD
-
+#if BASALT_IS_DEBUG_BUILD
 #define BASALT_LOG_TRACE(...) BASALT_LOGGER.trace(__VA_ARGS__)
 #define BASALT_LOG_DEBUG(...) BASALT_LOGGER.debug(__VA_ARGS__)
-
-#else // !BASALT_DEBUG_BUILD
-
+#else // !BASALT_IS_DEBUG_BUILD
 #define BASALT_LOG_TRACE(...)
 #define BASALT_LOG_DEBUG(...)
-
-#endif // BASALT_DEBUG_BUILD
+#endif
 
 #define BASALT_LOG_INFO(...) BASALT_LOGGER.info(__VA_ARGS__)
 #define BASALT_LOG_WARN(...) BASALT_LOGGER.warn(__VA_ARGS__)

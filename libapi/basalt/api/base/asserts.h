@@ -2,7 +2,7 @@
 
 namespace basalt::detail {
 
-#if BASALT_DEV_BUILD
+#if BASALT_IS_DEV_BUILD
 auto report_assert_failed(char const* message, char const* file, int line,
                           char const* func) -> void;
 #endif
@@ -23,8 +23,7 @@ auto crash() -> void;
 #define BASALT_FUNCTION_SIGNATURE __func__
 #endif
 
-#if BASALT_DEV_BUILD
-
+#if BASALT_IS_DEV_BUILD
 #define BASALT_BREAK_DEBUGGER() __debugbreak()
 
 // TODO: should we remove the debugger check and just crash while breaking
@@ -72,9 +71,7 @@ auto crash() -> void;
       BASALT_ASSERT(__VA_ARGS__);                                              \
     }                                                                          \
   } while (false)
-
-#else // !BASALT_DEV_BUILD
-
+#else // !BASALT_IS_DEV_BUILD
 #define BASALT_DO_CRASH()                                                      \
   do {                                                                         \
     std::abort();                                                              \
@@ -82,8 +79,7 @@ auto crash() -> void;
 
 #define BASALT_ASSERT(...)
 #define BASALT_ASSERT_IF(...)
-
-#endif // BASALT_DEV_BUILD
+#endif
 
 #define BASALT_CRASH(msg)                                                      \
   do {                                                                         \

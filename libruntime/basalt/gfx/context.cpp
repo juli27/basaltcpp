@@ -5,7 +5,7 @@
 #include "backend/ext/texture_3d_support.h"
 #include "backend/ext/x_model_support.h"
 
-#if BASALT_DEV_BUILD
+#if BASALT_IS_DEV_BUILD
 #include "backend/validating_device.h"
 #include "backend/validating_swap_chain.h"
 #endif
@@ -52,7 +52,7 @@ Context::Context(DevicePtr device, ext::DeviceExtensions deviceExtensions,
   BASALT_ASSERT(mDevice);
   BASALT_ASSERT(mSwapChain);
 
-#if BASALT_DEV_BUILD
+#if BASALT_IS_DEV_BUILD
   auto wrappedDevice = ValidatingDevice::wrap(std::move(mDevice));
   mDevice = wrappedDevice;
   wrappedDevice->wrap_extensions(mDeviceExtensions);

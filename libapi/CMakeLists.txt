@@ -19,8 +19,8 @@ target_compile_definitions(LibAPI PRIVATE "BASALT_BUILD")
 
 if (BASALT_BUILD_DEVEL)
   target_compile_definitions(LibAPI PUBLIC
-    "BASALT_DEV_BUILD=1"
-    "$<$<CONFIG:Debug>:BASALT_DEBUG_BUILD=1>"
+    "BASALT_IS_DEV_BUILD=1"
+    "$<$<CONFIG:Debug>:BASALT_IS_DEBUG_BUILD=1>"
   )
 endif()
 

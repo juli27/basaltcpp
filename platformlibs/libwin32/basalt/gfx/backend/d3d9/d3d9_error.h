@@ -7,20 +7,16 @@
 #include <string>
 #include <system_error>
 
-#if BASALT_DEBUG_BUILD
-
+#if BASALT_IS_DEBUG_BUILD
 #define D3D9CHECK(x)                                                           \
   do {                                                                         \
     if (const HRESULT macroHr = (x); FAILED(macroHr)) {                        \
       DXTraceW(__FILE__, __LINE__, macroHr, nullptr, TRUE);                    \
     }                                                                          \
   } while (false)
-
-#else // BASALT_DEBUG_BUILD
-
+#else // !BASALT_IS_DEBUG_BUILD
 #define D3D9CHECK(x) (x)
-
-#endif // !BASALT_DEBUG_BUILD
+#endif
 
 namespace basalt::gfx {
 

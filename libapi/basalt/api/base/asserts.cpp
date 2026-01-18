@@ -7,7 +7,7 @@
 
 namespace basalt::detail {
 
-#if BASALT_DEV_BUILD
+#if BASALT_IS_DEV_BUILD
 auto report_assert_failed(char const* message, char const* file, int line,
                           char const* func) -> void {
   // TODO: allow to use asserts without logging initialized
@@ -16,7 +16,7 @@ auto report_assert_failed(char const* message, char const* file, int line,
   BASALT_LOG_FATAL("\tline: {}", line);
   BASALT_LOG_FATAL("\tfunction: {}", func);
 }
-#endif // BASALT_DEV_BUILD
+#endif
 
 auto report_crash(char const* message, char const* file, int line,
                   char const* func) -> void {

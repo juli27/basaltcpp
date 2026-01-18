@@ -37,8 +37,7 @@ auto basalt::create_win32_error_message(DWORD const errorCode) noexcept
   return message;
 }
 
-#if BASALT_DEV_BUILD
-
+#if BASALT_IS_DEV_BUILD
 auto basalt::detail::verify_win32_bool(BOOL const result) -> BOOL {
   if (!result) {
     BASALT_LOG_ERROR("win32 error: {}",
@@ -51,5 +50,4 @@ auto basalt::detail::verify_win32_bool(BOOL const result) -> BOOL {
 
   return result;
 }
-
 #endif

@@ -1,5 +1,5 @@
 {
-  "version": 7,
+  "version": 8,
   "configurePresets": [
     {
       "name": "base",
@@ -30,7 +30,6 @@
     {
       "name": "ci",
       "hidden": true,
-      "inherits": "base",
       "cacheVariables": {
         "BASALT_BUILD_WARNINGS_AS_ERRORS": "ON"
       },
@@ -39,7 +38,7 @@
       }
     },
     {
-      "name": "ci-vs2022",
+      "name": "vs2022-ci",
       "displayName": "CI: Visual Studio 2022",
       "inherits": ["ci", "vs2022"]
     }
@@ -56,7 +55,7 @@
       "configurePreset": "vs2022"
     },
     {
-      "name": "ci-vs2022",
+      "name": "vs2022-ci",
       "displayName": "CI: Visual Studio 2022",
       "inherits": "vs2022"
     }
