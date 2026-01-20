@@ -45,22 +45,22 @@ struct Color final : detail::Vector<Color, f32, 4> {
 
   [[nodiscard]]
   constexpr auto r() const noexcept -> f32 {
-    return std::get<0>(components);
+    return get<0>();
   }
 
   [[nodiscard]]
   constexpr auto g() const noexcept -> f32 {
-    return std::get<1>(components);
+    return get<1>();
   }
 
   [[nodiscard]]
   constexpr auto b() const noexcept -> f32 {
-    return std::get<2>(components);
+    return get<2>();
   }
 
   [[nodiscard]]
   constexpr auto a() const noexcept -> f32 {
-    return std::get<3>(components);
+    return get<3>();
   }
 
   // output is non-linear

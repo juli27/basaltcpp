@@ -157,7 +157,7 @@ auto rotation_axis(Vector3f32 axis, Angle const angle) -> Matrix4x4f32 {
   auto const cos = std::cos(-angle.radians());
   auto const oneMinusCos = 1.0f - cos;
 
-  axis = axis.normalize();
+  axis.normalize();
 
   return Matrix4x4f32{axis.x() * axis.x() * oneMinusCos + cos,
                       axis.x() * axis.y() * oneMinusCos - axis.z() * sin,

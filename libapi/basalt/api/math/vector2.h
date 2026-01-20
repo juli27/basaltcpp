@@ -2,56 +2,38 @@
 
 #include "vector.h"
 
-#include "types.h"
-
-#include "basalt/api/base/types.h"
-
-#include <array>
+#include <basalt/api/base/types.h>
 
 namespace basalt {
 
 class Vector2f32 : public detail::Vector<Vector2f32, f32, 2> {
 public:
-  [[nodiscard]]
-  static auto normalized(f32 x, f32 y) noexcept -> Vector2f32;
+  constexpr Vector2f32() = default;
 
-  // sets every component to 0
-  constexpr Vector2f32() noexcept = default;
-
-  // sets every component to v
-  constexpr explicit Vector2f32(f32 const v) noexcept : Vector{v, v} {
+  constexpr explicit Vector2f32(f32 const v) : Vector{v, v} {
   }
 
-  constexpr Vector2f32(f32 const x, f32 const y) noexcept : Vector{x, y} {
+  constexpr Vector2f32(f32 const x, f32 const y) : Vector{x, y} {
   }
 
-  [[nodiscard]]
-  constexpr auto x() const noexcept -> f32 {
-    return std::get<0>(components);
+  static auto normalized(f32 x, f32 y) -> Vector2f32;
+  using Vector::normalized;
+
+  constexpr auto x() const -> f32 const& {
+    return get<0>();
   }
 
-  [[nodiscard]]
-  constexpr auto x() noexcept -> f32& {
-    return std::get<0>(components);
+  constexpr auto x() -> f32& {
+    return get<0>();
   }
 
-  [[nodiscard]]
-  constexpr auto y() const noexcept -> f32 {
-    return std::get<1>(components);
+  constexpr auto y() const -> f32 const& {
+    return get<1>();
   }
 
-  [[nodiscard]]
-  constexpr auto y() noexcept -> f32& {
-    return std::get<1>(components);
+  constexpr auto y() -> f32& {
+    return get<1>();
   }
 };
-
-extern template auto detail::Vector<Vector2f32, f32, 2>::length() const noexcept
-  -> f32;
-extern template auto
-detail::Vector<Vector2f32, f32, 2>::normalize() const noexcept -> Vector2f32;
-extern template auto
-detail::Vector<Vector2f32, f32, 2>::distance(Vector2f32 const&,
-                                             Vector2f32 const&) noexcept -> f32;
 
 } // namespace basalt

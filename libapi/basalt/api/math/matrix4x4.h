@@ -63,7 +63,7 @@ public:
   static auto rotation(Vector3f32 const& radians) noexcept -> Matrix4x4f32;
 
   [[nodiscard]]
-  static auto rotation(Vector3f32 const& axis, Angle) noexcept -> Matrix4x4f32;
+  static auto rotation(Vector3f32 axis, Angle) noexcept -> Matrix4x4f32;
 
   [[nodiscard]]
   static constexpr auto scaling(f32 const s) noexcept -> Matrix4x4f32 {

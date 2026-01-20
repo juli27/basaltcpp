@@ -201,9 +201,8 @@ auto DebugUi::edit_directional_light(gfx::DirectionalLight& light) -> void {
   edit_color4("Specular", light.specular);
   edit_color4("Ambient", light.ambient);
 
-  ImGui::DragFloat3("Direction", light.directionInWorld.components.data(),
-                    0.1f);
-  light.directionInWorld = light.directionInWorld.normalize();
+  ImGui::DragFloat3("Direction", light.directionInWorld.data(), 0.1f);
+  light.directionInWorld.normalize();
 }
 
 auto DebugUi::edit_color3(char const* label, Color& color) -> bool {

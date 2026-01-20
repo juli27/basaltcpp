@@ -2,78 +2,55 @@
 
 #include "vector.h"
 
-#include "types.h"
-
-#include "basalt/api/base/types.h"
-
-#include <array>
+#include <basalt/api/base/types.h>
 
 namespace basalt {
 
 class Vector4f32 : public detail::Vector<Vector4f32, f32, 4> {
 public:
-  [[nodiscard]]
-  static auto normalized(f32 x, f32 y, f32 z, f32 w) noexcept -> Vector4f32;
+  constexpr Vector4f32() = default;
 
-  // sets every component to 0
-  constexpr Vector4f32() noexcept = default;
-
-  // sets every component to v
-  constexpr explicit Vector4f32(f32 const v) noexcept : Vector{v, v, v, v} {
+  constexpr explicit Vector4f32(f32 const v) : Vector{v, v, v, v} {
   }
 
-  constexpr Vector4f32(f32 const x, f32 const y, f32 const z,
-                       f32 const w) noexcept
+  constexpr Vector4f32(f32 const x, f32 const y, f32 const z, f32 const w)
     : Vector{x, y, z, w} {
   }
 
-  [[nodiscard]]
-  constexpr auto x() const noexcept -> f32 {
-    return std::get<0>(components);
+  static auto normalized(f32 x, f32 y, f32 z, f32 w) -> Vector4f32;
+  using Vector::normalized;
+
+  constexpr auto x() const -> f32 const& {
+    return get<0>();
   }
 
-  [[nodiscard]]
-  constexpr auto x() noexcept -> f32& {
-    return std::get<0>(components);
+  constexpr auto x() -> f32& {
+    return get<0>();
   }
 
-  [[nodiscard]]
-  constexpr auto y() const noexcept -> f32 {
-    return std::get<1>(components);
+  constexpr auto y() const -> f32 const& {
+    return get<1>();
   }
 
-  [[nodiscard]]
-  constexpr auto y() noexcept -> f32& {
-    return std::get<1>(components);
+  constexpr auto y() -> f32& {
+    return get<1>();
   }
 
-  [[nodiscard]]
-  constexpr auto z() const noexcept -> f32 {
-    return std::get<2>(components);
+  constexpr auto z() const -> f32 const& {
+    return get<2>();
   }
 
-  [[nodiscard]]
-  constexpr auto z() noexcept -> f32& {
-    return std::get<2>(components);
+  constexpr auto z() -> f32& {
+    return get<2>();
   }
 
-  [[nodiscard]]
-  constexpr auto w() const noexcept -> f32 {
-    return std::get<3>(components);
+  constexpr auto w() const -> f32 const& {
+    return get<3>();
   }
 
-  [[nodiscard]]
-  constexpr auto w() noexcept -> f32& {
-    return std::get<3>(components);
+  constexpr auto w() -> f32& {
+    return get<3>();
   }
 };
-
-extern template auto detail::Vector<Vector4f32, f32, 4>::length() const noexcept
-  -> f32;
-extern template auto
-detail::Vector<Vector4f32, f32, 4>::normalize() const noexcept -> Vector4f32;
-extern template auto
-detail::Vector<Vector4f32, f32, 4>::distance(Vector4f32 const&,
-                                             Vector4f32 const&) noexcept -> f32;
 
 } // namespace basalt

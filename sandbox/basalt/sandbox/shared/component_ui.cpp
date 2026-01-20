@@ -20,12 +20,11 @@
 using namespace basalt;
 
 auto ComponentUi::transform(Transform& transform) -> void {
-  ImGui::DragFloat3("Position", transform.position.components.data(), 0.1f);
+  ImGui::DragFloat3("Position", transform.position.data(), 0.1f);
 
-  ImGui::DragFloat3("Rotation", transform.rotation.components.data(), 0.01f,
-                    -PI, PI);
+  ImGui::DragFloat3("Rotation", transform.rotation.data(), 0.01f, -PI, PI);
 
-  ImGui::DragFloat3("Scale", transform.scale.components.data(), 0.1f);
+  ImGui::DragFloat3("Scale", transform.scale.data(), 0.1f);
 }
 
 auto ComponentUi::local_to_world(LocalToWorld const& localToWorld) -> void {
@@ -33,8 +32,8 @@ auto ComponentUi::local_to_world(LocalToWorld const& localToWorld) -> void {
 }
 
 auto ComponentUi::camera(gfx::Camera& camera) -> void {
-  ImGui::DragFloat3("Look At", camera.lookAt.components.data(), 0.1f);
-  ImGui::DragFloat3("Up", camera.up.components.data(), 0.1f);
+  ImGui::DragFloat3("Look At", camera.lookAt.data(), 0.1f);
+  ImGui::DragFloat3("Up", camera.up.data(), 0.1f);
   auto fovRad = camera.fov.radians();
   ImGui::SliderAngle("fov", &fovRad, 1, 179);
   camera.fov = Angle::radians(fovRad);
@@ -77,7 +76,7 @@ auto ComponentUi::spot_light(gfx::SpotLight& light) -> void {
   DebugUi::edit_color3("Diffuse", light.diffuse);
   DebugUi::edit_color3("Specular", light.specular);
   DebugUi::edit_color3("Ambient", light.ambient);
-  ImGui::DragFloat3("Direction", light.direction.components.data());
+  ImGui::DragFloat3("Direction", light.direction.data());
   ImGui::DragFloat("Range", &light.range);
   ImGui::DragFloat("Attenuation 0", &light.attenuation0);
   ImGui::DragFloat("Attenuation 1", &light.attenuation1);

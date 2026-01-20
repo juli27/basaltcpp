@@ -59,27 +59,27 @@ auto Matrix4x4f32::rotation(Vector3f32 const& radians) noexcept
                   Angle::radians(radians.z()));
 }
 
-auto Matrix4x4f32::rotation(Vector3f32 const& axis, Angle const angle) noexcept
+auto Matrix4x4f32::rotation(Vector3f32 axis, Angle const angle) noexcept
   -> Matrix4x4f32 {
   auto const cos = angle.cos();
   auto const sin = -angle.sin();
   auto const oneMinusCos = 1.0f - cos;
 
-  auto const a = axis.normalize();
+  axis.normalize();
 
   // clang-format off
   return Matrix4x4f32{
-    a.x() * a.x() * oneMinusCos + cos,
-    a.x() * a.y() * oneMinusCos - a.z() * sin,
-    a.x() * a.z() * oneMinusCos + a.y() * sin,
+    axis.x() * axis.x() * oneMinusCos + cos,
+    axis.x() * axis.y() * oneMinusCos - axis.z() * sin,
+    axis.x() * axis.z() * oneMinusCos + axis.y() * sin,
     0.0f,
-    a.y() * a.x() * oneMinusCos + a.z() * sin,
-    a.y() * a.y() * oneMinusCos + cos,
-    a.y() * a.z() * oneMinusCos - a.x() * sin,
+    axis.y() * axis.x() * oneMinusCos + axis.z() * sin,
+    axis.y() * axis.y() * oneMinusCos + cos,
+    axis.y() * axis.z() * oneMinusCos - axis.x() * sin,
     0.0f,
-    a.z() * a.x() * oneMinusCos - a.y() * sin,
-    a.z() * a.y() * oneMinusCos + a.x() * sin,
-    a.z() * a.z() * oneMinusCos + cos,
+    axis.z() * axis.x() * oneMinusCos - axis.y() * sin,
+    axis.z() * axis.y() * oneMinusCos + axis.x() * sin,
+    axis.z() * axis.z() * oneMinusCos + cos,
     0.0f,
     0.0f, 0.0f, 0.0f, 1.0f,
   };
@@ -89,9 +89,9 @@ auto Matrix4x4f32::rotation(Vector3f32 const& axis, Angle const angle) noexcept
 auto Matrix4x4f32::look_at_lh(Vector3f32 const& position,
                               Vector3f32 const& lookAt, Vector3f32 const& up)
   -> Matrix4x4f32 {
-  auto const zAxis = (lookAt - position).normalize();
-  auto const xAxis = up.cross(zAxis).normalize();
-  auto const yAxis = zAxis.cross(xAxis).normalize();
+  auto const zAxis = Vector3f32::normalized(lookAt - position);
+  auto const xAxis = Vector3f32::normalized(Vector3f32::cross(up, zAxis));
+  auto const yAxis = Vector3f32::normalized(Vector3f32::cross(zAxis, xAxis));
 
   return translation(-position) *
          Matrix4x4f32{xAxis.x(), yAxis.x(), zAxis.x(), 0.0f,
