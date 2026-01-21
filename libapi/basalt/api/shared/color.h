@@ -2,7 +2,7 @@
 
 #include <basalt/api/shared/data.h>
 
-#include <basalt/api/math/vector.h>
+#include <basalt/api/math/vector_p.h>
 
 #include <algorithm>
 

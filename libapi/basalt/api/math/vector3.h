@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vector.h"
+#include "vector_p.h"
 
 #include <basalt/api/base/types.h>
 

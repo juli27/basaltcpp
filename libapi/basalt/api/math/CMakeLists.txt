@@ -9,8 +9,8 @@ target_sources(LibAPI PRIVATE
   "rectangle.h"
   "types.h"
   "vector.cpp"
-  "vector.h"
   "vector2.h"
   "vector3.h"
   "vector4.h"
+  "vector_p.h"
 )
