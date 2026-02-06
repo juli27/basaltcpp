@@ -4,7 +4,7 @@
 #include <basalt/api/scene/scene.h>
 #include <basalt/api/scene/transform.h>
 
-#include <basalt/api/math/matrix4x4.h>
+#include <basalt/api/math/matrix4.h>
 
 namespace basalt {
 

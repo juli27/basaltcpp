@@ -12,7 +12,8 @@
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/math/angle.h>
-#include <basalt/api/math/matrix4x4.h>
+#include <basalt/api/math/matrix3.h>
+#include <basalt/api/math/matrix4.h>
 #include <basalt/api/math/vector3.h>
 
 #include <fmt/format.h>
@@ -39,6 +40,7 @@ using gsl::span;
 using namespace basalt::literals;
 using basalt::Angle;
 using basalt::Engine;
+using basalt::Matrix3x3f32;
 using basalt::Matrix4x4f32;
 using basalt::Vector3f32;
 using basalt::gfx::Attachment;
@@ -107,14 +109,6 @@ auto generate_stars(span<StarVertex> const stars) -> void {
   }
 }
 
-// this is not a complete vector transform function (only considers upper-left
-// 3x3 matrix)
-auto operator*(Vector3f32 const& v, Matrix4x4f32 const& m) -> Vector3f32 {
-  return {v.x() * m.m11 + v.y() * m.m21 + v.z() * m.m31,
-          v.x() * m.m12 + v.y() * m.m22 + v.z() * m.m32,
-          v.x() * m.m13 + v.y() * m.m23 + v.z() * m.m33};
-}
-
 auto update_planets(span<Planet, 6> const planets, f32 const t) -> void {
   // the sun
   auto& planet0 = planets[0];
@@ -130,14 +124,14 @@ auto update_planets(span<Planet, 6> const planets, f32 const t) -> void {
   auto& planet2 = planets[2];
   planet2.position =
     16.0f * Vector3f32{0.8f * std::sin(0.75f * t), 0, std::cos(0.75f * t)} *
-    Matrix4x4f32::rotation_x(20_deg);
+    Matrix3x3f32::rotation_x(20_deg);
   planet2.radius = 1.5f;
 
   // elliptical orbit and 30 degree tilt
   auto& planet3 = planets[3];
   planet3.position =
     22.0f * Vector3f32{std::sin(0.5f * t), 0, 0.75f * std::cos(0.5f * t)} *
-    Matrix4x4f32::rotation_z(30_deg);
+    Matrix3x3f32::rotation_z(30_deg);
   planet3.radius = 2.0f;
 
   auto& planet4 = planets[4];
@@ -150,34 +144,6 @@ auto update_planets(span<Planet, 6> const planets, f32 const t) -> void {
   planet5.position =
     70.0f * Vector3f32{std::sin(0.75f * t), 0, 0.5f * std::cos(0.75f * t)};
   planet5.radius = 1.5f;
-}
-
-auto rotation_axis(Vector3f32 axis, Angle const angle) -> Matrix4x4f32 {
-  auto const sin = std::sin(-angle.radians());
-  auto const cos = std::cos(-angle.radians());
-  auto const oneMinusCos = 1.0f - cos;
-
-  axis.normalize();
-
-  return Matrix4x4f32{axis.x() * axis.x() * oneMinusCos + cos,
-                      axis.x() * axis.y() * oneMinusCos - axis.z() * sin,
-                      axis.x() * axis.z() * oneMinusCos + axis.y() * sin,
-                      0.0f,
-
-                      axis.y() * axis.x() * oneMinusCos + axis.z() * sin,
-                      axis.y() * axis.y() * oneMinusCos + cos,
-                      axis.y() * axis.z() * oneMinusCos - axis.x() * sin,
-                      0.0f,
-
-                      axis.z() * axis.x() * oneMinusCos - axis.y() * sin,
-                      axis.z() * axis.y() * oneMinusCos + axis.x() * sin,
-                      axis.z() * axis.z() * oneMinusCos + cos,
-                      0.0f,
-
-                      0.0f,
-                      0.0f,
-                      0.0f,
-                      1.0f};
 }
 
 } // namespace
@@ -310,16 +276,15 @@ auto Blending::on_update(UpdateContext& ctx) -> void {
       auto randomEngine = default_random_engine{random_device{}()};
       auto rng = Distribution{0.0f, 0.025f};
       for (auto i = i32{0}; i < 21; i++) {
-        auto const localToWorld =
-          Matrix4x4f32::rotation_x(Angle::radians(
+        auto const localToWorld = Matrix4x4f32{
+          Matrix3x3f32::rotation_x(Angle::radians(
             (static_cast<f32>(i - 10) + rng(randomEngine)) * t / 20.0f)) *
-          Matrix4x4f32::rotation_y(Angle::radians(
+          Matrix3x3f32::rotation_y(Angle::radians(
             (static_cast<f32>(-i - 10) + rng(randomEngine)) * t / 20.0f)) *
-          Matrix4x4f32::rotation_z(Angle::radians(
+          Matrix3x3f32::rotation_z(Angle::radians(
             (static_cast<f32>(i - 10) + rng(randomEngine)) * t / 20.0f)) *
-          Matrix4x4f32::scaling(
-            Vector3f32{planet.radius + static_cast<f32>(i) / 10.0f} +
-            Vector3f32{0.25f * std::sin(4.0f * t)});
+          Matrix3x3f32::scale(planet.radius + static_cast<f32>(i) / 10.0f +
+                              0.25f * std::sin(4.0f * t))};
         cmdList.set_transform(TransformState::LocalToWorld, localToWorld);
         cmdList.set_material(
           Color::from_non_linear(0, 0, 0, 1.1f - static_cast<f32>(i) / 20.0f),
@@ -337,8 +302,10 @@ auto Blending::on_update(UpdateContext& ctx) -> void {
     }
 
     auto const localToWorld =
-      Matrix4x4f32::scaling(planet.radius) *
-      rotation_axis({0.5f, 1.0f, 0.25f}, Angle::radians(t)) *
+      Matrix4x4f32{
+        Matrix3x3f32::scale(planet.radius) *
+        Matrix3x3f32::rotation_axis(Vector3f32::normalized(0.5f, 1.0f, 0.25f),
+                                    Angle::radians(t))} *
       Matrix4x4f32::translation(planet.position);
     cmdList.set_transform(TransformState::LocalToWorld, localToWorld);
     cmdList.set_material(Colors::WHITE,

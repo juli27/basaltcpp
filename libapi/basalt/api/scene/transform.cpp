@@ -1,6 +1,7 @@
 #include "transform.h"
 
 #include <basalt/api/math/angle.h>
+#include <basalt/api/math/matrix3.h>
 
 namespace basalt {
 
@@ -33,7 +34,10 @@ auto Transform::rotate_z(Angle offset) noexcept -> void {
 }
 
 auto Transform::to_matrix() const -> Matrix4x4f32 {
-  return Matrix4x4f32::scaling(scale) * Matrix4x4f32::rotation(rotation) *
+  return Matrix4x4f32{Matrix3x3f32::scale(scale.x(), scale.y(), scale.z()) *
+                      Matrix3x3f32::rotation(Angle::radians(rotation.x()),
+                                             Angle::radians(rotation.y()),
+                                             Angle::radians(rotation.z()))} *
          Matrix4x4f32::translation(position);
 }
 

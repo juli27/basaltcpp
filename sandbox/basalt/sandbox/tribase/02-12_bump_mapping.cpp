@@ -11,7 +11,8 @@
 #include <basalt/api/gfx/backend/vertex_layout.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
-#include <basalt/api/math/matrix4x4.h>
+#include <basalt/api/math/matrix3.h>
+#include <basalt/api/math/matrix4.h>
 
 #include <gsl/span>
 
@@ -35,6 +36,7 @@ using basalt::Engine;
 using basalt::InputEvent;
 using basalt::InputEventHandled;
 using basalt::Key;
+using basalt::Matrix3x3f32;
 using basalt::Matrix4x4f32;
 using basalt::Vector3f32;
 using basalt::gfx::Attachment;
@@ -223,17 +225,19 @@ auto BumpMapping::on_update(UpdateContext& ctx) -> void {
   cmdList.set_lights(lights);
   cmdList.set_material(Color::from_non_linear(0.75f, 0.75f, 0.75f),
                        Color::from_non_linear(0.25f, 0.25f, 0.25f));
-  cmdList.set_transform(TransformState::LocalToWorld,
-                        Matrix4x4f32::rotation_y(Angle::radians(0.25f * t)) *
-                          Matrix4x4f32::translation(1, 0, 2.5f));
+  cmdList.set_transform(
+    TransformState::LocalToWorld,
+    Matrix4x4f32{Matrix3x3f32::rotation_y(Angle::radians(0.25f * t))} *
+      Matrix4x4f32::translation(1, 0, 2.5f));
   cmdList.set_transform(TransformState::Texture2, Matrix4x4f32::identity());
   XMeshCommandEncoder::draw_x_mesh(cmdList, mCubeMesh);
 
   cmdList.bind_pipeline(mCube2Pipeline);
   cmdList.bind_texture(1, mEnvTexture);
-  cmdList.set_transform(TransformState::LocalToWorld,
-                        Matrix4x4f32::rotation_y(Angle::radians(0.25f * t)) *
-                          Matrix4x4f32::translation(-1, 0, 2.5f));
+  cmdList.set_transform(
+    TransformState::LocalToWorld,
+    Matrix4x4f32{Matrix3x3f32::rotation_y(Angle::radians(0.25f * t))} *
+      Matrix4x4f32::translation(-1, 0, 2.5f));
   cmdList.set_transform(TransformState::Texture1, Matrix4x4f32::identity());
   XMeshCommandEncoder::draw_x_mesh(cmdList, mCubeMesh);
 

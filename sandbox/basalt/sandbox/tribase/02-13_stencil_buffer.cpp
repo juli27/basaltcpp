@@ -12,7 +12,8 @@
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/math/angle.h>
-#include <basalt/api/math/matrix4x4.h>
+#include <basalt/api/math/matrix3.h>
+#include <basalt/api/math/matrix4.h>
 #include <basalt/api/math/vector3.h>
 
 #include <gsl/span>
@@ -33,6 +34,7 @@ using gsl::span;
 using namespace basalt::literals;
 using basalt::Angle;
 using basalt::Engine;
+using basalt::Matrix3x3f32;
 using basalt::Matrix4x4f32;
 using basalt::Vector3f32;
 using basalt::gfx::Attachment;
@@ -135,24 +137,24 @@ auto StencilBuffer::on_update(UpdateContext& ctx) -> void {
     Matrix4x4f32::perspective_projection(
       90_deg, ctx.drawCtx.viewport.aspect_ratio(), 0.1f, 100));
   cmdList.set_transform(TransformState::WorldToView, Matrix4x4f32::identity());
-  cmdList.set_transform(TransformState::LocalToWorld,
-                        Matrix4x4f32::rotation(Angle::radians(t),
-                                               Angle::radians(0.5f * t),
-                                               Angle::radians(0.25f * t)) *
-                          Matrix4x4f32::translation(0, 0, 3));
+  cmdList.set_transform(
+    TransformState::LocalToWorld,
+    Matrix4x4f32{Matrix3x3f32::rotation(
+      Angle::radians(t), Angle::radians(0.5f * t), Angle::radians(0.25f * t))} *
+      Matrix4x4f32::translation(0, 0, 3));
   XMeshCommandEncoder::draw_x_mesh(cmdList, mThingMesh);
 
   cmdList.set_transform(TransformState::LocalToWorld,
-                        Matrix4x4f32::rotation(Angle::radians(0.9f * t),
-                                               Angle::radians(0.6f * t),
-                                               Angle::radians(0.3f * t)) *
+                        Matrix4x4f32{Matrix3x3f32::rotation(
+                          Angle::radians(0.9f * t), Angle::radians(0.6f * t),
+                          Angle::radians(0.3f * t))} *
                           Matrix4x4f32::translation(-3, 0, 5));
   XMeshCommandEncoder::draw_x_mesh(cmdList, mThingMesh);
 
   cmdList.set_transform(TransformState::LocalToWorld,
-                        Matrix4x4f32::rotation(Angle::radians(1.1f * t),
-                                               Angle::radians(0.4f * t),
-                                               Angle::radians(0.35f * t)) *
+                        Matrix4x4f32{Matrix3x3f32::rotation(
+                          Angle::radians(1.1f * t), Angle::radians(0.4f * t),
+                          Angle::radians(0.35f * t))} *
                           Matrix4x4f32::translation(3, 0, 5));
   XMeshCommandEncoder::draw_x_mesh(cmdList, mThingMesh);
 

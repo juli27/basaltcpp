@@ -2,8 +2,6 @@
 
 #include <basalt/api/scene/transform.h>
 
-#include <basalt/api/math/matrix4x4.h>
-
 namespace basalt::gfx {
 
 Camera::Camera(Vector3f32 const& lookAt, Vector3f32 const& up, Angle const fov,

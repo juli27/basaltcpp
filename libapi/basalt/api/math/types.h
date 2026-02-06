@@ -6,6 +6,8 @@ namespace basalt {
 
 class Angle;
 
+class Matrix2x2f32;
+class Matrix3x3f32;
 class Matrix4x4f32;
 
 class Plane;

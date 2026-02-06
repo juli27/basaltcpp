@@ -20,6 +20,7 @@
 #include <basalt/api/scene/scene.h>
 
 #include <basalt/api/math/angle.h>
+#include <basalt/api/math/matrix2.h>
 #include <basalt/api/math/vector2.h>
 #include <basalt/api/math/vector3.h>
 
@@ -197,13 +198,9 @@ private:
                               vbData.size() / sizeof(Vertex)};
 
           auto const rotation =
-            Matrix4x4f32::rotation_z(Angle::degrees(45.0f * t));
+            Matrix2x2f32::rotation(Angle::degrees(45.0f * t));
           auto const rotateUv = [&](Vertex const& v) {
-            return Vertex{v.pos,
-                          Vector2f32{
-                            v.uv.dot(Vector2f32{rotation.m11, rotation.m21}),
-                            v.uv.dot(Vector2f32{rotation.m12, rotation.m22}),
-                          }};
+            return Vertex{v.pos, v.uv * rotation};
           };
           std::transform(QUAD_VERTICES.begin(), QUAD_VERTICES.end(),
                          vertexData.begin(), rotateUv);

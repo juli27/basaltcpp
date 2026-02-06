@@ -21,11 +21,11 @@
 #include <basalt/api/scene/ecs.h>
 #include <basalt/api/scene/scene.h>
 #include <basalt/api/scene/system.h>
-#include <basalt/api/scene/transform.h>
 
 #include <basalt/api/math/angle.h>
 #include <basalt/api/math/constants.h>
-#include <basalt/api/math/matrix4x4.h>
+#include <basalt/api/math/matrix3.h>
+#include <basalt/api/math/matrix4.h>
 #include <basalt/api/math/vector2.h>
 #include <basalt/api/math/vector3.h>
 
@@ -101,10 +101,11 @@ public:
       .view<HasTextureTransform const, gfx::Model const>()
       .each([&](gfx::Model const& model) {
         auto& material = gfxCtx.get(model.material);
-        material.set_value(gfx::MaterialPropertyId::TexTransform,
-                           cameraEntity.view_to_clip() *
-                             Matrix4x4f32::scaling(0.5f, -0.5f, 1.0f) *
-                             Matrix4x4f32::translation(0.5f, 0.5f, 0.0f));
+        material.set_value(
+          gfx::MaterialPropertyId::TexTransform,
+          cameraEntity.view_to_clip() *
+            Matrix4x4f32{Matrix3x3f32::scale(0.5f, -0.5f, 1.0f)} *
+            Matrix4x4f32::translation(0.5f, 0.5f, 0.0f));
       });
   }
 };

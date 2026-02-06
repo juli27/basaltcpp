@@ -11,7 +11,7 @@
 #include <basalt/api/gfx/backend/vertex_layout.h>
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
-#include <basalt/api/math/matrix4x4.h>
+#include <basalt/api/math/matrix4.h>
 
 #include <gsl/span>
 

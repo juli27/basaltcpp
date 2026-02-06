@@ -2,7 +2,7 @@
 
 #include <basalt/api/scene/types.h>
 
-#include <basalt/api/math/matrix4x4.h>
+#include <basalt/api/math/matrix4.h>
 #include <basalt/api/math/types.h>
 #include <basalt/api/math/vector3.h>
 

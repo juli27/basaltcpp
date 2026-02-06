@@ -11,7 +11,7 @@
 
 #include <basalt/api/shared/color.h>
 
-#include <basalt/api/math/matrix4x4.h>
+#include <basalt/api/math/matrix4.h>
 #include <basalt/api/math/vector3.h>
 
 #include <basalt/api/base/asserts.h>
@@ -44,8 +44,8 @@ constexpr auto to_d3d_color(Color const& color) noexcept -> D3DCOLOR {
   return enum_cast(color.to_argb());
 }
 
-constexpr auto
-to_d3d_color_value(Color const& color) noexcept -> D3DCOLORVALUE {
+constexpr auto to_d3d_color_value(Color const& color) noexcept
+  -> D3DCOLORVALUE {
   return D3DCOLORVALUE{color.r(), color.g(), color.b(), color.a()};
 }
 
@@ -55,10 +55,10 @@ constexpr auto to_color(D3DCOLORVALUE const& color) -> Color {
 
 constexpr auto to_d3d(Matrix4x4f32 const& mat) noexcept -> D3DMATRIX {
   // clang-format off
-  return D3DMATRIX{mat.m11, mat.m12, mat.m13, mat.m14,
-                   mat.m21, mat.m22, mat.m23, mat.m24,
-                   mat.m31, mat.m32, mat.m33, mat.m34,
-                   mat.m41, mat.m42, mat.m43, mat.m44};
+  return D3DMATRIX{mat.m11(), mat.m12(), mat.m13(), mat.m14(),
+                   mat.m21(), mat.m22(), mat.m23(), mat.m24(),
+                   mat.m31(), mat.m32(), mat.m33(), mat.m34(),
+                   mat.m41(), mat.m42(), mat.m43(), mat.m44()};
   // clang-format on
 }
 
@@ -151,8 +151,8 @@ inline auto to_d3d(ImageFormat const format) -> D3DFORMAT {
 }
 
 [[nodiscard]]
-constexpr auto
-to_image_format(D3DFORMAT const format) noexcept -> std::optional<ImageFormat> {
+constexpr auto to_image_format(D3DFORMAT const format) noexcept
+  -> std::optional<ImageFormat> {
   switch (format) {
   case D3DFMT_A8R8G8B8:
     return ImageFormat::B8G8R8A8;
@@ -456,8 +456,8 @@ inline auto to_d3d(TextureStageDestination const dest) -> DWORD {
   return TO_D3D[dest];
 }
 
-inline auto
-to_d3d(TextureCoordinateTransformMode const mode) -> D3DTEXTURETRANSFORMFLAGS {
+inline auto to_d3d(TextureCoordinateTransformMode const mode)
+  -> D3DTEXTURETRANSFORMFLAGS {
   static constexpr auto TO_D3D =
     EnumArray<TextureCoordinateTransformMode, D3DTEXTURETRANSFORMFLAGS, 5>{
       {TextureCoordinateTransformMode::Disabled, D3DTTFF_DISABLE},
@@ -491,8 +491,8 @@ inline auto to_d3d(TransformState const state) -> D3DTRANSFORMSTATETYPE {
   return TO_D3D[state];
 }
 
-inline auto to_d3d(BorderColor const borderColor,
-                   Color const& custom) -> D3DCOLOR {
+inline auto to_d3d(BorderColor const borderColor, Color const& custom)
+  -> D3DCOLOR {
   if (borderColor == BorderColor::Custom) {
     return to_d3d_color(custom);
   }

@@ -10,7 +10,8 @@
 #include <basalt/api/gfx/backend/ext/x_model_support.h>
 
 #include <basalt/api/math/angle.h>
-#include <basalt/api/math/matrix4x4.h>
+#include <basalt/api/math/matrix3.h>
+#include <basalt/api/math/matrix4.h>
 #include <basalt/api/math/vector3.h>
 
 #include <gsl/span>
@@ -30,6 +31,7 @@ using gsl::span;
 using namespace basalt::literals;
 using basalt::Angle;
 using basalt::Engine;
+using basalt::Matrix3x3f32;
 using basalt::Matrix4x4f32;
 using basalt::Vector3f32;
 using basalt::gfx::Attachment;
@@ -62,10 +64,10 @@ constexpr auto CUBE_MODEL_FILE_PATH = "data/tribase/02-09_multi_tex/Cube.x"sv;
 constexpr auto to_matrix3x3(Matrix4x4f32 const& m) -> Matrix4x4f32 {
   // clang-format off
   return Matrix4x4f32{
-    m.m11, m.m12, m.m14, 0,
-    m.m21, m.m22, m.m24, 0,
-    m.m41, m.m42, m.m44, 0,
-    0,     0,     0,     1
+    m.m11(), m.m12(), m.m14(), 0,
+    m.m21(), m.m22(), m.m24(), 0,
+    m.m41(), m.m42(), m.m44(), 0,
+    0,       0,       0,       1
   };
   // clang-format on
 }
@@ -184,10 +186,10 @@ auto MultiTexturing::on_update(UpdateContext& ctx) -> void {
 
     cmdList.set_transform(
       TransformState::LocalToWorld,
-      Matrix4x4f32::scaling(2.5f) *
-        Matrix4x4f32::rotation_x(Angle::radians(t)) *
-        Matrix4x4f32::rotation_y(Angle::radians(0.75f * t)) *
-        Matrix4x4f32::rotation_z(Angle::radians(0.5f * t)) *
+      Matrix4x4f32{Matrix3x3f32::scale(2.5f) *
+                   Matrix3x3f32::rotation_x(Angle::radians(t)) *
+                   Matrix3x3f32::rotation_y(Angle::radians(0.75f * t)) *
+                   Matrix3x3f32::rotation_z(Angle::radians(0.5f * t))} *
         Matrix4x4f32::translation(cubePos));
 
     XMeshCommandEncoder::draw_x_mesh(cmdList, mCubeMesh);

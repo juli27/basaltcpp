@@ -6,7 +6,7 @@
 
 #include <basalt/api/shared/color.h>
 
-#include <basalt/api/math/matrix4x4.h>
+#include <basalt/api/math/matrix4.h>
 #include <basalt/api/math/vector3.h>
 
 #include <basalt/api/base/enum_array.h>
@@ -236,19 +236,19 @@ auto DebugUi::display_matrix4x4(char const* label, Matrix4x4f32 const& mat)
 
   ImGui::BeginDisabled();
 
-  auto firstRow = array{mat.m11, mat.m12, mat.m13, mat.m14};
+  auto firstRow = array{mat.m11(), mat.m12(), mat.m13(), mat.m14()};
   ImGui::InputFloat4((labelString + " Row 1"s).c_str(), firstRow.data(), "%.3f",
                      ImGuiInputTextFlags_ReadOnly);
 
-  auto secondRow = array{mat.m21, mat.m22, mat.m23, mat.m24};
+  auto secondRow = array{mat.m21(), mat.m22(), mat.m23(), mat.m24()};
   ImGui::InputFloat4((labelString + " Row 2"s).c_str(), secondRow.data(),
                      "%.3f", ImGuiInputTextFlags_ReadOnly);
 
-  auto thirdRow = array{mat.m31, mat.m32, mat.m33, mat.m34};
+  auto thirdRow = array{mat.m31(), mat.m32(), mat.m33(), mat.m34()};
   ImGui::InputFloat4((labelString + " Row 3"s).c_str(), thirdRow.data(), "%.3f",
                      ImGuiInputTextFlags_ReadOnly);
 
-  auto forthRow = array{mat.m41, mat.m42, mat.m43, mat.m44};
+  auto forthRow = array{mat.m41(), mat.m42(), mat.m43(), mat.m44()};
   ImGui::InputFloat4((labelString + " Row 4"s).c_str(), forthRow.data(), "%.3f",
                      ImGuiInputTextFlags_ReadOnly);
 

@@ -125,13 +125,7 @@ public:
 
   friend constexpr auto operator==(Derived const& lhs, Derived const& rhs)
     -> bool {
-    for (auto i = uSize{0}; i < DIMENSION; ++i) {
-      if (lhs.mComponents[i] != rhs.mComponents[i]) {
-        return false;
-      }
-    }
-
-    return true;
+    return lhs.mComponents == rhs.mComponents;
   }
 
   friend constexpr auto operator!=(Derived const& lhs, Derived const& rhs)
