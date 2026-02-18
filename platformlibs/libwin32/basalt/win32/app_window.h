@@ -27,9 +27,8 @@ namespace basalt {
 class Win32AppWindow final : public Win32Window {
 public:
   // throws std::system_error on failure
-  [[nodiscard]]
-  static auto create(HMODULE, int const showCommand,
-                     AppLaunchInfo const&) -> Win32AppWindowPtr;
+  static auto create(HMODULE, int showCommand, AppLaunchInfo const&,
+                     Win32MessageQueuePtr) -> Win32AppWindowPtr;
 
   // don't call directly. Use the create function instead
   Win32AppWindow(HWND, Win32WindowClassCPtr, Win32MessageQueuePtr,

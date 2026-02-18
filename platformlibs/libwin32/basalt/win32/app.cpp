@@ -65,7 +65,7 @@ auto load_system_mouse_cursors() -> MouseCursors {
 }
 
 [[nodiscard]]
-auto drain_message_queue(Win32MessageQueue const& messageQueue) -> bool {
+auto drain_message_queue(Win32MessageQueue& messageQueue) -> bool {
   while (auto message = messageQueue.poll()) {
     if (message->message == WM_QUIT) {
       return false;
@@ -79,7 +79,7 @@ auto drain_message_queue(Win32MessageQueue const& messageQueue) -> bool {
 }
 
 [[nodiscard]]
-auto wait_for_messages(Win32MessageQueue const& messageQueue) -> bool {
+auto wait_for_messages(Win32MessageQueue& messageQueue) -> bool {
   auto message = messageQueue.take();
   if (message.message == WM_QUIT) {
     return false;
@@ -93,7 +93,7 @@ auto wait_for_messages(Win32MessageQueue const& messageQueue) -> bool {
 }
 
 [[nodiscard]]
-auto run_lost_device_loop(Win32MessageQueue const& messageQueue,
+auto run_lost_device_loop(Win32MessageQueue& messageQueue,
                           gfx::Device& gfxDevice) -> bool {
   while (wait_for_messages(messageQueue)) {
     switch (gfxDevice.get_status()) {
@@ -126,7 +126,9 @@ auto Win32App::init(HMODULE const moduleHandle, int const showCommand)
   auto clientApp = bootstrap_app(config);
   dump_config(config);
 
-  auto appWindow = Win32AppWindow::create(moduleHandle, showCommand, clientApp);
+  auto messageQueue = Win32MessageQueue::make_for_current_thread();
+  auto appWindow = Win32AppWindow::create(moduleHandle, showCommand, clientApp,
+                                          std::move(messageQueue));
   // TODO: Hack! This doesn't belong here
   config.set_enum("window.mode"s, appWindow->mode());
 
@@ -151,7 +153,9 @@ auto Win32App::run() -> void {
   auto startTime = Clock::now();
   auto deltaTime = SecondsF32{0s};
 
-  while (drain_message_queue(*mMessageQueue)) {
+  auto const& messageQueue = mAppWindow->message_queue();
+
+  while (drain_message_queue(*messageQueue)) {
     if (auto const mode =
           mRuntime.config().get_enum("window.mode"s, to_window_mode);
         mode != mAppWindow->mode()) {
@@ -168,7 +172,7 @@ auto Win32App::run() -> void {
     }
 
     if (mAppWindow->present() == gfx::PresentResult::DeviceLost) {
-      if (!run_lost_device_loop(*mMessageQueue,
+      if (!run_lost_device_loop(*messageQueue,
                                 *mRuntime.gfx_context().device())) {
         Platform::quit();
       }
@@ -183,11 +187,9 @@ auto Win32App::run() -> void {
 }
 
 Win32App::Win32App(Win32AppWindowPtr appWindow, Runtime runtime)
-  : mMessageQueue{appWindow->message_queue()}
-  , mMouseCursors{load_system_mouse_cursors()}
+  : mMouseCursors{load_system_mouse_cursors()}
   , mAppWindow{std::move(appWindow)}
   , mRuntime{std::move(runtime)} {
-  BASALT_ASSERT(mMessageQueue);
   BASALT_ASSERT(mAppWindow);
 }
 

@@ -2,17 +2,16 @@
 
 #include "types.h"
 
-#include <basalt/win32/shared/Windows_custom.h>
+#include "shared/Windows_custom.h"
 
-#include <memory>
 #include <optional>
 
 namespace basalt {
 
-class Win32MessageQueue final
-  : public std::enable_shared_from_this<Win32MessageQueue> {
+class Win32MessageQueue {
 public:
-  static auto get_for_current_thread() -> Win32MessageQueuePtr;
+  static auto make_for_current_thread() -> Win32MessageQueuePtr;
+  static auto get_for_current_thread() -> Win32MessageQueue*;
 
   Win32MessageQueue();
 
@@ -25,11 +24,10 @@ public:
   auto operator=(Win32MessageQueue&&) -> Win32MessageQueue& = delete;
 
   // blocks and dispatches sent messages until a posted message is available
-  auto take() const -> MSG;
+  auto take() -> MSG;
 
   auto peek() const -> std::optional<MSG>;
-
-  auto poll() const -> std::optional<MSG>;
+  auto poll() -> std::optional<MSG>;
 
 private:
   DWORD mThreadId;

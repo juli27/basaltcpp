@@ -1,6 +1,5 @@
 #include "app_window.h"
 
-#include "message_queue.h"
 #include "util.h"
 #include "window_class.h"
 
@@ -184,7 +183,9 @@ auto get_default_gfx_context_info(gfx::AdapterInfos const& adapters)
 } // namespace
 
 auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
-                            AppLaunchInfo const& app) -> Win32AppWindowPtr {
+                            AppLaunchInfo const& app,
+                            Win32MessageQueuePtr messageQueue)
+  -> Win32AppWindowPtr {
   auto const& canvasInfo = app.canvasCreateInfo;
   auto const gfxFactory = [&] {
     auto maybeFactory = create_gfx_factory(canvasInfo.gfxBackendApi);
@@ -236,8 +237,7 @@ auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
   }
 
   auto window = std::make_unique<Win32AppWindow>(
-    handle, std::move(windowClass), Win32MessageQueue::get_for_current_thread(),
-    gfxFactory);
+    handle, std::move(windowClass), std::move(messageQueue), gfxFactory);
 
   ShowWindow(handle, showCommand);
 

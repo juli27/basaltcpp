@@ -30,7 +30,6 @@ public:
   auto run() -> void;
 
 private:
-  Win32MessageQueuePtr mMessageQueue;
   MouseCursors mMouseCursors;
   Win32AppWindowPtr mAppWindow;
   Runtime mRuntime;
