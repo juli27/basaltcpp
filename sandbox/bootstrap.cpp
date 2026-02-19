@@ -8,9 +8,12 @@
 
 #include <basalt/api/shared/config.h>
 
+#include <basalt/api/base/log.h>
+
 #include <algorithm>
+#include <filesystem>
 #include <string>
-#include <utility>
+#include <string_view>
 
 using namespace std::literals;
 using namespace basalt;
@@ -47,15 +50,25 @@ auto is_valid(gfx::DisplayMode const& mode, gfx::AdapterInfo const& adapterInfo)
 auto basalt::bootstrap_app(Config& config) -> AppLaunchInfo {
   config.set_bool("runtime.debugUI.enabled"s, true);
 
-  // TODO: verify compatibility with the current platform capabilities
-  auto settings =
-    Settings::from_file("settings.toml"s).value_or(Settings{"settings.toml"s});
+  auto const settings = [&] {
+    auto const settingsFilePath = std::filesystem::u8path("settings.toml"sv);
+    if (auto const maybeSettings = Settings::from_file(settingsFilePath)) {
+      return *maybeSettings;
+    }
+
+    BASALT_LOG_INFO("Creating new settings file");
+    auto const defaultSettings = Settings{settingsFilePath};
+    defaultSettings.to_file();
+
+    return defaultSettings;
+  }();
 
   auto canvasInfo = CanvasCreateInfo{};
   canvasInfo.mode = settings.windowMode;
   canvasInfo.configureGfxContext = [=](gfx::AdapterInfos const& adapters) {
     auto const& adapterInfo = adapters[settings.adapter];
 
+    // TODO: verify compatibility with the current platform capabilities
     // TODO: stop hardcoding formats and modes which might not be supported
     auto info = GfxContextCreateInfo{};
     info.adapter = settings.adapter;
@@ -70,7 +83,7 @@ auto basalt::bootstrap_app(Config& config) -> AppLaunchInfo {
   };
 
   auto const createView = [=](Engine& engine) {
-    return SandboxView::create(engine, std::move(settings));
+    return SandboxView::create(engine, settings);
   };
 
   return AppLaunchInfo{"Basalt Sandbox"s, canvasInfo, createView};
