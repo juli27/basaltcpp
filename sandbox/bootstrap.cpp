@@ -66,12 +66,14 @@ auto basalt::bootstrap_app(Config& config) -> AppLaunchInfo {
   auto canvasInfo = CanvasCreateInfo{};
   canvasInfo.mode = settings.windowMode;
   canvasInfo.configureGfxContext = [=](gfx::AdapterInfos const& adapters) {
-    auto const& adapterInfo = adapters[settings.adapter];
+    auto const adapterIdx =
+      settings.adapter < adapters.size() ? settings.adapter : 0;
+    auto const& adapterInfo = adapters[adapterIdx];
 
     // TODO: verify compatibility with the current platform capabilities
     // TODO: stop hardcoding formats and modes which might not be supported
     auto info = GfxContextCreateInfo{};
-    info.adapter = settings.adapter;
+    info.adapter = adapterIdx;
     info.colorFormat = gfx::ImageFormat::B8G8R8X8;
     info.depthStencilFormat = gfx::ImageFormat::D24S8;
     info.sampleCount = settings.multiSampleCount;

@@ -20,11 +20,12 @@ public:
   static auto window_mode_combo(char const* label, basalt::WindowMode&) -> void;
 
   static auto adapter_combo(char const* label, basalt::u32& adapter,
-                            basalt::gfx::AdapterInfos const&) -> void;
+                            basalt::gfx::Info const&) -> void;
 
-  static auto
-  multi_sample_count_combo(char const* label, basalt::gfx::MultiSampleCount&,
-                           basalt::gfx::MultiSampleCounts const&) -> void;
+  static auto multi_sample_count_combo(char const* label,
+                                       basalt::gfx::MultiSampleCount&,
+                                       basalt::gfx::MultiSampleCounts const&)
+    -> void;
 
   static auto display_mode_combo(char const* label, basalt::gfx::DisplayMode&,
                                  basalt::gfx::DisplayModes const&) -> void;

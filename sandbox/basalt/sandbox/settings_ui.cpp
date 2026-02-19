@@ -56,7 +56,7 @@ auto SettingsUi::settings_editor(Settings& settings, gfx::Info const& gfxInfo)
     ImGui::TableNextColumn();
     ImGui::TextUnformatted("Adapter");
     ImGui::TableNextColumn();
-    adapter_combo("", settings.adapter, gfxInfo.adapterInfos);
+    adapter_combo("##adapter", settings.adapter, gfxInfo);
 
     auto const& adapterInfo = gfxInfo.adapterInfos[settings.adapter];
 
@@ -111,18 +111,21 @@ auto SettingsUi::window_mode_combo(char const* label, WindowMode& windowMode)
 }
 
 auto SettingsUi::adapter_combo(char const* label, u32& adapter,
-                               gfx::AdapterInfos const& adapters) -> void {
-  auto const& currentAdapterName = adapters[adapter].identifier.displayName;
-  auto const previewText = fmt::format(
-    FMT_STRING("{}: {}"), adapters[adapter].index, currentAdapterName.c_str());
+                               gfx::Info const& gfxInfo) -> void {
+  auto const& adapters = gfxInfo.adapterInfos;
+  if (adapter >= adapters.size()) {
+    adapter = gfxInfo.currentAdapter;
+  }
 
-  if (ImGui::BeginCombo(label, previewText.c_str())) {
+  auto const toString = [&](gfx::AdapterInfo const& info) {
+    return fmt::format(FMT_STRING("{}: {}"), info.index,
+                       info.identifier.displayName);
+  };
+
+  auto const& currentAdapterInfo = adapters[adapter];
+  if (ImGui::BeginCombo(label, toString(currentAdapterInfo).c_str())) {
     for (auto const& info : adapters) {
-      auto const& name = info.identifier.displayName;
-      auto const itemLabel =
-        fmt::format(FMT_STRING("{}: {}"), info.index, name.c_str());
-
-      if (ImGui::Selectable(itemLabel.c_str(), info.index == adapter)) {
+      if (ImGui::Selectable(toString(info).c_str(), info.index == adapter)) {
         adapter = info.index;
       }
     }
