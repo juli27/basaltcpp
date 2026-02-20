@@ -1,7 +1,7 @@
 #include <basalt/gfx/backend/ext/dear_imgui_renderer.h>
 
 #include <basalt/gfx/backend/commands.h>
-#include <basalt/gfx/backend/command_list.h>
+#include <basalt/gfx/backend/command_list_p.h>
 
 namespace basalt::gfx::ext {
 

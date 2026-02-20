@@ -1,6 +1,6 @@
 #include <basalt/api/gfx/backend/ext/effect.h>
 
-#include <basalt/gfx/backend/command_list.h>
+#include <basalt/gfx/backend/command_list_p.h>
 #include <basalt/gfx/backend/commands.h>
 
 namespace basalt::gfx::ext {

@@ -1,6 +1,6 @@
 target_sources(LibRuntime PRIVATE
   "command_list.cpp"
-  "command_list.h"
+  "command_list_p.h"
   "commands.cpp"
   "commands.h"
   "device.h"

@@ -1,4 +1,4 @@
-#include "command_list.h"
+#include "command_list_p.h"
 
 #include "commands.h"
 
