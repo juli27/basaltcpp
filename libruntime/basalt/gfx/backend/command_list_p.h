@@ -1,30 +1,40 @@
 #pragma once
 
-#include <basalt/api/gfx/backend/command_list.h>
+#include <basalt/api/gfx/backend/command_list.h> // IWYU pragma: export
 
+#include "commands.h"
+
+#include <basalt/api/base/types.h>
+
+#include <gsl/span>
+
+#include <memory_resource>
 #include <type_traits>
 
 namespace basalt::gfx {
 
-// implementations of engine private function templates
+class CommandListP {
+public:
+  template <typename T, typename... Args>
+  static auto add(CommandList& cmdList, Args&&... args) -> void {
+    static_assert(std::is_base_of_v<Command, T>,
+                  "CommandList only accepts commands derived from Command");
 
-template <typename T>
-auto CommandList::allocate(uSize const count) const -> gsl::span<T> {
-  static_assert(std::is_trivially_destructible_v<T>);
+    auto const storage = allocate<T>(cmdList);
+    cmdList.mCommands.push_back(new (storage.data())
+                                  T(std::forward<Args>(args)...));
+  }
 
-  auto allocator = std::pmr::polymorphic_allocator<T>{mBuffer.get()};
-  auto* const storage = allocator.allocate(count);
+  template <typename T>
+  [[nodiscard]]
+  static auto allocate(CommandList& cmdList, uSize count = 1) -> gsl::span<T> {
+    static_assert(std::is_trivially_destructible_v<T>);
 
-  return gsl::span{storage, count};
-}
+    auto allocator = std::pmr::polymorphic_allocator<T>{cmdList.mBuffer.get()};
+    auto* const storage = allocator.allocate(count);
 
-template <typename T, typename... Args>
-auto CommandList::add(Args&&... args) -> void {
-  static_assert(std::is_base_of_v<Command, T>,
-                "CommandList only accepts commands derived from Command");
-
-  mCommands.emplace_back(new (allocate<T>().data())
-                           T(std::forward<Args>(args)...));
-}
+    return gsl::span{storage, count};
+  }
+};
 
 } // namespace basalt::gfx

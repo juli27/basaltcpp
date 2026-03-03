@@ -1,9 +1,8 @@
 #pragma once
 
-#include <basalt/api/gfx/backend/types.h>
+#include "types.h"
 
 #include <basalt/api/shared/color.h>
-#include <basalt/api/shared/types.h>
 
 #include <basalt/api/math/types.h>
 
@@ -17,15 +16,16 @@
 
 namespace basalt::gfx {
 
+class CommandListP;
+
 // serialized commands which the gfx device should execute
-class CommandList final {
+class CommandList {
   using ListType = std::vector<Command const*>;
 
 public:
   using const_iterator = ListType::const_iterator;
 
   CommandList();
-
   CommandList(CommandList const&) = delete;
   CommandList(CommandList&&) noexcept = default;
 
@@ -34,10 +34,10 @@ public:
   auto operator=(CommandList const&) -> CommandList& = delete;
   auto operator=(CommandList&&) noexcept -> CommandList& = default;
 
-  [[nodiscard]] auto size() const noexcept -> uSize;
+  auto size() const noexcept -> uSize;
 
-  [[nodiscard]] auto begin() const -> const_iterator;
-  [[nodiscard]] auto end() const -> const_iterator;
+  auto begin() const -> const_iterator;
+  auto end() const -> const_iterator;
 
   auto clear_attachments(Attachments, Color const& = {}, f32 depth = 0,
                          u32 stencil = 0) -> void;
@@ -66,15 +66,8 @@ public:
   auto set_texture_factor(Color const&) -> void;
   auto set_texture_stage_constant(u8 stageId, Color const&) -> void;
 
-  // the following function templates are engine private (implementation is in
-  // libRuntime: basalt/gfx/backend/command_list.h)
-  template <typename T>
-  [[nodiscard]] auto allocate(uSize count = 1) const -> gsl::span<T>;
-
-  template <typename T, typename... Args>
-  auto add(Args&&...) -> void;
-
 private:
+  friend CommandListP;
   using CommandBuffer = std::pmr::monotonic_buffer_resource;
 
   std::unique_ptr<CommandBuffer> mBuffer;

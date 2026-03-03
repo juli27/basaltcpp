@@ -7,20 +7,20 @@ namespace basalt::gfx::ext {
 
 auto EffectCommandEncoder::begin_effect(CommandList& cmdList,
                                         EffectId const effectId) -> void {
-  cmdList.add<CommandBeginEffect>(effectId);
+  CommandListP::add<CommandBeginEffect>(cmdList, effectId);
 }
 
 auto EffectCommandEncoder::end_effect(CommandList& cmdList) -> void {
-  cmdList.add<CommandEndEffect>();
+  CommandListP::add<CommandEndEffect>(cmdList);
 }
 
 auto EffectCommandEncoder::begin_effect_pass(CommandList& cmdList,
                                              u32 const passIndex) -> void {
-  cmdList.add<CommandBeginEffectPass>(passIndex);
+  CommandListP::add<CommandBeginEffectPass>(cmdList, passIndex);
 }
 
 auto EffectCommandEncoder::end_effect_pass(CommandList& cmdList) -> void {
-  cmdList.add<CommandEndEffectPass>();
+  CommandListP::add<CommandEndEffectPass>(cmdList);
 }
 
 } // namespace basalt::gfx::ext

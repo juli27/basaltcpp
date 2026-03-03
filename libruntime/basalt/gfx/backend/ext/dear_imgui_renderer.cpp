@@ -6,7 +6,7 @@
 namespace basalt::gfx::ext {
 
 auto DearImGuiCommandEncoder::render_dear_imgui(CommandList& cmdList) -> void {
-  cmdList.add<CommandRenderDearImGui>();
+  CommandListP::add<CommandRenderDearImGui>(cmdList);
 }
 
 } // namespace basalt::gfx::ext
