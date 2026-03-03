@@ -15,6 +15,7 @@
 #include <basalt/api/gfx/mesh.h>
 #include <basalt/api/gfx/resource_cache.h>
 #include <basalt/api/gfx/backend/buffer.h>
+#include <basalt/api/gfx/backend/command_list.h>
 
 #include <basalt/api/math/matrix4.h>
 
@@ -23,9 +24,11 @@
 #include <algorithm>
 #include <cstddef>
 #include <filesystem>
+#include <iterator>
 #include <memory>
 #include <optional>
 #include <utility>
+#include <vector>
 
 namespace basalt::gfx {
 
@@ -62,6 +65,14 @@ Context::Context(DevicePtr device, ext::DeviceExtensions deviceExtensions,
 }
 
 Context::~Context() noexcept = default;
+
+auto Context::capture_this_frame(
+  std::function<OnFrameCapturedFn> onFrameCaptured) -> void {
+  BASALT_ASSERT(onFrameCaptured);
+  BASALT_ASSERT(!mOnFrameCaptured, "a frame can only be captured once");
+
+  mOnFrameCaptured = std::move(onFrameCaptured);
+}
 
 auto Context::gfx_info() const noexcept -> Info const& {
   return mInfo;
@@ -279,8 +290,18 @@ auto Context::destroy(ext::XMeshHandle handle) noexcept -> void {
   modelExt->destroy(handle);
 }
 
-auto Context::submit(span<CommandList const> const cmdLists) const -> void {
+auto Context::submit(span<CommandList> const cmdLists) -> void {
   mDevice->submit(cmdLists);
+
+  if (mOnFrameCaptured) {
+    auto capturedLists = std::vector<CommandList>{};
+    capturedLists.reserve(cmdLists.size());
+    std::move(cmdLists.begin(), cmdLists.end(),
+              std::back_inserter(capturedLists));
+    
+    mOnFrameCaptured(std::move(capturedLists));
+    mOnFrameCaptured = {};
+  }
 }
 
 auto Context::device() const noexcept -> DevicePtr const& {

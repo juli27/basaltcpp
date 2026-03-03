@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <filesystem>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <utility>
@@ -26,14 +27,16 @@ public:
   Context(DevicePtr, ext::DeviceExtensions, SwapChainPtr, Info);
 
   Context(Context const&) = delete;
-
   Context(Context&&) = delete;
 
   ~Context() noexcept;
 
   auto operator=(Context const&) -> Context& = delete;
-
   auto operator=(Context&&) -> Context& = delete;
+
+  // callback called on main thread
+  using OnFrameCapturedFn = void(std::vector<CommandList>);
+  auto capture_this_frame(std::function<OnFrameCapturedFn>) -> void;
 
   [[nodiscard]]
   auto gfx_info() const noexcept -> Info const&;
@@ -151,7 +154,7 @@ public:
 
   auto destroy(ext::XMeshHandle) noexcept -> void;
 
-  auto submit(gsl::span<CommandList const>) const -> void;
+  auto submit(gsl::span<CommandList>) -> void;
 
   // engine-private
   [[nodiscard]]
@@ -179,6 +182,7 @@ private:
   HandlePool<MaterialClass, MaterialClassHandle> mMaterialClasses;
   HandlePool<Material, MaterialHandle> mMaterials;
   HandlePool<Mesh, MeshHandle> mMeshes;
+  std::function<OnFrameCapturedFn> mOnFrameCaptured;
 
   auto make_deleter() -> ContextResourceDeleter;
 
