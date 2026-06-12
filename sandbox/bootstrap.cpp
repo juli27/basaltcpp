@@ -1,12 +1,10 @@
 #include <basalt/api/bootstrap.h>
 
-#include <basalt/sandbox/sandbox.h>
-#include <basalt/sandbox/settings.h>
+#include "basalt/sandbox/sandbox.h"
+#include "basalt/sandbox/settings.h"
 
 #include <basalt/api/gfx/backend/adapter.h>
 #include <basalt/api/gfx/backend/types.h>
-
-#include <basalt/api/shared/config.h>
 
 #include <basalt/api/base/log.h>
 
@@ -47,9 +45,7 @@ auto is_valid(gfx::DisplayMode const& mode, gfx::AdapterInfo const& adapterInfo)
 
 } // namespace
 
-auto basalt::bootstrap_app(Config& config) -> AppLaunchInfo {
-  config.set_bool("runtime.debugUI.enabled"s, true);
-
+auto basalt::bootstrap_app(Config&) -> AppLaunchInfo {
   auto const settings = [&] {
     auto const settingsFilePath = std::filesystem::u8path("settings.toml"sv);
     if (auto const maybeSettings = Settings::from_file(settingsFilePath)) {

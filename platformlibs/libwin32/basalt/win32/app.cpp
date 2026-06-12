@@ -16,7 +16,6 @@
 #include <basalt/api/shared/config.h>
 
 #include <basalt/api/base/asserts.h>
-#include <basalt/api/base/log.h>
 #include <basalt/api/base/platform.h>
 
 #include <imgui.h>
@@ -34,12 +33,6 @@ using std::chrono::time_point;
 namespace basalt {
 
 namespace {
-
-auto dump_config(Config const& config) -> void {
-  BASALT_LOG_INFO("config"sv);
-  BASALT_LOG_INFO("\truntime.debugUI.enabled = {}"sv,
-                  config.get_bool("runtime.debugUI.enabled"s));
-}
 
 [[nodiscard]]
 auto load_system_cursor(WCHAR const* id) noexcept -> HCURSOR {
@@ -120,11 +113,8 @@ auto run_lost_device_loop(Win32MessageQueue& messageQueue,
 
 auto Win32App::init(HMODULE const moduleHandle, int const showCommand)
   -> Win32App {
-  auto config = Config{
-    {"runtime.debugUI.enabled"s, false},
-  };
+  auto config = Config{};
   auto clientApp = bootstrap_app(config);
-  dump_config(config);
 
   auto messageQueue = Win32MessageQueue::make_for_current_thread();
   auto appWindow = Win32AppWindow::create(moduleHandle, showCommand, clientApp,
