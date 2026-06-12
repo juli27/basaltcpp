@@ -1,25 +1,20 @@
-#include <basalt/runtime.h>
+#include "runtime.h"
 
-#include <basalt/dear_imgui.h>
+#include "dear_imgui.h"
 
 #include <basalt/api/view.h>
 
-#include <basalt/gfx/debug.h>
-#include <basalt/gfx/backend/device.h>
-#include <basalt/gfx/backend/swap_chain.h>
-#include <basalt/gfx/backend/types.h>
+#include "gfx/backend/swap_chain.h"
+#include "gfx/backend/types.h"
 
 #include <basalt/api/gfx/context.h>
 #include <basalt/api/gfx/backend/command_list.h>
 
 #include <basalt/api/shared/config.h>
 
-#include <string>
 #include <utility>
 
 namespace basalt {
-
-using namespace std::literals;
 
 auto Runtime::dear_imgui() const -> DearImGuiPtr const& {
   return mDearImGui;
@@ -48,10 +43,6 @@ auto Runtime::update(UpdateContext const& ctx) -> void {
   // but is currently being done at execution of the ExtRenderDearImGui
   // command instead.
   mDearImGui->update(updateCtx);
-
-  if (config().get_bool("runtime.debugUI.enabled"s)) {
-    gfx::Debug::update(composite);
-  }
 
   mGfxContext->submit(composite);
 }

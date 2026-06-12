@@ -2,8 +2,6 @@ add_subdirectory("backend")
 
 target_sources(LibRuntime PRIVATE
   "context.cpp"
-  "debug.cpp"
-  "debug.h"
   "device_state_cache.cpp"
   "device_state_cache.h"
   "environment.cpp"

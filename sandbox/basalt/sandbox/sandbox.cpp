@@ -9,6 +9,8 @@
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 
+#include <basalt/api/gfx/context.h>
+
 #include <basalt/api/shared/config.h>
 
 #include <basalt/api/base/asserts.h>
@@ -174,8 +176,14 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
       ImGui::MenuItem("Performance Overlay", nullptr, &mShowOverlay);
       ImGui::MenuItem("Settings", nullptr, &mShowSettingsEditor);
 
-      if (config.get_bool("runtime.debugUI.enabled"s)) {
-        ImGui::Separator();
+      ImGui::Separator();
+
+      if (ImGui::MenuItem("Inspect this frame...")) {
+        engine.gfx_context().capture_this_frame(
+          [this](std::vector<gfx::CommandList> cmdLists) {
+            mGfxCmdListInspector.set_command_lists(std::move(cmdLists));
+            mShowGfxCmdListInspector = true;
+          });
       }
 
       ImGui::EndMenu();
@@ -210,6 +218,10 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
     }
 
     ImGui::EndPopup();
+  }
+
+  if (mShowGfxCmdListInspector) {
+    mGfxCmdListInspector.show(mShowGfxCmdListInspector);
   }
 
   if (mShowSettingsEditor) {

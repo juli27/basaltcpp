@@ -1,10 +1,10 @@
-#include <basalt/gfx/debug.h>
+#include <basalt/api/gfx/backend/command_list_inspector.h>
 
-#include <basalt/gfx/backend/commands.h>
+#include "commands.h"
 
 #include <basalt/api/debug_ui.h>
 
-#include <basalt/api/gfx/backend/command_list.h>
+#include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/shared/color.h>
 
@@ -15,18 +15,11 @@
 #include <imgui.h>
 
 #include <array>
-#include <string>
 #include <utility>
-
-using std::array;
-using std::string;
-using namespace std::literals;
 
 namespace basalt::gfx {
 
 namespace {
-
-auto sShowCompositeDebugUi = false;
 
 #define ENUM_TO_STRING(e)                                                      \
   case e:                                                                      \
@@ -160,14 +153,14 @@ constexpr auto to_string(TransformState const state) noexcept -> char const* {
 #undef ENUM_TO_STRING
 
 auto display_vec3(char const* label, Vector3f32 const& vec) -> void {
-  auto vecArr = array<f32, 3>{vec.x(), vec.y(), vec.z()};
+  auto vecArr = std::array{vec.x(), vec.y(), vec.z()};
 
   ImGui::InputFloat3(label, vecArr.data(), "%.3f",
                      ImGuiInputTextFlags_ReadOnly);
 }
 
 auto display_color4(char const* label, Color const& color) -> void {
-  auto colorArray = array{color.r(), color.g(), color.b(), color.a()};
+  auto colorArray = std::array{color.r(), color.g(), color.b(), color.a()};
 
   ImGui::ColorEdit4(label, colorArray.data(),
                     ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoPicker |
@@ -388,11 +381,23 @@ auto display(Command const& cmd) -> void {
   }
 }
 
-auto draw_composite_inspector(Composite const& composite) -> void {
+} // namespace
+
+auto CommandListInspector::command_lists() const
+  -> std::vector<CommandList> const& {
+  return mCommandLists;
+}
+
+auto CommandListInspector::set_command_lists(
+  std::vector<CommandList> commandLists) -> void {
+  mCommandLists = std::move(commandLists);
+}
+
+auto CommandListInspector::show(bool& open) -> void {
   ImGui::SetNextWindowSize(ImVec2{500, 350}, ImGuiCond_FirstUseEver);
-  if (!ImGui::Begin("Composite Inspector", &sShowCompositeDebugUi)) {
+  if (!ImGui::Begin("Command List Inspector", &open)) {
     ImGui::End();
-    
+
     return;
   }
 
@@ -408,7 +413,7 @@ auto draw_composite_inspector(Composite const& composite) -> void {
 
   auto id = i32{0};
   Command const* hoveredCommand = {};
-  for (auto const& cmdList : composite) {
+  for (auto const& cmdList : std::as_const(mCommandLists)) {
     ImGui::PushID(id++);
 
     if (ImGui::TreeNode("Part", "Command List (%llu commands)",
@@ -446,24 +451,6 @@ auto draw_composite_inspector(Composite const& composite) -> void {
 
   ImGui::EndChild();
   ImGui::End();
-}
-
-} // namespace
-
-auto Debug::update(Composite const& composite) -> void {
-  if (ImGui::BeginMainMenuBar()) {
-    if (ImGui::BeginMenu("View")) {
-      ImGui::MenuItem("Composite Inspector", nullptr, &sShowCompositeDebugUi);
-
-      ImGui::EndMenu();
-    }
-
-    ImGui::EndMainMenuBar();
-  }
-
-  if (sShowCompositeDebugUi) {
-    draw_composite_inspector(composite);
-  }
 }
 
 } // namespace basalt::gfx

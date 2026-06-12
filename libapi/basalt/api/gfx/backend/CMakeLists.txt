@@ -2,6 +2,7 @@ target_sources(LibAPI PRIVATE
   "adapter.h"
   "buffer.h"
   "command_list.h"
+  "command_list_inspector.h"
   "pipeline.h"
   "types.h"
   "vertex_layout.h"

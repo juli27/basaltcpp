@@ -7,6 +7,8 @@
 #include <basalt/api/debug_ui.h>
 #include <basalt/api/types.h>
 
+#include <basalt/api/gfx/backend/command_list_inspector.h>
+
 #include <basalt/api/base/types.h>
 
 #include <vector>
@@ -27,8 +29,10 @@ private:
   basalt::ViewPtr mCurrentExampleView;
 
   basalt::DebugUi mDebugUi{};
+  basalt::gfx::CommandListInspector mGfxCmdListInspector;
   Settings mSettings;
 
+  bool mShowGfxCmdListInspector{false};
   bool mShowSettingsEditor{false};
   bool mShowDemo{false};
   bool mShowMetrics{false};
