@@ -14,6 +14,5 @@ class Win32WindowClass;
 using Win32WindowClassCPtr = std::shared_ptr<Win32WindowClass const>;
 
 class Win32MessageQueue;
-using Win32MessageQueuePtr = std::shared_ptr<Win32MessageQueue>;
 
 } // namespace basalt

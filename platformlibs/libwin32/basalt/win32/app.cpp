@@ -116,9 +116,9 @@ auto Win32App::init(HMODULE const moduleHandle, int const showCommand)
   auto config = Config{};
   auto clientApp = bootstrap_app(config);
 
-  auto messageQueue = Win32MessageQueue::make_for_current_thread();
+  auto* messageQueue = Win32MessageQueue::make_for_current_thread();
   auto appWindow = Win32AppWindow::create(moduleHandle, showCommand, clientApp,
-                                          std::move(messageQueue));
+                                          messageQueue);
   // TODO: Hack! This doesn't belong here
   config.set_enum("window.mode"s, appWindow->mode());
 
@@ -143,7 +143,7 @@ auto Win32App::run() -> void {
   auto startTime = Clock::now();
   auto deltaTime = SecondsF32{0s};
 
-  auto const& messageQueue = mAppWindow->message_queue();
+  auto* messageQueue = mAppWindow->message_queue();
 
   while (drain_message_queue(*messageQueue)) {
     if (auto const mode =

@@ -19,7 +19,7 @@ public:
   auto operator=(Win32Window&&) -> Win32Window& = delete;
 
   [[nodiscard]]
-  auto message_queue() const noexcept -> Win32MessageQueuePtr const&;
+  auto message_queue() const noexcept -> Win32MessageQueue*;
 
   [[nodiscard]]
   auto clazz() const noexcept -> Win32WindowClassCPtr const&;
@@ -39,12 +39,12 @@ public:
   auto input_manager() noexcept -> InputManager&;
 
 protected:
-  Win32Window(HWND, Win32WindowClassCPtr, Win32MessageQueuePtr);
+  Win32Window(HWND, Win32WindowClassCPtr, Win32MessageQueue*);
 
   ~Win32Window() noexcept;
 
 private:
-  Win32MessageQueuePtr mMessageQueue;
+  Win32MessageQueue* mMessageQueue;
   Win32WindowClassCPtr mClass;
   HWND mHandle;
   HCURSOR mMouseCursor;

@@ -10,7 +10,7 @@ namespace basalt {
 
 class Win32MessageQueue {
 public:
-  static auto make_for_current_thread() -> Win32MessageQueuePtr;
+  static auto make_for_current_thread() -> Win32MessageQueue*;
   static auto get_for_current_thread() -> Win32MessageQueue*;
 
   Win32MessageQueue();
@@ -18,7 +18,7 @@ public:
   Win32MessageQueue(Win32MessageQueue const&) = delete;
   Win32MessageQueue(Win32MessageQueue&&) = delete;
 
-  ~Win32MessageQueue() noexcept;
+  ~Win32MessageQueue() noexcept = default;
 
   auto operator=(Win32MessageQueue const&) -> Win32MessageQueue& = delete;
   auto operator=(Win32MessageQueue&&) -> Win32MessageQueue& = delete;

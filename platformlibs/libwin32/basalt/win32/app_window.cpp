@@ -1,6 +1,5 @@
 #include "app_window.h"
 
-#include "util.h"
 #include "window_class.h"
 
 #include <basalt/gfx/backend/d3d9/factory.h>
@@ -14,7 +13,6 @@
 
 #include <basalt/api/base/asserts.h>
 #include <basalt/api/base/log.h>
-#include <basalt/api/base/utils.h>
 
 #include <basalt/win32/shared/Windows_custom.h>
 #include <windowsx.h>
@@ -28,10 +26,6 @@
 
 using namespace std::literals;
 
-using std::nullopt;
-using std::optional;
-using std::system_error;
-
 namespace basalt {
 
 namespace {
@@ -42,7 +36,7 @@ struct CreateParams final {
 
 [[nodiscard]]
 auto create_gfx_factory(gfx::BackendApi const backendApi)
-  -> optional<gfx::Win32GfxFactoryPtr> {
+  -> std::optional<gfx::Win32GfxFactoryPtr> {
   switch (backendApi) {
   case gfx::BackendApi::Default:
   case gfx::BackendApi::Direct3D9:
@@ -51,7 +45,7 @@ auto create_gfx_factory(gfx::BackendApi const backendApi)
   default:
     BASALT_LOG_ERROR("win32: no suitable graphics API available");
 
-    return nullopt;
+    return std::nullopt;
   }
 }
 
@@ -90,8 +84,8 @@ auto calc_window_rect(int const posX, int const posY, DWORD const style,
 }
 
 auto CALLBACK bootstrap_proc(HWND const handle, UINT const message,
-                             WPARAM const wParam,
-                             LPARAM const lParam) noexcept -> LRESULT {
+                             WPARAM const wParam, LPARAM const lParam) noexcept
+  -> LRESULT {
   if (message == WM_CREATE) {
     auto const* cs = reinterpret_cast<CREATESTRUCTW const*>(lParam);
     auto const* const createParams =
@@ -184,7 +178,7 @@ auto get_default_gfx_context_info(gfx::AdapterInfos const& adapters)
 
 auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
                             AppLaunchInfo const& app,
-                            Win32MessageQueuePtr messageQueue)
+                            Win32MessageQueue* messageQueue)
   -> Win32AppWindowPtr {
   auto const& canvasInfo = app.canvasCreateInfo;
   auto const gfxFactory = [&] {
@@ -224,20 +218,21 @@ auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
 
   auto windowClass = register_class(moduleHandle);
   if (!windowClass) {
-    throw system_error{static_cast<int>(GetLastError()), std::system_category(),
-                       "Failed to register window class"s};
+    throw std::system_error{static_cast<int>(GetLastError()),
+                            std::system_category(),
+                            "Failed to register window class"s};
   }
 
   auto const handle =
     windowClass->create_window(windowTitle.c_str(), style, styleEx,
                                CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, &params);
   if (!handle) {
-    throw system_error{static_cast<int>(GetLastError()), std::system_category(),
-                       "Failed to create window"s};
+    throw std::system_error{static_cast<int>(GetLastError()),
+                            std::system_category(), "Failed to create window"s};
   }
 
-  auto window = std::make_unique<Win32AppWindow>(
-    handle, std::move(windowClass), std::move(messageQueue), gfxFactory);
+  auto window = std::make_unique<Win32AppWindow>(handle, std::move(windowClass),
+                                                 messageQueue, gfxFactory);
 
   ShowWindow(handle, showCommand);
 
@@ -259,9 +254,9 @@ auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
 
 Win32AppWindow::Win32AppWindow(HWND const handle,
                                Win32WindowClassCPtr windowClass,
-                               Win32MessageQueuePtr messageQueue,
+                               Win32MessageQueue* messageQueue,
                                gfx::Win32GfxFactoryPtr gfxFactory)
-  : Win32Window{handle, std::move(windowClass), std::move(messageQueue)}
+  : Win32Window{handle, std::move(windowClass), messageQueue}
   , mGfxFactory{std::move(gfxFactory)} {
   BASALT_ASSERT(mGfxFactory);
 
@@ -418,8 +413,8 @@ auto Win32AppWindow::make_windowed() -> void {
 }
 
 auto Win32AppWindow::call_super_class_wnd_proc(
-  UINT const message, WPARAM const wParam,
-  LPARAM const lParam) const noexcept -> LRESULT {
+  UINT const message, WPARAM const wParam, LPARAM const lParam) const noexcept
+  -> LRESULT {
   return CallWindowProcW(mSuperClassWndProc, handle(), message, wParam, lParam);
 }
 
@@ -511,8 +506,8 @@ auto Win32AppWindow::instance(HWND const handle) -> Win32AppWindow* {
 }
 
 auto Win32AppWindow::wnd_proc(HWND const handle, UINT const message,
-                              WPARAM const wParam,
-                              LPARAM const lParam) -> LRESULT {
+                              WPARAM const wParam, LPARAM const lParam)
+  -> LRESULT {
   auto* const window = instance(handle);
   BASALT_ASSERT(window);
 

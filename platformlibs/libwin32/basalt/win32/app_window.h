@@ -28,10 +28,10 @@ class Win32AppWindow final : public Win32Window {
 public:
   // throws std::system_error on failure
   static auto create(HMODULE, int showCommand, AppLaunchInfo const&,
-                     Win32MessageQueuePtr) -> Win32AppWindowPtr;
+                     Win32MessageQueue*) -> Win32AppWindowPtr;
 
   // don't call directly. Use the create function instead
-  Win32AppWindow(HWND, Win32WindowClassCPtr, Win32MessageQueuePtr,
+  Win32AppWindow(HWND, Win32WindowClassCPtr, Win32MessageQueue*,
                  gfx::Win32GfxFactoryPtr);
 
   Win32AppWindow(Win32AppWindow const&) = delete;
@@ -78,8 +78,8 @@ private:
 
   auto make_windowed() -> void;
 
-  auto call_super_class_wnd_proc(UINT message, WPARAM,
-                                 LPARAM) const noexcept -> LRESULT;
+  auto call_super_class_wnd_proc(UINT message, WPARAM, LPARAM) const noexcept
+    -> LRESULT;
 
   [[nodiscard]]
   auto handle_message(UINT message, WPARAM, LPARAM) -> LRESULT;

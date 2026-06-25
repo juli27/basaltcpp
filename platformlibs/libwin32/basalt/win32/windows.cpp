@@ -24,9 +24,6 @@
 
 namespace basalt {
 
-using std::array;
-using std::wstring_view;
-
 namespace {
 
 auto virtual_key_code_to_key(UINT const virtualKeyCode, bool const isExtended)
@@ -41,8 +38,8 @@ auto virtual_key_code_to_key(UINT const virtualKeyCode, bool const isExtended)
 } // namespace
 
 Win32Window::Win32Window(HWND const handle, Win32WindowClassCPtr clazz,
-                         Win32MessageQueuePtr messageQueue)
-  : mMessageQueue{std::move(messageQueue)}
+                         Win32MessageQueue* messageQueue)
+  : mMessageQueue{messageQueue}
   , mClass{std::move(clazz)}
   , mHandle{handle}
   , mMouseCursor{LoadCursorW(nullptr, IDC_ARROW)} {
@@ -64,8 +61,7 @@ Win32Window::~Win32Window() noexcept {
   VERIFY_WIN32_BOOL(DestroyWindow(mHandle));
 }
 
-auto Win32Window::message_queue() const noexcept
-  -> Win32MessageQueuePtr const& {
+auto Win32Window::message_queue() const noexcept -> Win32MessageQueue* {
   return mMessageQueue;
 }
 
@@ -220,9 +216,9 @@ auto Win32Window::on_char(WCHAR const c, WORD const repeatCount, WORD)
   //       two messages are posted. create_utf8_from_wide handles the
   //       surrogates individually as invalid characters
   // TODO: convert to utf-8 without allocating
-  auto const typedChar = create_utf8_from_wide(wstring_view{&c, 1});
+  auto const typedChar = create_utf8_from_wide(std::wstring_view{&c, 1});
   BASALT_ASSERT(typedChar.size() <= 4);
-  auto character = array<char, 4>{};
+  auto character = std::array<char, 4>{};
   std::copy_n(typedChar.begin(), std::min(typedChar.size(), 4ull),
               character.begin());
 

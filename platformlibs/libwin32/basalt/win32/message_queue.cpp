@@ -14,34 +14,30 @@ namespace basalt {
 
 namespace {
 
-thread_local Win32MessageQueue* sThreadMessageQueue = nullptr;
+thread_local std::unique_ptr<Win32MessageQueue> sThreadMessageQueue;
 
 } // namespace
 
-auto Win32MessageQueue::make_for_current_thread() -> Win32MessageQueuePtr {
+auto Win32MessageQueue::make_for_current_thread() -> Win32MessageQueue* {
   BASALT_ASSERT(!sThreadMessageQueue);
+  
   if (auto const didConvert = IsGUIThread(TRUE);
       didConvert == ERROR_NOT_ENOUGH_MEMORY || !didConvert) {
-    BASALT_CRASH("failed to make GUI thread");
+    BASALT_CRASH("failed to convert thread to GUI thread");
   }
+  sThreadMessageQueue = std::make_unique<Win32MessageQueue>();
 
-  return std::make_shared<Win32MessageQueue>();
+  return sThreadMessageQueue.get();
 }
 
 auto Win32MessageQueue::get_for_current_thread() -> Win32MessageQueue* {
-  auto* messageQueue = sThreadMessageQueue;
+  auto* messageQueue = sThreadMessageQueue.get();
   BASALT_ASSERT(messageQueue);
 
   return messageQueue;
 }
 
 Win32MessageQueue::Win32MessageQueue() : mThreadId{GetCurrentThreadId()} {
-  sThreadMessageQueue = this;
-}
-
-Win32MessageQueue::~Win32MessageQueue() noexcept {
-  BASALT_ASSERT(mThreadId == GetCurrentThreadId());
-  sThreadMessageQueue = nullptr;
 }
 
 auto Win32MessageQueue::take() -> MSG {
