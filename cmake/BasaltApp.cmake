@@ -18,7 +18,6 @@ function(basalt_add_app APP_NAME)
 
   # TODO: /LTCG:incremental with ninja
   target_link_options(${EXE_NAME} PRIVATE
-    "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:/DEBUG:FASTLINK>"
     "$<$<NOT:$<CONFIG:Debug>>:/OPT:REF;/OPT:ICF>"
     "$<$<CONFIG:Release>:/DEBUG:FULL>"
   )

@@ -28,6 +28,18 @@
       "binaryDir": "./_vs"
     },
     {
+      "name": "vs2026",
+      "inherits": "base",
+      "displayName": "Visual Studio 2026",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "generator": "Visual Studio 18 2026",
+      "binaryDir": "./_vs2026"
+    },
+    {
       "name": "ci",
       "hidden": true,
       "cacheVariables": {
@@ -53,6 +65,16 @@
         "rhs": "Windows"
       },
       "configurePreset": "vs2022"
+    },
+    {
+      "name": "vs2026",
+      "displayName": "Visual Studio 2026",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "configurePreset": "vs2026"
     },
     {
       "name": "vs2022-ci",
