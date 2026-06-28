@@ -196,7 +196,9 @@ DearImGui::DearImGui(std::shared_ptr<gfx::ext::DearImGuiRenderer> renderer)
   io.ConfigFlags = ImGuiConfigFlags_NavEnableKeyboard;
   io.ConfigDebugIsDebuggerPresent = Platform::is_debugger_attached();
 
-  io.Fonts->AddFontDefault();
+  // FIXME: this makes all text blurry for some reason (D3D9 0.5 offset?)
+  // io.Fonts->AddFontDefaultVector();
+  io.Fonts->AddFontDefaultBitmap();
 
   if (mRenderer) {
     // this also uploads the font texture
