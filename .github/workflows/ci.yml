@@ -13,16 +13,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022]
+        os: [windows-2025]
         configuration: [Debug, RelWithDebInfo]
         buildDevel: [ON]
         include:
-          - os: windows-2022
-            preset: vs2022-ci
-          - os: windows-2022
+          - os: windows-2025
+            preset: vs2026-ci
+          - os: windows-2025
             configuration: RelWithDebInfo
             buildDevel: OFF
-            preset: vs2022-ci
+            preset: vs2026-ci
 
     runs-on: ${{ matrix.os }}
 

@@ -50,9 +50,9 @@
       }
     },
     {
-      "name": "vs2022-ci",
-      "displayName": "CI: Visual Studio 2022",
-      "inherits": ["ci", "vs2022"]
+      "name": "vs2026-ci",
+      "displayName": "CI: Visual Studio 2026",
+      "inherits": ["ci", "vs2026"]
     }
   ],
   "buildPresets": [
@@ -77,9 +77,9 @@
       "configurePreset": "vs2026"
     },
     {
-      "name": "vs2022-ci",
-      "displayName": "CI: Visual Studio 2022",
-      "inherits": "vs2022"
+      "name": "vs2026-ci",
+      "displayName": "CI: Visual Studio 2026",
+      "inherits": "vs2026"
     }
   ]
 }
