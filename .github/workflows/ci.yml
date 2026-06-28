@@ -30,19 +30,19 @@ jobs:
       FETCH_CONTENT_DIR: ./_deps
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v7
 
     - name: Setup environment
       run: Write-Output "DXSDK_DIR=${env:TEMP}/DXSDK" >> ${env:GITHUB_ENV}
 
     - name: Cache DirectX SDK
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ${{ env.DXSDK_DIR }}
         key: June2010-v2
 
     - name: Cache CMake FetchContent
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ${{ env.FETCH_CONTENT_DIR }}
         key: CMakeFC-${{ matrix.os }}-${{ hashFiles('external/**') }}
