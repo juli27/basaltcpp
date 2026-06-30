@@ -12,6 +12,5 @@ target_sources(LibWin32 PRIVATE
   "util.cpp"
   "util.h"
   "window.h"
-  "window_class.h"
   "windows.cpp"
 )

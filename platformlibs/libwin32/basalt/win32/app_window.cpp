@@ -1,11 +1,12 @@
 #include "app_window.h"
 
-#include "window_class.h"
+#include "util.h"
 
 #include <basalt/gfx/backend/d3d9/factory.h>
 
 #include <basalt/win32/shared/utils.h>
 #include <basalt/win32/shared/win32_gfx_factory.h>
+#include <basalt/win32/shared/Windows_custom.h>
 
 #include <basalt/api/gfx/context.h>
 
@@ -14,7 +15,6 @@
 #include <basalt/api/base/asserts.h>
 #include <basalt/api/base/log.h>
 
-#include <basalt/win32/shared/Windows_custom.h>
 #include <windowsx.h>
 
 #include <algorithm>
@@ -129,27 +129,6 @@ auto get_style_windowed(bool const isUserResizeable) -> Win32WindowStyle {
   return Win32WindowStyle{style, styleEx};
 }
 
-auto register_class(HMODULE const moduleHandle) -> Win32WindowClassCPtr {
-  constexpr auto className = L"BasaltWindow";
-
-  auto const windowClass = WNDCLASSEXW{
-    sizeof(WNDCLASSEXW),
-    0, // style
-    &bootstrap_proc,
-    0, // cbClsExtra
-    0, // cbWndExtra
-    moduleHandle,
-    nullptr, // hIcon
-    nullptr, // hCursor
-    GetSysColorBrush(COLOR_WINDOW), // TODO: is the background brush needed?
-    nullptr, // lpszMenuName
-    className,
-    nullptr, // hIconSm
-  };
-
-  return Win32WindowClass::register_class(windowClass);
-}
-
 auto get_default_gfx_context_info(gfx::AdapterInfos const& adapters)
   -> GfxContextCreateInfo {
   auto const& adapterInfo = adapters[0];
@@ -180,6 +159,32 @@ auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
                             AppLaunchInfo const& app,
                             Win32MessageQueue* messageQueue)
   -> Win32AppWindowPtr {
+  static auto const WINDOW_CLASS_ATOM = [&] {
+    auto constexpr className = TEXT("BasaltWindow");
+    auto const windowClass = WNDCLASSEX{
+      sizeof(WNDCLASSEX),
+      0, // style
+      &bootstrap_proc,
+      0, // cbClsExtra
+      0, // cbWndExtra
+      moduleHandle,
+      nullptr, // hIcon
+      nullptr, // hCursor
+      GetSysColorBrush(COLOR_WINDOW), // TODO: is the background brush needed?
+      nullptr, // lpszMenuName
+      className,
+      nullptr, // hIconSm
+    };
+
+    auto const atom = RegisterClassEx(&windowClass);
+    if (!atom) {
+      BASALT_LOG_FATAL(create_win32_error_message(GetLastError()));
+      BASALT_CRASH("Failed to register app window class");
+    }
+
+    return atom;
+  }();
+
   auto const& canvasInfo = app.canvasCreateInfo;
   auto const gfxFactory = [&] {
     auto maybeFactory = create_gfx_factory(canvasInfo.gfxBackendApi);
@@ -216,23 +221,17 @@ auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
   auto const windowTitle = create_wide_from_utf8(app.appName);
   auto params = CreateParams{windowSize};
 
-  auto windowClass = register_class(moduleHandle);
-  if (!windowClass) {
-    throw std::system_error{static_cast<int>(GetLastError()),
-                            std::system_category(),
-                            "Failed to register window class"s};
-  }
-
   auto const handle =
-    windowClass->create_window(windowTitle.c_str(), style, styleEx,
-                               CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, &params);
+    CreateWindowExW(styleEx, reinterpret_cast<LPCWSTR>(WINDOW_CLASS_ATOM),
+                    windowTitle.c_str(), style, CW_USEDEFAULT, 0, CW_USEDEFAULT,
+                    0, nullptr, nullptr, moduleHandle, &params);
   if (!handle) {
     throw std::system_error{static_cast<int>(GetLastError()),
                             std::system_category(), "Failed to create window"s};
   }
 
-  auto window = std::make_unique<Win32AppWindow>(handle, std::move(windowClass),
-                                                 messageQueue, gfxFactory);
+  auto window =
+    std::make_unique<Win32AppWindow>(handle, messageQueue, gfxFactory);
 
   ShowWindow(handle, showCommand);
 
@@ -253,10 +252,9 @@ auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
 }
 
 Win32AppWindow::Win32AppWindow(HWND const handle,
-                               Win32WindowClassCPtr windowClass,
                                Win32MessageQueue* messageQueue,
                                gfx::Win32GfxFactoryPtr gfxFactory)
-  : Win32Window{handle, std::move(windowClass), messageQueue}
+  : Win32Window{handle, messageQueue}
   , mGfxFactory{std::move(gfxFactory)} {
   BASALT_ASSERT(mGfxFactory);
 

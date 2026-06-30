@@ -31,8 +31,7 @@ public:
                      Win32MessageQueue*) -> Win32AppWindowPtr;
 
   // don't call directly. Use the create function instead
-  Win32AppWindow(HWND, Win32WindowClassCPtr, Win32MessageQueue*,
-                 gfx::Win32GfxFactoryPtr);
+  Win32AppWindow(HWND, Win32MessageQueue*, gfx::Win32GfxFactoryPtr);
 
   Win32AppWindow(Win32AppWindow const&) = delete;
   Win32AppWindow(Win32AppWindow&&) = delete;

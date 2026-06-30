@@ -1,5 +1,4 @@
 #include "window.h"
-#include "window_class.h"
 
 #include "key_map.h"
 #include "message_queue.h"
@@ -18,9 +17,7 @@
 
 #include <algorithm>
 #include <array>
-#include <memory>
 #include <string_view>
-#include <utility>
 
 namespace basalt {
 
@@ -37,14 +34,11 @@ auto virtual_key_code_to_key(UINT const virtualKeyCode, bool const isExtended)
 
 } // namespace
 
-Win32Window::Win32Window(HWND const handle, Win32WindowClassCPtr clazz,
-                         Win32MessageQueue* messageQueue)
+Win32Window::Win32Window(HWND const handle, Win32MessageQueue* messageQueue)
   : mMessageQueue{messageQueue}
-  , mClass{std::move(clazz)}
   , mHandle{handle}
   , mMouseCursor{LoadCursorW(nullptr, IDC_ARROW)} {
   BASALT_ASSERT(mMessageQueue);
-  BASALT_ASSERT(mClass);
   BASALT_ASSERT(mHandle);
   BASALT_ASSERT(mMouseCursor);
 
@@ -63,10 +57,6 @@ Win32Window::~Win32Window() noexcept {
 
 auto Win32Window::message_queue() const noexcept -> Win32MessageQueue* {
   return mMessageQueue;
-}
-
-auto Win32Window::clazz() const noexcept -> Win32WindowClassCPtr const& {
-  return mClass;
 }
 
 auto Win32Window::handle() const noexcept -> HWND {
@@ -331,37 +321,6 @@ auto Win32Window::wnd_proc(HWND const handle, UINT const message,
   BASALT_ASSERT(window);
 
   return window->handle_message(message, wParam, lParam);
-}
-
-auto Win32WindowClass::register_class(WNDCLASSEXW const& windowClass)
-  -> Win32WindowClassCPtr {
-  auto const atom = RegisterClassExW(&windowClass);
-  if (!atom) {
-    return nullptr;
-  }
-
-  return std::make_shared<Win32WindowClass const>(windowClass.hInstance, atom);
-}
-
-Win32WindowClass::Win32WindowClass(HMODULE const moduleHandle,
-                                   ATOM const atom) noexcept
-  : mModuleHandle{moduleHandle}
-  , mAtom{atom} {
-  BASALT_ASSERT(moduleHandle);
-  BASALT_ASSERT(atom);
-}
-
-Win32WindowClass::~Win32WindowClass() noexcept {
-  VERIFY_WIN32_BOOL(
-    UnregisterClassW(reinterpret_cast<const WCHAR*>(mAtom), mModuleHandle));
-}
-
-auto Win32WindowClass::create_window(LPCWSTR name, DWORD style, DWORD styleEx,
-                                     int x, int y, int width, int height,
-                                     LPVOID param) const -> HWND {
-  return CreateWindowExW(styleEx, reinterpret_cast<LPCWSTR>(mAtom), name, style,
-                         x, y, width, height, nullptr, nullptr, mModuleHandle,
-                         param);
 }
 
 } // namespace basalt
