@@ -44,7 +44,7 @@ auto Win32MessageQueue::take() -> MSG {
   BASALT_ASSERT(mThreadId == GetCurrentThreadId());
 
   auto message = MSG{};
-  if (auto const result = GetMessage(&message, nullptr, 0, 0); result == -1) {
+  if (auto const result = GetMessageW(&message, nullptr, 0, 0); result == -1) {
     BASALT_LOG_FATAL(create_win32_error_message(GetLastError()));
     BASALT_CRASH("GetMessageW failed");
   }
@@ -56,7 +56,7 @@ auto Win32MessageQueue::peek() const -> std::optional<MSG> {
   BASALT_ASSERT(mThreadId == GetCurrentThreadId());
 
   auto message = MSG{};
-  if (!PeekMessage(&message, nullptr, 0, 0, PM_NOREMOVE)) {
+  if (!PeekMessageW(&message, nullptr, 0, 0, PM_NOREMOVE)) {
     return std::nullopt;
   }
 
@@ -67,7 +67,7 @@ auto Win32MessageQueue::poll() -> std::optional<MSG> {
   BASALT_ASSERT(mThreadId == GetCurrentThreadId());
 
   auto message = MSG{};
-  if (!PeekMessage(&message, nullptr, 0, 0, PM_REMOVE)) {
+  if (!PeekMessageW(&message, nullptr, 0, 0, PM_REMOVE)) {
     return std::nullopt;
   }
 

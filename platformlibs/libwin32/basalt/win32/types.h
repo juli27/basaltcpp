@@ -10,9 +10,6 @@ using Win32AppWindowPtr = std::unique_ptr<Win32AppWindow>;
 class Win32Window;
 using Win32WindowPtr = std::unique_ptr<Win32Window>;
 
-class Win32WindowClass;
-using Win32WindowClassCPtr = std::shared_ptr<Win32WindowClass const>;
-
 class Win32MessageQueue;
 
 } // namespace basalt

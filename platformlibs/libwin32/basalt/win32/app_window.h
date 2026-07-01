@@ -60,7 +60,6 @@ private:
     RECT windowRect{}; // in screen coordinates
   };
 
-  WNDPROC mSuperClassWndProc;
   gfx::Win32GfxFactoryPtr mGfxFactory;
   gfx::ContextPtr mGfxContext;
   gfx::SwapChainPtr mSwapChain;
@@ -76,9 +75,6 @@ private:
   auto make_fullscreen() -> void;
 
   auto make_windowed() -> void;
-
-  auto call_super_class_wnd_proc(UINT message, WPARAM, LPARAM) const noexcept
-    -> LRESULT;
 
   [[nodiscard]]
   auto handle_message(UINT message, WPARAM, LPARAM) -> LRESULT;
@@ -96,8 +92,6 @@ private:
 
   [[nodiscard]]
   auto on_close() -> LRESULT;
-
-  static auto instance(HWND) -> Win32AppWindow*;
 
   static auto CALLBACK wnd_proc(HWND, UINT message, WPARAM, LPARAM) -> LRESULT;
 };

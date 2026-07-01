@@ -41,14 +41,6 @@ Win32Window::Win32Window(HWND const handle, Win32MessageQueue* messageQueue)
   BASALT_ASSERT(mMessageQueue);
   BASALT_ASSERT(mHandle);
   BASALT_ASSERT(mMouseCursor);
-
-  // safe because the OS window data is destroyed by the destructor and moving
-  // window objects is prohibited
-  SetWindowLongPtrW(mHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-
-  // replace bootstrap proc
-  SetWindowLongPtrW(mHandle, GWLP_WNDPROC,
-                    reinterpret_cast<LONG_PTR>(&wnd_proc));
 }
 
 Win32Window::~Win32Window() noexcept {
@@ -306,21 +298,6 @@ auto Win32Window::process_mouse_button_states(WORD buttonStates) -> void {
     // TODO: assert on the return value
     ReleaseCapture();
   }
-}
-
-auto Win32Window::instance(HWND const handle) -> Win32Window* {
-  auto const userData = GetWindowLongPtrW(handle, GWLP_USERDATA);
-
-  return reinterpret_cast<Win32Window*>(userData);
-}
-
-auto Win32Window::wnd_proc(HWND const handle, UINT const message,
-                           WPARAM const wParam, LPARAM const lParam)
-  -> LRESULT {
-  auto* const window = instance(handle);
-  BASALT_ASSERT(window);
-
-  return window->handle_message(message, wParam, lParam);
 }
 
 } // namespace basalt

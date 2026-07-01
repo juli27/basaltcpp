@@ -40,14 +40,14 @@ protected:
 
   ~Win32Window() noexcept;
 
+  [[nodiscard]]
+  auto handle_message(UINT message, WPARAM, LPARAM) -> LRESULT;
+
 private:
   Win32MessageQueue* mMessageQueue;
   HWND mHandle;
   HCURSOR mMouseCursor;
   InputManager mInputManager;
-
-  [[nodiscard]]
-  auto handle_message(UINT message, WPARAM, LPARAM) -> LRESULT;
 
   [[nodiscard]]
   auto on_set_cursor(HWND windowUnderCursor, WORD hitTestResult,
@@ -82,10 +82,6 @@ private:
     -> LRESULT;
 
   auto process_mouse_button_states(WORD buttonStates) -> void;
-
-  static auto instance(HWND) -> Win32Window*;
-
-  static auto CALLBACK wnd_proc(HWND, UINT, WPARAM, LPARAM) -> LRESULT;
 };
 
 } // namespace basalt

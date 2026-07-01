@@ -160,9 +160,9 @@ auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
                             Win32MessageQueue* messageQueue)
   -> Win32AppWindowPtr {
   static auto const WINDOW_CLASS_ATOM = [&] {
-    auto constexpr className = TEXT("BasaltWindow");
-    auto const windowClass = WNDCLASSEX{
-      sizeof(WNDCLASSEX),
+    auto constexpr className = L"BasaltWindow";
+    auto const windowClass = WNDCLASSEXW{
+      sizeof(WNDCLASSEXW),
       0, // style
       &bootstrap_proc,
       0, // cbClsExtra
@@ -176,7 +176,7 @@ auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
       nullptr, // hIconSm
     };
 
-    auto const atom = RegisterClassEx(&windowClass);
+    auto const atom = RegisterClassExW(&windowClass);
     if (!atom) {
       BASALT_LOG_FATAL(create_win32_error_message(GetLastError()));
       BASALT_CRASH("Failed to register app window class");
@@ -262,10 +262,9 @@ Win32AppWindow::Win32AppWindow(HWND const handle,
   // window objects is prohibited
   SetWindowLongPtrW(handle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
-  // subclass window
-  auto const superClassWndProc = SetWindowLongPtrW(
-    handle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&wnd_proc));
-  mSuperClassWndProc = reinterpret_cast<WNDPROC>(superClassWndProc);
+  // replace bootstrap proc
+  SetWindowLongPtrW(handle, GWLP_WNDPROC,
+                    reinterpret_cast<LONG_PTR>(&wnd_proc));
 }
 
 Win32AppWindow::~Win32AppWindow() = default;
@@ -410,12 +409,6 @@ auto Win32AppWindow::make_windowed() -> void {
                rect.bottom - rect.top, swpFlags);
 }
 
-auto Win32AppWindow::call_super_class_wnd_proc(
-  UINT const message, WPARAM const wParam, LPARAM const lParam) const noexcept
-  -> LRESULT {
-  return CallWindowProcW(mSuperClassWndProc, handle(), message, wParam, lParam);
-}
-
 auto Win32AppWindow::handle_message(UINT const message, WPARAM const wParam,
                                     LPARAM const lParam) -> LRESULT {
   switch (message) {
@@ -435,7 +428,7 @@ auto Win32AppWindow::handle_message(UINT const message, WPARAM const wParam,
     break;
   }
 
-  return call_super_class_wnd_proc(message, wParam, lParam);
+  return Win32Window::handle_message(message, wParam, lParam);
 }
 
 auto Win32AppWindow::on_size(Size2Du16 const newClientAreaSize) -> void {
@@ -497,16 +490,13 @@ auto Win32AppWindow::on_close() -> LRESULT {
   return 0;
 }
 
-auto Win32AppWindow::instance(HWND const handle) -> Win32AppWindow* {
-  auto const userData = GetWindowLongPtrW(handle, GWLP_USERDATA);
-
-  return reinterpret_cast<Win32AppWindow*>(userData);
-}
-
 auto Win32AppWindow::wnd_proc(HWND const handle, UINT const message,
                               WPARAM const wParam, LPARAM const lParam)
   -> LRESULT {
-  auto* const window = instance(handle);
+  auto* const window = [&] {
+    auto const userData = GetWindowLongPtrW(handle, GWLP_USERDATA);
+    return reinterpret_cast<Win32AppWindow*>(userData);
+  }();
   BASALT_ASSERT(window);
 
   return window->handle_message(message, wParam, lParam);
