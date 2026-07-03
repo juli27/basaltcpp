@@ -2,11 +2,7 @@
 
 #include "util.h"
 
-#include <basalt/gfx/backend/d3d9/factory.h>
-
-#include <basalt/win32/shared/utils.h>
-#include <basalt/win32/shared/win32_gfx_factory.h>
-#include <basalt/win32/shared/Windows_custom.h>
+#include "shared/win32_gfx_factory.h"
 
 #include <basalt/api/gfx/context.h>
 
@@ -18,8 +14,7 @@
 #include <windowsx.h>
 
 #include <algorithm>
-#include <optional>
-#include <string>
+#include <memory>
 #include <system_error>
 #include <utility>
 #include <variant>
@@ -34,24 +29,8 @@ struct CreateParams final {
   Size2Du16 clientAreaSize;
 };
 
-[[nodiscard]]
-auto create_gfx_factory(gfx::BackendApi const backendApi)
-  -> std::optional<gfx::Win32GfxFactoryPtr> {
-  switch (backendApi) {
-  case gfx::BackendApi::Default:
-  case gfx::BackendApi::Direct3D9:
-    return gfx::D3D9Factory::create();
-
-  default:
-    BASALT_LOG_ERROR("win32: no suitable graphics API available");
-
-    return std::nullopt;
-  }
-}
-
 // posX and posY: location of the upper left corner of the client area
-// clientArea is the preferred size of the client area (width and/or height can
-// be 0 if no preference)
+// clientArea is the preferred size of the client area
 // workArea in virtual-screen coords
 auto calc_window_rect(int const posX, int const posY, DWORD const style,
                       DWORD const styleEx, Size2Du16 const clientArea,
@@ -129,36 +108,16 @@ auto get_style_windowed(bool const isUserResizeable) -> Win32WindowStyle {
   return Win32WindowStyle{style, styleEx};
 }
 
-auto get_default_gfx_context_info(gfx::AdapterInfos const& adapters)
-  -> GfxContextCreateInfo {
-  auto const& adapterInfo = adapters[0];
-  auto const backBufferFormat = [&] {
-    for (auto const& format : adapterInfo.sharedModeInfo.backBufferFormats) {
-      if (format.renderTargetFormat == gfx::ImageFormat::B8G8R8A8) {
-        return format;
-      }
-      if (format.renderTargetFormat == gfx::ImageFormat::B8G8R8X8) {
-        return format;
-      }
-    }
-
-    return adapterInfo.sharedModeInfo.backBufferFormats[0];
-  }();
-
-  return GfxContextCreateInfo{
-    0,
-    backBufferFormat.renderTargetFormat,
-    backBufferFormat.depthStencilFormat,
-    gfx::MultiSampleCount::One,
-  };
-}
-
 } // namespace
 
-auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
-                            AppLaunchInfo const& app,
-                            Win32MessageQueue* messageQueue)
-  -> Win32AppWindowPtr {
+auto Win32AppWindow::create(HMODULE const moduleHandle,
+                            Win32MessageQueue* messageQueue,
+                            std::wstring const& title,
+                            Size2Du16 const clientAreaSize,
+                            gfx::Win32GfxFactoryPtr const& gfxFactory,
+                            GfxContextCreateInfo const& gfxCtxInfo,
+                            int const showCommand, WindowMode const mode,
+                            bool const isUserResizeable) -> Win32AppWindowPtr {
   static auto const WINDOW_CLASS_ATOM = [&] {
     auto constexpr className = L"BasaltWindow";
     auto const windowClass = WNDCLASSEXW{
@@ -185,51 +144,20 @@ auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
     return atom;
   }();
 
-  auto const& canvasInfo = app.canvasCreateInfo;
-  auto const gfxFactory = [&] {
-    auto maybeFactory = create_gfx_factory(canvasInfo.gfxBackendApi);
-    if (!maybeFactory) {
-      BASALT_CRASH("win32: couldn't create a gfx factory");
-    }
-
-    return std::move(maybeFactory).value();
-  }();
-
-  auto const adapters = gfxFactory->enumerate_adapters();
-
-  auto gfxContextInfo = canvasInfo.configureGfxContext
-                          ? canvasInfo.configureGfxContext(adapters)
-                          : get_default_gfx_context_info(adapters);
-
-  // the default size is two thirds of the current display mode
-  auto const windowSize = [&] {
-    auto const& sharedModeInfo =
-      adapters[gfxContextInfo.adapter].sharedModeInfo;
-    auto const& displayMode = sharedModeInfo.displayMode;
-    auto size = canvasInfo.size;
-    if (size.width() == 0) {
-      size.set_width(static_cast<u16>(MulDiv(displayMode.width, 2, 3)));
-    }
-    if (size.height() == 0) {
-      size.set_height(static_cast<u16>(MulDiv(displayMode.height, 2, 3)));
-    }
-
-    return size;
-  }();
-
-  auto const [style, styleEx] = get_style_windowed(canvasInfo.isUserResizeable);
-  auto const windowTitle = create_wide_from_utf8(app.appName);
-  auto params = CreateParams{windowSize};
+  auto const [style, styleEx] = get_style_windowed(isUserResizeable);
+  auto params = CreateParams{clientAreaSize};
 
   auto const handle =
     CreateWindowExW(styleEx, reinterpret_cast<LPCWSTR>(WINDOW_CLASS_ATOM),
-                    windowTitle.c_str(), style, CW_USEDEFAULT, 0, CW_USEDEFAULT,
-                    0, nullptr, nullptr, moduleHandle, &params);
+                    title.c_str(), style, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0,
+                    nullptr, nullptr, moduleHandle, &params);
   if (!handle) {
     throw std::system_error{static_cast<int>(GetLastError()),
                             std::system_category(), "Failed to create window"s};
   }
 
+  // the app window object needs a stable address because it is stored as
+  // HWND user data
   auto window =
     std::make_unique<Win32AppWindow>(handle, messageQueue, gfxFactory);
 
@@ -239,14 +167,9 @@ auto Win32AppWindow::create(HMODULE const moduleHandle, int const showCommand,
   // would not appear in the titlebar if the application launches with
   // fullscreen and switches to windowed
   // TODO: find a better workaround
-  window->set_mode(canvasInfo.mode);
+  window->set_mode(mode);
 
-  window->init_gfx_context(gfxContextInfo, *gfxFactory);
-
-  auto const& adapterIdentifier = adapters[gfxContextInfo.adapter].identifier;
-
-  BASALT_LOG_INFO("Direct3D9 context created: adapter={}, driver={}",
-                  adapterIdentifier.displayName, adapterIdentifier.driverInfo);
+  window->init_gfx_context(gfxCtxInfo, *gfxFactory);
 
   return window;
 }

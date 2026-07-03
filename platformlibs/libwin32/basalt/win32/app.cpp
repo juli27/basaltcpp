@@ -3,19 +3,28 @@
 #include "app_window.h"
 #include "message_queue.h"
 
+#include "shared/types.h"
+#include "shared/utils.h"
+
 #include <basalt/dear_imgui.h>
 
 #include <basalt/api/bootstrap.h>
-#include <basalt/api/types.h>
 
 #include <basalt/gfx/backend/device.h>
 #include <basalt/gfx/backend/types.h>
 
+#include <basalt/gfx/backend/d3d9/factory.h>
+
 #include <basalt/api/gfx/context.h>
+#include <basalt/api/gfx/types.h>
+
+#include <basalt/api/gfx/backend/adapter.h>
+#include <basalt/api/gfx/backend/types.h>
 
 #include <basalt/api/shared/config.h>
 
 #include <basalt/api/base/asserts.h>
+#include <basalt/api/base/log.h>
 #include <basalt/api/base/platform.h>
 
 #include <imgui.h>
@@ -26,9 +35,6 @@
 #include <utility>
 
 using namespace std::literals;
-using std::chrono::duration;
-using std::chrono::steady_clock;
-using std::chrono::time_point;
 
 namespace basalt {
 
@@ -109,16 +115,86 @@ auto run_lost_device_loop(Win32MessageQueue& messageQueue,
   return false;
 }
 
+auto get_default_gfx_context_info(gfx::AdapterInfos const& adapters)
+  -> GfxContextCreateInfo {
+  auto const& adapterInfo = adapters[0];
+  auto const backBufferFormat = [&] {
+    for (auto const& format : adapterInfo.sharedModeInfo.backBufferFormats) {
+      if (format.renderTargetFormat == gfx::ImageFormat::B8G8R8A8) {
+        return format;
+      }
+      if (format.renderTargetFormat == gfx::ImageFormat::B8G8R8X8) {
+        return format;
+      }
+    }
+
+    return adapterInfo.sharedModeInfo.backBufferFormats[0];
+  }();
+
+  return GfxContextCreateInfo{
+    0,
+    backBufferFormat.renderTargetFormat,
+    backBufferFormat.depthStencilFormat,
+    gfx::MultiSampleCount::One,
+  };
+}
+
 } // namespace
 
 auto Win32App::init(HMODULE const moduleHandle, int const showCommand)
   -> Win32App {
   auto config = Config{};
-  auto clientApp = bootstrap_app(config);
+  auto launchInfo = bootstrap_app(config);
 
-  auto* messageQueue = Win32MessageQueue::make_for_current_thread();
-  auto appWindow = Win32AppWindow::create(moduleHandle, showCommand, clientApp,
-                                          messageQueue);
+  auto appWindow = [&] {
+    auto* messageQueue = Win32MessageQueue::make_for_current_thread();
+
+    auto const& canvasInfo = launchInfo.canvasCreateInfo;
+    auto gfxFactory = [&]() -> gfx::Win32GfxFactoryPtr {
+      switch (canvasInfo.gfxBackendApi) {
+      case gfx::BackendApi::Default:
+      case gfx::BackendApi::Direct3D9:
+        if (auto maybeFactory = gfx::D3D9Factory::create()) {
+          return *std::move(maybeFactory);
+        }
+        break;
+      }
+
+      BASALT_CRASH("win32: no suitable graphics API available");
+    }();
+
+    auto const adapters = gfxFactory->enumerate_adapters();
+    auto gfxContextInfo = canvasInfo.configureGfxContext
+                            ? canvasInfo.configureGfxContext(adapters)
+                            : get_default_gfx_context_info(adapters);
+    auto const& adapterIdentifier = adapters[gfxContextInfo.adapter].identifier;
+    BASALT_LOG_INFO("creating Direct3D9 context: adapter={}, driver={}",
+                    adapterIdentifier.displayName,
+                    adapterIdentifier.driverInfo);
+
+    // the default size is two thirds of the current display mode
+    auto const clientAreaSize = [&] {
+      auto const& sharedModeInfo =
+        adapters[gfxContextInfo.adapter].sharedModeInfo;
+      auto const& displayMode = sharedModeInfo.displayMode;
+      auto size = canvasInfo.size;
+      if (size.width() == 0) {
+        size.set_width(static_cast<u16>(MulDiv(displayMode.width, 2, 3)));
+      }
+      if (size.height() == 0) {
+        size.set_height(static_cast<u16>(MulDiv(displayMode.height, 2, 3)));
+      }
+
+      return size;
+    }();
+
+    auto const title = create_wide_from_utf8(launchInfo.appName);
+
+    return Win32AppWindow::create(moduleHandle, messageQueue, title,
+                                  clientAreaSize, gfxFactory, gfxContextInfo,
+                                  showCommand, canvasInfo.mode,
+                                  canvasInfo.isUserResizeable);
+  }();
   // TODO: Hack! This doesn't belong here
   config.set_enum("window.mode"s, appWindow->mode());
 
@@ -131,7 +207,7 @@ auto Win32App::init(HMODULE const moduleHandle, int const showCommand)
   imguiViewport->PlatformHandle = appWindow->handle();
   imguiViewport->PlatformHandleRaw = imguiViewport->PlatformHandle;
 
-  runtime.set_root(clientApp.createRootView(runtime));
+  runtime.set_root(launchInfo.createRootView(runtime));
 
   return Win32App{std::move(appWindow), std::move(runtime)};
 }
@@ -139,7 +215,7 @@ auto Win32App::init(HMODULE const moduleHandle, int const showCommand)
 Win32App::~Win32App() noexcept = default;
 
 auto Win32App::run() -> void {
-  using Clock = steady_clock;
+  using Clock = std::chrono::steady_clock;
   auto startTime = Clock::now();
   auto deltaTime = SecondsF32{0s};
 

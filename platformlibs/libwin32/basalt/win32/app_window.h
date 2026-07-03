@@ -1,13 +1,12 @@
 #pragma once
 
+#include "types.h"
 #include "window.h"
 
-#include "types.h"
-
-#include <basalt/win32/shared/types.h>
+#include "shared/types.h"
+#include "shared/Windows_custom.h"
 
 #include <basalt/api/bootstrap.h>
-#include <basalt/api/types.h>
 
 #include <basalt/api/gfx/types.h>
 
@@ -18,17 +17,20 @@
 
 #include <basalt/api/shared/types.h>
 
-#include <basalt/win32/shared/Windows_custom.h>
-
+#include <string>
 #include <optional>
 
 namespace basalt {
 
 class Win32AppWindow final : public Win32Window {
 public:
-  // throws std::system_error on failure
-  static auto create(HMODULE, int showCommand, AppLaunchInfo const&,
-                     Win32MessageQueue*) -> Win32AppWindowPtr;
+  // can throw std::system_error on failure
+  static auto create(HMODULE, Win32MessageQueue*, std::wstring const& title,
+                     Size2Du16 clientAreaSize, gfx::Win32GfxFactoryPtr const&,
+                     GfxContextCreateInfo const&,
+                     int showCommand = SW_SHOWNORMAL,
+                     WindowMode mode = WindowMode::Windowed,
+                     bool isUserResizeable = true) -> Win32AppWindowPtr;
 
   // don't call directly. Use the create function instead
   Win32AppWindow(HWND, Win32MessageQueue*, gfx::Win32GfxFactoryPtr);
