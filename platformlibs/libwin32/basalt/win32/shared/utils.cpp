@@ -1,6 +1,6 @@
 #include "utils.h"
 
-#include "Windows_custom.h"
+#include <basalt/api/shared/size2d.h>
 
 #include <basalt/api/base/types.h>
 
@@ -10,26 +10,20 @@
 
 using namespace std::literals;
 
-using std::numeric_limits;
-using std::string;
-using std::string_view;
-using std::wstring;
-using std::wstring_view;
-
 namespace basalt {
 
-auto create_wide_from_utf8(string_view const src) -> wstring {
+auto create_wide_from_utf8(std::string_view const src) -> std::wstring {
   // Don't use asserts/log because this function can be used without the log
   // being initialized
 
   // MultiByteToWideChar fails when size is 0
   if (src.empty()) {
-    return wstring{};
+    return std::wstring{};
   }
 
   // use the size of the string view because the input string
   // can be non null-terminated
-  if (src.size() > static_cast<uSize>(numeric_limits<int>::max())) {
+  if (src.size() > static_cast<uSize>(std::numeric_limits<int>::max())) {
     return L"create_wide_from_utf8: input string is too large"s;
   }
 
@@ -40,7 +34,7 @@ auto create_wide_from_utf8(string_view const src) -> wstring {
     return L"create_wide_from_utf8: MultiByteToWideChar returned 0"s;
   }
 
-  auto dst = wstring(numWChars, L'\0');
+  auto dst = std::wstring(numWChars, L'\0');
   numWChars = MultiByteToWideChar(CP_UTF8, 0ul, src.data(), numChars,
                                   dst.data(), static_cast<int>(dst.size()));
   if (numWChars == 0) {
@@ -50,7 +44,8 @@ auto create_wide_from_utf8(string_view const src) -> wstring {
   return dst;
 }
 
-auto create_utf8_from_wide(wstring_view const src) noexcept -> string {
+auto create_utf8_from_wide(std::wstring_view const src) noexcept
+  -> std::string {
   // Don't use asserts/log because this function is used before the log
   // is initialized
 
@@ -61,12 +56,12 @@ auto create_utf8_from_wide(wstring_view const src) noexcept -> string {
 
   // WideCharToMultiByte fails when size is 0
   if (src.empty()) {
-    return string{};
+    return std::string{};
   }
 
   // use the size of the string view because the input string
   // can be non null-terminated
-  if (src.size() > static_cast<uSize>(numeric_limits<int>::max())) {
+  if (src.size() > static_cast<uSize>(std::numeric_limits<int>::max())) {
     return u8"create_utf8_from_wide: string to convert is too large"s;
   }
 
@@ -78,7 +73,7 @@ auto create_utf8_from_wide(wstring_view const src) noexcept -> string {
     return u8"WideCharToMultiByte returned 0"s;
   }
 
-  auto dst = string(dstSize, '\0');
+  auto dst = std::string(dstSize, '\0');
   dstSize = WideCharToMultiByte(CP_UTF8, 0u, src.data(), srcSize, dst.data(),
                                 static_cast<int>(dst.size()), nullptr, nullptr);
   if (dstSize == 0) {
@@ -86,6 +81,11 @@ auto create_utf8_from_wide(wstring_view const src) noexcept -> string {
   }
 
   return dst;
+}
+
+auto win32::get_size_u16(RECT const& rect) -> Size2Du16 {
+  return Size2Du16{static_cast<u16>(rect.right - rect.left),
+                   static_cast<u16>(rect.bottom - rect.top)};
 }
 
 } // namespace basalt

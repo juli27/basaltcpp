@@ -79,7 +79,7 @@ private:
   auto make_windowed() -> void;
 
   [[nodiscard]]
-  auto handle_message(UINT message, WPARAM, LPARAM) -> LRESULT;
+  auto handle_message(UINT messageId, WPARAM, LPARAM) -> LRESULT;
 
   auto on_size(Size2Du16 newClientAreaSize) -> void;
 
@@ -95,7 +95,8 @@ private:
   [[nodiscard]]
   auto on_close() -> LRESULT;
 
-  static auto CALLBACK wnd_proc(HWND, UINT message, WPARAM, LPARAM) -> LRESULT;
+  static auto CALLBACK route_message(HWND, UINT messageId, WPARAM, LPARAM)
+    -> LRESULT;
 };
 
 } // namespace basalt

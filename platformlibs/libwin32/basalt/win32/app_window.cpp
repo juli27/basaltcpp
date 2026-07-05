@@ -2,6 +2,7 @@
 
 #include "util.h"
 
+#include "shared/utils.h"
 #include "shared/win32_gfx_factory.h"
 
 #include <basalt/api/gfx/context.h>
@@ -62,31 +63,52 @@ auto calc_window_rect(int const posX, int const posY, DWORD const style,
   return rect;
 }
 
-auto CALLBACK bootstrap_proc(HWND const handle, UINT const message,
-                             WPARAM const wParam, LPARAM const lParam) noexcept
-  -> LRESULT {
-  if (message == WM_CREATE) {
+auto CALLBACK handle_create_message(HWND const handle, UINT const messageId,
+                                    WPARAM const wParam,
+                                    LPARAM const lParam) noexcept -> LRESULT {
+  if (messageId == WM_CREATE) {
+    auto const monitorInfo = [&] {
+      auto const monitor = MonitorFromWindow(handle, MONITOR_DEFAULTTONEAREST);
+
+      auto info = MONITORINFO{};
+      info.cbSize = sizeof(info);
+      GetMonitorInfoW(monitor, &info);
+
+      return info;
+    }();
+
     auto const* cs = reinterpret_cast<CREATESTRUCTW const*>(lParam);
-    auto const* const createParams =
-      static_cast<CreateParams const*>(cs->lpCreateParams);
 
-    auto const monitor = MonitorFromWindow(handle, MONITOR_DEFAULTTONEAREST);
-    auto mi = MONITORINFO{};
-    mi.cbSize = sizeof(MONITORINFO);
-    GetMonitorInfoW(monitor, &mi);
+    auto const clientAreaSize = [&] {
+      // the default size is two thirds of the current monitor
 
-    auto topLeftClient = POINT{0, 0};
-    ClientToScreen(handle, &topLeftClient);
+      auto const monitorSize = win32::get_size_u16(monitorInfo.rcMonitor);
+      auto const* createParams =
+        static_cast<CreateParams const*>(cs->lpCreateParams);
+
+      auto size = createParams->clientAreaSize;
+      if (size.width() == 0) {
+        size.set_width(static_cast<u16>(MulDiv(monitorSize.width(), 2, 3)));
+      }
+      if (size.height() == 0) {
+        size.set_height(static_cast<u16>(MulDiv(monitorSize.height(), 2, 3)));
+      }
+
+      return size;
+    }();
+
+    auto clientAreaPosition = POINT{0, 0};
+    ClientToScreen(handle, &clientAreaPosition);
 
     auto const rect =
-      calc_window_rect(topLeftClient.x, topLeftClient.y, cs->style,
-                       cs->dwExStyle, createParams->clientAreaSize, mi.rcWork);
+      calc_window_rect(clientAreaPosition.x, clientAreaPosition.y, cs->style,
+                       cs->dwExStyle, clientAreaSize, monitorInfo.rcWork);
 
     SetWindowPos(handle, nullptr, rect.left, rect.top, rect.right - rect.left,
                  rect.bottom - rect.top, SWP_NOZORDER | SWP_NOACTIVATE);
   }
 
-  return DefWindowProcW(handle, message, wParam, lParam);
+  return DefWindowProcW(handle, messageId, wParam, lParam);
 }
 
 struct Win32WindowStyle {
@@ -123,7 +145,7 @@ auto Win32AppWindow::create(HMODULE const moduleHandle,
     auto const windowClass = WNDCLASSEXW{
       sizeof(WNDCLASSEXW),
       0, // style
-      &bootstrap_proc,
+      &handle_create_message,
       0, // cbClsExtra
       0, // cbWndExtra
       moduleHandle,
@@ -187,7 +209,7 @@ Win32AppWindow::Win32AppWindow(HWND const handle,
 
   // replace bootstrap proc
   SetWindowLongPtrW(handle, GWLP_WNDPROC,
-                    reinterpret_cast<LONG_PTR>(&wnd_proc));
+                    reinterpret_cast<LONG_PTR>(&route_message));
 }
 
 Win32AppWindow::~Win32AppWindow() = default;
@@ -332,9 +354,9 @@ auto Win32AppWindow::make_windowed() -> void {
                rect.bottom - rect.top, swpFlags);
 }
 
-auto Win32AppWindow::handle_message(UINT const message, WPARAM const wParam,
+auto Win32AppWindow::handle_message(UINT const messageId, WPARAM const wParam,
                                     LPARAM const lParam) -> LRESULT {
-  switch (message) {
+  switch (messageId) {
   case WM_SIZE:
     return on_size(wParam, Size2Du16{LOWORD(lParam), HIWORD(lParam)});
 
@@ -351,7 +373,7 @@ auto Win32AppWindow::handle_message(UINT const message, WPARAM const wParam,
     break;
   }
 
-  return Win32Window::handle_message(message, wParam, lParam);
+  return Win32Window::handle_message(messageId, wParam, lParam);
 }
 
 auto Win32AppWindow::on_size(Size2Du16 const newClientAreaSize) -> void {
@@ -413,8 +435,8 @@ auto Win32AppWindow::on_close() -> LRESULT {
   return 0;
 }
 
-auto Win32AppWindow::wnd_proc(HWND const handle, UINT const message,
-                              WPARAM const wParam, LPARAM const lParam)
+auto Win32AppWindow::route_message(HWND const handle, UINT const messageId,
+                                   WPARAM const wParam, LPARAM const lParam)
   -> LRESULT {
   auto* const window = [&] {
     auto const userData = GetWindowLongPtrW(handle, GWLP_USERDATA);
@@ -422,7 +444,7 @@ auto Win32AppWindow::wnd_proc(HWND const handle, UINT const message,
   }();
   BASALT_ASSERT(window);
 
-  return window->handle_message(message, wParam, lParam);
+  return window->handle_message(messageId, wParam, lParam);
 }
 
 } // namespace basalt

@@ -172,26 +172,10 @@ auto Win32App::init(HMODULE const moduleHandle, int const showCommand)
                     adapterIdentifier.displayName,
                     adapterIdentifier.driverInfo);
 
-    // the default size is two thirds of the current display mode
-    auto const clientAreaSize = [&] {
-      auto const& sharedModeInfo =
-        adapters[gfxContextInfo.adapter].sharedModeInfo;
-      auto const& displayMode = sharedModeInfo.displayMode;
-      auto size = canvasInfo.size;
-      if (size.width() == 0) {
-        size.set_width(static_cast<u16>(MulDiv(displayMode.width, 2, 3)));
-      }
-      if (size.height() == 0) {
-        size.set_height(static_cast<u16>(MulDiv(displayMode.height, 2, 3)));
-      }
-
-      return size;
-    }();
-
     auto const title = create_wide_from_utf8(launchInfo.appName);
 
     return Win32AppWindow::create(moduleHandle, messageQueue, title,
-                                  clientAreaSize, gfxFactory, gfxContextInfo,
+                                  canvasInfo.size, gfxFactory, gfxContextInfo,
                                   showCommand, canvasInfo.mode,
                                   canvasInfo.isUserResizeable);
   }();
