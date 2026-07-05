@@ -174,10 +174,9 @@ auto Win32App::init(HMODULE const moduleHandle, int const showCommand)
 
     auto const title = create_wide_from_utf8(launchInfo.appName);
 
-    return Win32AppWindow::create(moduleHandle, messageQueue, title,
-                                  canvasInfo.size, gfxFactory, gfxContextInfo,
-                                  showCommand, canvasInfo.mode,
-                                  canvasInfo.isUserResizeable);
+    return Win32AppWindow::create(moduleHandle, messageQueue, title, gfxFactory,
+                                  gfxContextInfo, canvasInfo.size, showCommand,
+                                  canvasInfo.mode, canvasInfo.isUserResizeable);
   }();
   // TODO: Hack! This doesn't belong here
   config.set_enum("window.mode"s, appWindow->mode());

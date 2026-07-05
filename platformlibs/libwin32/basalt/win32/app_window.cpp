@@ -26,8 +26,8 @@ namespace basalt {
 
 namespace {
 
-struct CreateParams final {
-  Size2Du16 clientAreaSize;
+struct CreateParams {
+  std::optional<Size2Du16> clientAreaSize;
 };
 
 // posX and posY: location of the upper left corner of the client area
@@ -63,6 +63,14 @@ auto calc_window_rect(int const posX, int const posY, DWORD const style,
   return rect;
 }
 
+auto get_default_client_area_size(MONITORINFO const& monitorInfo) -> Size2Du16 {
+  auto const monitorSize = win32::get_size_u16(monitorInfo.rcMonitor);
+  auto const width = MulDiv(monitorSize.width(), 2, 3);
+  auto const height = MulDiv(monitorSize.height(), 2, 3);
+
+  return Size2Du16{static_cast<u16>(width), static_cast<u16>(height)};
+}
+
 auto CALLBACK handle_create_message(HWND const handle, UINT const messageId,
                                     WPARAM const wParam,
                                     LPARAM const lParam) noexcept -> LRESULT {
@@ -80,21 +88,12 @@ auto CALLBACK handle_create_message(HWND const handle, UINT const messageId,
     auto const* cs = reinterpret_cast<CREATESTRUCTW const*>(lParam);
 
     auto const clientAreaSize = [&] {
-      // the default size is two thirds of the current monitor
-
-      auto const monitorSize = win32::get_size_u16(monitorInfo.rcMonitor);
       auto const* createParams =
         static_cast<CreateParams const*>(cs->lpCreateParams);
 
-      auto size = createParams->clientAreaSize;
-      if (size.width() == 0) {
-        size.set_width(static_cast<u16>(MulDiv(monitorSize.width(), 2, 3)));
-      }
-      if (size.height() == 0) {
-        size.set_height(static_cast<u16>(MulDiv(monitorSize.height(), 2, 3)));
-      }
-
-      return size;
+      return createParams->clientAreaSize
+               ? *createParams->clientAreaSize
+               : get_default_client_area_size(monitorInfo);
     }();
 
     auto clientAreaPosition = POINT{0, 0};
@@ -135,9 +134,9 @@ auto get_style_windowed(bool const isUserResizeable) -> Win32WindowStyle {
 auto Win32AppWindow::create(HMODULE const moduleHandle,
                             Win32MessageQueue* messageQueue,
                             std::wstring const& title,
-                            Size2Du16 const clientAreaSize,
                             gfx::Win32GfxFactoryPtr const& gfxFactory,
                             GfxContextCreateInfo const& gfxCtxInfo,
+                            std::optional<Size2Du16> const clientAreaSize,
                             int const showCommand, WindowMode const mode,
                             bool const isUserResizeable) -> Win32AppWindowPtr {
   static auto const WINDOW_CLASS_ATOM = [&] {

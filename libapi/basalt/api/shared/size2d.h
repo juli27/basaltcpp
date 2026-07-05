@@ -50,11 +50,6 @@ public:
   constexpr auto aspect_ratio() const noexcept -> f32 {
     return static_cast<f32>(width()) / static_cast<f32>(height());
   }
-
-  [[nodiscard]]
-  static constexpr auto dont_care() noexcept -> Size2D {
-    return Size2D{};
-  }
 };
 
 } // namespace basalt

@@ -28,7 +28,7 @@ struct GfxContextCreateInfo {
 using ConfigureGfxContextFn = GfxContextCreateInfo(gfx::AdapterInfos const&);
 
 struct CanvasCreateInfo {
-  Size2Du16 size;
+  std::optional<Size2Du16> size;
   bool isUserResizeable{true};
   WindowMode mode{WindowMode::Windowed};
   gfx::BackendApi gfxBackendApi{gfx::BackendApi::Default};
