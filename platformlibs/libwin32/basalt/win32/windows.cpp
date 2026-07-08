@@ -47,6 +47,14 @@ Win32Window::~Win32Window() noexcept {
   VERIFY_WIN32_BOOL(DestroyWindow(mHandle));
 }
 
+auto Win32Window::show(int const showCommand) -> void {
+  ShowWindow(handle(), showCommand);
+}
+
+auto Win32Window::hide() -> void {
+  ShowWindow(handle(), SW_HIDE);
+}
+
 auto Win32Window::message_queue() const noexcept -> Win32MessageQueue* {
   return mMessageQueue;
 }

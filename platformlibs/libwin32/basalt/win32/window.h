@@ -18,6 +18,9 @@ public:
   auto operator=(Win32Window const&) -> Win32Window& = delete;
   auto operator=(Win32Window&&) -> Win32Window& = delete;
 
+  auto show(int showCommand = SW_SHOW) -> void;
+  auto hide() -> void;
+
   [[nodiscard]]
   auto message_queue() const noexcept -> Win32MessageQueue*;
 

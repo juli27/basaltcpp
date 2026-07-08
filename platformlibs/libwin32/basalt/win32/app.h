@@ -17,7 +17,7 @@ using MouseCursors = EnumArray<MouseCursor, HCURSOR, MOUSE_CURSOR_COUNT>;
 class Win32App final {
 public:
   [[nodiscard]]
-  static auto init(HMODULE, int showCommand) -> Win32App;
+  static auto init(HMODULE) -> Win32App;
 
   Win32App(Win32App const&) = delete;
   Win32App(Win32App&&) noexcept = default;
@@ -27,7 +27,7 @@ public:
   auto operator=(Win32App const&) -> Win32App& = delete;
   auto operator=(Win32App&&) -> Win32App& = delete;
 
-  auto run() -> void;
+  auto run(int showCommand) -> void;
 
 private:
   MouseCursors mMouseCursors;

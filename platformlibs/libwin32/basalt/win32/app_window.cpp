@@ -15,6 +15,8 @@
 
 #include <algorithm>
 #include <memory>
+#include <optional>
+#include <string>
 #include <utility>
 #include <variant>
 
@@ -128,11 +130,11 @@ auto get_style_windowed(bool const isUserResizeable) -> Win32WindowStyle {
 auto Win32AppWindow::create(HMODULE const moduleHandle,
                             Win32MessageQueue* messageQueue,
                             std::wstring const& title,
-                            gfx::Win32GfxFactoryPtr const& gfxFactory,
+                            gfx::Win32GfxFactoryPtr gfxFactory,
                             GfxContextCreateInfo const& gfxCtxInfo,
                             std::optional<Size2Du16> const clientAreaSize,
-                            int const showCommand, WindowMode const mode,
-                            bool const isUserResizeable) -> Win32AppWindowPtr {
+                            WindowMode const mode, bool const isUserResizeable)
+  -> Win32AppWindowPtr {
   static auto const WINDOW_CLASS_ATOM = [&] {
     auto constexpr className = L"BasaltWindow";
     auto const bigIcon =
@@ -164,6 +166,8 @@ auto Win32AppWindow::create(HMODULE const moduleHandle,
     return atom;
   }();
 
+  // always create the window as windowed first to store the correct placement
+  // when switching modes
   auto const [style, styleEx] = get_style_windowed(isUserResizeable);
   auto params = CreateParams{clientAreaSize};
 
@@ -178,14 +182,11 @@ auto Win32AppWindow::create(HMODULE const moduleHandle,
 
   // allocate window object dynamically to keep its address stable because it is
   // stored as HWND user data
-  auto window =
-    std::make_unique<Win32AppWindow>(handle, messageQueue, gfxFactory);
+  auto window = std::make_unique<Win32AppWindow>(handle, messageQueue,
+                                                 std::move(gfxFactory));
 
   window->set_mode(mode);
-
-  ShowWindow(handle, showCommand);
-
-  window->init_gfx_context(gfxCtxInfo, *gfxFactory);
+  window->init_gfx_context(gfxCtxInfo);
 
   return window;
 }
@@ -275,8 +276,7 @@ auto Win32AppWindow::present() const -> gfx::PresentResult {
   return mSwapChain->present();
 }
 
-auto Win32AppWindow::init_gfx_context(GfxContextCreateInfo const& createInfo,
-                                      gfx::Win32GfxFactory const& gfxFactory)
+auto Win32AppWindow::init_gfx_context(GfxContextCreateInfo const& createInfo)
   -> void {
   auto const modeInfo =
     mMode == WindowMode::FullscreenExclusive
@@ -292,7 +292,7 @@ auto Win32AppWindow::init_gfx_context(GfxContextCreateInfo const& createInfo,
   };
 
   mGfxContext =
-    gfxFactory.create_context(handle(), createInfo.adapter, swapChainInfo);
+    mGfxFactory->create_context(handle(), createInfo.adapter, swapChainInfo);
   mSwapChain = mGfxContext->swap_chain();
   mExclusiveDisplayMode = createInfo.exclusiveDisplayMode;
 }

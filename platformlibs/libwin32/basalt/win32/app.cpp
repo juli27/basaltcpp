@@ -141,8 +141,7 @@ auto get_default_gfx_context_info(gfx::AdapterInfos const& adapters)
 
 } // namespace
 
-auto Win32App::init(HMODULE const moduleHandle, int const showCommand)
-  -> Win32App {
+auto Win32App::init(HMODULE const moduleHandle) -> Win32App {
   auto config = Config{};
   auto launchInfo = bootstrap_app(config);
 
@@ -174,9 +173,9 @@ auto Win32App::init(HMODULE const moduleHandle, int const showCommand)
 
     auto const title = create_wide_from_utf8(launchInfo.appName);
 
-    return Win32AppWindow::create(moduleHandle, messageQueue, title, gfxFactory,
-                                  gfxContextInfo, canvasInfo.size, showCommand,
-                                  canvasInfo.mode, canvasInfo.isUserResizeable);
+    return Win32AppWindow::create(
+      moduleHandle, messageQueue, title, std::move(gfxFactory), gfxContextInfo,
+      canvasInfo.size, canvasInfo.mode, canvasInfo.isUserResizeable);
   }();
   // TODO: Hack! This doesn't belong here
   config.set_enum("window.mode"s, appWindow->mode());
@@ -197,12 +196,13 @@ auto Win32App::init(HMODULE const moduleHandle, int const showCommand)
 
 Win32App::~Win32App() noexcept = default;
 
-auto Win32App::run() -> void {
+auto Win32App::run(int const showCommand) -> void {
   using Clock = std::chrono::steady_clock;
   auto startTime = Clock::now();
   auto deltaTime = SecondsF32{0s};
 
   auto* messageQueue = mAppWindow->message_queue();
+  mAppWindow->show(showCommand);
 
   while (drain_message_queue(*messageQueue)) {
     if (auto const mode =

@@ -22,8 +22,8 @@ _Use_decl_annotations_ auto WINAPI wWinMain(HINSTANCE const hInstance,
   Log::init();
 
   try {
-    auto app = Win32App::init(hInstance, nShowCmd);
-    app.run();
+    auto app = Win32App::init(hInstance);
+    app.run(nShowCmd);
   } catch (exception const& ex) {
     BASALT_LOG_FATAL("unhandled exception: {}", ex.what());
     Log::shutdown();

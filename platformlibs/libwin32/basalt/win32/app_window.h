@@ -26,10 +26,8 @@ class Win32AppWindow final : public Win32Window {
 public:
   // can throw std::system_error on failure
   static auto create(HMODULE, Win32MessageQueue*, std::wstring const& title,
-                     gfx::Win32GfxFactoryPtr const&,
-                     GfxContextCreateInfo const&,
+                     gfx::Win32GfxFactoryPtr, GfxContextCreateInfo const&,
                      std::optional<Size2Du16> clientAreaSize = {},
-                     int showCommand = SW_SHOWNORMAL,
                      WindowMode mode = WindowMode::Windowed,
                      bool isUserResizeable = true) -> Win32AppWindowPtr;
 
@@ -72,8 +70,7 @@ private:
 
   bool mIsInSizeMoveModalLoop{false};
 
-  auto init_gfx_context(GfxContextCreateInfo const&,
-                        gfx::Win32GfxFactory const&) -> void;
+  auto init_gfx_context(GfxContextCreateInfo const&) -> void;
 
   auto make_fullscreen() -> void;
 
