@@ -12,15 +12,10 @@
 #include <basalt/api/base/asserts.h>
 #include <basalt/api/base/log.h>
 
-#include <windowsx.h>
-
 #include <algorithm>
 #include <memory>
-#include <system_error>
 #include <utility>
 #include <variant>
-
-using namespace std::literals;
 
 namespace basalt {
 
@@ -117,14 +112,12 @@ struct Win32WindowStyle {
 
 [[nodiscard]]
 auto get_style_windowed(bool const isUserResizeable) -> Win32WindowStyle {
-  // WS_CLIPSIBLINGS is added automatically (tested on Windows 10)
   auto style = DWORD{WS_OVERLAPPEDWINDOW};
   if (!isUserResizeable) {
     style &= ~(WS_MAXIMIZEBOX | WS_SIZEBOX);
   }
 
-  // WS_EX_WINDOWEDGE is added automatically (tested on Windows 10)
-  constexpr auto styleEx = DWORD{};
+  auto constexpr styleEx = DWORD{WS_EX_LEFT | WS_EX_LTRREADING};
 
   return Win32WindowStyle{style, styleEx};
 }
@@ -173,12 +166,12 @@ auto Win32AppWindow::create(HMODULE const moduleHandle,
                     title.c_str(), style, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0,
                     nullptr, nullptr, moduleHandle, &params);
   if (!handle) {
-    throw std::system_error{static_cast<int>(GetLastError()),
-                            std::system_category(), "Failed to create window"s};
+    BASALT_LOG_FATAL(create_win32_error_message(GetLastError()));
+    BASALT_CRASH("Failed to create app window");
   }
 
-  // the app window object needs a stable address because it is stored as
-  // HWND user data
+  // allocate window object dynamically to keep its address stable because it is
+  // stored as HWND user data
   auto window =
     std::make_unique<Win32AppWindow>(handle, messageQueue, gfxFactory);
 
@@ -309,25 +302,26 @@ auto Win32AppWindow::make_fullscreen() -> void {
 
   mMode = WindowMode::Fullscreen;
 
-  auto style = static_cast<DWORD>(GetWindowLongPtrW(handle(), GWL_STYLE));
-
-  mSavedWindowInfo.style = style;
+  auto const style = GetWindowLongW(handle(), GWL_STYLE);
+  mSavedWindowInfo.style = static_cast<DWORD>(style & WS_OVERLAPPEDWINDOW);
   GetWindowRect(handle(), &mSavedWindowInfo.windowRect);
 
-  auto windowRect = RECT{};
-  auto monitorInfo = MONITORINFO{};
-  monitorInfo.cbSize = sizeof(MONITORINFO);
-  GetMonitorInfoW(
-    MonitorFromRect(&mSavedWindowInfo.windowRect, MONITOR_DEFAULTTONEAREST),
-    &monitorInfo);
+  auto const newStyle = style & ~WS_OVERLAPPEDWINDOW;
+  SetWindowLongW(handle(), GWL_STYLE, newStyle);
 
-  windowRect = monitorInfo.rcMonitor;
-  style &= ~WS_OVERLAPPEDWINDOW;
+  auto const monitorInfo = [&] {
+    auto const monitor = MonitorFromWindow(handle(), MONITOR_DEFAULTTONEAREST);
 
-  SetWindowLongPtrW(handle(), GWL_STYLE, style);
+    auto info = MONITORINFO{};
+    info.cbSize = sizeof(info);
+    GetMonitorInfoW(monitor, &info);
+
+    return info;
+  }();
+  auto const& windowRect = monitorInfo.rcMonitor;
 
   // SWP_NOCOPYBITS causes the window to flash white
-  constexpr auto swpFlags =
+  auto constexpr swpFlags =
     UINT{SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED};
   SetWindowPos(handle(), nullptr, windowRect.left, windowRect.top,
                windowRect.right - windowRect.left,
@@ -341,16 +335,18 @@ auto Win32AppWindow::make_windowed() -> void {
 
   mMode = WindowMode::Windowed;
 
-  auto const style = mSavedWindowInfo.style;
-  auto rect = mSavedWindowInfo.windowRect;
+  auto const style = GetWindowLongW(handle(), GWL_STYLE);
+  auto const newStyle = static_cast<LONG>(style | mSavedWindowInfo.style);
+  SetWindowLongW(handle(), GWL_STYLE, newStyle);
 
-  SetWindowLongPtrW(handle(), GWL_STYLE, style);
+  auto const& windowRect = mSavedWindowInfo.windowRect;
 
   // SWP_NOCOPYBITS causes the window to flash white
-  constexpr auto swpFlags =
+  auto constexpr swpFlags =
     UINT{SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED};
-  SetWindowPos(handle(), nullptr, rect.left, rect.top, rect.right - rect.left,
-               rect.bottom - rect.top, swpFlags);
+  SetWindowPos(handle(), nullptr, windowRect.left, windowRect.top,
+               windowRect.right - windowRect.left,
+               windowRect.bottom - windowRect.top, swpFlags);
 }
 
 auto Win32AppWindow::handle_message(UINT const messageId, WPARAM const wParam,
