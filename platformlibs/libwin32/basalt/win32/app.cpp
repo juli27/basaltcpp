@@ -2,6 +2,7 @@
 
 #include "app_window.h"
 #include "message_queue.h"
+#include "resources.h"
 
 #include "shared/types.h"
 #include "shared/utils.h"
@@ -42,8 +43,7 @@ namespace {
 
 [[nodiscard]]
 auto load_system_cursor(WCHAR const* id) noexcept -> HCURSOR {
-  return static_cast<HCURSOR>(
-    LoadImageW(nullptr, id, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_SHARED));
+  return win32::load_cursor(nullptr, id, LR_SHARED);
 }
 
 [[nodiscard]]

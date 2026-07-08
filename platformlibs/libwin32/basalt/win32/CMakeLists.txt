@@ -8,6 +8,8 @@ target_sources(LibWin32 PRIVATE
   "key_map.h"
   "message_queue.cpp"
   "message_queue.h"
+  "resources.cpp"
+  "resources.h"
   "types.h"
   "util.cpp"
   "util.h"
