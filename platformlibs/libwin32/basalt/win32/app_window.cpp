@@ -1,5 +1,6 @@
 #include "app_window.h"
 
+#include "resources.h"
 #include "util.h"
 
 #include "shared/utils.h"
@@ -134,6 +135,11 @@ auto Win32AppWindow::create(HMODULE const moduleHandle,
                             bool const isUserResizeable) -> Win32AppWindowPtr {
   static auto const WINDOW_CLASS_ATOM = [&] {
     auto constexpr className = L"BasaltWindow";
+    auto const bigIcon =
+      win32::load_big_icon(nullptr, IDI_APPLICATION, LR_SHARED);
+    auto const smallIcon =
+      win32::load_small_icon(nullptr, IDI_APPLICATION, LR_SHARED);
+    auto const backgroundBrush = GetSysColorBrush(COLOR_WINDOW);
     auto const windowClass = WNDCLASSEXW{
       sizeof(WNDCLASSEXW),
       0, // style
@@ -141,12 +147,12 @@ auto Win32AppWindow::create(HMODULE const moduleHandle,
       0, // cbClsExtra
       0, // cbWndExtra
       moduleHandle,
-      nullptr, // hIcon
+      bigIcon,
       nullptr, // hCursor
-      GetSysColorBrush(COLOR_WINDOW), // TODO: is the background brush needed?
+      backgroundBrush, // TODO: is the background brush needed?
       nullptr, // lpszMenuName
       className,
-      nullptr, // hIconSm
+      smallIcon,
     };
 
     auto const atom = RegisterClassExW(&windowClass);
@@ -175,13 +181,9 @@ auto Win32AppWindow::create(HMODULE const moduleHandle,
   auto window =
     std::make_unique<Win32AppWindow>(handle, messageQueue, gfxFactory);
 
-  ShowWindow(handle, showCommand);
-
-  // required to be after ShowWindow because otherwise the application icon
-  // would not appear in the titlebar if the application launches with
-  // fullscreen and switches to windowed
-  // TODO: find a better workaround
   window->set_mode(mode);
+
+  ShowWindow(handle, showCommand);
 
   window->init_gfx_context(gfxCtxInfo, *gfxFactory);
 
@@ -302,12 +304,14 @@ auto Win32AppWindow::make_fullscreen() -> void {
 
   mMode = WindowMode::Fullscreen;
 
-  auto const style = GetWindowLongW(handle(), GWL_STYLE);
-  mSavedWindowInfo.style = static_cast<DWORD>(style & WS_OVERLAPPEDWINDOW);
-  GetWindowRect(handle(), &mSavedWindowInfo.windowRect);
+  {
+    auto const style = GetWindowLongW(handle(), GWL_STYLE);
+    mSavedWindowInfo.style = static_cast<DWORD>(style & WS_OVERLAPPEDWINDOW);
+    GetWindowRect(handle(), &mSavedWindowInfo.windowRect);
 
-  auto const newStyle = style & ~WS_OVERLAPPEDWINDOW;
-  SetWindowLongW(handle(), GWL_STYLE, newStyle);
+    auto const newStyle = style & ~WS_OVERLAPPEDWINDOW;
+    SetWindowLongW(handle(), GWL_STYLE, newStyle);
+  }
 
   auto const monitorInfo = [&] {
     auto const monitor = MonitorFromWindow(handle(), MONITOR_DEFAULTTONEAREST);
@@ -335,9 +339,24 @@ auto Win32AppWindow::make_windowed() -> void {
 
   mMode = WindowMode::Windowed;
 
-  auto const style = GetWindowLongW(handle(), GWL_STYLE);
-  auto const newStyle = static_cast<LONG>(style | mSavedWindowInfo.style);
-  SetWindowLongW(handle(), GWL_STYLE, newStyle);
+  {
+    auto const style = GetWindowLongW(handle(), GWL_STYLE);
+    auto const newStyle = static_cast<LONG>(style | mSavedWindowInfo.style);
+    SetWindowLongW(handle(), GWL_STYLE, newStyle);
+  }
+  {
+    // HACK: update icon when switching to windowed because otherwise the icon
+    // doesn't show up in the title bar when the window was initially shown as
+    // fullscreen
+    auto const bigIcon =
+      reinterpret_cast<HICON>(GetClassLongPtrW(handle(), GCLP_HICON));
+    auto const smallIcon =
+      reinterpret_cast<HICON>(GetClassLongPtrW(handle(), GCLP_HICONSM));
+    SendMessageW(handle(), WM_SETICON, ICON_BIG,
+                 reinterpret_cast<LPARAM>(bigIcon));
+    SendMessageW(handle(), WM_SETICON, ICON_SMALL,
+                 reinterpret_cast<LPARAM>(smallIcon));
+  }
 
   auto const& windowRect = mSavedWindowInfo.windowRect;
 
