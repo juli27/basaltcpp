@@ -10,6 +10,7 @@
 #include <basalt/dear_imgui.h>
 
 #include <basalt/api/bootstrap.h>
+#include <basalt/api/types.h>
 
 #include <basalt/gfx/backend/device.h>
 #include <basalt/gfx/backend/types.h>
@@ -41,26 +42,36 @@ namespace basalt {
 
 namespace {
 
-[[nodiscard]]
-auto load_system_cursor(WCHAR const* id) noexcept -> HCURSOR {
-  return win32::load_cursor(nullptr, id, LR_SHARED);
-}
+auto get_system_cursor(MouseCursor const mouseCursor) -> HCURSOR {
+  auto const resourceName = [&] {
+    switch (mouseCursor) {
+    case MouseCursor::Arrow:
+      return IDC_ARROW;
+    case MouseCursor::TextInput:
+      return IDC_IBEAM;
+    case MouseCursor::ResizeAll:
+      return IDC_SIZEALL;
+    case MouseCursor::ResizeNS:
+      return IDC_SIZENS;
+    case MouseCursor::ResizeEW:
+      return IDC_SIZEWE;
+    case MouseCursor::ResizeNESW:
+      return IDC_SIZENESW;
+    case MouseCursor::ResizeNWSE:
+      return IDC_SIZENWSE;
+    case MouseCursor::Hand:
+      return IDC_HAND;
+    case MouseCursor::NotAllowed:
+      return IDC_NO;
+    case MouseCursor::Wait:
+      return IDC_WAIT;
+    case MouseCursor::Progress:
+      return IDC_APPSTARTING;
+    }
+    BASALT_CRASH("unhandled MouseCursor value");
+  }();
 
-[[nodiscard]]
-auto load_system_mouse_cursors() -> MouseCursors {
-  return MouseCursors{
-    {MouseCursor::Arrow, load_system_cursor(IDC_ARROW)},
-    {MouseCursor::TextInput, load_system_cursor(IDC_IBEAM)},
-    {MouseCursor::ResizeAll, load_system_cursor(IDC_SIZEALL)},
-    {MouseCursor::ResizeNS, load_system_cursor(IDC_SIZENS)},
-    {MouseCursor::ResizeEW, load_system_cursor(IDC_SIZEWE)},
-    {MouseCursor::ResizeNESW, load_system_cursor(IDC_SIZENESW)},
-    {MouseCursor::ResizeNWSE, load_system_cursor(IDC_SIZENWSE)},
-    {MouseCursor::Hand, load_system_cursor(IDC_HAND)},
-    {MouseCursor::NotAllowed, load_system_cursor(IDC_NO)},
-    {MouseCursor::Wait, load_system_cursor(IDC_WAIT)},
-    {MouseCursor::Progress, load_system_cursor(IDC_APPSTARTING)},
-  };
+  return win32::load_cursor(nullptr, resourceName, LR_SHARED);
 }
 
 [[nodiscard]]
@@ -217,7 +228,7 @@ auto Win32App::run(int const showCommand) -> void {
 
     if (mRuntime.is_dirty()) {
       mRuntime.set_dirty(false);
-      mAppWindow->set_mouse_cursor(mMouseCursors[mRuntime.mouse_cursor()]);
+      mAppWindow->set_mouse_cursor(get_system_cursor(mRuntime.mouse_cursor()));
     }
 
     if (mAppWindow->present() == gfx::PresentResult::DeviceLost) {
@@ -236,8 +247,7 @@ auto Win32App::run(int const showCommand) -> void {
 }
 
 Win32App::Win32App(Win32AppWindowPtr appWindow, Runtime runtime)
-  : mMouseCursors{load_system_mouse_cursors()}
-  , mAppWindow{std::move(appWindow)}
+  : mAppWindow{std::move(appWindow)}
   , mRuntime{std::move(runtime)} {
   BASALT_ASSERT(mAppWindow);
 }
