@@ -38,12 +38,12 @@ auto Engine::set_root(ViewPtr view) -> void {
   mRoot = std::move(view);
 }
 
-auto Engine::mouse_cursor() const noexcept -> MouseCursor {
-  return mMouseCursor;
+auto Engine::canvas_pointer() const -> CanvasPointer {
+  return mCanvasPointer;
 }
 
-auto Engine::set_mouse_cursor(MouseCursor const mouseCursor) noexcept -> void {
-  mMouseCursor = mouseCursor;
+auto Engine::set_canvas_pointer(CanvasPointer const mouseCursor) -> void {
+  mCanvasPointer = mouseCursor;
   mIsDirty = true;
 }
 

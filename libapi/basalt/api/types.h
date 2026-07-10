@@ -37,7 +37,7 @@ enum class InputEventType : u8 {
 enum class MouseButton : u8 { Left, Right, Middle, Button4, Button5 };
 constexpr auto MOUSE_BUTTON_COUNT = u8{5};
 
-enum class MouseCursor : u8 {
+enum class CanvasPointer : u8 {
   Arrow,
   TextInput,
   ResizeAll,
@@ -50,7 +50,7 @@ enum class MouseCursor : u8 {
   Wait,
   Progress,
 };
-constexpr auto MOUSE_CURSOR_COUNT = u8{11};
+auto constexpr CANVAS_POINTER_COUNT = u8{11};
 
 struct PointerPosition : vec<PointerPosition, i32, 2> {
   [[nodiscard]]

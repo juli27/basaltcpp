@@ -28,15 +28,13 @@ struct Engine {
   [[nodiscard]] auto root() const -> ViewPtr const&;
   auto set_root(ViewPtr) -> void;
 
-  [[nodiscard]]
-  auto mouse_cursor() const noexcept -> MouseCursor;
-
-  auto set_mouse_cursor(MouseCursor) noexcept -> void;
+  auto canvas_pointer() const -> CanvasPointer;
+  auto set_canvas_pointer(CanvasPointer) -> void;
 
 protected:
   gfx::ContextPtr mGfxContext;
 
-  MouseCursor mMouseCursor{MouseCursor::Arrow};
+  CanvasPointer mCanvasPointer{CanvasPointer::Arrow};
   bool mIsDirty{false};
 
   Engine(Config, gfx::ContextPtr) noexcept;

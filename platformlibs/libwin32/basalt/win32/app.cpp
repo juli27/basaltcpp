@@ -42,33 +42,33 @@ namespace basalt {
 
 namespace {
 
-auto get_system_cursor(MouseCursor const mouseCursor) -> HCURSOR {
+auto get_system_cursor(CanvasPointer const canvasPointer) -> HCURSOR {
   auto const resourceName = [&] {
-    switch (mouseCursor) {
-    case MouseCursor::Arrow:
+    switch (canvasPointer) {
+    case CanvasPointer::Arrow:
       return IDC_ARROW;
-    case MouseCursor::TextInput:
+    case CanvasPointer::TextInput:
       return IDC_IBEAM;
-    case MouseCursor::ResizeAll:
+    case CanvasPointer::ResizeAll:
       return IDC_SIZEALL;
-    case MouseCursor::ResizeNS:
+    case CanvasPointer::ResizeNS:
       return IDC_SIZENS;
-    case MouseCursor::ResizeEW:
+    case CanvasPointer::ResizeEW:
       return IDC_SIZEWE;
-    case MouseCursor::ResizeNESW:
+    case CanvasPointer::ResizeNESW:
       return IDC_SIZENESW;
-    case MouseCursor::ResizeNWSE:
+    case CanvasPointer::ResizeNWSE:
       return IDC_SIZENWSE;
-    case MouseCursor::Hand:
+    case CanvasPointer::Hand:
       return IDC_HAND;
-    case MouseCursor::NotAllowed:
+    case CanvasPointer::NotAllowed:
       return IDC_NO;
-    case MouseCursor::Wait:
+    case CanvasPointer::Wait:
       return IDC_WAIT;
-    case MouseCursor::Progress:
+    case CanvasPointer::Progress:
       return IDC_APPSTARTING;
     }
-    BASALT_CRASH("unhandled MouseCursor value");
+    BASALT_CRASH("unhandled CanvasPointer value");
   }();
 
   return win32::load_cursor(nullptr, resourceName, LR_SHARED);
@@ -228,7 +228,7 @@ auto Win32App::run(int const showCommand) -> void {
 
     if (mRuntime.is_dirty()) {
       mRuntime.set_dirty(false);
-      mAppWindow->set_mouse_cursor(get_system_cursor(mRuntime.mouse_cursor()));
+      mAppWindow->set_mouse_cursor(get_system_cursor(mRuntime.canvas_pointer()));
     }
 
     if (mAppWindow->present() == gfx::PresentResult::DeviceLost) {

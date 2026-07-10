@@ -137,38 +137,38 @@ constexpr auto to_imgui_key(Key const key) -> ImGuiKey {
   return KEY_TO_IMGUI_KEY[key];
 }
 
-constexpr auto to_mouse_cursor(ImGuiMouseCursor const imGuiCursor)
-  -> std::optional<MouseCursor> {
+constexpr auto to_canvas_pointer(ImGuiMouseCursor const imGuiCursor)
+  -> std::optional<CanvasPointer> {
   static_assert(ImGuiMouseCursor_COUNT == 11);
 
   switch (imGuiCursor) {
   case ImGuiMouseCursor_None:
     return std::nullopt;
   case ImGuiMouseCursor_Arrow:
-    return MouseCursor::Arrow;
+    return CanvasPointer::Arrow;
   case ImGuiMouseCursor_TextInput:
-    return MouseCursor::TextInput;
+    return CanvasPointer::TextInput;
   case ImGuiMouseCursor_ResizeAll:
-    return MouseCursor::ResizeAll;
+    return CanvasPointer::ResizeAll;
   case ImGuiMouseCursor_ResizeNS:
-    return MouseCursor::ResizeNS;
+    return CanvasPointer::ResizeNS;
   case ImGuiMouseCursor_ResizeEW:
-    return MouseCursor::ResizeEW;
+    return CanvasPointer::ResizeEW;
   case ImGuiMouseCursor_ResizeNESW:
-    return MouseCursor::ResizeNESW;
+    return CanvasPointer::ResizeNESW;
   case ImGuiMouseCursor_ResizeNWSE:
-    return MouseCursor::ResizeNWSE;
+    return CanvasPointer::ResizeNWSE;
   case ImGuiMouseCursor_Hand:
-    return MouseCursor::Hand;
+    return CanvasPointer::Hand;
   case ImGuiMouseCursor_Wait:
-    return MouseCursor::Wait;
+    return CanvasPointer::Wait;
   case ImGuiMouseCursor_Progress:
-    return MouseCursor::Progress;
+    return CanvasPointer::Progress;
   case ImGuiMouseCursor_NotAllowed:
-    return MouseCursor::NotAllowed;
+    return CanvasPointer::NotAllowed;
   }
 
-  return MouseCursor::Arrow;
+  return CanvasPointer::Arrow;
 }
 
 } // namespace
@@ -233,9 +233,9 @@ auto DearImGui::new_frame(UpdateContext const& ctx) const -> void {
 
   if (!(io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)) {
     // TODO: no mouse cursor / imgui cursor drawing
-    if (auto const cursor = to_mouse_cursor(ImGui::GetMouseCursor())) {
-      if (*cursor != engine.mouse_cursor()) {
-        engine.set_mouse_cursor(*cursor);
+    if (auto const pointer = to_canvas_pointer(ImGui::GetMouseCursor())) {
+      if (*pointer != engine.canvas_pointer()) {
+        engine.set_canvas_pointer(*pointer);
       }
     }
   }
