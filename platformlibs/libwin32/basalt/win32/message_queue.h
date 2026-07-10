@@ -1,7 +1,5 @@
 #pragma once
 
-#include "types.h"
-
 #include "shared/Windows_custom.h"
 
 #include <optional>
@@ -10,8 +8,9 @@ namespace basalt {
 
 class Win32MessageQueue {
 public:
-  static auto make_for_current_thread() -> Win32MessageQueue*;
-  static auto get_for_current_thread() -> Win32MessageQueue*;
+  static auto ensure_for_current_thread() -> Win32MessageQueue&;
+  static auto get_for_current_thread() -> Win32MessageQueue&;
+  static auto has_for_current_thread() -> bool;
 
   Win32MessageQueue();
 

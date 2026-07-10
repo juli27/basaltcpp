@@ -1,7 +1,5 @@
 #pragma once
 
-#include "types.h"
-
 #include <basalt/input_manager.h>
 
 #include <basalt/api/shared/types.h>
@@ -22,9 +20,6 @@ public:
   auto hide() -> void;
 
   [[nodiscard]]
-  auto message_queue() const noexcept -> Win32MessageQueue*;
-
-  [[nodiscard]]
   auto handle() const noexcept -> HWND;
 
   [[nodiscard]]
@@ -39,7 +34,7 @@ public:
   auto input_manager() noexcept -> InputManager&;
 
 protected:
-  Win32Window(HWND, Win32MessageQueue*);
+  explicit Win32Window(HWND);
 
   ~Win32Window() noexcept;
 
@@ -47,7 +42,6 @@ protected:
   auto handle_message(UINT message, WPARAM, LPARAM) -> LRESULT;
 
 private:
-  Win32MessageQueue* mMessageQueue;
   HWND mHandle;
   HCURSOR mMouseCursor;
   InputManager mInputManager;

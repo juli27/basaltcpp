@@ -18,23 +18,32 @@ thread_local std::unique_ptr<Win32MessageQueue> sThreadMessageQueue;
 
 } // namespace
 
-auto Win32MessageQueue::make_for_current_thread() -> Win32MessageQueue* {
-  BASALT_ASSERT(!sThreadMessageQueue);
-  
+auto Win32MessageQueue::ensure_for_current_thread() -> Win32MessageQueue& {
+  if (auto* messageQueue = sThreadMessageQueue.get()) {
+    return *messageQueue;
+  }
+
   if (auto const didConvert = IsGUIThread(TRUE);
       didConvert == ERROR_NOT_ENOUGH_MEMORY || !didConvert) {
     BASALT_CRASH("failed to convert thread to GUI thread");
   }
-  sThreadMessageQueue = std::make_unique<Win32MessageQueue>();
 
-  return sThreadMessageQueue.get();
+  auto messageQueuePtr = std::make_unique<Win32MessageQueue>();
+  auto& messageQueue = *messageQueuePtr;
+  sThreadMessageQueue = std::move(messageQueuePtr);
+
+  return messageQueue;
 }
 
-auto Win32MessageQueue::get_for_current_thread() -> Win32MessageQueue* {
+auto Win32MessageQueue::get_for_current_thread() -> Win32MessageQueue& {
   auto* messageQueue = sThreadMessageQueue.get();
   BASALT_ASSERT(messageQueue);
 
-  return messageQueue;
+  return *messageQueue;
+}
+
+auto Win32MessageQueue::has_for_current_thread() -> bool {
+  return !!sThreadMessageQueue;
 }
 
 Win32MessageQueue::Win32MessageQueue() : mThreadId{GetCurrentThreadId()} {

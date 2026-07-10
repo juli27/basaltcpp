@@ -25,14 +25,14 @@ namespace basalt {
 class Win32AppWindow final : public Win32Window {
 public:
   // can throw std::system_error on failure
-  static auto create(HMODULE, Win32MessageQueue*, std::wstring const& title,
+  static auto create(HMODULE, std::wstring const& title,
                      gfx::Win32GfxFactoryPtr, GfxContextCreateInfo const&,
                      std::optional<Size2Du16> clientAreaSize = {},
                      WindowMode mode = WindowMode::Windowed,
                      bool isUserResizeable = true) -> Win32AppWindowPtr;
 
   // don't call directly. Use the create function instead
-  Win32AppWindow(HWND, Win32MessageQueue*, gfx::Win32GfxFactoryPtr);
+  Win32AppWindow(HWND, gfx::Win32GfxFactoryPtr);
 
   Win32AppWindow(Win32AppWindow const&) = delete;
   Win32AppWindow(Win32AppWindow&&) = delete;

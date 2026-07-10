@@ -34,11 +34,9 @@ auto virtual_key_code_to_key(UINT const virtualKeyCode, bool const isExtended)
 
 } // namespace
 
-Win32Window::Win32Window(HWND const handle, Win32MessageQueue* messageQueue)
-  : mMessageQueue{messageQueue}
-  , mHandle{handle}
+Win32Window::Win32Window(HWND const handle)
+  : mHandle{handle}
   , mMouseCursor{LoadCursorW(nullptr, IDC_ARROW)} {
-  BASALT_ASSERT(mMessageQueue);
   BASALT_ASSERT(mHandle);
   BASALT_ASSERT(mMouseCursor);
 }
@@ -53,10 +51,6 @@ auto Win32Window::show(int const showCommand) -> void {
 
 auto Win32Window::hide() -> void {
   ShowWindow(handle(), SW_HIDE);
-}
-
-auto Win32Window::message_queue() const noexcept -> Win32MessageQueue* {
-  return mMessageQueue;
 }
 
 auto Win32Window::handle() const noexcept -> HWND {
@@ -175,7 +169,7 @@ auto Win32Window::on_key_down(UINT const virtualKeyCode, WORD, WORD const info)
   // HACK: AltGr sends Ctrl + right Alt keydown messages but only sends
   // a keyup message for right Alt
   if (key == Key::Control) {
-    if (auto next = mMessageQueue->peek()) {
+    if (auto const next = Win32MessageQueue::get_for_current_thread().peek()) {
       if (next->message == WM_KEYDOWN) {
         if (next->wParam == VK_MENU && HIWORD(next->lParam) & KF_EXTENDED &&
             next->time == static_cast<DWORD>(GetMessageTime())) {

@@ -1,5 +1,6 @@
 #include "app_window.h"
 
+#include "message_queue.h"
 #include "resources.h"
 #include "util.h"
 
@@ -128,13 +129,14 @@ auto get_style_windowed(bool const isUserResizeable) -> Win32WindowStyle {
 } // namespace
 
 auto Win32AppWindow::create(HMODULE const moduleHandle,
-                            Win32MessageQueue* messageQueue,
                             std::wstring const& title,
                             gfx::Win32GfxFactoryPtr gfxFactory,
                             GfxContextCreateInfo const& gfxCtxInfo,
                             std::optional<Size2Du16> const clientAreaSize,
                             WindowMode const mode, bool const isUserResizeable)
   -> Win32AppWindowPtr {
+  BASALT_ASSERT(Win32MessageQueue::has_for_current_thread());
+
   static auto const WINDOW_CLASS_ATOM = [&] {
     auto constexpr className = L"BasaltWindow";
     auto const bigIcon =
@@ -182,8 +184,7 @@ auto Win32AppWindow::create(HMODULE const moduleHandle,
 
   // allocate window object dynamically to keep its address stable because it is
   // stored as HWND user data
-  auto window = std::make_unique<Win32AppWindow>(handle, messageQueue,
-                                                 std::move(gfxFactory));
+  auto window = std::make_unique<Win32AppWindow>(handle, std::move(gfxFactory));
 
   window->set_mode(mode);
   window->init_gfx_context(gfxCtxInfo);
@@ -192,9 +193,8 @@ auto Win32AppWindow::create(HMODULE const moduleHandle,
 }
 
 Win32AppWindow::Win32AppWindow(HWND const handle,
-                               Win32MessageQueue* messageQueue,
                                gfx::Win32GfxFactoryPtr gfxFactory)
-  : Win32Window{handle, messageQueue}
+  : Win32Window{handle}
   , mGfxFactory{std::move(gfxFactory)} {
   BASALT_ASSERT(mGfxFactory);
 

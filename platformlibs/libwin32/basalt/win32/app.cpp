@@ -157,7 +157,7 @@ auto Win32App::init(HMODULE const moduleHandle) -> Win32App {
   auto launchInfo = bootstrap_app(config);
 
   auto appWindow = [&] {
-    auto* messageQueue = Win32MessageQueue::make_for_current_thread();
+    Win32MessageQueue::ensure_for_current_thread();
 
     auto const& canvasInfo = launchInfo.canvasCreateInfo;
     auto gfxFactory = [&]() -> gfx::Win32GfxFactoryPtr {
@@ -184,9 +184,9 @@ auto Win32App::init(HMODULE const moduleHandle) -> Win32App {
 
     auto const title = create_wide_from_utf8(launchInfo.appName);
 
-    return Win32AppWindow::create(
-      moduleHandle, messageQueue, title, std::move(gfxFactory), gfxContextInfo,
-      canvasInfo.size, canvasInfo.mode, canvasInfo.isUserResizeable);
+    return Win32AppWindow::create(moduleHandle, title, std::move(gfxFactory),
+                                  gfxContextInfo, canvasInfo.size,
+                                  canvasInfo.mode, canvasInfo.isUserResizeable);
   }();
   // TODO: Hack! This doesn't belong here
   config.set_enum("window.mode"s, appWindow->mode());
@@ -212,10 +212,10 @@ auto Win32App::run(int const showCommand) -> void {
   auto startTime = Clock::now();
   auto deltaTime = SecondsF32{0s};
 
-  auto* messageQueue = mAppWindow->message_queue();
   mAppWindow->show(showCommand);
 
-  while (drain_message_queue(*messageQueue)) {
+  auto& messageQueue = Win32MessageQueue::get_for_current_thread();
+  while (drain_message_queue(messageQueue)) {
     if (auto const mode =
           mRuntime.config().get_enum("window.mode"s, to_window_mode);
         mode != mAppWindow->mode()) {
@@ -232,7 +232,7 @@ auto Win32App::run(int const showCommand) -> void {
     }
 
     if (mAppWindow->present() == gfx::PresentResult::DeviceLost) {
-      if (!run_lost_device_loop(*messageQueue,
+      if (!run_lost_device_loop(messageQueue,
                                 *mRuntime.gfx_context().device())) {
         Platform::quit();
       }
