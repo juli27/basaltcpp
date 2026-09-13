@@ -16,16 +16,6 @@ enum class CanvasMode : u8 {
 };
 inline auto constexpr CANVAS_MODE_COUNT = u8{3};
 
-constexpr auto to_canvas_mode(i32 const num) noexcept -> CanvasMode {
-  // TODO: BASALT_ASSERT(num < CANVAS_MODE_COUNT);
-
-  if (num >= CANVAS_MODE_COUNT || num < 0) {
-    return CanvasMode::Windowed;
-  }
-
-  return CanvasMode{static_cast<u8>(num)};
-}
-
 enum class CanvasPointer : u8 {
   Arrow,
   TextInput,

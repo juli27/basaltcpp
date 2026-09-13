@@ -9,12 +9,10 @@
 #include <basalt/api/base/log.h>
 
 #include <algorithm>
-#include <filesystem>
 #include <string>
-#include <string_view>
 
-using namespace std::literals;
 using namespace basalt;
+using namespace std::literals;
 
 namespace {
 
@@ -47,14 +45,14 @@ auto is_valid(gfx::DisplayMode const& mode, gfx::AdapterInfo const& adapterInfo)
 
 auto basalt::bootstrap_app() -> AppLaunchInfo {
   auto const settings = [&] {
-    auto const settingsFilePath = std::filesystem::u8path("settings.toml"sv);
+    auto const settingsFilePath = get_settings_file_path();
     if (auto const maybeSettings = Settings::from_file(settingsFilePath)) {
       return *maybeSettings;
     }
 
     BASALT_LOG_INFO("Creating new settings file");
-    auto const defaultSettings = Settings{settingsFilePath};
-    defaultSettings.to_file();
+    auto constexpr defaultSettings = Settings{};
+    defaultSettings.to_file(settingsFilePath);
 
     return defaultSettings;
   }();

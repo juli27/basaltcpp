@@ -33,7 +33,7 @@ auto SettingsUi::show_settings_editor(Settings& settings,
   settings_editor(settings, gfxInfo);
 
   if (ImGui::Button("Save")) {
-    settings.to_file();
+    settings.to_file(get_settings_file_path());
   }
   ImGui::SameLine();
   ImGui::TextUnformatted("Restart to apply changes");
