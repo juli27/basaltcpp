@@ -41,8 +41,9 @@ public:
     Size2Du16 viewport;
   };
 
-  struct UpdateContext final {
+  struct UpdateContext {
     Engine& engine;
+    Canvas& canvas;
     DrawContext const& drawCtx;
     SecondsF32 deltaTime;
   };

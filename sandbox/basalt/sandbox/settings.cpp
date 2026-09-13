@@ -51,7 +51,7 @@ auto Settings::from_file(std::filesystem::path const& filePath)
   auto const& table = parseResult.table();
 
   auto settings = Settings{filePath};
-  settings.windowMode = to_window_mode(table["mode"].value_or(i32{0}));
+  settings.canvasMode = to_canvas_mode(table["mode"].value_or(i32{0}));
   settings.adapter = table["adapter"].value_or(u32{0});
   settings.multiSampleCount =
     to_sample_count(table["multiSampleCount"].value_or(u8{0}))
@@ -68,7 +68,7 @@ auto Settings::from_file(std::filesystem::path const& filePath)
 
 auto Settings::to_file() const -> void {
   auto const table = toml::table{
-    {"mode"s, enum_cast(windowMode)},
+    {"mode"s, enum_cast(canvasMode)},
     {"adapter"s, adapter},
     {"multiSampleCount"s, enum_cast(multiSampleCount)},
     {"displayMode"s,

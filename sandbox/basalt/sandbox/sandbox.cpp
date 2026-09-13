@@ -6,12 +6,11 @@
 #include "samples/samples.h"
 #include "tribase/tribase_examples.h"
 
+#include <basalt/api/canvas.h>
 #include <basalt/api/engine.h>
 #include <basalt/api/prelude.h>
 
 #include <basalt/api/gfx/context.h>
-
-#include <basalt/api/shared/config.h>
 
 #include <basalt/api/base/asserts.h>
 #include <basalt/api/base/platform.h>
@@ -146,25 +145,23 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
     }
 
     if (ImGui::BeginMenu("View")) {
-      auto& config = engine.config();
+      auto& canvas = ctx.canvas;
 
-      auto const canvasModeConfigKey = "window.mode"s;
-      auto const currentMode =
-        config.get_enum(canvasModeConfigKey, basalt::to_window_mode);
+      auto const currentMode = canvas.mode();
       if (ImGui::MenuItem("Windowed", nullptr,
-                          currentMode == WindowMode::Windowed,
-                          currentMode != WindowMode::Windowed)) {
-        config.set_enum(canvasModeConfigKey, WindowMode::Windowed);
+                          currentMode == CanvasMode::Windowed,
+                          currentMode != CanvasMode::Windowed)) {
+        canvas.set_next_mode(CanvasMode::Windowed);
       }
       if (ImGui::MenuItem("Fullscreen", nullptr,
-                          currentMode == WindowMode::Fullscreen,
-                          currentMode != WindowMode::Fullscreen)) {
-        config.set_enum(canvasModeConfigKey, WindowMode::Fullscreen);
+                          currentMode == CanvasMode::Fullscreen,
+                          currentMode != CanvasMode::Fullscreen)) {
+        canvas.set_next_mode(CanvasMode::Fullscreen);
       }
       if (ImGui::MenuItem("Fullscreen (Exclusive)", nullptr,
-                          currentMode == WindowMode::FullscreenExclusive,
-                          currentMode != WindowMode::FullscreenExclusive)) {
-        config.set_enum(canvasModeConfigKey, WindowMode::FullscreenExclusive);
+                          currentMode == CanvasMode::FullscreenExclusive,
+                          currentMode != CanvasMode::FullscreenExclusive)) {
+        canvas.set_next_mode(CanvasMode::FullscreenExclusive);
       }
 
       ImGui::Separator();

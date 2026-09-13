@@ -45,7 +45,7 @@ auto is_valid(gfx::DisplayMode const& mode, gfx::AdapterInfo const& adapterInfo)
 
 } // namespace
 
-auto basalt::bootstrap_app(Config&) -> AppLaunchInfo {
+auto basalt::bootstrap_app() -> AppLaunchInfo {
   auto const settings = [&] {
     auto const settingsFilePath = std::filesystem::u8path("settings.toml"sv);
     if (auto const maybeSettings = Settings::from_file(settingsFilePath)) {
@@ -60,7 +60,7 @@ auto basalt::bootstrap_app(Config&) -> AppLaunchInfo {
   }();
 
   auto canvasInfo = CanvasCreateInfo{};
-  canvasInfo.mode = settings.windowMode;
+  canvasInfo.mode = settings.canvasMode;
   canvasInfo.configureGfxContext = [=](gfx::AdapterInfos const& adapters) {
     auto const adapterIdx =
       settings.adapter < adapters.size() ? settings.adapter : 0;

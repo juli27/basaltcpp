@@ -2,7 +2,6 @@
 
 #include "app_window.h"
 #include "message_queue.h"
-#include "resources.h"
 
 #include "shared/types.h"
 #include "shared/utils.h"
@@ -10,7 +9,7 @@
 #include <basalt/dear_imgui.h>
 
 #include <basalt/api/bootstrap.h>
-#include <basalt/api/types.h>
+#include <basalt/api/canvas.h>
 
 #include <basalt/gfx/backend/device.h>
 #include <basalt/gfx/backend/types.h>
@@ -22,8 +21,6 @@
 
 #include <basalt/api/gfx/backend/adapter.h>
 #include <basalt/api/gfx/backend/types.h>
-
-#include <basalt/api/shared/config.h>
 
 #include <basalt/api/base/asserts.h>
 #include <basalt/api/base/log.h>
@@ -41,38 +38,6 @@ using namespace std::literals;
 namespace basalt {
 
 namespace {
-
-auto get_system_cursor(CanvasPointer const canvasPointer) -> HCURSOR {
-  auto const resourceName = [&] {
-    switch (canvasPointer) {
-    case CanvasPointer::Arrow:
-      return IDC_ARROW;
-    case CanvasPointer::TextInput:
-      return IDC_IBEAM;
-    case CanvasPointer::ResizeAll:
-      return IDC_SIZEALL;
-    case CanvasPointer::ResizeNS:
-      return IDC_SIZENS;
-    case CanvasPointer::ResizeEW:
-      return IDC_SIZEWE;
-    case CanvasPointer::ResizeNESW:
-      return IDC_SIZENESW;
-    case CanvasPointer::ResizeNWSE:
-      return IDC_SIZENWSE;
-    case CanvasPointer::Hand:
-      return IDC_HAND;
-    case CanvasPointer::NotAllowed:
-      return IDC_NO;
-    case CanvasPointer::Wait:
-      return IDC_WAIT;
-    case CanvasPointer::Progress:
-      return IDC_APPSTARTING;
-    }
-    BASALT_CRASH("unhandled CanvasPointer value");
-  }();
-
-  return win32::load_cursor(nullptr, resourceName, LR_SHARED);
-}
 
 [[nodiscard]]
 auto drain_message_queue(Win32MessageQueue& messageQueue) -> bool {
@@ -153,8 +118,7 @@ auto get_default_gfx_context_info(gfx::AdapterInfos const& adapters)
 } // namespace
 
 auto Win32App::init(HMODULE const moduleHandle) -> Win32App {
-  auto config = Config{};
-  auto launchInfo = bootstrap_app(config);
+  auto launchInfo = bootstrap_app();
 
   auto appWindow = [&] {
     Win32MessageQueue::ensure_for_current_thread();
@@ -188,12 +152,10 @@ auto Win32App::init(HMODULE const moduleHandle) -> Win32App {
                                   gfxContextInfo, canvasInfo.size,
                                   canvasInfo.mode, canvasInfo.isUserResizeable);
   }();
-  // TODO: Hack! This doesn't belong here
-  config.set_enum("window.mode"s, appWindow->mode());
 
   auto const& gfxContext = appWindow->gfx_context();
 
-  auto runtime = Runtime{std::move(config), gfxContext};
+  auto runtime = Runtime{gfxContext, std::make_unique<Canvas>()};
 
   appWindow->input_manager().set_overlay(runtime.dear_imgui());
   auto* imguiViewport = ImGui::GetMainViewport();
@@ -216,20 +178,11 @@ auto Win32App::run(int const showCommand) -> void {
 
   auto& messageQueue = Win32MessageQueue::get_for_current_thread();
   while (drain_message_queue(messageQueue)) {
-    if (auto const mode =
-          mRuntime.config().get_enum("window.mode"s, to_window_mode);
-        mode != mAppWindow->mode()) {
-      mAppWindow->set_mode(mode);
-    }
+    mAppWindow->update(mRuntime.canvas());
 
     mAppWindow->input_manager().dispatch_pending(mRuntime.root());
 
     mRuntime.update({deltaTime});
-
-    if (mRuntime.is_dirty()) {
-      mRuntime.set_dirty(false);
-      mAppWindow->set_mouse_cursor(get_system_cursor(mRuntime.canvas_pointer()));
-    }
 
     if (mAppWindow->present() == gfx::PresentResult::DeviceLost) {
       if (!run_lost_device_loop(messageQueue,

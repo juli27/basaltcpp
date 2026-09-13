@@ -51,7 +51,7 @@ auto SettingsUi::settings_editor(Settings& settings, gfx::Info const& gfxInfo)
     ImGui::TextUnformatted("Initial window mode");
     ImGui::TableNextColumn();
     ImGui::PushItemWidth(-FLT_MIN);
-    window_mode_combo("##WindowMode", settings.windowMode);
+    canvas_mode_combo("##CanvasMode", settings.canvasMode);
 
     ImGui::TableNextColumn();
     ImGui::TextUnformatted("Adapter");
@@ -102,12 +102,12 @@ auto SettingsUi::settings_editor(Settings& settings, gfx::Info const& gfxInfo)
   }
 }
 
-auto SettingsUi::window_mode_combo(char const* label, WindowMode& windowMode)
+auto SettingsUi::canvas_mode_combo(char const* label, CanvasMode& canvasMode)
   -> void {
-  auto current = i32{enum_cast(windowMode)};
+  auto current = i32{enum_cast(canvasMode)};
   ImGui::Combo(label, &current,
                "Windowed\0Fullscreen\0Fullscreen (exclusive)\0");
-  windowMode = WindowMode{static_cast<u8>(current)};
+  canvasMode = CanvasMode{static_cast<u8>(current)};
 }
 
 auto SettingsUi::adapter_combo(char const* label, u32& adapter,

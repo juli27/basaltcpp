@@ -7,6 +7,7 @@
 #include "shared/Windows_custom.h"
 
 #include <basalt/api/bootstrap.h>
+#include <basalt/api/canvas.h>
 
 #include <basalt/api/gfx/types.h>
 
@@ -28,7 +29,7 @@ public:
   static auto create(HMODULE, std::wstring const& title,
                      gfx::Win32GfxFactoryPtr, GfxContextCreateInfo const&,
                      std::optional<Size2Du16> clientAreaSize = {},
-                     WindowMode mode = WindowMode::Windowed,
+                     CanvasMode mode = CanvasMode::Windowed,
                      bool isUserResizeable = true) -> Win32AppWindowPtr;
 
   // don't call directly. Use the create function instead
@@ -42,16 +43,13 @@ public:
   auto operator=(Win32AppWindow const&) -> Win32AppWindow& = delete;
   auto operator=(Win32AppWindow&&) -> Win32AppWindow& = delete;
 
+  auto update(Canvas&) -> void;
+
   [[nodiscard]]
   auto gfx_context() const noexcept -> gfx::ContextPtr const&;
 
   [[nodiscard]]
   auto is_fullscreen() const noexcept -> bool;
-
-  [[nodiscard]]
-  auto mode() const noexcept -> WindowMode;
-
-  auto set_mode(WindowMode) -> void;
 
   auto present() const -> gfx::PresentResult;
 
@@ -65,15 +63,17 @@ private:
   gfx::ContextPtr mGfxContext;
   gfx::SwapChainPtr mSwapChain;
   SavedWindowInfo mSavedWindowInfo;
-  WindowMode mMode{WindowMode::Windowed};
+  CanvasMode mMode{CanvasMode::Windowed};
   std::optional<gfx::DisplayMode> mExclusiveDisplayMode;
 
   bool mIsInSizeMoveModalLoop{false};
 
   auto init_gfx_context(GfxContextCreateInfo const&) -> void;
 
-  auto make_fullscreen() -> void;
+  auto mode() const -> CanvasMode;
+  auto set_mode(CanvasMode) -> void;
 
+  auto make_fullscreen() -> void;
   auto make_windowed() -> void;
 
   [[nodiscard]]

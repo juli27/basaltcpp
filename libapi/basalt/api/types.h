@@ -9,6 +9,11 @@ namespace basalt {
 
 struct Engine;
 
+class Canvas;
+enum class CanvasMode : u8;
+enum class CanvasPointer : u8;
+class CanvasPrivate;
+
 struct InputEvent;
 using InputEventPtr = std::unique_ptr<InputEvent>;
 
@@ -36,21 +41,6 @@ enum class InputEventType : u8 {
 
 enum class MouseButton : u8 { Left, Right, Middle, Button4, Button5 };
 constexpr auto MOUSE_BUTTON_COUNT = u8{5};
-
-enum class CanvasPointer : u8 {
-  Arrow,
-  TextInput,
-  ResizeAll,
-  ResizeNS,
-  ResizeEW,
-  ResizeNESW,
-  ResizeNWSE,
-  Hand,
-  NotAllowed,
-  Wait,
-  Progress,
-};
-auto constexpr CANVAS_POINTER_COUNT = u8{11};
 
 struct PointerPosition : vec<PointerPosition, i32, 2> {
   [[nodiscard]]

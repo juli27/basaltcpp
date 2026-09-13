@@ -1,5 +1,6 @@
 #pragma once
 
+#include "canvas.h"
 #include "types.h"
 
 #include "gfx/types.h"
@@ -30,7 +31,7 @@ using ConfigureGfxContextFn = GfxContextCreateInfo(gfx::AdapterInfos const&);
 struct CanvasCreateInfo {
   std::optional<Size2Du16> size;
   bool isUserResizeable{true};
-  WindowMode mode{WindowMode::Windowed};
+  CanvasMode mode{CanvasMode::Windowed};
   gfx::BackendApi gfxBackendApi{gfx::BackendApi::Default};
   std::function<ConfigureGfxContextFn> configureGfxContext;
 };
@@ -43,6 +44,6 @@ struct AppLaunchInfo {
   std::function<ViewFactoryFn> createRootView;
 };
 
-auto bootstrap_app(Config&) -> AppLaunchInfo;
+auto bootstrap_app() -> AppLaunchInfo;
 
 } // namespace basalt

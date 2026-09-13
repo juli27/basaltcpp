@@ -2,6 +2,8 @@ add_subdirectory("scene")
 add_subdirectory("gfx")
 
 target_sources(LibRuntime PRIVATE
+  "canvas.cpp"
+  "canvas_p.h"
   "dear_imgui.cpp"
   "dear_imgui.h"
   "debug_ui.cpp"

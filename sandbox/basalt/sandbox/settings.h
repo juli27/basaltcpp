@@ -1,9 +1,9 @@
 #pragma once
 
+#include <basalt/api/canvas.h>
+
 #include <basalt/api/gfx/backend/adapter.h>
 #include <basalt/api/gfx/backend/types.h>
-
-#include <basalt/api/shared/types.h>
 
 #include <basalt/api/base/types.h>
 
@@ -13,7 +13,7 @@
 struct Settings {
   std::filesystem::path filePath;
 
-  basalt::WindowMode windowMode{basalt::WindowMode::Windowed};
+  basalt::CanvasMode canvasMode{basalt::CanvasMode::Windowed};
   basalt::u32 adapter{0};
   basalt::gfx::MultiSampleCount multiSampleCount{
     basalt::gfx::MultiSampleCount::One};

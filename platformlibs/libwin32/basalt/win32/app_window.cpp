@@ -7,6 +7,8 @@
 #include "shared/utils.h"
 #include "shared/win32_gfx_factory.h"
 
+#include <basalt/canvas_p.h>
+
 #include <basalt/api/gfx/context.h>
 
 #include <basalt/gfx/backend/swap_chain.h>
@@ -126,6 +128,38 @@ auto get_style_windowed(bool const isUserResizeable) -> Win32WindowStyle {
   return Win32WindowStyle{style, styleEx};
 }
 
+auto get_system_cursor(CanvasPointer const canvasPointer) -> HCURSOR {
+  auto const resourceName = [&] {
+    switch (canvasPointer) {
+    case CanvasPointer::Arrow:
+      return IDC_ARROW;
+    case CanvasPointer::TextInput:
+      return IDC_IBEAM;
+    case CanvasPointer::ResizeAll:
+      return IDC_SIZEALL;
+    case CanvasPointer::ResizeNS:
+      return IDC_SIZENS;
+    case CanvasPointer::ResizeEW:
+      return IDC_SIZEWE;
+    case CanvasPointer::ResizeNESW:
+      return IDC_SIZENESW;
+    case CanvasPointer::ResizeNWSE:
+      return IDC_SIZENWSE;
+    case CanvasPointer::Hand:
+      return IDC_HAND;
+    case CanvasPointer::NotAllowed:
+      return IDC_NO;
+    case CanvasPointer::Wait:
+      return IDC_WAIT;
+    case CanvasPointer::Progress:
+      return IDC_APPSTARTING;
+    }
+    BASALT_CRASH("unhandled CanvasPointer value");
+  }();
+
+  return win32::load_cursor(nullptr, resourceName, LR_SHARED);
+}
+
 } // namespace
 
 auto Win32AppWindow::create(HMODULE const moduleHandle,
@@ -133,7 +167,7 @@ auto Win32AppWindow::create(HMODULE const moduleHandle,
                             gfx::Win32GfxFactoryPtr gfxFactory,
                             GfxContextCreateInfo const& gfxCtxInfo,
                             std::optional<Size2Du16> const clientAreaSize,
-                            WindowMode const mode, bool const isUserResizeable)
+                            CanvasMode const mode, bool const isUserResizeable)
   -> Win32AppWindowPtr {
   BASALT_ASSERT(Win32MessageQueue::has_for_current_thread());
 
@@ -209,67 +243,22 @@ Win32AppWindow::Win32AppWindow(HWND const handle,
 
 Win32AppWindow::~Win32AppWindow() = default;
 
+auto Win32AppWindow::update(Canvas& canvas) -> void {
+  if (auto const nextMode = canvas.next_mode()) {
+    set_mode(*nextMode);
+  }
+  CanvasPrivate::set_mode(canvas, mode());
+
+  set_mouse_cursor(get_system_cursor(canvas.pointer()));
+}
+
 auto Win32AppWindow::gfx_context() const noexcept -> gfx::ContextPtr const& {
   return mGfxContext;
 }
 
 auto Win32AppWindow::is_fullscreen() const noexcept -> bool {
-  return mMode == WindowMode::Fullscreen ||
-         mMode == WindowMode::FullscreenExclusive;
-}
-
-auto Win32AppWindow::mode() const noexcept -> WindowMode {
-  return mMode;
-}
-
-auto Win32AppWindow::set_mode(WindowMode const newMode) -> void {
-  if (newMode == mMode) {
-    return;
-  }
-
-  // exclusive ownership of the output monitor needs to be released before
-  // window changes can be made
-  // is null when called before init_gfx_context
-  if (mSwapChain) {
-    if (auto info = mSwapChain->get_info(); info.is_exclusive()) {
-      info.modeInfo = gfx::SwapChain::SharedModeInfo{client_area_size()};
-      mSwapChain->reset(info);
-
-      // the d3d9 runtime leaves the window as topmost when exiting exclusive
-      // fullscreen
-      SetWindowPos(handle(), HWND_NOTOPMOST, 0, 0, 0, 0,
-                   SWP_NOSIZE | SWP_NOSIZE | SWP_NOACTIVATE);
-
-      mMode = WindowMode::Fullscreen;
-    }
-  }
-
-  switch (newMode) {
-  case WindowMode::Windowed:
-    make_windowed();
-
-    break;
-
-  case WindowMode::Fullscreen:
-    make_fullscreen();
-
-    break;
-
-  case WindowMode::FullscreenExclusive: {
-    make_fullscreen();
-    mMode = WindowMode::FullscreenExclusive;
-
-    // is null when called before init_gfx_context
-    if (mSwapChain) {
-      auto swapChainInfo = mSwapChain->get_info();
-      swapChainInfo.modeInfo =
-        gfx::SwapChain::ExclusiveModeInfo{mExclusiveDisplayMode.value()};
-      mSwapChain->reset(swapChainInfo);
-    }
-
-    break;
-  }
-  }
+  return mMode == CanvasMode::Fullscreen ||
+         mMode == CanvasMode::FullscreenExclusive;
 }
 
 auto Win32AppWindow::present() const -> gfx::PresentResult {
@@ -279,7 +268,7 @@ auto Win32AppWindow::present() const -> gfx::PresentResult {
 auto Win32AppWindow::init_gfx_context(GfxContextCreateInfo const& createInfo)
   -> void {
   auto const modeInfo =
-    mMode == WindowMode::FullscreenExclusive
+    mMode == CanvasMode::FullscreenExclusive
       ? gfx::SwapChain::ModeInfo{gfx::SwapChain::ExclusiveModeInfo{
           createInfo.exclusiveDisplayMode.value()}}
       : gfx::SwapChain::ModeInfo{
@@ -297,12 +286,66 @@ auto Win32AppWindow::init_gfx_context(GfxContextCreateInfo const& createInfo)
   mExclusiveDisplayMode = createInfo.exclusiveDisplayMode;
 }
 
+auto Win32AppWindow::mode() const -> CanvasMode {
+  return mMode;
+}
+
+auto Win32AppWindow::set_mode(CanvasMode const newMode) -> void {
+  if (newMode == mMode) {
+    return;
+  }
+
+  // exclusive ownership of the output monitor needs to be released before
+  // window changes can be made
+  // is null when called before init_gfx_context
+  if (mSwapChain) {
+    if (auto info = mSwapChain->get_info(); info.is_exclusive()) {
+      info.modeInfo = gfx::SwapChain::SharedModeInfo{client_area_size()};
+      mSwapChain->reset(info);
+
+      // the d3d9 runtime leaves the window as topmost when exiting exclusive
+      // fullscreen
+      SetWindowPos(handle(), HWND_NOTOPMOST, 0, 0, 0, 0,
+                   SWP_NOSIZE | SWP_NOSIZE | SWP_NOACTIVATE);
+
+      mMode = CanvasMode::Fullscreen;
+    }
+  }
+
+  switch (newMode) {
+  case CanvasMode::Windowed:
+    make_windowed();
+
+    break;
+
+  case CanvasMode::Fullscreen:
+    make_fullscreen();
+
+    break;
+
+  case CanvasMode::FullscreenExclusive: {
+    make_fullscreen();
+    mMode = CanvasMode::FullscreenExclusive;
+
+    // is null when called before init_gfx_context
+    if (mSwapChain) {
+      auto swapChainInfo = mSwapChain->get_info();
+      swapChainInfo.modeInfo =
+        gfx::SwapChain::ExclusiveModeInfo{mExclusiveDisplayMode.value()};
+      mSwapChain->reset(swapChainInfo);
+    }
+
+    break;
+  }
+  }
+}
+
 auto Win32AppWindow::make_fullscreen() -> void {
   if (is_fullscreen()) {
     return;
   }
 
-  mMode = WindowMode::Fullscreen;
+  mMode = CanvasMode::Fullscreen;
 
   {
     auto const style = GetWindowLongW(handle(), GWL_STYLE);
@@ -334,10 +377,10 @@ auto Win32AppWindow::make_fullscreen() -> void {
 
 auto Win32AppWindow::make_windowed() -> void {
   BASALT_ASSERT(
-    mMode != WindowMode::FullscreenExclusive,
+    mMode != CanvasMode::FullscreenExclusive,
     "fullscreen exclusive mode must be handled by the gfx context first");
 
-  mMode = WindowMode::Windowed;
+  mMode = CanvasMode::Windowed;
 
   {
     auto const style = GetWindowLongW(handle(), GWL_STYLE);

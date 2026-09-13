@@ -1,5 +1,6 @@
 target_sources(LibAPI PRIVATE
   "bootstrap.h"
+  "canvas.h"
   "debug_ui.h"
   "engine.h"
   "input.h"

@@ -2,10 +2,10 @@
 
 #include "settings.h"
 
+#include <basalt/api/types.h>
+
 #include <basalt/api/gfx/info.h>
 #include <basalt/api/gfx/backend/adapter.h>
-
-#include <basalt/api/shared/types.h>
 
 #include <basalt/api/base/types.h>
 
@@ -17,7 +17,7 @@ public:
 
   static auto settings_editor(Settings&, basalt::gfx::Info const&) -> void;
 
-  static auto window_mode_combo(char const* label, basalt::WindowMode&) -> void;
+  static auto canvas_mode_combo(char const* label, basalt::CanvasMode&) -> void;
 
   static auto adapter_combo(char const* label, basalt::u32& adapter,
                             basalt::gfx::Info const&) -> void;

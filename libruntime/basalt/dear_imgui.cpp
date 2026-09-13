@@ -1,6 +1,6 @@
 #include "dear_imgui.h"
 
-#include <basalt/api/engine.h>
+#include <basalt/api/canvas.h>
 #include <basalt/api/input_events.h>
 
 #include "gfx/backend/ext/dear_imgui_renderer.h"
@@ -10,6 +10,7 @@
 
 #include <basalt/api/shared/size2d.h>
 
+#include <basalt/api/base/asserts.h>
 #include <basalt/api/base/enum_array.h>
 #include <basalt/api/base/platform.h>
 #include <basalt/api/base/utils.h>
@@ -140,10 +141,9 @@ constexpr auto to_imgui_key(Key const key) -> ImGuiKey {
 constexpr auto to_canvas_pointer(ImGuiMouseCursor const imGuiCursor)
   -> std::optional<CanvasPointer> {
   static_assert(ImGuiMouseCursor_COUNT == 11);
+  BASALT_ASSERT(imGuiCursor >= 0, "ImGuiMouseCursor_None must be handled separately");
 
   switch (imGuiCursor) {
-  case ImGuiMouseCursor_None:
-    return std::nullopt;
   case ImGuiMouseCursor_Arrow:
     return CanvasPointer::Arrow;
   case ImGuiMouseCursor_TextInput:
@@ -166,9 +166,23 @@ constexpr auto to_canvas_pointer(ImGuiMouseCursor const imGuiCursor)
     return CanvasPointer::Progress;
   case ImGuiMouseCursor_NotAllowed:
     return CanvasPointer::NotAllowed;
+  default:
+    return std::nullopt;
   }
+}
 
-  return CanvasPointer::Arrow;
+auto update_canvas_pointer(Canvas& canvas, ImGuiIO const& io) -> void {
+  if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange) {
+    return;
+  }
+  
+  // TODO: no mouse cursor and imgui/software cursor drawing
+  auto const mouseCursor = ImGui::GetMouseCursor();
+  auto const canvasPointer =
+    mouseCursor != ImGuiMouseCursor_None
+      ? to_canvas_pointer(mouseCursor).value_or(CanvasPointer::Arrow)
+      : CanvasPointer::Arrow;
+  canvas.set_pointer(canvasPointer);
 }
 
 } // namespace
@@ -228,17 +242,8 @@ auto DearImGui::new_frame(UpdateContext const& ctx) const -> void {
   io.DisplaySize.x = static_cast<float>(displaySize.width());
   io.DisplaySize.y = static_cast<float>(displaySize.height());
   io.DeltaTime = ctx.deltaTime.count();
-
-  auto& engine = ctx.engine;
-
-  if (!(io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)) {
-    // TODO: no mouse cursor / imgui cursor drawing
-    if (auto const pointer = to_canvas_pointer(ImGui::GetMouseCursor())) {
-      if (*pointer != engine.canvas_pointer()) {
-        engine.set_canvas_pointer(*pointer);
-      }
-    }
-  }
+  
+  update_canvas_pointer(ctx.canvas, io);
 
   ImGui::NewFrame();
 }

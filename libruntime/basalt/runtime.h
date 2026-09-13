@@ -1,26 +1,27 @@
 #pragma once
 
-#include <basalt/types.h>
+#include "types.h"
 
+#include <basalt/api/canvas.h>
 #include <basalt/api/engine.h>
 
 #include <basalt/api/gfx/types.h>
 
 #include <basalt/api/shared/types.h>
 
+#include <memory>
+
 namespace basalt {
 
 class Runtime final : public Engine {
 public:
-  Runtime(Config, gfx::ContextPtr);
+  Runtime(gfx::ContextPtr, std::unique_ptr<Canvas>);
+
+  auto canvas() const -> Canvas const&;
+  auto canvas() -> Canvas&;
 
   [[nodiscard]]
   auto dear_imgui() const -> DearImGuiPtr const&;
-
-  [[nodiscard]]
-  auto is_dirty() const noexcept -> bool;
-
-  auto set_dirty(bool) noexcept -> void;
 
   struct UpdateContext final {
     SecondsF32 deltaTime;
@@ -29,6 +30,7 @@ public:
   auto update(UpdateContext const&) -> void;
 
 private:
+  std::unique_ptr<Canvas> mCanvas;
   DearImGuiPtr mDearImGui;
 };
 
