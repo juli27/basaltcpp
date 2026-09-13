@@ -11,6 +11,7 @@
 #include <filesystem>
 #include <fstream>
 #include <optional>
+#include <string>
 #include <string_view>
 
 using namespace basalt;
@@ -20,20 +21,35 @@ namespace {
 
 auto parse_canvas_mode(toml::node_view<toml::node const> const node)
   -> std::optional<CanvasMode> {
-  auto const value = node.value<u8>();
+  auto const value = node.value<std::string>();
   if (!value) {
     return std::nullopt;
   }
 
-  if (*value >= CANVAS_MODE_COUNT) {
-    return std::nullopt;
+  if (*value == "Windowed"sv) {
+    return CanvasMode::Windowed;
+  }
+  if (*value == "Fullscreen"sv) {
+    return CanvasMode::Fullscreen;
+  }
+  if (*value == "FullscreenExclusive"sv) {
+    return CanvasMode::FullscreenExclusive;
   }
 
-  return CanvasMode{*value};
+  return std::nullopt;
 }
 
-auto to_toml(CanvasMode const canvasMode) -> u8 {
-  return enum_cast(canvasMode);
+auto to_toml(CanvasMode const canvasMode) -> std::string_view {
+  switch (canvasMode) {
+  case CanvasMode::Windowed:
+    return "Windowed"sv;
+  case CanvasMode::Fullscreen:
+    return "Fullscreen"sv;
+  case CanvasMode::FullscreenExclusive:
+    return "FullscreenExclusive"sv;
+  }
+
+  BASALT_CRASH("unhandled CanvasMode value");
 }
 
 auto parse_multi_sample_count(toml::node_view<toml::node const> const node)
@@ -43,15 +59,16 @@ auto parse_multi_sample_count(toml::node_view<toml::node const> const node)
     return std::nullopt;
   }
 
-  if (*value >= gfx::MULTI_SAMPLE_COUNT_COUNT) {
+  auto const enumValue = static_cast<u8>(*value - 1);
+  if (enumValue >= gfx::MULTI_SAMPLE_COUNT_COUNT) {
     return std::nullopt;
   }
 
-  return gfx::MultiSampleCount{*value};
+  return gfx::MultiSampleCount{enumValue};
 }
 
 auto to_toml(gfx::MultiSampleCount const multiSampleCount) -> u8 {
-  return enum_cast(multiSampleCount);
+  return enum_cast(multiSampleCount) + 1;
 }
 
 auto parse_display_mode(toml::node_view<toml::node const> const node)
