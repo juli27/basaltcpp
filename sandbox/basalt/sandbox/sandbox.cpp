@@ -107,6 +107,15 @@ SandboxView::SandboxView(Engine& engine, Settings settings)
 
 auto SandboxView::on_update(UpdateContext& ctx) -> void {
   auto& engine = ctx.engine;
+  auto& canvas = ctx.canvas;
+
+  auto const toggleFullscreen = [&] {
+    if (canvas.mode() != CanvasMode::Fullscreen) {
+      canvas.set_next_mode(CanvasMode::Fullscreen);
+    } else {
+      canvas.set_next_mode(CanvasMode::Windowed);
+    }
+  };
 
   // https://github.com/ocornut/imgui/issues/331
   enum class OpenPopup : u8 { None, GfxInfo };
@@ -145,23 +154,18 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
     }
 
     if (ImGui::BeginMenu("View")) {
-      auto& canvas = ctx.canvas;
-
       auto const currentMode = canvas.mode();
-      if (ImGui::MenuItem("Windowed", nullptr,
-                          currentMode == CanvasMode::Windowed,
-                          currentMode != CanvasMode::Windowed)) {
-        canvas.set_next_mode(CanvasMode::Windowed);
+      if (ImGui::MenuItem("Fullscreen", "F11",
+                          currentMode == CanvasMode::Fullscreen)) {
+        toggleFullscreen();
       }
-      if (ImGui::MenuItem("Fullscreen", nullptr,
-                          currentMode == CanvasMode::Fullscreen,
-                          currentMode != CanvasMode::Fullscreen)) {
-        canvas.set_next_mode(CanvasMode::Fullscreen);
-      }
-      if (ImGui::MenuItem("Fullscreen (Exclusive)", nullptr,
-                          currentMode == CanvasMode::FullscreenExclusive,
-                          currentMode != CanvasMode::FullscreenExclusive)) {
-        canvas.set_next_mode(CanvasMode::FullscreenExclusive);
+      if (ImGui::MenuItem("Exclusive fullscreen", nullptr,
+                          currentMode == CanvasMode::FullscreenExclusive)) {
+        if (currentMode != CanvasMode::FullscreenExclusive) {
+          canvas.set_next_mode(CanvasMode::FullscreenExclusive);
+        } else {
+          canvas.set_next_mode(CanvasMode::Windowed);
+        }
       }
 
       ImGui::Separator();
@@ -170,11 +174,6 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
         shouldOpenPopup = OpenPopup::GfxInfo;
       }
 
-      ImGui::MenuItem("Performance Overlay", nullptr, &mShowOverlay);
-      ImGui::MenuItem("Settings", nullptr, &mShowSettingsEditor);
-
-      ImGui::Separator();
-
       if (ImGui::MenuItem("Inspect this frame...")) {
         engine.gfx_context().capture_this_frame(
           [this](std::vector<gfx::CommandList> cmdLists) {
@@ -182,6 +181,11 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
             mShowGfxCmdListInspector = true;
           });
       }
+
+      ImGui::Separator();
+
+      ImGui::MenuItem("Performance Overlay", nullptr, &mShowOverlay);
+      ImGui::MenuItem("Settings", nullptr, &mShowSettingsEditor);
 
       ImGui::EndMenu();
     }
@@ -238,6 +242,10 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
   }
   if (mShowAbout) {
     ImGui::ShowAboutWindow(&mShowAbout);
+  }
+
+  if (ImGui::Shortcut(ImGuiKey_F11, ImGuiInputFlags_RouteGlobal)) {
+    toggleFullscreen();
   }
 
   if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_R,

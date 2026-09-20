@@ -53,12 +53,32 @@ auto SettingsUi::settings_editor(Settings& settings, gfx::Info const& gfxInfo)
     ImGui::PushItemWidth(-FLT_MIN);
     canvas_mode_combo("##CanvasMode", settings.canvasMode);
 
+    ImGui::BeginDisabled(settings.canvasMode !=
+                         CanvasMode::FullscreenExclusive);
+
     ImGui::TableNextColumn();
     ImGui::TextUnformatted("Adapter");
     ImGui::TableNextColumn();
     adapter_combo("##adapter", settings.adapter, gfxInfo);
 
     auto const& adapterInfo = gfxInfo.adapterInfos[settings.adapter];
+
+    ImGui::TableNextColumn();
+    ImGui::TextUnformatted("Display mode");
+
+    auto const& displayModes = [&] {
+      for (auto const& mode : adapterInfo.exclusiveModes) {
+        if (mode.displayFormat == gfx::ImageFormat::B8G8R8X8) {
+          return mode.displayModes;
+        }
+      }
+
+      return gfx::DisplayModes{};
+    }();
+    ImGui::TableNextColumn();
+    display_mode_combo("##DisplayMode", settings.displayMode, displayModes);
+
+    ImGui::EndDisabled();
 
     ImGui::TableNextColumn();
     ImGui::TextUnformatted("Multi-sample count");
@@ -82,21 +102,6 @@ auto SettingsUi::settings_editor(Settings& settings, gfx::Info const& gfxInfo)
     ImGui::TableNextColumn();
     multi_sample_count_combo("##MultiSampleCount", settings.multiSampleCount,
                              availableSampleCounts);
-
-    ImGui::TableNextColumn();
-    ImGui::TextUnformatted("Exclusive fullscreen mode");
-
-    auto const& displayModes = [&] {
-      for (auto const& mode : adapterInfo.exclusiveModes) {
-        if (mode.displayFormat == gfx::ImageFormat::B8G8R8X8) {
-          return mode.displayModes;
-        }
-      }
-
-      return gfx::DisplayModes{};
-    }();
-    ImGui::TableNextColumn();
-    display_mode_combo("##DisplayMode", settings.displayMode, displayModes);
 
     ImGui::EndTable();
   }

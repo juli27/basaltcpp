@@ -8,11 +8,10 @@
 
 namespace basalt {
 
-// SERIALIZED
 enum class CanvasMode : u8 {
-  Windowed = 0,
-  Fullscreen = 1,
-  FullscreenExclusive = 2,
+  Windowed,
+  Fullscreen,
+  FullscreenExclusive,
 };
 inline auto constexpr CANVAS_MODE_COUNT = u8{3};
 

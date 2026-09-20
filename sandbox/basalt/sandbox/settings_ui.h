@@ -11,9 +11,8 @@
 
 class SettingsUi {
 public:
-  // returns true when settings should be saved
   static auto show_settings_editor(Settings&, basalt::gfx::Info const&,
-                                   bool* open) -> void;
+                                   bool* open = nullptr) -> void;
 
   static auto settings_editor(Settings&, basalt::gfx::Info const&) -> void;
 
