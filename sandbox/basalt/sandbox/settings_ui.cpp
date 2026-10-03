@@ -17,8 +17,7 @@ auto to_string(gfx::MultiSampleCount count) -> std::string {
 
 } // namespace
 
-auto SettingsUi::show_settings_editor(Settings& settings,
-                                      gfx::Info const& gfxInfo, bool* open)
+auto SettingsUi::show(Settings& settings, gfx::Info const& gfxInfo, bool* open)
   -> void {
   if (!ImGui::Begin("Settings##Sandbox", open)) {
     ImGui::End();
@@ -27,22 +26,29 @@ auto SettingsUi::show_settings_editor(Settings& settings,
   }
 
   if (ImGui::IsWindowAppearing()) {
-    // TODO: copy settings to a temporary object to allow for canceling changes
+    mEditedSettings = settings;
   }
 
-  settings_editor(settings, gfxInfo);
+  settings_editor(gfxInfo);
 
+  ImGui::BeginDisabled(mEditedSettings == settings);
+  if (ImGui::Button("Revert")) {
+    mEditedSettings = settings;
+  }
+  ImGui::SameLine();
   if (ImGui::Button("Save")) {
+    settings = mEditedSettings;
     settings.to_file(get_settings_file_path());
   }
+  ImGui::EndDisabled();
+
   ImGui::SameLine();
   ImGui::TextUnformatted("Restart to apply changes");
 
   ImGui::End();
 }
 
-auto SettingsUi::settings_editor(Settings& settings, gfx::Info const& gfxInfo)
-  -> void {
+auto SettingsUi::settings_editor(gfx::Info const& gfxInfo) -> void {
   if (ImGui::BeginTable("SettingsTable", 2, ImGuiTableFlags_BordersInnerV)) {
     ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed);
     ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
@@ -51,17 +57,17 @@ auto SettingsUi::settings_editor(Settings& settings, gfx::Info const& gfxInfo)
     ImGui::TextUnformatted("Initial window mode");
     ImGui::TableNextColumn();
     ImGui::PushItemWidth(-FLT_MIN);
-    canvas_mode_combo("##CanvasMode", settings.canvasMode);
+    canvas_mode_combo("##CanvasMode", mEditedSettings.canvasMode);
 
-    ImGui::BeginDisabled(settings.canvasMode !=
+    ImGui::BeginDisabled(mEditedSettings.canvasMode !=
                          CanvasMode::FullscreenExclusive);
 
     ImGui::TableNextColumn();
     ImGui::TextUnformatted("Adapter");
     ImGui::TableNextColumn();
-    adapter_combo("##adapter", settings.adapter, gfxInfo);
+    adapter_combo("##adapter", mEditedSettings.adapter, gfxInfo);
 
-    auto const& adapterInfo = gfxInfo.adapterInfos[settings.adapter];
+    auto const& adapterInfo = gfxInfo.adapterInfos[mEditedSettings.adapter];
 
     ImGui::TableNextColumn();
     ImGui::TextUnformatted("Display mode");
@@ -76,7 +82,8 @@ auto SettingsUi::settings_editor(Settings& settings, gfx::Info const& gfxInfo)
       return gfx::DisplayModes{};
     }();
     ImGui::TableNextColumn();
-    display_mode_combo("##DisplayMode", settings.displayMode, displayModes);
+    display_mode_combo("##DisplayMode", mEditedSettings.displayMode,
+                       displayModes);
 
     ImGui::EndDisabled();
 
@@ -100,7 +107,8 @@ auto SettingsUi::settings_editor(Settings& settings, gfx::Info const& gfxInfo)
       return gfx::MultiSampleCounts{gfx::MultiSampleCount::One};
     }();
     ImGui::TableNextColumn();
-    multi_sample_count_combo("##MultiSampleCount", settings.multiSampleCount,
+    multi_sample_count_combo("##MultiSampleCount",
+                             mEditedSettings.multiSampleCount,
                              availableSampleCounts);
 
     ImGui::EndTable();
@@ -164,16 +172,6 @@ auto SettingsUi::multi_sample_count_combo(
     ImGui::EndCombo();
   }
 }
-
-namespace {
-
-// TODO: move to runtime
-auto operator==(gfx::DisplayMode const& l, gfx::DisplayMode const& r) -> bool {
-  return l.width == r.width && l.height == r.height &&
-         l.refreshRate == r.refreshRate;
-}
-
-} // namespace
 
 auto SettingsUi::display_mode_combo(char const* label,
                                     gfx::DisplayMode& current,

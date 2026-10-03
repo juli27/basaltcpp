@@ -27,3 +27,13 @@ struct Settings {
 
   auto to_file(std::filesystem::path const& filePath) const -> void;
 };
+
+constexpr auto operator==(Settings const& lhs, Settings const& rhs) -> bool {
+  return lhs.canvasMode == rhs.canvasMode && lhs.adapter == rhs.adapter &&
+         lhs.multiSampleCount == rhs.multiSampleCount &&
+         lhs.displayMode == rhs.displayMode;
+}
+
+constexpr auto operator!=(Settings const& lhs, Settings const& rhs) -> bool {
+  return !(lhs == rhs);
+}

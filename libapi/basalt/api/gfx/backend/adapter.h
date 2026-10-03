@@ -26,6 +26,17 @@ struct DisplayMode {
   u32 refreshRate;
 };
 
+constexpr auto operator==(DisplayMode const& lhs, DisplayMode const& rhs)
+  -> bool {
+  return lhs.width == rhs.width && lhs.height == rhs.height &&
+         lhs.refreshRate == rhs.refreshRate;
+}
+
+constexpr auto operator!=(DisplayMode const& lhs, DisplayMode const& rhs)
+  -> bool {
+  return !(lhs == rhs);
+}
+
 using DisplayModes = std::vector<DisplayMode>;
 
 struct AdapterSharedModeInfo {

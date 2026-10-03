@@ -11,10 +11,9 @@
 
 class SettingsUi {
 public:
-  static auto show_settings_editor(Settings&, basalt::gfx::Info const&,
-                                   bool* open = nullptr) -> void;
+  auto show(Settings&, basalt::gfx::Info const&, bool* open = nullptr) -> void;
 
-  static auto settings_editor(Settings&, basalt::gfx::Info const&) -> void;
+  auto settings_editor(basalt::gfx::Info const&) -> void;
 
   static auto canvas_mode_combo(char const* label, basalt::CanvasMode&) -> void;
 
@@ -28,4 +27,7 @@ public:
 
   static auto display_mode_combo(char const* label, basalt::gfx::DisplayMode&,
                                  basalt::gfx::DisplayModes const&) -> void;
+
+private:
+  Settings mEditedSettings;
 };

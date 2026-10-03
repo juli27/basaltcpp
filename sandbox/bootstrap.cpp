@@ -16,12 +16,6 @@ using namespace std::literals;
 
 namespace {
 
-// TODO: move to runtime
-auto operator==(gfx::DisplayMode const& l, gfx::DisplayMode const& r) -> bool {
-  return l.width == r.width && l.height == r.height &&
-         l.refreshRate == r.refreshRate;
-}
-
 auto is_valid(gfx::DisplayMode const& mode, gfx::AdapterInfo const& adapterInfo)
   -> bool {
   auto const& displayModes = [&] {

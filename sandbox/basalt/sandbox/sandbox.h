@@ -1,6 +1,7 @@
 #pragma once
 
 #include "settings.h"
+#include "settings_ui.h"
 
 #include <basalt/api/view.h>
 
@@ -30,6 +31,7 @@ private:
 
   basalt::DebugUi mDebugUi{};
   basalt::gfx::CommandListInspector mGfxCmdListInspector;
+  SettingsUi mSettingsEditor;
   Settings mSettings;
 
   bool mShowGfxCmdListInspector{false};

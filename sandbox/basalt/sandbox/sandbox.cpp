@@ -226,8 +226,7 @@ auto SandboxView::on_update(UpdateContext& ctx) -> void {
   }
 
   if (mShowSettingsEditor) {
-    SettingsUi::show_settings_editor(mSettings, engine.gfx_info(),
-                                     &mShowSettingsEditor);
+    mSettingsEditor.show(mSettings, engine.gfx_info(), &mShowSettingsEditor);
   }
 
   if (mShowOverlay) {
