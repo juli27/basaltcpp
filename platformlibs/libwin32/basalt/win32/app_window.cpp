@@ -219,9 +219,8 @@ auto Win32AppWindow::create(HMODULE const moduleHandle,
   // allocate window object dynamically to keep its address stable because it is
   // stored as HWND user data
   auto window = std::make_unique<Win32AppWindow>(handle, std::move(gfxFactory));
-
-  window->set_mode(mode);
   window->init_gfx_context(gfxCtxInfo);
+  window->set_mode(mode);
 
   return window;
 }
@@ -267,12 +266,8 @@ auto Win32AppWindow::present() const -> gfx::PresentResult {
 
 auto Win32AppWindow::init_gfx_context(GfxContextCreateInfo const& createInfo)
   -> void {
-  auto const modeInfo =
-    mMode == CanvasMode::FullscreenExclusive
-      ? gfx::SwapChain::ModeInfo{gfx::SwapChain::ExclusiveModeInfo{
-          createInfo.exclusiveDisplayMode.value()}}
-      : gfx::SwapChain::ModeInfo{
-          gfx::SwapChain::SharedModeInfo{client_area_size()}};
+  auto const modeInfo = gfx::SwapChain::ModeInfo{
+    gfx::SwapChain::SharedModeInfo{client_area_size()}};
   auto const swapChainInfo = gfx::SwapChain::Info{
     modeInfo,
     createInfo.colorFormat,
@@ -297,19 +292,16 @@ auto Win32AppWindow::set_mode(CanvasMode const newMode) -> void {
 
   // exclusive ownership of the output monitor needs to be released before
   // window changes can be made
-  // is null when called before init_gfx_context
-  if (mSwapChain) {
-    if (auto info = mSwapChain->get_info(); info.is_exclusive()) {
-      info.modeInfo = gfx::SwapChain::SharedModeInfo{client_area_size()};
-      mSwapChain->reset(info);
+  if (auto info = mSwapChain->get_info(); info.is_exclusive()) {
+    info.modeInfo = gfx::SwapChain::SharedModeInfo{client_area_size()};
+    mSwapChain->reset(info);
 
-      // the d3d9 runtime leaves the window as topmost when exiting exclusive
-      // fullscreen
-      SetWindowPos(handle(), HWND_NOTOPMOST, 0, 0, 0, 0,
-                   SWP_NOSIZE | SWP_NOSIZE | SWP_NOACTIVATE);
+    // the d3d9 runtime leaves the window as topmost when exiting exclusive
+    // fullscreen
+    SetWindowPos(handle(), HWND_NOTOPMOST, 0, 0, 0, 0,
+                 SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
 
-      mMode = CanvasMode::Fullscreen;
-    }
+    mMode = CanvasMode::Fullscreen;
   }
 
   switch (newMode) {
@@ -327,13 +319,10 @@ auto Win32AppWindow::set_mode(CanvasMode const newMode) -> void {
     make_fullscreen();
     mMode = CanvasMode::FullscreenExclusive;
 
-    // is null when called before init_gfx_context
-    if (mSwapChain) {
-      auto swapChainInfo = mSwapChain->get_info();
-      swapChainInfo.modeInfo =
-        gfx::SwapChain::ExclusiveModeInfo{mExclusiveDisplayMode.value()};
-      mSwapChain->reset(swapChainInfo);
-    }
+    auto swapChainInfo = mSwapChain->get_info();
+    swapChainInfo.modeInfo =
+      gfx::SwapChain::ExclusiveModeInfo{mExclusiveDisplayMode.value()};
+    mSwapChain->reset(swapChainInfo);
 
     break;
   }
@@ -434,18 +423,14 @@ auto Win32AppWindow::handle_message(UINT const messageId, WPARAM const wParam,
 }
 
 auto Win32AppWindow::on_size(Size2Du16 const newClientAreaSize) -> void {
-  // mSwapChain is null when this method is called from on_create through
-  // SetWindowPos
-  if (mSwapChain) {
-    auto swapChainInfo = mSwapChain->get_info();
-    if (auto* sharedModeInfo = std::get_if<gfx::SwapChain::SharedModeInfo>(
-          &swapChainInfo.modeInfo)) {
-      auto const currentSize = swapChainInfo.size();
+  auto swapChainInfo = mSwapChain->get_info();
+  if (auto* sharedModeInfo =
+        std::get_if<gfx::SwapChain::SharedModeInfo>(&swapChainInfo.modeInfo)) {
+    auto const currentSize = swapChainInfo.size();
 
-      if (newClientAreaSize != currentSize) {
-        sharedModeInfo->size = newClientAreaSize;
-        mSwapChain->reset(swapChainInfo);
-      }
+    if (newClientAreaSize != currentSize) {
+      sharedModeInfo->size = newClientAreaSize;
+      mSwapChain->reset(swapChainInfo);
     }
   }
 }
