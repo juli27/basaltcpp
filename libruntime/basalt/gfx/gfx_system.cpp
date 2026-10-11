@@ -74,6 +74,13 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
   auto const& entities = scene.entity_registry();
   auto const& ecsCtx = entities.ctx();
   auto const& gfxCtx = ecsCtx.get<Context const>();
+  auto const& drawCtx = ecsCtx.get<View::DrawContext const>();
+
+  auto const cameraEntity = [&] {
+    auto const cameraEntityId = ecsCtx.get<EntityId>(sMainCamera);
+    return CameraEntity{scene.get_handle(cameraEntityId)};
+  }();
+  cameraEntity.get_camera().aspectRatio = drawCtx.viewport.aspect_ratio();
 
   auto needsDepth = false;
   auto needsLights = false;
@@ -122,7 +129,6 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
 
   auto const& env = ecsCtx.get<Environment const>();
 
-  auto const& drawCtx = ecsCtx.get<View::DrawContext const>();
   auto cmdList = FilteringCommandList{};
 
   auto clearAttachments = Attachments{Attachment::RenderTarget};
@@ -140,9 +146,6 @@ auto GfxSystem::on_update(UpdateContext const& ctx) -> void {
     return;
   }
 
-  auto const cameraEntityId = ecsCtx.get<EntityId>(GfxSystem::sMainCamera);
-  auto const cameraEntity = CameraEntity{scene.get_handle(cameraEntityId)};
-  cameraEntity.get_camera().aspectRatio = drawCtx.viewport.aspect_ratio();
   cmdList.set_transform(TransformState::ViewToClip,
                         cameraEntity.view_to_clip());
   cmdList.set_transform(TransformState::WorldToView,
