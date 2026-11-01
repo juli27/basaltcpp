@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Too many items to list
 
 #### external
-- Updated Dear ImGui from v1.72b to v1.92.8
+- Updated Dear ImGui from v1.72b to v1.93.0
 - Updated EnTT from 19ef290 to v3.16.0
 - Updated fmt from v5.3.0 to v12.1.0
 - Updated spdlog from v1.3.1 to v1.17.0
