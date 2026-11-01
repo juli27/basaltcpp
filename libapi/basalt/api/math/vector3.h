@@ -4,6 +4,10 @@
 
 #include <basalt/api/base/types.h>
 
+#include <cstddef>
+#include <type_traits>
+#include <utility>
+
 namespace basalt {
 
 class Vector3f32 : public detail::Vector<Vector3f32, f32, 3> {
@@ -41,15 +45,16 @@ public:
     : Vector{x, y, z} {
   }
 
-  static auto normalized(f32 x, f32 y, f32 z) -> Vector3f32;
-  using Vector::normalized;
-
   static constexpr auto cross(Vector3f32 const& l, Vector3f32 const& r)
     -> Vector3f32 {
+    return l.cross(r);
+  }
+
+  constexpr auto cross(Vector3f32 const& r) const -> Vector3f32 {
     return Vector3f32{
-      l.y() * r.z() - l.z() * r.y(),
-      l.z() * r.x() - l.x() * r.z(),
-      l.x() * r.y() - l.y() * r.x(),
+      y() * r.z() - z() * r.y(),
+      z() * r.x() - x() * r.z(),
+      x() * r.y() - y() * r.x(),
     };
   }
 
@@ -79,3 +84,13 @@ public:
 };
 
 } // namespace basalt
+
+template <>
+struct std::tuple_size<basalt::Vector3f32>
+  : std::integral_constant<std::size_t, 3> {};
+
+template <std::size_t Idx>
+struct std::tuple_element<Idx, basalt::Vector3f32> {
+  static_assert(Idx < 3, "vector index out of bounds");
+  using type = basalt::f32;
+};

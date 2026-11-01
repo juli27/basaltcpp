@@ -44,8 +44,8 @@ auto Samples::new_d3dx_x_mesh_sample(Engine& engine) -> ViewPtr {
 
   auto const camera =
     scene->create_entity("Camera"s, Vector3f32{0.0f, 3.0f, -5.0f});
-  camera.emplace<gfx::Camera>(Vector3f32::zero(), Vector3f32::up(), 45_deg,
-                              1.0f, 100.0f);
+  camera.emplace<gfx::Camera>(Vector3f32{}, Vector3f32::up(), 45_deg, 1.0f,
+                              100.0f);
 
   auto gfxCache = engine.create_gfx_resource_cache();
 

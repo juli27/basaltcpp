@@ -13,15 +13,20 @@ class Vector {
 public:
   static auto constexpr DIMENSION = Dimension;
 
-  static constexpr auto zero() -> Derived {
-    return Derived{};
+  auto angle_to(Derived const&) const -> Angle;
+
+  auto distance_to(Derived const&) const -> T;
+
+  template <typename... Components>
+  static auto normalized(Components... components) -> Derived {
+    static_assert(sizeof...(Components) == DIMENSION);
+    return normalized(Derived{components...});
   }
 
   static auto normalized(Derived nonZeroVec) -> Derived;
+
   auto normalize() -> Derived&;
 
-  auto angle_to(Derived const&) const -> Angle;
-  auto distance_to(Derived const&) const -> T;
   auto length() const -> T;
 
   constexpr auto length_squared() const -> T {
@@ -37,16 +42,9 @@ public:
     return dotProduct;
   }
 
-  constexpr auto mul(T const& scalar) -> Derived& {
-    for (auto& component : mComponents) {
-      component *= scalar;
-    }
-
-    return self();
-  }
-
-  constexpr auto operator*=(T const& scalar) -> Derived& {
-    return mul(scalar);
+  friend constexpr auto operator*(T const& scalar, Derived const& v)
+    -> Derived {
+    return v * scalar;
   }
 
   friend constexpr auto operator*(Derived v, T const& scalar) -> Derived {
@@ -54,9 +52,48 @@ public:
     return v;
   }
 
-  friend constexpr auto operator*(T const& scalar, Derived const& v)
-    -> Derived {
-    return v * scalar;
+  friend constexpr auto operator/(Derived v, T const& scalar) -> Derived {
+    v /= scalar;
+    return v;
+  }
+
+  friend constexpr auto operator+(Derived l, Derived const& r) -> Derived {
+    l += r;
+    return l;
+  }
+
+  friend constexpr auto operator-(Derived l, Derived const& r) -> Derived {
+    l -= r;
+    return l;
+  }
+
+  friend constexpr auto operator-(Derived v) -> Derived {
+    v.negate();
+    return v;
+  }
+
+  constexpr auto operator*=(T const& scalar) -> Derived& {
+    return mul(scalar);
+  }
+
+  constexpr auto operator/=(T const& scalar) -> Derived& {
+    return div(scalar);
+  }
+
+  constexpr auto operator+=(Derived const& r) -> Derived& {
+    return add(r);
+  }
+
+  constexpr auto operator-=(Derived const& r) -> Derived& {
+    return sub(r);
+  }
+
+  constexpr auto mul(T const& scalar) -> Derived& {
+    for (auto& component : mComponents) {
+      component *= scalar;
+    }
+
+    return self();
   }
 
   constexpr auto div(T const& scalar) -> Derived& {
@@ -67,30 +104,12 @@ public:
     return self();
   }
 
-  constexpr auto operator/=(T const& scalar) -> Derived& {
-    return div(scalar);
-  }
-
-  friend constexpr auto operator/(Derived v, T const& scalar) -> Derived {
-    v /= scalar;
-    return v;
-  }
-
   constexpr auto add(Derived const& r) -> Derived& {
     for (auto i = uSize{0}; i < DIMENSION; ++i) {
       mComponents[i] += r.mComponents[i];
     }
 
     return self();
-  }
-
-  constexpr auto operator+=(Derived const& r) -> Derived& {
-    return add(r);
-  }
-
-  friend constexpr auto operator+(Derived l, Derived const& r) -> Derived {
-    l += r;
-    return l;
   }
 
   constexpr auto sub(Derived const& r) -> Derived& {
@@ -101,26 +120,12 @@ public:
     return self();
   }
 
-  constexpr auto operator-=(Derived const& r) -> Derived& {
-    return sub(r);
-  }
-
-  friend constexpr auto operator-(Derived l, Derived const& r) -> Derived {
-    l -= r;
-    return l;
-  }
-
   constexpr auto negate() -> Derived& {
     for (auto& component : mComponents) {
       component = -component;
     }
 
     return self();
-  }
-
-  friend constexpr auto operator-(Derived v) -> Derived {
-    v.negate();
-    return v;
   }
 
   friend constexpr auto operator==(Derived const& lhs, Derived const& rhs)
@@ -135,13 +140,13 @@ public:
 
   template <uSize Idx>
   constexpr auto get() const -> T const& {
-    static_assert(Idx < DIMENSION, "Vector index out of bounds");
+    static_assert(Idx < DIMENSION, "vector index out of bounds");
     return mComponents[Idx];
   }
 
   template <uSize Idx>
   constexpr auto get() -> T& {
-    static_assert(Idx < DIMENSION, "Vector index out of bounds");
+    static_assert(Idx < DIMENSION, "vector index out of bounds");
     return mComponents[Idx];
   }
 

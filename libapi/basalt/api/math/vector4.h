@@ -4,6 +4,10 @@
 
 #include <basalt/api/base/types.h>
 
+#include <cstddef>
+#include <type_traits>
+#include <utility>
+
 namespace basalt {
 
 class Vector4f32 : public detail::Vector<Vector4f32, f32, 4> {
@@ -16,9 +20,6 @@ public:
   constexpr Vector4f32(f32 const x, f32 const y, f32 const z, f32 const w)
     : Vector{x, y, z, w} {
   }
-
-  static auto normalized(f32 x, f32 y, f32 z, f32 w) -> Vector4f32;
-  using Vector::normalized;
 
   constexpr auto x() const -> f32 const& {
     return get<0>();
@@ -54,3 +55,13 @@ public:
 };
 
 } // namespace basalt
+
+template <>
+struct std::tuple_size<basalt::Vector4f32>
+  : std::integral_constant<std::size_t, 4> {};
+
+template <std::size_t Idx>
+struct std::tuple_element<Idx, basalt::Vector4f32> {
+  static_assert(Idx < 4, "vector index out of bounds");
+  using type = basalt::f32;
+};

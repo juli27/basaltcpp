@@ -240,8 +240,8 @@ auto Samples::new_lighting_sample(Engine& engine) -> ViewPtr {
 
   auto const camera =
     scene->create_entity("Camera"s, Vector3f32{5.0f, 7.5f, -15.0f});
-  camera.emplace<gfx::Camera>(Vector3f32::zero(), Vector3f32::up(), 90_deg,
-                              0.1f, 500.0f);
+  camera.emplace<gfx::Camera>(Vector3f32{}, Vector3f32::up(), 90_deg, 0.1f,
+                              500.0f);
 
   return DebugSceneView::create(std::move(scene), std::move(gfxCache),
                                 camera.entity());

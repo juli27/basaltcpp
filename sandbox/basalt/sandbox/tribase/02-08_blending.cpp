@@ -228,7 +228,7 @@ auto Blending::on_update(UpdateContext& ctx) -> void {
 
   for (auto i = uSize{0}; i < planets.size(); ++i) {
     planets[i].type = static_cast<u8>(i);
-    planets[i].distanceToCamera = (planets[i].position - cameraPos).length();
+    planets[i].distanceToCamera = planets[i].position.distance_to(cameraPos);
   }
 
   // sort the transparent planets from back to front

@@ -84,8 +84,8 @@ auto Matrix4x4f32::look_at_lh(Vector3f32 const& position,
                               Vector3f32 const& lookAt, Vector3f32 const& up)
   -> Matrix4x4f32 {
   auto const zAxis = Vector3f32::normalized(lookAt - position);
-  auto const xAxis = Vector3f32::normalized(Vector3f32::cross(up, zAxis));
-  auto const yAxis = Vector3f32::normalized(Vector3f32::cross(zAxis, xAxis));
+  auto const xAxis = Vector3f32::normalized(up.cross(zAxis));
+  auto const yAxis = Vector3f32::normalized(zAxis.cross(xAxis));
 
   return translation(-position) *
          Matrix4x4f32{xAxis.x(), yAxis.x(), zAxis.x(), 0.0f,

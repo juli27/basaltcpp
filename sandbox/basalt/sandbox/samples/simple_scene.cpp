@@ -279,8 +279,8 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
   auto& gfxEnv = sceneCtx.emplace<gfx::Environment>();
   gfxEnv.set_background(Color::from_non_linear_rgba8(32, 32, 32));
   gfxEnv.set_ambient_light(Color::from(0x00202020_a8r8g8b8));
-  gfxEnv.add_directional_light(Vector3f32::normalized(1, 1, 0), Colors::WHITE,
-                               {}, {});
+  gfxEnv.add_directional_light(Vector3f32::normalized(1.0f, 1.0f, 0.0f),
+                               Colors::WHITE, {}, {});
 
   auto const cylinder = scene->create_entity("Cylinder"s);
   // 1/500 rad/ms = 2 rad/s
@@ -289,8 +289,8 @@ auto Samples::new_simple_scene_sample(Engine& engine) -> ViewPtr {
 
   auto const camera =
     scene->create_entity("Camera"s, Vector3f32{0.0f, 3.0f, -5.0f});
-  camera.emplace<gfx::Camera>(Vector3f32::zero(), Vector3f32::up(), 45_deg,
-                              1.0f, 100.0f);
+  camera.emplace<gfx::Camera>(Vector3f32{}, Vector3f32::up(), 45_deg, 1.0f,
+                              100.0f);
 
   auto sceneView = DebugSceneView::create(std::move(scene), std::move(gfxCache),
                                           camera.entity());
