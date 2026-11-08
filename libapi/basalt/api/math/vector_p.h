@@ -15,6 +15,18 @@ public:
 
   auto angle_to(Derived const&) const -> Angle;
 
+  struct Decomposition {
+    Derived parallel;
+    Derived perpendicular;
+  };
+
+  auto decompose_onto(Derived const& normal) -> Decomposition {
+    auto const parallel = dot(normal) * normal;
+    auto const perpendicular = *this - parallel;
+
+    return Decomposition{parallel, perpendicular};
+  }
+
   auto distance_to(Derived const&) const -> T;
 
   template <typename... Components>
